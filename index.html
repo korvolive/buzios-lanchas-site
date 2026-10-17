@@ -278,7 +278,7 @@ const minPrice = b => { const all=Object.values(b.prices).filter(v=>v!=null); re
 const waLink = name => `https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Vi no site Búzios Lanchas e quero saber sobre a ${name}.`)}`;
 const boatSVG = `<svg viewBox="0 0 200 90" aria-hidden="true"><path d="M8 58h184l-22 24H34z" fill="currentColor"/><path d="M52 58l16-22h70l18 22z" fill="currentColor" opacity=".55"/><rect x="80" y="40" width="40" height="8" rx="2" fill="currentColor" opacity=".35"/><path d="M0 86c20-6 40 6 60 0s40 6 60 0 40 6 60 0 20 4 20 4" stroke="currentColor" stroke-width="2" fill="none" opacity=".5"/></svg>`;
 const ph = (note) => `<div class="ph">${boatSVG}<span class="note">${note}</span></div>`;
-const specs = b => `<div class="specs"><div><b>${b.feet??"—"}</b>pés</div><div><b>${b.capacity}</b>pessoas</div><div><b>${b.included.length}</b>itens inclusos</div></div>`;
+const specs = b => `<div class="specs"><div><b>${b.feet??"—"}</b>pés</div><div><b>${b.capacity}</b>pessoas</div></div>`;
 
 document.getElementById("hdr-wa").href = waLink("frota");
 
