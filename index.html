@@ -444,7 +444,7 @@ function boatPage(b){
         <p class="from">Passeio de 4 horas · a partir de <strong>${mp?brl(mp):"Sob consulta"}</strong></p>
         <div class="tbl-wrap"><table>
           <thead><tr><th>Temporada</th><th>4 horas</th></tr></thead>
-          <tbody>${SEASONS.map(s=>`<tr><td class="season"><span class="dot" style="background:${s.color}"></span>${s.label.replace(" temporada","")}<small>${s.months}</small></td><td>${b.prices[s.key]==null?"Sob consulta":brl(b.prices[s.key])}</td></tr>`).join("")}</tbody>
+          <tbody>${SEASONS.map(s=>`<tr><td class="season"><span class="dot" style="background:${s.color}"></span>${s.label.replace(" temporada","")}<small>${s.months}</small></td><td>${b.prices[s.key]==null?"Sob consulta":brl(b.prices[s.key])}</td></tr>`).join("")}<tr><td class="season"><span class="dot" style="background:#8a9aa3"></span>Feriados<small>valores especiais</small></td><td>A consultar</td></tr></tbody>
         </table></div>
         <div class="long">
           <span class="long-tag">Dia completo</span>
