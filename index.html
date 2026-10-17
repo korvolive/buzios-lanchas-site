@@ -171,6 +171,8 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 
 footer{background:var(--sea-deep);color:#cfe3e9}
 footer .wrap{padding-block:40px;display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;font-size:14px}
+footer .legal{padding-block:16px 24px;border-top:1px solid rgba(207,227,233,.15);font:400 13px/1.5 var(--mono);letter-spacing:.02em}
+footer .legal p{margin:0;opacity:.7}
 footer h3{font-size:18px;color:#fff;margin-bottom:6px}
 footer p{margin:0;opacity:.8}
 
@@ -198,6 +200,9 @@ footer p{margin:0;opacity:.8}
     <div><h3>Búzios Lanchas</h3><p>Passeios privativos de lancha em Armação dos Búzios, RJ.</p></div>
     <div><h3>Reservas</h3><p>WhatsApp (21) 99927-2550</p></div>
     <div><h3>Siga</h3><p>@missbardotbuzios</p></div>
+  </div>
+  <div class="wrap legal">
+    <p>© <span id="ano">2026</span> Búzios Lanchas · CNPJ 32.154.099/0001-72 · Armação dos Búzios, RJ</p>
   </div>
 </footer>
 
@@ -281,6 +286,7 @@ const ph = (note) => `<div class="ph">${boatSVG}<span class="note">${note}</span
 const specs = b => `<div class="specs"><div><b>${b.feet??"—"}</b>pés</div><div><b>${b.capacity}</b>pessoas</div></div>`;
 
 document.getElementById("hdr-wa").href = waLink("frota");
+document.getElementById("ano").textContent = new Date().getFullYear();
 
 /* ============ vitrine ============ */
 let filter = "todas";
