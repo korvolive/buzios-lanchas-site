@@ -229,8 +229,7 @@ const BOATS = [
     tagline:"Totalmente reformada, climatizada e com som premium. Ideal para família, amigos e comemorações.",
     description:"A Miss Bardot é o cenário perfeito para viver o melhor de Búzios: passeio romântico, momento em família ou um dia entre amigos. São 35 pés com ambientes climatizados, cabine com cama de casal e TV, banheiro, cozinha com air fryer e churrasqueira. Passeios de dia, pôr do sol ou noturnos.",
     included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Churrasqueira","Serviço de churrasqueiro","Cooler","Gerador de energia","Air fryer","Cabine com cama de casal","TV na cabine","Som Hertz Marine","Máscaras de mergulho","Coletes para todos"],
-    prices:{ "4h":{baixa:null,media:null,alta:null}, "7h":{baixa:null,media:null,alta:null} },
-    priceNote:"Valores a definir"
+    prices:{baixa:2000, media:2500, alta:3000} /* valor "a partir de" de cada temporada */
   },
   {
     slug:"exemplo-26-pes", name:"Lancha 26 pés", featured:false, example:true,
@@ -238,7 +237,7 @@ const BOATS = [
     tagline:"Opção compacta para grupos pequenos e casais.",
     description:"Cadastro de exemplo para mostrar como fica uma lancha menor no catálogo. Troque fotos, textos e valores quando tiver a lancha parceira.",
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Som Bluetooth","Coletes para todos"],
-    prices:{ "4h":{baixa:1400,media:1700,alta:2100}, "7h":{baixa:2200,media:2600,alta:3200} }
+    prices:{baixa:1400, media:1700, alta:2100}
   },
   {
     slug:"midas", name:"Midas", featured:false, example:false,
@@ -253,14 +252,14 @@ const BOATS = [
     tagline:"Lancha de 32 pés para grupos de até 12 pessoas, com piscina inflável e banheiro.",
     description:"A Midas é uma lancha de 32 pés para até 12 pessoas, ótima para grupos médios curtirem as praias de Búzios com conforto. Tem banheiro a bordo e piscina inflável para aproveitar o mar.",
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Piscina inflável","Banheiro"],
-    prices:{ "4h":{baixa:null,media:null,alta:null}, "7h":{baixa:null,media:null,alta:null} },
+    prices:{baixa:null, media:null, alta:null}, /* valor "a partir de" de cada temporada, ex.: 2500 */
     priceNote:"Valores a definir"
   }
 ];
 
 /* ============ helpers ============ */
 const brl = v => v==null ? "—" : v.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
-const minPrice = b => { const all=Object.values(b.prices).flatMap(o=>Object.values(o)).filter(v=>v!=null); return all.length?Math.min(...all):null; };
+const minPrice = b => { const all=Object.values(b.prices).filter(v=>v!=null); return all.length?Math.min(...all):null; };
 const waLink = name => `https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Vi no site Búzios Lanchas e quero saber sobre a ${name}.`)}`;
 const boatSVG = `<svg viewBox="0 0 200 90" aria-hidden="true"><path d="M8 58h184l-22 24H34z" fill="currentColor"/><path d="M52 58l16-22h70l18 22z" fill="currentColor" opacity=".55"/><rect x="80" y="40" width="40" height="8" rx="2" fill="currentColor" opacity=".35"/><path d="M0 86c20-6 40 6 60 0s40 6 60 0 40 6 60 0 20 4 20 4" stroke="currentColor" stroke-width="2" fill="none" opacity=".5"/></svg>`;
 const ph = (note) => `<div class="ph">${boatSVG}<span class="note">${note}</span></div>`;
@@ -353,7 +352,6 @@ function bindGallery(b){
 
 /* ============ página da lancha ============ */
 function boatPage(b){
-  const durations = Object.keys(b.prices);
   const mp = minPrice(b);
   return `
   <div class="wrap">
@@ -367,7 +365,7 @@ function boatPage(b){
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>Pés</span></div>
             <div><b>${b.capacity}</b><span>Pessoas</span></div>
-            <div><b>${durations.join(" / ")}</b><span>Passeios</span></div>
+            <div><b>Privativo</b><span>Passeio</span></div>
           </div>
         </div>
         <div class="block"><h2>Incluso no passeio</h2><ul class="included">${b.included.map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${i}</li>`:`<li>${i}</li>`).join("")}</ul></div>
@@ -382,14 +380,13 @@ function boatPage(b){
         <h2>Valores</h2>
         <p class="from">a partir de <strong>${mp?brl(mp):"Sob consulta"}</strong></p>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Temporada</th>${durations.map(d=>`<th>${d}</th>`).join("")}</tr></thead>
-          <tbody>${SEASONS.map(s=>`<tr><td class="season"><span class="dot" style="background:${s.color}"></span>${s.label.replace(" temporada","")}<small>${s.months}</small></td>${durations.map(d=>`<td>${brl(b.prices[d][s.key])}</td>`).join("")}</tr>`).join("")}</tbody>
+          <thead><tr><th>Temporada</th><th>A partir de</th></tr></thead>
+          <tbody>${SEASONS.map(s=>`<tr><td class="season"><span class="dot" style="background:${s.color}"></span>${s.label.replace(" temporada","")}<small>${s.months}</small></td><td>${b.prices[s.key]==null?"Sob consulta":brl(b.prices[s.key])}</td></tr>`).join("")}</tbody>
         </table></div>
-        ${b.priceNote?`<div class="example-banner">${b.priceNote}: preencha a tabela com os preços reais.</div>`:""}
-        ${b.example?`<div class="example-banner">Valores de exemplo, não são preços reais.</div>`:""}
+                ${b.example?`<div class="example-banner">Valores de exemplo, não são preços reais.</div>`:""}
         <a class="btn" href="${waLink(b.name)}" target="_blank" rel="noopener">Consultar data no WhatsApp</a>
         <div class="phone"><span id="ph-num">(21) 99927-2550</span><button type="button" id="copy">Copiar</button></div>
-        <p class="fine">Valor por passeio, não por pessoa. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.</p>
+        <p class="fine">Valores a partir de, por passeio (não por pessoa). Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.</p>
       </aside>
     </div>
   </div>`;
