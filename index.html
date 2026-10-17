@@ -288,7 +288,7 @@ let sortDir = "asc";
 function home(){
   const dir = filter==="todas" ? -1 : (sortDir==="asc"?1:-1);
   const sorted = [...BOATS].sort((a,b)=>dir*((a.capacity-b.capacity)||((a.feet||0)-(b.feet||0))));
-  const MIN = {todas:1, ate8:1, ate10:9, mais10:11}; /* capacidade mínima da lancha para cada tamanho de grupo */
+  const MIN = {todas:1, ate8:1, ate12:9, mais10:11}; /* capacidade mínima da lancha para cada tamanho de grupo */
   const list = sorted.filter(b=> b.capacity>=MIN[filter]);
   return `
   <section class="hero" id="inicio">
@@ -306,7 +306,7 @@ function home(){
     <div class="section-head">
       <div><span class="eyebrow">Nossa frota</span><h2>Escolha pelo tamanho do grupo</h2></div>
       <div class="filters" role="group" aria-label="Filtrar por capacidade">
-        ${[["todas","Todas"],["ate8","Até 8 pessoas"],["ate10","Até 10 pessoas"],["mais10","Acima de 10 pessoas"]].map(([k,l])=>`<button type="button" data-f="${k}" aria-pressed="${filter===k}">${l}</button>`).join("")}
+        ${[["todas","Todas"],["ate8","Até 8 pessoas"],["ate12","Até 12 pessoas"],["mais10","Acima de 10 pessoas"]].map(([k,l])=>`<button type="button" data-f="${k}" aria-pressed="${filter===k}">${l}</button>`).join("")}
         ${filter==="todas"?"":`<button type="button" id="sort" class="sort" aria-label="Inverter ordem">${sortDir==="asc"?"Menor → maior ↑":"Maior → menor ↓"}</button>`}
       </div>
     </div>
