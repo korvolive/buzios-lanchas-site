@@ -157,6 +157,12 @@ thead th{font:500 11px/1.2 var(--mono);letter-spacing:.1em;text-transform:upperc
 td.season{font-weight:600}
 td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.long{margin-top:16px;border:1.5px solid var(--brass);border-radius:12px;padding:14px;background:color-mix(in srgb,var(--brass) 8%,var(--surface))}
+.long-tag{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;background:var(--brass);color:var(--brass-ink);padding:5px 7px;border-radius:5px}
+.long-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:10px}
+.long-head strong{font:700 18px/1.2 var(--display)}
+.long-head span{font-weight:600;color:var(--sea);font-size:15px}
+.long p{margin:6px 0 0;font-size:14px;color:var(--muted)}
 .pricebox .btn{width:100%;justify-content:center;margin-top:18px;padding:16px}
 .pricebox .fine{font-size:13px;color:var(--muted);margin:12px 0 0}
 .phone{font:500 14px/1 var(--mono);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
@@ -229,7 +235,8 @@ const BOATS = [
     tagline:"Totalmente reformada, climatizada e com som premium. Ideal para família, amigos e comemorações.",
     description:"A Miss Bardot é o cenário perfeito para viver o melhor de Búzios: passeio romântico, momento em família ou um dia entre amigos. São 35 pés com ambientes climatizados, cabine com cama de casal e TV, banheiro, cozinha com air fryer e churrasqueira. Passeios de dia, pôr do sol ou noturnos.",
     included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Churrasqueira","Serviço de churrasqueiro","Cooler","Gerador de energia","Air fryer","Cabine com cama de casal","TV na cabine","Som Hertz Marine","Máscaras de mergulho","Coletes para todos"],
-    prices:{baixa:2000, media:2500, alta:3000} /* valor "a partir de" de cada temporada */
+    prices:{baixa:2000, media:2500, alta:3000}, /* passeio de 4h: valor "a partir de" de cada temporada */
+    price7h:null /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
   },
   {
     slug:"exemplo-26-pes", name:"Lancha 26 pés", featured:false, example:true,
@@ -252,8 +259,8 @@ const BOATS = [
     tagline:"Lancha de 32 pés para grupos de até 12 pessoas, com piscina inflável e banheiro.",
     description:"A Midas é uma lancha de 32 pés para até 12 pessoas, ótima para grupos médios curtirem as praias de Búzios com conforto. Tem banheiro a bordo e piscina inflável para aproveitar o mar.",
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Piscina inflável","Banheiro"],
-    prices:{baixa:null, media:null, alta:null}, /* valor "a partir de" de cada temporada, ex.: 2500 */
-    priceNote:"Valores a definir"
+    prices:{baixa:null, media:null, alta:null}, /* passeio de 4h: valor "a partir de" de cada temporada, ex.: 2500 */
+    price7h:null
   }
 ];
 
@@ -305,7 +312,7 @@ function home(){
             <h3>${b.name}</h3>
             <p style="margin:0;color:var(--muted)">${b.tagline}</p>
             ${specs(b)}
-            <div class="price-from"><div><span>a partir de</span><br><strong>${minPrice(b)?brl(minPrice(b)):"Sob consulta"}</strong></div><span class="go">Ver lancha →</span></div>
+            <div class="price-from"><div><span>Passeio de 4h · a partir de</span><br><strong>${minPrice(b)?brl(minPrice(b)):"Sob consulta"}</strong></div><span class="go">Ver lancha →</span></div>
           </div>
         </a>`).join("")}
     </div>
@@ -365,7 +372,7 @@ function boatPage(b){
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>Pés</span></div>
             <div><b>${b.capacity}</b><span>Pessoas</span></div>
-            <div><b>Privativo</b><span>Passeio</span></div>
+            <div><b>4h / 7h</b><span>Passeios</span></div>
           </div>
         </div>
         <div class="block"><h2>Incluso no passeio</h2><ul class="included">${b.included.map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${i}</li>`:`<li>${i}</li>`).join("")}</ul></div>
@@ -378,15 +385,20 @@ function boatPage(b){
       </div>
       <aside class="pricebox" aria-label="Preços">
         <h2>Valores</h2>
-        <p class="from">a partir de <strong>${mp?brl(mp):"Sob consulta"}</strong></p>
+        <p class="from">Passeio de 4 horas · a partir de <strong>${mp?brl(mp):"Sob consulta"}</strong></p>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Temporada</th><th>A partir de</th></tr></thead>
+          <thead><tr><th>Temporada</th><th>4 horas</th></tr></thead>
           <tbody>${SEASONS.map(s=>`<tr><td class="season"><span class="dot" style="background:${s.color}"></span>${s.label.replace(" temporada","")}<small>${s.months}</small></td><td>${b.prices[s.key]==null?"Sob consulta":brl(b.prices[s.key])}</td></tr>`).join("")}</tbody>
         </table></div>
+        <div class="long">
+          <span class="long-tag">Dia completo</span>
+          <div class="long-head"><strong>Passeio de 7 horas</strong><span>${b.price7h?`a partir de ${brl(b.price7h)}`:"Valor sob consulta"}</span></div>
+          <p>Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.</p>
+        </div>
                 ${b.example?`<div class="example-banner">Valores de exemplo, não são preços reais.</div>`:""}
         <a class="btn" href="${waLink(b.name)}" target="_blank" rel="noopener">Consultar data no WhatsApp</a>
         <div class="phone"><span id="ph-num">(21) 99927-2550</span><button type="button" id="copy">Copiar</button></div>
-        <p class="fine">Valores a partir de, por passeio (não por pessoa). Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.</p>
+        <p class="fine">Valores a partir de, por lancha e não por pessoa. A tabela mostra o passeio de 4 horas; o de 7 horas tem valor próprio. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.</p>
       </aside>
     </div>
   </div>`;
