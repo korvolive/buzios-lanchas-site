@@ -290,7 +290,8 @@ function home(){
   const sorted = [...BOATS].sort((a,b)=>dir*((a.capacity-b.capacity)||((a.feet||0)-(b.feet||0))));
   const RANGE = {todas:[1,999], ate8:[1,8], ate12:[9,12], mais12:[13,999]}; /* faixa de capacidade de cada filtro */
   const [lo,hi] = RANGE[filter] || RANGE.todas;
-  const list = sorted.filter(b=> b.capacity>=lo && b.capacity<=hi);
+  /* a lancha destaque (Miss Bardot) aparece em todos os filtros, sempre em primeiro */
+  const list = [...sorted.filter(b=>b.featured), ...sorted.filter(b=> !b.featured && b.capacity>=lo && b.capacity<=hi)];
   return `
   <section class="hero" id="inicio">
     <div class="wrap hero-grid"><div class="hero-text">
