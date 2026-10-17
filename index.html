@@ -474,7 +474,10 @@ function bind(){
   const so=document.getElementById("sort"); if(so) so.onclick=()=>{sortDir=sortDir==="asc"?"desc":"asc"; render(); document.getElementById("frota").scrollIntoView();};
   app.querySelectorAll("[data-f]").forEach(btn=>btn.onclick=()=>{filter=btn.dataset.f; sortDir="asc"; render(); document.getElementById("frota").scrollIntoView();});
   document.querySelectorAll("[data-scroll]").forEach(a=>a.onclick=e=>{
-    const id=a.dataset.scroll; if(!document.getElementById(id)){ location.hash="inicio"; setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),30);} else {e.preventDefault(); document.getElementById(id).scrollIntoView({behavior:"smooth"});}
+    const id=a.dataset.scroll;
+    /* "Ver todas as lanchas" e "Frota" sempre voltam para o filtro Todas */
+    if(id==="frota" && filter!=="todas"){ filter="todas"; sortDir="asc"; if(document.getElementById(id)){ e.preventDefault(); render(); document.getElementById(id).scrollIntoView({behavior:"smooth"}); return; } }
+    if(!document.getElementById(id)){ location.hash="inicio"; setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),30);} else {e.preventDefault(); document.getElementById(id).scrollIntoView({behavior:"smooth"});}
   });
   const c=document.getElementById("copy");
   if(c) c.onclick=()=>{ const t=document.getElementById("ph-num").textContent;
