@@ -239,12 +239,20 @@ const BOATS = [
     price7h:null /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
   },
   {
-    slug:"exemplo-26-pes", name:"Lancha 26 pés", featured:false, example:true,
-    feet:26, capacity:6, crew:"Marinheiro habilitado",
-    tagline:"Opção compacta para grupos pequenos e casais.",
-    description:"Cadastro de exemplo para mostrar como fica uma lancha menor no catálogo. Troque fotos, textos e valores quando tiver a lancha parceira.",
-    included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Som Bluetooth","Coletes para todos"],
-    prices:{baixa:1400, media:1700, alta:2100}
+    slug:"les-zuzu", name:"Les Zuzu", featured:false, example:false,
+    feet:26, capacity:8, crew:"Marinheiro habilitado",
+    video:null,
+    photos:[
+      ["lz-01","A Les Zuzu ancorada em frente à praia","center 62%"],
+      ["lz-02","Casco azul e branco, de lado","center 60%"],
+      ["lz-03","Solário na popa","center 55%"],
+      ["lz-04","Cockpit com toldo e posto de comando","center 50%"]
+    ],
+    tagline:"Lancha de 26 pés para até 8 pessoas, ideal para casais, famílias e grupos pequenos.",
+    description:"A Les Zuzu é uma lancha de 26 pés para até 8 pessoas, perfeita para casais, famílias e grupos pequenos curtirem as praias de Búzios com mais privacidade. Tem toldo para sombra e solário na popa para tomar sol entre um mergulho e outro.",
+    included:["Marinheiro","Combustível","Gelo","Água mineral","Toldo com sombra","Solário na popa","Coletes para todos"],
+    prices:{baixa:null, media:null, alta:null}, /* passeio de 4h: valor "a partir de" de cada temporada */
+    price7h:null
   },
   {
     slug:"midas", name:"Midas", featured:false, example:false,
