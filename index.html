@@ -248,6 +248,11 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-people{display:block}
 .pk-people span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .pk-people select{cursor:pointer}
+.pk-board>span{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.pk-board p{margin:0;font-size:14px;color:var(--muted)}.pk-board p strong{color:var(--ink);font-weight:600}
+.pk-boards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pk-boards button{font:600 13px/1.2 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 6px;cursor:pointer;min-height:42px}
+.pk-boards button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
 .picker .pk-missing,.pk-slots.pk-missing button{border-color:#d9614c;box-shadow:0 0 0 1px #d9614c}
 .pk-hint{color:var(--muted);margin:10px 0 0;font-size:14px}
 .pk-res{margin:10px 0 0;padding:10px;border-radius:8px;background:var(--chip);font-size:14px}
@@ -357,7 +362,7 @@ const BOATS = [
     included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Churrasqueira","Serviço de churrasqueiro","Cooler","Gerador de energia","Air fryer","Cabine com cama de casal","TV na cabine","Som Hertz Marine com Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:2200, media:2500, alta:3000}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
-    boarding:null, /* local de embarque; null = "a combinar" */
+    boarding:{4:["Porto Veleiro (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marinas Búzios"]}, /* local de embarque por duração do passeio (4 ou 7 horas); com mais de um, o cliente escolhe; null = "a combinar" */
     agenda:null /* link da planilha Google de disponibilidade desta lancha; null = sempre disponível (planilhas guardadas para testar no futuro) */
   },
   {
@@ -381,7 +386,7 @@ const BOATS = [
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Toldo com sombra","Solário na popa","Banheiro","Tapete flutuante","Máscaras de mergulho","Som Bluetooth","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:1700, media:2000, alta:2300}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
-    boarding:null, /* local de embarque; null = "a combinar" */
+    boarding:null, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
     agenda:null
   },
   {
@@ -405,7 +410,7 @@ const BOATS = [
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Piscina inflável","Banheiro","Som Bluetooth","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:2000, media:2300, alta:2800}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
-    boarding:null, /* local de embarque; null = "a combinar" */
+    boarding:null, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
     agenda:null
   },
   {
@@ -433,7 +438,7 @@ const BOATS = [
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Banheiro","Tapete flutuante","Som Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:1500, media:1700, alta:1900}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
-    boarding:null, /* local de embarque; null = "a combinar" */
+    boarding:null, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
     agenda:null
   },
   {
@@ -461,7 +466,7 @@ const BOATS = [
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Banheiro","Piscina flutuante","Máscaras de mergulho","Ducha de água doce","Som Bluetooth","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:1900, media:2100, alta:2300}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
-    boarding:null, /* local de embarque; null = "a combinar" */
+    boarding:null, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
     agenda:null
   }
 ];
@@ -588,9 +593,9 @@ const UI = {
     noneInRange:"Ainda não temos lanchas nessa faixa. Chame no WhatsApp que encontramos uma opção para o seu grupo.",
     boatPhoto:"Foto da lancha", featured:"Destaque da casa", example:"Exemplo", from4h:"Passeio de 4h · a partir de", onRequest:"Sob consulta", seeBoat:"Ver lancha →",
     feet:"pés", people:"pessoas",
-    boardingTitle:"Local de embarque", boardingTbd:"A combinar pelo WhatsApp na hora da reserva.", routeEyebrow:"Roteiro", routeTitle:"Passeio de lancha em Búzios: o roteiro", routeText:"Este é o roteiro padrão de todas as lanchas, pelas praias e ilhas mais bonitas de Búzios, passando pela Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia e Tartaruga.", routeFlex:"Você escolhe como aproveitar: fazer o roteiro completo, passar o dia inteiro na sua praia preferida ou fazer um roteiro mais rápido e ficar em uma praia o resto do passeio. É só combinar com a gente.", routeNote:"Mapa ilustrativo, fora de escala. As paradas podem variar conforme o mar e o vento.", routeMapAria:"Mapa do roteiro do passeio de lancha em Búzios",
+    boardingTitle:"Local de embarque", boardingTbd:"A combinar pelo WhatsApp.", boardingPickSlot:"Escolha o horário para ver o local de embarque.", waBoard:" Embarque: {p}.", routeEyebrow:"Roteiro", routeTitle:"Passeio de lancha em Búzios: o roteiro", routeText:"Este é o roteiro padrão de todas as lanchas, pelas praias e ilhas mais bonitas de Búzios, passando pela Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia e Tartaruga.", routeFlex:"Você escolhe como aproveitar: fazer o roteiro completo, passar o dia inteiro na sua praia preferida ou fazer um roteiro mais rápido e ficar em uma praia o resto do passeio. É só combinar com a gente.", routeNote:"Mapa ilustrativo, fora de escala. As paradas podem variar conforme o mar e o vento.", routeMapAria:"Mapa do roteiro do passeio de lancha em Búzios",
     faqEyebrow:"Dúvidas", faqTitle:"Perguntas frequentes",
-    faq:[["Posso levar crianças?", "Sim. Crianças são bem-vindas e há coletes salva-vidas para todos a bordo."], ["Posso levar meu pet?", "Sim, aceitamos pets a bordo."], ["Onde é o embarque?", "O local de embarque é combinado pelo WhatsApp na hora da reserva."], ["O que está incluso no passeio?", "Todas as lanchas vêm com marinheiro, combustível, gelo, carvão, água mineral, cooler, churrasqueira, banheiro, som Bluetooth, ducha de água doce, macarrão flutuante e coletes para todos. Se vocês trouxerem carnes ou peixes, a equipe prepara o churrasco a bordo. Algumas lanchas têm ainda mais conforto, como ar-condicionado, Wi-Fi, piscina ou tapete flutuante e máscaras de mergulho. Na página de cada lancha está a lista completa do que ela oferece."], ["Posso levar comida e bebida?", "Sim. Comidas e bebidas não estão inclusas, então traga as suas. A lancha já tem gelo e cooler."], ["O preço é por pessoa?", "Não. O valor é por lancha, para o grupo todo, até a capacidade de cada lancha."], ["Precisamos fazer o roteiro completo?", "Não. O roteiro é o padrão, mas vocês escolhem como aproveitar: dá para passar o dia todo em uma praia ou fazer um roteiro mais rápido e ficar em uma praia o resto do tempo."], ["Quanto tempo dura o passeio?", "Há o passeio de 4 horas (10h às 14h ou 14h às 18h) e o de 7 horas (10h às 17h). Outros horários podem ser combinados pelo WhatsApp."], ["Como faço a reserva?", "Escolha a lancha, a data, o horário e o número de pessoas e chame no WhatsApp. Um sinal garante a data."], ["E se o mar não estiver para passeio?", "Fique tranquilo: a gente acompanha a previsão e, se o mar não estiver bom para navegar no dia, remarca o passeio para outra data, sem custo."]],
+    faq:[["Posso levar crianças?", "Sim. Crianças são bem-vindas e há coletes salva-vidas para todos a bordo."], ["Posso levar meu pet?", "Sim, aceitamos pets a bordo."], ["Onde é o embarque?", "Depende da lancha e do horário. Na página de cada lancha, o local aparece junto com a data e o horário; quando ainda não estiver definido, a gente combina pelo WhatsApp."], ["O que está incluso no passeio?", "Todas as lanchas vêm com marinheiro, combustível, gelo, carvão, água mineral, cooler, churrasqueira, banheiro, som Bluetooth, ducha de água doce, macarrão flutuante e coletes para todos. Se vocês trouxerem carnes ou peixes, a equipe prepara o churrasco a bordo. Algumas lanchas têm ainda mais conforto, como ar-condicionado, Wi-Fi, piscina ou tapete flutuante e máscaras de mergulho. Na página de cada lancha está a lista completa do que ela oferece."], ["Posso levar comida e bebida?", "Sim. Comidas e bebidas não estão inclusas, então traga as suas. A lancha já tem gelo e cooler."], ["O preço é por pessoa?", "Não. O valor é por lancha, para o grupo todo, até a capacidade de cada lancha."], ["Precisamos fazer o roteiro completo?", "Não. O roteiro é o padrão, mas vocês escolhem como aproveitar: dá para passar o dia todo em uma praia ou fazer um roteiro mais rápido e ficar em uma praia o resto do tempo."], ["Quanto tempo dura o passeio?", "Há o passeio de 4 horas (10h às 14h ou 14h às 18h) e o de 7 horas (10h às 17h). Outros horários podem ser combinados pelo WhatsApp."], ["Como faço a reserva?", "Escolha a lancha, a data, o horário e o número de pessoas e chame no WhatsApp. Um sinal garante a data."], ["E se o mar não estiver para passeio?", "Fique tranquilo: a gente acompanha a previsão e, se o mar não estiver bom para navegar no dia, remarca o passeio para outra data, sem custo."]],
     howEyebrow:"Reserva", howTitle:"Como funciona", step:"Passo",
     how1t:"Escolha a lancha", how1p:"Compare tamanho, capacidade e o que vem incluso.",
     how2t:"Chame no WhatsApp", how2p:"Na página da lancha, escolha a data, o horário e quantas pessoas vão. A mensagem já vai com tudo isso.",
@@ -642,9 +647,9 @@ const UI = {
     noneInRange:"We don't have boats in this range yet. Message us on WhatsApp and we'll find an option for your group.",
     boatPhoto:"Boat photo", featured:"Our flagship", example:"Example", from4h:"4-hour tour · from", onRequest:"On request", seeBoat:"See boat →",
     feet:"ft", people:"people",
-    boardingTitle:"Boarding point", boardingTbd:"To be arranged on WhatsApp when you book.", routeEyebrow:"Route", routeTitle:"Boat tour in Búzios: the route", routeText:"This is the standard route for every boat, along the most beautiful beaches and islands of Búzios, passing Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia and Tartaruga.", routeFlex:"You choose how to enjoy it: do the full route, spend the whole day at your favorite beach, or take a shorter route and stay at one beach for the rest of the tour. Just let us know.", routeNote:"Illustrative map, not to scale. Stops may vary with the sea and wind.", routeMapAria:"Map of the Búzios boat tour route",
+    boardingTitle:"Boarding point", boardingTbd:"To be arranged on WhatsApp.", boardingPickSlot:"Choose a time to see the boarding point.", waBoard:" Boarding: {p}.", routeEyebrow:"Route", routeTitle:"Boat tour in Búzios: the route", routeText:"This is the standard route for every boat, along the most beautiful beaches and islands of Búzios, passing Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia and Tartaruga.", routeFlex:"You choose how to enjoy it: do the full route, spend the whole day at your favorite beach, or take a shorter route and stay at one beach for the rest of the tour. Just let us know.", routeNote:"Illustrative map, not to scale. Stops may vary with the sea and wind.", routeMapAria:"Map of the Búzios boat tour route",
     faqEyebrow:"Questions", faqTitle:"Frequently asked questions",
-    faq:[["Can I bring children?", "Yes. Children are welcome and there are life jackets for everyone on board."], ["Can I bring my pet?", "Yes, pets are welcome on board."], ["Where do we board?", "The boarding point is arranged on WhatsApp when you book."], ["What is included in the tour?", "Every boat comes with a skipper, fuel, ice, charcoal, mineral water, a cooler, a grill, a bathroom, Bluetooth sound, a freshwater shower, pool noodles and life jackets for everyone. If you bring meat or fish, the crew will grill it on board. Some boats offer even more comfort, such as air conditioning, Wi-Fi, a floating pool or mat and snorkeling masks. Each boat's page has the full list of what it offers."], ["Can I bring food and drinks?", "Yes. Food and drinks are not included, so bring your own. The boat already has ice and a cooler."], ["Is the price per person?", "No. The price is per boat, for the whole group, up to each boat's capacity."], ["Do we have to do the full route?", "No. That is the standard route, but you choose how to enjoy it: you can spend the whole day at one beach or take a shorter route and stay at one beach for the rest of the time."], ["How long is the tour?", "There is a 4-hour tour (10am to 2pm or 2pm to 6pm) and a 7-hour tour (10am to 5pm). Other times can be arranged on WhatsApp."], ["How do I book?", "Choose the boat, date, time and number of people and message us on WhatsApp. A deposit secures your date."], ["What if the sea isn't right for a tour?", "Don't worry: we keep an eye on the forecast and, if the sea isn't good for sailing that day, we move your tour to another date at no cost."]],
+    faq:[["Can I bring children?", "Yes. Children are welcome and there are life jackets for everyone on board."], ["Can I bring my pet?", "Yes, pets are welcome on board."], ["Where do we board?", "It depends on the boat and the time. On each boat's page, the boarding point shows up next to the date and time; when it isn't set yet, we arrange it on WhatsApp."], ["What is included in the tour?", "Every boat comes with a skipper, fuel, ice, charcoal, mineral water, a cooler, a grill, a bathroom, Bluetooth sound, a freshwater shower, pool noodles and life jackets for everyone. If you bring meat or fish, the crew will grill it on board. Some boats offer even more comfort, such as air conditioning, Wi-Fi, a floating pool or mat and snorkeling masks. Each boat's page has the full list of what it offers."], ["Can I bring food and drinks?", "Yes. Food and drinks are not included, so bring your own. The boat already has ice and a cooler."], ["Is the price per person?", "No. The price is per boat, for the whole group, up to each boat's capacity."], ["Do we have to do the full route?", "No. That is the standard route, but you choose how to enjoy it: you can spend the whole day at one beach or take a shorter route and stay at one beach for the rest of the time."], ["How long is the tour?", "There is a 4-hour tour (10am to 2pm or 2pm to 6pm) and a 7-hour tour (10am to 5pm). Other times can be arranged on WhatsApp."], ["How do I book?", "Choose the boat, date, time and number of people and message us on WhatsApp. A deposit secures your date."], ["What if the sea isn't right for a tour?", "Don't worry: we keep an eye on the forecast and, if the sea isn't good for sailing that day, we move your tour to another date at no cost."]],
     howEyebrow:"Booking", howTitle:"How it works", step:"Step",
     how1t:"Choose your boat", how1p:"Compare size, capacity and what's included.",
     how2t:"Message us on WhatsApp", how2p:"On the boat's page, pick the date, time and number of people. The message already includes all of it.",
@@ -696,9 +701,9 @@ const UI = {
     noneInRange:"Todavía no tenemos lanchas en este rango. Escríbenos por WhatsApp y encontramos una opción para tu grupo.",
     boatPhoto:"Foto de la lancha", featured:"Destacada de la casa", example:"Ejemplo", from4h:"Paseo de 4 h · desde", onRequest:"A consultar", seeBoat:"Ver lancha →",
     feet:"pies", people:"personas",
-    boardingTitle:"Lugar de embarque", boardingTbd:"A combinar por WhatsApp al hacer la reserva.", routeEyebrow:"Recorrido", routeTitle:"Paseo en lancha en Búzios: el recorrido", routeText:"Este es el recorrido estándar de todas las lanchas, por las playas e islas más lindas de Búzios, pasando por Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia y Tartaruga.", routeFlex:"Tú eliges cómo disfrutarlo: hacer el recorrido completo, pasar el día entero en tu playa favorita o hacer un recorrido más corto y quedarte en una playa el resto del paseo. Solo avísanos.", routeNote:"Mapa ilustrativo, fuera de escala. Las paradas pueden variar según el mar y el viento.", routeMapAria:"Mapa del recorrido del paseo en lancha en Búzios",
+    boardingTitle:"Lugar de embarque", boardingTbd:"A combinar por WhatsApp.", boardingPickSlot:"Elige el horario para ver el lugar de embarque.", waBoard:" Embarque: {p}.", routeEyebrow:"Recorrido", routeTitle:"Paseo en lancha en Búzios: el recorrido", routeText:"Este es el recorrido estándar de todas las lanchas, por las playas e islas más lindas de Búzios, pasando por Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia y Tartaruga.", routeFlex:"Tú eliges cómo disfrutarlo: hacer el recorrido completo, pasar el día entero en tu playa favorita o hacer un recorrido más corto y quedarte en una playa el resto del paseo. Solo avísanos.", routeNote:"Mapa ilustrativo, fuera de escala. Las paradas pueden variar según el mar y el viento.", routeMapAria:"Mapa del recorrido del paseo en lancha en Búzios",
     faqEyebrow:"Dudas", faqTitle:"Preguntas frecuentes",
-    faq:[["¿Puedo llevar niños?", "Sí. Los niños son bienvenidos y hay chalecos salvavidas para todos a bordo."], ["¿Puedo llevar mi mascota?", "Sí, aceptamos mascotas a bordo."], ["¿Dónde es el embarque?", "El lugar de embarque se combina por WhatsApp al hacer la reserva."], ["¿Qué incluye el paseo?", "Todas las lanchas incluyen marinero, combustible, hielo, carbón, agua mineral, hielera, parrilla, baño, música por Bluetooth, ducha de agua dulce, fideos flotantes y chalecos para todos. Si traen carnes o pescados, la tripulación prepara el asado a bordo. Algunas lanchas tienen aún más comodidades, como aire acondicionado, wifi, piscina o alfombra flotante y máscaras de buceo. En la página de cada lancha está la lista completa de lo que ofrece."], ["¿Puedo llevar comida y bebida?", "Sí. Las comidas y bebidas no están incluidas, así que trae las tuyas. La lancha ya tiene hielo y hielera."], ["¿El precio es por persona?", "No. El precio es por lancha, para todo el grupo, hasta la capacidad de cada lancha."], ["¿Tenemos que hacer el recorrido completo?", "No. Es el recorrido estándar, pero ustedes eligen cómo disfrutarlo: pueden pasar el día entero en una playa o hacer un recorrido más corto y quedarse en una playa el resto del tiempo."], ["¿Cuánto dura el paseo?", "Hay un paseo de 4 horas (de 10 h a 14 h o de 14 h a 18 h) y uno de 7 horas (de 10 h a 17 h). Otros horarios se pueden combinar por WhatsApp."], ["¿Cómo reservo?", "Elige la lancha, la fecha, el horario y la cantidad de personas y escríbenos por WhatsApp. La seña asegura la fecha."], ["¿Y si el mar no está para paseo?", "Tranquilo: seguimos el pronóstico y, si ese día el mar no está bueno para navegar, pasamos el paseo a otra fecha sin costo."]],
+    faq:[["¿Puedo llevar niños?", "Sí. Los niños son bienvenidos y hay chalecos salvavidas para todos a bordo."], ["¿Puedo llevar mi mascota?", "Sí, aceptamos mascotas a bordo."], ["¿Dónde es el embarque?", "Depende de la lancha y del horario. En la página de cada lancha, el lugar aparece junto a la fecha y el horario; cuando todavía no está definido, lo combinamos por WhatsApp."], ["¿Qué incluye el paseo?", "Todas las lanchas incluyen marinero, combustible, hielo, carbón, agua mineral, hielera, parrilla, baño, música por Bluetooth, ducha de agua dulce, fideos flotantes y chalecos para todos. Si traen carnes o pescados, la tripulación prepara el asado a bordo. Algunas lanchas tienen aún más comodidades, como aire acondicionado, wifi, piscina o alfombra flotante y máscaras de buceo. En la página de cada lancha está la lista completa de lo que ofrece."], ["¿Puedo llevar comida y bebida?", "Sí. Las comidas y bebidas no están incluidas, así que trae las tuyas. La lancha ya tiene hielo y hielera."], ["¿El precio es por persona?", "No. El precio es por lancha, para todo el grupo, hasta la capacidad de cada lancha."], ["¿Tenemos que hacer el recorrido completo?", "No. Es el recorrido estándar, pero ustedes eligen cómo disfrutarlo: pueden pasar el día entero en una playa o hacer un recorrido más corto y quedarse en una playa el resto del tiempo."], ["¿Cuánto dura el paseo?", "Hay un paseo de 4 horas (de 10 h a 14 h o de 14 h a 18 h) y uno de 7 horas (de 10 h a 17 h). Otros horarios se pueden combinar por WhatsApp."], ["¿Cómo reservo?", "Elige la lancha, la fecha, el horario y la cantidad de personas y escríbenos por WhatsApp. La seña asegura la fecha."], ["¿Y si el mar no está para paseo?", "Tranquilo: seguimos el pronóstico y, si ese día el mar no está bueno para navegar, pasamos el paseo a otra fecha sin costo."]],
     howEyebrow:"Reserva", howTitle:"Cómo funciona", step:"Paso",
     how1t:"Elige la lancha", how1p:"Compara tamaño, capacidad y lo que incluye.",
     how2t:"Escríbenos por WhatsApp", how2p:"En la página de la lancha, elige la fecha, el horario y cuántas personas van. El mensaje ya va con todo eso.",
@@ -778,7 +783,7 @@ const SLOTS = [
   {key:"manha", hours:4},
   {key:"tarde", hours:4}
 ];
-let pick = {date:"", slot:"", people:""};
+let pick = {date:"", slot:"", people:"", board:""};
 const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const fmtDate = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(t("locale"),lang==="pt"?{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}:{weekday:"short",day:"numeric",month:"short",year:"numeric"}); };
@@ -788,7 +793,9 @@ const slotLabel = k => t("slot_"+k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? b.price7h : b.prices[seasonOf(iso).key];
 const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
-const waBook = (b,iso,slot,n) => wa(t("waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}));
+/* locais de embarque da lancha para o horário escolhido; [] = a combinar */
+const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
+const waBook = (b,iso,slot,n,bd) => wa(t("waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (bd?t("waBoard",{p:bd}):""));
 
 /* Planilha do dono: coluna A = data ocupada, coluna B = horário (vazio = dia todo).
    A planilha precisa estar compartilhada como "qualquer pessoa com o link pode ver". */
@@ -839,6 +846,7 @@ const pickerHTML = b => `
     </div>
     <p class="pk-other">${t("otherTime")}</p>
     <label class="pk-people"><span>${t("pickPeople")}</span><select id="pk-people"><option value="">${t("peoplePh")}</option>${Array.from({length:b.capacity},(_,i)=>`<option value="${i+1}"${+pick.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
+    <div class="pk-board"><span>${t("boardingTitle")}</span><div id="pk-board"></div></div>
   </div>`;
 function bindPicker(onChange){
   const di=document.getElementById("pk-date"); if(!di) return;
@@ -852,6 +860,13 @@ let seq = 0;
 async function showBoatStatus(b){
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
   if(+pick.people>b.capacity) pick.people="";
+  /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
+  const boards=boardsFor(b,pick.slot), bx=document.getElementById("pk-board");
+  if(!boards.includes(pick.board)) pick.board=boards[0]||"";
+  bx.innerHTML = !b.boarding ? `<p>${t("boardingTbd")}</p>` : !pick.slot ? `<p>${t("boardingPickSlot")}</p>`
+    : boards.length>1 ? `<div class="pk-boards" role="radiogroup" aria-label="${t("boardingTitle")}">${boards.map(x=>`<button type="button" role="radio" aria-checked="${x===pick.board}">${x}</button>`).join("")}</div>`
+    : `<p><strong>${boards[0]||t("boardingTbd")}</strong></p>`;
+  bx.querySelectorAll("button").forEach((x,i)=>x.onclick=()=>{ pick.board=boards[i]; showBoatStatus(b); });
   btn.href="#"; delete btn.dataset.ready;
   /* data, horário e pessoas são obrigatórios: sem eles o botão só aponta o que falta */
   btn.onclick = e => { if(btn.dataset.ready) return; e.preventDefault();
@@ -867,7 +882,7 @@ async function showBoatStatus(b){
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
   if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy">${t("busy",{date:fmtDate(pick.date), slot:slotLabel(pick.slot)})}</p>`; return; }
   out.innerHTML="";
-  btn.href=waBook(b,pick.date,pick.slot,pick.people); btn.dataset.ready="1";
+  btn.href=waBook(b,pick.date,pick.slot,pick.people,pick.board); btn.dataset.ready="1";
 }
 
 document.getElementById("ano").textContent = new Date().getFullYear();
@@ -1047,7 +1062,6 @@ function boatPage(b){
         <div class="block"><h2>${t("included")}</h2><ul class="included">${b.included.map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("")}</ul></div>
         <div class="block"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
         <div class="block"><h2>${t("crewTitle")}</h2><p style="color:var(--muted);margin:6px 0 0">${tx(b.crew)}. ${t("crewText")}</p></div>
-        <div class="block"><h2>${t("boardingTitle")}</h2><p style="color:var(--muted);margin:6px 0 0">${b.boarding?tx(b.boarding):t("boardingTbd")}</p></div>
         ${b.reviews?`<div class="block"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
           <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
