@@ -169,44 +169,23 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .phone button{font:500 12px/1 var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer}
 .example-banner{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--muted);margin-top:16px}
 
-/* Reserva por data */
-.book{padding-bottom:8px}
-.picker{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:14px;align-items:end;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
-@media (max-width:760px){.picker{grid-template-columns:1fr}}
-.pk-date{display:grid;gap:6px;font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.pk-date input{font:500 17px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:48px;width:100%;color-scheme:inherit}
-.pk-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.pk-slots button{display:grid;gap:4px;text-align:left;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;min-height:48px}
-.pk-slots button strong{font:700 16px/1.1 var(--display)}
-.pk-slots button small{font-size:13px;color:var(--muted)}
+/* Data e horário na página da lancha */
+.pk-boat{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.pk-boat h3{font-size:16px}
+.picker{display:grid;gap:8px;margin-top:10px}
+.pk-date{display:block}
+.pk-date span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.pk-date input{font:500 15px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px;width:100%;color-scheme:inherit}
+.pk-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pk-slots button{display:grid;gap:2px;text-align:center;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 4px;cursor:pointer;min-height:42px}
+.pk-slots button strong{font:600 13px/1.1 var(--body)}
+.pk-slots button small{font-size:11px;color:var(--muted)}
 .pk-slots button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
 .pk-slots button[aria-checked="true"] small{color:inherit;opacity:.85}
-@media (max-width:420px){.pk-slots{grid-template-columns:1fr}}
-.pk-hint{color:var(--muted);margin:16px 0 0}
-.pk-hint a{color:var(--sea);font-weight:600}
-.pk-head{margin:22px 0 14px;font-size:17px}
-.pk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
-.pk-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.pk-card img,.pk-card .ph{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
-.pk-body{padding:16px;display:grid;gap:12px}
-.pk-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.pk-title h3{font-size:22px}
-.pk-st{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 8px;border-radius:6px;background:var(--chip);color:var(--muted);white-space:nowrap}
-.pk-st.ok{background:color-mix(in srgb,#2f9e6a 18%,var(--surface));color:var(--ink)}
-.pk-price{margin:0;display:grid;gap:4px;border-top:1px solid var(--line);padding-top:12px}
-.pk-price span{font-size:13px;color:var(--muted)}
-.pk-price strong{font:700 22px/1 var(--display);font-variant-numeric:tabular-nums}
-.pk-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.pk-more{color:var(--sea);font-weight:600;text-decoration:none}
-.pk-fine{font-size:13px;color:var(--muted);margin:14px 0 0}
-.pk-boat .picker{grid-template-columns:1fr;padding:0;border:0;background:none;margin-top:12px}
-.pk-boat .pk-slots{grid-template-columns:1fr 1fr 1fr}
-.pk-boat .pk-slots button{padding:10px 8px}
-.pk-boat .pk-slots button strong{font-size:14px}
-.pk-res{margin:14px 0 0;padding:12px;border-radius:10px;background:var(--chip);font-size:14px}
+.pk-hint{color:var(--muted);margin:10px 0 0;font-size:14px}
+.pk-res{margin:10px 0 0;padding:10px;border-radius:8px;background:var(--chip);font-size:14px}
 .pk-res.ok{background:color-mix(in srgb,#2f9e6a 16%,var(--surface))}
 .pk-res.busy{background:color-mix(in srgb,#d9614c 16%,var(--surface))}
-.pk-res a{color:var(--sea);font-weight:600}
 /* com a disponibilidade, a caixa de valores fica mais alta que telas comuns: só fixa na rolagem em telas altas */
 @media (max-height:1100px){.boat .pricebox{position:static}}
 
@@ -227,7 +206,6 @@ footer p{margin:0;opacity:.8}
       <span>Búzios Lanchas<small>Aluguel de lanchas · RJ</small></span>
     </a>
     <nav class="top">
-      <a href="#inicio" class="hide-sm" data-scroll="reservar">Reservar</a>
       <a href="#inicio" class="hide-sm" data-scroll="frota">Frota</a>
       <a href="#inicio" class="hide-sm" data-scroll="como">Como funciona</a>
       <a class="btn" id="hdr-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
@@ -387,7 +365,7 @@ const seasonOf = iso => SEASONS.find(s=>s.m.includes(+iso.split("-")[1]));
 const slotOf = k => SLOTS.find(s=>s.key===k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? b.price7h : b.prices[seasonOf(iso).key];
-const waBook = (b,iso,slot) => `https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Vi no site Búzios Lanchas e quero reservar a ${b.name} no dia ${fmtDate(iso)}, das ${slotOf(slot).label} (${slotOf(slot).hours} horas).`)}`;
+const waBook = (b,iso,slot) => `https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Vi no site Búzios Lanchas e quero reservar a lancha ${b.name} no dia ${fmtDate(iso)}, das ${slotOf(slot).label} (${slotOf(slot).hours} horas).`)}`;
 
 /* Planilha do dono: coluna A = data ocupada, coluna B = horário (vazio = dia todo).
    A planilha precisa estar compartilhada como "qualquer pessoa com o link pode ver". */
@@ -445,27 +423,6 @@ function bindPicker(onChange){
   onChange();
 }
 let seq = 0;
-async function showResults(){
-  const out=document.getElementById("pk-out"); if(!out) return;
-  if(!pick.date || !pick.slot){ out.innerHTML=`<p class="pk-hint">Escolha a data e o horário para ver as lanchas livres.</p>`; return; }
-  const my=++seq; out.innerHTML=`<p class="pk-hint">Verificando a agenda das lanchas…</p>`;
-  const order=[...BOATS].sort((a,b)=>(b.featured-a.featured)||(b.capacity-a.capacity));
-  const st=await Promise.all(order.map(b=>statusFor(b,pick.date,pick.slot)));
-  if(my!==seq) return;
-  const list=order.map((b,i)=>[b,st[i]]).filter(([,s])=>s!=="ocupada");
-  const head=`<p class="pk-head"><strong>${list.length? `${list.length} ${list.length>1?"lanchas disponíveis":"lancha disponível"}`:"Nenhuma lancha disponível"}</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}</p>`;
-  if(!list.length){ out.innerHTML=head+`<p class="pk-hint">Tente outro horário ou outra data, ou <a href="${waLink("frota")}" target="_blank" rel="noopener">chame no WhatsApp</a> que procuramos uma opção para você.</p>`; return; }
-  out.innerHTML=head+`<div class="pk-grid">${list.map(([b])=>{ const p=priceFor(b,pick.date,pick.slot); return `
-    <div class="pk-card">
-      ${b.photos?`<img src="img/${b.photos[0][0]}-t.jpg" alt="${b.photos[0][1]}" style="object-position:${b.photos[0][2]}" loading="lazy">`:ph("Foto da lancha")}
-      <div class="pk-body">
-        <div class="pk-title"><h3>${b.name}</h3><span class="pk-st ok">Disponível</span></div>
-        ${specs(b)}
-        <p class="pk-price"><span>${seasonOf(pick.date).label} · ${slotOf(pick.slot).hours}h · a partir de</span><strong>${p?brl(p):"Sob consulta"}</strong></p>
-        <div class="pk-actions"><a class="btn" href="${waBook(b,pick.date,pick.slot)}" target="_blank" rel="noopener">Reservar no WhatsApp</a><a class="pk-more" href="#lancha-${b.slug}">Ver lancha</a></div>
-      </div>
-    </div>`; }).join("")}</div><p class="pk-fine">Valores a partir de, por lancha. Feriados têm valores especiais. A reserva é confirmada pelo WhatsApp com o sinal.</p>`;
-}
 async function showBoatStatus(b){
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
   btn.href=waLink(b.name); btn.textContent="Consultar data no WhatsApp";
@@ -473,7 +430,7 @@ async function showBoatStatus(b){
   const my=++seq; out.innerHTML=`<p class="pk-hint">Verificando a agenda…</p>`;
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
   const p=priceFor(b,pick.date,pick.slot);
-  if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy"><strong>Ocupada</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}. Tente outro horário ou <a href="#inicio" data-scroll="reservar">veja as lanchas livres nessa data</a>.</p>`; bindScroll(); return; }
+  if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy"><strong>Ocupada</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}. Tente outro horário ou outra data.</p>`; return; }
   out.innerHTML=`<p class="pk-res ok"><strong>Disponível</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label} · ${seasonOf(pick.date).label.toLowerCase()} · ${p?`a partir de <strong>${brl(p)}</strong>`:"valor sob consulta"}</p>`;
   btn.href=waBook(b,pick.date,pick.slot); btn.textContent="Reservar no WhatsApp";
 }
@@ -497,17 +454,12 @@ function home(){
       <span class="coords">22°45′S · 41°53′O — Armação dos Búzios, RJ</span>
       <h1>Seu dia no mar de Búzios, na <em>lancha certa</em> para o seu grupo.</h1>
       <p>Passeios privativos com marinheiro, combustível, gelo e água mineral inclusos. Traga suas bebidas e carnes que a equipe prepara o churrasco a bordo. De casais a grupos de até 16 pessoas.</p>
-      <div class="ctas"><a class="btn" href="#inicio" data-scroll="reservar">Ver lanchas livres na sua data</a><a class="btn ghost" href="#lancha-miss-bardot">Conhecer a Miss Bardot</a><a class="btn ghost" href="#inicio" data-scroll="frota">Ver todas as lanchas</a></div>
+      <div class="ctas"><a class="btn" href="#lancha-miss-bardot">Conhecer a Miss Bardot</a><a class="btn ghost" href="#inicio" data-scroll="frota">Ver todas as lanchas</a></div>
     </div>
     <a class="hero-photo" href="#lancha-miss-bardot"><img src="img/mb-01.jpg" alt="Lancha Miss Bardot ancorada em Búzios"><span>Miss Bardot · 35 pés · até 16 pessoas</span></a>
     </div>
     <canvas id="waves" aria-hidden="true"></canvas>
   </section>
-  <section class="section book" id="reservar"><div class="wrap">
-    <div class="section-head"><div><span class="eyebrow">Reserva</span><h2>Escolha a data e o horário</h2></div></div>
-    ${pickerHTML()}
-    <div id="pk-out" aria-live="polite"></div>
-  </div></section>
   <section class="section" id="frota"><div class="wrap">
     <div class="section-head">
       <div><span class="eyebrow">Nossa frota</span><h2>Escolha pelo tamanho do grupo</h2></div>
@@ -534,8 +486,8 @@ function home(){
   <section class="section" id="como" style="padding-top:0"><div class="wrap">
     <div class="section-head"><div><span class="eyebrow">Reserva</span><h2>Como funciona</h2></div></div>
     <div class="how">
-      <div><h3>Escolha data e horário</h3><p>Veja as lanchas livres e compare tamanho, capacidade e o que vem incluso.</p></div>
-      <div><h3>Chame no WhatsApp</h3><p>A mensagem já vai com a lancha, a data e o horário. Combinamos o roteiro.</p></div>
+      <div><h3>Escolha a lancha</h3><p>Compare tamanho, capacidade e o que vem incluso.</p></div>
+      <div><h3>Chame no WhatsApp</h3><p>Na página da lancha, escolha a data e o horário. A mensagem já vai com a lancha, a data e o horário.</p></div>
       <div><h3>Garanta com o sinal</h3><p>Um sinal de pagamento reserva o seu dia.</p></div>
       <div><h3>Embarque</h3><p>Se o mar não estiver seguro, remarcamos sem custo.</p></div>
     </div>
@@ -610,7 +562,7 @@ function boatPage(b){
           <p>Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.</p>
         </div>
                 ${b.example?`<div class="example-banner">Valores de exemplo, não são preços reais.</div>`:""}
-        <div class="block pk-boat"><h2>Ver disponibilidade</h2>${pickerHTML()}<div id="pk-out" aria-live="polite"></div></div>
+        <div class="pk-boat"><h3>Data e horário do passeio</h3>${pickerHTML()}<div id="pk-out" aria-live="polite"></div></div>
         <a class="btn" id="book-btn" href="${waLink(b.name)}" target="_blank" rel="noopener">Consultar data no WhatsApp</a>
         <div class="phone"><span id="ph-num">(21) 99927-2550</span><button type="button" id="copy">Copiar</button></div>
         <p class="fine">Valores a partir de, por lancha e não por pessoa. A tabela mostra o passeio de 4 horas; o de 7 horas tem valor próprio. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.</p>
@@ -628,7 +580,7 @@ function render(){
   document.title = b ? `${b.name} · Búzios Lanchas` : "Búzios Lanchas";
   if(b) window.scrollTo(0,0);
   bind(); bindGallery(b);
-  bindPicker(b ? ()=>showBoatStatus(b) : showResults);
+  if(b) bindPicker(()=>showBoatStatus(b));
 }
 function bind(){
   const so=document.getElementById("sort"); if(so) so.onclick=()=>{sortDir=sortDir==="asc"?"desc":"asc"; render(); document.getElementById("frota").scrollIntoView();};
