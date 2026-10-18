@@ -366,7 +366,7 @@ const seasonOf = iso => SEASONS.find(s=>s.m.includes(+iso.split("-")[1]));
 const slotOf = k => SLOTS.find(s=>s.key===k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? b.price7h : b.prices[seasonOf(iso).key];
-const waBook = (b,iso,slot) => `https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Vi no site Búzios Lanchas e quero reservar a lancha ${b.name} no dia ${fmtDate(iso)}, das ${slotOf(slot).label} (${slotOf(slot).hours} horas).`)}`;
+const waBook = (b,iso,slot) => `https://wa.me/${WHATS}?text=${encodeURIComponent(`Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha ${b.name} para ${fmtDate(iso)}, das ${slotOf(slot).label} (${slotOf(slot).hours} horas).`)}`;
 
 /* Planilha do dono: coluna A = data ocupada, coluna B = horário (vazio = dia todo).
    A planilha precisa estar compartilhada como "qualquer pessoa com o link pode ver". */
@@ -433,7 +433,7 @@ async function showBoatStatus(b){
   const p=priceFor(b,pick.date,pick.slot);
   if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy"><strong>Ocupada</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}. Tente outro horário ou outra data.</p>`; return; }
   out.innerHTML="";
-  btn.href=waBook(b,pick.date,pick.slot); btn.textContent="Reservar no WhatsApp";
+  btn.href=waBook(b,pick.date,pick.slot); btn.textContent="Consultar disponibilidade no WhatsApp";
 }
 
 document.getElementById("hdr-wa").href = waLink("frota");
