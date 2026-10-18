@@ -173,6 +173,12 @@ nav.top a:hover{opacity:1}
 .included li{background:var(--chip);border-radius:8px;padding:8px 11px;font-size:14px;font-weight:500}
 .included li.hl{background:var(--brass);color:var(--brass-ink);font-weight:700}
 .block{margin-top:30px}
+.rev-head{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin:4px 0 0}
+.stars{color:var(--brass);letter-spacing:2px;font-size:15px}
+.reviews{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;list-style:none;padding:0 0 6px;margin:14px 0 0;scrollbar-width:thin}
+.reviews li{flex:0 0 min(260px,80%);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.reviews q{font-size:15px;line-height:1.45;quotes:"“" "”"}
+.reviews small{font:500 12px/1.3 var(--mono);color:var(--muted)}
 .block h2{font-size:22px;margin-bottom:4px}
 
 .pricebox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
@@ -303,6 +309,16 @@ const BOATS = [
       ["mb-12","Fim de tarde com iluminação de LED","center 55%"],
       ["mb-13","Passeio ao sol","center 30%"],
       ["mb-10","Banheiro a bordo","center 50%"] /* a foto do banheiro é sempre a última */
+    ],
+    /* avaliações reais do Google (as mesmas do site antigo), no idioma original de cada cliente */
+    reviews:[
+      ["Maria Julia Cruz","2026-07","Melhor passeio de barco que já fizemos em grupo."],
+      ["Branco Balieiro","2026-05","A lancha é perfeita, som excelente e uma tripulação muito top"],
+      ["caue reda","2026-05","Equipe muito profissional, deram todo apoio e fizeram um churrasco excelente."],
+      ["Felipe T","2026-05","Excelente experiencia, fueron muy amables y atentos con nosotros"],
+      ["Willian Lorenzetti","2026-05","Excelente barco e serviço, fomos muito bem atendidos e o passeio foi ótimo! Recomendo!"],
+      ["Dayanne Belmonte","2026-04","Uma experiência incrível do início ao fim. Recomendo muito!"],
+      ["Gabrielle Jadotte","2026-04","Would highly recommend this boat tour if you are in Buzios!"]
     ],
     tagline:"Totalmente reformada, climatizada e com som premium. Ideal para família, amigos e comemorações.",
     description:"A Miss Bardot é o cenário perfeito para viver o melhor de Búzios: passeio romântico, momento em família ou um dia entre amigos. São 35 pés com ambientes climatizados, cabine com cama de casal e TV, banheiro, cozinha com air fryer e churrasqueira. O grande destaque é o sistema de som premium Hertz Marine: áudio potente e cristalino, feito para tocar alto ao ar livre sem perder a qualidade. É só conectar a sua playlist por Bluetooth e transformar o mar de Búzios na sua pista de dança. Passeios de dia, pôr do sol ou noturnos.",
@@ -522,7 +538,7 @@ const UI = {
     included:"Incluso no passeio", bring:"O que trazer",
     bringText:"Comidas e bebidas não estão inclusas no passeio. Traga as suas: a lancha já tem gelo e cooler, e se vocês trouxerem carnes ou peixes, a equipe prepara o churrasco a bordo.",
     crewTitle:"Tripulação e segurança", crewText:"Coletes salva-vidas para todos, extintores em dia e revisões periódicas nos motores.",
-    photos:"Fotos", mainPhoto:"Foto principal", video:"Vídeo", videoSoon:"Vídeo em breve", videoHere:"O vídeo da {name} aparece aqui.",
+    reviewsTitle:"Avaliações no Google", reviewsSub:"Nota máxima no Google", stars5:"5 de 5 estrelas", photos:"Fotos", mainPhoto:"Foto principal", video:"Vídeo", videoSoon:"Vídeo em breve", videoHere:"O vídeo da {name} aparece aqui.",
     pricesAria:"Preços", prices:"Valores", from4hLong:"Passeio de 4 horas · a partir de", season:"Temporada", hours4:"4 horas",
     s_baixa:"Baixa", s_media:"Média", s_alta:"Alta", sl_baixa:"Baixa temporada", sl_media:"Média temporada", sl_alta:"Alta temporada",
     m_baixa:"mai - jun - jul - ago - set", m_media:"abr - out - nov", m_alta:"dez - jan - fev - mar",
@@ -573,7 +589,7 @@ const UI = {
     included:"Included in the tour", bring:"What to bring",
     bringText:"Food and drinks are not included. Bring your own: the boat already has ice and a cooler, and if you bring meat or fish, the crew will grill it on board.",
     crewTitle:"Crew and safety", crewText:"Life jackets for everyone, up-to-date fire extinguishers and regular engine servicing.",
-    photos:"Photos", mainPhoto:"Main photo", video:"Video", videoSoon:"Video coming soon", videoHere:"The {name} video will appear here.",
+    reviewsTitle:"Google reviews", reviewsSub:"Top rating on Google", stars5:"5 out of 5 stars", photos:"Photos", mainPhoto:"Main photo", video:"Video", videoSoon:"Video coming soon", videoHere:"The {name} video will appear here.",
     pricesAria:"Prices", prices:"Prices", from4hLong:"4-hour tour · from", season:"Season", hours4:"4 hours",
     s_baixa:"Low", s_media:"Mid", s_alta:"High", sl_baixa:"Low season", sl_media:"Mid season", sl_alta:"High season",
     m_baixa:"May - Jun - Jul - Aug - Sep", m_media:"Apr - Oct - Nov", m_alta:"Dec - Jan - Feb - Mar",
@@ -624,7 +640,7 @@ const UI = {
     included:"Incluido en el paseo", bring:"Qué traer",
     bringText:"Las comidas y bebidas no están incluidas. Trae las tuyas: la lancha ya tiene hielo y hielera, y si traen carnes o pescados, la tripulación prepara el asado a bordo.",
     crewTitle:"Tripulación y seguridad", crewText:"Chalecos salvavidas para todos, extintores al día y revisiones periódicas de los motores.",
-    photos:"Fotos", mainPhoto:"Foto principal", video:"Video", videoSoon:"Video próximamente", videoHere:"El video de la {name} aparecerá aquí.",
+    reviewsTitle:"Reseñas en Google", reviewsSub:"Nota máxima en Google", stars5:"5 de 5 estrellas", photos:"Fotos", mainPhoto:"Foto principal", video:"Video", videoSoon:"Video próximamente", videoHere:"El video de la {name} aparecerá aquí.",
     pricesAria:"Precios", prices:"Precios", from4hLong:"Paseo de 4 horas · desde", season:"Temporada", hours4:"4 horas",
     s_baixa:"Baja", s_media:"Media", s_alta:"Alta", sl_baixa:"Temporada baja", sl_media:"Temporada media", sl_alta:"Temporada alta",
     m_baixa:"may - jun - jul - ago - sep", m_media:"abr - oct - nov", m_alta:"dic - ene - feb - mar",
@@ -949,6 +965,8 @@ function boatPage(b){
         <div class="block"><h2>${t("included")}</h2><ul class="included">${b.included.map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("")}</ul></div>
         <div class="block"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
         <div class="block"><h2>${t("crewTitle")}</h2><p style="color:var(--muted);margin:6px 0 0">${tx(b.crew)}. ${t("crewText")}</p></div>
+        ${b.reviews?`<div class="block"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
+          <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
       <div class="b-media">
         <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
