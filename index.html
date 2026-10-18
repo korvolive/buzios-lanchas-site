@@ -431,7 +431,7 @@ async function showBoatStatus(b){
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
   const p=priceFor(b,pick.date,pick.slot);
   if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy"><strong>Ocupada</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}. Tente outro horário ou outra data.</p>`; return; }
-  out.innerHTML=`<p class="pk-res ok"><strong>Disponível</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label} · ${seasonOf(pick.date).label.toLowerCase()} · ${p?`a partir de <strong>${brl(p)}</strong>`:"valor sob consulta"}</p>`;
+  out.innerHTML="";
   btn.href=waBook(b,pick.date,pick.slot); btn.textContent="Reservar no WhatsApp";
 }
 
