@@ -88,6 +88,15 @@ nav.top a:hover{opacity:1}
 .ph svg{width:62%;max-width:280px;opacity:.9}
 .ph .note{position:absolute;left:10px;bottom:10px;font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.3);padding:6px 8px;border-radius:6px}
 
+/* Faixa de segurança */
+.safe{padding-bottom:0}
+.safe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.safe-grid>div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:8px;align-content:start}
+.safe-ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--chip);color:var(--sea)}
+.safe-ic svg{width:24px;height:24px}
+.safe-grid h3{font-size:19px}
+.safe-grid p{margin:0;color:var(--muted);font-size:15px}
+
 /* Como funciona */
 .how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;counter-reset:s}
 .how div{border-top:2px solid var(--sea);padding-top:14px}
@@ -468,6 +477,10 @@ const UI = {
     how2t:"Chame no WhatsApp", how2p:"Na página da lancha, escolha a data e o horário. A mensagem já vai com a lancha, a data e o horário.",
     how3t:"Garanta com o sinal", how3p:"Um sinal de pagamento reserva o seu dia.",
     how4t:"Embarque", how4p:"Se o mar não estiver seguro, remarcamos sem custo.",
+    safeEyebrow:"Segurança", safeTitle:"Navegue com tranquilidade",
+    safe1t:"Marinheiros experientes", safe1p:"Todas as lanchas saem com marinheiro habilitado, que conhece cada praia e cada canto do mar de Búzios.",
+    safe2t:"Manutenção em dia", safe2p:"Motores e equipamentos passam por revisões periódicas, para o seu passeio não ter surpresas.",
+    safe3t:"Itens de segurança obrigatórios", safe3p:"Coletes salva-vidas para todos, extintores e todos os equipamentos de segurança obrigatórios a bordo.",
     prevPhoto:"Foto anterior", nextPhoto:"Próxima foto",
     crumbFleet:"← Lanchas", boat:"Lancha", photoOf:"Foto da {name}", specFeet:"Pés", specPeople:"Pessoas", specTours:"Passeios",
     included:"Incluso no passeio", bring:"O que trazer",
@@ -508,6 +521,10 @@ const UI = {
     how2t:"Message us on WhatsApp", how2p:"On the boat's page, pick the date and time. The message already includes the boat, date and time.",
     how3t:"Secure it with a deposit", how3p:"A deposit payment reserves your day.",
     how4t:"Come aboard", how4p:"If the sea isn't safe, we reschedule at no cost.",
+    safeEyebrow:"Safety", safeTitle:"Sail with peace of mind",
+    safe1t:"Experienced skippers", safe1p:"Every boat goes out with a licensed skipper who knows every beach and corner of the Búzios sea.",
+    safe2t:"Up-to-date maintenance", safe2p:"Engines and equipment are serviced regularly, so your tour has no surprises.",
+    safe3t:"All required safety equipment", safe3p:"Life jackets for everyone, fire extinguishers and all mandatory safety equipment on board.",
     prevPhoto:"Previous photo", nextPhoto:"Next photo",
     crumbFleet:"← Boats", boat:"Boat", photoOf:"Photo of {name}", specFeet:"Feet", specPeople:"People", specTours:"Tours",
     included:"Included in the tour", bring:"What to bring",
@@ -548,6 +565,10 @@ const UI = {
     how2t:"Escríbenos por WhatsApp", how2p:"En la página de la lancha, elige la fecha y el horario. El mensaje ya va con la lancha, la fecha y el horario.",
     how3t:"Asegúrala con una seña", how3p:"Un pago de seña reserva tu día.",
     how4t:"Embarca", how4p:"Si el mar no está seguro, reprogramamos sin costo.",
+    safeEyebrow:"Seguridad", safeTitle:"Navega con tranquilidad",
+    safe1t:"Marineros experimentados", safe1p:"Todas las lanchas salen con marinero habilitado, que conoce cada playa y cada rincón del mar de Búzios.",
+    safe2t:"Mantenimiento al día", safe2p:"Los motores y equipos pasan por revisiones periódicas, para que tu paseo no tenga sorpresas.",
+    safe3t:"Equipos de seguridad obligatorios", safe3p:"Chalecos salvavidas para todos, extintores y todos los equipos de seguridad obligatorios a bordo.",
     prevPhoto:"Foto anterior", nextPhoto:"Foto siguiente",
     crumbFleet:"← Lanchas", boat:"Lancha", photoOf:"Foto de la {name}", specFeet:"Pies", specPeople:"Personas", specTours:"Paseos",
     included:"Incluido en el paseo", bring:"Qué traer",
@@ -694,6 +715,13 @@ document.getElementById("lang").onchange = e => {
   applyStatic(); render(false);
 };
 
+/* ícones da faixa de segurança: leme (marinheiro), chave (manutenção), boia (segurança) */
+const SAFE_ICONS = [
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.3-.5-.5-2.3z"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg>`
+];
+
 /* ============ vitrine ============ */
 let filter = "todas";
 let sortDir = "asc";
@@ -716,6 +744,12 @@ function home(){
     </div>
     <canvas id="waves" aria-hidden="true"></canvas>
   </section>
+  <section class="section safe" id="seguranca"><div class="wrap">
+    <div class="section-head"><div><span class="eyebrow">${t("safeEyebrow")}</span><h2>${t("safeTitle")}</h2></div></div>
+    <div class="safe-grid">
+      ${SAFE_ICONS.map((ic,i)=>`<div><span class="safe-ic" aria-hidden="true">${ic}</span><h3>${t(`safe${i+1}t`)}</h3><p>${t(`safe${i+1}p`)}</p></div>`).join("\n      ")}
+    </div>
+  </div></section>
   <section class="section" id="frota"><div class="wrap">
     <div class="section-head">
       <div><span class="eyebrow">${t("fleetEyebrow")}</span><h2>${t("fleetTitle")}</h2></div>
