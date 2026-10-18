@@ -510,8 +510,6 @@ function gallery(b){
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
-  const fit=()=>{ mm.style.objectFit = mm.naturalWidth>mm.naturalHeight ? "contain" : "cover"; };
-  mm.addEventListener("load",fit); if(mm.complete) fit();
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
     m.src=`img/${P[i][0]}.jpg`; m.alt=P[i][1]; m.style.objectPosition=P[i][2]; document.getElementById("g-blur").src=`img/${P[i][0]}-t.jpg`;
     document.getElementById("g-cap").textContent=P[i][1]; document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
