@@ -221,13 +221,13 @@ footer p{margin:0;opacity:.8}
 
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="#inicio" id="logo">
+    <a class="logo" href="/" id="logo">
       <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 20h22l-4 5H10z" fill="currentColor"/><path d="M14 19V9l7 10z" fill="#c99a2e"/></svg>
       <span>Búzios Lanchas<small data-t="logoSub"></small></span>
     </a>
     <nav class="top">
-      <a href="#inicio" class="hide-sm" data-scroll="frota" data-t="navFleet"></a>
-      <a href="#inicio" class="hide-sm" data-scroll="como" data-t="navHow"></a>
+      <a href="/#frota" class="hide-sm" data-scroll="frota" data-t="navFleet"></a>
+      <a href="/#como" class="hide-sm" data-scroll="como" data-t="navHow"></a>
       <label class="lang-pick" title="Idioma · Language · Idioma">
         <svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>
         <select id="lang" class="lang" aria-label="Idioma · Language · Idioma">
@@ -245,8 +245,8 @@ footer p{margin:0;opacity:.8}
 <footer>
   <div class="wrap">
     <div><h3>Búzios Lanchas</h3><p data-t="footAbout"></p></div>
-    <div><h3 data-t="footBook"></h3><p>WhatsApp (21) 99927-2550</p></div>
-    <div><h3 data-t="footFollow"></h3><p>@missbardotbuzios</p></div>
+    <div><h3 data-t="footBook"></h3><p><a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></p></div>
+    <div><h3 data-t="footFollow"></h3><p><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a></p></div>
   </div>
   <div class="wrap legal">
     <p>© <span id="ano">2026</span> Búzios Lanchas · CNPJ 32.154.099/0001-72 · Armação dos Búzios, RJ</p>
@@ -476,7 +476,11 @@ const UI = {
   pt:{
     locale:"pt-BR", logoSub:"Aluguel de lanchas · RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona",
     footAbout:"Passeios privativos de lancha em Armação dos Búzios, RJ.", footBook:"Reservas", footFollow:"Siga",
-    coords:"22°45′S · 41°53′O — Armação dos Búzios, RJ",
+    coords:"22°45′S · 41°53′O — Aluguel de lanchas em Armação dos Búzios, RJ",
+    seoTitle:"Aluguel de lancha em Búzios | Passeios privativos | Búzios Lanchas",
+    seoDesc:"Aluguel de lancha em Búzios (RJ) com marinheiro, combustível, gelo e água mineral inclusos. Passeios privativos de 4 ou 7 horas para até 16 pessoas. Consulte pelo WhatsApp.",
+    seoBoatTitle:"{name}: lancha de {feet} pés para até {cap} pessoas em Búzios | Búzios Lanchas",
+    seoBoatTail:"Passeio de lancha privativo em Búzios, com marinheiro e combustível inclusos.",
     heroTitle:"Seu dia no mar de Búzios, na <em>lancha certa</em> para o seu grupo.",
     heroText:"Passeios privativos com marinheiro, combustível, gelo e água mineral inclusos. Traga suas bebidas e carnes que a equipe prepara o churrasco a bordo. De casais a grupos de até 16 pessoas.",
     heroMeet:"Conhecer a Miss Bardot", heroAll:"Ver todas as lanchas",
@@ -523,7 +527,11 @@ const UI = {
   en:{
     locale:"en-US", logoSub:"Boat rental · RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works",
     footAbout:"Private boat tours in Armação dos Búzios, RJ, Brazil.", footBook:"Bookings", footFollow:"Follow us",
-    coords:"22°45′S · 41°53′W — Armação dos Búzios, RJ",
+    coords:"22°45′S · 41°53′W — Boat rental in Armação dos Búzios, RJ",
+    seoTitle:"Boat rental in Búzios, Brazil | Private boat tours | Búzios Lanchas",
+    seoDesc:"Private boat rental in Búzios, Rio de Janeiro, with skipper, fuel, ice and mineral water included. 4 or 7 hour tours for up to 16 people. Ask on WhatsApp.",
+    seoBoatTitle:"{name}: {feet}-foot boat for up to {cap} people in Búzios | Búzios Lanchas",
+    seoBoatTail:"Private boat tour in Búzios, Brazil, with skipper and fuel included.",
     heroTitle:"Your day on the Búzios sea, on the <em>right boat</em> for your group.",
     heroText:"Private tours with skipper, fuel, ice and mineral water included. Bring your drinks and meat and the crew will grill on board. From couples to groups of up to 16 people.",
     heroMeet:"Meet Miss Bardot", heroAll:"See all boats",
@@ -570,7 +578,11 @@ const UI = {
   es:{
     locale:"es", logoSub:"Alquiler de lanchas · RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona",
     footAbout:"Paseos privados en lancha en Armação dos Búzios, RJ, Brasil.", footBook:"Reservas", footFollow:"Síguenos",
-    coords:"22°45′S · 41°53′O — Armação dos Búzios, RJ",
+    coords:"22°45′S · 41°53′O — Alquiler de lanchas en Armação dos Búzios, RJ",
+    seoTitle:"Alquiler de lanchas en Búzios, Brasil | Paseos privados | Búzios Lanchas",
+    seoDesc:"Alquiler de lanchas en Búzios (Río de Janeiro) con marinero, combustible, hielo y agua mineral incluidos. Paseos privados de 4 o 7 horas para hasta 16 personas. Consulta por WhatsApp.",
+    seoBoatTitle:"{name}: lancha de {feet} pies para hasta {cap} personas en Búzios | Búzios Lanchas",
+    seoBoatTail:"Paseo privado en lancha en Búzios, Brasil, con marinero y combustible incluidos.",
     heroTitle:"Tu día en el mar de Búzios, en la <em>lancha ideal</em> para tu grupo.",
     heroText:"Paseos privados con marinero, combustible, hielo y agua mineral incluidos. Trae tus bebidas y carnes, y la tripulación prepara el asado a bordo. Desde parejas hasta grupos de hasta 16 personas.",
     heroMeet:"Conocer la Miss Bardot", heroAll:"Ver todas las lanchas",
@@ -616,14 +628,29 @@ const UI = {
   }
 };
 const LANGS = ["pt","en","es"];
-/* idioma: ?lang=en na URL, escolha salva do visitante, ou o idioma do navegador (português, espanhol; qualquer outro vê inglês) */
-let lang = (()=>{
-  const q = new URLSearchParams(location.search).get("lang");
-  if(LANGS.includes(q)) return q;
-  try{ const s=localStorage.getItem("lang"); if(LANGS.includes(s)) return s; }catch(e){}
-  const n = (navigator.language||"pt").slice(0,2).toLowerCase();
-  return n==="pt"||n==="es" ? n : "en";
+const SITE = "https://lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
+/* endereços: / e /lancha/miss-bardot/ em português; /en/... e /es/... nas outras línguas */
+const pathFor = (l,slug) => (l==="pt"?"/":`/${l}/`) + (slug?`lancha/${slug}/`:"");
+const route = (()=>{
+  const m = location.pathname.match(/^\/(?:(en|es)(?:\/|$))?(?:lancha\/([a-z0-9-]+)\/?)?(?:index\.html)?$/);
+  return {lang:(m&&m[1])||"pt", slug:(m&&m[2])||null};
 })();
+/* buscadores (Google etc.) sempre veem o idioma do endereço; visitantes em / vão para a língua escolhida antes ou a do navegador */
+const IS_BOT = /bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent);
+(()=>{
+  const q = new URLSearchParams(location.search).get("lang"); /* links antigos com ?lang=en */
+  const old = location.hash.match(/^#lancha-([a-z0-9-]+)$/);  /* links antigos com #lancha-nome */
+  let l = LANGS.includes(q) ? q : route.lang;
+  if(!LANGS.includes(q) && route.lang==="pt" && !IS_BOT){
+    let s=null; try{ s=localStorage.getItem("lang"); }catch(e){}
+    const n = (navigator.language||"pt").slice(0,2).toLowerCase();
+    l = LANGS.includes(s) ? s : (n==="pt"||n==="es" ? n : "en");
+  }
+  const slug = old ? old[1] : route.slug;
+  const to = pathFor(l,slug);
+  if(to!==location.pathname || q || old){ route.lang=l; route.slug=slug; location.replace(to + (old?"":location.hash)); }
+})();
+let lang = route.lang;
 const t = (k,vars={}) => (UI[lang][k] ?? UI.pt[k]).replace(/\{(\w+)\}/g,(m,v)=>vars[v] ?? m);
 const tx = s => lang==="pt" ? s : ((PHRASES[s]||[])[lang==="en"?0:1] ?? s);
 const bt = (b,k) => b.i18n?.[lang]?.[k] ?? b[k];
@@ -745,12 +772,54 @@ function applyStatic(){
   document.getElementById("logo").setAttribute("aria-label",t("logoAria"));
   document.getElementById("hdr-wa").href = wa(t("waFleet"));
   document.getElementById("lang").value = lang;
+  document.getElementById("logo").href = pathFor(lang);
+  document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
 }
+/* trocar de idioma abre a mesma página no endereço da outra língua */
 document.getElementById("lang").onchange = e => {
-  lang = e.target.value;
-  try{ localStorage.setItem("lang",lang); }catch(err){}
-  applyStatic(); render(false);
+  try{ localStorage.setItem("lang",e.target.value); }catch(err){}
+  location.href = pathFor(e.target.value, route.slug);
 };
+
+/* ============ etiquetas para o Google e para prévias de link (WhatsApp, Instagram) ============ */
+function headTag(sel,tag,attrs){
+  let el=document.head.querySelector(sel);
+  if(!el){ el=document.createElement(tag); document.head.appendChild(el); }
+  for(const k in attrs) el.setAttribute(k,attrs[k]);
+  return el;
+}
+function seo(b){
+  const title = b ? t("seoBoatTitle",{name:b.name, feet:b.feet??"", cap:b.capacity}) : t("seoTitle");
+  const desc = b ? `${bt(b,"tagline")} ${t("seoBoatTail")}` : t("seoDesc");
+  const url = SITE + pathFor(lang, b?.slug);
+  const img = SITE + `/img/${(b?.photos||BOATS[0].photos)[0][0]}.jpg`;
+  document.title = title;
+  headTag('meta[name="description"]',"meta",{name:"description",content:desc});
+  headTag('link[rel="canonical"]',"link",{rel:"canonical",href:url});
+  [["pt-BR","pt"],["en","en"],["es","es"],["x-default","pt"]].forEach(([hl,l])=>
+    headTag(`link[rel="alternate"][hreflang="${hl}"]`,"link",{rel:"alternate",hreflang:hl,href:SITE+pathFor(l,b?.slug)}));
+  const og = {"og:type":"website","og:site_name":"Búzios Lanchas","og:title":title,"og:description":desc,"og:url":url,"og:image":img,
+    "og:locale":{pt:"pt_BR",en:"en_US",es:"es_ES"}[lang]};
+  for(const k in og) headTag(`meta[property="${k}"]`,"meta",{property:k,content:og[k]});
+  headTag('meta[name="twitter:card"]',"meta",{name:"twitter:card",content:"summary_large_image"});
+  const all = BOATS.flatMap(x=>Object.values(x.prices||{})).filter(Number.isFinite);
+  const biz = {"@type":"LocalBusiness","@id":SITE+"/#empresa","name":"Búzios Lanchas","url":SITE+"/","telephone":"+55-21-99927-2550",
+    "image":SITE+`/img/${BOATS[0].photos[0][0]}.jpg`,"description":t("seoDesc"),
+    "address":{"@type":"PostalAddress","addressLocality":"Armação dos Búzios","addressRegion":"RJ","addressCountry":"BR"},
+    "areaServed":"Armação dos Búzios","sameAs":["https://www.instagram.com/missbardotbuzios/"],
+    ...(all.length?{"priceRange":`R$ ${Math.min(...all)} - R$ ${Math.max(...all)}`}:{})};
+  const graph = [biz];
+  if(b){
+    const ps = Object.values(b.prices||{}).filter(Number.isFinite);
+    graph.push({"@type":"Product","name":b.name,"description":bt(b,"description"),"url":url,
+      "image":(b.photos||[]).map(p=>SITE+`/img/${p[0]}.jpg`),"brand":{"@id":SITE+"/#empresa"},
+      ...(ps.length&&!b.example?{"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":Math.min(...ps),"highPrice":Math.max(...ps),"offerCount":ps.length,"seller":{"@id":SITE+"/#empresa"}}}:{})});
+    graph.push({"@type":"BreadcrumbList","itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Búzios Lanchas","item":SITE+pathFor(lang)},
+      {"@type":"ListItem","position":2,"name":b.name,"item":url}]});
+  }
+  headTag('script#ld-json',"script",{id:"ld-json",type:"application/ld+json"}).textContent = JSON.stringify({"@context":"https://schema.org","@graph":graph});
+}
 
 /* ícones do quadro "lanchas de confiança": leme, chave, boia, documento, calendário, conversa */
 const TRUST_ICONS = [
@@ -778,7 +847,7 @@ function home(){
       <span class="coords">${t("coords")}</span>
       <h1>${t("heroTitle")}</h1>
       <p>${t("heroText")}</p>
-      <div class="ctas"><a class="btn" href="#lancha-miss-bardot">${t("heroMeet")}</a><a class="btn ghost" href="#inicio" data-scroll="frota">${t("heroAll")}</a></div>
+      <div class="ctas"><a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a><a class="btn ghost" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
     </div>
     <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
@@ -797,8 +866,8 @@ function home(){
     ${list.length?"":`<p style="color:var(--muted)">${t("noneInRange")}</p>`}
     <div class="grid">
       ${list.map(b=>`
-        <a class="card" href="#lancha-${b.slug}">
-          ${b.photos?`<div class="ph"><img src="img/${b.photos[0][0]}-t.jpg" srcset="img/${b.photos[0][0]}-t.jpg 360w, img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
+        <a class="card" href="${pathFor(lang,b.slug)}">
+          ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
             ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
             <h3>${b.name}</h3>
@@ -821,19 +890,19 @@ function home(){
 function gallery(b){
   const P=b.photos;
   return `<div class="gallery" data-i="0">
-    <div class="main tall"><img class="blur" id="g-blur" src="img/${P[0][0]}-t.jpg" alt="" aria-hidden="true"><img id="g-main" class="fit" src="img/${P[0][0]}.jpg" alt="${tx(P[0][1])}" style="object-position:${P[0][2]}">
+    <div class="main tall"><img class="blur" id="g-blur" src="/img/${P[0][0]}-t.jpg" alt="" aria-hidden="true"><img id="g-main" class="fit" src="/img/${P[0][0]}.jpg" alt="${tx(P[0][1])}" style="object-position:${P[0][2]}">
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
       <button type="button" class="nav next" id="g-next" aria-label="${t("nextPhoto")}">›</button>
       <span class="count" id="g-count">1 / ${P.length}</span></div>
     <p class="cap" id="g-cap">${tx(P[0][1])}</p>
-    <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${tx(p[1])}" ${i?"":'aria-current="true"'}><img src="img/${p[0]}-t.jpg" alt="" loading="lazy"></button>`).join("")}</div>
+    <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${tx(p[1])}" ${i?"":'aria-current="true"'}><img src="/img/${p[0]}-t.jpg" alt="" loading="lazy"></button>`).join("")}</div>
   </div>`;
 }
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
-    m.src=`img/${P[i][0]}.jpg`; m.alt=tx(P[i][1]); m.style.objectPosition=P[i][2]; document.getElementById("g-blur").src=`img/${P[i][0]}-t.jpg`;
+    m.src=`/img/${P[i][0]}.jpg`; m.alt=tx(P[i][1]); m.style.objectPosition=P[i][2]; document.getElementById("g-blur").src=`/img/${P[i][0]}-t.jpg`;
     document.getElementById("g-cap").textContent=tx(P[i][1]); document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
     document.querySelectorAll("#g-strip button").forEach((t,k)=>{ if(k===i){t.setAttribute("aria-current","true"); t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});} else t.removeAttribute("aria-current"); }); };
   document.getElementById("g-prev").onclick=()=>show(i-1);
@@ -849,12 +918,12 @@ function boatPage(b){
   const mp = minPrice(b);
   return `
   <div class="wrap">
-    <div class="crumb"><a href="#inicio">${t("crumbFleet")}</a> / ${b.name}</div>
+    <div class="crumb"><a href="${pathFor(lang)}#frota">${t("crumbFleet")}</a> / ${b.name}</div>
     <div class="boat">
       <div class="b-info">
         <div>
           <span class="eyebrow">${b.featured?t("featured"):t("boat")}</span>
-          <div class="b-title"><h1>${b.name}</h1>${b.photos?`<img class="b-avatar" src="img/${b.photos[0][0]}-t.jpg" alt="${t("photoOf",{name:b.name})}" style="object-position:${b.photos[0][2]}">`:""}</div>
+          <div class="b-title"><h1>${b.name}</h1>${b.photos?`<img class="b-avatar" src="/img/${b.photos[0][0]}-t.jpg" alt="${t("photoOf",{name:b.name})}" style="object-position:${b.photos[0][2]}">`:""}</div>
           <p class="lead">${bt(b,"description")}</p>
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
@@ -868,7 +937,7 @@ function boatPage(b){
       </div>
       <div class="b-media">
         <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
-        <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${b.video}" controls playsinline preload="metadata" ${b.photos?`poster="img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
+        <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="/img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
         <h2>${t("prices")}</h2>
@@ -895,10 +964,9 @@ function boatPage(b){
 /* ============ roteamento ============ */
 const app = document.getElementById("app");
 function render(toTop=true){
-  const h = location.hash.slice(1);
-  const b = h.startsWith("lancha-") && BOATS.find(x=>"lancha-"+x.slug===h);
+  const b = route.slug && BOATS.find(x=>x.slug===route.slug);
   app.innerHTML = b ? boatPage(b) : home();
-  document.title = b ? `${b.name} · Búzios Lanchas` : "Búzios Lanchas";
+  seo(b);
   if(b && toTop) window.scrollTo(0,0);
   bind(); bindGallery(b);
   if(b) bindPicker(()=>showBoatStatus(b));
@@ -918,10 +986,10 @@ function bindScroll(){
     const id=a.dataset.scroll;
     /* "Ver todas as lanchas" e "Lanchas" (menu) sempre voltam para o filtro Todas */
     if(id==="frota" && filter!=="todas"){ filter="todas"; sortDir="asc"; if(document.getElementById(id)){ e.preventDefault(); render(); document.getElementById(id).scrollIntoView({behavior:"smooth"}); return; } }
-    if(!document.getElementById(id)){ location.hash="inicio"; setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}),30);} else {e.preventDefault(); document.getElementById(id).scrollIntoView({behavior:"smooth"});}
+    /* na página de uma lancha o link abre a página inicial já na seção */
+    if(document.getElementById(id)){ e.preventDefault(); document.getElementById(id).scrollIntoView({behavior:"smooth"}); }
   });
 }
-window.addEventListener("hashchange",()=>render());
 
 /* ondas do hero */
 let raf;
@@ -944,6 +1012,8 @@ function waves(){
 }
 applyStatic();
 render();
+/* chegando de outra página com #frota ou #como, desce até a seção */
+if(location.hash.length>1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 </script>
 
 </body></html>

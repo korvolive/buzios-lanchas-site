@@ -1,0 +1,18 @@
+name: Verificar páginas geradas
+
+on:
+  pull_request:
+
+jobs:
+  prerender:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Gerar páginas e sitemap.xml (sem enviar)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/prerender.mjs
