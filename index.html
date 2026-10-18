@@ -140,8 +140,6 @@ nav.top a:hover{opacity:1}
 .strip button[aria-current]{border-color:var(--brass);opacity:1}
 .strip img{width:100%;height:100%;object-fit:cover;display:block}
 .vid{display:block;width:100%;max-width:100%;aspect-ratio:16/9;border-radius:14px;background:#000;margin-top:12px;object-fit:contain}
-.vid.ig{aspect-ratio:auto;width:100%;max-width:400px;height:720px;margin-inline:auto;background:#fff;border:1px solid var(--line)}
-@media (max-width:440px){.vid.ig{height:640px}}
 .vid.empty{position:relative;overflow:hidden;display:grid;place-items:center;background:var(--sea-deep);color:#eaf4f6}
 .vid.empty img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 65%;opacity:.35;filter:blur(2px)}
 .vid.empty div{position:relative;display:grid;justify-items:center;gap:6px;text-align:center;padding:16px}
@@ -275,7 +273,6 @@ const BOATS = [
     slug:"miss-bardot", name:"Miss Bardot", featured:true, example:false,
     feet:35, capacity:16, crew:"Marinheiro com carteira de mestre",
     video:null, /* ex.: "video/miss-bardot.mp4" */
-    instagram:"DRz_z8Fifvs", /* código do Reel (instagram.com/reel/CÓDIGO); usado quando não há "video" */
     photos:[
       ["mb-01","A Miss Bardot ancorada em águas verdes","center 70%"],
       ["mb-02","Proa com som Hertz e mar de Búzios","center 60%"],
@@ -869,7 +866,7 @@ function boatPage(b){
       </div>
       <div class="b-media">
         <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
-        <div class="block"><h2>${t("video")}</h2>${!b.video&&b.instagram?`<iframe class="vid ig" src="https://www.instagram.com/reel/${b.instagram}/embed/" title="${t("video")} · ${b.name}" loading="lazy" allowfullscreen scrolling="no"></iframe>`:b.video?`<video class="vid" src="${b.video}" controls playsinline preload="metadata" ${b.photos?`poster="img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
+        <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${b.video}" controls playsinline preload="metadata" ${b.photos?`poster="img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
         <h2>${t("prices")}</h2>
