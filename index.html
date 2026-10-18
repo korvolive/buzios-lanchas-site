@@ -197,6 +197,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-slots button small{font-size:11px;color:var(--muted)}
 .pk-slots button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
 .pk-slots button[aria-checked="true"] small{color:inherit;opacity:.85}
+.pk-other{margin:0;font-size:13px;color:var(--muted)}
 .pk-people{display:block}
 .pk-people span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .pk-people select{cursor:pointer}
@@ -508,7 +509,7 @@ const UI = {
     fullDay:"Dia completo", tour7h:"Passeio de 7 horas", fromPrice:"a partir de {p}", priceOnRequest:"Valor sob consulta",
     longText:"Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.",
     exampleBanner:"Valores de exemplo, não são preços reais.",
-    pickTitle:"Data, horário e pessoas", pickDate:"Data do passeio", pickSlot:"Horário", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
+    pickTitle:"Data, horário e pessoas", pickDate:"Data do passeio", pickSlot:"Horário", otherTime:"Horários padrão. Outros horários podem ser combinados pelo WhatsApp.", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
     checking:"Verificando a agenda…", busy:"<strong>Ocupada</strong> em {date}, das {slot}. Tente outro horário ou outra data.",
     askDate:"Consultar data no WhatsApp", askAvail:"Consultar disponibilidade no WhatsApp", copy:"Copiar", copied:"Copiado",
     fine:"Valores a partir de, por lancha e não por pessoa. A tabela mostra o passeio de 4 horas; o de 7 horas tem valor próprio. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.",
@@ -555,7 +556,7 @@ const UI = {
     fullDay:"Full day", tour7h:"7-hour tour", fromPrice:"from {p}", priceOnRequest:"Price on request",
     longText:"More beaches, more time for snorkeling and an unhurried barbecue. Ideal for spending the whole day at sea.",
     exampleBanner:"Example prices, not real rates.",
-    pickTitle:"Date, time and guests", pickDate:"Tour date", pickSlot:"Time", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
+    pickTitle:"Date, time and guests", pickDate:"Tour date", pickSlot:"Time", otherTime:"Standard times. Other times can be arranged on WhatsApp.", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
     checking:"Checking availability…", busy:"<strong>Booked</strong> on {date}, {slot}. Try another time or date.",
     askDate:"Ask about dates on WhatsApp", askAvail:"Check availability on WhatsApp", copy:"Copy", copied:"Copied",
     fine:"Starting prices, per boat, not per person. The table shows the 4-hour tour; the 7-hour tour has its own price. Ask about special weekday rates. A deposit secures your date. Free rescheduling if the sea is unsafe.",
@@ -602,7 +603,7 @@ const UI = {
     fullDay:"Día completo", tour7h:"Paseo de 7 horas", fromPrice:"desde {p}", priceOnRequest:"Precio a consultar",
     longText:"Más playas, más tiempo para el snorkel y asado sin apuro. Ideal para aprovechar todo el día en el mar.",
     exampleBanner:"Precios de ejemplo, no son precios reales.",
-    pickTitle:"Fecha, horario y personas", pickDate:"Fecha del paseo", pickSlot:"Horario", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
+    pickTitle:"Fecha, horario y personas", pickDate:"Fecha del paseo", pickSlot:"Horario", otherTime:"Horarios estándar. Otros horarios se pueden combinar por WhatsApp.", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
     checking:"Verificando la agenda…", busy:"<strong>Ocupada</strong> el {date}, de {slot}. Prueba otro horario u otra fecha.",
     askDate:"Consultar fecha por WhatsApp", askAvail:"Consultar disponibilidad por WhatsApp", copy:"Copiar", copied:"Copiado",
     fine:"Precios desde, por lancha y no por persona. La tabla muestra el paseo de 4 horas; el de 7 horas tiene precio propio. Consulta condiciones especiales para días de semana. La seña asegura la fecha. Reprogramación sin costo si el mar no está seguro.",
@@ -700,6 +701,7 @@ const pickerHTML = b => `
     <div class="pk-slots" role="radiogroup" aria-label="${t("pickSlot")}">
       ${SLOTS.map(s=>`<button type="button" role="radio" data-slot="${s.key}" aria-checked="${pick.slot===s.key}"><strong>${slotLabel(s.key)}</strong><small>${t("hoursN",{h:s.hours})}</small></button>`).join("")}
     </div>
+    <p class="pk-other">${t("otherTime")}</p>
     <label class="pk-people"><span>${t("pickPeople")}</span><select id="pk-people"><option value="">${t("peoplePh")}</option>${Array.from({length:b.capacity},(_,i)=>`<option value="${i+1}"${+pick.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
   </div>`;
 function bindPicker(onChange){
