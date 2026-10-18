@@ -24,13 +24,16 @@ fbq('init','1672637870274530');fbq('track','PageView');</script>
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --rt-sea:#cfe6ec; --rt-land:#ece2c8; --rt-shore:#d6c7a2;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#071a22; --surface:#0d2531; --ink:#e6f1f4; --muted:#93aeb8; --line:#1d3a47;
-  --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark}}
+  --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark;
+  --rt-sea:#0f3442; --rt-land:#25403f; --rt-shore:#35554f}}
 :root[data-theme="dark"]{
   --bg:#071a22; --surface:#0d2531; --ink:#e6f1f4; --muted:#93aeb8; --line:#1d3a47;
-  --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark}
+  --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark;
+  --rt-sea:#0f3442; --rt-land:#25403f; --rt-shore:#35554f}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sea-deep)}
@@ -173,6 +176,20 @@ nav.top a:hover{opacity:1}
 .included li{background:var(--chip);border-radius:8px;padding:8px 11px;font-size:14px;font-weight:500}
 .included li.hl{background:var(--brass);color:var(--brass-ink);font-weight:700}
 .block{margin-top:30px}
+.rt-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:center}
+@media (max-width:760px){.rt-grid{grid-template-columns:1fr;gap:20px}}
+.rt-map-wrap{border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.rt-map{display:block;width:100%;height:auto}
+.rt-map .sea{fill:var(--rt-sea)}.rt-map .land{fill:var(--rt-land);stroke:var(--rt-shore);stroke-width:1.5}
+.rt-map .route{fill:none;stroke:var(--brass);stroke-width:3;stroke-dasharray:7 7;stroke-linecap:round}
+.rt-map .pin circle{fill:var(--sea-deep);stroke:#fff;stroke-width:2.5}.rt-map .pin text{fill:#fff;font:700 12px var(--body);text-anchor:middle}
+.rt-map .compass path{fill:var(--muted)}.rt-map .compass text,.rt-map .lbl{fill:var(--muted);font:500 12px var(--mono);text-anchor:middle}.rt-map .lbl{text-anchor:end}
+.rt-lead{margin:0 0 14px;font-size:17px;color:var(--muted);max-width:52ch}
+.rt-list{columns:2;column-gap:20px;margin:0;padding:0;list-style:none;counter-reset:rt}
+.rt-list li{counter-increment:rt;break-inside:avoid;display:flex;gap:10px;align-items:center;padding:6px 0;font-weight:500}
+.rt-list li::before{content:counter(rt);flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--sea-deep);color:#fff;font:700 12px/1 var(--body)}
+.rt-note{margin:14px 0 0;font-size:14px;color:var(--muted)}
+@media (max-width:480px){.rt-list{columns:1}}
 .rev-head{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin:4px 0 0}
 .stars{color:var(--brass);letter-spacing:2px;font-size:15px}
 .reviews{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;list-style:none;padding:0 0 6px;margin:14px 0 0;scrollbar-width:thin}
@@ -435,6 +452,41 @@ const BOATS = [
   }
 ];
 
+/* ============ roteiro ============ */
+/* roteiro padrão, igual para todas as lanchas: nome e posição no mapinha (x, y) */
+const ROUTE = [
+  ["Praia da Armação",312,252],["Praia dos Ossos",360,276],["Praia Azeda",452,256],["Praia Azedinha",480,250],
+  ["Praia João Fernandes",508,294],["Praia João Fernandinho",538,290],["Ilha Branca",625,262],["Ilha Feia",470,90],
+  ["Praia da Tartaruga",232,184],["Praia dos Amores",262,207],["Praia das Virgens",296,196],["Praia do Canto",338,222]
+];
+/* mapa ilustrativo (fora de escala): linha tracejada passando por todas as paradas e voltando ao início */
+function routeMap(){
+  const P=ROUTE.map(r=>[r[1],r[2]]), n=P.length, f=v=>v.toFixed(1);
+  let d=`M${P[0]}`;
+  for(let i=0;i<n;i++){ const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];
+    d+=` C${f(p1[0]+(p2[0]-p0[0])/6)},${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)},${f(p2[1]-(p3[1]-p1[1])/6)} ${p2}`; }
+  return `<svg class="rt-map" viewBox="80 40 640 420" role="img" aria-label="${t("routeMapAria")}">
+    <rect x="80" y="40" width="640" height="420" class="sea"/>
+    <path class="land" d="M80,40 H330 C320,70 250,80 190,100 C150,118 140,150 170,172 C200,190 236,178 258,186 C285,196 318,206 340,214 C348,226 322,236 318,252 C324,272 352,288 392,280 C424,272 440,262 466,266 C492,272 520,284 566,300 C548,322 494,334 444,342 C390,350 360,374 372,410 C380,440 330,460 300,460 H80 Z"/>
+    <ellipse class="land" cx="470" cy="80" rx="26" ry="12"/><ellipse class="land" cx="628" cy="250" rx="18" ry="10"/>
+    <path class="route" d="${d}"/>
+    ${ROUTE.map(([nm,x,y],i)=>`<g class="pin" transform="translate(${x} ${y})"><title>${nm}</title><circle r="11"/><text y="4">${i+1}</text></g>`).join("")}
+    <g class="compass" transform="translate(680 90)"><path d="M0,-18 L6,4 L0,0 L-6,4 Z"/><text y="20">N</text></g>
+    <text class="lbl" x="700" y="440" text-anchor="end">Armação dos Búzios · RJ</text>
+  </svg>`;
+}
+function routeSection(){
+  return `<section class="section" id="roteiro" style="padding-top:0"><div class="wrap">
+    <div class="section-head"><div><span class="eyebrow">${t("routeEyebrow")}</span><h2>${t("routeTitle")}</h2></div></div>
+    <div class="rt-grid">
+      <div class="rt-map-wrap">${routeMap()}</div>
+      <div><p class="rt-lead">${t("routeText")}</p>
+        <ol class="rt-list">${ROUTE.map(([nm])=>`<li>${nm}</li>`).join("")}</ol>
+        <p class="rt-note">${t("routeNote")}</p></div>
+    </div>
+  </div></section>`;
+}
+
 /* ============ idiomas ============ */
 /* Itens curtos do catálogo (incluso, legendas, tripulação): português → [inglês, espanhol].
    Ao incluir um item novo no catálogo, acrescente a tradução aqui; sem tradução, aparece em português. */
@@ -521,6 +573,7 @@ const UI = {
     noneInRange:"Ainda não temos lanchas nessa faixa. Chame no WhatsApp que encontramos uma opção para o seu grupo.",
     boatPhoto:"Foto da lancha", featured:"Destaque da casa", example:"Exemplo", from4h:"Passeio de 4h · a partir de", onRequest:"Sob consulta", seeBoat:"Ver lancha →",
     feet:"pés", people:"pessoas",
+    routeEyebrow:"Roteiro", routeTitle:"Passeio de lancha em Búzios: o roteiro", routeText:"Todas as lanchas fazem o mesmo roteiro pelas praias e ilhas mais bonitas de Búzios, passando pela Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia e Tartaruga.", routeNote:"Mapa ilustrativo, fora de escala. As paradas podem variar conforme o mar e o vento.", routeBoat:"O passeio passa por {list} e outras praias de Búzios.", routeSee:"Ver o mapa do roteiro", routeMapAria:"Mapa do roteiro do passeio de lancha em Búzios",
     howEyebrow:"Reserva", howTitle:"Como funciona", step:"Passo",
     how1t:"Escolha a lancha", how1p:"Compare tamanho, capacidade e o que vem incluso.",
     how2t:"Chame no WhatsApp", how2p:"Na página da lancha, escolha a data, o horário e quantas pessoas vão. A mensagem já vai com tudo isso.",
@@ -572,6 +625,7 @@ const UI = {
     noneInRange:"We don't have boats in this range yet. Message us on WhatsApp and we'll find an option for your group.",
     boatPhoto:"Boat photo", featured:"Our flagship", example:"Example", from4h:"4-hour tour · from", onRequest:"On request", seeBoat:"See boat →",
     feet:"ft", people:"people",
+    routeEyebrow:"Route", routeTitle:"Boat tour in Búzios: the route", routeText:"Every boat follows the same route along the most beautiful beaches and islands of Búzios, passing Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia and Tartaruga.", routeNote:"Illustrative map, not to scale. Stops may vary with the sea and wind.", routeBoat:"The tour passes {list} and other Búzios beaches.", routeSee:"See the route map", routeMapAria:"Map of the Búzios boat tour route",
     howEyebrow:"Booking", howTitle:"How it works", step:"Step",
     how1t:"Choose your boat", how1p:"Compare size, capacity and what's included.",
     how2t:"Message us on WhatsApp", how2p:"On the boat's page, pick the date, time and number of people. The message already includes all of it.",
@@ -623,6 +677,7 @@ const UI = {
     noneInRange:"Todavía no tenemos lanchas en este rango. Escríbenos por WhatsApp y encontramos una opción para tu grupo.",
     boatPhoto:"Foto de la lancha", featured:"Destacada de la casa", example:"Ejemplo", from4h:"Paseo de 4 h · desde", onRequest:"A consultar", seeBoat:"Ver lancha →",
     feet:"pies", people:"personas",
+    routeEyebrow:"Recorrido", routeTitle:"Paseo en lancha en Búzios: el recorrido", routeText:"Todas las lanchas hacen el mismo recorrido por las playas e islas más lindas de Búzios, pasando por Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia y Tartaruga.", routeNote:"Mapa ilustrativo, fuera de escala. Las paradas pueden variar según el mar y el viento.", routeBoat:"El paseo pasa por {list} y otras playas de Búzios.", routeSee:"Ver el mapa del recorrido", routeMapAria:"Mapa del recorrido del paseo en lancha en Búzios",
     howEyebrow:"Reserva", howTitle:"Cómo funciona", step:"Paso",
     how1t:"Elige la lancha", how1p:"Compara tamaño, capacidad y lo que incluye.",
     how2t:"Escríbenos por WhatsApp", how2p:"En la página de la lancha, elige la fecha, el horario y cuántas personas van. El mensaje ya va con todo eso.",
@@ -909,6 +964,7 @@ function home(){
         </a>`).join("")}
     </div>
   </div></section>
+  ${routeSection()}
   <section class="section" id="como" style="padding-top:0"><div class="wrap">
     <div class="section-head"><div><span class="eyebrow">${t("howEyebrow")}</span><h2>${t("howTitle")}</h2></div></div>
     <div class="how" style="--step:'${t("step")} '">
@@ -965,6 +1021,7 @@ function boatPage(b){
         <div class="block"><h2>${t("included")}</h2><ul class="included">${b.included.map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("")}</ul></div>
         <div class="block"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
         <div class="block"><h2>${t("crewTitle")}</h2><p style="color:var(--muted);margin:6px 0 0">${tx(b.crew)}. ${t("crewText")}</p></div>
+        <div class="block"><h2>${t("routeEyebrow")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("routeBoat",{list:ROUTE.slice(0,8).map(r=>r[0]).join(", ")})} <a href="${pathFor(lang)}#roteiro">${t("routeSee")}</a></p></div>
         ${b.reviews?`<div class="block"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
           <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
