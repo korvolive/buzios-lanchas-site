@@ -284,7 +284,7 @@ const BOATS = [
     included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Churrasqueira","Serviço de churrasqueiro","Cooler","Gerador de energia","Air fryer","Cabine com cama de casal","TV na cabine","Som Hertz Marine com Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:2000, media:2500, alta:3000}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
-    agenda:null /* link da planilha Google de disponibilidade desta lancha; null = disponibilidade a confirmar */
+    agenda:null /* link da planilha Google de disponibilidade desta lancha; null = sempre disponível (planilhas guardadas para testar no futuro) */
   },
   {
     slug:"les-zuzu", name:"Les Zuzu", featured:false, example:false,
@@ -422,10 +422,10 @@ function loadAgenda(b){
     return busy;
   }).catch(()=>{ delete agendas[b.slug]; return null; });
 }
-/* "livre", "ocupada" ou "confirmar" (sem planilha ou planilha fora do ar) */
+/* "livre" ou "ocupada"; lancha sem planilha (ou planilha fora do ar) fica sempre livre */
 async function statusFor(b,iso,slot){
   const busy = await loadAgenda(b);
-  if(!busy) return "confirmar";
+  if(!busy) return "livre";
   const s = busy.get(iso); if(!s) return "livre";
   if(s.has("dia") || s.has(slot) || (slot==="dia" && s.size)) return "ocupada";
   return "livre";
@@ -453,13 +453,13 @@ async function showResults(){
   const st=await Promise.all(order.map(b=>statusFor(b,pick.date,pick.slot)));
   if(my!==seq) return;
   const list=order.map((b,i)=>[b,st[i]]).filter(([,s])=>s!=="ocupada");
-  const head=`<p class="pk-head"><strong>${list.length? `${list.length} ${list.length>1?"lanchas disponíveis":"lancha disponível"}`:"Nenhuma lancha livre"}</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}</p>`;
+  const head=`<p class="pk-head"><strong>${list.length? `${list.length} ${list.length>1?"lanchas disponíveis":"lancha disponível"}`:"Nenhuma lancha disponível"}</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}</p>`;
   if(!list.length){ out.innerHTML=head+`<p class="pk-hint">Tente outro horário ou outra data, ou <a href="${waLink("frota")}" target="_blank" rel="noopener">chame no WhatsApp</a> que procuramos uma opção para você.</p>`; return; }
-  out.innerHTML=head+`<div class="pk-grid">${list.map(([b,s])=>{ const p=priceFor(b,pick.date,pick.slot); return `
+  out.innerHTML=head+`<div class="pk-grid">${list.map(([b])=>{ const p=priceFor(b,pick.date,pick.slot); return `
     <div class="pk-card">
       ${b.photos?`<img src="img/${b.photos[0][0]}-t.jpg" alt="${b.photos[0][1]}" style="object-position:${b.photos[0][2]}" loading="lazy">`:ph("Foto da lancha")}
       <div class="pk-body">
-        <div class="pk-title"><h3>${b.name}</h3>${s==="livre"?`<span class="pk-st ok">Livre</span>`:`<span class="pk-st">Confirmar data</span>`}</div>
+        <div class="pk-title"><h3>${b.name}</h3><span class="pk-st ok">Disponível</span></div>
         ${specs(b)}
         <p class="pk-price"><span>${seasonOf(pick.date).label} · ${slotOf(pick.slot).hours}h · a partir de</span><strong>${p?brl(p):"Sob consulta"}</strong></p>
         <div class="pk-actions"><a class="btn" href="${waBook(b,pick.date,pick.slot)}" target="_blank" rel="noopener">Reservar no WhatsApp</a><a class="pk-more" href="#lancha-${b.slug}">Ver lancha</a></div>
@@ -474,7 +474,7 @@ async function showBoatStatus(b){
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
   const p=priceFor(b,pick.date,pick.slot);
   if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy"><strong>Ocupada</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label}. Tente outro horário ou <a href="#inicio" data-scroll="reservar">veja as lanchas livres nessa data</a>.</p>`; bindScroll(); return; }
-  out.innerHTML=`<p class="pk-res ${s==="livre"?"ok":""}"><strong>${s==="livre"?"Livre":"Disponibilidade a confirmar"}</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label} · ${seasonOf(pick.date).label.toLowerCase()} · a partir de <strong>${p?brl(p):"sob consulta"}</strong></p>`;
+  out.innerHTML=`<p class="pk-res ok"><strong>Disponível</strong> em ${fmtDate(pick.date)}, das ${slotOf(pick.slot).label} · ${seasonOf(pick.date).label.toLowerCase()} · ${p?`a partir de <strong>${brl(p)}</strong>`:"valor sob consulta"}</p>`;
   btn.href=waBook(b,pick.date,pick.slot); btn.textContent="Reservar no WhatsApp";
 }
 
