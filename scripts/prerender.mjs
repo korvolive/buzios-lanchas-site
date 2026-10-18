@@ -40,7 +40,11 @@ async function snap(l, slug) {
   await page.goto(base + url, { waitUntil: "domcontentloaded" });
   const final = new URL(page.url()).pathname;
   if (final !== url) throw new Error(`${url} foi redirecionado para ${final}`);
-  const html = "<!doctype html>\n" + (await page.evaluate(() => document.documentElement.outerHTML));
+  /* tira os scripts que o Google Tag Manager e o Meta Pixel acrescentam; eles são carregados de novo na visita */
+  const html = "<!doctype html>\n" + (await page.evaluate(() => {
+    document.querySelectorAll('script[src*="googletagmanager.com"],script[src*="connect.facebook.net"]').forEach(s => s.remove());
+    return document.documentElement.outerHTML;
+  }));
   if (!html.includes(`rel="canonical" href="${SITE}${url}"`)) throw new Error(`${url} sem canonical`);
   pages.push({ url, slug, html });
 }
