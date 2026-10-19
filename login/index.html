@@ -194,6 +194,8 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .nslots button[aria-checked=true]{background:var(--sea);border-color:var(--sea);color:#fff}.nslots button[aria-checked=true] small{color:inherit}
 .nslots button[data-ns=noite]{grid-column:1/-1}
 .pwlink{text-align:center;margin:18px 0 0}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;margin:0 0 8px}
+.or{text-align:center;font-size:14px;margin:4px 0 12px}
 /* clientes e pedidos do site */
 .chk{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;font-size:14px;line-height:1.45}
 .chk input{width:20px;height:20px;flex:none;margin:1px 0 0;accent-color:var(--sea)}
@@ -337,7 +339,7 @@ const T = {
 };
 /* contas de clientes, pedidos do site e troca de data/horário/lancha */
 Object.assign(T.pt, {
-  signupBtn:"Criar conta de cliente", haveAcc:"Já tenho conta: entrar", signupTitle:"Criar sua conta", signupSub:"Com a conta, seus pedidos de lancha ficam salvos e você acompanha tudo por aqui.",
+  signupBtn:"Criar conta de cliente", google:"Entrar com Google", orEmail:"ou com e-mail e senha", haveAcc:"Já tenho conta: entrar", signupTitle:"Criar sua conta", signupSub:"Com a conta, seus pedidos de lancha ficam salvos e você acompanha tudo por aqui.",
   fullName:"Nome completo", ph_fullName:"Ex.: Maria da Silva", cpf:"CPF", whats:"WhatsApp",
   consent:'Li e aceito os <a href="/privacidade/" target="_blank" rel="noopener">termos de uso e a política de privacidade</a>.', consentNeed:"Para criar a conta, aceite os termos.",
   nameBad:"Escreva o nome completo (nome e sobrenome).", myPhoneBad:"Seu WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", cpfBad:"CPF inválido. Confira os números.", cpfTaken:"Esse CPF já tem uma conta. Entre com o e-mail dela ou fale com a Búzios Lanchas.",
@@ -357,7 +359,7 @@ Object.assign(T.pt, {
   siteClient:"cliente do site", cliCard:"Ver cadastro do cliente", cliSince:"Cliente desde", cliTrips:"Passeios confirmados", moved:"Passeio alterado.", moveHint:"Mude lancha, data ou horário aqui: a agenda e o calendário da lancha mudam juntos."
 });
 Object.assign(T.en, {
-  signupBtn:"Create a customer account", haveAcc:"I already have an account: sign in", signupTitle:"Create your account", signupSub:"With an account, your boat requests are saved and you can follow everything here.",
+  signupBtn:"Create a customer account", google:"Continue with Google", orEmail:"or with email and password", haveAcc:"I already have an account: sign in", signupTitle:"Create your account", signupSub:"With an account, your boat requests are saved and you can follow everything here.",
   fullName:"Full name", ph_fullName:"E.g. Maria da Silva", cpf:"CPF (Brazilian tax ID)", whats:"WhatsApp",
   consent:'I have read and accept the <a href="/privacidade/" target="_blank" rel="noopener">terms of use and privacy policy</a>.', consentNeed:"Please accept the terms to create your account.",
   nameBad:"Type your full name (first and last name).", myPhoneBad:"Your WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", cpfBad:"Invalid CPF. Please check the numbers.", cpfTaken:"This CPF already has an account. Sign in with its email or contact Búzios Lanchas.",
@@ -377,7 +379,7 @@ Object.assign(T.en, {
   siteClient:"website customer", cliCard:"See customer details", cliSince:"Customer since", cliTrips:"Confirmed tours", moved:"Tour changed.", moveHint:"Change boat, date or time here: the boat's list and calendar change too."
 });
 Object.assign(T.es, {
-  signupBtn:"Crear cuenta de cliente", haveAcc:"Ya tengo cuenta: entrar", signupTitle:"Crea tu cuenta", signupSub:"Con la cuenta, tus pedidos de lancha quedan guardados y sigues todo por aquí.",
+  signupBtn:"Crear cuenta de cliente", google:"Entrar con Google", orEmail:"o con correo y contraseña", haveAcc:"Ya tengo cuenta: entrar", signupTitle:"Crea tu cuenta", signupSub:"Con la cuenta, tus pedidos de lancha quedan guardados y sigues todo por aquí.",
   fullName:"Nombre completo", ph_fullName:"Ej.: María da Silva", cpf:"CPF (documento brasileño)", whats:"WhatsApp",
   consent:'Leí y acepto los <a href="/privacidade/" target="_blank" rel="noopener">términos de uso y la política de privacidad</a>.', consentNeed:"Para crear la cuenta, acepta los términos.",
   nameBad:"Escribe tu nombre completo (nombre y apellido).", myPhoneBad:"Tu WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", cpfBad:"CPF inválido. Revisa los números.", cpfTaken:"Este CPF ya tiene una cuenta. Entra con su correo o habla con Búzios Lanchas.",
@@ -457,18 +459,28 @@ function bindLang(){ const s=document.getElementById("lang"); if(s) s.onchange=(
 /* ===== telas ===== */
 let view = "login", loginMsg = "", loginErr = false, typedEmail = "";
 function show(){
-  document.title = t("appName");
+  document.title = t("appName"); checkGoogle();
   if(!ses && view!=="newpw" && view!=="signup") view="login";
   if(view==="login") return loginView();
   if(view==="newpw") return newPwView();
   if(view==="signup") return signupView();
   mainView();
 }
+/* "Entrar com Google": o botão só aparece quando o Google está ligado no Supabase (Authentication > Providers) */
+let googleOn = null;
+const GOOGLE_ICON = `<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>`;
+const googleBtn = () => googleOn ? `<a class="btn gbtn" href="${SB}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(location.origin+"/login/")}">${GOOGLE_ICON}<span>${t("google")}</span></a><p class="or muted">${t("orEmail")}</p>` : "";
+function checkGoogle(){
+  if(googleOn!==null) return;
+  googleOn = false;
+  fetch(SB+"/auth/v1/settings",{headers:{apikey:KEY}}).then(r=>r.ok?r.json():null).then(j=>{ if(j?.external?.google){ googleOn=true; if(view==="login"||view==="signup") show(); } }).catch(()=>{});
+}
 function loginView(){
   top_.hidden = true;
   app.innerHTML = `<div class="login">
     <div style="display:flex;justify-content:space-between;align-items:flex-start"><img class="logo" src="/login/icon-192.png" alt=""><span class="top-lang" style="background:var(--sea-deep);border-radius:999px">${langSel()}</span></div>
     <h1>${t("loginTitle")}</h1><p class="muted">${t("loginSub")}</p>
+    ${googleBtn()}
     <form class="card" id="lf" novalidate>
       ${loginMsg?`<p class="msg ${loginErr?"err":"ok"}">${loginMsg}</p>`:""}
       <label class="f"><span>${t("email")}</span><input type="email" id="em" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(typedEmail||store.get("dono-email")||"")}" required></label>
@@ -554,7 +566,7 @@ function loginShell(title, sub, form){
   bindLang();
 }
 function signupView(){
-  loginShell(t("signupTitle"), t("signupSub"), `<form class="card" id="sf" novalidate><div id="smsg"></div>
+  loginShell(t("signupTitle"), t("signupSub"), `${googleBtn()}<form class="card" id="sf" novalidate><div id="smsg"></div>
       ${profileFields(store.get("cli-draft")||{})}
       <label class="f"><span>${t("email")}${REQ}</span><input type="email" id="em" autocomplete="email" inputmode="email" autocapitalize="off" value="${esc(typedEmail)}"></label>
       <label class="f"><span>${t("password")}${REQ} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>
