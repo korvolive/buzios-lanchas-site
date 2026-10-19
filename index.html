@@ -397,6 +397,7 @@ const BOATS = [
       es:{tagline:"Totalmente reformada, climatizada y con sonido premium. Ideal para familias, amigos y celebraciones.",
           description:"La Miss Bardot es el escenario perfecto para vivir lo mejor de Búzios: un paseo romántico, un momento en familia o un día entre amigos. Son 35 pies con ambientes climatizados, camarote con cama doble y TV, baño, cocina con freidora de aire y parrilla. Lo más destacado es el sistema de sonido premium Hertz Marine: audio potente y nítido, hecho para sonar fuerte al aire libre sin perder calidad. Solo tienes que conectar tu playlist por Bluetooth y convertir el mar de Búzios en tu pista de baile. Paseos de día, al atardecer o nocturnos."}
     },
+    itemLabel:{"Som Bluetooth":"Som Hertz Marine com Bluetooth"}, /* nome especial de um item da lista do app dos donos */
     included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Churrasqueira","Serviço de churrasqueiro","Cooler","Gerador de energia","Air fryer","Cabine com cama de casal","TV na cabine","Som Hertz Marine com Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:2200, media:2500, alta:3000, pico:4000, reveillon:4500}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
@@ -569,6 +570,9 @@ const PHRASES = {
   "Piscina flutuante":["Floating pool","Piscina flotante"],
   "Wi-Fi Starlink":["Starlink Wi-Fi","Wi-Fi Starlink"],
   "Banheiro":["Bathroom","Baño"],
+  "Geladeira":["Fridge","Refrigerador"],
+  "Stand up paddle":["Stand up paddle","Stand up paddle"],
+  "Caiaque":["Kayak","Kayak"],
   "Churrasqueira":["Barbecue grill","Parrilla"],
   "Serviço de churrasqueiro":["Grill service","Servicio de parrillero"],
   "Cooler":["Cooler","Hielera"],
@@ -869,6 +873,22 @@ function loadAgenda(){
     .then(rows=>{ const m=new Map(); rows.forEach(r=>{ const k=r.lancha+"|"+r.data; if(!m.has(k)) m.set(k,new Set()); m.get(k).add(r.horario); }); return m; })
     .catch(()=>{ agenda=null; return null; });
 }
+/* Itens de cada lancha: o dono marca no app /dono/ (tabela itens). Os básicos ficam sempre; os opcionais
+   vêm do banco na ordem de ITEM_ORDER. Se o banco não responder, vale a lista "included" do código. */
+const ITEM_ORDER = ["Banheiro","Churrasqueira","Serviço de churrasqueiro","Cooler","Ar-condicionado","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","TV na cabine","Som Bluetooth","Toldo com sombra","Solário na popa","Piscina inflável","Piscina flutuante","Tapete flutuante","Stand up paddle","Caiaque","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante"];
+let itens = null, itensP = null;
+function loadItens(){
+  return itensP ||= fetch(AGENDA_URL.replace("bloqueios","itens")+"?select=lancha,opcionais", {headers:{apikey:AGENDA_KEY}})
+    .then(r=>r.ok ? r.json() : Promise.reject(r.status))
+    .then(rows=>{ itens = new Map(rows.map(r=>[r.lancha, r.opcionais||[]])); return itens; })
+    .catch(()=>null);
+}
+const incItems = b => boatItems(b).map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("");
+function boatItems(b){
+  const opt = itens && itens.get(b.slug); if(!opt) return b.included;
+  const lab = b.itemLabel||{}, optional = new Set([...ITEM_ORDER, ...Object.values(lab)]);
+  return [...b.included.filter(i=>!optional.has(i)), ...ITEM_ORDER.filter(k=>opt.includes(k)).map(k=>lab[k]||k)];
+}
 const busyOn = (busy,b,iso) => busy && busy.get(b.slug+"|"+iso);
 /* dia todo ocupa tudo; manhã ou tarde ocupam o dia todo; sem horário escolhido, só conta se não sobrar nenhum */
 function isBusy(s,slot,iso){
@@ -1113,7 +1133,7 @@ function boatPage(b){
             <div><b>4h / 7h</b><span>${t("specTours")}</span></div>
           </div>
         </div>
-        <div class="block"><h2>${t("included")}</h2><ul class="included">${b.included.map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("")}</ul></div>
+        <div class="block"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
         <div class="block"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
         <div class="block"><h2>${t("crewTitle")}</h2><p style="color:var(--muted);margin:6px 0 0">${tx(b.crew)}. ${t("crewText")}</p></div>
         ${b.reviews?`<div class="block"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
@@ -1154,6 +1174,7 @@ function render(toTop=true){
   if(b && toTop) window.scrollTo(0,0);
   bind(); bindGallery(b);
   if(b) bindPicker(()=>showBoatStatus(b));
+  if(b && !itens) loadItens().then(m=>{ const ul=document.getElementById("inc-list"); if(m && ul && route.slug===b.slug) ul.innerHTML=incItems(b); });
 }
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm horário livre na data */
 async function applyWhen(){
