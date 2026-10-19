@@ -5,8 +5,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Agenda Lanchas">
-<title>Agenda dos donos · Búzios Lanchas</title>
+<meta name="apple-mobile-web-app-title" content="Agenda Búzios Lanchas">
+<title>Agenda Búzios Lanchas</title>
 <link rel="manifest" href="/dono/manifest.webmanifest">
 <link rel="icon" href="/dono/icon-192.png">
 <link rel="apple-touch-icon" href="/dono/apple-touch-icon.png">
@@ -120,6 +120,11 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .note-btn span{color:var(--ink);font-weight:400}
 .nform textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font:inherit;font-size:16px;resize:vertical}
 .nform label.f{margin-bottom:10px} .nform input{padding:12px} .nform label.f span{font-size:14px}
+.msg.ro{background:var(--chip);color:var(--ink);font-size:14px}
+.rolist{border-top:1px solid var(--line);margin-top:10px}.rorow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.rorow span{color:var(--muted)}.rorow strong{text-align:right;word-break:break-word}
+.staff li{flex-wrap:wrap;align-items:center}.staff label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.check{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:15px}.check input{width:22px;height:22px}
 .row2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
 .phone{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.6fr);gap:8px}
 .nform select.in{padding:12px}
@@ -135,7 +140,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .org{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--chip);color:var(--sea)}
 .org-fora{background:var(--half);color:var(--half-ink)}
 .org-buzios{background:var(--brass);color:var(--brass-ink)}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--chip);border-radius:14px;padding:4px;margin:0 0 14px}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--chip);border-radius:14px;padding:4px;margin:0 0 14px}
 .tabs button{border:0;background:none;border-radius:10px;padding:10px;font-weight:700;color:var(--muted)}
 .tabs button[aria-selected=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .newtrip{margin:0 0 14px}
@@ -180,7 +185,7 @@ const KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
 const WHATS = "5521999272550";
 
 const T = {
-  pt:{ locale:"pt-BR", tabList:"Passeios", tabCal:"Calendário", tabBoat:"Lancha", itemsT:"O que a lancha oferece", itemsSub:"Toque para marcar ou desmarcar. A página da lancha no site muda sozinha.", itemsBasic:"Sempre inclusos (não dá para tirar)", itemsOpt:"Itens da lancha", itemsSaved:"Salvo! O site já mostra a lista nova.", itemsAll:"Escolha uma lancha para marcar os itens.", needSqlItens:"Falta criar a tabela de itens no Supabase (arquivo 2026-10-19_supabase-remover-e-itens.sql).", adminLine:"Administrador de todas as lanchas", you:"você", newTrip:"+ Novo passeio", allBoats:"Todas", noClientName:"Cliente não informado", addClient:"+ Adicionar cliente", pastShow:"Ver passeios anteriores", pastHide:"Esconder passeios anteriores", pastTitle:"Passeios anteriores", tripNew:"Novo passeio", tripEdit:"Passeio", dateL:"Data", slotQ:"Horário", freeSlot:"Liberar este horário", slotTaken:"Já tem passeio marcado nesse horário. Escolha outro.", needDateSlot:"Escolha a data e o horário.", monthHead:"{n} passeios", monthHead1:"1 passeio", listHow:"Seus próximos passeios. Toque num passeio para ver ou editar os dados do cliente.", noneList:"Nenhum passeio marcado ainda. Toque em <strong>+ Novo passeio</strong> para começar.", tripSaved:"Passeio salvo! O site já mostra esse horário como indisponível.", closedBy:"Fechado por", o_buzios:"Búzios Lanchas", o_fora:"Fora da Búzios Lanchas", c_dia:"Dia", c_manha:"Manhã", c_tarde:"Tarde", c_both:"M+T", appName:"Agenda dos donos", loginTitle:"Agenda dos donos", loginSub:"Entre com o e-mail e a senha que o Rodrigo te passou.",
+  pt:{ locale:"pt-BR", staffT:"Funcionários (só visualizam)", staffSub:"Quem você colocar aqui vê a agenda e os clientes da {boat}, mas não altera nada.", staffNone:"Nenhum funcionário ainda.", staffVals:"vê os valores", staffValsLong:"Pode ver os valores cobrados", staffEmail:"E-mail do funcionário", staffPw:"Senha para o funcionário", staffPwHint:"só se ele ainda não tiver login; pelo menos 6 letras ou números", staffAdd:"Adicionar funcionário", staffLinked:"Pronto! {email} já pode ver a agenda da {boat}.", waStaff:"Olá! Este é o seu acesso para ver a agenda da {boat} na Búzios Lanchas.\nEndereço: {url}\nE-mail: {email}\nSenha: {pw}", needSqlStaff:"Falta criar a parte de funcionários no Supabase (arquivo 2026-10-19_supabase-funcionarios.sql).", roNote:"Você só visualiza a agenda desta lancha. Para mudar algo, fale com o dono.", roSheet:"Somente visualização.", listHowRO:"Próximos passeios. Toque num passeio para ver os dados do cliente.", toPayL:"Falta pagar", tabList:"Passeios", tabCal:"Calendário", tabBoat:"Lancha", itemsT:"O que a lancha oferece", itemsSub:"Toque para marcar ou desmarcar. A página da lancha no site muda sozinha.", itemsBasic:"Sempre inclusos (não dá para tirar)", itemsOpt:"Itens da lancha", itemsSaved:"Salvo! O site já mostra a lista nova.", itemsAll:"Escolha uma lancha para marcar os itens.", needSqlItens:"Falta criar a tabela de itens no Supabase (arquivo 2026-10-19_supabase-remover-e-itens.sql).", adminLine:"Administrador de todas as lanchas", you:"você", newTrip:"+ Novo passeio", allBoats:"Todas", noClientName:"Cliente não informado", addClient:"+ Adicionar cliente", pastShow:"Ver passeios anteriores", pastHide:"Esconder passeios anteriores", pastTitle:"Passeios anteriores", tripNew:"Novo passeio", tripEdit:"Passeio", dateL:"Data", slotQ:"Horário", freeSlot:"Liberar este horário", slotTaken:"Já tem passeio marcado nesse horário. Escolha outro.", needDateSlot:"Escolha a data e o horário.", monthHead:"{n} passeios", monthHead1:"1 passeio", listHow:"Seus próximos passeios. Toque num passeio para ver ou editar os dados do cliente.", noneList:"Nenhum passeio marcado ainda. Toque em <strong>+ Novo passeio</strong> para começar.", tripSaved:"Passeio salvo! O site já mostra esse horário como indisponível.", closedBy:"Fechado por", o_buzios:"Búzios Lanchas", o_fora:"Fora da Búzios Lanchas", c_dia:"Dia", c_manha:"Manhã", c_tarde:"Tarde", c_both:"M+T", appName:"Agenda Búzios Lanchas", loginTitle:"Agenda dos donos", loginSub:"Entre com o e-mail e a senha que o Rodrigo te passou.",
     email:"E-mail", password:"Senha", show:"Mostrar", hide:"Esconder", enter:"Entrar", entering:"Entrando…", forgot:"Esqueci minha senha",
     badLogin:"E-mail ou senha incorretos.", notConfirmed:"Este e-mail ainda não foi confirmado. Fale com o Rodrigo.", netErr:"Sem conexão. Confira a internet e tente de novo.",
     forgotSent:"Pronto! Enviamos um link para {email}. Abra o e-mail no celular e toque no link para criar uma senha nova.", needEmail:"Escreva seu e-mail primeiro.",
@@ -215,7 +220,7 @@ const T = {
     needPw:"Esse e-mail ainda não tem login. Escreva uma senha (pelo menos 6 caracteres) para criar.", confirmOn:"O login foi criado, mas o Supabase está pedindo confirmação por e-mail. Desligue em Authentication › Sign In / Providers › Email › Confirm email.",
     ownerEmail:"E-mail do dono", boat:"Lancha", link:"Ligar dono", linked:"Pronto! {email} já pode marcar a agenda da {boat}.",
     notFound:"Não foi possível criar o login desse e-mail.", ownersNone:"Nenhum dono ligado ainda.", ownersT:"Quem administra cada lancha", nobody:"Ninguém ainda", remove:"Remover", confirmRm:"Tirar o acesso de {email} à {boat}?", removed:"Acesso removido.", rmErr:"Não deu para remover. Tente de novo." },
-  en:{ locale:"en-US", tabList:"Tours", tabCal:"Calendar", tabBoat:"Boat", itemsT:"What the boat offers", itemsSub:"Tap to check or uncheck. The boat's page on the website updates by itself.", itemsBasic:"Always included (can't be removed)", itemsOpt:"Boat items", itemsSaved:"Saved! The website already shows the new list.", itemsAll:"Choose a boat to set its items.", needSqlItens:"The items table is missing in Supabase (file 2026-10-19_supabase-remover-e-itens.sql).", adminLine:"Administrator of all boats", you:"you", newTrip:"+ New tour", allBoats:"All", noClientName:"Client not entered", addClient:"+ Add client", pastShow:"See past tours", pastHide:"Hide past tours", pastTitle:"Past tours", tripNew:"New tour", tripEdit:"Tour", dateL:"Date", slotQ:"Time", freeSlot:"Free this slot", slotTaken:"There is already a tour at this time. Pick another.", needDateSlot:"Choose the date and the time.", monthHead:"{n} tours", monthHead1:"1 tour", listHow:"Your upcoming tours. Tap a tour to see or edit the client details.", noneList:"No tours booked yet. Tap <strong>+ New tour</strong> to start.", tripSaved:"Tour saved! The website now shows this slot as unavailable.", closedBy:"Booked by", o_buzios:"Búzios Lanchas", o_fora:"Outside Búzios Lanchas", c_dia:"Day", c_manha:"AM", c_tarde:"PM", c_both:"AM+PM", appName:"Owners' calendar", loginTitle:"Owners' calendar", loginSub:"Sign in with the email and password Rodrigo gave you.",
+  en:{ locale:"en-US", staffT:"Staff (view only)", staffSub:"People you add here see the calendar and clients of {boat}, but can't change anything.", staffNone:"No staff yet.", staffVals:"sees prices", staffValsLong:"Can see the prices charged", staffEmail:"Staff email", staffPw:"Password for the staff member", staffPwHint:"only if they don't have a login yet; at least 6 letters or numbers", staffAdd:"Add staff member", staffLinked:"Done! {email} can now see the calendar of {boat}.", waStaff:"Hi! This is your access to view the {boat} calendar at Búzios Lanchas.\nAddress: {url}\nEmail: {email}\nPassword: {pw}", needSqlStaff:"The staff part is missing in Supabase (file 2026-10-19_supabase-funcionarios.sql).", roNote:"You can only view this boat's calendar. To change something, talk to the owner.", roSheet:"View only.", listHowRO:"Upcoming tours. Tap a tour to see the client details.", toPayL:"Still due", tabList:"Tours", tabCal:"Calendar", tabBoat:"Boat", itemsT:"What the boat offers", itemsSub:"Tap to check or uncheck. The boat's page on the website updates by itself.", itemsBasic:"Always included (can't be removed)", itemsOpt:"Boat items", itemsSaved:"Saved! The website already shows the new list.", itemsAll:"Choose a boat to set its items.", needSqlItens:"The items table is missing in Supabase (file 2026-10-19_supabase-remover-e-itens.sql).", adminLine:"Administrator of all boats", you:"you", newTrip:"+ New tour", allBoats:"All", noClientName:"Client not entered", addClient:"+ Add client", pastShow:"See past tours", pastHide:"Hide past tours", pastTitle:"Past tours", tripNew:"New tour", tripEdit:"Tour", dateL:"Date", slotQ:"Time", freeSlot:"Free this slot", slotTaken:"There is already a tour at this time. Pick another.", needDateSlot:"Choose the date and the time.", monthHead:"{n} tours", monthHead1:"1 tour", listHow:"Your upcoming tours. Tap a tour to see or edit the client details.", noneList:"No tours booked yet. Tap <strong>+ New tour</strong> to start.", tripSaved:"Tour saved! The website now shows this slot as unavailable.", closedBy:"Booked by", o_buzios:"Búzios Lanchas", o_fora:"Outside Búzios Lanchas", c_dia:"Day", c_manha:"AM", c_tarde:"PM", c_both:"AM+PM", appName:"Agenda Búzios Lanchas", loginTitle:"Owners' calendar", loginSub:"Sign in with the email and password Rodrigo gave you.",
     email:"Email", password:"Password", show:"Show", hide:"Hide", enter:"Sign in", entering:"Signing in…", forgot:"I forgot my password",
     badLogin:"Wrong email or password.", notConfirmed:"This email hasn't been confirmed yet. Please talk to Rodrigo.", netErr:"No connection. Check your internet and try again.",
     forgotSent:"Done! We sent a link to {email}. Open the email on your phone and tap the link to create a new password.", needEmail:"Type your email first.",
@@ -250,7 +255,7 @@ const T = {
     needPw:"This email has no login yet. Type a password (at least 6 characters) to create it.", confirmOn:"The login was created, but Supabase is asking for email confirmation. Turn it off in Authentication › Sign In / Providers › Email › Confirm email.",
     ownerEmail:"Owner's email", boat:"Boat", link:"Link owner", linked:"Done! {email} can now update {boat}'s calendar.",
     notFound:"Couldn't create a login for this email.", ownersNone:"No owners linked yet.", ownersT:"Who manages each boat", nobody:"Nobody yet", remove:"Remove", confirmRm:"Remove {email}'s access to {boat}?", removed:"Access removed.", rmErr:"Couldn't remove. Please try again." },
-  es:{ locale:"es-ES", tabList:"Paseos", tabCal:"Calendario", tabBoat:"Lancha", itemsT:"Lo que ofrece la lancha", itemsSub:"Toca para marcar o desmarcar. La página de la lancha en el sitio cambia sola.", itemsBasic:"Siempre incluidos (no se pueden quitar)", itemsOpt:"Ítems de la lancha", itemsSaved:"¡Guardado! El sitio ya muestra la lista nueva.", itemsAll:"Elige una lancha para marcar los ítems.", needSqlItens:"Falta crear la tabla de ítems en Supabase (archivo 2026-10-19_supabase-remover-e-itens.sql).", adminLine:"Administrador de todas las lanchas", you:"tú", newTrip:"+ Nuevo paseo", allBoats:"Todas", noClientName:"Cliente sin datos", addClient:"+ Agregar cliente", pastShow:"Ver paseos anteriores", pastHide:"Ocultar paseos anteriores", pastTitle:"Paseos anteriores", tripNew:"Nuevo paseo", tripEdit:"Paseo", dateL:"Fecha", slotQ:"Horario", freeSlot:"Liberar este horario", slotTaken:"Ya hay un paseo en este horario. Elige otro.", needDateSlot:"Elige la fecha y el horario.", monthHead:"{n} paseos", monthHead1:"1 paseo", listHow:"Tus próximos paseos. Toca un paseo para ver o editar los datos del cliente.", noneList:"Todavía no hay paseos. Toca <strong>+ Nuevo paseo</strong> para empezar.", tripSaved:"¡Paseo guardado! El sitio ya muestra este horario como no disponible.", closedBy:"Cerrado por", o_buzios:"Búzios Lanchas", o_fora:"Fuera de Búzios Lanchas", c_dia:"Día", c_manha:"Mañana", c_tarde:"Tarde", c_both:"M+T", appName:"Agenda de los dueños", loginTitle:"Agenda de los dueños", loginSub:"Entra con el correo y la contraseña que te pasó Rodrigo.",
+  es:{ locale:"es-ES", staffT:"Empleados (solo ven)", staffSub:"Quien pongas aquí ve la agenda y los clientes de {boat}, pero no cambia nada.", staffNone:"Ningún empleado todavía.", staffVals:"ve los valores", staffValsLong:"Puede ver los valores cobrados", staffEmail:"Correo del empleado", staffPw:"Contraseña para el empleado", staffPwHint:"solo si todavía no tiene acceso; al menos 6 letras o números", staffAdd:"Agregar empleado", staffLinked:"¡Listo! {email} ya puede ver la agenda de {boat}.", waStaff:"¡Hola! Este es tu acceso para ver la agenda de {boat} en Búzios Lanchas.\nDirección: {url}\nCorreo: {email}\nContraseña: {pw}", needSqlStaff:"Falta crear la parte de empleados en Supabase (archivo 2026-10-19_supabase-funcionarios.sql).", roNote:"Solo puedes ver la agenda de esta lancha. Para cambiar algo, habla con el dueño.", roSheet:"Solo lectura.", listHowRO:"Próximos paseos. Toca un paseo para ver los datos del cliente.", toPayL:"Falta pagar", tabList:"Paseos", tabCal:"Calendario", tabBoat:"Lancha", itemsT:"Lo que ofrece la lancha", itemsSub:"Toca para marcar o desmarcar. La página de la lancha en el sitio cambia sola.", itemsBasic:"Siempre incluidos (no se pueden quitar)", itemsOpt:"Ítems de la lancha", itemsSaved:"¡Guardado! El sitio ya muestra la lista nueva.", itemsAll:"Elige una lancha para marcar los ítems.", needSqlItens:"Falta crear la tabla de ítems en Supabase (archivo 2026-10-19_supabase-remover-e-itens.sql).", adminLine:"Administrador de todas las lanchas", you:"tú", newTrip:"+ Nuevo paseo", allBoats:"Todas", noClientName:"Cliente sin datos", addClient:"+ Agregar cliente", pastShow:"Ver paseos anteriores", pastHide:"Ocultar paseos anteriores", pastTitle:"Paseos anteriores", tripNew:"Nuevo paseo", tripEdit:"Paseo", dateL:"Fecha", slotQ:"Horario", freeSlot:"Liberar este horario", slotTaken:"Ya hay un paseo en este horario. Elige otro.", needDateSlot:"Elige la fecha y el horario.", monthHead:"{n} paseos", monthHead1:"1 paseo", listHow:"Tus próximos paseos. Toca un paseo para ver o editar los datos del cliente.", noneList:"Todavía no hay paseos. Toca <strong>+ Nuevo paseo</strong> para empezar.", tripSaved:"¡Paseo guardado! El sitio ya muestra este horario como no disponible.", closedBy:"Cerrado por", o_buzios:"Búzios Lanchas", o_fora:"Fuera de Búzios Lanchas", c_dia:"Día", c_manha:"Mañana", c_tarde:"Tarde", c_both:"M+T", appName:"Agenda Búzios Lanchas", loginTitle:"Agenda de los dueños", loginSub:"Entra con el correo y la contraseña que te pasó Rodrigo.",
     email:"Correo", password:"Contraseña", show:"Mostrar", hide:"Ocultar", enter:"Entrar", entering:"Entrando…", forgot:"Olvidé mi contraseña",
     badLogin:"Correo o contraseña incorrectos.", notConfirmed:"Este correo aún no fue confirmado. Habla con Rodrigo.", netErr:"Sin conexión. Revisa internet e inténtalo de nuevo.",
     forgotSent:"¡Listo! Enviamos un enlace a {email}. Abre el correo en el celular y toca el enlace para crear una contraseña nueva.", needEmail:"Escribe tu correo primero.",
@@ -337,7 +342,7 @@ async function db(path, {method="GET", body, prefer}={}, retry=true){
 
 /* ===== estado ===== */
 const app = document.getElementById("app"), top_ = document.getElementById("top");
-let S = { admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: store.get("dono-tab")||"lista", past:null, items:null };
+let S = { admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: store.get("dono-tab")||"lista", past:null, items:null, ro:{}, staff:[] };
 const now = new Date(); S.month = new Date(now.getFullYear(), now.getMonth(), 1);
 
 function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove("on"),2600); }
@@ -347,7 +352,7 @@ function bindLang(){ const s=document.getElementById("lang"); if(s) s.onchange=(
 /* ===== telas ===== */
 let view = "login", loginMsg = "", loginErr = false, typedEmail = "";
 function show(){
-  document.title = t("appName")+" · Búzios Lanchas";
+  document.title = t("appName");
   if(!ses && view!=="newpw") view="login";
   if(view==="login") return loginView();
   if(view==="newpw") return newPwView();
@@ -430,6 +435,7 @@ function noteLine(n){
   return [n.origem&&`<span class="org org-${n.origem}">${t("o_"+n.origem)}</span>`, n.cliente&&`<strong>${esc(n.cliente)}</strong>`, n.pessoas&&`${n.pessoas} ${t("people").toLowerCase()}`, v&&brl(v),
     v ? (d>=v ? t("paid") : d ? t("depositShort",{v:brl(d)})+" · "+t("toPay",{v:brl(v-d)}) : "") : d ? t("depositShort",{v:brl(d)}) : ""].filter(Boolean).join(" · ");
 }
+const isRO = (l=S.cur) => !!(l && l!=="*" && S.ro[l]);
 const boatName = slug => S.all.find(b=>b.slug===slug)?.nome || slug;
 const cmpRows = (x,z)=>x.data<z.data?-1:x.data>z.data?1:SLOT_ORDER[x.horario]-SLOT_ORDER[z.horario];
 function tripCard(r){
@@ -439,7 +445,7 @@ function tripCard(r){
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".","")}</span></span>
     <span class="tbody">${n.cliente?`<strong>${esc(n.cliente)}</strong>`:`<em>${t("noClientName")}</em>`}
       <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.cur==="*"?" · "+esc(boatName(r.lancha)):""}</span>
-      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${!n.cliente&&S.notes?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
+      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
     ${v?`<span class="tval"><b>${brl(v)}</b>${pay}</span>`:""}</button>`;
 }
 function tripGroups(rows, desc){
@@ -449,8 +455,8 @@ function tripGroups(rows, desc){
       <div class="trips">${rs.map(tripCard).join("")}</div>`; }).join("");
 }
 function listHTML(){
-  return `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>
-    ${S.upcoming.length ? `<p class="how muted">${t("listHow")}</p>${tripGroups(S.upcoming)}` : `<div class="card"><p class="muted" style="margin:0">${t("noneList")}</p></div>`}
+  return `${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}
+    ${S.upcoming.length ? `<p class="how muted">${isRO()?t("listHowRO"):t("listHow")}</p>${tripGroups(S.upcoming)}` : `<div class="card"><p class="muted" style="margin:0">${isRO()?t("noneUp"):t("noneList")}</p></div>`}
     <button type="button" class="link" id="pasttog">${S.past?t("pastHide"):t("pastShow")}</button>
     ${S.past ? (S.past.length ? `<div class="past"><h2>${t("pastTitle")}</h2>${tripGroups(S.past)}</div>` : `<p class="muted">—</p>`) : ""}`;
 }
@@ -464,6 +470,18 @@ function itemsHTML(){
   return `<div class="card"><h2>${t("itemsT")}</h2><p class="muted" style="margin-top:0">${t("itemsSub")}</p>
     <h3 style="font-size:15px;margin:14px 0 0">${t("itemsBasic")}</h3><div class="items">${BASIC_ITEMS.map(it=>`<span>${itemName(it)}</span>`).join("")}</div>
     <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items">${ITEMS.map(it=>`<button type="button" data-it="${esc(it[0])}" aria-pressed="${on.includes(it[0])}">${itemName(it)}</button>`).join("")}</div></div>`;
+}
+/* funcionários: o dono coloca quem só visualiza a agenda da lancha, com ou sem os valores */
+function staffHTML(){
+  if(S.staff===null) return `<div class="card"><h2>${t("staffT")}</h2><p class="msg err" style="margin:0">${t("needSqlStaff")}</p></div>`;
+  const list=(S.staff||[]).filter(x=>x.lancha===S.cur), boat=boatName(S.cur);
+  return `<div class="card"><h2>${t("staffT")}</h2><p class="muted" style="margin-top:0">${t("staffSub",{boat:esc(boat)})}</p>
+    <ul class="owners staff">${list.length ? list.map(x=>`<li><span style="flex:1 1 100%">${esc(x.email)}</span><label><input type="checkbox" data-sv="${esc(x.email)}"${x.ver_valores?" checked":""}> ${t("staffVals")}</label><button type="button" class="rm" data-srm="${esc(x.email)}" style="margin-left:auto">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("staffNone")}</li>`}</ul>
+    <form id="sf" novalidate style="margin-top:16px"><div id="smsg"></div>
+      <label class="f"><span>${t("staffEmail")}</span><input type="email" id="sem" autocapitalize="off" inputmode="email"></label>
+      <label class="f"><span>${t("staffPw")} <small class="muted" style="font-weight:400">(${t("staffPwHint")})</small></span><input type="text" id="spw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
+      <label class="check"><input type="checkbox" id="svals" checked> ${t("staffValsLong")}</label>
+      <button class="btn" id="ssub">${t("staffAdd")}</button></form></div>`;
 }
 function monthSummaryHTML(){
   const all=[...S.blocks.values()].flatMap(m=>[...m.values()]); if(!all.length) return "";
@@ -501,12 +519,14 @@ function mainView(){
     return bindMain();
   }
   if(S.tab!=="lista" && S.cur==="*") S.cur=S.boats[0].slug;
+  if(S.tab==="lancha" && isRO()) S.tab="lista";
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
   app.innerHTML = installHTML()
     + (S.boats.length>1 ? `<div class="boats" role="group">${chips.map(b=>`<button type="button" data-b="${b.slug}" aria-pressed="${b.slug===S.cur}">${esc(b.nome)}</button>`).join("")}</div>` : `<h1>${esc(S.boats[0].nome)}</h1>`)
-    + `<div class="tabs" role="tablist">${[["lista","tabList"],["cal","tabCal"],["lancha","tabBoat"]].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}</button>`).join("")}</div>`
+    + `<div class="tabs" role="tablist">${[["lista","tabList"],["cal","tabCal"],...(isRO()?[]:[["lancha","tabBoat"]])].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}</button>`).join("")}</div>`
+    + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="lista" ? listHTML() : S.tab==="lancha" ? itemsHTML() : `<p class="how muted">${t("how")}</p>` + calendarHTML())
+    + (S.tab==="lista" ? listHTML() : S.tab==="lancha" ? itemsHTML() + staffHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + adminHTML();
   bindMain();
 }
@@ -534,6 +554,34 @@ function bindMain(){
     x.disabled=true;
     try{ await db("rpc/remover_dono",{method:"POST",body:{email_dono:email, l}}); S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); toast(t("removed")); mainView(); }
     catch(e){ x.disabled=false; toast(t("rmErr")); } });
+  const reloadStaff = async () => { S.staff = await db("rpc/lista_visualizadores",{method:"POST",body:{}}); mainView(); };
+  app.querySelectorAll("[data-sv]").forEach(x=>x.onchange=async()=>{ x.disabled=true;
+    try{ await db("rpc/cadastrar_visualizador",{method:"POST",body:{email_func:x.dataset.sv, l:S.cur, valores:x.checked}}); toast(t("saved")); await reloadStaff(); }
+    catch(e){ x.checked=!x.checked; x.disabled=false; toast(t("saveErr")); } });
+  app.querySelectorAll("[data-srm]").forEach(x=>x.onclick=async()=>{ const email=x.dataset.srm;
+    if(!confirm(t("confirmRm",{email, boat:boatName(S.cur)}))) return; x.disabled=true;
+    try{ await db("rpc/remover_visualizador",{method:"POST",body:{email_func:email, l:S.cur}}); toast(t("removed")); await reloadStaff(); }
+    catch(e){ x.disabled=false; toast(t("rmErr")); } });
+  const sf=document.getElementById("sf");
+  if(sf) sf.onsubmit = async e => { e.preventDefault();
+    const email=document.getElementById("sem").value.trim().toLowerCase(), pw=document.getElementById("spw").value.trim(), vals=document.getElementById("svals").checked, l=S.cur, out=document.getElementById("smsg");
+    if(!email) return;
+    const btn=document.getElementById("ssub"); btn.disabled=true;
+    const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
+    try{
+      const add = () => db("rpc/cadastrar_visualizador",{method:"POST", body:{email_func:email, l, valores:vals}});
+      let r = await add(), created=false;
+      if(r!=="ok"){ /* e-mail sem login: cria com a senha escolhida */
+        if(pw.length<6) return fail(t("needPw"));
+        await authCall("signup", {email, password:pw}); r = await add();
+        if(r!=="ok") return fail(t("notFound")); created=true; }
+      await reloadStaff();
+      const boat=boatName(l), msg=t("waStaff",{boat, url:location.origin+"/dono/", email, pw: pw || "—"});
+      document.getElementById("smsg").innerHTML=`<p class="msg ok">${created?t("created")+" ":""}${t("staffLinked",{email:esc(email), boat:esc(boat)})}</p>
+        ${pw?`<a class="btn sec" style="margin:0 0 14px" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${t("sendWa")}</a>`:""}`;
+      document.getElementById("smsg").scrollIntoView({block:"center"});
+    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+  };
   const af=document.getElementById("af");
   if(af) af.onsubmit = async e => { e.preventDefault();
     const email=document.getElementById("aem").value.trim().toLowerCase(), pw=document.getElementById("apw").value.trim(), l=document.getElementById("abt").value, out=document.getElementById("amsg");
@@ -566,6 +614,11 @@ function bindMain(){
 let loadSeq = 0;
 const NOTE_COLS = "anotacoes(origem,cliente,telefone,pessoas,valor,sinal,obs)";
 const rowOf = r => ({id:r.id, lancha:r.lancha, data:r.data, horario:r.horario, nota:(Array.isArray(r.anotacoes)?r.anotacoes[0]:r.anotacoes)||null});
+/* funcionário lê pela função do banco, que esconde os valores quando o dono não deixa ver */
+async function fetchVis(de, ate, desc){
+  const r = (await db("rpc/passeios_visualizador",{method:"POST", body:{l:S.cur, de:de||null, ate:ate||null}})).map(rowOf);
+  return desc ? r.reverse() : r;
+}
 async function fetchRows(q){
   if(S.notes){ try{ return (await db(`bloqueios?select=id,lancha,data,horario,${NOTE_COLS}&${q}`)).map(rowOf); }
     catch(e){ if(e.status!==400 && e.status!==404) throw e; S.notes=false; } } /* tabela de anotações ainda não criada */
@@ -574,14 +627,17 @@ async function fetchRows(q){
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){
   if(!S.cur) return mainView();
+  if(S.tab==="lancha" && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
   if(S.tab==="lancha"){ if(S.cur==="*") S.cur=S.boats[0].slug; const my=++loadSeq, l=S.cur;
+    db("rpc/lista_visualizadores",{method:"POST",body:{}}).then(v=>{ S.staff=v; }, ()=>{ S.staff=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     try{ const r=await db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`); if(my!==loadSeq) return; S.items = r[0]?.opcionais || []; S.err=""; }
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
     return mainView(); }
   const my=++loadSeq, y=S.month.getFullYear(), mo=S.month.getMonth();
   const a=iso(new Date(y,mo,1)), b=iso(new Date(y,mo+1,0)), all=S.cur==="*", lf = all ? "" : `lancha=eq.${encodeURIComponent(S.cur)}&`;
   try{
-    const [rows, up, past] = await Promise.all([
+    const ro = isRO(), yest = iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)), p0 = iso(new Date(now.getFullYear(),now.getMonth()-3,1));
+    const [rows, up, past] = ro ? await Promise.all([fetchVis(a,b), fetchVis(todayISO()), S.past ? fetchVis(p0,yest,true) : null]) : await Promise.all([
       all ? [] : fetchRows(`${lf}data=gte.${a}&data=lte.${b}`),
       fetchRows(`${lf}data=gte.${todayISO()}&order=data.asc&limit=200`),
       S.past ? fetchRows(`${lf}data=lt.${todayISO()}&data=gte.${iso(new Date(now.getFullYear(),now.getMonth()-3,1))}&order=data.desc&limit=200`) : null]);
@@ -606,9 +662,10 @@ function renderSheet(busy){
   const d=sheetDay, s=S.blocks.get(d)||new Map(), dia=s.has("dia");
   sheet.innerHTML = `<div class="grab"></div><h2>${fmtLong(d)}</h2><p class="muted" style="margin-top:0">${t("sheetSub")}</p>
     ${["manha","tarde","dia",...(hasNight(d)?["noite"]:[])].map(k=>{ const r=s.get(k), on=!!r, inc = (k==="manha"||k==="tarde") && dia && !on;
-      return `<button type="button" class="opt${busy===k?" saving":""}" role="checkbox" aria-checked="${on}" data-s="${k}"${inc||busy?" disabled":""}>
+      return `<button type="button" class="opt${busy===k?" saving":""}" role="checkbox" aria-checked="${on}" data-s="${k}"${inc||busy||isRO()?" disabled":""}>
         <span class="box"></span><div><strong>${t("slot_"+k)}</strong><span>${t("hours_"+k)}</span></div><em>${on?t("rented"):inc?t("inDay"):t("free")}</em></button>`
-        + (on && S.notes ? `<button type="button" class="note-btn" data-n="${k}">${r.nota&&noteLine(r.nota) ? `<span>${noteLine(r.nota)}</span><b>✎</b>` : t("addNote")}</button>` : ""); }).join("")}
+        + (on && S.notes && !(isRO() && !noteLine(r.nota)) ? `<button type="button" class="note-btn" data-n="${k}">${r.nota&&noteLine(r.nota) ? `<span>${noteLine(r.nota)}</span><b>${isRO()?"›":"✎"}</b>` : t("addNote")}</button>` : ""); }).join("")}
+    ${isRO() ? `<p class="muted" style="margin:4px 0 0;font-size:14px">${t("roSheet")}</p>` : ""}
     <button class="btn" id="sheetx" style="margin-top:6px">${t("close")}</button>`;
   document.getElementById("sheetx").onclick = closeDay;
   sheet.querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>toggle(d,x.dataset.s));
@@ -636,7 +693,19 @@ function fmtBR(v){ const d=v.replace(/\D/g,"").slice(0,11); if(d.length<3) retur
 /* capacidade de cada lancha (a mesma do site, campo capacity em /index.html) */
 const CAPACITY = {"miss-bardot":16, "les-zuzu":8, "midas":12, "compostela":6, "bubbles":11};
 function renderNote(){ tripRow = S.blocks.get(sheetDay)?.get(noteFor); tripNew=false; if(!tripRow){ noteFor=null; return renderSheet(); } renderTrip(); }
+function renderTripRO(){
+  const r=tripRow, n=r.nota||{}, ph=splitPhone(n.telefone), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "", fromDay=!!sheetDay;
+  const v=+n.valor||0, d=+n.sinal||0, row=(k,val)=>val||val===0?`<div class="rorow"><span>${k}</span><strong>${val}</strong></div>`:"";
+  sheet.innerHTML = `<div class="grab"></div><h2>${n.cliente?esc(n.cliente):t("noClientName")}</h2>
+    <p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}</p>
+    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}
+      ${row(t("value"), v?brl(v):"")}${row(t("deposit"), d?brl(d):"")}${v?row(t("toPayL"), d>=v?t("paid"):brl(v-d)):""}${row(t("obs"), n.obs&&esc(n.obs))}</div>
+    ${wa.length>=10?`<a class="btn sec" style="margin:14px 0 0" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
+    <button type="button" class="btn" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>`;
+  document.getElementById("nback").onclick=()=>{ if(fromDay){ noteFor=null; renderSheet(); } else closeDay(); };
+}
 function renderTrip(){
+  if(tripRow && isRO(tripRow.lancha)) return renderTripRO();
   const r=tripRow, n=r?.nota||{}, f=(k,type,extra="")=>`<label class="f"><span>${t(k==="cliente"?"client":k==="telefone"?"phone":k==="pessoas"?"people":k==="valor"?"value":k==="sinal"?"deposit":"obs")}</span>${
     type==="area"?`<textarea id="n-${k}" rows="2" placeholder="${t("ph_obs")}">${esc(n[k]??"")}</textarea>`
     :`<input type="${type}" id="n-${k}" ${extra} placeholder="${t("ph_"+({cliente:"client",telefone:"phone",pessoas:"people",valor:"value",sinal:"deposit"}[k]))}" value="${esc(n[k]??"")}">`}</label>`;
@@ -725,7 +794,11 @@ async function boot(){
     saveSes(ses);
     const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome&order=nome"), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
-    S.boats = S.admin ? all : all.filter(b=>mine.some(m=>m.lancha===b.slug));
+    /* funcionário: lanchas que só pode ver (tabela visualizadores); sem a tabela, segue sem eles */
+    const vis = S.admin ? [] : await db(`visualizadores?select=lancha,ver_valores&user_id=eq.${ses.user.id}`).catch(()=>[]);
+    S.ro = {}; vis.forEach(v=>{ if(!mine.some(m=>m.lancha===v.lancha)) S.ro[v.lancha]={valores:v.ver_valores}; });
+    S.boats = S.admin ? all : all.filter(b=>mine.some(m=>m.lancha===b.slug) || S.ro[b.slug]);
+    S.staff = [];
     if(S.admin) S.owners = await db("rpc/lista_donos",{method:"POST",body:{}});
     const saved = store.get("dono-boat");
     S.cur = S.boats.some(b=>b.slug===saved) || (saved==="*" && S.admin) ? saved : S.boats[0]?.slug || null;
