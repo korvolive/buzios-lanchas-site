@@ -785,7 +785,7 @@ const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.u
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
-const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho";
+const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
 /* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
 function sailorHTML(){
   const rows=S.myTrips||[];
