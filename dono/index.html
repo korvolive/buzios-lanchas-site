@@ -171,11 +171,14 @@ const T = {
     installT:"Coloque a agenda na tela do celular", installIOS:"No iPhone: toque em <strong>Compartilhar</strong> (quadrado com seta) e depois em <strong>Adicionar à Tela de Início</strong>.",
     installAnd:"No Android: toque nos <strong>três pontinhos ⋮</strong> do Chrome e depois em <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>.", installBtn:"Instalar agora",
     adminT:"Donos das lanchas", adminSub:"Só você (administrador) vê esta parte.",
-    adminStep1:"No Supabase, vá em <strong>Authentication › Users › Add user</strong>, coloque o e-mail e a senha do dono e marque <strong>Auto Confirm User</strong>.",
-    adminStep2:"Aqui embaixo, escreva o mesmo e-mail, escolha a lancha e toque em <strong>Ligar dono</strong>.",
-    adminStep3:"Mande para o dono o endereço <strong>lanchaembuzios.com.br/dono</strong>, o e-mail e a senha.",
+    adminStep1:"Escreva o e-mail do dono, invente uma senha para ele e escolha a lancha. Toque em <strong>Ligar dono</strong>: o login é criado na hora.",
+    adminStep2:"Toque em <strong>Enviar acesso pelo WhatsApp</strong> para mandar o endereço, o e-mail e a senha para o dono.",
+    adminStep3:"Dono com mais de uma lancha: ligue o mesmo e-mail em cada lancha. A senha só vale na primeira vez.",
+    ownerPw:"Senha para o dono", ownerPwHint:"pelo menos 6 letras ou números", created:"Login criado!", sendWa:"Enviar acesso pelo WhatsApp",
+    waAccess:"Olá! Este é o seu acesso à agenda da {boat} na Búzios Lanchas.\nEndereço: {url}\nE-mail: {email}\nSenha: {pw}\nNo app, toque no dia e marque o horário que já está alugado.",
+    needPw:"Esse e-mail ainda não tem login. Escreva uma senha (pelo menos 6 caracteres) para criar.", confirmOn:"O login foi criado, mas o Supabase está pedindo confirmação por e-mail. Desligue em Authentication › Sign In / Providers › Email › Confirm email.",
     ownerEmail:"E-mail do dono", boat:"Lancha", link:"Ligar dono", linked:"Pronto! {email} já pode marcar a agenda da {boat}.",
-    notFound:"Esse e-mail ainda não tem login. Crie primeiro no Supabase (passo 1).", ownersNone:"Nenhum dono ligado ainda." },
+    notFound:"Não foi possível criar o login desse e-mail.", ownersNone:"Nenhum dono ligado ainda." },
   en:{ locale:"en-US", closedBy:"Booked by", o_buzios:"Búzios Lanchas", o_fora:"Outside Búzios Lanchas", c_dia:"Day", c_manha:"AM", c_tarde:"PM", c_both:"AM+PM", appName:"Owners' calendar", loginTitle:"Owners' calendar", loginSub:"Sign in with the email and password Rodrigo gave you.",
     email:"Email", password:"Password", show:"Show", hide:"Hide", enter:"Sign in", entering:"Signing in…", forgot:"I forgot my password",
     badLogin:"Wrong email or password.", notConfirmed:"This email hasn't been confirmed yet. Please talk to Rodrigo.", netErr:"No connection. Check your internet and try again.",
@@ -203,11 +206,14 @@ const T = {
     installT:"Put the calendar on your phone's home screen", installIOS:"On iPhone: tap <strong>Share</strong> (square with an arrow), then <strong>Add to Home Screen</strong>.",
     installAnd:"On Android: tap Chrome's <strong>three dots ⋮</strong>, then <strong>Install app</strong> or <strong>Add to Home screen</strong>.", installBtn:"Install now",
     adminT:"Boat owners", adminSub:"Only you (admin) can see this part.",
-    adminStep1:"In Supabase, go to <strong>Authentication › Users › Add user</strong>, enter the owner's email and password and tick <strong>Auto Confirm User</strong>.",
-    adminStep2:"Below, type the same email, choose the boat and tap <strong>Link owner</strong>.",
-    adminStep3:"Send the owner the address <strong>lanchaembuzios.com.br/dono</strong>, the email and the password.",
+    adminStep1:"Type the owner's email, make up a password for them and choose the boat. Tap <strong>Link owner</strong>: the login is created right away.",
+    adminStep2:"Tap <strong>Send access on WhatsApp</strong> to send the owner the address, email and password.",
+    adminStep3:"Owner with more than one boat: link the same email to each boat. The password only counts the first time.",
+    ownerPw:"Password for the owner", ownerPwHint:"at least 6 letters or numbers", created:"Login created!", sendWa:"Send access on WhatsApp",
+    waAccess:"Hi! Here is your access to the {boat} calendar at Búzios Lanchas.\nAddress: {url}\nEmail: {email}\nPassword: {pw}\nIn the app, tap a day and mark the slot that is already rented.",
+    needPw:"This email has no login yet. Type a password (at least 6 characters) to create it.", confirmOn:"The login was created, but Supabase is asking for email confirmation. Turn it off in Authentication › Sign In / Providers › Email › Confirm email.",
     ownerEmail:"Owner's email", boat:"Boat", link:"Link owner", linked:"Done! {email} can now update {boat}'s calendar.",
-    notFound:"This email has no login yet. Create it in Supabase first (step 1).", ownersNone:"No owners linked yet." },
+    notFound:"Couldn't create a login for this email.", ownersNone:"No owners linked yet." },
   es:{ locale:"es-ES", closedBy:"Cerrado por", o_buzios:"Búzios Lanchas", o_fora:"Fuera de Búzios Lanchas", c_dia:"Día", c_manha:"Mañana", c_tarde:"Tarde", c_both:"M+T", appName:"Agenda de los dueños", loginTitle:"Agenda de los dueños", loginSub:"Entra con el correo y la contraseña que te pasó Rodrigo.",
     email:"Correo", password:"Contraseña", show:"Mostrar", hide:"Ocultar", enter:"Entrar", entering:"Entrando…", forgot:"Olvidé mi contraseña",
     badLogin:"Correo o contraseña incorrectos.", notConfirmed:"Este correo aún no fue confirmado. Habla con Rodrigo.", netErr:"Sin conexión. Revisa internet e inténtalo de nuevo.",
@@ -235,11 +241,14 @@ const T = {
     installT:"Pon la agenda en la pantalla del celular", installIOS:"En iPhone: toca <strong>Compartir</strong> (cuadrado con flecha) y luego <strong>Agregar a inicio</strong>.",
     installAnd:"En Android: toca los <strong>tres puntos ⋮</strong> de Chrome y luego <strong>Instalar app</strong> o <strong>Agregar a la pantalla principal</strong>.", installBtn:"Instalar ahora",
     adminT:"Dueños de las lanchas", adminSub:"Solo tú (administrador) ves esta parte.",
-    adminStep1:"En Supabase, ve a <strong>Authentication › Users › Add user</strong>, pon el correo y la contraseña del dueño y marca <strong>Auto Confirm User</strong>.",
-    adminStep2:"Aquí abajo, escribe el mismo correo, elige la lancha y toca <strong>Vincular dueño</strong>.",
-    adminStep3:"Envía al dueño la dirección <strong>lanchaembuzios.com.br/dono</strong>, el correo y la contraseña.",
+    adminStep1:"Escribe el correo del dueño, inventa una contraseña para él y elige la lancha. Toca <strong>Vincular dueño</strong>: el acceso se crea al instante.",
+    adminStep2:"Toca <strong>Enviar acceso por WhatsApp</strong> para mandarle al dueño la dirección, el correo y la contraseña.",
+    adminStep3:"Dueño con más de una lancha: vincula el mismo correo a cada lancha. La contraseña solo vale la primera vez.",
+    ownerPw:"Contraseña para el dueño", ownerPwHint:"al menos 6 letras o números", created:"¡Acceso creado!", sendWa:"Enviar acceso por WhatsApp",
+    waAccess:"¡Hola! Este es tu acceso a la agenda de {boat} en Búzios Lanchas.\nDirección: {url}\nCorreo: {email}\nContraseña: {pw}\nEn la app, toca el día y marca el horario que ya está alquilado.",
+    needPw:"Este correo aún no tiene acceso. Escribe una contraseña (al menos 6 caracteres) para crearlo.", confirmOn:"El acceso fue creado, pero Supabase pide confirmación por correo. Desactívala en Authentication › Sign In / Providers › Email › Confirm email.",
     ownerEmail:"Correo del dueño", boat:"Lancha", link:"Vincular dueño", linked:"¡Listo! {email} ya puede marcar la agenda de {boat}.",
-    notFound:"Este correo aún no tiene acceso. Créalo primero en Supabase (paso 1).", ownersNone:"Ningún dueño vinculado todavía." }
+    notFound:"No se pudo crear el acceso para este correo.", ownersNone:"Ningún dueño vinculado todavía." }
 };
 const LANGS = ["pt","en","es"];
 const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
@@ -403,8 +412,9 @@ function adminHTML(){
     <ol class="steps"><li>${t("adminStep1")}</li><li>${t("adminStep2")}</li><li>${t("adminStep3")}</li></ol>
     <form id="af" novalidate><div id="amsg"></div>
       <label class="f"><span>${t("ownerEmail")}</span><input type="email" id="aem" autocapitalize="off" inputmode="email"></label>
+      <label class="f"><span>${t("ownerPw")} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><input type="text" id="apw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
       <label class="f"><span>${t("boat")}</span><select class="in" id="abt">${S.all.map(b=>`<option value="${b.slug}">${esc(b.nome)}</option>`).join("")}</select></label>
-      <button class="btn">${t("link")}</button></form>
+      <button class="btn" id="asub">${t("link")}</button></form>
     <ul class="owners">${S.owners.length ? S.owners.map(o=>`<li><span>${esc(o.email)}</span><strong>${esc(S.all.find(b=>b.slug===o.lancha)?.nome||o.lancha)}</strong></li>`).join("") : `<li class="muted">${t("ownersNone")}</li>`}</ul></div>`;
 }
 function mainView(){
@@ -432,13 +442,29 @@ function bindMain(){
   const ig=document.getElementById("instgo"); if(ig) ig.onclick=async()=>{ deferredInstall.prompt(); await deferredInstall.userChoice.catch(()=>{}); deferredInstall=null; mainView(); };
   const af=document.getElementById("af");
   if(af) af.onsubmit = async e => { e.preventDefault();
-    const email=document.getElementById("aem").value.trim(), l=document.getElementById("abt").value, out=document.getElementById("amsg");
+    const email=document.getElementById("aem").value.trim().toLowerCase(), pw=document.getElementById("apw").value.trim(), l=document.getElementById("abt").value, out=document.getElementById("amsg");
     if(!email) return;
-    try{ const r = await db("rpc/cadastrar_dono",{method:"POST", body:{email_dono:email, l}});
-      if(r==="ok"){ S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); if(l===S.cur||S.admin) {} mainView();
-        document.getElementById("amsg").innerHTML=`<p class="msg ok">${t("linked",{email:esc(email), boat:esc(S.all.find(b=>b.slug===l)?.nome)})}</p>`; }
-      else out.innerHTML=`<p class="msg err">${t("notFound")}</p>`; }
-    catch(err){ out.innerHTML=`<p class="msg err">${err.status?esc(err.message):t("netErr")}</p>`; }
+    const btn=document.getElementById("asub"); btn.disabled=true;
+    const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
+    try{
+      let r = await db("rpc/cadastrar_dono",{method:"POST", body:{email_dono:email, l}}), created=false, needConfirm=false;
+      /* e-mail sem login: cria o login com a senha escolhida (a sessão do novo dono não é guardada aqui) */
+      if(r!=="ok"){
+        if(pw.length<6) return fail(t("needPw"));
+        const nu = await authCall("signup", {email, password:pw});
+        r = await db("rpc/cadastrar_dono",{method:"POST", body:{email_dono:email, l}});
+        if(r!=="ok") return fail(t("notFound"));
+        created = true;
+        needConfirm = !nu.access_token && !nu.session;
+      }
+      S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); mainView();
+      const boat=S.all.find(b=>b.slug===l)?.nome||l, url=location.origin+"/dono/";
+      const msg = t("waAccess",{boat, url, email, pw: pw || "—"});
+      document.getElementById("amsg").innerHTML=`<p class="msg ok">${created?t("created")+" ":""}${t("linked",{email:esc(email), boat:esc(boat)})}</p>
+        ${needConfirm?`<p class="msg err">${t("confirmOn")}</p>`:""}
+        ${pw?`<a class="btn sec" style="margin:0 0 14px" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${t("sendWa")}</a>`:""}`;
+      document.getElementById("amsg").scrollIntoView({block:"center"});
+    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
   };
 }
 
@@ -537,7 +563,7 @@ async function toggle(d,k){
 
 /* ===== início: confere o login, descobre as lanchas do dono e abre a agenda ===== */
 async function boot(){
-  app.innerHTML = `<p class="loading">…</p>`;
+  app.innerHTML = `<p class="loading">…</p>`; S.notes = true;
   try{
     if(!ses.user) ses.user = await authCall("user",null,"GET",await fresh());
     saveSes(ses);
