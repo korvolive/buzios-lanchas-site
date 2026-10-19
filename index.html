@@ -103,8 +103,9 @@ nav.top a:hover{opacity:1}
 .card .ph{aspect-ratio:4/3}
 .card .body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px;flex:1}
 .card h3{font-size:24px;font-weight:700}
-.card .tag{align-self:flex-start;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:6px;background:var(--brass);color:var(--brass-ink)}
-.card .tag.ex{background:var(--chip);color:var(--muted)}
+.card{position:relative}
+.card>.tag{position:absolute;top:12px;left:12px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.25);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:6px;background:var(--brass);color:var(--brass-ink)}
+.card>.tag.ex{background:var(--chip);color:var(--muted)}
 .specs{display:flex;gap:18px;flex-wrap:wrap;font:500 14px/1.2 var(--mono);color:var(--muted)}
 .specs b{display:block;font:700 20px/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
 .price-from{margin-top:auto;display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:14px}
@@ -1001,9 +1002,9 @@ function home(){
     <div class="grid">
       ${list.map(b=>`
         <a class="card" href="${pathFor(lang,b.slug)}">
+          ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
-            ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
             <h3>${b.name}</h3>
             <p style="margin:0;color:var(--muted)">${bt(b,"tagline")}</p>
             ${specs(b)}
