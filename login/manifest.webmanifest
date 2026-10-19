@@ -1,0 +1,15 @@
+{
+  "name": "Búzios Lanchas",
+  "short_name": "Búzios Lanchas",
+  "start_url": "/login/",
+  "scope": "/login/",
+  "display": "standalone",
+  "background_color": "#06394a",
+  "theme_color": "#06394a",
+  "lang": "pt-BR",
+  "icons": [
+    {"src": "/login/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/login/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/login/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
