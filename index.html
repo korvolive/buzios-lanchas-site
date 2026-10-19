@@ -327,8 +327,8 @@ footer p{margin:0;opacity:.8}
         </select>
         <svg class="caret" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 3h8L5 8z"/></svg>
       </label>
-      <a class="login-a" id="hdr-login" href="/dono/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span class="hide-sm" id="hdr-login-t"></span></a>
       <a class="btn" id="hdr-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="login-a" id="hdr-login" href="/dono/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg></a>
     </nav>
   </div>
 </header>
@@ -339,7 +339,7 @@ footer p{margin:0;opacity:.8}
   <div class="wrap">
     <div><h3>Búzios Lanchas</h3><p data-t="footAbout"></p></div>
     <div><h3 data-t="footBook"></h3><p><a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></p></div>
-    <div><h3 data-t="footTeam"></h3><p><a href="/dono/" data-t="footLogin"></a></p></div>
+    <div><h3 data-t="footTeam"></h3><p><a href="/dono/" target="_blank" rel="noopener" data-t="footLogin"></a></p></div>
     <div><h3 data-t="footFollow"></h3><p><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a></p></div>
   </div>
   <div class="wrap legal">
@@ -978,10 +978,9 @@ function applyStatic(){
   document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
   document.getElementById("logo").setAttribute("aria-label",t("logoAria"));
   document.getElementById("hdr-wa").href = wa(t("waFleet"));
-  /* quem tem login (dono, marinheiro, equipe) vai direto para a agenda */
-  const logged = (()=>{ try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } })();
-  document.getElementById("hdr-login-t").textContent = logged ? t("navAgenda") : t("navLogin");
-  document.getElementById("hdr-login").setAttribute("aria-label", logged ? t("navAgenda") : t("navLogin"));
+  /* acesso dos donos, marinheiros e equipe: só o ícone, abre em outra aba */
+  document.getElementById("hdr-login").setAttribute("aria-label", t("navLogin"));
+  document.getElementById("hdr-login").title = t("navLogin");
   document.getElementById("lang").value = lang;
   document.getElementById("logo").href = pathFor(lang);
   document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
