@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Búzios Lanchas",
+  "short_name": "Búzios Lanchas",
+  "description": "Aluguel de lanchas em Búzios. Donos, marinheiros e equipe entram pela agenda.",
+  "start_url": "/?app=1",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#06394a",
+  "theme_color": "#06394a",
+  "lang": "pt-BR",
+  "icons": [
+    {"src": "/dono/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/dono/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/dono/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
