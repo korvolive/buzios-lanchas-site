@@ -103,6 +103,8 @@ nav.top a:hover{opacity:1}
 .card .ph{aspect-ratio:4/3}
 .card .body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px;flex:1}
 .card h3{font-size:24px;font-weight:700}
+/* texto do card sempre com 3 linhas, para pés/pessoas e preço ficarem na mesma altura em todos */
+.card .tagline{margin:0;color:var(--muted);line-height:1.55;min-height:4.65em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card{position:relative}
 .card>.tag{position:absolute;top:12px;left:12px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.25);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:6px;background:var(--brass);color:var(--brass-ink)}
 .card>.tag.ex{background:var(--chip);color:var(--muted)}
@@ -379,12 +381,12 @@ const BOATS = [
       ["lz-03","Solário na popa","center 55%"],
       ["lz-04","Cockpit com toldo e posto de comando","center 50%"]
     ],
-    tagline:"Lancha de 26 pés para até 8 pessoas, ideal para casais, famílias e grupos pequenos.",
+    tagline:"Lancha de 26 pés com toldo, solário na popa e banheiro. Ideal para casais, famílias e grupos pequenos.",
     description:"A Les Zuzu é uma lancha de 26 pés para até 8 pessoas, perfeita para casais, famílias e grupos pequenos curtirem as praias de Búzios com mais privacidade. Tem toldo para sombra e solário na popa para tomar sol entre um mergulho e outro.",
     i18n:{
-      en:{tagline:"A 26-foot boat for up to 8 people, ideal for couples, families and small groups.",
+      en:{tagline:"A 26-foot boat with a canopy, stern sun deck and bathroom. Ideal for couples, families and small groups.",
           description:"Les Zuzu is a 26-foot boat for up to 8 people, perfect for couples, families and small groups to enjoy the beaches of Búzios with more privacy. It has a canopy for shade and a sun pad at the stern for sunbathing between swims."},
-      es:{tagline:"Lancha de 26 pies para hasta 8 personas, ideal para parejas, familias y grupos pequeños.",
+      es:{tagline:"Lancha de 26 pies con toldo, solárium en la popa y baño. Ideal para parejas, familias y grupos pequeños.",
           description:"La Les Zuzu es una lancha de 26 pies para hasta 8 personas, perfecta para que parejas, familias y grupos pequeños disfruten las playas de Búzios con más privacidad. Tiene toldo para dar sombra y solárium en la popa para tomar sol entre un chapuzón y otro."}
     },
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Toldo com sombra","Solário na popa","Banheiro","Tapete flutuante","Máscaras de mergulho","Som Bluetooth","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
@@ -404,12 +406,12 @@ const BOATS = [
       ["md-03","Popa com plataforma de banho","center 60%"],
       ["md-04","Área de popa com mesa e sofá","center 50%"]
     ],
-    tagline:"Lancha de 32 pés para grupos de até 12 pessoas, com piscina inflável e banheiro.",
+    tagline:"Lancha de 32 pés com piscina inflável, banheiro e som Bluetooth. Ideal para famílias e grupos de amigos.",
     description:"A Midas é uma lancha de 32 pés para até 12 pessoas, ótima para grupos médios curtirem as praias de Búzios com conforto. Tem banheiro a bordo e piscina inflável para aproveitar o mar.",
     i18n:{
-      en:{tagline:"A 32-foot boat for groups of up to 12 people, with an inflatable pool and a bathroom.",
+      en:{tagline:"A 32-foot boat with an inflatable pool, bathroom and Bluetooth sound. Ideal for families and groups of friends.",
           description:"Midas is a 32-foot boat for up to 12 people, great for mid-sized groups to enjoy the beaches of Búzios in comfort. It has a bathroom on board and an inflatable pool to make the most of the sea."},
-      es:{tagline:"Lancha de 32 pies para grupos de hasta 12 personas, con piscina inflable y baño.",
+      es:{tagline:"Lancha de 32 pies con piscina inflable, baño y sonido Bluetooth. Ideal para familias y grupos de amigos.",
           description:"La Midas es una lancha de 32 pies para hasta 12 personas, ideal para que grupos medianos disfruten las playas de Búzios con comodidad. Tiene baño a bordo y piscina inflable para aprovechar el mar."}
     },
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Piscina inflável","Banheiro","Som Bluetooth","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
@@ -432,12 +434,12 @@ const BOATS = [
       ["cp-07","Cabine na proa","center 55%"],
       ["cp-08","Pia no cockpit","center 50%"]
     ],
-    tagline:"Lancha de 22 pés para até 6 pessoas, ideal para casais e grupos pequenos.",
+    tagline:"Lancha de 22 pés com banheiro, tapete flutuante e som Bluetooth. Ideal para casais e grupos pequenos.",
     description:"A Compostela é uma lancha de 22 pés para até 6 pessoas, perfeita para casais, famílias e grupos pequenos curtirem as praias de Búzios com privacidade. Tem toldo para sombra, solário na proa e cabine com banheiro.",
     i18n:{
-      en:{tagline:"A 22-foot boat for up to 6 people, ideal for couples and small groups.",
+      en:{tagline:"A 22-foot boat with a bathroom, floating mat and Bluetooth sound. Ideal for couples and small groups.",
           description:"Compostela is a 22-foot boat for up to 6 people, perfect for couples, families and small groups to enjoy the beaches of Búzios in privacy. It has a canopy for shade, a sun pad on the bow and a cabin with a bathroom."},
-      es:{tagline:"Lancha de 22 pies para hasta 6 personas, ideal para parejas y grupos pequeños.",
+      es:{tagline:"Lancha de 22 pies con baño, alfombra flotante y sonido Bluetooth. Ideal para parejas y grupos pequeños.",
           description:"La Compostela es una lancha de 22 pies para hasta 6 personas, perfecta para que parejas, familias y grupos pequeños disfruten las playas de Búzios con privacidad. Tiene toldo para dar sombra, solárium en la proa y camarote con baño."}
     },
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Banheiro","Tapete flutuante","Som Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
@@ -460,12 +462,12 @@ const BOATS = [
       ["bb-07","Proa com estofados em frente à praia","center 50%"],
       ["bb-08","Banheiro a bordo","center 55%"]
     ],
-    tagline:"Lancha de 26 pés para até 11 pessoas, com banheiro, piscina flutuante e sofá em U na popa.",
+    tagline:"Lancha de 26 pés com banheiro, piscina flutuante e sofá em U na popa. Ideal para famílias e amigos.",
     description:"A Bubbles é uma lancha de 26 pés para até 11 pessoas, ótima para famílias e grupos de amigos curtirem as praias de Búzios com conforto. Tem toldo para sombra, sofá em U na popa com mesa, estofados na proa e banheiro a bordo.",
     i18n:{
-      en:{tagline:"A 26-foot boat for up to 11 people, with a bathroom, floating pool and U-shaped sofa at the stern.",
+      en:{tagline:"A 26-foot boat with a bathroom, floating pool and U-shaped sofa at the stern. Ideal for families and friends.",
           description:"Bubbles is a 26-foot boat for up to 11 people, great for families and groups of friends to enjoy the beaches of Búzios in comfort. It has a canopy for shade, a U-shaped sofa with a table at the stern, padded seating on the bow and a bathroom on board."},
-      es:{tagline:"Lancha de 26 pies para hasta 11 personas, con baño, piscina flotante y sofá en U en la popa.",
+      es:{tagline:"Lancha de 26 pies con baño, piscina flotante y sofá en U en la popa. Ideal para familias y amigos.",
           description:"La Bubbles es una lancha de 26 pies para hasta 11 personas, ideal para que familias y grupos de amigos disfruten las playas de Búzios con comodidad. Tiene toldo para dar sombra, sofá en U con mesa en la popa, colchonetas en la proa y baño a bordo."}
     },
     included:["Marinheiro","Combustível","Gelo","Carvão","Água mineral","Banheiro","Piscina flutuante","Máscaras de mergulho","Ducha de água doce","Som Bluetooth","Macarrão flutuante","Coletes para todos"],
@@ -1006,7 +1008,7 @@ function home(){
           ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
             <h3>${b.name}</h3>
-            <p style="margin:0;color:var(--muted)">${bt(b,"tagline")}</p>
+            <p class="tagline">${bt(b,"tagline")}</p>
             ${specs(b)}
             <div class="price-from"><div><span>${t("from4h")}</span><br><strong>${minPrice(b)?brl(minPrice(b)):t("onRequest")}</strong></div><span class="go">${t("seeBoat")}</span></div>
           </div>
