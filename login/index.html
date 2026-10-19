@@ -143,7 +143,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .note-btn span{color:var(--ink);font-weight:400}
 .nform textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font:inherit;font-size:16px;resize:vertical}
 .nform label.f{margin-bottom:10px} .nform input{padding:12px} .nform label.f span{font-size:14px}
-.msg.ro{background:var(--chip);color:var(--ink);font-size:14px}
+.msg.ro,.msg.pushm{background:var(--chip);color:var(--ink);font-size:14px}
 .rolist{border-top:1px solid var(--line);margin-top:10px}.rorow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
 .rorow span{color:var(--muted)}.rorow strong{text-align:right;word-break:break-word}
 .staff li{flex-wrap:wrap;align-items:center}
@@ -431,6 +431,9 @@ Object.assign(T.es, {ownerName:"Nombre del dueño", ph_owner:"Ej.: Carlos Souza"
   newBanner:"🔔 {n} paseos nuevos de Búzios Lanchas", newBanner1:"🔔 1 paseo nuevo de Búzios Lanchas", newTag:"nuevo", seenAll:"Marcar como visto"});
 const nomeOk = n => n.length>=5 && /\S\s+\S/.test(n) && !n.includes("@"); /* nome e sobrenome, como no banco */
 /* busca de marinheiro freelancer pelo nome */
+Object.assign(T.pt, {pushAsk:"🔔 Receba no celular os avisos de passeios e pedidos novos, mesmo com o app fechado. Toque em <b>Permitir</b> quando o celular perguntar.", pushBtn:"Ligar notificações", pushDenied:"🔕 As notificações estão bloqueadas neste celular. Para receber os avisos, libere em Configurações do celular › Notificações.", pushIOS:"🔔 No iPhone, as notificações chegam só com o app instalado na tela de início.", pushOn:"Notificações ligadas neste celular."});
+Object.assign(T.en, {pushAsk:"🔔 Get alerts for new trips and requests on your phone, even with the app closed. Tap <b>Allow</b> when your phone asks.", pushBtn:"Turn on notifications", pushDenied:"🔕 Notifications are blocked on this phone. To get alerts, allow them in your phone Settings › Notifications.", pushIOS:"🔔 On iPhone, notifications only arrive with the app installed on the home screen.", pushOn:"Notifications are on for this phone."});
+Object.assign(T.es, {pushAsk:"🔔 Recibe en el celular los avisos de paseos y pedidos nuevos, incluso con la app cerrada. Toca <b>Permitir</b> cuando el celular pregunte.", pushBtn:"Activar notificaciones", pushDenied:"🔕 Las notificaciones están bloqueadas en este celular. Para recibir los avisos, permítelas en Ajustes del celular › Notificaciones.", pushIOS:"🔔 En iPhone, las notificaciones llegan solo con la app instalada en la pantalla de inicio.", pushOn:"Notificaciones activadas en este celular."});
 Object.assign(T.pt, {marQ:"Procurar marinheiro pelo nome", marQNone:"Nenhum marinheiro com esse nome."});
 Object.assign(T.en, {marQ:"Search skipper by name", marQNone:"No skipper with that name."});
 Object.assign(T.es, {marQ:"Buscar marinero por nombre", marQNone:"Ningún marinero con ese nombre."});
@@ -679,7 +682,7 @@ function clientView(){
   app.querySelectorAll("[data-gu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("giveUpQ"))) return;
     try{ await db("rpc/cancelar_pedido",{method:"POST",body:{pid:+x.dataset.gu}}); toast(t("gaveUp")); await loadMyReq(); clientView(); }catch(e){ toast(t("saveErr")); } });
 }
-const logout = () => { const tok=ses?.access_token; saveSes(null); store.set("conta-tipo",null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; view="login"; show(); };
+const logout = () => { const tok=ses?.access_token; pushForget(tok); saveSes(null); store.set("conta-tipo",null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; view="login"; show(); };
 
 function headerHTML(){
   return `<button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
@@ -792,7 +795,7 @@ function tripCard(r){
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".","")}</span></span>
     <span class="tbody">${n.cliente?`<strong class="who">${n.cliente_conta?face(n.cliente_conta,n.cliente,"face sm"):""}${esc(n.cliente)}</strong>`:`<em>${t("noClientName")}</em>`}
       <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.cur==="*"?" · "+esc(boatName(r.lancha)):""}</span>
-      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i class="who">⚓ ${face(n.marinheiro,sailorName(r.lancha,n.marinheiro),"face xs")}${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:""}${n.cliente_conta?`<i class="site">✓ ${t("siteClient")}</i>`:""}${S.unseen?.has(r.id)?`<i class="newt">● ${t("newTag")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
+      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i class="who">⚓ ${face(n.marinheiro,sailorName(r.lancha,n.marinheiro),"face xs")}${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:S.marOk&&S.sailors&&!isRO(r.lancha)&&r.data>=todayISO()?`<i class="warn">⚠ ${t("sailorUnset")}</i>`:""}${n.cliente_conta?`<i class="site">✓ ${t("siteClient")}</i>`:""}${S.unseen?.has(r.id)?`<i class="newt">● ${t("newTag")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
     <span class="tside">${v?`<span class="tval"><b>${brl(v)}</b>${pay}</span>`:""}
     ${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("waClient",{name:esc(n.cliente||"")})}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`;
 }
@@ -879,6 +882,57 @@ function monthSummaryHTML(){
   const v=all.reduce((a,r)=>a+(+r.nota?.valor||0),0), d=all.reduce((a,r)=>a+(+r.nota?.sinal||0),0);
   const by=["buzios","fora"].map(o=>[o,all.filter(r=>r.nota?.origem===o).length]).filter(x=>x[1]);
   return `<p class="sum">${all.length===1?t("monthSum1"):t("monthSum",{n:all.length})}${v||d?`<br><small>${t("monthVal",{v:brl(v),d:brl(d)})}</small>`:""}${by.length?`<br><small>${by.map(([o,c])=>`${t("o_"+o)}: ${c}`).join(" · ")}</small>`:""}</p>`;
+}
+/* ===== notificações no celular: ligadas por padrão para o administrador e os donos ===== */
+const FN = SB+"/functions/v1/notificar";
+const pushOk = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+const b64bytes = b => { const s=atob(b.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((b.length+3)%4)); return Uint8Array.from(s,c=>c.charCodeAt(0)); };
+async function callFn(body){
+  const tok = await fresh();
+  const r = await fetch(FN, {method: body?"POST":"GET", headers:{apikey:KEY, authorization:"Bearer "+tok, ...(body?{"content-type":"application/json"}:{})}, body: body && JSON.stringify(body)});
+  if(!r.ok) throw new Error(r.status); return r.json();
+}
+/* inscreve este celular e grava no banco (passa para quem está logado se outra pessoa usou antes) */
+async function pushSubscribe(){
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if(!sub){ const {publica} = await callFn(); sub = await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:b64bytes(publica)}); }
+  const j = sub.toJSON();
+  await db("rpc/salvar_push",{method:"POST", body:{ep:j.endpoint, chave:j.keys.p256dh, segredo:j.keys.auth, idioma:lang}});
+  store.set("push-ep", j.endpoint);
+  return j.endpoint;
+}
+let pushAsking = false;
+async function pushAsk(){
+  if(pushAsking) return; pushAsking = true;
+  try{
+    const r = await Notification.requestPermission();
+    if(r==="granted"){ const first = !store.get("push-ep"); await pushSubscribe(); toast(t("pushOn")); if(first) callFn({tipo:"teste"}).catch(()=>{}); }
+  }catch(e){} finally{ pushAsking = false; }
+  if(view==="main" && !sheetDay && !tripRow) mainView();
+}
+/* sem botão: já liga sozinho; se o celular ainda não deu permissão, pergunta no primeiro toque na tela */
+function autoPush(){
+  if(!S.pushWho || !pushOk()) return;
+  if(Notification.permission==="granted") return void pushSubscribe().catch(()=>{});
+  if(Notification.permission!=="default" || autoPush.armed) return;
+  autoPush.armed = true;
+  const go = e => { if(e.target.closest?.("#pushgo")) return; removeEventListener("pointerup", go, true); if(Notification.permission==="default") pushAsk(); };
+  addEventListener("pointerup", go, true);
+}
+function pushHTML(){
+  if(!S.pushWho) return "";
+  if(!pushOk()) return isIOS() ? `<p class="msg pushm">${t("pushIOS")}</p>` : "";
+  if(Notification.permission==="denied") return `<p class="msg pushm">${t("pushDenied")}</p>`;
+  if(Notification.permission==="default") return `<div class="msg pushm">${t("pushAsk")}<br><button type="button" class="btn sec" id="pushgo" style="margin-top:8px">${t("pushBtn")}</button></div>`;
+  return "";
+}
+/* ao sair, este celular para de receber os avisos dessa conta */
+function pushForget(tok){
+  const ep = store.get("push-ep"); if(!ep || !tok) return;
+  store.set("push-ep", null);
+  fetch(SB+"/rest/v1/push_subs?endpoint=eq."+encodeURIComponent(ep), {method:"DELETE", headers:{apikey:KEY, authorization:"Bearer "+tok}}).catch(()=>{});
 }
 function installHTML(){
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
@@ -1023,14 +1077,14 @@ function mainView(){
     return bindMain();
   }
   if(!S.boats.length){
-    app.innerHTML = installHTML() + `<div class="card"><h2>${t("noBoat")}</h2><p class="muted">${t("noBoatSub")}</p><a class="btn" href="https://wa.me/${WHATS}">${t("talk")}</a></div>` + adminHTML() + PW_LINK();
+    app.innerHTML = installHTML() + pushHTML() + `<div class="card"><h2>${t("noBoat")}</h2><p class="muted">${t("noBoatSub")}</p><a class="btn" href="https://wa.me/${WHATS}">${t("talk")}</a></div>` + adminHTML() + PW_LINK();
     return bindMain();
   }
   if(S.tab==="pedidos" && !S.admin) S.tab="lista";
   if(S.tab!=="lista" && S.tab!=="pedidos" && S.cur==="*") S.cur=S.boats[0].slug;
   if(S.tab==="lancha" && isRO()) S.tab="lista";
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
-  app.innerHTML = installHTML()
+  app.innerHTML = installHTML() + pushHTML()
     + (S.tab==="pedidos" ? "" : S.boats.length>1 ? `<div class="boats" role="group">${chips.map(b=>`<button type="button" data-b="${b.slug}" aria-pressed="${b.slug===S.cur}">${avatar(b.slug)}${esc(b.nome)}</button>`).join("")}</div>` : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + `<div class="tabs${S.admin && !isRO() ? " four" : ""}" role="tablist">${[["lista","tabList"],["cal","tabCal"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.admin?[["pedidos","tabReq"]]:[])].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="pedidos"&&S.reqCount?` <b class="cnt">${S.reqCount}</b>`:""}</button>`).join("")}</div>`
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
@@ -1049,6 +1103,7 @@ function bindMain(){
   app.querySelectorAll("[data-ob]").forEach(x=>x.onclick=async()=>{ try{ const r=(await fetchRows(`id=eq.${+x.dataset.ob}`))[0]; if(r) openTrip(r); }catch(e){ toast(t("loadErr")); } });
   app.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{ S.cur=x.dataset.b; store.set("dono-boat",S.cur); loadBlocks(); });
   app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ S.tab=x.dataset.tab; store.set("dono-tab",S.tab); loadBlocks(); });
+  const pg=document.getElementById("pushgo"); if(pg) pg.onclick=pushAsk;
   const sa=document.getElementById("seenall"); if(sa) sa.onclick=()=>{ markSeen([...(S.unseen||[])]); mainView(); };
   app.querySelectorAll("[data-trip]").forEach(x=>{ const go=()=>{ const id=+x.dataset.trip; if(S.unseen?.has(id)) markSeen([id]); openTrip([...S.upcoming,...(S.past||[])].find(r=>r.id===id)); };
     x.onclick=e=>{ if(!e.target.closest(".twa")) go(); }; x.onkeydown=e=>{ if((e.key==="Enter"||e.key===" ")&&e.target===x){ e.preventDefault(); go(); } }; });
@@ -1465,8 +1520,9 @@ function renderTrip(){
       if(pedidoFor) nota.cliente_conta = pedidoFor.cliente; else if(n.cliente_conta) nota.cliente_conta = n.cliente_conta; /* não perde o vínculo ao editar */
       if(S.notes && (hasNote || row.nota)) await db("anotacoes",{method:"POST", body:{bloqueio_id:row.id, ...nota}, prefer:"resolution=merge-duplicates,return=minimal"});
       if(pedidoFor){ await db(`pedidos?id=eq.${pedidoFor.id}`,{method:"PATCH",body:{status:"aprovado", bloqueio_id:row.id, lancha:nboat, data:nd, horario:nslot, pessoas:nota.pessoas, atualizado_em:new Date().toISOString()}});
-        toast(t("approved",{boat:boatName(nboat)})); const ap=pedidoFor; closeDay(); S.reqF="aprovado"; await loadBlocks();
+        toast(t("approved",{boat:boatName(nboat)})); const ap=pedidoFor; callFn({tipo:"aprovado", id:row.id}).catch(()=>{}); closeDay(); S.reqF="aprovado"; await loadBlocks();
         return notifyOwner(ap, {lancha:nboat, data:nd, horario:nslot}, nota); }
+      if(S.admin && tripNew && nota.origem==="buzios") callFn({tipo:"aprovado", id:row.id}).catch(()=>{}); /* passeio fechado pela Búzios Lanchas: avisa o dono */
       toast(tripNew ? t("tripSaved") : t("noteSaved"));
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }
     }catch(err){ b.disabled=false;
@@ -1534,7 +1590,9 @@ async function boot(){
     const saved = store.get("dono-boat");
     S.cur = S.boats.some(b=>b.slug===saved) || (saved==="*" && S.admin) ? saved : S.boats[0]?.slug || null;
     view = "main";
+    S.pushWho = S.admin || mine.length>0;
     await loadBlocks();
+    autoPush();
   }catch(e){
     if(!ses) return show();
     app.innerHTML = `<div class="card"><p class="msg err">${t("loadErr")}</p><button class="btn" id="retry">${t("retry")}</button></div>`;
