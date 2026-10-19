@@ -153,7 +153,7 @@ const T = {
     logout:"Sair", hello:"Olá, {email}",
     how:"Toque no dia e marque o horário que já está alugado. No site, esse horário aparece como <strong>indisponível</strong> na hora.",
     free:"Livre", half:"Meio período", full:"Dia todo", m:"Manhã", tA:"Tarde",
-    slot_manha:"Manhã", slot_tarde:"Tarde", slot_dia:"Dia todo",
+    slot_manha:"Manhã", slot_tarde:"Tarde", slot_dia:"Dia todo", slot_noite:"Réveillon noturno", hours_noite:"passeio noturno de 7 horas", c_noite:"Noite",
     hours_manha:"10h às 14h", hours_tarde:"14h às 18h", hours_dia:"10h às 17h",
     sheetSub:"Toque no horário que já está alugado. Toque de novo para liberar.",
     rented:"Alugada", inDay:"já incluída no dia todo", close:"Pronto",
@@ -185,7 +185,7 @@ const T = {
     logout:"Sign out", hello:"Hi, {email}",
     how:"Tap a day and mark the time slot that is already rented. On the website, that slot shows as <strong>unavailable</strong> right away.",
     free:"Free", half:"Half day", full:"Full day", m:"Morning", tA:"Afternoon",
-    slot_manha:"Morning", slot_tarde:"Afternoon", slot_dia:"Full day",
+    slot_manha:"Morning", slot_tarde:"Afternoon", slot_dia:"Full day", slot_noite:"New Year's Eve night", hours_noite:"7-hour night tour", c_noite:"Night",
     hours_manha:"10am to 2pm", hours_tarde:"2pm to 6pm", hours_dia:"10am to 5pm",
     sheetSub:"Tap the slot that is already rented. Tap again to free it.",
     rented:"Rented", inDay:"already part of the full day", close:"Done",
@@ -217,7 +217,7 @@ const T = {
     logout:"Salir", hello:"Hola, {email}",
     how:"Toca el día y marca el horario que ya está alquilado. En el sitio, ese horario aparece como <strong>no disponible</strong> al instante.",
     free:"Libre", half:"Medio día", full:"Día completo", m:"Mañana", tA:"Tarde",
-    slot_manha:"Mañana", slot_tarde:"Tarde", slot_dia:"Día completo",
+    slot_manha:"Mañana", slot_tarde:"Tarde", slot_dia:"Día completo", slot_noite:"Nochevieja nocturno", hours_noite:"paseo nocturno de 7 horas", c_noite:"Noche",
     hours_manha:"10h a 14h", hours_tarde:"14h a 18h", hours_dia:"10h a 17h",
     sheetSub:"Toca el horario que ya está alquilado. Toca de nuevo para liberarlo.",
     rented:"Alquilada", inDay:"ya incluida en el día completo", close:"Listo",
@@ -257,6 +257,8 @@ const fmtLong = s => cap(dateOf(s).toLocaleDateString(t("locale"),{weekday:"long
 const brl = v => Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
 const fmtShort = s => cap(dateOf(s).toLocaleDateString(t("locale"),{weekday:"short",day:"2-digit",month:"2-digit"}));
 const SLOTS = ["manha","tarde","dia"];
+const NIGHT_DATES = ["12-31"]; /* mês-dia com passeio noturno (Réveillon), igual ao site */
+const hasNight = d => NIGHT_DATES.includes(d.slice(5));
 
 /* ===== login: a sessão fica guardada no celular e é renovada sozinha ===== */
 let ses = store.get("dono-ses");
@@ -355,9 +357,11 @@ function newPwView(){
 function headerHTML(){
   return `<img src="/dono/icon-192.png" alt=""><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
 }
+const daySize = s => s ? s.size - (s.has("noite")?1:0) : 0;
 function dayState(s){ if(!s || !s.size) return ""; return (s.has("dia") || (s.has("manha") && s.has("tarde"))) ? "full" : "half"; }
-const cellLabel = s => !s||!s.size ? "" : s.has("dia") ? t("c_dia") : s.has("manha")&&s.has("tarde") ? t("c_both") : s.has("manha") ? t("c_manha") : t("c_tarde");
-const dayLabel = s => !s||!s.size ? "" : s.has("dia") ? t("full") : s.has("manha")&&s.has("tarde") ? t("m")+"+"+t("tA") : s.has("manha") ? t("m") : t("tA");
+const withNight = (s,txt,key) => s.has("noite") ? (txt ? txt+"+"+t(key==="c"?"c_noite":"slot_noite") : t(key==="c"?"c_noite":"slot_noite")) : txt;
+const cellLabel = s => !s||!s.size ? "" : withNight(s, !daySize(s) ? "" : s.has("dia") ? t("c_dia") : s.has("manha")&&s.has("tarde") ? t("c_both") : s.has("manha") ? t("c_manha") : t("c_tarde"), "c");
+const dayLabel = s => !s||!s.size ? "" : withNight(s, !daySize(s) ? "" : s.has("dia") ? t("full") : s.has("manha")&&s.has("tarde") ? t("m")+"+"+t("tA") : s.has("manha") ? t("m") : t("tA"), "l");
 
 function calendarHTML(){
   const m=S.month, y=m.getFullYear(), mo=m.getMonth(), first=new Date(y,mo,1).getDay(), days=new Date(y,mo+1,0).getDate(), td=todayISO();
@@ -451,7 +455,7 @@ async function fetchRows(q){
     catch(e){ if(e.status!==400 && e.status!==404) throw e; S.notes=false; } } /* tabela de anotações ainda não criada */
   return (await db(`bloqueios?select=id,data,horario&${q}`)).map(rowOf);
 }
-const SLOT_ORDER = {dia:0, manha:1, tarde:2};
+const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){
   if(!S.cur) return mainView();
   const my=++loadSeq, y=S.month.getFullYear(), mo=S.month.getMonth();
@@ -478,7 +482,7 @@ function renderSheet(busy){
   if(noteFor) return renderNote();
   const d=sheetDay, s=S.blocks.get(d)||new Map(), dia=s.has("dia");
   sheet.innerHTML = `<div class="grab"></div><h2>${fmtLong(d)}</h2><p class="muted" style="margin-top:0">${t("sheetSub")}</p>
-    ${["manha","tarde","dia"].map(k=>{ const r=s.get(k), on=!!r, inc = k!=="dia" && dia && !on;
+    ${["manha","tarde","dia",...(hasNight(d)?["noite"]:[])].map(k=>{ const r=s.get(k), on=!!r, inc = (k==="manha"||k==="tarde") && dia && !on;
       return `<button type="button" class="opt${busy===k?" saving":""}" role="checkbox" aria-checked="${on}" data-s="${k}"${inc||busy?" disabled":""}>
         <span class="box"></span><div><strong>${t("slot_"+k)}</strong><span>${t("hours_"+k)}</span></div><em>${on?t("rented"):inc?t("inDay"):t("free")}</em></button>`
         + (on && S.notes ? `<button type="button" class="note-btn" data-n="${k}">${r.nota&&noteLine(r.nota) ? `<span>${noteLine(r.nota)}</span><b>✎</b>` : t("addNote")}</button>` : ""); }).join("")}
