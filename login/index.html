@@ -35,7 +35,15 @@ body{background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body);min-hei
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
 .top{position:sticky;top:0;z-index:5;background:var(--sea-deep);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:flex;align-items:center;gap:12px}
-.top img{width:34px;height:34px;border-radius:9px}
+.top .me{position:relative;flex:none;border:0;background:none;padding:0;cursor:pointer;border-radius:50%}
+.top .me .face{width:40px;height:40px;font-size:15px;box-shadow:0 0 0 2px rgba(255,255,255,.55)}
+.top .me i{position:absolute;right:-4px;bottom:-3px;font-style:normal;font-size:11px;line-height:1;background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.face{display:inline-flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;border-radius:50%;overflow:hidden;background:#d6e6ea;color:#06394a;font-weight:800;font-size:14px;vertical-align:middle}
+.face img{width:100%;height:100%;object-fit:cover;display:block}
+.face.xs{width:18px;height:18px;font-size:8px}.face.sm{width:26px;height:26px;font-size:11px}.face.lg{width:52px;height:52px;font-size:19px}.face.xl{width:112px;height:112px;font-size:38px}
+.who{display:inline-flex;align-items:center;gap:8px;min-width:0}i.who{gap:5px}
+.avbig{display:flex;justify-content:center;margin:6px 0 10px}
+label.btn{display:block;text-align:center;cursor:pointer}
 .top .ttl{flex:1;min-width:0;line-height:1.15}
 .top .ttl strong{display:block;font:800 18px/1.1 var(--display)}
 .top .ttl span{font-size:13px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
@@ -398,6 +406,10 @@ Object.assign(T.es, {
   needSqlCli:"Falta crear la parte de clientes en Supabase (archivo 2026-10-19_supabase-clientes-pedidos.sql).",
   siteClient:"cliente del sitio", cliCard:"Ver datos del cliente", cliSince:"Cliente desde", cliTrips:"Paseos confirmados", moved:"Paseo cambiado.", moveHint:"Cambia lancha, fecha u horario aquí: la lista y el calendario de la lancha cambian juntos."
 });
+/* foto de perfil */
+Object.assign(T.pt, {avT:"Sua foto", avSub:"Aparece para a Búzios Lanchas e para quem trabalha com você.", avPick:"Escolher foto", avSelfie:"Tirar selfie", avGoogle:"Usar a foto do Google", avRm:"Remover foto", avSaved:"Foto salva!", avRemoved:"Foto removida.", avErr:"Não deu para salvar a foto. Tente outra imagem.", avNeedSql:"Falta criar a pasta de fotos no Supabase (arquivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Trocar foto", avSaving:"Salvando a foto…"});
+Object.assign(T.en, {avT:"Your photo", avSub:"Búzios Lanchas and the people you work with can see it.", avPick:"Choose a photo", avSelfie:"Take a selfie", avGoogle:"Use my Google photo", avRm:"Remove photo", avSaved:"Photo saved!", avRemoved:"Photo removed.", avErr:"Couldn't save the photo. Try another picture.", avNeedSql:"The photos folder is missing in Supabase (file 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Change photo", avSaving:"Saving the photo…"});
+Object.assign(T.es, {avT:"Tu foto", avSub:"La ven Búzios Lanchas y quienes trabajan contigo.", avPick:"Elegir foto", avSelfie:"Sacar selfie", avGoogle:"Usar mi foto de Google", avRm:"Quitar foto", avSaved:"¡Foto guardada!", avRemoved:"Foto quitada.", avErr:"No se pudo guardar la foto. Prueba con otra imagen.", avNeedSql:"Falta crear la carpeta de fotos en Supabase (archivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Cambiar foto", avSaving:"Guardando la foto…"});
 const LANGS = ["pt","en","es"];
 const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
   set(k,v){ try{ v==null ? localStorage.removeItem(k) : localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
@@ -616,7 +628,7 @@ function reqCard(p, adm){
   const d=dateOf(p.data), c=p.clientes||{}, ph=splitPhone(c.whatsapp), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
   return `<div class="trip rq st-${p.status}${p.horario==="dia"?" full":""}">
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
-    <span class="tbody">${adm?`<strong>${esc(c.nome||"—")}</strong>`:`<strong>${esc(boatName(p.lancha))}</strong>`}
+    <span class="tbody">${adm?`<strong class="who">${face(p.cliente,c.nome,"face sm")}${esc(c.nome||"—")}</strong>`:`<strong>${esc(boatName(p.lancha))}</strong>`}
       <span>${fmtLong(p.data)} · ${t("slot_"+p.horario)}${p.horario==="noite"?"":" · "+t("hours_"+p.horario)}</span>
       <span class="tmeta"><i class="stb st-${p.status}">${t("st_"+p.status)}</i>${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>
       ${adm?`<span class="tmeta"><i>CPF ${esc(fmtCPF(c.cpf))}</i><i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
@@ -642,8 +654,63 @@ function clientView(){
 const logout = () => { const tok=ses?.access_token; saveSes(null); store.set("conta-tipo",null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; view="login"; show(); };
 
 function headerHTML(){
-  return `<img src="/login/icon-192.png" alt=""><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
+  return `<button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
 }
+/* ===== foto de perfil: arquivo <id>.jpg na pasta pública "avatares". Sem foto, mostra as iniciais ===== */
+const AV_URL = uid => `${SB}/storage/v1/object/public/avatares/${uid}.jpg`;
+const avHour = Math.floor(Date.now()/36e5); /* a foto dos outros atualiza em até 1 hora */
+const initials = s => (String(s||"").replace(/@.*/,"").trim().split(/[\s._-]+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("")||"?").toUpperCase();
+const meta = () => ses?.user?.user_metadata || {};
+const gPic = () => meta().avatar_url || meta().picture || "";
+const myName = () => S.me?.nome || meta().full_name || meta().name || ses?.user?.email || "";
+/* foto: version (meta.foto) > 0 tem foto; 0 = tirou a foto; sem valor = tenta a do banco e depois a do Google */
+function face(uid, name, cls="face"){
+  const ini = esc(initials(name)), mine = uid && uid===ses?.user?.id, v = mine ? meta().foto : avHour;
+  if(!uid || v===0) return `<span class="${cls} ini" aria-hidden="true">${ini}</span>`;
+  const alt = mine && !v ? gPic() : "";
+  return `<span class="${cls}" data-ini="${ini}" aria-hidden="true"><img src="${AV_URL(uid)}?v=${v||avHour}" alt=""${alt?` data-alt="${esc(alt)}" referrerpolicy="no-referrer"`:""} onerror="avErr(this)"></span>`;
+}
+function avErr(img){ const a=img.dataset.alt; if(a){ img.removeAttribute("data-alt"); img.src=a; return; } const s=img.parentNode; s.classList.add("ini"); s.textContent=s.dataset.ini; }
+/* corta no meio, em quadrado, e reduz para 320px (a foto do celular vira uns 30 KB) */
+function squareJpeg(src){ return new Promise((ok,no)=>{ const im=new Image(); im.crossOrigin="anonymous";
+  im.onload=()=>{ const w=im.naturalWidth, h=im.naturalHeight, q=Math.min(w,h), c=document.createElement("canvas"); c.width=c.height=320;
+    c.getContext("2d").drawImage(im,(w-q)/2,(h-q)/2,q,q,0,0,320,320); c.toBlob(b=>b?ok(b):no(new Error("blob")),"image/jpeg",.85); };
+  im.onerror=no; im.src=src; }); }
+async function setFoto(v){ ses.user = await authCall("user",{data:{foto:v}},"PUT",await fresh()); saveSes(ses); }
+async function avStore(init){
+  const r = await fetch(`${SB}/storage/v1/object/avatares/${ses.user.id}.jpg`, {...init, headers:{apikey:KEY, authorization:"Bearer "+await fresh(), ...(init.headers||{})}});
+  if(!r.ok){ const j=await r.json().catch(()=>({})); throw Object.assign(new Error(j.message||r.status),{status:r.status, missing:/bucket/i.test(j.message||j.error||"")}); }
+}
+async function avUpload(src){
+  const blob = await squareJpeg(src);
+  await avStore({method:"POST", headers:{"content-type":"image/jpeg","x-upsert":"true","cache-control":"max-age=300"}, body:blob});
+  await setFoto(Date.now());
+}
+const avFail = e => toast(e.missing && S.admin ? t("avNeedSql") : e.missing ? t("avErr") : e.status ? t("avErr") : t("netErr"));
+function openFace(){
+  const has = meta().foto>0 || (meta().foto===undefined && gPic());
+  sheet.innerHTML = `<div class="grab"></div><div class="avbig">${face(ses.user.id,myName(),"face xl")}</div><h2 style="text-align:center">${t("avT")}</h2>
+    <p class="muted" style="margin-top:0;text-align:center">${t("avSub")}</p>
+    <label class="btn" style="margin:0 0 10px">${t("avPick")}<input type="file" accept="image/*" id="avf" hidden></label>
+    <label class="btn sec" style="margin:0 0 10px">📷 ${t("avSelfie")}<input type="file" accept="image/*" capture="user" id="avc" hidden></label>
+    ${gPic() && meta().foto!==undefined ? `<button type="button" class="btn sec" id="avg" style="margin:0 0 10px">${t("avGoogle")}</button>` : ""}
+    ${has ? `<button type="button" class="link danger" id="avrm">${t("avRm")}</button>` : ""}
+    <button type="button" class="btn sec" id="avx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  const done = msg => { closeDay(); toast(msg); refreshTop(); };
+  const run = async (fn, msg) => { sheet.querySelectorAll("button,input").forEach(b=>b.disabled=true); toast(t("avSaving")); try{ await fn(); done(msg); }catch(e){ closeDay(); avFail(e); } };
+  ["avf","avc"].forEach(id=>document.getElementById(id).onchange=e=>{ const f=e.target.files[0]; if(!f) return; const u=URL.createObjectURL(f); run(()=>avUpload(u).finally(()=>URL.revokeObjectURL(u)), t("avSaved")); });
+  const g=document.getElementById("avg"); if(g) g.onclick=()=>run(()=>avUpload(gPic()), t("avSaved"));
+  const rm=document.getElementById("avrm"); if(rm) rm.onclick=()=>run(async()=>{ await avStore({method:"DELETE"}).catch(e=>{ if(e.status!==404 && e.status!==400) throw e; }); await setFoto(0); }, t("avRemoved"));
+  document.getElementById("avx").onclick=closeDay;
+}
+/* quem entra pelo Google já fica com a foto do Google (copiada uma vez para a pasta, para os outros verem também) */
+async function importGoogle(){
+  if(meta().foto!==undefined || !gPic() || importGoogle.tried) return; importGoogle.tried=true;
+  try{ await avUpload(gPic()); refreshTop(); }catch(e){}
+}
+function refreshTop(){ if(top_.hidden || !ses) return; top_.innerHTML=headerHTML(); bindLang(); document.getElementById("out").onclick=logout; }
+top_.addEventListener("click", e => { if(e.target.closest("#me")) openFace(); });
 const daySize = s => s ? s.size - (s.has("noite")?1:0) : 0;
 function dayState(s){ if(!s || !s.size) return ""; return (s.has("dia") || (s.has("manha") && s.has("tarde"))) ? "full" : "half"; }
 const withNight = (s,txt,key) => s.has("noite") ? (txt ? txt+"+"+t(key==="c"?"c_noite":"slot_noite") : t(key==="c"?"c_noite":"slot_noite")) : txt;
@@ -682,9 +749,9 @@ function tripCard(r){
   const ph=splitPhone(n.telefone), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
   return `<div role="button" tabindex="0" class="trip${r.horario==="dia"?" full":""}" data-trip="${r.id}">
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".","")}</span></span>
-    <span class="tbody">${n.cliente?`<strong>${esc(n.cliente)}</strong>`:`<em>${t("noClientName")}</em>`}
+    <span class="tbody">${n.cliente?`<strong class="who">${n.cliente_conta?face(n.cliente_conta,n.cliente,"face sm"):""}${esc(n.cliente)}</strong>`:`<em>${t("noClientName")}</em>`}
       <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.cur==="*"?" · "+esc(boatName(r.lancha)):""}</span>
-      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i>⚓ ${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:""}${n.cliente_conta?`<i class="site">✓ ${t("siteClient")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
+      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i class="who">⚓ ${face(n.marinheiro,sailorName(r.lancha,n.marinheiro),"face xs")}${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:""}${n.cliente_conta?`<i class="site">✓ ${t("siteClient")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
     <span class="tside">${v?`<span class="tval"><b>${brl(v)}</b>${pay}</span>`:""}
     ${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("waClient",{name:esc(n.cliente||"")})}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`;
 }
@@ -737,7 +804,7 @@ function marHTML(){
   if(S.sailors===null) return `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
   const list=sailorsOf(S.cur), boat=boatName(S.cur);
   return `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="muted" style="margin-top:0">${t("marSub",{boat:esc(boat)})}</p>
-    <ul class="owners staff">${list.length ? list.map(m=>`<li><span style="flex:1 1 100%"><strong>${esc(m.nome)}</strong><br><small class="muted">${esc(m.email)}</small></span>
+    <ul class="owners staff">${list.length ? list.map(m=>`<li><span style="flex:1 1 100%" class="who">${face(m.user_id,m.nome,"face")}<span><strong>${esc(m.nome)}</strong><br><small class="muted">${esc(m.email)}</small></span></span>
       <button type="button" class="fx" data-mfx="${esc(m.email)}" data-mn="${esc(m.nome)}" aria-pressed="${m.fixo}">${m.fixo?"★ "+t("fixo"):"☆ "+t("makeFixo")}</button>
       <button type="button" class="rm" data-mrm="${esc(m.email)}" data-mn="${esc(m.nome)}" style="margin-left:auto">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("marNone")}</li>`}</ul>
     <form id="mf" novalidate style="margin-top:16px"><div id="mmsg"></div>
@@ -775,11 +842,11 @@ function installHTML(){
 }
 const waOf = tel => { const ph=splitPhone(tel), d=ph.num.replace(/\D/g,""); return d ? ph.cc+d : ""; };
 /* lista de freelancers com botão de WhatsApp, para o dono chamar quem estiver livre */
-const freeWaList = () => (S.free||[]).length ? `<ul class="owners frees">${S.free.map(f=>`<li><span><strong>${esc(f.nome)}</strong>${f.telefone?`<br><small class="muted">${esc(f.telefone)}</small>`:""}</span>${waOf(f.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(f.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}</li>`).join("")}</ul>` : `<p class="muted" style="margin:0">${t("freeNone")}</p>`;
+const freeWaList = () => (S.free||[]).length ? `<ul class="owners frees">${S.free.map(f=>`<li><span class="who">${face(f.user_id,f.nome,"face")}<span><strong>${esc(f.nome)}</strong>${f.telefone?`<br><small class="muted">${esc(f.telefone)}</small>`:""}</span></span>${waOf(f.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(f.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}</li>`).join("")}</ul>` : `<p class="muted" style="margin:0">${t("freeNone")}</p>`;
 function freeHTML(){
   if(S.free===null) return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
   return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="muted" style="margin-top:0">${t("freeSub")}</p>
-    <ul class="owners">${S.free.length ? S.free.map(f=>`<li><span><strong>${esc(f.nome)}</strong><br><small class="muted">${esc(f.email||"")}${f.telefone?" · "+esc(f.telefone):""}</small></span><button type="button" class="rm" data-frm="${esc(f.email||"")}" data-mn="${esc(f.nome)}">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("freeNone")}</li>`}</ul>
+    <ul class="owners">${S.free.length ? S.free.map(f=>`<li><span class="who">${face(f.user_id,f.nome,"face")}<span><strong>${esc(f.nome)}</strong><br><small class="muted">${esc(f.email||"")}${f.telefone?" · "+esc(f.telefone):""}</small></span></span><button type="button" class="rm" data-frm="${esc(f.email||"")}" data-mn="${esc(f.nome)}">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("freeNone")}</li>`}</ul>
     <form id="ff" novalidate style="margin-top:16px"><div id="fmsg"></div>
       <label class="f"><span>${t("marName")}</span><input type="text" id="fnm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_mar")}"></label>
       <div class="f"><label for="ftel"><span>WhatsApp</span></label><div class="phone"><select class="in" id="fddi" aria-label="${t("country")}">${countryOpts("55")}</select><input type="tel" id="ftel" inputmode="tel" autocomplete="off" placeholder="${t("ph_phone")}"></div></div>
@@ -1185,7 +1252,7 @@ function renderTrip(){
   const cc=document.getElementById("clicard");
   if(cc) cc.ontoggle=async()=>{ if(!cc.open || cc.dataset.ok) return; cc.dataset.ok=1; const box=document.getElementById("clibody");
     try{ const c=(await db("rpc/cliente_do_passeio",{method:"POST",body:{bid:r.id}}))[0]; const ph=splitPhone(c?.whatsapp), wa=ph.cc+ph.num.replace(/\D/g,"");
-      box.innerHTML = c ? `<div class="rolist"><div class="rorow"><span>${t("fullName")}</span><strong>${esc(c.nome)}</strong></div><div class="rorow"><span>CPF</span><strong>${esc(fmtCPF(c.cpf))}</strong></div>
+      box.innerHTML = c ? `<div class="who" style="margin:4px 0 8px">${face(n.cliente_conta,c.nome,"face lg")}<strong>${esc(c.nome)}</strong></div><div class="rolist"><div class="rorow"><span>${t("fullName")}</span><strong>${esc(c.nome)}</strong></div><div class="rorow"><span>CPF</span><strong>${esc(fmtCPF(c.cpf))}</strong></div>
         <div class="rorow"><span>WhatsApp</span><strong><a href="https://wa.me/${wa}" target="_blank" rel="noopener">${esc(c.whatsapp)}</a></strong></div>
         <div class="rorow"><span>${t("cliSince")}</span><strong>${new Date(c.desde).toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</strong></div><div class="rorow"><span>${t("cliTrips")}</span><strong>${c.passeios}</strong></div></div>` : `<p class="muted">—</p>`; }
     catch(e){ cc.dataset.ok=""; box.innerHTML=`<p class="msg err">${t("loadErr")}</p>`; } };
@@ -1283,7 +1350,7 @@ async function boot(){
   app.innerHTML = `<p class="loading">…</p>`; S.notes = true;
   try{
     if(!ses.user) ses.user = await authCall("user",null,"GET",await fresh());
-    saveSes(ses);
+    saveSes(ses); importGoogle();
     const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome&order=nome"), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
     /* funcionário: lanchas que só pode ver (tabela visualizadores); sem a tabela, segue sem eles */
