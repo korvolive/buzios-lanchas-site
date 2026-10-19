@@ -186,6 +186,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .nslots button small{font-weight:400;font-size:11px;color:var(--muted)}
 .nslots button[aria-checked=true]{background:var(--sea);border-color:var(--sea);color:#fff}.nslots button[aria-checked=true] small{color:inherit}
 .nslots button[data-ns=noite]{grid-column:1/-1}
+.pwlink{text-align:center;margin:18px 0 0}
 .link.danger{color:var(--bad);display:block;margin:6px auto 0}
 .loading{text-align:center;color:var(--muted);padding:40px 0}
 </style></head><body>
@@ -207,7 +208,7 @@ const T = {
     forgotSent:"Pronto! Enviamos um link para {email}. Abra o e-mail no celular e toque no link para criar uma senha nova.", needEmail:"Escreva seu e-mail primeiro.",
     newPwTitle:"Criar senha nova", newPwSub:"Escolha uma senha com pelo menos 6 letras ou números.", newPw:"Senha nova", savePw:"Salvar senha", pwShort:"A senha precisa ter pelo menos 6 caracteres.", pwSaved:"Senha salva!",
     linkErr:"Esse link expirou ou já foi usado. Peça outro em \"Esqueci minha senha\".",
-    logout:"Sair", hello:"Olá, {email}",
+    logout:"Sair", chPw:"Alterar minha senha", pwCancel:"Cancelar", curPw:"Senha atual", newPw2:"Repita a senha nova", curPwNeed:"Digite a sua senha atual.", curPwBad:"A senha atual está errada.", pwDiff:"As duas senhas novas não são iguais.", pwChanged:"Senha alterada! Use a nova no próximo login.", hello:"Olá, {email}",
     how:"Toque no dia e marque o horário que já está alugado. No site, esse horário aparece como <strong>indisponível</strong> na hora.",
     free:"Livre", half:"Meio período", full:"Dia todo", m:"Manhã", tA:"Tarde",
     slot_manha:"Manhã", slot_tarde:"Tarde", slot_dia:"Dia todo", slot_noite:"Réveillon noturno", hours_noite:"passeio noturno de 7 horas", c_noite:"Noite",
@@ -242,7 +243,7 @@ const T = {
     forgotSent:"Done! We sent a link to {email}. Open the email on your phone and tap the link to create a new password.", needEmail:"Type your email first.",
     newPwTitle:"Create a new password", newPwSub:"Choose a password with at least 6 letters or numbers.", newPw:"New password", savePw:"Save password", pwShort:"The password needs at least 6 characters.", pwSaved:"Password saved!",
     linkErr:"This link has expired or was already used. Ask for another one in \"I forgot my password\".",
-    logout:"Sign out", hello:"Hi, {email}",
+    logout:"Sign out", chPw:"Change my password", pwCancel:"Cancel", curPw:"Current password", newPw2:"Repeat the new password", curPwNeed:"Type your current password.", curPwBad:"The current password is wrong.", pwDiff:"The two new passwords don't match.", pwChanged:"Password changed! Use the new one next time you sign in.", hello:"Hi, {email}",
     how:"Tap a day and mark the time slot that is already rented. On the website, that slot shows as <strong>unavailable</strong> right away.",
     free:"Free", half:"Half day", full:"Full day", m:"Morning", tA:"Afternoon",
     slot_manha:"Morning", slot_tarde:"Afternoon", slot_dia:"Full day", slot_noite:"New Year's Eve night", hours_noite:"7-hour night tour", c_noite:"Night",
@@ -277,7 +278,7 @@ const T = {
     forgotSent:"¡Listo! Enviamos un enlace a {email}. Abre el correo en el celular y toca el enlace para crear una contraseña nueva.", needEmail:"Escribe tu correo primero.",
     newPwTitle:"Crear contraseña nueva", newPwSub:"Elige una contraseña con al menos 6 letras o números.", newPw:"Contraseña nueva", savePw:"Guardar contraseña", pwShort:"La contraseña necesita al menos 6 caracteres.", pwSaved:"¡Contraseña guardada!",
     linkErr:"Este enlace expiró o ya fue usado. Pide otro en \"Olvidé mi contraseña\".",
-    logout:"Salir", hello:"Hola, {email}",
+    logout:"Salir", chPw:"Cambiar mi contraseña", pwCancel:"Cancelar", curPw:"Contraseña actual", newPw2:"Repite la contraseña nueva", curPwNeed:"Escribe tu contraseña actual.", curPwBad:"La contraseña actual es incorrecta.", pwDiff:"Las dos contraseñas nuevas no son iguales.", pwChanged:"¡Contraseña cambiada! Usa la nueva en el próximo acceso.", hello:"Hola, {email}",
     how:"Toca el día y marca el horario que ya está alquilado. En el sitio, ese horario aparece como <strong>no disponible</strong> al instante.",
     free:"Libre", half:"Medio día", full:"Día completo", m:"Mañana", tA:"Tarde",
     slot_manha:"Mañana", slot_tarde:"Tarde", slot_dia:"Día completo", slot_noite:"Nochevieja nocturno", hours_noite:"paseo nocturno de 7 horas", c_noite:"Noche",
@@ -534,7 +535,7 @@ function mainView(){
   top_.hidden = false; top_.innerHTML = headerHTML(); bindLang();
   document.getElementById("out").onclick = () => { const tok=ses?.access_token; saveSes(null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; show(); };
   if(!S.boats.length){
-    app.innerHTML = installHTML() + `<div class="card"><h2>${t("noBoat")}</h2><p class="muted">${t("noBoatSub")}</p><a class="btn" href="https://wa.me/${WHATS}">${t("talk")}</a></div>` + adminHTML();
+    app.innerHTML = installHTML() + `<div class="card"><h2>${t("noBoat")}</h2><p class="muted">${t("noBoatSub")}</p><a class="btn" href="https://wa.me/${WHATS}">${t("talk")}</a></div>` + adminHTML() + PW_LINK();
     return bindMain();
   }
   if(S.tab!=="lista" && S.cur==="*") S.cur=S.boats[0].slug;
@@ -546,7 +547,7 @@ function mainView(){
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
     + (S.tab==="lista" ? listHTML() : S.tab==="lancha" ? itemsHTML() + staffHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
-    + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + adminHTML();
+    + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + adminHTML() + PW_LINK();
   bindMain();
 }
 function bindMain(){
@@ -676,6 +677,35 @@ let sheetDay = null;
 function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheetBg.classList.add("on"); }
 function closeDay(){ sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; }
 sheetBg.onclick = closeDay;
+/* trocar a própria senha (dono ou funcionário): confere a atual entrando de novo e só então grava a nova */
+const PW_LINK = () => `<p class="pwlink"><button type="button" class="link" id="chpw">${t("chPw")}</button></p>`;
+app.addEventListener("click", e => { if(e.target.closest("#chpw")) openPw(); });
+function openPw(msg=""){
+  const eye = id => `<div class="pw"><input type="password" id="${id}" autocomplete="${id==="pw-cur"?"current-password":"new-password"}"><button type="button" data-eye="${id}">${t("show")}</button></div>`;
+  sheet.innerHTML = `<div class="grab"></div><h2>${t("chPw")}</h2><p class="muted" style="margin-top:0">${esc(ses?.user?.email||"")}</p>
+    <form id="pwf" class="nform" novalidate><div id="pwmsg">${msg}</div>
+      <label class="f"><span>${t("curPw")}</span>${eye("pw-cur")}</label>
+      <label class="f"><span>${t("newPw")}</span>${eye("pw-new")}</label>
+      <label class="f"><span>${t("newPw2")}</span>${eye("pw-new2")}</label>
+      <p class="muted" style="margin:-2px 0 12px;font-size:13px">${t("newPwSub")}</p>
+      <button class="btn" id="pwgo">${t("savePw")}</button></form>
+    <button type="button" class="btn sec" id="pwback" style="margin-top:10px">${t("pwCancel")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  sheet.querySelectorAll("[data-eye]").forEach(b=>b.onclick=()=>{ const i=document.getElementById(b.dataset.eye), h=i.type==="password"; i.type=h?"text":"password"; b.textContent=h?t("hide"):t("show"); });
+  document.getElementById("pwback").onclick = closeDay;
+  document.getElementById("pwf").onsubmit = async e => { e.preventDefault();
+    const out=document.getElementById("pwmsg"), b=document.getElementById("pwgo"), v=id=>document.getElementById(id).value;
+    const err = m => { out.innerHTML=`<p class="msg err">${m}</p>`; b.disabled=false; };
+    if(!v("pw-cur")) return err(t("curPwNeed"));
+    if(v("pw-new").length<6) return err(t("pwShort"));
+    if(v("pw-new")!==v("pw-new2")) return err(t("pwDiff"));
+    b.disabled=true;
+    try{ saveSes(await authCall("token?grant_type=password", {email:ses.user.email, password:v("pw-cur")})); }
+    catch(x){ return err(x.status===400 ? t("curPwBad") : t("netErr")); }
+    try{ await authCall("user", {password:v("pw-new")}, "PUT", await fresh()); closeDay(); toast(t("pwChanged")); }
+    catch(x){ err(x.status ? esc(x.message) : t("netErr")); }
+  };
+}
 let noteFor = null; /* horário cuja anotação está aberta na janela */
 function renderSheet(busy){
   if(noteFor) return renderNote();
