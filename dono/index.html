@@ -132,6 +132,11 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .rolist{border-top:1px solid var(--line);margin-top:10px}.rorow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
 .rorow span{color:var(--muted)}.rorow strong{text-align:right;word-break:break-word}
 .staff li{flex-wrap:wrap;align-items:center}
+.fx{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;color:var(--muted)}
+.fx[aria-pressed=true]{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}
+.sailor .trip{border-left-color:var(--line)}.sailor .trip.mine{border-left-color:var(--sea)}
+.sailor .tbody strong{display:flex;align-items:center;gap:6px}.sailor .tbody strong .bav{width:24px;height:24px}
+.tmeta i.me{color:var(--sea);font-weight:700}.tmeta i.warn{color:var(--bad);font-weight:700}
 .vv{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);word-break:normal!important}
 .yn{display:inline-flex;background:var(--chip);border-radius:999px;padding:3px}
 .yn button{border:0;background:none;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;color:var(--muted)}
@@ -208,7 +213,7 @@ const T = {
     forgotSent:"Pronto! Enviamos um link para {email}. Abra o e-mail no celular e toque no link para criar uma senha nova.", needEmail:"Escreva seu e-mail primeiro.",
     newPwTitle:"Criar senha nova", newPwSub:"Escolha uma senha com pelo menos 6 letras ou números.", newPw:"Senha nova", savePw:"Salvar senha", pwShort:"A senha precisa ter pelo menos 6 caracteres.", pwSaved:"Senha salva!",
     linkErr:"Esse link expirou ou já foi usado. Peça outro em \"Esqueci minha senha\".",
-    logout:"Sair", chPw:"Alterar minha senha", pwCancel:"Cancelar", curPw:"Senha atual", newPw2:"Repita a senha nova", curPwNeed:"Digite a sua senha atual.", curPwBad:"A senha atual está errada.", pwDiff:"As duas senhas novas não são iguais.", pwChanged:"Senha alterada! Use a nova no próximo login.", hello:"Olá, {email}",
+    logout:"Sair", chPw:"Alterar minha senha", pwCancel:"Cancelar", marT:"Marinheiros", refused:"{name} avisou que não vai. Escolha outro marinheiro.", busy:"ocupado", freeGroup:"Freelancers Búzios Lanchas", cantGo:"Não vou poder ir", cantGoQ:"Avisar o dono que você não vai poder pilotar esse passeio?", refusedOk:"Pronto! O dono já vê que você não vai.", freeT:"Marinheiros freelancers", freeSub:"Só você cadastra. Qualquer dono pode escalar um freelancer num passeio; quem já está em outro passeio no mesmo horário aparece como ocupado. O freelancer só vê os passeios dele e pode avisar que não vai.", freeNone:"Nenhum freelancer ainda.", freeAdd:"Adicionar freelancer", waFree:"Olá, {name}! Este é o seu acesso à agenda de marinheiros da Búzios Lanchas. Lá aparecem os passeios em que você for escalado.\nEndereço: {url}\nE-mail: {email}\nSenha: {pw}", freeLinked:"Pronto! {name} já está na lista de freelancers.", confirmRmFree:"Tirar {name} da lista de freelancers? Os próximos passeios dele ficam sem marinheiro.", marSub:"Cadastre o marinheiro fixo da {boat} (e outros da sua equipe). O fixo vê todos os passeios da lancha. Os freelancers vêm da lista da Búzios Lanchas e só veem os dias em que forem escalados. Nenhum deles vê valores nem altera nada.", marNone:"Nenhum marinheiro ainda.", marName:"Nome do marinheiro", ph_mar:"Ex.: John Silva", marEmail:"E-mail do marinheiro", marPw:"Senha para o marinheiro", marFixo:"É o marinheiro fixo desta lancha", fixo:"Fixo", makeFixo:"Tornar fixo", marAdd:"Adicionar marinheiro", marLinked:"Pronto! {name} já está na {boat}.", waSailor:"Olá, {name}! Este é o seu acesso para ver os passeios da {boat} na Búzios Lanchas.\nEndereço: {url}\nE-mail: {email}\nSenha: {pw}", needSqlMar:"Falta criar a parte de marinheiros no Supabase (arquivo 2026-10-19_supabase-marinheiros.sql).", sailor:"Marinheiro", sailorPick:"Quem vai pilotar", sailorNoneYet:"Cadastre os marinheiros na aba Lancha para escolher quem pilota.", sailorUnset:"Marinheiro não definido", sailorT:"Passeios como marinheiro", sailorSub:"Você só visualiza. Para mudar algo, fale com o dono da lancha.", sailorNone:"Nenhum passeio marcado para você por enquanto.", boarding:"Embarque", youPilot:"Você pilota", marNeedName:"Digite o nome do marinheiro.", marNeedEmail:"Digite o e-mail do marinheiro.", confirmRmMar:"Tirar {name} da {boat}? Os próximos passeios dele nessa lancha ficam sem marinheiro.", curPw:"Senha atual", newPw2:"Repita a senha nova", curPwNeed:"Digite a sua senha atual.", curPwBad:"A senha atual está errada.", pwDiff:"As duas senhas novas não são iguais.", pwChanged:"Senha alterada! Use a nova no próximo login.", hello:"Olá, {email}",
     how:"Toque no dia e marque o horário que já está alugado. No site, esse horário aparece como <strong>indisponível</strong> na hora.",
     free:"Livre", half:"Meio período", full:"Dia todo", m:"Manhã", tA:"Tarde",
     slot_manha:"Manhã", slot_tarde:"Tarde", slot_dia:"Dia todo", slot_noite:"Réveillon noturno", hours_noite:"passeio noturno de 7 horas", c_noite:"Noite",
@@ -243,7 +248,7 @@ const T = {
     forgotSent:"Done! We sent a link to {email}. Open the email on your phone and tap the link to create a new password.", needEmail:"Type your email first.",
     newPwTitle:"Create a new password", newPwSub:"Choose a password with at least 6 letters or numbers.", newPw:"New password", savePw:"Save password", pwShort:"The password needs at least 6 characters.", pwSaved:"Password saved!",
     linkErr:"This link has expired or was already used. Ask for another one in \"I forgot my password\".",
-    logout:"Sign out", chPw:"Change my password", pwCancel:"Cancel", curPw:"Current password", newPw2:"Repeat the new password", curPwNeed:"Type your current password.", curPwBad:"The current password is wrong.", pwDiff:"The two new passwords don't match.", pwChanged:"Password changed! Use the new one next time you sign in.", hello:"Hi, {email}",
+    logout:"Sign out", chPw:"Change my password", pwCancel:"Cancel", marT:"Skippers", refused:"{name} said they can't make it. Choose another skipper.", busy:"busy", freeGroup:"Búzios Lanchas freelancers", cantGo:"I can't make it", cantGoQ:"Tell the owner you can't drive this tour?", refusedOk:"Done! The owner can see you won't make it.", freeT:"Freelance skippers", freeSub:"Only you add them. Any owner can assign a freelancer to a tour; anyone already on another tour at the same time shows as busy. Freelancers only see their own tours and can say they can't make it.", freeNone:"No freelancers yet.", freeAdd:"Add freelancer", waFree:"Hi, {name}! This is your access to the Búzios Lanchas skippers' calendar. Tours you're assigned to show up there.\nAddress: {url}\nEmail: {email}\nPassword: {pw}", freeLinked:"Done! {name} is now on the freelancer list.", confirmRmFree:"Remove {name} from the freelancer list? Their upcoming tours will have no skipper.", marSub:"Add the regular skipper of {boat} (and others on your crew). The regular skipper sees every tour of the boat. Freelancers come from the Búzios Lanchas list and only see the days they're assigned. None of them sees prices or can change anything.", marNone:"No skippers yet.", marName:"Skipper's name", ph_mar:"E.g. John Silva", marEmail:"Skipper's email", marPw:"Password for the skipper", marFixo:"This is the boat's regular skipper", fixo:"Regular", makeFixo:"Make regular", marAdd:"Add skipper", marLinked:"Done! {name} is now on {boat}.", waSailor:"Hi, {name}! This is your access to see the {boat} tours at Búzios Lanchas.\nAddress: {url}\nEmail: {email}\nPassword: {pw}", needSqlMar:"The skippers part is missing in Supabase (file 2026-10-19_supabase-marinheiros.sql).", sailor:"Skipper", sailorPick:"Who drives", sailorNoneYet:"Add skippers in the Boat tab to choose who drives.", sailorUnset:"Skipper not set", sailorT:"Tours as skipper", sailorSub:"View only. To change something, talk to the boat owner.", sailorNone:"No tours for you yet.", boarding:"Boarding", youPilot:"You drive", marNeedName:"Type the skipper's name.", marNeedEmail:"Type the skipper's email.", confirmRmMar:"Remove {name} from {boat}? Their upcoming tours on this boat will have no skipper.", curPw:"Current password", newPw2:"Repeat the new password", curPwNeed:"Type your current password.", curPwBad:"The current password is wrong.", pwDiff:"The two new passwords don't match.", pwChanged:"Password changed! Use the new one next time you sign in.", hello:"Hi, {email}",
     how:"Tap a day and mark the time slot that is already rented. On the website, that slot shows as <strong>unavailable</strong> right away.",
     free:"Free", half:"Half day", full:"Full day", m:"Morning", tA:"Afternoon",
     slot_manha:"Morning", slot_tarde:"Afternoon", slot_dia:"Full day", slot_noite:"New Year's Eve night", hours_noite:"7-hour night tour", c_noite:"Night",
@@ -278,7 +283,7 @@ const T = {
     forgotSent:"¡Listo! Enviamos un enlace a {email}. Abre el correo en el celular y toca el enlace para crear una contraseña nueva.", needEmail:"Escribe tu correo primero.",
     newPwTitle:"Crear contraseña nueva", newPwSub:"Elige una contraseña con al menos 6 letras o números.", newPw:"Contraseña nueva", savePw:"Guardar contraseña", pwShort:"La contraseña necesita al menos 6 caracteres.", pwSaved:"¡Contraseña guardada!",
     linkErr:"Este enlace expiró o ya fue usado. Pide otro en \"Olvidé mi contraseña\".",
-    logout:"Salir", chPw:"Cambiar mi contraseña", pwCancel:"Cancelar", curPw:"Contraseña actual", newPw2:"Repite la contraseña nueva", curPwNeed:"Escribe tu contraseña actual.", curPwBad:"La contraseña actual es incorrecta.", pwDiff:"Las dos contraseñas nuevas no son iguales.", pwChanged:"¡Contraseña cambiada! Usa la nueva en el próximo acceso.", hello:"Hola, {email}",
+    logout:"Salir", chPw:"Cambiar mi contraseña", pwCancel:"Cancelar", marT:"Marineros", refused:"{name} avisó que no va. Elige otro marinero.", busy:"ocupado", freeGroup:"Freelancers Búzios Lanchas", cantGo:"No voy a poder ir", cantGoQ:"¿Avisar al dueño que no vas a poder pilotar este paseo?", refusedOk:"¡Listo! El dueño ya ve que no vas.", freeT:"Marineros freelancers", freeSub:"Solo tú los registras. Cualquier dueño puede asignar un freelancer a un paseo; quien ya está en otro paseo a la misma hora aparece como ocupado. El freelancer solo ve sus paseos y puede avisar que no va.", freeNone:"Ningún freelancer todavía.", freeAdd:"Agregar freelancer", waFree:"¡Hola, {name}! Este es tu acceso a la agenda de marineros de Búzios Lanchas. Ahí aparecen los paseos en los que te asignen.\nDirección: {url}\nCorreo: {email}\nContraseña: {pw}", freeLinked:"¡Listo! {name} ya está en la lista de freelancers.", confirmRmFree:"¿Quitar a {name} de la lista de freelancers? Sus próximos paseos quedarán sin marinero.", marSub:"Registra el marinero fijo de {boat} (y otros de tu equipo). El fijo ve todos los paseos de la lancha. Los freelancers vienen de la lista de Búzios Lanchas y solo ven los días en que los asignen. Ninguno ve valores ni cambia nada.", marNone:"Ningún marinero todavía.", marName:"Nombre del marinero", ph_mar:"Ej.: John Silva", marEmail:"Correo del marinero", marPw:"Contraseña para el marinero", marFixo:"Es el marinero fijo de esta lancha", fixo:"Fijo", makeFixo:"Hacer fijo", marAdd:"Agregar marinero", marLinked:"¡Listo! {name} ya está en {boat}.", waSailor:"¡Hola, {name}! Este es tu acceso para ver los paseos de {boat} en Búzios Lanchas.\nDirección: {url}\nCorreo: {email}\nContraseña: {pw}", needSqlMar:"Falta crear la parte de marineros en Supabase (archivo 2026-10-19_supabase-marinheiros.sql).", sailor:"Marinero", sailorPick:"Quién pilota", sailorNoneYet:"Registra los marineros en la pestaña Lancha para elegir quién pilota.", sailorUnset:"Marinero sin definir", sailorT:"Paseos como marinero", sailorSub:"Solo puedes ver. Para cambiar algo, habla con el dueño de la lancha.", sailorNone:"Todavía no hay paseos para ti.", boarding:"Embarque", youPilot:"Tú pilotas", marNeedName:"Escribe el nombre del marinero.", marNeedEmail:"Escribe el correo del marinero.", confirmRmMar:"¿Quitar a {name} de {boat}? Sus próximos paseos en esta lancha quedarán sin marinero.", curPw:"Contraseña actual", newPw2:"Repite la contraseña nueva", curPwNeed:"Escribe tu contraseña actual.", curPwBad:"La contraseña actual es incorrecta.", pwDiff:"Las dos contraseñas nuevas no son iguales.", pwChanged:"¡Contraseña cambiada! Usa la nueva en el próximo acceso.", hello:"Hola, {email}",
     how:"Toca el día y marca el horario que ya está alquilado. En el sitio, ese horario aparece como <strong>no disponible</strong> al instante.",
     free:"Libre", half:"Medio día", full:"Día completo", m:"Mañana", tA:"Tarde",
     slot_manha:"Mañana", slot_tarde:"Tarde", slot_dia:"Día completo", slot_noite:"Nochevieja nocturno", hours_noite:"paseo nocturno de 7 horas", c_noite:"Noche",
@@ -359,7 +364,7 @@ async function db(path, {method="GET", body, prefer}={}, retry=true){
 
 /* ===== estado ===== */
 const app = document.getElementById("app"), top_ = document.getElementById("top");
-let S = { admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: store.get("dono-tab")||"lista", past:null, items:null, ro:{}, staff:[] };
+let S = { admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: store.get("dono-tab")||"lista", past:null, items:null, ro:{}, staff:[], sailors:[], sailorOf:[], myTrips:null, free:[], isFree:false, marOk:true, marNames:{} };
 const now = new Date(); S.month = new Date(now.getFullYear(), now.getMonth(), 1);
 
 function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove("on"),2600); }
@@ -464,7 +469,7 @@ function tripCard(r){
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".","")}</span></span>
     <span class="tbody">${n.cliente?`<strong>${esc(n.cliente)}</strong>`:`<em>${t("noClientName")}</em>`}
       <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.cur==="*"?" · "+esc(boatName(r.lancha)):""}</span>
-      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
+      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i>⚓ ${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
     <span class="tside">${v?`<span class="tval"><b>${brl(v)}</b>${pay}</span>`:""}
     ${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("waClient",{name:esc(n.cliente||"")})}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`;
 }
@@ -492,6 +497,41 @@ function itemsHTML(){
     <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items">${ITEMS.map(it=>`<button type="button" data-it="${esc(it[0])}" aria-pressed="${on.includes(it[0])}">${itemName(it)}</button>`).join("")}</div></div>`;
 }
 /* funcionários: o dono coloca quem só visualiza a agenda da lancha, com ou sem os valores */
+const sailorsOf = l => (S.sailors||[]).filter(m=>m.lancha===l);
+const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.user_id===uid)?.nome || (S.free||[]).find(m=>m.user_id===uid)?.nome || S.marNames[l]?.[uid] || "") : "";
+/* dia todo ocupa manhã e tarde; o noturno é separado */
+const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
+/* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
+const BOARD_PV = ["miss-bardot","les-zuzu"];
+const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho";
+/* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
+function sailorHTML(){
+  const rows=S.myTrips||[];
+  return `<div class="card sailor"><h2>⚓ ${t("sailorT")}</h2><p class="muted" style="margin-top:0">${t("sailorSub")}</p>
+    ${rows.length ? `<div class="trips">${rows.map(r=>{ const d=dateOf(r.data);
+      return `<div class="trip${r.horario==="dia"?" full":""}${r.eu?" mine":""}" style="cursor:default">
+        <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short",month:"short"}).replace(/\./g,"")}</span></span>
+        <span class="tbody"><strong>${avatar(r.lancha)} ${esc(boatName(r.lancha))}</strong>
+          <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}</span>
+          <span>${t("boarding")}: ${boarding(r.lancha,r.horario)}</span>
+          <span class="tmeta">${r.cliente?`<i>${esc(r.cliente)}</i>`:""}${r.pessoas?`<i>${r.pessoas} ${t("people").toLowerCase()}</i>`:""}<i class="${r.eu?"me":""}">⚓ ${r.eu?t("youPilot"):r.marinheiro?esc(r.marinheiro):t("sailorUnset")}</i></span>
+          ${r.obs?`<span>${esc(r.obs)}</span>`:""}
+          ${r.eu?`<button type="button" class="link danger" style="margin:4px 0 0;padding:4px 0;text-align:left" data-refuse="${r.id}">${t("cantGo")}</button>`:""}</span></div>`; }).join("")}</div>` : `<p class="muted" style="margin:0">${t("sailorNone")}</p>`}</div>`;
+}
+function marHTML(){
+  if(S.sailors===null) return `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
+  const list=sailorsOf(S.cur), boat=boatName(S.cur);
+  return `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="muted" style="margin-top:0">${t("marSub",{boat:esc(boat)})}</p>
+    <ul class="owners staff">${list.length ? list.map(m=>`<li><span style="flex:1 1 100%"><strong>${esc(m.nome)}</strong><br><small class="muted">${esc(m.email)}</small></span>
+      <button type="button" class="fx" data-mfx="${esc(m.email)}" data-mn="${esc(m.nome)}" aria-pressed="${m.fixo}">${m.fixo?"★ "+t("fixo"):"☆ "+t("makeFixo")}</button>
+      <button type="button" class="rm" data-mrm="${esc(m.email)}" data-mn="${esc(m.nome)}" style="margin-left:auto">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("marNone")}</li>`}</ul>
+    <form id="mf" novalidate style="margin-top:16px"><div id="mmsg"></div>
+      <label class="f"><span>${t("marName")}</span><input type="text" id="mnm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_mar")}"></label>
+      <label class="f"><span>${t("marEmail")}</span><input type="email" id="mem" autocapitalize="off" inputmode="email"></label>
+      <label class="f"><span>${t("marPw")} <small class="muted" style="font-weight:400">(${t("staffPwHint")})</small></span><input type="text" id="mpw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
+      <label class="check"><input type="checkbox" id="mfixo"${list.some(m=>m.fixo)?"":" checked"}> ${t("marFixo")}</label>
+      <button class="btn" id="msub">${t("marAdd")}</button></form></div>`;
+}
 function staffHTML(){
   if(S.staff===null) return `<div class="card"><h2>${t("staffT")}</h2><p class="msg err" style="margin:0">${t("needSqlStaff")}</p></div>`;
   const list=(S.staff||[]).filter(x=>x.lancha===S.cur), boat=boatName(S.cur);
@@ -517,9 +557,19 @@ function installHTML(){
   const inApp = ios && (!/Safari\//.test(ua) || /CriOS|FxiOS|EdgiOS|Instagram|FBAN|FBAV|WhatsApp|GSA\//.test(ua));
   return `<div class="card install" id="inst"><div style="flex:1"><h2 style="font-size:17px">${t("installT")}</h2><p>${inApp?t("installInApp"):ios?t("installIOS"):t("installAnd")}</p>${inApp?`<button class="btn sec" id="instcopy" style="margin-top:10px">${t("copyLink")}</button>`:""}${!ios&&deferredInstall?`<button class="btn sec" id="instgo" style="margin-top:10px">${t("installBtn")}</button>`:""}</div><button class="x" id="instx" aria-label="${t("close")}">×</button></div>`;
 }
+function freeHTML(){
+  if(S.free===null) return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
+  return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="muted" style="margin-top:0">${t("freeSub")}</p>
+    <ul class="owners">${S.free.length ? S.free.map(f=>`<li><span><strong>${esc(f.nome)}</strong><br><small class="muted">${esc(f.email||"")}</small></span><button type="button" class="rm" data-frm="${esc(f.email||"")}" data-mn="${esc(f.nome)}">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("freeNone")}</li>`}</ul>
+    <form id="ff" novalidate style="margin-top:16px"><div id="fmsg"></div>
+      <label class="f"><span>${t("marName")}</span><input type="text" id="fnm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_mar")}"></label>
+      <label class="f"><span>${t("marEmail")}</span><input type="email" id="fem" autocapitalize="off" inputmode="email"></label>
+      <label class="f"><span>${t("marPw")} <small class="muted" style="font-weight:400">(${t("staffPwHint")})</small></span><input type="text" id="fpw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
+      <button class="btn" id="fsub">${t("freeAdd")}</button></form></div>`;
+}
 function adminHTML(){
   if(!S.admin) return "";
-  return `<div class="card"><h2>${t("adminT")}</h2><p class="muted" style="margin-top:0">${t("adminSub")}</p>
+  return freeHTML() + `<div class="card"><h2>${t("adminT")}</h2><p class="muted" style="margin-top:0">${t("adminSub")}</p>
     <ol class="steps"><li>${t("adminStep1")}</li><li>${t("adminStep2")}</li><li>${t("adminStep3")}</li></ol>
     <form id="af" novalidate><div id="amsg"></div>
       <label class="f"><span>${t("ownerEmail")}</span><input type="email" id="aem" autocapitalize="off" inputmode="email"></label>
@@ -534,6 +584,10 @@ function adminHTML(){
 function mainView(){
   top_.hidden = false; top_.innerHTML = headerHTML(); bindLang();
   document.getElementById("out").onclick = () => { const tok=ses?.access_token; saveSes(null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; show(); };
+  if(!S.boats.length && (S.sailorOf.length || S.isFree)){
+    app.innerHTML = installHTML() + sailorHTML() + PW_LINK();
+    return bindMain();
+  }
   if(!S.boats.length){
     app.innerHTML = installHTML() + `<div class="card"><h2>${t("noBoat")}</h2><p class="muted">${t("noBoatSub")}</p><a class="btn" href="https://wa.me/${WHATS}">${t("talk")}</a></div>` + adminHTML() + PW_LINK();
     return bindMain();
@@ -544,9 +598,10 @@ function mainView(){
   app.innerHTML = installHTML()
     + (S.boats.length>1 ? `<div class="boats" role="group">${chips.map(b=>`<button type="button" data-b="${b.slug}" aria-pressed="${b.slug===S.cur}">${avatar(b.slug)}${esc(b.nome)}</button>`).join("")}</div>` : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + `<div class="tabs" role="tablist">${[["lista","tabList"],["cal","tabCal"],...(isRO()?[]:[["lancha","tabBoat"]])].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}</button>`).join("")}</div>`
+    + (S.tab==="lista" && S.myTrips?.length ? sailorHTML() : "")
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="lista" ? listHTML() : S.tab==="lancha" ? itemsHTML() + staffHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="lista" ? listHTML() : S.tab==="lancha" ? itemsHTML() + marHTML() + staffHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + adminHTML() + PW_LINK();
   bindMain();
 }
@@ -604,6 +659,61 @@ function bindMain(){
       document.getElementById("smsg").scrollIntoView({block:"center"});
     }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
   };
+  app.querySelectorAll("[data-refuse]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("cantGoQ"))) return; x.disabled=true;
+    try{ await db("rpc/recusar_passeio",{method:"POST",body:{bid:+x.dataset.refuse}}); S.myTrips = await db("rpc/passeios_marinheiro",{method:"POST",body:{}}); toast(t("refusedOk")); mainView(); }
+    catch(e){ x.disabled=false; toast(t("saveErr")); } });
+  const reloadSailors = async () => { S.sailors = await db("rpc/lista_marinheiros",{method:"POST",body:{}}); mainView(); };
+  app.querySelectorAll("[data-mfx]").forEach(x=>x.onclick=async()=>{ x.disabled=true;
+    try{ await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:x.dataset.mfx, l:S.cur, nome_mar:x.dataset.mn, e_fixo:x.getAttribute("aria-pressed")!=="true"}}); toast(t("saved")); await reloadSailors(); }
+    catch(e){ x.disabled=false; toast(t("saveErr")); } });
+  app.querySelectorAll("[data-mrm]").forEach(x=>x.onclick=async()=>{
+    if(!confirm(t("confirmRmMar",{name:x.dataset.mn, boat:boatName(S.cur)}))) return; x.disabled=true;
+    try{ await db("rpc/remover_marinheiro",{method:"POST",body:{email_mar:x.dataset.mrm, l:S.cur}}); toast(t("removed")); await reloadSailors(); }
+    catch(e){ x.disabled=false; toast(t("saveErr")); } });
+  const reloadFree = async () => { S.free = await db("rpc/lista_freelancers",{method:"POST",body:{}}); mainView(); };
+  app.querySelectorAll("[data-frm]").forEach(x=>x.onclick=async()=>{
+    if(!confirm(t("confirmRmFree",{name:x.dataset.mn}))) return; x.disabled=true;
+    try{ await db("rpc/remover_freelancer",{method:"POST",body:{email_mar:x.dataset.frm}}); toast(t("removed")); await reloadFree(); }
+    catch(e){ x.disabled=false; toast(t("saveErr")); } });
+  const ff=document.getElementById("ff");
+  if(ff) ff.onsubmit = async e => { e.preventDefault();
+    const nome=document.getElementById("fnm").value.trim(), email=document.getElementById("fem").value.trim().toLowerCase(), pw=document.getElementById("fpw").value.trim(), out=document.getElementById("fmsg"), btn=document.getElementById("fsub");
+    const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
+    if(!nome) return fail(t("marNeedName")); if(!email) return fail(t("marNeedEmail"));
+    btn.disabled=true;
+    try{
+      const add = () => db("rpc/cadastrar_freelancer",{method:"POST", body:{email_mar:email, nome_mar:nome}});
+      let r = await add(), created=false;
+      if(r!=="ok"){ if(pw.length<6) return fail(t("needPw")); await authCall("signup", {email, password:pw}); r = await add(); if(r!=="ok") return fail(t("notFound")); created=true; }
+      await reloadFree();
+      const msg=t("waFree",{name:nome, url:location.origin+"/dono/", email, pw: pw || "—"});
+      document.getElementById("fmsg").innerHTML=`<p class="msg ok">${created?t("created")+" ":""}${t("freeLinked",{name:esc(nome)})}</p>
+        ${pw?`<a class="btn sec" style="margin:0 0 14px" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${t("sendWa")}</a>`:""}`;
+      document.getElementById("fmsg").scrollIntoView({block:"center"});
+    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+  };
+  const mf=document.getElementById("mf");
+  if(mf) mf.onsubmit = async e => { e.preventDefault();
+    const nome=document.getElementById("mnm").value.trim(), email=document.getElementById("mem").value.trim().toLowerCase(), pw=document.getElementById("mpw").value.trim(), fixo=document.getElementById("mfixo").checked, l=S.cur, out=document.getElementById("mmsg");
+    const btn=document.getElementById("msub");
+    const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
+    if(!nome) return fail(t("marNeedName"));
+    if(!email) return fail(t("marNeedEmail"));
+    btn.disabled=true;
+    try{
+      const add = () => db("rpc/cadastrar_marinheiro",{method:"POST", body:{email_mar:email, l, nome_mar:nome, e_fixo:fixo}});
+      let r = await add(), created=false;
+      if(r!=="ok"){ /* e-mail sem login: cria com a senha escolhida */
+        if(pw.length<6) return fail(t("needPw"));
+        await authCall("signup", {email, password:pw}); r = await add();
+        if(r!=="ok") return fail(t("notFound")); created=true; }
+      await reloadSailors();
+      const boat=boatName(l), msg=t("waSailor",{name:nome, boat, url:location.origin+"/dono/", email, pw: pw || "—"});
+      document.getElementById("mmsg").innerHTML=`<p class="msg ok">${created?t("created")+" ":""}${t("marLinked",{name:esc(nome), boat:esc(boat)})}</p>
+        ${pw?`<a class="btn sec" style="margin:0 0 14px" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${t("sendWa")}</a>`:""}`;
+      document.getElementById("mmsg").scrollIntoView({block:"center"});
+    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+  };
   const af=document.getElementById("af");
   if(af) af.onsubmit = async e => { e.preventDefault();
     const email=document.getElementById("aem").value.trim().toLowerCase(), pw=document.getElementById("apw").value.trim(), l=document.getElementById("abt").value, out=document.getElementById("amsg");
@@ -634,7 +744,7 @@ function bindMain(){
 
 /* ===== agenda: busca os horários marcados do mês na tela e os próximos dias (com os dados do cliente) ===== */
 let loadSeq = 0;
-const NOTE_COLS = "anotacoes(origem,cliente,telefone,pessoas,valor,sinal,obs)";
+const noteCols = () => `anotacoes(origem,cliente,telefone,pessoas,valor,sinal,obs${S.marOk?",marinheiro,marinheiro_recusou":""})`;
 const rowOf = r => ({id:r.id, lancha:r.lancha, data:r.data, horario:r.horario, nota:(Array.isArray(r.anotacoes)?r.anotacoes[0]:r.anotacoes)||null});
 /* funcionário lê pela função do banco, que esconde os valores quando o dono não deixa ver */
 async function fetchVis(de, ate, desc){
@@ -642,8 +752,10 @@ async function fetchVis(de, ate, desc){
   return desc ? r.reverse() : r;
 }
 async function fetchRows(q){
-  if(S.notes){ try{ return (await db(`bloqueios?select=id,lancha,data,horario,${NOTE_COLS}&${q}`)).map(rowOf); }
-    catch(e){ if(e.status!==400 && e.status!==404) throw e; S.notes=false; } } /* tabela de anotações ainda não criada */
+  if(S.notes){ const withMar=S.marOk; try{ return (await db(`bloqueios?select=id,lancha,data,horario,${noteCols()}&${q}`)).map(rowOf); }
+    catch(e){ if(e.status!==400 && e.status!==404) throw e;
+      if(withMar){ S.marOk=false; return fetchRows(q); } /* coluna do marinheiro ainda não criada: segue sem ela */
+      S.notes=false; } } /* tabela de anotações ainda não criada */
   return (await db(`bloqueios?select=id,lancha,data,horario&${q}`)).map(rowOf);
 }
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
@@ -656,6 +768,8 @@ async function loadBlocks(){
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
     return mainView(); }
   const my=++loadSeq, y=S.month.getFullYear(), mo=S.month.getMonth();
+  if(isRO() && !S.marNames[S.cur]){ const l=S.cur; S.marNames[l]={};
+    db("rpc/marinheiros_da_lancha",{method:"POST",body:{l}}).then(v=>{ v.forEach(m=>S.marNames[l][m.user_id]=m.nome); }, ()=>{}); }
   const a=iso(new Date(y,mo,1)), b=iso(new Date(y,mo+1,0)), all=S.cur==="*", lf = all ? "" : `lancha=eq.${encodeURIComponent(S.cur)}&`;
   try{
     const ro = isRO(), yest = iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)), p0 = iso(new Date(now.getFullYear(),now.getMonth()-3,1));
@@ -752,7 +866,7 @@ function renderTripRO(){
   const v=+n.valor||0, d=+n.sinal||0, row=(k,val)=>val||val===0?`<div class="rorow"><span>${k}</span><strong>${val}</strong></div>`:"";
   sheet.innerHTML = `<div class="grab"></div><h2>${n.cliente?esc(n.cliente):t("noClientName")}</h2>
     <p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}</p>
-    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}
+    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}
       ${row(t("value"), v?brl(v):"")}${row(t("deposit"), d?brl(d):"")}${v?row(t("toPayL"), d>=v?t("paid"):brl(v-d)):""}${row(t("obs"), n.obs&&esc(n.obs))}</div>
     ${wa.length>=10?`<a class="btn sec" style="margin:14px 0 0" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
     <button type="button" class="btn" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>`;
@@ -773,6 +887,20 @@ function renderTrip(){
   const boatCap = () => CAPACITY[nboat] || 16;
   const peopleOpts = () => `<option value="">—</option>${Array.from({length:Math.max(boatCap(), +n.pessoas||0)},(_,i)=>`<option${+n.pessoas===i+1?" selected":""}>${i+1}</option>`).join("")}`;
   const fromDay = !!sheetDay;
+  /* marinheiro do passeio: já vem o fixo da lancha; o dono troca só naquela data */
+  let busy = [], pick = n.marinheiro || null;
+  const isBusy = uid => nslot && busy.some(b=>b.user_id===uid && b.bloqueio_id!==r?.id && choca(b.horario,nslot));
+  const marField = () => { if(!S.marOk || !S.sailors) return ""; const own=sailorsOf(nboat), fr=(S.free||[]).filter(f=>!own.some(m=>m.user_id===f.user_id));
+    if(!own.length && !fr.length) return `<p class="muted" style="margin:0 0 12px;font-size:13px">⚓ ${t("sailorNoneYet")}</p>`;
+    const keep = pick && !isBusy(pick) && [...own,...fr].some(m=>m.user_id===pick), fx=own.find(m=>m.fixo);
+    const cur = keep ? pick : (!n.marinheiro_recusou && fx && !isBusy(fx.user_id) ? fx.user_id : "");
+    const opt = m => `<option value="${m.user_id}"${m.user_id===cur?" selected":""}${isBusy(m.user_id)?" disabled":""}>${esc(m.nome)}${m.fixo?` (${t("fixo").toLowerCase()})`:""}${isBusy(m.user_id)?` · ${t("busy")}`:""}</option>`;
+    return `<label class="f"><span>${t("sailorPick")}${S.admin?"":REQ}</span><select class="in" id="n-mar"><option value="">—</option>
+      ${own.length?`<optgroup label="${esc(boatName(nboat))}">${own.map(opt).join("")}</optgroup>`:""}${fr.length?`<optgroup label="${t("freeGroup")}">${fr.map(opt).join("")}</optgroup>`:""}</select></label>
+      ${n.marinheiro_recusou&&!n.marinheiro?`<p class="msg err" style="margin:-4px 0 12px;font-size:14px">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</p>`:""}`; };
+  const refreshBusy = async () => { const box=document.getElementById("marbox"); if(!box || !S.free || !S.marOk) return;
+    const sel=document.getElementById("n-mar"), keepV=sel?.value; busy = nd ? await db("rpc/marinheiros_ocupados",{method:"POST",body:{d:nd}}).catch(()=>[]) : [];
+    if(keepV) pick = keepV; box.innerHTML = marField(); };
   let nd = tripNew ? (tripRow?.data||"") : r.data, nslot = tripNew ? "" : r.horario, nboat = tripNew ? (S.cur==="*" ? S.boats[0].slug : S.cur) : r.lancha;
   const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}">${t("slot_"+k)}<small>${t("hours_"+k)}</small></button>`).join("")}`;
   sheet.innerHTML = `<div class="grab"></div><h2>${tripNew?t("tripNew"):t("tripEdit")}</h2>
@@ -785,6 +913,7 @@ function renderTrip(){
       ${f("cliente","text",'autocapitalize="words"')}
       <div class="f"><label for="n-telefone"><span>${t("phone")}${REQ}</span></label><div class="phone"><select class="in" id="n-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="n-telefone" inputmode="tel" autocomplete="off" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
       <label class="f"><span>${t("people")}${REQ} <small class="muted" style="font-weight:400">(${t("maxPeople",{n:boatCap()})})</small></span><select class="in" id="n-pessoas">${peopleOpts()}</select></label>
+      <div id="marbox">${marField()}</div>
       <div class="row2">${f("valor","number",'inputmode="decimal" min="0" step="any"')}${f("sinal","number",'inputmode="decimal" min="0" step="any"')}</div>
       <p class="muted" id="vlock" style="margin:-4px 0 12px;font-size:13px" hidden>${t("valLocked")}</p>
       ${f("obs","area")}` : ""}
@@ -805,10 +934,10 @@ function renderTrip(){
   sheet.querySelectorAll("[data-o]").forEach(x=>{ if(lockOrigin) x.disabled=true; x.onclick=()=>{ origem = origem===x.dataset.o ? null : x.dataset.o;
     sheet.querySelectorAll("[data-o]").forEach(y=>y.setAttribute("aria-checked", y.dataset.o===origem)); lockVals(); }; });
   lockVals();
-  const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); });
-  bindSlots();
-  const di=document.getElementById("n-date"); if(di) di.onchange=()=>{ nd=di.value; if(nslot==="noite"&&!hasNight(nd)) nslot=""; document.getElementById("nslots").innerHTML=slotBtns(); bindSlots(); };
-  const bs=document.getElementById("n-boat"); if(bs) bs.onchange=()=>{ nboat=bs.value; const sp=document.getElementById("n-pessoas"), v=sp.value; sp.innerHTML=peopleOpts(); if(+v<=boatCap()) sp.value=v; sp.previousElementSibling.querySelector("small").textContent=`(${t("maxPeople",{n:boatCap()})})`; };
+  const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); const box=document.getElementById("marbox"); if(box){ const v=document.getElementById("n-mar")?.value; if(v) pick=v; box.innerHTML=marField(); } });
+  bindSlots(); refreshBusy();
+  const di=document.getElementById("n-date"); if(di) di.onchange=()=>{ nd=di.value; if(nslot==="noite"&&!hasNight(nd)) nslot=""; document.getElementById("nslots").innerHTML=slotBtns(); bindSlots(); refreshBusy(); };
+  const bs=document.getElementById("n-boat"); if(bs) bs.onchange=()=>{ nboat=bs.value; const sp=document.getElementById("n-pessoas"), v=sp.value; sp.innerHTML=peopleOpts(); if(+v<=boatCap()) sp.value=v; sp.previousElementSibling.querySelector("small").textContent=`(${t("maxPeople",{n:boatCap()})})`; document.getElementById("marbox").innerHTML=marField(); };
   const ddi=document.getElementById("n-ddi"), tel=document.getElementById("n-telefone");
   if(ddi){ ddi.onchange=()=>{ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
     tel.oninput=()=>{ if(ddi.value==="55"){ const end=tel.selectionStart===tel.value.length; tel.value=fmtBR(tel.value); if(end) tel.selectionStart=tel.selectionEnd=tel.value.length; } }; }
@@ -819,6 +948,7 @@ function renderTrip(){
     const out=document.getElementById("nmsg"), b=document.getElementById("nsave");
     const g=k=>document.getElementById("n-"+k)?.value.trim()||"", num=k=>{ const v=g(k).replace(",","."); return v===""?null:+v; };
     const nota={origem, cliente:g("cliente")||null, telefone:g("telefone").replace(/\D/g,"") ? `+${g("ddi")} ${g("telefone")}` : null, pessoas:num("pessoas"), valor:num("valor"), sinal:num("sinal"), obs:g("obs")||null};
+    const marSel=document.getElementById("n-mar"); if(marSel) nota.marinheiro = marSel.value || null;
     const hasNote = Object.values(nota).some(v=>v!=null && v!=="");
     /* tudo obrigatório (menos observações); valor e sinal travados para o dono não contam */
     if(S.notes){
@@ -829,12 +959,14 @@ function renderTrip(){
       if(!nota.cliente) miss.push(document.getElementById("n-cliente"));
       const telOk = okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
       if(!nota.pessoas) miss.push(document.getElementById("n-pessoas"));
+      if(marSel && !marSel.value && !S.admin) miss.push(marSel); /* o admin pode deixar sem marinheiro para remanejar */
       ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(!el.disabled && nota[k]==null) miss.push(el); });
       sheet.querySelectorAll(".miss").forEach(x=>x.classList.remove("miss"));
       if(miss.length){ miss.forEach(x=>x.classList.add("miss")); out.innerHTML=`<p class="msg err">${tel && !telOk ? (miss.length>1 ? t("needAll")+"<br>" : "")+t("phoneBad") : t("needAll")}</p>`;
         miss[0].scrollIntoView({block:"center",behavior:"smooth"}); if(!miss[0].matches("fieldset")) miss[0].focus({preventScroll:true}); return; }
     }
     b.disabled=true;
+    let created = null;
     try{
       let row=r;
       if(tripNew){
@@ -844,12 +976,14 @@ function renderTrip(){
         const clash = nslot==="noite" ? ex.includes("noite") : nslot==="dia" ? ex.some(h=>h!=="noite") : ex.includes("dia")||ex.includes(nslot);
         if(clash){ out.innerHTML=`<p class="msg err">${t("slotTaken")}</p>`; b.disabled=false; return; }
         const got = await db("bloqueios?select=id,lancha,data,horario",{method:"POST", body:{lancha:nboat, data:nd, horario:nslot}, prefer:"return=representation"});
-        row = rowOf(got[0]);
+        row = rowOf(got[0]); created = row.id;
       }
       if(S.notes && (hasNote || row.nota)) await db("anotacoes",{method:"POST", body:{bloqueio_id:row.id, ...nota}, prefer:"resolution=merge-duplicates,return=minimal"});
       toast(tripNew ? t("tripSaved") : t("noteSaved"));
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }
-    }catch(err){ b.disabled=false; out.innerHTML=`<p class="msg err">${err.code==="23505"?t("slotTaken"):t("saveErr")}</p>`; }
+    }catch(err){ b.disabled=false;
+      if(created) await db(`bloqueios?id=eq.${created}`,{method:"DELETE"}).catch(()=>{}); /* não deixa horário marcado sem os dados */
+      out.innerHTML=`<p class="msg err">${err.code==="23505"?t("slotTaken"):/marinheiro/i.test(err.message||"")?esc(err.message):t("saveErr")}</p>`; }
   };
 }
 async function toggle(d,k){
@@ -883,6 +1017,15 @@ async function boot(){
     S.ro = {}; vis.forEach(v=>{ if(!mine.some(m=>m.lancha===v.lancha)) S.ro[v.lancha]={valores:v.ver_valores}; });
     S.boats = S.admin ? all : all.filter(b=>mine.some(m=>m.lancha===b.slug) || S.ro[b.slug]);
     S.staff = [];
+    /* marinheiros: o dono vê os da lancha dele; quem é marinheiro vê os passeios em que foi escalado. Sem as tabelas, segue sem eles */
+    const owner = S.admin || mine.length>0;
+    const [sl, fr, myT, sOf, meFree] = await Promise.all([
+      owner ? db("rpc/lista_marinheiros",{method:"POST",body:{}}).catch(()=>null) : [],
+      owner ? db("rpc/lista_freelancers",{method:"POST",body:{}}).catch(()=>null) : [],
+      db("rpc/passeios_marinheiro",{method:"POST",body:{}}).catch(()=>null),
+      db(`marinheiros?select=lancha,fixo&user_id=eq.${ses.user.id}`).catch(()=>[]),
+      db(`freelancers?select=user_id&user_id=eq.${ses.user.id}`).catch(()=>[])]);
+    S.sailors = sl; S.free = fr; S.myTrips = myT; S.sailorOf = sOf; S.isFree = meFree.length>0;
     if(S.admin) S.owners = await db("rpc/lista_donos",{method:"POST",body:{}});
     const saved = store.get("dono-boat");
     S.cur = S.boats.some(b=>b.slug===saved) || (saved==="*" && S.admin) ? saved : S.boats[0]?.slug || null;
