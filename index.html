@@ -253,6 +253,10 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-date span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .pk-date input,.pk-people select{font:500 15px/1 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px;width:100%;color-scheme:inherit}
 .pk-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pk-slots button.night{grid-column:1/-1;background:var(--sea-deep);color:#fff;border-color:var(--sea-deep)}
+.pk-slots button.night small{color:inherit;opacity:.8}
+.pk-slots button.night[aria-checked="true"]{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}
+.pk-slots button[hidden]{display:none}
 .pk-slots button{display:grid;gap:2px;text-align:center;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 4px;cursor:pointer;min-height:42px}
 .pk-slots button strong{font:600 13px/1.1 var(--body)}
 .pk-slots button small{font-size:11px;color:var(--muted)}
@@ -643,7 +647,8 @@ const UI = {
     whenFree:"{n} lanchas livres em {date}{slot}{people}", whenFree1:"1 lancha livre em {date}{slot}{people}", whenWa:"Olá! Vi no site Búzios Lanchas e gostaria de saber se tem alguma lancha disponível em {date}{slot}{people}.", fitNone:"Nenhuma lancha para {people}. Fale com a gente no WhatsApp que encontramos uma opção.", whenNone:"Nenhuma lancha livre em {date}{slot}{people}. Escolha outra data ou fale com a gente no WhatsApp.",
     askDate:"Consultar data no WhatsApp", askAvail:"Consultar disponibilidade no WhatsApp", copy:"Copiar", copied:"Copiado",
     fine:"Valores a partir de, por lancha e não por pessoa. A tabela mostra o passeio de 4 horas; o de 7 horas tem valor próprio. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.",
-    slot_dia:"10h às 17h", slot_manha:"10h às 14h", slot_tarde:"14h às 18h",
+    slot_dia:"10h às 17h", slot_manha:"10h às 14h", slot_tarde:"14h às 18h", slot_noite:"Réveillon noturno",
+    waNight:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para o passeio noturno de Réveillon em {date} (7 horas), para {people}.",
     waFleet:"Olá! Vi no site Búzios Lanchas e quero saber sobre as lanchas.",
     waBoat:"Olá! Vi no site Búzios Lanchas e quero saber sobre a {name}.",
     waAvail:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para {date}, das {slot} ({h} horas), para {people}."
@@ -697,7 +702,8 @@ const UI = {
     whenFree:"{n} boats available on {date}{slot}{people}", whenFree1:"1 boat available on {date}{slot}{people}", whenWa:"Hi! I saw the Búzios Lanchas website and would like to know if any boat is available on {date}{slot}{people}.", fitNone:"No boat for {people}. Message us on WhatsApp and we'll find an option.", whenNone:"No boats available on {date}{slot}{people}. Pick another date or message us on WhatsApp.",
     askDate:"Ask about dates on WhatsApp", askAvail:"Check availability on WhatsApp", copy:"Copy", copied:"Copied",
     fine:"Starting prices, per boat, not per person. The table shows the 4-hour tour; the 7-hour tour has its own price. Ask about special weekday rates. A deposit secures your date. Free rescheduling if the sea is unsafe.",
-    slot_dia:"10am to 5pm", slot_manha:"10am to 2pm", slot_tarde:"2pm to 6pm",
+    slot_dia:"10am to 5pm", slot_manha:"10am to 2pm", slot_tarde:"2pm to 6pm", slot_noite:"New Year's Eve night",
+    waNight:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} for the New Year's Eve night tour on {date} (7 hours), for {people}.",
     waFleet:"Hi! I saw the Búzios Lanchas website and would like to know about your boats.",
     waBoat:"Hi! I saw the Búzios Lanchas website and would like to know about the {name}.",
     waAvail:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} on {date}, from {slot} ({h} hours), for {people}."
@@ -751,7 +757,8 @@ const UI = {
     whenFree:"{n} lanchas libres el {date}{slot}{people}", whenFree1:"1 lancha libre el {date}{slot}{people}", whenWa:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera saber si hay alguna lancha disponible el {date}{slot}{people}.", fitNone:"Ninguna lancha para {people}. Escríbenos por WhatsApp y encontramos una opción.", whenNone:"Ninguna lancha libre el {date}{slot}{people}. Elige otra fecha o escríbenos por WhatsApp.",
     askDate:"Consultar fecha por WhatsApp", askAvail:"Consultar disponibilidad por WhatsApp", copy:"Copiar", copied:"Copiado",
     fine:"Precios desde, por lancha y no por persona. La tabla muestra el paseo de 4 horas; el de 7 horas tiene precio propio. Consulta condiciones especiales para días de semana. La seña asegura la fecha. Reprogramación sin costo si el mar no está seguro.",
-    slot_dia:"10 h a 17 h", slot_manha:"10 h a 14 h", slot_tarde:"14 h a 18 h",
+    slot_dia:"10 h a 17 h", slot_manha:"10 h a 14 h", slot_tarde:"14 h a 18 h", slot_noite:"Nochevieja nocturno",
+    waNight:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera consultar la disponibilidad de la lancha {name} para el paseo nocturno de Nochevieja el {date} (7 horas), para {people}.",
     waFleet:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera información sobre las lanchas.",
     waBoat:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera información sobre la {name}.",
     waAvail:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera consultar la disponibilidad de la lancha {name} para el {date}, de {slot} ({h} horas), para {people}."
@@ -799,12 +806,16 @@ const specs = b => `<div class="specs"><div><b>${b.feet??"—"}</b>${t("feet")}<
 const SLOTS = [
   {key:"dia",   hours:7},
   {key:"manha", hours:4},
-  {key:"tarde", hours:4}
+  {key:"tarde", hours:4},
+  {key:"noite", hours:7, night:true} /* passeio noturno: só nas datas de NIGHT_DATES (Réveillon) */
 ];
+const NIGHT_DATES = ["12-31"]; /* mês-dia em que existe o passeio noturno */
+const hasNight = iso => !!iso && NIGHT_DATES.includes(iso.slice(5));
+const slotsFor = iso => SLOTS.filter(s=>!s.night || hasNight(iso));
 let pick = {date:"", slot:"", people:"", board:""};
 /* data e horário escolhidos na vitrine chegam pelo endereço da lancha (?data=2026-12-20&horario=manha) */
 (()=>{ const q=new URLSearchParams(location.search), d=q.get("data"), h=q.get("horario");
-  if(/^\d{4}-\d{2}-\d{2}$/.test(d||"")) pick.date=d; if(["dia","manha","tarde"].includes(h)) pick.slot=h;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d||"")) pick.date=d; if(["dia","manha","tarde","noite"].includes(h)) pick.slot=h;
   const n=+q.get("pessoas"); if(n>=1 && n<=99) pick.people=String(n); })();
 const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
@@ -819,7 +830,7 @@ const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? b.price7h : b.prices[s
 const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 /* locais de embarque da lancha para o horário escolhido; [] = a combinar */
 const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
-const waBook = (b,iso,slot,n,bd) => wa(t("waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (bd?t("waBoard",{p:bd}):""));
+const waBook = (b,iso,slot,n,bd) => wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (bd?t("waBoard",{p:bd}):""));
 
 /* Agenda das lanchas: os donos marcam no app /dono/ os horários já alugados (banco Supabase).
    A chave é a pública: só lê lancha, data e horário. Se o banco não responder, tudo aparece livre. */
@@ -835,17 +846,20 @@ function loadAgenda(){
 }
 const busyOn = (busy,b,iso) => busy && busy.get(b.slug+"|"+iso);
 /* dia todo ocupa tudo; manhã ou tarde ocupam o dia todo; sem horário escolhido, só conta se não sobrar nenhum */
-function isBusy(s,slot){
+function isBusy(s,slot,iso){
   if(!s || !s.size) return false;
-  if(!slot) return s.has("dia") || (s.has("manha") && s.has("tarde"));
-  return s.has("dia") || s.has(slot) || slot==="dia";
+  if(slot==="noite") return s.has("noite"); /* o noturno não depende dos passeios de dia */
+  const day = s.has("dia") || (s.has("manha") && s.has("tarde"));
+  if(!slot) return day && (!hasNight(iso) || s.has("noite")); /* sem horário: só some se não sobrar nenhum */
+  if(slot==="dia") return s.has("dia") || s.has("manha") || s.has("tarde");
+  return s.has("dia") || s.has(slot);
 }
-async function statusFor(b,iso,slot){ return isBusy(busyOn(await loadAgenda(),b,iso),slot) ? "ocupada" : "livre"; }
+async function statusFor(b,iso,slot){ return isBusy(busyOn(await loadAgenda(),b,iso),slot,iso) ? "ocupada" : "livre"; }
 const pickerHTML = b => `
   <div class="picker">
     <label class="pk-date"><span>${t("pickDate")}</span><input type="date" id="pk-date" lang="${t("locale")}" min="${todayISO()}" value="${pick.date}"></label>
     <div class="pk-slots" role="radiogroup" aria-label="${t("pickSlot")}">
-      ${SLOTS.map(s=>`<button type="button" role="radio" data-slot="${s.key}" aria-checked="${pick.slot===s.key}"><strong>${slotLabel(s.key)}</strong><small>${t("hoursN",{h:s.hours})}</small></button>`).join("")}
+      ${SLOTS.map(s=>`<button type="button" role="radio" data-slot="${s.key}" aria-checked="${pick.slot===s.key}"${s.night?` class="night"${hasNight(pick.date)?"":" hidden"}`:""}><strong>${slotLabel(s.key)}</strong><small>${t("hoursN",{h:s.hours})}</small></button>`).join("")}
     </div>
     <p class="pk-other">${t("otherTime")}</p>
     <label class="pk-people"><span>${t("pickPeople")}</span><select id="pk-people"><option value="">${t("peoplePh")}</option>${Array.from({length:b.capacity},(_,i)=>`<option value="${i+1}"${+pick.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
@@ -863,10 +877,12 @@ let seq = 0;
 /* na data escolhida, os horários já alugados aparecem como indisponíveis */
 async function markSlots(b){
   const d=pick.date, busy=d ? await loadAgenda() : null; if(d!==pick.date) return;
-  app.querySelectorAll("[data-slot]").forEach(x=>{ const off=!!d && isBusy(busyOn(busy,b,d),x.dataset.slot);
+  app.querySelectorAll("[data-slot]").forEach(x=>{ const off=!!d && isBusy(busyOn(busy,b,d),x.dataset.slot,d);
     x.classList.toggle("off",off); x.querySelector("small").textContent = off ? t("unavail") : t("hoursN",{h:slotOf(x.dataset.slot).hours}); });
 }
 async function showBoatStatus(b){
+  /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
+  const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
   if(+pick.people>b.capacity) pick.people="";
@@ -996,7 +1012,7 @@ function home(){
       <strong>${t("whenTitle")}</strong>
       <label><span>${t("whenDate")}</span><input type="date" id="w-date" lang="${t("locale")}" min="${todayISO()}" value="${when.date}"></label>
       <label><span>${t("pickPeople")}</span><select id="w-people"><option value="">${t("peoplePh")}</option>${Array.from({length:MAX_CAP},(_,i)=>`<option value="${i+1}"${+when.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
-      <div class="when-slots" role="radiogroup">${[["",t("whenAny")],...SLOTS.map(x=>[x.key,slotLabel(x.key)])].map(([k,l])=>`<button type="button" role="radio" data-w="${k}" aria-checked="${when.slot===k}">${l}</button>`).join("")}</div>
+      <div class="when-slots" role="radiogroup">${[["",t("whenAny")],...slotsFor(when.date).map(x=>[x.key,slotLabel(x.key)])].map(([k,l])=>`<button type="button" role="radio" data-w="${k}" aria-checked="${when.slot===k}">${l}</button>`).join("")}</div>
       ${when.date||when.people?`<button type="button" class="when-clear" id="w-clear">${t("whenClear")}</button>`:""}
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
@@ -1122,7 +1138,7 @@ async function applyWhen(){
   if(d) res.textContent=t("checking");
   const busy = d ? await loadAgenda() : null; if(d!==when.date || np!==+when.people) return;
   let n=0; cards.forEach(c=>{ const b=BOATS.find(x=>x.slug===c.dataset.boat);
-    c.hidden = (np && b.capacity<np) || (d && isBusy(busyOn(busy,b,d),when.slot)); if(!c.hidden) n++; });
+    c.hidden = (np && b.capacity<np) || (d && isBusy(busyOn(busy,b,d),when.slot,d)); if(!c.hidden) n++; });
   const people = np ? peopleLabel(np) : "";
   const v={n, people, date: d?fmtDate(d):"", slot: when.slot ? ` (${slotLabel(when.slot)})` : "", ...(d?{people: np?t("forPeople",{people}):""}:{})};
   const waLinkHtml = `<a href="${wa(d?t("whenWa",v):t("fitWa",v))}" target="_blank" rel="noopener">WhatsApp</a>`;
@@ -1133,7 +1149,7 @@ function bind(){
   const wd=document.getElementById("w-date");
   if(wd){
     const go=()=>{ const y=scrollY; render(false); scrollTo(0,y); };
-    wd.onchange=()=>{ when.date = wd.value && wd.value>=todayISO() ? wd.value : ""; go(); };
+    wd.onchange=()=>{ when.date = wd.value && wd.value>=todayISO() ? wd.value : ""; if(when.slot==="noite" && !hasNight(when.date)) when.slot=""; go(); };
     const wp=document.getElementById("w-people"); wp.onchange=()=>{ when.people=wp.value; go(); };
     app.querySelectorAll("[data-w]").forEach(x=>x.onclick=()=>{ when.slot=x.dataset.w; go(); });
     const wc=document.getElementById("w-clear"); if(wc) wc.onclick=()=>{ when={date:"",slot:"",people:""}; go(); };
