@@ -10,8 +10,8 @@
   "theme_color": "#06394a",
   "lang": "pt-BR",
   "icons": [
-    {"src": "/dono/icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "/dono/icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "/dono/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {"src": "/login/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/login/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/login/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ]
 }
