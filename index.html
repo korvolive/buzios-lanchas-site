@@ -92,6 +92,17 @@ nav.top a:hover{opacity:1}
 .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px}
 .section-head h2{font-size:clamp(28px,4vw,40px)}
 .filters{display:flex;gap:8px;flex-wrap:wrap}
+.when{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 24px}
+.when > strong{font:700 16px/1.2 var(--display);width:100%}
+.when label{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.when input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px}
+.when-slots{display:flex;gap:6px;flex-wrap:wrap}
+.when-slots button,.when-clear{font:500 14px/1 var(--body);padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.when-slots button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
+.when-clear{border-style:dashed;color:var(--sea);font-weight:600}
+.when-res{width:100%;margin:0;font-size:14px;color:var(--muted)}
+.when-res:empty{display:none}
+.card[hidden]{display:none}
 .filters button{font:500 14px/1 var(--body);padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
 .filters .sort{border-style:dashed;font-weight:600;color:var(--sea)}
 .filters button[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
@@ -247,6 +258,10 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-slots button small{font-size:11px;color:var(--muted)}
 .pk-slots button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
 .pk-slots button[aria-checked="true"] small{color:inherit;opacity:.85}
+.pk-slots button.off{opacity:.55;text-decoration:line-through}
+.pk-slots button.off small{text-decoration:none;color:#c0392b;font-weight:600}
+.pk-slots button.off[aria-checked="true"]{opacity:.7}
+.pk-slots button.off[aria-checked="true"] small{color:inherit}
 .pk-other{margin:0;font-size:13px;color:var(--muted)}
 .pk-people{display:block}
 .pk-people span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
@@ -369,7 +384,6 @@ const BOATS = [
     prices:{baixa:2200, media:2500, alta:3000, pico:4000, reveillon:4500}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
     boarding:{4:["Porto Veleiro (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marinas Búzios"]}, /* local de embarque por duração do passeio (4 ou 7 horas); com mais de um, o cliente escolhe; null = "a combinar" */
-    agenda:null /* link da planilha Google de disponibilidade desta lancha; null = sempre disponível (planilhas guardadas para testar no futuro) */
   },
   {
     slug:"les-zuzu", name:"Les Zuzu", featured:false, example:false,
@@ -393,7 +407,6 @@ const BOATS = [
     prices:{baixa:1700, media:2000, alta:2300, pico:2500, reveillon:2800}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
     boarding:{4:["Porto Veleiro (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marinas Búzios"]}, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
-    agenda:null
   },
   {
     slug:"midas", name:"Midas", featured:false, example:false,
@@ -418,7 +431,6 @@ const BOATS = [
     prices:{baixa:2000, media:2300, alta:2600, pico:3200, reveillon:3400}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
     boarding:{4:["Píer do Golfinho"], 7:["Píer do Golfinho"]}, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
-    agenda:null
   },
   {
     slug:"compostela", name:"Compostela", featured:false, example:false,
@@ -446,7 +458,6 @@ const BOATS = [
     prices:{baixa:1500, media:1600, alta:1700, pico:1900, reveillon:2200}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
     boarding:{4:["Píer do Golfinho"], 7:["Píer do Golfinho"]}, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
-    agenda:null
   },
   {
     slug:"bubbles", name:"Bubbles", featured:false, example:false,
@@ -474,7 +485,6 @@ const BOATS = [
     prices:{baixa:1900, media:2100, alta:2300, pico:2500, reveillon:2800}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
     boarding:{4:["Píer do Golfinho"], 7:["Píer do Golfinho"]}, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
-    agenda:null
   }
 ];
 
@@ -630,7 +640,9 @@ const UI = {
     longText:"Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.",
     exampleBanner:"Valores de exemplo, não são preços reais.",
     pickTitle:"Data, horário e pessoas", pickDate:"Data do passeio", pickSlot:"Horário", otherTime:"Horários padrão. Outros horários podem ser combinados pelo WhatsApp.", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
-    checking:"Verificando a agenda…", busy:"<strong>Ocupada</strong> em {date}, das {slot}. Tente outro horário ou outra data.",
+    checking:"Verificando a agenda…", busy:"<strong>Indisponível</strong> em {date} ({slot}). Escolha outro horário ou outra data.", unavail:"Indisponível",
+    whenTitle:"Quando é o seu passeio?", whenDate:"Data", whenAny:"Qualquer horário", whenClear:"Limpar data",
+    whenFree:"{n} lanchas livres em {date}{slot}", whenFree1:"1 lancha livre em {date}{slot}", whenWa:"Olá! Vi no site Búzios Lanchas e gostaria de saber se tem alguma lancha disponível em {date}{slot}.", whenNone:"Nenhuma lancha livre em {date}{slot}. Escolha outra data ou fale com a gente no WhatsApp.",
     askDate:"Consultar data no WhatsApp", askAvail:"Consultar disponibilidade no WhatsApp", copy:"Copiar", copied:"Copiado",
     fine:"Valores a partir de, por lancha e não por pessoa. A tabela mostra o passeio de 4 horas; o de 7 horas tem valor próprio. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.",
     slot_dia:"10h às 17h", slot_manha:"10h às 14h", slot_tarde:"14h às 18h",
@@ -684,7 +696,9 @@ const UI = {
     longText:"More beaches, more time for snorkeling and an unhurried barbecue. Ideal for spending the whole day at sea.",
     exampleBanner:"Example prices, not real rates.",
     pickTitle:"Date, time and guests", pickDate:"Tour date", pickSlot:"Time", otherTime:"Standard times. Other times can be arranged on WhatsApp.", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
-    checking:"Checking availability…", busy:"<strong>Booked</strong> on {date}, {slot}. Try another time or date.",
+    checking:"Checking availability…", busy:"<strong>Unavailable</strong> on {date} ({slot}). Pick another time or date.", unavail:"Unavailable",
+    whenTitle:"When is your tour?", whenDate:"Date", whenAny:"Any time", whenClear:"Clear date",
+    whenFree:"{n} boats available on {date}{slot}", whenFree1:"1 boat available on {date}{slot}", whenWa:"Hi! I saw the Búzios Lanchas website and would like to know if any boat is available on {date}{slot}.", whenNone:"No boats available on {date}{slot}. Pick another date or message us on WhatsApp.",
     askDate:"Ask about dates on WhatsApp", askAvail:"Check availability on WhatsApp", copy:"Copy", copied:"Copied",
     fine:"Starting prices, per boat, not per person. The table shows the 4-hour tour; the 7-hour tour has its own price. Ask about special weekday rates. A deposit secures your date. Free rescheduling if the sea is unsafe.",
     slot_dia:"10am to 5pm", slot_manha:"10am to 2pm", slot_tarde:"2pm to 6pm",
@@ -738,7 +752,9 @@ const UI = {
     longText:"Más playas, más tiempo para el snorkel y asado sin apuro. Ideal para aprovechar todo el día en el mar.",
     exampleBanner:"Precios de ejemplo, no son precios reales.",
     pickTitle:"Fecha, horario y personas", pickDate:"Fecha del paseo", pickSlot:"Horario", otherTime:"Horarios estándar. Otros horarios se pueden combinar por WhatsApp.", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
-    checking:"Verificando la agenda…", busy:"<strong>Ocupada</strong> el {date}, de {slot}. Prueba otro horario u otra fecha.",
+    checking:"Verificando la agenda…", busy:"<strong>No disponible</strong> el {date} ({slot}). Elige otro horario u otra fecha.", unavail:"No disponible",
+    whenTitle:"¿Cuándo es tu paseo?", whenDate:"Fecha", whenAny:"Cualquier horario", whenClear:"Borrar fecha",
+    whenFree:"{n} lanchas libres el {date}{slot}", whenFree1:"1 lancha libre el {date}{slot}", whenWa:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera saber si hay alguna lancha disponible el {date}{slot}.", whenNone:"Ninguna lancha libre el {date}{slot}. Elige otra fecha o escríbenos por WhatsApp.",
     askDate:"Consultar fecha por WhatsApp", askAvail:"Consultar disponibilidad por WhatsApp", copy:"Copiar", copied:"Copiado",
     fine:"Precios desde, por lancha y no por persona. La tabla muestra el paseo de 4 horas; el de 7 horas tiene precio propio. Consulta condiciones especiales para días de semana. La seña asegura la fecha. Reprogramación sin costo si el mar no está seguro.",
     slot_dia:"10 h a 17 h", slot_manha:"10 h a 14 h", slot_tarde:"14 h a 18 h",
@@ -792,6 +808,9 @@ const SLOTS = [
   {key:"tarde", hours:4}
 ];
 let pick = {date:"", slot:"", people:"", board:""};
+/* data e horário escolhidos na vitrine chegam pelo endereço da lancha (?data=2026-12-20&horario=manha) */
+(()=>{ const q=new URLSearchParams(location.search), d=q.get("data"), h=q.get("horario");
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d||"")) pick.date=d; if(["dia","manha","tarde"].includes(h)) pick.slot=h; })();
 const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const fmtDate = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(t("locale"),lang==="pt"?{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}:{weekday:"short",day:"numeric",month:"short",year:"numeric"}); };
@@ -807,47 +826,26 @@ const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
 const waBook = (b,iso,slot,n,bd) => wa(t("waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (bd?t("waBoard",{p:bd}):""));
 
-/* Planilha do dono: coluna A = data ocupada, coluna B = horário (vazio = dia todo).
-   A planilha precisa estar compartilhada como "qualquer pessoa com o link pode ver". */
-const agendas = {};
-function sheetSlot(v){
-  const s = String(v??"").toLowerCase().replace(/\s/g,"");
-  if(!s || s.includes("todo") || s.includes("17")) return "dia";
-  if(s.startsWith("10") || s.includes("manh")) return "manha";
-  if(s.startsWith("14") || s.includes("tard")) return "tarde";
-  return "dia"; /* texto não reconhecido: bloqueia o dia todo por segurança */
+/* Agenda das lanchas: os donos marcam no app /dono/ os horários já alugados (banco Supabase).
+   A chave é a pública: só lê lancha, data e horário. Se o banco não responder, tudo aparece livre. */
+const AGENDA_URL = "https://sqoperylsqcbcjpcrlnp.supabase.co/rest/v1/bloqueios";
+const AGENDA_KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
+let agenda = null;
+/* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
+function loadAgenda(){
+  return agenda ||= fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}})
+    .then(r=>r.ok ? r.json() : Promise.reject(r.status))
+    .then(rows=>{ const m=new Map(); rows.forEach(r=>{ const k=r.lancha+"|"+r.data; if(!m.has(k)) m.set(k,new Set()); m.get(k).add(r.horario); }); return m; })
+    .catch(()=>{ agenda=null; return null; });
 }
-function sheetDate(c){
-  if(!c) return null;
-  let m = /^Date\((\d+),(\d+),(\d+)/.exec(c.v);
-  if(m) return `${m[1]}-${pad(+m[2]+1)}-${pad(m[3])}`;
-  const t = String(c.v ?? c.f ?? "").trim();
-  if((m = /^(\d{4})-(\d{2})-(\d{2})/.exec(t))) return `${m[1]}-${m[2]}-${m[3]}`;
-  if((m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/.exec(t))) return `${m[3].length===2?"20"+m[3]:m[3]}-${pad(m[2])}-${pad(m[1])}`;
-  return null;
+const busyOn = (busy,b,iso) => busy && busy.get(b.slug+"|"+iso);
+/* dia todo ocupa tudo; manhã ou tarde ocupam o dia todo; sem horário escolhido, só conta se não sobrar nenhum */
+function isBusy(s,slot){
+  if(!s || !s.size) return false;
+  if(!slot) return s.has("dia") || (s.has("manha") && s.has("tarde"));
+  return s.has("dia") || s.has(slot) || slot==="dia";
 }
-/* devolve um mapa data → horários ocupados, ou null se não for possível ler a planilha */
-function loadAgenda(b){
-  if(!b.agenda) return Promise.resolve(null);
-  if(agendas[b.slug]) return agendas[b.slug];
-  const id = (/\/d\/([\w-]+)/.exec(b.agenda)||[])[1] || b.agenda;
-  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&headers=1&tq=${encodeURIComponent("select A,B")}`;
-  return agendas[b.slug] = fetch(url).then(r=>r.text()).then(t=>{
-    const rows = JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}")+1)).table.rows || [];
-    const busy = new Map();
-    rows.forEach(r=>{ const d=sheetDate(r.c[0]); if(!d) return;
-      if(!busy.has(d)) busy.set(d,new Set()); busy.get(d).add(sheetSlot(r.c[1]&&(r.c[1].v??r.c[1].f))); });
-    return busy;
-  }).catch(()=>{ delete agendas[b.slug]; return null; });
-}
-/* "livre" ou "ocupada"; lancha sem planilha (ou planilha fora do ar) fica sempre livre */
-async function statusFor(b,iso,slot){
-  const busy = await loadAgenda(b);
-  if(!busy) return "livre";
-  const s = busy.get(iso); if(!s) return "livre";
-  if(s.has("dia") || s.has(slot) || (slot==="dia" && s.size)) return "ocupada";
-  return "livre";
-}
+async function statusFor(b,iso,slot){ return isBusy(busyOn(await loadAgenda(),b,iso),slot) ? "ocupada" : "livre"; }
 const pickerHTML = b => `
   <div class="picker">
     <label class="pk-date"><span>${t("pickDate")}</span><input type="date" id="pk-date" lang="${t("locale")}" min="${todayISO()}" value="${pick.date}"></label>
@@ -867,7 +865,14 @@ function bindPicker(onChange){
   onChange();
 }
 let seq = 0;
+/* na data escolhida, os horários já alugados aparecem como indisponíveis */
+async function markSlots(b){
+  const d=pick.date, busy=d ? await loadAgenda() : null; if(d!==pick.date) return;
+  app.querySelectorAll("[data-slot]").forEach(x=>{ const off=!!d && isBusy(busyOn(busy,b,d),x.dataset.slot);
+    x.classList.toggle("off",off); x.querySelector("small").textContent = off ? t("unavail") : t("hoursN",{h:slotOf(x.dataset.slot).hours}); });
+}
 async function showBoatStatus(b){
+  markSlots(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
@@ -889,6 +894,7 @@ async function showBoatStatus(b){
   if(pick.people) document.getElementById("pk-people").classList.remove("pk-missing");
   if(!pick.date || !pick.slot || !pick.people){ if(!out.querySelector(".need")) out.innerHTML=""; return; }
   const my=++seq; out.innerHTML=`<p class="pk-hint">${t("checking")}</p>`;
+  markSlots(b);
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
   if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy">${t("busy",{date:fmtDate(pick.date), slot:slotLabel(pick.slot)})}</p>`; return; }
   out.innerHTML="";
@@ -966,6 +972,7 @@ const TRUST_ICONS = [
 
 /* ============ vitrine ============ */
 let filter = "todas";
+let when = {date:"", slot:""}; /* data (e horário) escolhidos na vitrine; esconde as lanchas já alugadas */
 let sortDir = "asc";
 function home(){
   const dir = filter==="todas" ? -1 : (sortDir==="asc"?1:-1);
@@ -996,10 +1003,17 @@ function home(){
         ${filter==="todas"?"":`<button type="button" id="sort" class="sort" aria-label="${t("sortAria")}">${sortDir==="asc"?t("sortAsc"):t("sortDesc")}</button>`}
       </div>
     </div>
+    <div class="when" role="group" aria-label="${t("whenTitle")}">
+      <strong>${t("whenTitle")}</strong>
+      <label><span>${t("whenDate")}</span><input type="date" id="w-date" lang="${t("locale")}" min="${todayISO()}" value="${when.date}"></label>
+      <div class="when-slots" role="radiogroup">${[["",t("whenAny")],...SLOTS.map(x=>[x.key,slotLabel(x.key)])].map(([k,l])=>`<button type="button" role="radio" data-w="${k}" aria-checked="${when.slot===k}">${l}</button>`).join("")}</div>
+      ${when.date?`<button type="button" class="when-clear" id="w-clear">${t("whenClear")}</button>`:""}
+      <p class="when-res" id="w-res" aria-live="polite"></p>
+    </div>
     ${list.length?"":`<p style="color:var(--muted)">${t("noneInRange")}</p>`}
     <div class="grid">
       ${list.map(b=>`
-        <a class="card" href="${pathFor(lang,b.slug)}">
+        <a class="card" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${when.date?`?data=${when.date}${when.slot?`&horario=${when.slot}`:""}`:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
@@ -1111,7 +1125,26 @@ function render(toTop=true){
   bind(); bindGallery(b);
   if(b) bindPicker(()=>showBoatStatus(b));
 }
+/* filtro por data da vitrine: esconde as lanchas sem horário livre na data escolhida */
+async function applyWhen(){
+  const res=document.getElementById("w-res"); if(!res) return;
+  const cards=[...app.querySelectorAll(".card[data-boat]")];
+  if(!when.date){ cards.forEach(c=>c.hidden=false); res.textContent=""; return; }
+  const d=when.date; res.textContent=t("checking");
+  const busy=await loadAgenda(); if(d!==when.date) return;
+  let n=0; cards.forEach(c=>{ const b=BOATS.find(x=>x.slug===c.dataset.boat); c.hidden=isBusy(busyOn(busy,b,d),when.slot); if(!c.hidden) n++; });
+  const v={n, date:fmtDate(d), slot: when.slot ? ` (${slotLabel(when.slot)})` : ""};
+  res.innerHTML = n ? (n===1?t("whenFree1",v):t("whenFree",v)) : `${t("whenNone",v)} <a href="${wa(t("whenWa",v))}" target="_blank" rel="noopener">WhatsApp</a>`;
+}
 function bind(){
+  const wd=document.getElementById("w-date");
+  if(wd){
+    const go=()=>{ const y=scrollY; render(false); scrollTo(0,y); };
+    wd.onchange=()=>{ when.date = wd.value && wd.value>=todayISO() ? wd.value : ""; go(); };
+    app.querySelectorAll("[data-w]").forEach(x=>x.onclick=()=>{ when.slot=x.dataset.w; go(); });
+    const wc=document.getElementById("w-clear"); if(wc) wc.onclick=()=>{ when={date:"",slot:""}; go(); };
+    applyWhen();
+  }
   const so=document.getElementById("sort"); if(so) so.onclick=()=>{sortDir=sortDir==="asc"?"desc":"asc"; render(); document.getElementById("frota").scrollIntoView();};
   app.querySelectorAll("[data-f]").forEach(btn=>btn.onclick=()=>{filter=btn.dataset.f; sortDir="asc"; render(); document.getElementById("frota").scrollIntoView();});
   bindScroll();
