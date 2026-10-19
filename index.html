@@ -323,7 +323,7 @@ const SEASONS = [
   {key:"media", m:[4,10,11], color:"#c99a2e"},
   {key:"alta",  m:[12,1,2,3], color:"#d9614c"},
   /* faixas acima da alta, por data: valem no lugar da alta nesses dias */
-  {key:"pico",      m:[], color:"#a8324a"}, /* 11/jan até a terça de Carnaval */
+  {key:"pico",      m:[], color:"#a8324a"}, /* 11/jan até o fim de fevereiro */
   {key:"reveillon", m:[], color:"#6b4fa8"}  /* 26/dez a 10/jan */
 ];
 const BOATS = [
@@ -624,7 +624,7 @@ const UI = {
     reviewsTitle:"Avaliações no Google", reviewsSub:"Nota máxima no Google", stars5:"5 de 5 estrelas", photos:"Fotos", mainPhoto:"Foto principal", video:"Vídeo", videoSoon:"Vídeo em breve", videoHere:"O vídeo da {name} aparece aqui.",
     pricesAria:"Preços", prices:"Valores", from4hLong:"Passeio de 4 horas · a partir de", season:"Temporada", hours4:"4 horas",
     s_baixa:"Baixa", s_media:"Média", s_alta:"Alta", sl_baixa:"Baixa temporada", sl_media:"Média temporada", sl_alta:"Alta temporada",
-    m_baixa:"mai - jun - jul - ago - set", m_media:"abr - out - nov", m_alta:"1º a 25 dez · depois do Carnaval até mar", s_pico:"Pico do verão", m_pico:"11 jan até o Carnaval", s_reveillon:"Réveillon", m_reveillon:"26 dez a 10 jan",
+    m_baixa:"mai - jun - jul - ago - set", m_media:"abr - out - nov", m_alta:"dez - mar", s_pico:"Pico do verão", m_pico:"11 jan - fev", s_reveillon:"Réveillon", m_reveillon:"26 dez a 10 jan",
     holidays:"Feriados", special:"valores especiais", ask:"A consultar",
     fullDay:"Dia completo", tour7h:"Passeio de 7 horas", fromPrice:"a partir de {p}", priceOnRequest:"Valor sob consulta",
     longText:"Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.",
@@ -678,7 +678,7 @@ const UI = {
     reviewsTitle:"Google reviews", reviewsSub:"Top rating on Google", stars5:"5 out of 5 stars", photos:"Photos", mainPhoto:"Main photo", video:"Video", videoSoon:"Video coming soon", videoHere:"The {name} video will appear here.",
     pricesAria:"Prices", prices:"Prices", from4hLong:"4-hour tour · from", season:"Season", hours4:"4 hours",
     s_baixa:"Low", s_media:"Mid", s_alta:"High", sl_baixa:"Low season", sl_media:"Mid season", sl_alta:"High season",
-    m_baixa:"May - Jun - Jul - Aug - Sep", m_media:"Apr - Oct - Nov", m_alta:"Dec 1–25 · after Carnival to Mar", s_pico:"Peak summer", m_pico:"Jan 11 to Carnival", s_reveillon:"New Year's", m_reveillon:"Dec 26 to Jan 10",
+    m_baixa:"May - Jun - Jul - Aug - Sep", m_media:"Apr - Oct - Nov", m_alta:"Dec - Mar", s_pico:"Peak summer", m_pico:"Jan 11 - Feb", s_reveillon:"New Year's", m_reveillon:"Dec 26 to Jan 10",
     holidays:"Holidays", special:"special rates", ask:"On request",
     fullDay:"Full day", tour7h:"7-hour tour", fromPrice:"from {p}", priceOnRequest:"Price on request",
     longText:"More beaches, more time for snorkeling and an unhurried barbecue. Ideal for spending the whole day at sea.",
@@ -732,7 +732,7 @@ const UI = {
     reviewsTitle:"Reseñas en Google", reviewsSub:"Nota máxima en Google", stars5:"5 de 5 estrellas", photos:"Fotos", mainPhoto:"Foto principal", video:"Video", videoSoon:"Video próximamente", videoHere:"El video de la {name} aparecerá aquí.",
     pricesAria:"Precios", prices:"Precios", from4hLong:"Paseo de 4 horas · desde", season:"Temporada", hours4:"4 horas",
     s_baixa:"Baja", s_media:"Media", s_alta:"Alta", sl_baixa:"Temporada baja", sl_media:"Temporada media", sl_alta:"Temporada alta",
-    m_baixa:"may - jun - jul - ago - sep", m_media:"abr - oct - nov", m_alta:"1 al 25 dic · después del Carnaval hasta mar", s_pico:"Pico del verano", m_pico:"11 ene hasta el Carnaval", s_reveillon:"Año Nuevo", m_reveillon:"26 dic al 10 ene",
+    m_baixa:"may - jun - jul - ago - sep", m_media:"abr - oct - nov", m_alta:"dic - mar", s_pico:"Pico del verano", m_pico:"11 ene - feb", s_reveillon:"Año Nuevo", m_reveillon:"26 dic al 10 ene",
     holidays:"Feriados", special:"precios especiales", ask:"A consultar",
     fullDay:"Día completo", tour7h:"Paseo de 7 horas", fromPrice:"desde {p}", priceOnRequest:"Precio a consultar",
     longText:"Más playas, más tiempo para el snorkel y asado sin apuro. Ideal para aprovechar todo el día en el mar.",
@@ -795,12 +795,8 @@ let pick = {date:"", slot:"", people:"", board:""};
 const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const fmtDate = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(t("locale"),lang==="pt"?{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}:{weekday:"short",day:"numeric",month:"short",year:"numeric"}); };
-/* terça de Carnaval = Páscoa − 47 dias (algoritmo de Meeus para a Páscoa) */
-const carnaval = y => { const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
-  h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
-  mo=Math.floor((h+l-7*m+114)/31),da=(h+l-7*m+114)%31+1; const dt=new Date(y,mo-1,da-47); return `${y}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`; };
-const seasonOf = iso => { const [y,m]=iso.split("-").map(Number), md=iso.slice(5);
-  const key = (md>="12-26"||md<="01-10") ? "reveillon" : (m<=3 && iso<=carnaval(y)) ? "pico" : null;
+const seasonOf = iso => { const m=+iso.slice(5,7), md=iso.slice(5);
+  const key = (md>="12-26"||md<="01-10") ? "reveillon" : m<=2 ? "pico" : null;
   return SEASONS.find(s=>key ? s.key===key : s.m.includes(m)); };
 const slotOf = k => SLOTS.find(s=>s.key===k);
 const slotLabel = k => t("slot_"+k);
