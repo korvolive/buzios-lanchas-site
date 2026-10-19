@@ -54,6 +54,7 @@ label.btn{display:block;text-align:center;cursor:pointer}
 .top .ttl{flex:1;min-width:0;line-height:1.15}
 .top .ttl strong{display:block;font:800 18px/1.1 var(--display)}
 .top .ttl span{font-size:13px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.top .back{flex:none;display:flex;flex-direction:column;align-items:center;color:#fff;text-decoration:none;font-size:11px;font-weight:700;line-height:1;margin-right:-4px}.top .back b{font-size:26px;line-height:.8;font-weight:400}
 .top select,.top .out{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 10px;font-size:14px}
 .top select option{color:#000}
 main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
@@ -141,7 +142,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .note-btn{width:100%;display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;border:1.5px dashed var(--line);background:none;border-radius:12px;padding:10px 12px;margin:-4px 0 12px;font-size:14px;color:var(--sea);font-weight:600}
 .note-btn span{color:var(--ink);font-weight:400}
-.nform textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font:inherit;font-size:16px;resize:vertical}
+.nform textarea,textarea.ta{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font:inherit;font-size:16px;resize:vertical}
 .nform label.f{margin-bottom:10px} .nform input{padding:12px} .nform label.f span{font-size:14px}
 .msg.ro,.msg.pushm{background:var(--chip);color:var(--ink);font-size:14px}
 .rolist{border-top:1px solid var(--line);margin-top:10px}.rorow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
@@ -221,6 +222,11 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .tmeta .stb.st-aprovado{background:color-mix(in srgb,#2f9e6a 18%,var(--surface));color:#1f7a4f}
 .tmeta .stb.st-recusado,.tmeta .stb.st-cancelado{color:var(--muted)}
 .tmeta .site{color:#1f7a4f;font-weight:700}
+.stars{display:inline-flex;gap:2px;color:#d9d2c3;font-style:normal}.stars i{font-style:normal;background:none!important;padding:0!important}.stars .on{color:#e0a526}
+.stars.pick button{font-size:28px;line-height:1;padding:2px 3px;background:none;border:0;color:#d9d2c3;cursor:pointer}.stars.pick button.on{color:#e0a526}.stars.pick.big button{font-size:40px}
+.mrate{color:#b07d10;font-weight:700;font-size:13px;white-space:nowrap}.mrate small{font-weight:400;color:var(--muted)}.rvm{display:flex;align-items:center;gap:6px;margin-top:4px}
+.rvask{display:flex;flex-direction:column;gap:2px;margin-top:8px}.rvd{display:block;margin-top:8px}.rvd q{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.cfb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.cfb .btn{width:auto;padding:8px 14px;font-size:14px}.cfm .owners li{flex-wrap:wrap}.cfm .owners li span{word-break:normal}
 .trip.rq{cursor:default;align-items:flex-start;min-width:0}.trip.rq .tbody{flex:1;min-width:0}.trip.rq .tside{flex:none}
 .trip.rq.st-aprovado{border-left-color:#2f9e6a}.trip.rq.st-recusado,.trip.rq.st-cancelado{border-left-color:var(--line);opacity:.75}
 .tabs.four button{font-size:14px;padding:10px 2px;white-space:nowrap}
@@ -431,6 +437,9 @@ Object.assign(T.es, {ownerName:"Nombre del dueño", ph_owner:"Ej.: Carlos Souza"
   newBanner:"🔔 {n} paseos nuevos de Búzios Lanchas", newBanner1:"🔔 1 paseo nuevo de Búzios Lanchas", newTag:"nuevo", seenAll:"Marcar como visto"});
 const nomeOk = n => n.length>=5 && /\S\s+\S/.test(n) && !n.includes("@"); /* nome e sobrenome, como no banco */
 /* busca de marinheiro freelancer pelo nome */
+Object.assign(T.pt, {backSite:"Voltar ao site", backShort:"Site", rateBoat:"A lancha", rateMar:"Quem pilotou", rateMarSub:"Avalie também o marinheiro {name}.", marRate:"{m} ({n})", needMarStars:"Escolha também as estrelas do marinheiro.",  upT:"Próximos passeios", rlzd:"✓ Realizado", notRlzd:"Não realizado", waitConf:"Aguardando a Búzios Lanchas confirmar o passeio", rateT:"Avalie este passeio", rateQ:"Como foi o passeio na {boat}?", rateCmt:"Conte como foi (opcional)", rateSend:"Enviar avaliação", rateThanks:"Obrigado pela avaliação!", rateYours:"Sua avaliação", rateEdit:"Alterar", rateNeed:"Escolha de 1 a 5 estrelas.", stars:"{n} de 5 estrelas", cfT:"Esses passeios aconteceram?", cfSub:"Confirme cada passeio da Búzios Lanchas que já passou. Só depois disso o cliente consegue avaliar a lancha.", cfYes:"✓ Aconteceu", cfNo:"Não aconteceu", cfNoQ:"Marcar que esse passeio não aconteceu? O cliente não vai poder avaliar.", cfDone:"Passeio confirmado. O cliente já pode avaliar.", cfNoDone:"Marcado como não realizado.", needSqlAv:"Falta criar a parte de avaliações no Supabase (arquivo 2026-10-19_supabase-avaliacoes.sql)."});
+Object.assign(T.en, {backSite:"Back to the website", backShort:"Site", rateBoat:"The boat", rateMar:"Who drove", rateMarSub:"Also rate the skipper {name}.", marRate:"{m} ({n})", needMarStars:"Also choose the skipper's stars.",  upT:"Upcoming tours", rlzd:"✓ Completed", notRlzd:"Didn't happen", waitConf:"Waiting for Búzios Lanchas to confirm the tour", rateT:"Rate this tour", rateQ:"How was your tour on {boat}?", rateCmt:"Tell us how it went (optional)", rateSend:"Send review", rateThanks:"Thanks for your review!", rateYours:"Your review", rateEdit:"Change", rateNeed:"Choose 1 to 5 stars.", stars:"{n} out of 5 stars", cfT:"Did these tours happen?", cfSub:"Confirm each Búzios Lanchas tour that has passed. Only then can the client review the boat.", cfYes:"✓ It happened", cfNo:"Didn't happen", cfNoQ:"Mark that this tour didn't happen? The client won't be able to review it.", cfDone:"Tour confirmed. The client can now review it.", cfNoDone:"Marked as not completed.", needSqlAv:"The reviews part is missing in Supabase (file 2026-10-19_supabase-avaliacoes.sql)."});
+Object.assign(T.es, {backSite:"Volver al sitio", backShort:"Sitio", rateBoat:"La lancha", rateMar:"Quién piloteó", rateMarSub:"Califica también al marinero {name}.", marRate:"{m} ({n})", needMarStars:"Elige también las estrellas del marinero.",  upT:"Próximos paseos", rlzd:"✓ Realizado", notRlzd:"No se realizó", waitConf:"Esperando que Búzios Lanchas confirme el paseo", rateT:"Califica este paseo", rateQ:"¿Cómo fue el paseo en {boat}?", rateCmt:"Cuéntanos cómo fue (opcional)", rateSend:"Enviar calificación", rateThanks:"¡Gracias por tu calificación!", rateYours:"Tu calificación", rateEdit:"Cambiar", rateNeed:"Elige de 1 a 5 estrellas.", stars:"{n} de 5 estrellas", cfT:"¿Estos paseos se realizaron?", cfSub:"Confirma cada paseo de Búzios Lanchas que ya pasó. Solo después el cliente puede calificar la lancha.", cfYes:"✓ Se realizó", cfNo:"No se realizó", cfNoQ:"¿Marcar que este paseo no se realizó? El cliente no podrá calificarlo.", cfDone:"Paseo confirmado. El cliente ya puede calificarlo.", cfNoDone:"Marcado como no realizado.", needSqlAv:"Falta crear la parte de calificaciones en Supabase (archivo 2026-10-19_supabase-avaliacoes.sql)."});
 Object.assign(T.pt, {pushAsk:"🔔 Receba no celular os avisos de passeios e pedidos novos, mesmo com o app fechado. Toque em <b>Permitir</b> quando o celular perguntar.", pushBtn:"Ligar notificações", pushDenied:"🔕 As notificações estão bloqueadas neste celular. Para receber os avisos, libere em Configurações do celular › Notificações.", pushIOS:"🔔 No iPhone, as notificações chegam só com o app instalado na tela de início.", pushOn:"Notificações ligadas neste celular."});
 Object.assign(T.en, {pushAsk:"🔔 Get alerts for new trips and requests on your phone, even with the app closed. Tap <b>Allow</b> when your phone asks.", pushBtn:"Turn on notifications", pushDenied:"🔕 Notifications are blocked on this phone. To get alerts, allow them in your phone Settings › Notifications.", pushIOS:"🔔 On iPhone, notifications only arrive with the app installed on the home screen.", pushOn:"Notifications are on for this phone."});
 Object.assign(T.es, {pushAsk:"🔔 Recibe en el celular los avisos de paseos y pedidos nuevos, incluso con la app cerrada. Toca <b>Permitir</b> cuando el celular pregunte.", pushBtn:"Activar notificaciones", pushDenied:"🔕 Las notificaciones están bloqueadas en este celular. Para recibir los avisos, permítelas en Ajustes del celular › Notificaciones.", pushIOS:"🔔 En iPhone, las notificaciones llegan solo con la app instalada en la pantalla de inicio.", pushOn:"Notificaciones activadas en este celular."});
@@ -654,18 +663,59 @@ function completeView(msg=""){
     await loadMyReq(); clientView(); };
 }
 /* área do cliente: os pedidos feitos pelo site e o que a Búzios Lanchas já confirmou */
-async function loadMyReq(){ S.myReq = await db("pedidos?select=id,lancha,data,horario,pessoas,embarque,status,criado_em&order=data.desc&limit=100").catch(()=>[]); }
+async function loadMyReq(){
+  S.myReq = await db("pedidos?select=id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id&order=data.desc&limit=100").catch(()=>[]);
+  /* passeios que a Búzios Lanchas confirmou como realizados e as avaliações já feitas (sem as tabelas, segue sem elas) */
+  const [re, av] = await Promise.all([db("rpc/meus_realizados",{method:"POST",body:{}}).catch(()=>null), db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro").catch(()=>null)]);
+  S.revOk = re!==null && av!==null;
+  S.done = new Map((re||[]).map(r=>[r.pedido_id, r])); S.revs = new Map((av||[]).map(a=>[a.pedido_id, a]));
+}
+const starsHTML = n => `<span class="stars" role="img" aria-label="${t("stars",{n})}">${[1,2,3,4,5].map(k=>`<i class="${k<=n?"on":""}">★</i>`).join("")}</span>`;
+/* passeio que já passou: realizado (e a avaliação), não realizado ou aguardando a confirmação */
+function pastState(p){
+  if(!S.revOk || p.status!=="aprovado" || p.data>=todayISO()) return "";
+  const ok = S.done.get(p.id)?.aconteceu, rv = S.revs.get(p.id), mar = S.done.get(p.id);
+  if(ok===false) return `<span class="tmeta"><i class="stb st-cancelado">${t("notRlzd")}</i></span>`;
+  if(ok!==true) return `<span class="tmeta"><i>${t("waitConf")}</i></span>`;
+  return `<span class="tmeta"><i class="stb st-aprovado">${t("rlzd")}</i></span>` + (rv
+    ? `<span class="rvd"><small>${t("rateYours")}</small> ${starsHTML(rv.nota)} <button type="button" class="link" data-rv="${p.id}">${t("rateEdit")}</button>${rv.nota_marinheiro&&mar?.marinheiro_nome?`<span class="who rvm">${face(mar.marinheiro,mar.marinheiro_nome,"face xs")}<small>${esc(mar.marinheiro_nome)}</small> ${starsHTML(rv.nota_marinheiro)}</span>`:""}${rv.comentario?`<q>${esc(rv.comentario)}</q>`:""}</span>`
+    : `<span class="rvask"><strong>${t("rateT")}</strong><span class="stars pick">${[1,2,3,4,5].map(k=>`<button type="button" data-rv="${p.id}" data-n="${k}" aria-label="${t("stars",{n:k})}">★</button>`).join("")}</span></span>`);
+}
+function openRate(p, n0){
+  const rv = S.revs.get(p.id), mar = S.done.get(p.id); let n = n0 || rv?.nota || 0, nm = rv?.nota_marinheiro || 0;
+  const hasMar = !!mar?.marinheiro;
+  const paint = () => { sheet.querySelectorAll("[data-sn]").forEach(b=>b.classList.toggle("on", +b.dataset.sn<=n)); sheet.querySelectorAll("[data-sm]").forEach(b=>b.classList.toggle("on", +b.dataset.sm<=nm)); };
+  sheet.innerHTML = `<div class="grab"></div><h2>${t("rateT")}</h2>
+    <p class="who" style="margin:0 0 6px">${avatar(p.lancha,"bav")}<strong>${esc(boatName(p.lancha))}</strong></p><p class="muted" style="margin:0 0 14px">${fmtLong(p.data)} ${dateOf(p.data).getFullYear()} · ${t("slot_"+p.horario)}</p>
+    <p style="margin:0 0 8px;font-weight:700">${t("rateQ",{boat:esc(boatName(p.lancha))})}</p>
+    <div class="stars pick big">${[1,2,3,4,5].map(k=>`<button type="button" data-sn="${k}" aria-label="${t("stars",{n:k})}">★</button>`).join("")}</div>
+    ${hasMar?`<p class="who" style="margin:16px 0 8px;font-weight:700">${face(mar.marinheiro,mar.marinheiro_nome,"face sm")}${t("rateMarSub",{name:esc(mar.marinheiro_nome||"")})}</p>
+    <div class="stars pick big">${[1,2,3,4,5].map(k=>`<button type="button" data-sm="${k}" aria-label="${t("stars",{n:k})}">★</button>`).join("")}</div>`:""}
+    <label class="f" style="margin-top:14px"><span>${t("rateCmt")}</span><textarea id="rvc" class="ta" rows="3" maxlength="600">${esc(rv?.comentario||"")}</textarea></label>
+    <div id="rvo"></div><button class="btn" id="rvs">${t("rateSend")}</button>
+    <button type="button" class="btn sec" id="rvx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on"); paint();
+  sheet.querySelectorAll("[data-sn]").forEach(b=>b.onclick=()=>{ n=+b.dataset.sn; paint(); });
+  sheet.querySelectorAll("[data-sm]").forEach(b=>b.onclick=()=>{ nm=+b.dataset.sm; paint(); });
+  document.getElementById("rvx").onclick = closeDay;
+  document.getElementById("rvs").onclick = async e => {
+    if(!n || (hasMar && !nm)){ document.getElementById("rvo").innerHTML=`<p class="msg err">${!n?t("rateNeed"):t("needMarStars")}</p>`; return; }
+    e.target.disabled = true;
+    try{ await db("rpc/avaliar",{method:"POST",body:{pid:p.id, estrelas:n, texto:document.getElementById("rvc").value, estrelas_mar:hasMar?nm:null}}); closeDay(); toast(t("rateThanks")); await loadMyReq(); clientView(); }
+    catch(err){ e.target.disabled=false; document.getElementById("rvo").innerHTML=`<p class="msg err">${err.code==="P0001"?esc(err.message):t("saveErr")}</p>`; }
+  };
+}
 function reqCard(p, adm){
   const d=dateOf(p.data), c=p.clientes||{}, ph=splitPhone(c.whatsapp), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
   return `<div class="trip rq st-${p.status}${p.horario==="dia"?" full":""}">
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
-    <span class="tbody">${adm?`<strong class="who">${face(p.cliente,c.nome,"face sm")}${esc(c.nome||"—")}</strong>`:`<strong>${esc(boatName(p.lancha))}</strong>`}
-      <span>${fmtLong(p.data)} · ${t("slot_"+p.horario)}${p.horario==="noite"?"":" · "+t("hours_"+p.horario)}</span>
-      <span class="tmeta"><i class="stb st-${p.status}">${t("st_"+p.status)}</i>${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>
+    <span class="tbody">${adm?`<strong class="who">${face(p.cliente,c.nome,"face sm")}${esc(c.nome||"—")}</strong>`:`<strong class="who">${avatar(p.lancha,"bav")}${esc(boatName(p.lancha))}</strong>`}
+      <span>${fmtLong(p.data)}${!adm && dateOf(p.data).getFullYear()!==new Date().getFullYear()?" "+dateOf(p.data).getFullYear():""} · ${t("slot_"+p.horario)}${p.horario==="noite"?"":" · "+t("hours_"+p.horario)}</span>
+      <span class="tmeta">${!adm && p.status==="aprovado" && p.data<todayISO() && S.revOk ? "" : `<i class="stb st-${p.status}">${t("st_"+p.status)}</i>`}${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>
       ${adm?`<span class="tmeta"><i>CPF ${esc(fmtCPF(c.cpf))}</i><i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
       ${adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn" data-ap="${p.id}">${t("approve")}</button><button type="button" class="btn sec" data-rq="${p.id}">${t("refuseReq")}</button></span>`
         : adm && p.status==="aprovado" && p.bloqueio_id ? `<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button></span>`
-        : !adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}</span>
+        : !adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?"":pastState(p)}</span>
     ${adm && wa.length>=8 ? `<span class="tside"><a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome||"")}">${WA_ICON}<span>WhatsApp</span></a></span>` : ""}</div>`;
 }
 function clientView(){
@@ -676,16 +726,17 @@ function clientView(){
   const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p));
   app.innerHTML = `<h1 class="hello">${t("cliHello",{name:esc(S.me.nome.split(" ")[0])})}</h1>
     <div class="card"><h2>${t("myTripsT")}</h2><p class="muted" style="margin-top:0">${t("cliSub")}</p><a class="btn" href="/">${t("seeBoats")}</a></div>
-    ${up.length ? `<div class="trips">${up.map(p=>reqCard(p)).join("")}</div>` : `<div class="card"><p class="muted" style="margin:0">${t("cliNone")}</p></div>`}
+    ${up.length ? `<h2 style="margin:22px 0 10px">${t("upT")}</h2><div class="trips">${up.map(p=>reqCard(p)).join("")}</div>` : past.length ? "" : `<div class="card"><p class="muted" style="margin:0">${t("cliNone")}</p></div>`}
     ${past.length ? `<h2 style="margin:22px 0 10px">${t("cliPast")}</h2><div class="trips">${past.map(p=>reqCard(p)).join("")}</div>` : ""}
     <p class="muted" style="font-size:14px;text-align:center;margin-top:18px"><a href="https://wa.me/${WHATS}" target="_blank" rel="noopener">WhatsApp Búzios Lanchas</a></p>` + PW_LINK();
+  app.querySelectorAll("[data-rv]").forEach(x=>x.onclick=()=>openRate(rows.find(p=>p.id===+x.dataset.rv), +x.dataset.n||0));
   app.querySelectorAll("[data-gu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("giveUpQ"))) return;
     try{ await db("rpc/cancelar_pedido",{method:"POST",body:{pid:+x.dataset.gu}}); toast(t("gaveUp")); await loadMyReq(); clientView(); }catch(e){ toast(t("saveErr")); } });
 }
 const logout = () => { const tok=ses?.access_token; pushForget(tok); saveSes(null); store.set("conta-tipo",null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; view="login"; show(); };
 
 function headerHTML(){
-  return `<button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
+  return `<a class="back" href="/" aria-label="${t("backSite")}"><b aria-hidden="true">‹</b>${t("backShort")}</a><button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
 }
 /* ===== foto de perfil: arquivo <id>.jpg na pasta pública "avatares". Sem foto, mostra as iniciais ===== */
 const AV_URL = uid => `${SB}/storage/v1/object/public/avatares/${uid}.jpg`;
@@ -805,9 +856,25 @@ function tripGroups(rows, desc){
     return `<div class="mhead"><h3>${cap(dateOf(k+"-01").toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}${v?" · "+brl(v):""}</span></div>
       <div class="trips">${rs.map(tripCard).join("")}</div>`; }).join("");
 }
+/* administrador: passeios da Búzios Lanchas que já passaram, para confirmar se aconteceram (libera a avaliação do cliente) */
+async function loadToConfirm(){
+  if(!S.admin) return;
+  const d0 = iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-60));
+  try{ const r = await db(`bloqueios?select=id,lancha,data,horario,anotacoes!inner(cliente,origem,cliente_conta),realizados(aconteceu)&anotacoes.origem=eq.buzios&data=lt.${todayISO()}&data=gte.${d0}&order=data.desc&limit=100`);
+    S.toConfirm = r.filter(b=>!b.realizados || (Array.isArray(b.realizados) && !b.realizados.length)); }
+  catch(e){ S.toConfirm = e.status===400||e.status===404 ? false : []; }
+}
+function confirmHTML(){
+  if(!S.admin) return "";
+  if(S.toConfirm===false) return `<p class="msg err">${t("needSqlAv")}</p>`;
+  if(!S.toConfirm?.length) return "";
+  return `<div class="card cfm"><h2>${t("cfT")}</h2><p class="muted" style="margin-top:0">${t("cfSub")}</p><ul class="owners">${S.toConfirm.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
+    return `<li><span class="who">${avatar(b.lancha,"bav")}<span><strong>${esc(boatName(b.lancha))}</strong><br><small class="muted">${fmtLong(b.data)} · ${t("slot_"+b.horario)}${n?.cliente?" · "+esc(n.cliente):""}</small></span></span>
+      <span class="cfb"><button type="button" class="btn" data-cf="${b.id}" data-ok="1">${t("cfYes")}</button><button type="button" class="btn sec" data-cf="${b.id}" data-ok="0">${t("cfNo")}</button></span></li>`; }).join("")}</ul></div>`;
+}
 function listHTML(){
   const nw = unseenTrips(); S.unseen = new Set(nw.map(r=>r.id));
-  return `${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
+  return `${confirmHTML()}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
     ${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}
     ${S.upcoming.length ? `<p class="how muted">${isRO()?t("listHowRO"):t("listHow")}</p>${tripGroups(S.upcoming)}` : `<div class="card"><p class="muted" style="margin:0">${isRO()?t("noneUp"):t("noneList")}</p></div>`}
     <button type="button" class="link" id="pasttog">${S.past?t("pastHide"):t("pastShow")}</button>
@@ -826,6 +893,8 @@ function itemsHTML(){
 }
 /* funcionários: o dono coloca quem só visualiza a agenda da lancha, com ou sem os valores */
 const sailorsOf = l => (S.sailors||[]).filter(m=>m.lancha===l);
+/* nota que os clientes deram ao marinheiro (só administrador e donos veem) */
+const marRate = uid => { const r=S.marRates?.[uid]; return r ? ` <span class="mrate" title="${t("stars",{n:r.media})}">★ ${String(r.media).replace(".",t("locale").startsWith("en")?".":",")} <small>(${r.total})</small></span>` : ""; };
 const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.user_id===uid)?.nome || (S.free||[]).find(m=>m.user_id===uid)?.nome || S.marNames[l]?.[uid] || "") : "";
 /* dia todo ocupa manhã e tarde; o noturno é separado */
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
@@ -853,7 +922,7 @@ function marHTML(){
   const seesVals = email => { const v=(S.staff||[]).find(x=>x.lancha===S.cur && x.email===email); return v ? !!v.ver_valores : true; };
   const freeCard = S.free ? `<div class="card"><h2>⚓ ${t("freeGroup")}</h2><p class="muted" style="margin-top:0">${t("freeCall")}</p>${freeWaList()}</div>` : "";
   return freeCard + `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="muted" style="margin-top:0;line-height:1.5">${t("marSub",{boat:esc(boat)})}</p>
-    <ul class="owners staff">${list.length ? list.map(m=>`<li style="flex-wrap:wrap;align-items:center"><span style="flex:1 1 0;min-width:0" class="who">${face(m.user_id,m.nome,"face")}<span><strong>${esc(m.nome)}</strong>${m.telefone?`<br><small class="muted">${esc(m.telefone)}</small>`:""}</span></span>
+    <ul class="owners staff">${list.length ? list.map(m=>`<li style="flex-wrap:wrap;align-items:center"><span style="flex:1 1 0;min-width:0" class="who">${face(m.user_id,m.nome,"face")}<span><strong>${esc(m.nome)}</strong>${marRate(m.user_id)}${m.telefone?`<br><small class="muted">${esc(m.telefone)}</small>`:""}</span></span>
       ${waOf(m.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(m.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}
       <span style="flex-basis:100%;height:0"></span><span class="vv">${t("staffValsQ")}<span class="yn" role="radiogroup">${[[true,"yes"],[false,"no"]].map(([v,k])=>`<button type="button" role="radio" data-sv="${esc(m.email)}" data-v="${v}" aria-checked="${seesVals(m.email)===v}">${t(k)}</button>`).join("")}</span></span>
       <button type="button" class="rm" data-mrm="${esc(m.email)}" data-mn="${esc(m.nome)}" style="margin-left:auto">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("marNone")}</li>`}</ul>
@@ -945,11 +1014,11 @@ function installHTML(){
 const waOf = tel => { const ph=splitPhone(tel), d=ph.num.replace(/\D/g,""); return d ? ph.cc+d : ""; };
 /* lista de freelancers com botão de WhatsApp, para o dono chamar quem estiver livre */
 const fold = x => String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-const freeWaList = () => (S.free||[]).length ? `<input type="search" class="in frq" placeholder="🔍 ${t("marQ")}" aria-label="${t("marQ")}" autocomplete="off"><ul class="owners frees">${S.free.map(f=>`<li data-q="${esc(fold(f.nome+" "+(f.email||"")))}"><span class="who">${face(f.user_id,f.nome,"face")}<span><strong>${esc(f.nome)}</strong>${f.email?`<br><small class="muted">${esc(f.email)}</small>`:""}${f.telefone?`<br><small class="muted">${esc(f.telefone)}</small>`:""}</span></span>${waOf(f.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(f.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}</li>`).join("")}</ul><p class="muted frq0" hidden>${t("marQNone")}</p>` : `<p class="muted" style="margin:0">${t("freeNone")}</p>`;
+const freeWaList = () => (S.free||[]).length ? `<input type="search" class="in frq" placeholder="🔍 ${t("marQ")}" aria-label="${t("marQ")}" autocomplete="off"><ul class="owners frees">${S.free.map(f=>`<li data-q="${esc(fold(f.nome+" "+(f.email||"")))}"><span class="who">${face(f.user_id,f.nome,"face")}<span><strong>${esc(f.nome)}</strong>${marRate(f.user_id)}${f.email?`<br><small class="muted">${esc(f.email)}</small>`:""}${f.telefone?`<br><small class="muted">${esc(f.telefone)}</small>`:""}</span></span>${waOf(f.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(f.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}</li>`).join("")}</ul><p class="muted frq0" hidden>${t("marQNone")}</p>` : `<p class="muted" style="margin:0">${t("freeNone")}</p>`;
 function freeHTML(){
   if(S.free===null) return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
   return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="muted" style="margin-top:0">${t("freeSub")}</p>
-    <ul class="owners">${S.free.length ? S.free.map(f=>`<li><span class="who">${face(f.user_id,f.nome,"face")}<span><strong>${esc(f.nome)}</strong><br><small class="muted">${esc(f.email||"")}${f.telefone?" · "+esc(f.telefone):""}</small></span></span><button type="button" class="rm" data-frm="${esc(f.email||"")}" data-mn="${esc(f.nome)}">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("freeNone")}</li>`}</ul>
+    <ul class="owners">${S.free.length ? S.free.map(f=>`<li><span class="who">${face(f.user_id,f.nome,"face")}<span><strong>${esc(f.nome)}</strong>${marRate(f.user_id)}<br><small class="muted">${esc(f.email||"")}${f.telefone?" · "+esc(f.telefone):""}</small></span></span><button type="button" class="rm" data-frm="${esc(f.email||"")}" data-mn="${esc(f.nome)}">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("freeNone")}</li>`}</ul>
     <form id="ff" novalidate style="margin-top:16px"><div id="fmsg"></div>
       <label class="f"><span>${t("marName")}</span><input type="text" id="fnm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_mar")}"></label>
       <div class="f"><label for="ftel"><span>WhatsApp</span></label><div class="phone"><select class="in" id="fddi" aria-label="${t("country")}">${countryOpts("55")}</select><input type="tel" id="ftel" inputmode="tel" autocomplete="off" placeholder="${t("ph_phone")}"></div></div>
@@ -1104,6 +1173,11 @@ function bindMain(){
   app.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{ S.cur=x.dataset.b; store.set("dono-boat",S.cur); loadBlocks(); });
   app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ S.tab=x.dataset.tab; store.set("dono-tab",S.tab); loadBlocks(); });
   const pg=document.getElementById("pushgo"); if(pg) pg.onclick=pushAsk;
+  app.querySelectorAll("[data-cf]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.cf, ok=x.dataset.ok==="1";
+    if(!ok && !confirm(t("cfNoQ"))) return;
+    x.disabled=true;
+    try{ await db("rpc/confirmar_passeio",{method:"POST",body:{bid:id, ok}}); S.toConfirm=S.toConfirm.filter(b=>b.id!==id); toast(ok?t("cfDone"):t("cfNoDone")); mainView(); }
+    catch(e){ x.disabled=false; toast(e.code==="P0001"?e.message:t("saveErr")); } });
   const sa=document.getElementById("seenall"); if(sa) sa.onclick=()=>{ markSeen([...(S.unseen||[])]); mainView(); };
   app.querySelectorAll("[data-trip]").forEach(x=>{ const go=()=>{ const id=+x.dataset.trip; if(S.unseen?.has(id)) markSeen([id]); openTrip([...S.upcoming,...(S.past||[])].find(r=>r.id===id)); };
     x.onclick=e=>{ if(!e.target.closest(".twa")) go(); }; x.onkeydown=e=>{ if((e.key==="Enter"||e.key===" ")&&e.target===x){ e.preventDefault(); go(); } }; });
@@ -1417,7 +1491,7 @@ function renderTrip(){
     if(!own.length && !fr.length) return `<p class="muted" style="margin:0 0 12px;font-size:13px">⚓ ${t("sailorNoneYet")}</p>`;
     const keep = pick && !isBusy(pick) && [...own,...fr].some(m=>m.user_id===pick), fx=own.find(m=>m.fixo);
     const cur = keep ? pick : (!n.marinheiro_recusou && fx && !isBusy(fx.user_id) ? fx.user_id : "");
-    const opt = m => `<option value="${m.user_id}"${m.user_id===cur?" selected":""}${isBusy(m.user_id)?" disabled":""}>${esc(m.nome)}${m.fixo?` (${t("fixo").toLowerCase()})`:""}${isBusy(m.user_id)?` · ${t("busy")}`:""}</option>`;
+    const opt = m => `<option value="${m.user_id}"${m.user_id===cur?" selected":""}${isBusy(m.user_id)?" disabled":""}>${esc(m.nome)}${m.fixo?` (${t("fixo").toLowerCase()})`:""}${S.marRates?.[m.user_id]?` · ★ ${S.marRates[m.user_id].media}`:""}${isBusy(m.user_id)?` · ${t("busy")}`:""}</option>`;
     return `<label class="f"><span>${t("sailorPick")}${S.admin?"":REQ}</span>${fr.length>1?`<input type="search" class="in" id="n-marq" placeholder="🔍 ${t("marQ")}" aria-label="${t("marQ")}" autocomplete="off" style="margin-bottom:8px">`:""}<select class="in" id="n-mar"><option value="">—</option>
       ${own.length?`<optgroup label="${esc(boatName(nboat))}">${own.map(opt).join("")}</optgroup>`:""}${fr.length?`<optgroup id="frg" label="${t("freeGroup")}">${fr.map(m=>opt(m).replace("<option ",`<option data-q="${esc(fold(m.nome+" "+(m.email||"")))}" `)).join("")}</optgroup>`:""}</select></label>
       ${n.marinheiro_recusou&&!n.marinheiro?`<p class="msg err" style="margin:-4px 0 12px;font-size:14px">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</p>`:""}
@@ -1591,6 +1665,9 @@ async function boot(){
     S.cur = S.boats.some(b=>b.slug===saved) || (saved==="*" && S.admin) ? saved : S.boats[0]?.slug || null;
     view = "main";
     S.pushWho = S.admin || mine.length>0;
+    S.marRates = {};
+    if(owner) db("rpc/notas_marinheiros",{method:"POST",body:{}}).then(r=>{ r.forEach(x=>S.marRates[x.marinheiro]={media:+x.media,total:+x.total}); if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{});
+    await loadToConfirm();
     await loadBlocks();
     autoPush();
   }catch(e){
