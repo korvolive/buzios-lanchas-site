@@ -437,9 +437,9 @@ Object.assign(T.es, {ownerName:"Nombre del dueño", ph_owner:"Ej.: Carlos Souza"
   newBanner:"🔔 {n} paseos nuevos de Búzios Lanchas", newBanner1:"🔔 1 paseo nuevo de Búzios Lanchas", newTag:"nuevo", seenAll:"Marcar como visto"});
 const nomeOk = n => n.length>=5 && /\S\s+\S/.test(n) && !n.includes("@"); /* nome e sobrenome, como no banco */
 /* busca de marinheiro freelancer pelo nome */
-Object.assign(T.pt, {backSite:"Voltar ao site", backShort:"Site", rateBoat:"A lancha", rateMar:"Quem pilotou", rateMarSub:"Avalie também o marinheiro {name}.", marRate:"{m} ({n})", needMarStars:"Escolha também as estrelas do marinheiro.",  upT:"Próximos passeios", rlzd:"✓ Realizado", notRlzd:"Não realizado", waitConf:"Aguardando a Búzios Lanchas confirmar o passeio", rateT:"Avalie este passeio", rateQ:"Como foi o passeio na {boat}?", rateCmt:"Conte como foi (opcional)", rateSend:"Enviar avaliação", rateThanks:"Obrigado pela avaliação!", rateYours:"Sua avaliação", rateEdit:"Alterar", rateNeed:"Escolha de 1 a 5 estrelas.", stars:"{n} de 5 estrelas", cfT:"Esses passeios aconteceram?", cfSub:"Confirme cada passeio da Búzios Lanchas que já passou. Só depois disso o cliente consegue avaliar a lancha.", cfYes:"✓ Aconteceu", cfNo:"Não aconteceu", cfNoQ:"Marcar que esse passeio não aconteceu? O cliente não vai poder avaliar.", cfDone:"Passeio confirmado. O cliente já pode avaliar.", cfNoDone:"Marcado como não realizado.", needSqlAv:"Falta criar a parte de avaliações no Supabase (arquivo 2026-10-19_supabase-avaliacoes.sql)."});
-Object.assign(T.en, {backSite:"Back to the website", backShort:"Site", rateBoat:"The boat", rateMar:"Who drove", rateMarSub:"Also rate the skipper {name}.", marRate:"{m} ({n})", needMarStars:"Also choose the skipper's stars.",  upT:"Upcoming tours", rlzd:"✓ Completed", notRlzd:"Didn't happen", waitConf:"Waiting for Búzios Lanchas to confirm the tour", rateT:"Rate this tour", rateQ:"How was your tour on {boat}?", rateCmt:"Tell us how it went (optional)", rateSend:"Send review", rateThanks:"Thanks for your review!", rateYours:"Your review", rateEdit:"Change", rateNeed:"Choose 1 to 5 stars.", stars:"{n} out of 5 stars", cfT:"Did these tours happen?", cfSub:"Confirm each Búzios Lanchas tour that has passed. Only then can the client review the boat.", cfYes:"✓ It happened", cfNo:"Didn't happen", cfNoQ:"Mark that this tour didn't happen? The client won't be able to review it.", cfDone:"Tour confirmed. The client can now review it.", cfNoDone:"Marked as not completed.", needSqlAv:"The reviews part is missing in Supabase (file 2026-10-19_supabase-avaliacoes.sql)."});
-Object.assign(T.es, {backSite:"Volver al sitio", backShort:"Sitio", rateBoat:"La lancha", rateMar:"Quién piloteó", rateMarSub:"Califica también al marinero {name}.", marRate:"{m} ({n})", needMarStars:"Elige también las estrellas del marinero.",  upT:"Próximos paseos", rlzd:"✓ Realizado", notRlzd:"No se realizó", waitConf:"Esperando que Búzios Lanchas confirme el paseo", rateT:"Califica este paseo", rateQ:"¿Cómo fue el paseo en {boat}?", rateCmt:"Cuéntanos cómo fue (opcional)", rateSend:"Enviar calificación", rateThanks:"¡Gracias por tu calificación!", rateYours:"Tu calificación", rateEdit:"Cambiar", rateNeed:"Elige de 1 a 5 estrellas.", stars:"{n} de 5 estrellas", cfT:"¿Estos paseos se realizaron?", cfSub:"Confirma cada paseo de Búzios Lanchas que ya pasó. Solo después el cliente puede calificar la lancha.", cfYes:"✓ Se realizó", cfNo:"No se realizó", cfNoQ:"¿Marcar que este paseo no se realizó? El cliente no podrá calificarlo.", cfDone:"Paseo confirmado. El cliente ya puede calificarlo.", cfNoDone:"Marcado como no realizado.", needSqlAv:"Falta crear la parte de calificaciones en Supabase (archivo 2026-10-19_supabase-avaliacoes.sql)."});
+Object.assign(T.pt, {cEmail:"E-mail do cliente", cEmailHint:"opcional: cria a conta dele no app e o passeio aparece lá", cEmailBad:"E-mail do cliente inválido.", cliLinked:"Passeio colocado na conta de {name}.", invT:"Convite para {name}", invSub:"Mande o link pelo WhatsApp. Quando {name} criar a conta com o e-mail <b>{email}</b>, este passeio já aparece em Meus passeios, e depois ele pode avaliar.", invBtn:"Mandar convite no WhatsApp", invCopy:"Copiar a mensagem", invCopied:"Mensagem copiada!", waInvite:"Olá, {name}! Seu passeio está confirmado na Búzios Lanchas:\n🚤 Lancha: {boat}\n📅 Data: {date}\n🕙 Horário: {slot}\n👥 {people} pessoas\n🔎 Veja a lancha: {page}\n\nCrie sua conta com o e-mail {email} para acompanhar seus passeios. Depois do passeio, você pode avaliar a lancha e o marinheiro:\n{url}", needSqlConv:"Falta criar a parte de convites no Supabase (arquivo 2026-10-19_supabase-convites.sql).", backSite:"Voltar ao site", backShort:"Site", rateBoat:"A lancha", rateMar:"Quem pilotou", rateMarSub:"Avalie também o marinheiro {name}.", marRate:"{m} ({n})", needMarStars:"Escolha também as estrelas do marinheiro.",  upT:"Próximos passeios", rlzd:"✓ Realizado", notRlzd:"Não realizado", waitConf:"Aguardando a Búzios Lanchas confirmar o passeio", rateT:"Avalie este passeio", rateQ:"Como foi o passeio na {boat}?", rateCmt:"Conte como foi (opcional)", rateSend:"Enviar avaliação", rateThanks:"Obrigado pela avaliação!", rateYours:"Sua avaliação", rateEdit:"Alterar", rateNeed:"Escolha de 1 a 5 estrelas.", stars:"{n} de 5 estrelas", cfT:"Esses passeios aconteceram?", cfSub:"Confirme cada passeio da Búzios Lanchas que já passou. Só depois disso o cliente consegue avaliar a lancha.", cfYes:"✓ Aconteceu", cfNo:"Não aconteceu", cfNoQ:"Marcar que esse passeio não aconteceu? O cliente não vai poder avaliar.", cfDone:"Passeio confirmado. O cliente já pode avaliar.", cfNoDone:"Marcado como não realizado.", needSqlAv:"Falta criar a parte de avaliações no Supabase (arquivo 2026-10-19_supabase-avaliacoes.sql)."});
+Object.assign(T.en, {cEmail:"Client's email", cEmailHint:"optional: creates their account in the app and the tour shows up there", cEmailBad:"Invalid client email.", cliLinked:"Tour added to {name}'s account.", invT:"Invite for {name}", invSub:"Send the link on WhatsApp. When {name} creates the account with the email <b>{email}</b>, this tour already shows up in My tours, and later they can review it.", invBtn:"Send invite on WhatsApp", invCopy:"Copy the message", invCopied:"Message copied!", waInvite:"Hi, {name}! Your tour is confirmed with Búzios Lanchas:\n🚤 Boat: {boat}\n📅 Date: {date}\n🕙 Time: {slot}\n👥 {people} people\n🔎 See the boat: {page}\n\nCreate your account with the email {email} to follow your tours. After the tour, you can review the boat and the skipper:\n{url}", needSqlConv:"The invites part is missing in Supabase (file 2026-10-19_supabase-convites.sql).", backSite:"Back to the website", backShort:"Site", rateBoat:"The boat", rateMar:"Who drove", rateMarSub:"Also rate the skipper {name}.", marRate:"{m} ({n})", needMarStars:"Also choose the skipper's stars.",  upT:"Upcoming tours", rlzd:"✓ Completed", notRlzd:"Didn't happen", waitConf:"Waiting for Búzios Lanchas to confirm the tour", rateT:"Rate this tour", rateQ:"How was your tour on {boat}?", rateCmt:"Tell us how it went (optional)", rateSend:"Send review", rateThanks:"Thanks for your review!", rateYours:"Your review", rateEdit:"Change", rateNeed:"Choose 1 to 5 stars.", stars:"{n} out of 5 stars", cfT:"Did these tours happen?", cfSub:"Confirm each Búzios Lanchas tour that has passed. Only then can the client review the boat.", cfYes:"✓ It happened", cfNo:"Didn't happen", cfNoQ:"Mark that this tour didn't happen? The client won't be able to review it.", cfDone:"Tour confirmed. The client can now review it.", cfNoDone:"Marked as not completed.", needSqlAv:"The reviews part is missing in Supabase (file 2026-10-19_supabase-avaliacoes.sql)."});
+Object.assign(T.es, {cEmail:"Correo del cliente", cEmailHint:"opcional: crea su cuenta en la app y el paseo aparece allí", cEmailBad:"Correo del cliente inválido.", cliLinked:"Paseo agregado a la cuenta de {name}.", invT:"Invitación para {name}", invSub:"Manda el enlace por WhatsApp. Cuando {name} cree la cuenta con el correo <b>{email}</b>, este paseo ya aparece en Mis paseos y después puede calificarlo.", invBtn:"Mandar invitación por WhatsApp", invCopy:"Copiar el mensaje", invCopied:"¡Mensaje copiado!", waInvite:"¡Hola, {name}! Tu paseo está confirmado con Búzios Lanchas:\n🚤 Lancha: {boat}\n📅 Fecha: {date}\n🕙 Horario: {slot}\n👥 {people} personas\n🔎 Mira la lancha: {page}\n\nCrea tu cuenta con el correo {email} para seguir tus paseos. Después del paseo, puedes calificar la lancha y al marinero:\n{url}", needSqlConv:"Falta crear la parte de invitaciones en Supabase (archivo 2026-10-19_supabase-convites.sql).", backSite:"Volver al sitio", backShort:"Sitio", rateBoat:"La lancha", rateMar:"Quién piloteó", rateMarSub:"Califica también al marinero {name}.", marRate:"{m} ({n})", needMarStars:"Elige también las estrellas del marinero.",  upT:"Próximos paseos", rlzd:"✓ Realizado", notRlzd:"No se realizó", waitConf:"Esperando que Búzios Lanchas confirme el paseo", rateT:"Califica este paseo", rateQ:"¿Cómo fue el paseo en {boat}?", rateCmt:"Cuéntanos cómo fue (opcional)", rateSend:"Enviar calificación", rateThanks:"¡Gracias por tu calificación!", rateYours:"Tu calificación", rateEdit:"Cambiar", rateNeed:"Elige de 1 a 5 estrellas.", stars:"{n} de 5 estrellas", cfT:"¿Estos paseos se realizaron?", cfSub:"Confirma cada paseo de Búzios Lanchas que ya pasó. Solo después el cliente puede calificar la lancha.", cfYes:"✓ Se realizó", cfNo:"No se realizó", cfNoQ:"¿Marcar que este paseo no se realizó? El cliente no podrá calificarlo.", cfDone:"Paseo confirmado. El cliente ya puede calificarlo.", cfNoDone:"Marcado como no realizado.", needSqlAv:"Falta crear la parte de calificaciones en Supabase (archivo 2026-10-19_supabase-avaliacoes.sql)."});
 Object.assign(T.pt, {pushAsk:"🔔 Receba no celular os avisos de passeios e pedidos novos, mesmo com o app fechado. Toque em <b>Permitir</b> quando o celular perguntar.", pushBtn:"Ligar notificações", pushDenied:"🔕 As notificações estão bloqueadas neste celular. Para receber os avisos, libere em Configurações do celular › Notificações.", pushIOS:"🔔 No iPhone, as notificações chegam só com o app instalado na tela de início.", pushOn:"Notificações ligadas neste celular."});
 Object.assign(T.en, {pushAsk:"🔔 Get alerts for new trips and requests on your phone, even with the app closed. Tap <b>Allow</b> when your phone asks.", pushBtn:"Turn on notifications", pushDenied:"🔕 Notifications are blocked on this phone. To get alerts, allow them in your phone Settings › Notifications.", pushIOS:"🔔 On iPhone, notifications only arrive with the app installed on the home screen.", pushOn:"Notifications are on for this phone."});
 Object.assign(T.es, {pushAsk:"🔔 Recibe en el celular los avisos de paseos y pedidos nuevos, incluso con la app cerrada. Toca <b>Permitir</b> cuando el celular pregunte.", pushBtn:"Activar notificaciones", pushDenied:"🔕 Las notificaciones están bloqueadas en este celular. Para recibir los avisos, permítelas en Ajustes del celular › Notificaciones.", pushIOS:"🔔 En iPhone, las notificaciones llegan solo con la app instalada en la pantalla de inicio.", pushOn:"Notificaciones activadas en este celular."});
@@ -664,6 +664,7 @@ function completeView(msg=""){
 }
 /* área do cliente: os pedidos feitos pelo site e o que a Búzios Lanchas já confirmou */
 async function loadMyReq(){
+  await db("rpc/resgatar_convites",{method:"POST",body:{}}).catch(()=>0); /* passeios que a Búzios Lanchas colocou para este e-mail */
   S.myReq = await db("pedidos?select=id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id&order=data.desc&limit=100").catch(()=>[]);
   /* passeios que a Búzios Lanchas confirmou como realizados e as avaliações já feitas (sem as tabelas, segue sem elas) */
   const [re, av] = await Promise.all([db("rpc/meus_realizados",{method:"POST",body:{}}).catch(()=>null), db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro").catch(()=>null)]);
@@ -1114,6 +1115,19 @@ function openOwner(o){
     catch(x){ fail(x.status===404 ? t("needSqlNomes") : x.status ? esc(x.message) : t("netErr")); } };
 }
 /* depois de aprovar um pedido: botão para avisar o dono da lancha no WhatsApp, já com a mensagem pronta */
+/* convite: link para o cliente criar a conta com o e-mail; o passeio entra na conta dele ao completar o cadastro */
+function openInvite(email, nota, row){
+  const name=(nota.cliente||"").split(" ")[0]||"", q=new URLSearchParams({criar:"1", email}); if(nota.cliente) q.set("nome",nota.cliente); if(nota.telefone) q.set("tel",nota.telefone);
+  const url=`${location.origin}/login/?${q}`, wa=waOf(nota.telefone), dt=fmtLong(row.data);
+  const msg=t("waInvite",{name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:t("slot_"+row.horario)+(row.horario==="noite"?"":" ("+t("hours_"+row.horario)+")"), people:nota.pessoas||"", page:`${location.origin}${lang==="pt"?"":"/"+lang}/lancha/${row.lancha}/`, email, url});
+  sheet.innerHTML = `<div class="grab"></div><h2>✉ ${t("invT",{name:esc(nota.cliente||email)})}</h2><p class="muted" style="margin-top:0">${t("invSub",{name:esc(name||nota.cliente||""), email:esc(email)})}</p>
+    ${wa.length>=8?`<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("invBtn")}</a>`:""}
+    <button type="button" class="btn sec" id="invcp">${t("invCopy")}</button>
+    <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  document.getElementById("nfx").onclick = closeDay;
+  document.getElementById("invcp").onclick = () => navigator.clipboard.writeText(msg).then(()=>toast(t("invCopied")), ()=>prompt("", url));
+}
 function notifyOwner(p, row, nota){
   const os=(S.owners||[]).filter(o=>o.lancha===row.lancha), boat=boatName(row.lancha);
   const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"?"":" ("+t("hours_"+row.horario)+")"), people:nota.pessoas||p.pessoas, client:nota.cliente||"", url:location.origin+"/login/"});
@@ -1369,11 +1383,11 @@ async function loadBlocks(){
     db("rpc/marinheiros_da_lancha",{method:"POST",body:{l}}).then(v=>{ v.forEach(m=>S.marNames[l][m.user_id]=m.nome); }, ()=>{}); }
   const a=iso(new Date(y,mo,1)), b=iso(new Date(y,mo+1,0)), all=S.cur==="*", lf = all ? "" : `lancha=eq.${encodeURIComponent(S.cur)}&`;
   try{
-    const ro = isRO(), yest = iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)), p0 = iso(new Date(now.getFullYear(),now.getMonth()-3,1));
+    const ro = isRO(), yest = iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)), p0 = iso(new Date(now.getFullYear(),now.getMonth()-24,1));
     const [rows, up, past] = ro ? await Promise.all([fetchVis(a,b), fetchVis(todayISO()), S.past ? fetchVis(p0,yest,true) : null]) : await Promise.all([
       all ? [] : fetchRows(`${lf}data=gte.${a}&data=lte.${b}`),
       fetchRows(`${lf}data=gte.${todayISO()}&order=data.asc&limit=200`),
-      S.past ? fetchRows(`${lf}data=lt.${todayISO()}&data=gte.${iso(new Date(now.getFullYear(),now.getMonth()-3,1))}&order=data.desc&limit=200`) : null]);
+      S.past ? fetchRows(`${lf}data=lt.${todayISO()}&data=gte.${iso(new Date(now.getFullYear(),now.getMonth()-24,1))}&order=data.desc&limit=500`) : null]);
     if(S.past) S.past = past;
     if(my!==loadSeq) return;
     S.blocks = new Map(); rows.forEach(r=>{ if(!S.blocks.has(r.data)) S.blocks.set(r.data,new Map()); S.blocks.get(r.data).set(r.horario,r); });
@@ -1515,6 +1529,7 @@ function renderTrip(){
       ${f("cliente","text",'autocapitalize="words"')}
       <div class="f"><label for="n-telefone"><span>${t("phone")}${REQ}</span></label><div class="phone"><select class="in" id="n-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="n-telefone" inputmode="tel" autocomplete="off" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
       <label class="f"><span>${t("people")}${REQ} <small class="muted" style="font-weight:400">(${t("maxPeople",{n:boatCap()})})</small></span><select class="in" id="n-pessoas">${peopleOpts()}</select></label>
+      ${S.admin && !n.cliente_conta && !pedidoFor ? `<label class="f"><span>✉ ${t("cEmail")} <small class="muted" style="font-weight:400">(${t("cEmailHint")})</small></span><input type="email" id="n-cemail" inputmode="email" autocapitalize="off" autocomplete="off"></label>` : ""}
       <div id="marbox">${marField()}</div>
       <div class="row2">${f("valor","number",'inputmode="decimal" min="0" step="any"')}${f("sinal","number",'inputmode="decimal" min="0" step="any"')}</div>
       <p class="muted" id="vlock" style="margin:-4px 0 12px;font-size:13px" hidden>${t("valLocked")}</p>
@@ -1568,6 +1583,7 @@ function renderTrip(){
       if(!nota.cliente) miss.push(document.getElementById("n-cliente"));
       const telOk = okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
       if(!nota.pessoas) miss.push(document.getElementById("n-pessoas"));
+      const cemEl=document.getElementById("n-cemail"); if(cemEl?.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(cemEl.value.trim())) miss.push(cemEl);
       if(marSel && !marSel.value && !S.admin) miss.push(marSel); /* o admin pode deixar sem marinheiro para remanejar */
       ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(!el.disabled && nota[k]==null) miss.push(el); });
       sheet.querySelectorAll(".miss").forEach(x=>x.classList.remove("miss"));
@@ -1597,6 +1613,10 @@ function renderTrip(){
         toast(t("approved",{boat:boatName(nboat)})); const ap=pedidoFor; callFn({tipo:"aprovado", id:row.id}).catch(()=>{}); closeDay(); S.reqF="aprovado"; await loadBlocks();
         return notifyOwner(ap, {lancha:nboat, data:nd, horario:nslot}, nota); }
       if(S.admin && tripNew && nota.origem==="buzios") callFn({tipo:"aprovado", id:row.id}).catch(()=>{}); /* passeio fechado pela Búzios Lanchas: avisa o dono */
+      const cem = document.getElementById("n-cemail")?.value.trim().toLowerCase();
+      if(cem){ try{ const res = await db("rpc/convidar_cliente",{method:"POST",body:{bid:row.id, email_cli:cem, nome_cli:nota.cliente||"", tel:nota.telefone||""}});
+          closeDay(); loadBlocks(); if(res==="ligado") return toast(t("cliLinked",{name:nota.cliente||cem})); return openInvite(cem, nota, row); }
+        catch(e){ toast(e.status===404 ? t("needSqlConv") : e.code==="P0001" ? e.message : t("saveErr")); } }
       toast(tripNew ? t("tripSaved") : t("noteSaved"));
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }
     }catch(err){ b.disabled=false;
@@ -1656,6 +1676,7 @@ async function boot(){
       const me = await db(`clientes?select=nome,cpf,whatsapp&user_id=eq.${ses.user.id}`).catch(e=>e.status===404||e.status===400 ? false : null);
       if(me===false){ S.isClient=false; } /* banco ainda sem a parte de clientes: segue como antes */
       else{ S.me = me?.[0] || null; view="main";
+        if(!me?.[0] && !store.get("cli-draft")){ const cv=(await db("rpc/meu_convite",{method:"POST",body:{}}).catch(()=>[]))[0]; if(cv) store.set("cli-draft",{nome:cv.nome||"", whatsapp:cv.telefone||""}); }
         const draft=store.get("cli-draft"); let err="";
         if(!S.me && draft) err = await saveProfile(draft); /* conta criada com confirmação por e-mail: termina o cadastro agora */
         if(S.me) await loadMyReq();
@@ -1689,9 +1710,12 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   if(h.get("access_token")){
     saveSes({access_token:h.get("access_token"), refresh_token:h.get("refresh_token"), expires_at:+h.get("expires_at")||0, expires_in:h.get("expires_in"), user:null});
     history.replaceState(null,"",location.pathname);
-    if(h.get("type")==="recovery"){ view="newpw"; return show(); }
+    if(h.get("type")==="recovery" || h.get("type")==="invite"){ view="newpw"; return show(); }
   }
-  if(!ses && new URLSearchParams(location.search).get("criar")==="1") view="signup"; /* "Crie sua conta" no site */
+  const qs=new URLSearchParams(location.search);
+  if(!ses && qs.get("criar")==="1"){ view="signup"; /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
+    if(qs.get("email")) typedEmail=qs.get("email");
+    if((qs.get("nome")||qs.get("tel")) && !store.get("cli-draft")) store.set("cli-draft",{nome:qs.get("nome")||"", whatsapp:qs.get("tel")||""}); }
   if(ses){ view="main"; boot(); } else show();
 })();
 </script>
