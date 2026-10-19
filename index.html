@@ -575,7 +575,6 @@ const PHRASES = {
   "Banheiro":["Bathroom","Baño"],
   "Geladeira":["Fridge","Refrigerador"],
   "Stand up paddle":["Stand up paddle","Stand up paddle"],
-  "Caiaque":["Kayak","Kayak"],
   "Churrasqueira":["Barbecue grill","Parrilla"],
   "Serviço de churrasqueiro":["Grill service","Servicio de parrillero"],
   "Cooler":["Cooler","Hielera"],
@@ -878,7 +877,7 @@ function loadAgenda(){
 }
 /* Itens de cada lancha: o dono marca no app /dono/ (tabela itens). Os básicos ficam sempre; os opcionais
    vêm do banco na ordem de ITEM_ORDER. Se o banco não responder, vale a lista "included" do código. */
-const ITEM_ORDER = ["Banheiro","Ar-condicionado","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","TV na cabine","Som Bluetooth","Toldo com sombra","Solário na popa","Piscina inflável","Piscina flutuante","Tapete flutuante","Stand up paddle","Caiaque","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante"];
+const ITEM_ORDER = ["Banheiro","Ar-condicionado","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","TV na cabine","Som Bluetooth","Toldo com sombra","Solário na popa","Piscina inflável","Piscina flutuante","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante"];
 let itens = null, itensP = null;
 function loadItens(){
   return itensP ||= fetch(AGENDA_URL.replace("bloqueios","itens")+"?select=lancha,opcionais", {headers:{apikey:AGENDA_KEY}})
