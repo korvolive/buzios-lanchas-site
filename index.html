@@ -965,11 +965,8 @@ async function showBoatStatus(b){
 
 document.getElementById("ano").textContent = new Date().getFullYear();
 
-/* app instalado (Búzios Lanchas): quem tem login abre direto na agenda; o resto vê o site */
-if(new URLSearchParams(location.search).get("app")==="1"){
-  let logged=false; try{ logged = !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){}
-  if(logged) location.replace("/dono/"); else history.replaceState(null,"",location.pathname+location.hash);
-}
+/* app instalado (Búzios Lanchas): abre sempre no site; donos e marinheiros entram pelo ícone de login */
+if(new URLSearchParams(location.search).get("app")==="1") history.replaceState(null,"",location.pathname+location.hash);
 if("serviceWorker" in navigator && !/bot|crawl|spider|headless/i.test(navigator.userAgent)) navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(()=>{});
 
 /* textos fixos do cabeçalho e do rodapé */
@@ -981,6 +978,7 @@ function applyStatic(){
   /* acesso dos donos, marinheiros e equipe: só o ícone, abre em outra aba */
   document.getElementById("hdr-login").setAttribute("aria-label", t("navLogin"));
   document.getElementById("hdr-login").title = t("navLogin");
+  if(matchMedia("(display-mode: standalone)").matches || navigator.standalone){ document.getElementById("hdr-login").removeAttribute("target"); } /* no app instalado, a agenda abre dentro do próprio app */
   document.getElementById("lang").value = lang;
   document.getElementById("logo").href = pathFor(lang);
   document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
