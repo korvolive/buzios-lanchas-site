@@ -49,6 +49,7 @@ header.top .wrap{display:flex;align-items:center;justify-content:space-between;g
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 20px/1 var(--display);letter-spacing:-.02em}
 .logo svg{flex:none}
 .logo small{display:block;font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:4px}
+@media (max-width:600px){.logo small .sep{display:none}.logo small{letter-spacing:.03em}.logo small [data-t]{display:block}.logo small [data-t]+.sep+[data-t]{margin-top:3px}}
 nav.top{display:flex;gap:20px;align-items:center;font-weight:500;font-size:15px}
 nav.top a{text-decoration:none;opacity:.85}
 nav.top a:hover{opacity:1}
@@ -310,7 +311,7 @@ footer p{margin:0;opacity:.8}
   <div class="wrap">
     <a class="logo" href="/" id="logo">
       <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 20h22l-4 5H10z" fill="currentColor"/><path d="M14 19V9l7 10z" fill="#c99a2e"/></svg>
-      <span>Búzios Lanchas<small data-t="logoSub"></small></span>
+      <span>Búzios Lanchas<small><span data-t="logoSub"></span><span class="sep"> · </span><span data-t="logoCity"></span></small></span>
     </a>
     <nav class="top">
       <a href="/#frota" class="hide-sm" data-scroll="frota" data-t="navFleet"></a>
@@ -628,7 +629,7 @@ const PHRASES = {
 /* Textos fixos do site. {n}, {name}, {date}, {slot}, {h} são trocados pelos valores. */
 const UI = {
   pt:{
-    locale:"pt-BR", logoSub:"Aluguel de lanchas · RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona",
+    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona",
     footAbout:"Passeios privativos de lancha em Armação dos Búzios, RJ.", footBook:"Reservas", footFollow:"Siga",
     coords:"22°45′S · 41°53′O — Aluguel de lanchas em Armação dos Búzios, RJ",
     seoTitle:"Aluguel de lancha em Búzios | Passeios privativos | Búzios Lanchas",
@@ -683,7 +684,7 @@ const UI = {
     waAvail:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para {date}, das {slot} ({h} horas), para {people}."
   },
   en:{
-    locale:"en-US", logoSub:"Boat rental · RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works",
+    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works",
     footAbout:"Private boat tours in Armação dos Búzios, RJ, Brazil.", footBook:"Bookings", footFollow:"Follow us",
     coords:"22°45′S · 41°53′W — Boat rental in Armação dos Búzios, RJ",
     seoTitle:"Boat rental in Búzios, Brazil | Private boat tours | Búzios Lanchas",
@@ -738,7 +739,7 @@ const UI = {
     waAvail:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} on {date}, from {slot} ({h} hours), for {people}."
   },
   es:{
-    locale:"es", logoSub:"Alquiler de lanchas · RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona",
+    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona",
     footAbout:"Paseos privados en lancha en Armação dos Búzios, RJ, Brasil.", footBook:"Reservas", footFollow:"Síguenos",
     coords:"22°45′S · 41°53′O — Alquiler de lanchas en Armação dos Búzios, RJ",
     seoTitle:"Alquiler de lanchas en Búzios, Brasil | Paseos privados | Búzios Lanchas",
