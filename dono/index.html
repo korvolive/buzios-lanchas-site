@@ -121,6 +121,8 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .nform textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font:inherit;font-size:16px;resize:vertical}
 .nform label.f{margin-bottom:10px} .nform input{padding:12px} .nform label.f span{font-size:14px}
 .row2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.phone{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.6fr);gap:8px}
+.nform select.in{padding:12px}
 .sheet{max-height:92vh;overflow-y:auto}
 .sum{margin:12px 0 0;padding:10px 12px;background:var(--chip);border-radius:12px;font-weight:600;font-size:15px}
 .sum small{font-weight:400;color:var(--muted)}
@@ -193,7 +195,7 @@ const T = {
     rented:"Alugada", inDay:"já incluída no dia todo", close:"Pronto",
     saved:"Salvo! O site já mostra como indisponível.", freed:"Liberado! O site já mostra como disponível.", saveErr:"Não foi possível salvar. Confira a internet e tente de novo.",
     upcoming:"Próximos aluguéis", noneUp:"Nenhum dia alugado marcado ainda.",
-    addNote:"+ Anotar dados do cliente", client:"Cliente", phone:"WhatsApp do cliente", people:"Pessoas", value:"Valor do passeio (R$)", deposit:"Sinal já pago (R$)", obs:"Observações",
+    addNote:"+ Anotar dados do cliente", client:"Cliente", phone:"WhatsApp do cliente", country:"País", maxPeople:"até {n}", people:"Pessoas", value:"Valor do passeio (R$)", deposit:"Sinal já pago (R$)", obs:"Observações",
     ph_client:"Ex.: Maria Souza", ph_phone:"Ex.: (21) 98888-7777", ph_people:"Ex.: 10", ph_value:"Ex.: 2500", ph_deposit:"Ex.: 1000", ph_obs:"Ex.: aniversário, levam carne pro churrasco",
     noteTitle:"Dados do cliente", noteSub:"Só você e o Rodrigo veem isto. O site nunca mostra.", save:"Salvar", back:"Voltar", noteSaved:"Anotação salva!",
     toPay:"falta {v}", paid:"pago", depositShort:"sinal {v}", noClient:"sem anotação",
@@ -228,8 +230,8 @@ const T = {
     rented:"Rented", inDay:"already part of the full day", close:"Done",
     saved:"Saved! The website now shows it as unavailable.", freed:"Freed! The website now shows it as available.", saveErr:"Couldn't save. Check your internet and try again.",
     upcoming:"Upcoming rentals", noneUp:"No rented days marked yet.",
-    addNote:"+ Add client details", client:"Client", phone:"Client's WhatsApp", people:"People", value:"Tour price (R$)", deposit:"Deposit paid (R$)", obs:"Notes",
-    ph_client:"E.g. Maria Souza", ph_phone:"E.g. +55 21 98888-7777", ph_people:"E.g. 10", ph_value:"E.g. 2500", ph_deposit:"E.g. 1000", ph_obs:"E.g. birthday, bringing meat for the barbecue",
+    addNote:"+ Add client details", client:"Client", phone:"Client's WhatsApp", country:"Country", maxPeople:"up to {n}", people:"People", value:"Tour price (R$)", deposit:"Deposit paid (R$)", obs:"Notes",
+    ph_client:"E.g. Maria Souza", ph_phone:"E.g. (21) 98888-7777", ph_people:"E.g. 10", ph_value:"E.g. 2500", ph_deposit:"E.g. 1000", ph_obs:"E.g. birthday, bringing meat for the barbecue",
     noteTitle:"Client details", noteSub:"Only you and Rodrigo see this. The website never shows it.", save:"Save", back:"Back", noteSaved:"Details saved!",
     toPay:"{v} due", paid:"paid", depositShort:"deposit {v}", noClient:"no details",
     confirmFree:"Freeing this slot also deletes the client details you wrote. Free it anyway?",
@@ -263,8 +265,8 @@ const T = {
     rented:"Alquilada", inDay:"ya incluida en el día completo", close:"Listo",
     saved:"¡Guardado! El sitio ya lo muestra como no disponible.", freed:"¡Liberado! El sitio ya lo muestra como disponible.", saveErr:"No se pudo guardar. Revisa internet e inténtalo de nuevo.",
     upcoming:"Próximos alquileres", noneUp:"Todavía no hay días alquilados marcados.",
-    addNote:"+ Anotar datos del cliente", client:"Cliente", phone:"WhatsApp del cliente", people:"Personas", value:"Valor del paseo (R$)", deposit:"Seña ya pagada (R$)", obs:"Observaciones",
-    ph_client:"Ej.: Maria Souza", ph_phone:"Ej.: +55 21 98888-7777", ph_people:"Ej.: 10", ph_value:"Ej.: 2500", ph_deposit:"Ej.: 1000", ph_obs:"Ej.: cumpleaños, traen carne para el asado",
+    addNote:"+ Anotar datos del cliente", client:"Cliente", phone:"WhatsApp del cliente", country:"País", maxPeople:"hasta {n}", people:"Personas", value:"Valor del paseo (R$)", deposit:"Seña ya pagada (R$)", obs:"Observaciones",
+    ph_client:"Ej.: Maria Souza", ph_phone:"Ej.: (21) 98888-7777", ph_people:"Ej.: 10", ph_value:"Ej.: 2500", ph_deposit:"Ej.: 1000", ph_obs:"Ej.: cumpleaños, traen carne para el asado",
     noteTitle:"Datos del cliente", noteSub:"Solo tú y Rodrigo ven esto. El sitio nunca lo muestra.", save:"Guardar", back:"Volver", noteSaved:"¡Anotación guardada!",
     toPay:"faltan {v}", paid:"pagado", depositShort:"seña {v}", noClient:"sin anotación",
     confirmFree:"Liberar este horario también borra los datos del cliente anotados. ¿Liberar igual?",
@@ -615,12 +617,32 @@ function renderSheet(busy){
 /* janela do passeio: dados do cliente de um horário marcado, ou um passeio novo (data + horário + cliente) */
 let tripRow = null, tripNew = false;
 function openTrip(r){ tripRow=r; tripNew=!r; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on"); }
+/* WhatsApp do cliente: código do país + número. Gravado como "+55 (21) 98888-7777"; números antigos sem "+" são do Brasil */
+const COUNTRIES = ["BR:55","AR:54","UY:598","CL:56","PY:595","CO:57","PE:51","MX:52","US:1","PT:351","ES:34","FR:33","IT:39","DE:49","GB:44","NL:31","CH:41","BE:32","IL:972","AU:61"].map(x=>x.split(":"));
+const flag = cc => cc.replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
+function countryOpts(sel){
+  let dn; try{ dn=new Intl.DisplayNames([t("locale")],{type:"region"}); }catch(e){}
+  const known = COUNTRIES.some(c=>c[1]===sel);
+  return COUNTRIES.map(([r,c])=>`<option value="${c}"${c===sel?" selected":""}>${flag(r)} ${dn?dn.of(r):r} +${c}</option>`).join("") + (known?"":`<option value="${esc(sel)}" selected>+${esc(sel)}</option>`);
+}
+function splitPhone(v){
+  v=String(v||"").trim(); if(!v) return {cc:"55", num:""};
+  const m=/^\+(\d{1,4})\s+(.*)$/.exec(v); if(m) return {cc:m[1], num:m[2]};
+  if(v.startsWith("+")){ const d=v.replace(/\D/g,""), c=COUNTRIES.map(x=>x[1]).sort((a,b)=>b.length-a.length).find(c=>d.startsWith(c)); return c ? {cc:c, num:d.slice(c.length)} : {cc:d.slice(0,2), num:d.slice(2)}; }
+  return {cc:"55", num:v};
+}
+function fmtBR(v){ const d=v.replace(/\D/g,"").slice(0,11); if(d.length<3) return d.length?`(${d}`:""; const a=d.slice(0,2), b=d.slice(2);
+  return `(${a}) ` + (b.length>(d.length===11?5:4) ? b.slice(0,d.length===11?5:4)+"-"+b.slice(d.length===11?5:4) : b); }
+/* capacidade de cada lancha (a mesma do site, campo capacity em /index.html) */
+const CAPACITY = {"miss-bardot":16, "les-zuzu":8, "midas":12, "compostela":6, "bubbles":11};
 function renderNote(){ tripRow = S.blocks.get(sheetDay)?.get(noteFor); tripNew=false; if(!tripRow){ noteFor=null; return renderSheet(); } renderTrip(); }
 function renderTrip(){
   const r=tripRow, n=r?.nota||{}, f=(k,type,extra="")=>`<label class="f"><span>${t(k==="cliente"?"client":k==="telefone"?"phone":k==="pessoas"?"people":k==="valor"?"value":k==="sinal"?"deposit":"obs")}</span>${
     type==="area"?`<textarea id="n-${k}" rows="2" placeholder="${t("ph_obs")}">${esc(n[k]??"")}</textarea>`
     :`<input type="${type}" id="n-${k}" ${extra} placeholder="${t("ph_"+({cliente:"client",telefone:"phone",pessoas:"people",valor:"value",sinal:"deposit"}[k]))}" value="${esc(n[k]??"")}">`}</label>`;
-  const digits=String(n.telefone||"").replace(/\D/g,""), waNum = digits.length>=10 && digits.length<=11 ? "55"+digits : digits;
+  const ph=splitPhone(n.telefone), waNum = ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
+  const boatCap = () => CAPACITY[nboat] || 16;
+  const peopleOpts = () => `<option value="">—</option>${Array.from({length:Math.max(boatCap(), +n.pessoas||0)},(_,i)=>`<option${+n.pessoas===i+1?" selected":""}>${i+1}</option>`).join("")}`;
   const fromDay = !!sheetDay;
   let nd = tripNew ? (tripRow?.data||"") : r.data, nslot = tripNew ? "" : r.horario, nboat = tripNew ? (S.cur==="*" ? S.boats[0].slug : S.cur) : r.lancha;
   const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}">${t("slot_"+k)}<small>${t("hours_"+k)}</small></button>`).join("")}`;
@@ -632,7 +654,8 @@ function renderTrip(){
         <fieldset class="origin"><legend>${t("slotQ")}</legend><div class="nslots" id="nslots">${slotBtns()}</div></fieldset>` : ""}
       ${S.notes ? `<fieldset class="origin"><legend>${t("closedBy")}</legend><div>${["buzios","fora"].map(o=>`<button type="button" role="radio" data-o="${o}" aria-checked="${n.origem===o}">${t("o_"+o)}</button>`).join("")}</div></fieldset>
       ${f("cliente","text",'autocapitalize="words"')}
-      <div class="row2">${f("telefone","tel",'inputmode="tel"')}${f("pessoas","number",'inputmode="numeric" min="1" max="99"')}</div>
+      <div class="f"><label for="n-telefone"><span>${t("phone")}</span></label><div class="phone"><select class="in" id="n-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="n-telefone" inputmode="tel" autocomplete="off" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
+      <label class="f"><span>${t("people")} <small class="muted" style="font-weight:400">(${t("maxPeople",{n:boatCap()})})</small></span><select class="in" id="n-pessoas">${peopleOpts()}</select></label>
       <div class="row2">${f("valor","number",'inputmode="decimal" min="0" step="any"')}${f("sinal","number",'inputmode="decimal" min="0" step="any"')}</div>
       ${f("obs","area")}` : ""}
       ${waNum.length>=12?`<a class="btn sec" style="margin:0 0 10px" href="https://wa.me/${waNum}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
@@ -649,11 +672,14 @@ function renderTrip(){
   const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); });
   bindSlots();
   const di=document.getElementById("n-date"); if(di) di.onchange=()=>{ nd=di.value; if(nslot==="noite"&&!hasNight(nd)) nslot=""; document.getElementById("nslots").innerHTML=slotBtns(); bindSlots(); };
-  const bs=document.getElementById("n-boat"); if(bs) bs.onchange=()=>nboat=bs.value;
+  const bs=document.getElementById("n-boat"); if(bs) bs.onchange=()=>{ nboat=bs.value; const sp=document.getElementById("n-pessoas"), v=sp.value; sp.innerHTML=peopleOpts(); if(+v<=boatCap()) sp.value=v; sp.previousElementSibling.querySelector("small").textContent=`(${t("maxPeople",{n:boatCap()})})`; };
+  const ddi=document.getElementById("n-ddi"), tel=document.getElementById("n-telefone");
+  if(ddi){ ddi.onchange=()=>{ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
+    tel.oninput=()=>{ if(ddi.value==="55"){ const end=tel.selectionStart===tel.value.length; tel.value=fmtBR(tel.value); if(end) tel.selectionStart=tel.selectionEnd=tel.value.length; } }; }
   document.getElementById("nform").onsubmit = async e => { e.preventDefault();
     const out=document.getElementById("nmsg"), b=document.getElementById("nsave");
     const g=k=>document.getElementById("n-"+k)?.value.trim()||"", num=k=>{ const v=g(k).replace(",","."); return v===""?null:+v; };
-    const nota={origem, cliente:g("cliente")||null, telefone:g("telefone")||null, pessoas:num("pessoas"), valor:num("valor"), sinal:num("sinal"), obs:g("obs")||null};
+    const nota={origem, cliente:g("cliente")||null, telefone:g("telefone").replace(/\D/g,"") ? `+${g("ddi")} ${g("telefone")}` : null, pessoas:num("pessoas"), valor:num("valor"), sinal:num("sinal"), obs:g("obs")||null};
     const hasNote = Object.values(nota).some(v=>v!=null && v!=="");
     b.disabled=true;
     try{
