@@ -906,8 +906,13 @@ let lastReq = "";
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, key=JSON.stringify(body);
   if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
-  const r=await fetch(SB_URL+"/rest/v1/pedidos",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+await clientToken(),"content-type":"application/json",prefer:"return=minimal"},body:key});
-  if(!r.ok) throw r.status; lastReq=key; return true;
+  const tok=await clientToken();
+  const r=await fetch(SB_URL+"/rest/v1/pedidos?select=id",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json",prefer:"return=representation"},body:key});
+  if(!r.ok) throw r.status; lastReq=key;
+  /* avisa a Búzios Lanchas no celular que chegou pedido novo */
+  const id=(await r.json().catch(()=>[]))[0]?.id;
+  if(id) fetch(SB_URL+"/functions/v1/notificar",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({tipo:"pedido",id})}).catch(()=>{});
+  return true;
 }
 /* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
 function loadAgenda(){
