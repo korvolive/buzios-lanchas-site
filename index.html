@@ -230,6 +230,7 @@ nav.top a:hover{opacity:1}
 @media (max-width:480px){.rt-list{columns:1}}
 .rev-head{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin:4px 0 0}
 .stars{color:var(--brass);letter-spacing:2px;font-size:15px}
+.b-reviews{margin:32px 0 48px}
 .reviews{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;list-style:none;padding:0 0 6px;margin:14px 0 0;scrollbar-width:thin}
 .reviews li{flex:0 0 min(260px,80%);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:8px;align-content:start}
 .reviews q{font-size:15px;line-height:1.45;quotes:"“" "”"}
@@ -1138,8 +1139,6 @@ function boatPage(b){
         <div class="block"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
         <div class="block"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
         <div class="block"><h2>${t("crewTitle")}</h2><p style="color:var(--muted);margin:6px 0 0">${tx(b.crew)}. ${t("crewText")}</p></div>
-        ${b.reviews?`<div class="block"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
-          <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
       <div class="b-media">
         <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
@@ -1164,6 +1163,8 @@ function boatPage(b){
         <p class="fine">${t("fine")}</p>
       </aside>
     </div>
+    ${b.reviews?`<div class="block b-reviews"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
+          <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
   </div>`;
 }
 
