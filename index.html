@@ -267,6 +267,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .long p{margin:6px 0 0;font-size:14px;color:var(--muted)}
 .pricebox .btn{width:100%;justify-content:center;margin-top:18px;padding:16px}
 .pricebox .fine{font-size:13px;color:var(--muted);margin:12px 0 0}
+.pricebox .acct{font-size:14px;margin:12px 0 0;text-align:center}.pricebox .acct a{color:var(--sea);font-weight:700}
 .phone{font:500 14px/1 var(--mono);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
 .phone button{font:500 12px/1 var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer}
 .example-banner{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--muted);margin-top:16px}
@@ -649,7 +650,7 @@ const PHRASES = {
 /* Textos fixos do site. {n}, {name}, {date}, {slot}, {h} são trocados pelos valores. */
 const UI = {
   pt:{
-    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha agenda", appLogin:"Entrar (donos)", footTeam:"Donos e marinheiros", footLogin:"Entrar na agenda",
+    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha agenda", navAccount:"Minha conta", reqSaved:"Pedido salvo em Meus passeios. A Búzios Lanchas confirma com você pelo WhatsApp.", acctOn:"Você está na sua conta: o pedido fica salvo em Meus passeios.", acctOff:"Quer acompanhar seus pedidos?", acctLink:"Crie sua conta", appLogin:"Entrar (donos)", footTeam:"Donos e marinheiros", footLogin:"Entrar na agenda",
     footAbout:"Passeios privativos de lancha em Armação dos Búzios, RJ.", footBook:"Reservas", footFollow:"Siga",
     coords:"22°45′S · 41°53′O — Aluguel de lanchas em Armação dos Búzios, RJ",
     seoTitle:"Aluguel de lancha em Búzios | Passeios privativos | Búzios Lanchas",
@@ -704,7 +705,7 @@ const UI = {
     waAvail:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para {date}, das {slot} ({h} horas), para {people}."
   },
   en:{
-    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My calendar", appLogin:"Owners sign in", footTeam:"Owners and skippers", footLogin:"Sign in to the calendar",
+    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My calendar", navAccount:"My account", reqSaved:"Request saved in My tours. Búzios Lanchas will confirm it with you on WhatsApp.", acctOn:"You're signed in: your request is saved in My tours.", acctOff:"Want to follow your requests?", acctLink:"Create your account", appLogin:"Owners sign in", footTeam:"Owners and skippers", footLogin:"Sign in to the calendar",
     footAbout:"Private boat tours in Armação dos Búzios, RJ, Brazil.", footBook:"Bookings", footFollow:"Follow us",
     coords:"22°45′S · 41°53′W — Boat rental in Armação dos Búzios, RJ",
     seoTitle:"Boat rental in Búzios, Brazil | Private boat tours | Búzios Lanchas",
@@ -759,7 +760,7 @@ const UI = {
     waAvail:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} on {date}, from {slot} ({h} hours), for {people}."
   },
   es:{
-    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi agenda", appLogin:"Entrar (dueños)", footTeam:"Dueños y marineros", footLogin:"Entrar a la agenda",
+    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi agenda", navAccount:"Mi cuenta", reqSaved:"Pedido guardado en Mis paseos. Búzios Lanchas lo confirma contigo por WhatsApp.", acctOn:"Estás en tu cuenta: el pedido queda guardado en Mis paseos.", acctOff:"¿Quieres seguir tus pedidos?", acctLink:"Crea tu cuenta", appLogin:"Entrar (dueños)", footTeam:"Dueños y marineros", footLogin:"Entrar a la agenda",
     footAbout:"Paseos privados en lancha en Armação dos Búzios, RJ, Brasil.", footBook:"Reservas", footFollow:"Síguenos",
     coords:"22°45′S · 41°53′O — Alquiler de lanchas en Armação dos Búzios, RJ",
     seoTitle:"Alquiler de lanchas en Búzios, Brasil | Paseos privados | Búzios Lanchas",
@@ -887,6 +888,27 @@ const waBook = (b,iso,slot,n,bd) => wa(t(slotOf(slot).night?"waNight":"waAvail",
 const AGENDA_URL = "https://sqoperylsqcbcjpcrlnp.supabase.co/rest/v1/bloqueios";
 const AGENDA_KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
 let agenda = null;
+/* cliente com conta (o login fica guardado pelo app /login/): o pedido também vai para a Búzios Lanchas aprovar */
+const SB_URL = AGENDA_URL.replace("/rest/v1/bloqueios","");
+const lsGet = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
+const isClient = () => lsGet("conta-tipo")==="cliente" && !!lsGet("dono-ses")?.refresh_token;
+async function clientToken(){
+  let s=lsGet("dono-ses");
+  if(s.expires_at - Date.now()/1000 < 60){
+    const r=await fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({refresh_token:s.refresh_token})});
+    if(!r.ok) throw r.status; const j=await r.json();
+    s={access_token:j.access_token, refresh_token:j.refresh_token, expires_at:j.expires_at||Math.floor(Date.now()/1000)+(+j.expires_in||3600), user:j.user||s.user};
+    try{ localStorage.setItem("dono-ses",JSON.stringify(s)); }catch(e){}
+  }
+  return s.access_token;
+}
+let lastReq = "";
+async function sendPedido(b){
+  const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, key=JSON.stringify(body);
+  if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
+  const r=await fetch(SB_URL+"/rest/v1/pedidos",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+await clientToken(),"content-type":"application/json",prefer:"return=minimal"},body:key});
+  if(!r.ok) throw r.status; lastReq=key; return true;
+}
 /* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
 function loadAgenda(){
   return agenda ||= fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}})
@@ -961,7 +983,10 @@ async function showBoatStatus(b){
   bx.querySelectorAll("button").forEach((x,i)=>x.onclick=()=>{ pick.board=boards[i]; showBoatStatus(b); });
   btn.href="#"; delete btn.dataset.ready;
   /* data, horário e pessoas são obrigatórios: sem eles o botão só aponta o que falta */
-  btn.onclick = e => { if(btn.dataset.ready) return; e.preventDefault();
+  btn.onclick = e => { if(btn.dataset.ready){
+      if(isClient()) sendPedido(b).then(ok=>{ if(ok) out.innerHTML=`<p class="pk-res ok">${t("reqSaved")}</p>`; }, ()=>{});
+      return; }
+    e.preventDefault();
     document.getElementById("pk-date").classList.toggle("pk-missing",!pick.date);
     app.querySelector(".pk-slots").classList.toggle("pk-missing",!pick.slot);
     document.getElementById("pk-people").classList.toggle("pk-missing",!pick.people);
@@ -983,8 +1008,8 @@ document.getElementById("ano").textContent = new Date().getFullYear();
 /* app instalado (Búzios Lanchas): quem já está logado abre direto na agenda; quem não está (ou saiu) vê o site */
 if(new URLSearchParams(location.search).get("app")==="1"){
   try{ sessionStorage.setItem("is-app","1"); }catch(e){}
-  let logged=false; try{ logged = !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){}
-  if(logged) location.replace("/login/"); else history.replaceState(null,"",location.pathname+location.hash);
+  let logged=false, client=false; try{ logged = !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; client = JSON.parse(localStorage.getItem("conta-tipo"))==="cliente"; }catch(e){}
+  if(logged && !client) location.replace("/login/"); /* donos, marinheiros e equipe abrem na agenda; clientes ficam no site */ else history.replaceState(null,"",location.pathname+location.hash);
 }
 if("serviceWorker" in navigator && !/bot|crawl|spider|headless/i.test(navigator.userAgent)) navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(()=>{});
 
@@ -1001,7 +1026,8 @@ function applyStatic(){
   if(matchMedia("(display-mode: standalone)").matches || navigator.standalone || sessionStorage.getItem("is-app")){
     document.documentElement.classList.add("is-app"); document.getElementById("appbar").hidden = false;
     const logged = (()=>{ try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } })();
-    document.getElementById("ab-login-t").textContent = logged ? t("navAgenda") : t("appLogin");
+    const client = (()=>{ try{ return JSON.parse(localStorage.getItem("conta-tipo"))==="cliente"; }catch(e){ return false; } })();
+    document.getElementById("ab-login-t").textContent = logged ? (client ? t("navAccount") : t("navAgenda")) : t("appLogin");
     document.getElementById("ab-wa").href = wa(t("waFleet"));
     document.getElementById("ab-home").href = pathFor(lang)+"#frota";
   }
@@ -1197,6 +1223,7 @@ function boatPage(b){
         <div class="pk-boat"><h3>${t("pickTitle")}</h3>${pickerHTML(b)}<div id="pk-out" aria-live="polite"></div></div>
         <a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
         <div class="phone"><span id="ph-num">(21) 99927-2550</span><button type="button" id="copy">${t("copy")}</button></div>
+        <p class="acct">${isClient() ? t("acctOn") : `${t("acctOff")} <a href="/login/?criar=1">${t("acctLink")}</a>`}</p>
         <p class="fine">${t("fine")}</p>
         <p class="fine">${t("operNote")}</p>
       </aside>
