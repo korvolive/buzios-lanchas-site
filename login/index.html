@@ -43,6 +43,11 @@ button{cursor:pointer}
 .face.xs{width:18px;height:18px;font-size:8px}.face.sm{width:26px;height:26px;font-size:11px}.face.lg{width:52px;height:52px;font-size:19px}.face.xl{width:112px;height:112px;font-size:38px}
 .fxb{font-size:13px;font-weight:700;color:var(--brass);white-space:nowrap}
 .frees li[hidden]{display:none}.frq{margin:4px 0 10px}
+.rm.edt{color:var(--sea);border-color:var(--line);white-space:nowrap}
+.newb{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff4d6;color:#5b4300;border:1px solid #f0d68a}
+.newb .link{margin:0;padding:4px 0;white-space:nowrap}
+i.newt{color:#b25b00;font-weight:800;font-style:normal}
+.btn.wa{background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
 .who{display:inline-flex;align-items:center;gap:8px;min-width:0}i.who{gap:5px}
 .avbig{display:flex;justify-content:center;margin:6px 0 10px}
 label.btn{display:block;text-align:center;cursor:pointer}
@@ -408,6 +413,23 @@ Object.assign(T.es, {
   needSqlCli:"Falta crear la parte de clientes en Supabase (archivo 2026-10-19_supabase-clientes-pedidos.sql).",
   siteClient:"cliente del sitio", cliCard:"Ver datos del cliente", cliSince:"Cliente desde", cliTrips:"Paseos confirmados", moved:"Paseo cambiado.", moveHint:"Cambia lancha, fecha u horario aquí: la lista y el calendario de la lancha cambian juntos."
 });
+/* nomes e WhatsApp dos donos, aviso ao dono quando a Búzios Lanchas aprova um pedido */
+Object.assign(T.pt, {ownerName:"Nome do dono", ph_owner:"Ex.: Carlos Souza", ownerWa:"WhatsApp do dono", needSqlNomes:"Falta criar a parte de nomes no Supabase (arquivo 2026-10-19_supabase-nomes.sql).", noName:"sem nome", setName:"Colocar nome e WhatsApp", editName:"Editar", ownerProfT:"Dono da {boat}", newPwOwner:"Nova senha", newPwOwnerHint:"só se quiser trocar; pelo menos 6 letras ou números", ownerPwSaved:"Dados e senha nova salvos.", dataSaved:"Dados salvos.", sendPwQ:"Mandar a senha nova para ele no WhatsApp?", rmOwner:"Tirar o acesso dele à {boat}",
+  profT:"Antes de começar", profSub:"Coloque seu nome completo e seu WhatsApp. É por ele que a Búzios Lanchas avisa quando tiver passeio novo na sua lancha.", profSave:"Salvar e continuar",
+  notifyT:"Pedido aprovado!", notifySub:"Avise o dono da {boat} pelo WhatsApp. Ele também vê o passeio novo marcado no app.", notifyBtn:"Avisar {name} no WhatsApp", notifyNoPhone:"{name} ainda não tem WhatsApp cadastrado.", notifyNone:"A {boat} ainda não tem dono cadastrado.",
+  waNotify:"Olá, {name}! Passeio confirmado pela Búzios Lanchas na {boat}:\n{date}, {slot}\n{people} pessoas\nCliente: {client}\nVeja os detalhes no app: {url}",
+  newBanner:"🔔 {n} passeios novos da Búzios Lanchas", newBanner1:"🔔 1 passeio novo da Búzios Lanchas", newTag:"novo", seenAll:"Marcar como visto"});
+Object.assign(T.en, {ownerName:"Owner's name", ph_owner:"E.g. Carlos Souza", ownerWa:"Owner's WhatsApp", needSqlNomes:"The names part is missing in Supabase (file 2026-10-19_supabase-nomes.sql).", noName:"no name", setName:"Add name and WhatsApp", editName:"Edit", ownerProfT:"Owner of {boat}", newPwOwner:"New password", newPwOwnerHint:"only to change it; at least 6 letters or numbers", ownerPwSaved:"Details and new password saved.", dataSaved:"Details saved.", sendPwQ:"Send them the new password on WhatsApp?", rmOwner:"Remove their access to {boat}",
+  profT:"Before you start", profSub:"Add your full name and your WhatsApp. That's how Búzios Lanchas lets you know when your boat has a new tour.", profSave:"Save and continue",
+  notifyT:"Request approved!", notifySub:"Let the owner of {boat} know on WhatsApp. They also see the new tour marked in the app.", notifyBtn:"Message {name} on WhatsApp", notifyNoPhone:"{name} has no WhatsApp yet.", notifyNone:"{boat} has no owner yet.",
+  waNotify:"Hi {name}! Tour confirmed by Búzios Lanchas on {boat}:\n{date}, {slot}\n{people} people\nCustomer: {client}\nSee the details in the app: {url}",
+  newBanner:"🔔 {n} new tours from Búzios Lanchas", newBanner1:"🔔 1 new tour from Búzios Lanchas", newTag:"new", seenAll:"Mark as seen"});
+Object.assign(T.es, {ownerName:"Nombre del dueño", ph_owner:"Ej.: Carlos Souza", ownerWa:"WhatsApp del dueño", needSqlNomes:"Falta crear la parte de nombres en Supabase (archivo 2026-10-19_supabase-nomes.sql).", noName:"sin nombre", setName:"Poner nombre y WhatsApp", editName:"Editar", ownerProfT:"Dueño de {boat}", newPwOwner:"Nueva contraseña", newPwOwnerHint:"solo si quieres cambiarla; al menos 6 letras o números", ownerPwSaved:"Datos y contraseña nueva guardados.", dataSaved:"Datos guardados.", sendPwQ:"¿Mandarle la contraseña nueva por WhatsApp?", rmOwner:"Quitarle el acceso a {boat}",
+  profT:"Antes de empezar", profSub:"Pon tu nombre completo y tu WhatsApp. Por ahí Búzios Lanchas te avisa cuando haya un paseo nuevo en tu lancha.", profSave:"Guardar y seguir",
+  notifyT:"¡Pedido aprobado!", notifySub:"Avisa al dueño de {boat} por WhatsApp. También ve el paseo nuevo marcado en la app.", notifyBtn:"Avisar a {name} por WhatsApp", notifyNoPhone:"{name} todavía no tiene WhatsApp registrado.", notifyNone:"{boat} todavía no tiene dueño registrado.",
+  waNotify:"¡Hola, {name}! Paseo confirmado por Búzios Lanchas en {boat}:\n{date}, {slot}\n{people} personas\nCliente: {client}\nMira los detalles en la app: {url}",
+  newBanner:"🔔 {n} paseos nuevos de Búzios Lanchas", newBanner1:"🔔 1 paseo nuevo de Búzios Lanchas", newTag:"nuevo", seenAll:"Marcar como visto"});
+const nomeOk = n => n.length>=5 && /\S\s+\S/.test(n) && !n.includes("@"); /* nome e sobrenome, como no banco */
 /* busca de marinheiro freelancer pelo nome */
 Object.assign(T.pt, {marQ:"Procurar marinheiro pelo nome", marQNone:"Nenhum marinheiro com esse nome."});
 Object.assign(T.en, {marQ:"Search skipper by name", marQNone:"No skipper with that name."});
@@ -770,7 +792,7 @@ function tripCard(r){
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".","")}</span></span>
     <span class="tbody">${n.cliente?`<strong class="who">${n.cliente_conta?face(n.cliente_conta,n.cliente,"face sm"):""}${esc(n.cliente)}</strong>`:`<em>${t("noClientName")}</em>`}
       <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}${S.cur==="*"?" · "+esc(boatName(r.lancha)):""}</span>
-      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i class="who">⚓ ${face(n.marinheiro,sailorName(r.lancha,n.marinheiro),"face xs")}${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:""}${n.cliente_conta?`<i class="site">✓ ${t("siteClient")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
+      <span class="tmeta">${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i class="who">⚓ ${face(n.marinheiro,sailorName(r.lancha,n.marinheiro),"face xs")}${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:""}${n.cliente_conta?`<i class="site">✓ ${t("siteClient")}</i>`:""}${S.unseen?.has(r.id)?`<i class="newt">● ${t("newTag")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
     <span class="tside">${v?`<span class="tval"><b>${brl(v)}</b>${pay}</span>`:""}
     ${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("waClient",{name:esc(n.cliente||"")})}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`;
 }
@@ -781,7 +803,9 @@ function tripGroups(rows, desc){
       <div class="trips">${rs.map(tripCard).join("")}</div>`; }).join("");
 }
 function listHTML(){
-  return `${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}
+  const nw = unseenTrips(); S.unseen = new Set(nw.map(r=>r.id));
+  return `${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
+    ${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}
     ${S.upcoming.length ? `<p class="how muted">${isRO()?t("listHowRO"):t("listHow")}</p>${tripGroups(S.upcoming)}` : `<div class="card"><p class="muted" style="margin:0">${isRO()?t("noneUp"):t("noneList")}</p></div>`}
     <button type="button" class="link" id="pasttog">${S.past?t("pastHide"):t("pastShow")}</button>
     ${S.past ? (S.past.length ? `<div class="past"><h2>${t("pastTitle")}</h2>${tripGroups(S.past)}</div>` : `<p class="muted">—</p>`) : ""}`;
@@ -884,6 +908,8 @@ function adminHTML(){
   return freeHTML() + `<div class="card"><h2>${t("adminT")}</h2><p class="muted" style="margin-top:0">${t("adminSub")}</p>
     <ol class="steps"><li>${t("adminStep1")}</li><li>${t("adminStep2")}</li><li>${t("adminStep3")}</li></ol>
     <form id="af" novalidate><div id="amsg"></div>
+      <label class="f"><span>${t("ownerName")}</span><input type="text" id="anm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_owner")}"></label>
+      <div class="f"><label for="atel"><span>${t("ownerWa")}</span></label><div class="phone"><select class="in" id="addi" aria-label="${t("country")}">${countryOpts("55")}</select><input type="tel" id="atel" inputmode="tel" autocomplete="off" placeholder="${t("ph_phone")}"></div></div>
       <label class="f"><span>${t("ownerEmail")}</span><input type="email" id="aem" autocapitalize="off" inputmode="email"></label>
       <label class="f"><span>${t("ownerPw")} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><input type="text" id="apw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
       <label class="f"><span>${t("boat")}</span><select class="in" id="abt">${S.all.map(b=>`<option value="${b.slug}">${esc(b.nome)}</option>`).join("")}</select></label>
@@ -891,7 +917,7 @@ function adminHTML(){
     <h2 style="margin-top:22px">${t("ownersT")}</h2>
     <div class="ownb"><h3>${t("adminLine")}</h3><ul class="owners"><li><span>${esc(ses?.user?.email||"")} (${t("you")})</span></li></ul></div>
     ${S.all.map(b=>{ const os=S.owners.filter(o=>o.lancha===b.slug);
-      return `<div class="ownb"><h3>${esc(b.nome)}</h3><ul class="owners">${os.length ? os.map(o=>`<li><span>${esc(o.email)}</span><button type="button" class="rm" data-rm="${esc(o.email)}" data-rl="${b.slug}">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("nobody")}</li>`}</ul></div>`; }).join("")}</div>`;
+      return `<div class="ownb"><h3>${esc(b.nome)}</h3><ul class="owners">${os.length ? os.map(o=>`<li style="align-items:center"><span class="who" style="flex:1;min-width:0">${face(o.user_id,o.nome||o.email,"face")}<span style="min-width:0"><strong>${o.nome?esc(o.nome):`<em class="muted">${t("noName")}</em>`}</strong><br><small class="muted">${esc(o.email)}</small></span></span><button type="button" class="rm edt" data-onm="${esc(o.email)}" data-ol="${b.slug}">✎ ${t("editName")}</button></li>`).join("") : `<li class="muted">${t("nobody")}</li>`}</ul></div>`; }).join("")}</div>`;
 }
 /* pedidos feitos pelo site: só o administrador vê; aprova depois de receber o sinal */
 function pedidosHTML(){
@@ -914,10 +940,84 @@ function openReq(p){
   tripNew=true; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on");
 }
 let pedidoFor = null;
+function profView(){
+  app.innerHTML = `<div class="card"><h2>${t("profT")}</h2><p class="muted" style="margin-top:0">${t("profSub")}</p>
+    <form id="pff" novalidate><div id="pfmsg"></div>
+      <label class="f"><span>${t("fullName")}</span><input type="text" id="pfnm" autocapitalize="words" autocomplete="name" placeholder="${t("ph_fullName")}"></label>
+      ${phoneField("pf", "WhatsApp", "")}
+      <button class="btn" id="pfgo">${t("profSave")}</button></form></div>` + PW_LINK();
+  bindPhone("pf");
+  document.getElementById("pff").onsubmit = async e => { e.preventDefault();
+    const out=document.getElementById("pfmsg"), b=document.getElementById("pfgo"), nome=document.getElementById("pfnm").value.trim(), ph=readPhone("pf");
+    const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; b.disabled=false; };
+    if(!nomeOk(nome)) return fail(t("nameBad")); if(!ph.ok) return fail(t("myPhoneBad"));
+    b.disabled=true;
+    try{ await db("perfis",{method:"POST", body:{nome, telefone:ph.tel}, prefer:"resolution=merge-duplicates,return=minimal"}); S.needProf=false; toast(t("saved")); await loadBlocks(); }
+    catch(x){ fail(x.status ? esc(x.message) : t("netErr")); } };
+}
+/* administrador: nome e WhatsApp de um dono */
+const phoneField = (id, label, v) => { const ph=splitPhone(v); return `<div class="f"><label for="${id}tel"><span>${label}</span></label><div class="phone"><select class="in" id="${id}ddi" aria-label="${t("country")}">${countryOpts(ph.cc||"55")}</select><input type="tel" id="${id}tel" inputmode="tel" autocomplete="off" placeholder="${t("ph_phone")}" value="${esc(ph.num)}"></div></div>`; };
+const bindPhone = id => { const dd=document.getElementById(id+"ddi"), tl=document.getElementById(id+"tel");
+  dd.onchange=()=>{ tl.placeholder = dd.value==="55" ? t("ph_phone") : ""; if(dd.value==="55") tl.value=fmtBR(tl.value); };
+  tl.oninput=()=>{ if(dd.value==="55") tl.value=fmtBR(tl.value); }; };
+const readPhone = id => { const cc=document.getElementById(id+"ddi").value, v=document.getElementById(id+"tel").value.trim(); return {ok:okPhone(cc,v.replace(/\D/g,"")), tel:`+${cc} ${v}`}; };
+function openOwner(o){
+  if(!o) return;
+  sheet.innerHTML = `<div class="grab"></div><h2>${t("ownerProfT",{boat:esc(boatName(o.lancha))})}</h2><p class="muted" style="margin-top:0">${esc(o.email)}</p>
+    <form id="opf" novalidate><div id="opmsg"></div>
+      <label class="f"><span>${t("ownerName")}</span><input type="text" id="opnm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_owner")}" value="${esc(o.nome||"")}"></label>
+      ${phoneField("op", t("ownerWa"), o.telefone)}
+      <label class="f"><span>${t("newPwOwner")} <small class="muted" style="font-weight:400">(${t("newPwOwnerHint")})</small></span><input type="text" id="oppw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
+      <button class="btn" id="opgo">${t("save")}</button></form>
+    ${waOf(o.telefone).length>=8?`<a class="btn wa" style="margin-top:10px" href="https://wa.me/${waOf(o.telefone)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}
+    <button type="button" class="btn sec" id="opx" style="margin-top:10px">${t("close")}</button>
+    <button type="button" class="link danger" id="oprm">${t("rmOwner",{boat:esc(boatName(o.lancha))})}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on"); bindPhone("op");
+  document.getElementById("opx").onclick = closeDay;
+  document.getElementById("oprm").onclick = async () => { if(!confirm(t("confirmRm",{email:o.nome||o.email, boat:boatName(o.lancha)}))) return;
+    try{ await db("rpc/remover_dono",{method:"POST",body:{email_dono:o.email, l:o.lancha}}); S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); closeDay(); toast(t("removed")); mainView(); }
+    catch(e){ toast(t("rmErr")); } };
+  document.getElementById("opf").onsubmit = async e => { e.preventDefault();
+    const out=document.getElementById("opmsg"), b=document.getElementById("opgo"), nome=document.getElementById("opnm").value.trim(), ph=readPhone("op");
+    const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; b.disabled=false; };
+    const pw=document.getElementById("oppw").value.trim();
+    if(!nomeOk(nome)) return fail(t("nameBad")); if(!ph.ok) return fail(t("phoneBad")); if(pw && pw.length<6) return fail(t("pwShort"));
+    b.disabled=true;
+    try{ await db("rpc/perfil_dono",{method:"POST", body:{email_dono:o.email, nome_dono:nome, tel:ph.tel}});
+      if(pw) await db("rpc/senha_dono",{method:"POST", body:{email_dono:o.email, nova_senha:pw}});
+      S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); closeDay(); toast(pw?t("ownerPwSaved"):t("dataSaved")); mainView();
+      if(pw){ const msg=t("waAccess",{boat:boatName(o.lancha), url:location.origin+"/login/", email:o.email, pw});
+        if(waOf(ph.tel).length>=8 && confirm(t("sendPwQ"))) open(`https://wa.me/${waOf(ph.tel)}?text=${encodeURIComponent(msg)}`,"_blank"); } }
+    catch(x){ fail(x.status===404 ? t("needSqlNomes") : x.status ? esc(x.message) : t("netErr")); } };
+}
+/* depois de aprovar um pedido: botão para avisar o dono da lancha no WhatsApp, já com a mensagem pronta */
+function notifyOwner(p, row, nota){
+  const os=(S.owners||[]).filter(o=>o.lancha===row.lancha), boat=boatName(row.lancha);
+  const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"?"":" ("+t("hours_"+row.horario)+")"), people:nota.pessoas||p.pessoas, client:nota.cliente||"", url:location.origin+"/login/"});
+  sheet.innerHTML = `<div class="grab"></div><h2>✓ ${t("notifyT")}</h2><p class="muted" style="margin-top:0">${t("notifySub",{boat:esc(boat)})}</p>
+    ${os.length ? os.map(o=>waOf(o.telefone).length>=8
+      ? `<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${waOf(o.telefone)}?text=${encodeURIComponent(msg(o))}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(o.nome||o.email)})}</a>`
+      : `<p class="msg err">${t("notifyNoPhone",{name:esc(o.nome||o.email)})} <button type="button" class="link" data-onm="${esc(o.email)}" data-ol="${o.lancha}">${t("setName")}</button></p>`).join("")
+      : `<p class="msg err">${t("notifyNone",{boat:esc(boat)})}</p>`}
+    <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  document.getElementById("nfx").onclick = closeDay;
+  sheet.querySelectorAll("[data-onm]").forEach(x=>x.onclick=()=>openOwner(S.owners.find(o=>o.email===x.dataset.onm && o.lancha===x.dataset.ol)));
+}
+/* dono: passeios novos que a Búzios Lanchas marcou e ele ainda não viu (guardado neste celular) */
+const seenKey = () => "vistos-"+(ses?.user?.id||"");
+function unseenTrips(){
+  if(S.admin || isRO() || !S.upcoming) return [];
+  const ids=S.upcoming.filter(r=>r.nota?.origem==="buzios").map(r=>r.id); let seen=store.get(seenKey());
+  if(!seen){ store.set(seenKey(), ids); return []; } /* primeira vez neste celular: nada é "novo" */
+  return S.upcoming.filter(r=>r.nota?.origem==="buzios" && !seen.includes(r.id));
+}
+const markSeen = ids => store.set(seenKey(), [...new Set([...(store.get(seenKey())||[]), ...ids])].slice(-500));
 function mainView(){
   if(S.isClient) return clientView();
   top_.hidden = false; top_.innerHTML = headerHTML(); bindLang();
   document.getElementById("out").onclick = logout;
+  if(S.needProf) return profView();
   if(!S.boats.length && (S.sailorOf.length || S.isFree)){
     app.innerHTML = installHTML() + sailorHTML() + PW_LINK();
     return bindMain();
@@ -949,7 +1049,8 @@ function bindMain(){
   app.querySelectorAll("[data-ob]").forEach(x=>x.onclick=async()=>{ try{ const r=(await fetchRows(`id=eq.${+x.dataset.ob}`))[0]; if(r) openTrip(r); }catch(e){ toast(t("loadErr")); } });
   app.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{ S.cur=x.dataset.b; store.set("dono-boat",S.cur); loadBlocks(); });
   app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ S.tab=x.dataset.tab; store.set("dono-tab",S.tab); loadBlocks(); });
-  app.querySelectorAll("[data-trip]").forEach(x=>{ const go=()=>{ const id=+x.dataset.trip; openTrip([...S.upcoming,...(S.past||[])].find(r=>r.id===id)); };
+  const sa=document.getElementById("seenall"); if(sa) sa.onclick=()=>{ markSeen([...(S.unseen||[])]); mainView(); };
+  app.querySelectorAll("[data-trip]").forEach(x=>{ const go=()=>{ const id=+x.dataset.trip; if(S.unseen?.has(id)) markSeen([id]); openTrip([...S.upcoming,...(S.past||[])].find(r=>r.id===id)); };
     x.onclick=e=>{ if(!e.target.closest(".twa")) go(); }; x.onkeydown=e=>{ if((e.key==="Enter"||e.key===" ")&&e.target===x){ e.preventDefault(); go(); } }; });
   app.querySelectorAll("[data-it]").forEach(x=>x.onclick=async()=>{ const k=x.dataset.it, was=(S.items||[]).includes(k), lancha=S.cur;
     const next = was ? S.items.filter(i=>i!==k) : [...(S.items||[]), k];
@@ -1026,7 +1127,7 @@ function bindMain(){
     const nome=document.getElementById("fnm").value.trim(), email=document.getElementById("fem").value.trim().toLowerCase(), pw=document.getElementById("fpw").value.trim(), out=document.getElementById("fmsg"), btn=document.getElementById("fsub");
     const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
     const cc=document.getElementById("fddi").value, td=document.getElementById("ftel").value.replace(/\D/g,""), tel=`+${cc} ${document.getElementById("ftel").value.trim()}`;
-    if(!nome) return fail(t("marNeedName")); if(!okPhone(cc,td)) return fail(t("phoneBad")); if(!email) return fail(t("marNeedEmail"));
+    if(!nome) return fail(t("marNeedName")); if(!nomeOk(nome)) return fail(t("nameBad")); if(!okPhone(cc,td)) return fail(t("phoneBad")); if(!email) return fail(t("marNeedEmail"));
     btn.disabled=true;
     try{
       const add = () => db("rpc/cadastrar_freelancer",{method:"POST", body:{email_mar:email, nome_mar:nome, tel}});
@@ -1049,6 +1150,7 @@ function bindMain(){
     const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
     const cc=document.getElementById("mddi").value, td=document.getElementById("mtel").value.replace(/\D/g,""), tel=`+${cc} ${document.getElementById("mtel").value.trim()}`;
     if(!nome) return fail(t("marNeedName"));
+    if(!nomeOk(nome)) return fail(t("nameBad"));
     if(!okPhone(cc,td)) return fail(t("phoneBad"));
     if(!email) return fail(t("marNeedEmail"));
     btn.disabled=true;
@@ -1070,11 +1172,18 @@ function bindMain(){
     }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
   };
   const af=document.getElementById("af");
+  if(af){ const dd=document.getElementById("addi"), tl=document.getElementById("atel");
+    dd.onchange=()=>{ tl.placeholder = dd.value==="55" ? t("ph_phone") : ""; if(dd.value==="55") tl.value=fmtBR(tl.value); };
+    tl.oninput=()=>{ if(dd.value==="55") tl.value=fmtBR(tl.value); }; }
+  app.querySelectorAll("[data-onm]").forEach(x=>x.onclick=()=>openOwner(S.owners.find(o=>o.email===x.dataset.onm && o.lancha===x.dataset.ol)));
   if(af) af.onsubmit = async e => { e.preventDefault();
     const email=document.getElementById("aem").value.trim().toLowerCase(), pw=document.getElementById("apw").value.trim(), l=document.getElementById("abt").value, out=document.getElementById("amsg");
-    if(!email) return;
+    const nome=document.getElementById("anm").value.trim(), cc=document.getElementById("addi").value, td=document.getElementById("atel").value.replace(/\D/g,""), tel=`+${cc} ${document.getElementById("atel").value.trim()}`;
     const btn=document.getElementById("asub"); btn.disabled=true;
     const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; btn.disabled=false; };
+    if(!nomeOk(nome)) return fail(t("nameBad"));
+    if(!okPhone(cc,td)) return fail(t("phoneBad"));
+    if(!email) return fail(t("marNeedEmail"));
     try{
       let r = await db("rpc/cadastrar_dono",{method:"POST", body:{email_dono:email, l}}), created=false, needConfirm=false;
       /* e-mail sem login: cria o login com a senha escolhida (a sessão do novo dono não é guardada aqui) */
@@ -1086,6 +1195,8 @@ function bindMain(){
         created = true;
         needConfirm = !nu.access_token && !nu.session;
       }
+      try{ await db("rpc/perfil_dono",{method:"POST", body:{email_dono:email, nome_dono:nome, tel}}); }
+      catch(x){ if(x.status===404) out.innerHTML=`<p class="msg err">${t("needSqlNomes")}</p>`; else throw x; }
       S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); mainView();
       const boat=S.all.find(b=>b.slug===l)?.nome||l, url=location.origin+"/login/";
       const msg = t("waAccess",{boat, url, email, pw: pw || "—"});
@@ -1354,7 +1465,8 @@ function renderTrip(){
       if(pedidoFor) nota.cliente_conta = pedidoFor.cliente; else if(n.cliente_conta) nota.cliente_conta = n.cliente_conta; /* não perde o vínculo ao editar */
       if(S.notes && (hasNote || row.nota)) await db("anotacoes",{method:"POST", body:{bloqueio_id:row.id, ...nota}, prefer:"resolution=merge-duplicates,return=minimal"});
       if(pedidoFor){ await db(`pedidos?id=eq.${pedidoFor.id}`,{method:"PATCH",body:{status:"aprovado", bloqueio_id:row.id, lancha:nboat, data:nd, horario:nslot, pessoas:nota.pessoas, atualizado_em:new Date().toISOString()}});
-        toast(t("approved",{boat:boatName(nboat)})); closeDay(); S.reqF="aprovado"; return loadBlocks(); }
+        toast(t("approved",{boat:boatName(nboat)})); const ap=pedidoFor; closeDay(); S.reqF="aprovado"; await loadBlocks();
+        return notifyOwner(ap, {lancha:nboat, data:nd, horario:nslot}, nota); }
       toast(tripNew ? t("tripSaved") : t("noteSaved"));
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }
     }catch(err){ b.disabled=false;
@@ -1403,6 +1515,9 @@ async function boot(){
       db(`freelancers?select=user_id&user_id=eq.${ses.user.id}`).catch(()=>[])]);
     S.sailors = sl; S.free = fr; S.myTrips = myT; S.sailorOf = sOf; S.isFree = meFree.length>0;
     if(S.admin) S.owners = await db("rpc/lista_donos",{method:"POST",body:{}});
+    /* dono sem nome e WhatsApp: pede antes de abrir a agenda (sem a tabela perfis, segue normal) */
+    S.needProf = false;
+    if(!S.admin && mine.length) S.needProf = (await db(`perfis?select=nome&user_id=eq.${ses.user.id}`).catch(()=>[{}])).length===0;
     /* cliente: quem não é administrador, dono, funcionário nem marinheiro */
     S.isClient = !S.admin && !S.boats.length && !sOf.length && !S.isFree;
     store.set("conta-tipo", S.isClient ? "cliente" : "equipe");
