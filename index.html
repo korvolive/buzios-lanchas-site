@@ -14,6 +14,7 @@ document,'script','https://connect.facebook.net/en_US/fbevents.js');
 fbq('init','1672637870274530');fbq('track','PageView');</script>
 <title>Búzios Lanchas | Aluguel de lanchas em Búzios</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1672637870274530&ev=PageView&noscript=1"></noscript>
+<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#06394a"><link rel="apple-touch-icon" href="/dono/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Búzios Lanchas">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -53,6 +54,7 @@ header.top .wrap{display:flex;align-items:center;justify-content:space-between;g
 nav.top{display:flex;gap:20px;align-items:center;font-weight:500;font-size:15px}
 nav.top a{text-decoration:none;opacity:.85}
 nav.top a:hover{opacity:1}
+.login-a{display:inline-flex;align-items:center;gap:6px}.login-a svg{width:22px;height:22px;flex:none}
 .btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;text-decoration:none;font:600 15px/1 var(--body);padding:13px 18px;border-radius:999px;background:var(--brass);color:var(--brass-ink)}
 .btn:hover{filter:brightness(1.06)}
 .btn.ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
@@ -325,6 +327,7 @@ footer p{margin:0;opacity:.8}
         </select>
         <svg class="caret" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 3h8L5 8z"/></svg>
       </label>
+      <a class="login-a" id="hdr-login" href="/dono/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span class="hide-sm" id="hdr-login-t"></span></a>
       <a class="btn" id="hdr-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
     </nav>
   </div>
@@ -336,6 +339,7 @@ footer p{margin:0;opacity:.8}
   <div class="wrap">
     <div><h3>Búzios Lanchas</h3><p data-t="footAbout"></p></div>
     <div><h3 data-t="footBook"></h3><p><a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></p></div>
+    <div><h3 data-t="footTeam"></h3><p><a href="/dono/" data-t="footLogin"></a></p></div>
     <div><h3 data-t="footFollow"></h3><p><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a></p></div>
   </div>
   <div class="wrap legal">
@@ -630,7 +634,7 @@ const PHRASES = {
 /* Textos fixos do site. {n}, {name}, {date}, {slot}, {h} são trocados pelos valores. */
 const UI = {
   pt:{
-    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona",
+    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha agenda", footTeam:"Donos e marinheiros", footLogin:"Entrar na agenda",
     footAbout:"Passeios privativos de lancha em Armação dos Búzios, RJ.", footBook:"Reservas", footFollow:"Siga",
     coords:"22°45′S · 41°53′O — Aluguel de lanchas em Armação dos Búzios, RJ",
     seoTitle:"Aluguel de lancha em Búzios | Passeios privativos | Búzios Lanchas",
@@ -685,7 +689,7 @@ const UI = {
     waAvail:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para {date}, das {slot} ({h} horas), para {people}."
   },
   en:{
-    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works",
+    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My calendar", footTeam:"Owners and skippers", footLogin:"Sign in to the calendar",
     footAbout:"Private boat tours in Armação dos Búzios, RJ, Brazil.", footBook:"Bookings", footFollow:"Follow us",
     coords:"22°45′S · 41°53′W — Boat rental in Armação dos Búzios, RJ",
     seoTitle:"Boat rental in Búzios, Brazil | Private boat tours | Búzios Lanchas",
@@ -740,7 +744,7 @@ const UI = {
     waAvail:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} on {date}, from {slot} ({h} hours), for {people}."
   },
   es:{
-    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona",
+    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi agenda", footTeam:"Dueños y marineros", footLogin:"Entrar a la agenda",
     footAbout:"Paseos privados en lancha en Armação dos Búzios, RJ, Brasil.", footBook:"Reservas", footFollow:"Síguenos",
     coords:"22°45′S · 41°53′O — Alquiler de lanchas en Armação dos Búzios, RJ",
     seoTitle:"Alquiler de lanchas en Búzios, Brasil | Paseos privados | Búzios Lanchas",
@@ -961,12 +965,23 @@ async function showBoatStatus(b){
 
 document.getElementById("ano").textContent = new Date().getFullYear();
 
+/* app instalado (Búzios Lanchas): quem tem login abre direto na agenda; o resto vê o site */
+if(new URLSearchParams(location.search).get("app")==="1"){
+  let logged=false; try{ logged = !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){}
+  if(logged) location.replace("/dono/"); else history.replaceState(null,"",location.pathname+location.hash);
+}
+if("serviceWorker" in navigator && !/bot|crawl|spider|headless/i.test(navigator.userAgent)) navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(()=>{});
+
 /* textos fixos do cabeçalho e do rodapé */
 function applyStatic(){
   document.documentElement.lang = t("locale");
   document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
   document.getElementById("logo").setAttribute("aria-label",t("logoAria"));
   document.getElementById("hdr-wa").href = wa(t("waFleet"));
+  /* quem tem login (dono, marinheiro, equipe) vai direto para a agenda */
+  const logged = (()=>{ try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } })();
+  document.getElementById("hdr-login-t").textContent = logged ? t("navAgenda") : t("navLogin");
+  document.getElementById("hdr-login").setAttribute("aria-label", logged ? t("navAgenda") : t("navLogin"));
   document.getElementById("lang").value = lang;
   document.getElementById("logo").href = pathFor(lang);
   document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
