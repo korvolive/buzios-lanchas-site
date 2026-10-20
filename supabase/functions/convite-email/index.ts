@@ -13,6 +13,9 @@ const SLOT: Record<string, Record<string, string>> = {
   es: { manha: "Mañana (10h a 14h)", tarde: "Tarde (14h a 18h)", dia: "Día completo (10h a 17h)", noite: "Noche" },
 };
 const dataBR = (d: string) => d.split("-").reverse().join("/");
+// horário combinado diferente do padrão (anotacoes.hora_ini / hora_fim)
+const hm = (x: string, lang: string) => { const [h, m] = x.split(":").map(Number); if (lang === "en") return (h % 12 || 12) + (m ? ":" + String(m).padStart(2, "0") : "") + (h < 12 ? "am" : "pm"); return h + "h" + (m ? String(m).padStart(2, "0") : ""); };
+const LIGA: Record<string, string> = { pt: "às", en: "to", es: "a" };
 
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -30,11 +33,11 @@ Deno.serve(async req => {
     if (!admin && !dono) return json({ erro: "só o administrador ou o dono" }, 403);
     const { data: c } = await db.from("convites").select("email, nome, resgatado_em").eq("bloqueio_id", b.id).maybeSingle();
     if (!c?.email || c.resgatado_em) return json({ status: "sem_email" });
-    const { data: an } = await db.from("anotacoes").select("pessoas, embarque").eq("bloqueio_id", b.id).maybeSingle();
+    const { data: an } = await db.from("anotacoes").select("pessoas, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
     const nomeL = (await db.from("lanchas").select("nome").eq("slug", b.lancha).maybeSingle()).data?.nome || b.lancha;
     const dados = {
       convite: true, lang, nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",
-      lancha: nomeL, data: dataBR(b.data), horario: SLOT[lang][b.horario] || b.horario,
+      lancha: nomeL, data: dataBR(b.data), horario: an?.hora_ini && an?.hora_fim ? `${(SLOT[lang][b.horario] || b.horario).replace(/ \(.*$/, "")} (${hm(an.hora_ini, lang)} ${LIGA[lang]} ${hm(an.hora_fim, lang)})` : SLOT[lang][b.horario] || b.horario,
       pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "",
       pagina: `${SITE}${lang === "pt" ? "" : "/" + lang}/lancha/${b.lancha}/`,
     };
