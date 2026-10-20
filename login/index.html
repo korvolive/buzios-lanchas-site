@@ -743,7 +743,9 @@ function clientView(){
   app.querySelectorAll("[data-gu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("giveUpQ"))) return;
     try{ await db("rpc/cancelar_pedido",{method:"POST",body:{pid:+x.dataset.gu}}); toast(t("gaveUp")); await loadMyReq(); clientView(); }catch(e){ toast(t("saveErr")); } });
 }
-const logout = () => { const tok=ses?.access_token; pushForget(tok); saveSes(null); store.set("conta-tipo",null); authCall("logout",null,"POST",tok).catch(()=>{}); loginMsg=""; view="login"; show(); };
+/* ao sair, volta para o site; quem quiser entrar de novo usa o botão Entrar do site */
+const logout = () => { const tok=ses?.access_token; pushForget(tok); saveSes(null); store.set("conta-tipo",null); app.innerHTML=""; top_.hidden=true;
+  Promise.race([authCall("logout",null,"POST",tok).catch(()=>{}), new Promise(r=>setTimeout(r,1500))]).then(()=>location.replace("/")); };
 
 function headerHTML(){
   return `<a class="back" href="/" aria-label="${t("backSite")}"><b aria-hidden="true">‹</b>${t("backShort")}</a><button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${esc(ses?.user?.email||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
