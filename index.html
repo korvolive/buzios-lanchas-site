@@ -350,6 +350,10 @@ footer p{margin:0;opacity:.8}
 
 /* celular (revisão de 20/10): títulos centralizados, ordem da página da lancha com fotos logo no começo e espaçamentos menores */
 h1,h2,h3{line-height:1.15}
+.b-name{font-size:clamp(34px,5vw,54px);font-weight:800;line-height:1;margin:6px 0 16px}
+.b-gal{margin-bottom:18px}
+.lead.pitch{font-size:17px;line-height:1.6;color:var(--ink)}.lead.pitch strong{color:var(--sea);font-weight:700}
+.bring{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}.bring li{display:flex;gap:10px;align-items:flex-start;line-height:1.45}.bring-note{margin:10px 0 0;color:var(--muted);font-size:14px}
 .b-inc{display:none} /* o empilhamento do quadro de valores já mostra tudo o que vem no passeio (pedido do Rodrigo) */
 @media (max-width:600px){
   .logo small{display:none}
@@ -375,7 +379,7 @@ h1,h2,h3{line-height:1.15}
   .crumb{text-align:center}
   .boat{display:flex;flex-direction:column;gap:26px;padding-top:12px}
   .boat .b-info{display:contents}
-  .b-info > div:first-child{order:1}.b-media{order:2}.boat .pricebox{order:3}.b-bring{order:4}#site-revs{order:5}
+  .b-info > div:first-child{order:1}.b-media{order:2}.boat .pricebox{order:3}.b-bring{order:4}#site-revs{order:5}.b-google{order:6}
   .b-head{text-align:center}
   .b-title{flex-direction:column-reverse;gap:10px}.b-avatar{margin:0;top:0;width:88px;height:88px}
   .lead{font-size:16px;line-height:1.6}
@@ -383,6 +387,7 @@ h1,h2,h3{line-height:1.15}
   .pricebox{padding:20px 18px}.pricebox > h2{text-align:center}
   .block h2{text-align:center}
   .pr-wait,.pricebox .fine{text-align:center}
+  .b-gal .gallery .main,.b-gal .gallery .main.tall{aspect-ratio:4/3;height:auto;width:100%}
   .b-media .block:has(.vid.empty){display:none} /* sem vídeo ainda: não ocupa espaço antes do valor */
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -471,6 +476,17 @@ const BOATS = [
       ["mb-12","Fim de tarde com iluminação de LED","center 55%"],
       ["mb-13","Passeio ao sol","center 30%"],
       ["mb-10","Banheiro a bordo","center 50%"] /* a foto do banheiro é sempre a última */
+    ],
+    /* avaliações reais do Google (as mesmas do site antigo), no idioma original de cada cliente.
+       Pedido do Rodrigo: ficam só na Miss Bardot até o site ter várias avaliações próprias; aí ele pede para tirar */
+    reviews:[
+      ["Maria Julia Cruz","2026-07","Melhor passeio de barco que já fizemos em grupo."],
+      ["Branco Balieiro","2026-05","A lancha é perfeita, som excelente e uma tripulação muito top"],
+      ["caue reda","2026-05","Equipe muito profissional, deram todo apoio e fizeram um churrasco excelente."],
+      ["Felipe T","2026-05","Excelente experiencia, fueron muy amables y atentos con nosotros"],
+      ["Willian Lorenzetti","2026-05","Excelente barco e serviço, fomos muito bem atendidos e o passeio foi ótimo! Recomendo!"],
+      ["Dayanne Belmonte","2026-04","Uma experiência incrível do início ao fim. Recomendo muito!"],
+      ["Gabrielle Jadotte","2026-04","Would highly recommend this boat tour if you are in Buzios!"]
     ],
     tagline:"Totalmente reformada, climatizada e com som premium. Ideal para família, amigos e comemorações.",
     description:"A Miss Bardot é o cenário perfeito para viver o melhor de Búzios: passeio romântico, momento em família ou um dia entre amigos. São 35 pés com ambientes climatizados, cabine com cama de casal e TV, banheiro, cozinha com air fryer e churrasqueira. O grande destaque é o sistema de som premium Hertz Marine: áudio potente e cristalino, feito para tocar alto ao ar livre sem perder a qualidade. É só conectar a sua playlist por Bluetooth e transformar o mar de Búzios na sua pista de dança. Passeios de dia, pôr do sol ou noturnos.",
@@ -742,7 +758,7 @@ const UI = {
     prevPhoto:"Foto anterior", nextPhoto:"Próxima foto",
     crumbFleet:"← Lanchas", boat:"Lancha", photoOf:"Foto da {name}", specFeet:"Pés", specPeople:"Pessoas", specTours:"Passeios",
     included:"Incluso no passeio", bring:"O que trazer",
-    bringText:"Comidas e bebidas não estão inclusas no passeio. Traga as suas: a lancha já tem gelo e cooler, e se vocês trouxerem carnes ou peixes, a equipe prepara o churrasco a bordo.",
+    bringList:["Comidas e bebidas (não estão inclusas)","Carnes ou peixes, se quiser churrasco: a tripulação prepara a bordo","Protetor solar, óculos de sol e chapéu","Roupa de banho e uma muda de roupa seca"], bringNote:"Gelo e cooler a lancha já tem.", bringText:"Comidas e bebidas não estão inclusas no passeio. Traga as suas: a lancha já tem gelo e cooler, e se vocês trouxerem carnes ou peixes, a equipe prepara o churrasco a bordo.",
     crewTitle:"Tripulação e segurança", crewText:"Coletes salva-vidas para todos, extintores em dia e revisões periódicas nos motores.",
     siteRevT:"Avaliações dos clientes", siteRevNone:"Esta lancha ainda não tem avaliações. Depois do passeio, os clientes avaliam a lancha e o marinheiro pelo app.", siteRevSub:"{m} de 5 · {n} avaliações de clientes", siteRevSub1:"{m} de 5 · 1 avaliação de cliente", siteRevStars:"{n} de 5 estrelas", reviewsTitle:"Avaliações no Google", reviewsSub:"Nota máxima no Google", stars5:"5 de 5 estrelas", photos:"Fotos", mainPhoto:"Foto principal", video:"Vídeo", videoSoon:"Vídeo em breve", videoHere:"O vídeo da {name} aparece aqui.",
     pricesAria:"Preços", prices:"Valores", from4hLong:"Passeio de 4 horas · a partir de", from4hDate:"Passeio de 4 horas · {d} · a partir de", priceTitle:"Tudo isso por", priceWait:"Escolha a data e o horário para ver o valor de tudo isso.", perPerson:"Dá {p} por pessoa para {n} pessoas.", stackTitle:"O que vem no seu passeio", stBoatT:"Lancha de {f} pés só para o seu grupo", stBoatP:"Até {n} pessoas, sem dividir com desconhecidos.", stRouteT:"As praias e ilhas mais bonitas de Búzios", stRouteP:"Azeda, João Fernandes, Ilha Branca, Ilha Feia, Tartaruga e mais. Você escolhe onde parar e quanto tempo ficar.", stCrewT:"Marinheiro e churrasqueiro a bordo", stCrewP:"A tripulação navega, ancora e assa o seu churrasco. Você só aproveita.", stItemsT:"Tudo isso a bordo, sem custo extra", stSafeT:"Segurança e tranquilidade", stSafeP:"Coletes para todos, remarcação sem custo se o mar não estiver seguro e atendimento pelo WhatsApp do início ao fim.", season:"Temporada", hours4:"4 horas",
@@ -797,7 +813,7 @@ const UI = {
     prevPhoto:"Previous photo", nextPhoto:"Next photo",
     crumbFleet:"← Boats", boat:"Boat", photoOf:"Photo of {name}", specFeet:"Feet", specPeople:"People", specTours:"Tours",
     included:"Included in the tour", bring:"What to bring",
-    bringText:"Food and drinks are not included. Bring your own: the boat already has ice and a cooler, and if you bring meat or fish, the crew will grill it on board.",
+    bringList:["Food and drinks (not included)","Meat or fish if you want a barbecue: the crew grills it on board","Sunscreen, sunglasses and a hat","Swimwear and a change of dry clothes"], bringNote:"The boat already has ice and a cooler.", bringText:"Food and drinks are not included. Bring your own: the boat already has ice and a cooler, and if you bring meat or fish, the crew will grill it on board.",
     crewTitle:"Crew and safety", crewText:"Life jackets for everyone, up-to-date fire extinguishers and regular engine servicing.",
     siteRevT:"Client reviews", siteRevNone:"This boat has no reviews yet. After the tour, guests rate the boat and the skipper in the app.", siteRevSub:"{m} out of 5 · {n} guest reviews", siteRevSub1:"{m} out of 5 · 1 guest review", siteRevStars:"{n} out of 5 stars", reviewsTitle:"Google reviews", reviewsSub:"Top rating on Google", stars5:"5 out of 5 stars", photos:"Photos", mainPhoto:"Main photo", video:"Video", videoSoon:"Video coming soon", videoHere:"The {name} video will appear here.",
     pricesAria:"Prices", prices:"Prices", from4hLong:"4-hour tour · from", from4hDate:"4-hour tour · {d} · from", priceTitle:"All of this for", priceWait:"Choose the date and time to see the price for all of this.", perPerson:"That is {p} per person for {n} people.", stackTitle:"What comes with your tour", stBoatT:"A {f}-foot boat just for your group", stBoatP:"Up to {n} people, never shared with strangers.", stRouteT:"The most beautiful beaches and islands of Búzios", stRouteP:"Azeda, João Fernandes, Ilha Branca, Ilha Feia, Tartaruga and more. You choose where to stop and for how long.", stCrewT:"Skipper and barbecue service on board", stCrewP:"The crew sails, anchors and grills your barbecue. You just enjoy.", stItemsT:"All of this on board, at no extra cost", stSafeT:"Safety and peace of mind", stSafeP:"Life jackets for everyone, free rescheduling if the sea is unsafe and WhatsApp support from start to finish.", season:"Season", hours4:"4 hours",
@@ -852,7 +868,7 @@ const UI = {
     prevPhoto:"Foto anterior", nextPhoto:"Foto siguiente",
     crumbFleet:"← Lanchas", boat:"Lancha", photoOf:"Foto de la {name}", specFeet:"Pies", specPeople:"Personas", specTours:"Paseos",
     included:"Incluido en el paseo", bring:"Qué traer",
-    bringText:"Las comidas y bebidas no están incluidas. Trae las tuyas: la lancha ya tiene hielo y hielera, y si traen carnes o pescados, la tripulación prepara el asado a bordo.",
+    bringList:["Comidas y bebidas (no están incluidas)","Carnes o pescados si quieres asado: la tripulación lo prepara a bordo","Protector solar, lentes de sol y sombrero","Traje de baño y una muda de ropa seca"], bringNote:"Hielo y cooler la lancha ya tiene.", bringText:"Las comidas y bebidas no están incluidas. Trae las tuyas: la lancha ya tiene hielo y hielera, y si traen carnes o pescados, la tripulación prepara el asado a bordo.",
     crewTitle:"Tripulación y seguridad", crewText:"Chalecos salvavidas para todos, extintores al día y revisiones periódicas de los motores.",
     siteRevT:"Reseñas de clientes", siteRevNone:"Esta lancha todavía no tiene reseñas. Después del paseo, los clientes califican la lancha y al marinero en la app.", siteRevSub:"{m} de 5 · {n} reseñas de clientes", siteRevSub1:"{m} de 5 · 1 reseña de cliente", siteRevStars:"{n} de 5 estrellas", reviewsTitle:"Reseñas en Google", reviewsSub:"Nota máxima en Google", stars5:"5 de 5 estrellas", photos:"Fotos", mainPhoto:"Foto principal", video:"Video", videoSoon:"Video próximamente", videoHere:"El video de la {name} aparecerá aquí.",
     pricesAria:"Precios", prices:"Precios", from4hLong:"Paseo de 4 horas · desde", from4hDate:"Paseo de 4 horas · {d} · desde", priceTitle:"Todo esto por", priceWait:"Elige la fecha y el horario para ver el precio de todo esto.", perPerson:"Son {p} por persona para {n} personas.", stackTitle:"Lo que incluye tu paseo", stBoatT:"Lancha de {f} pies solo para tu grupo", stBoatP:"Hasta {n} personas, sin compartir con desconocidos.", stRouteT:"Las playas e islas más lindas de Búzios", stRouteP:"Azeda, João Fernandes, Ilha Branca, Ilha Feia, Tartaruga y más. Tú eliges dónde parar y cuánto quedarte.", stCrewT:"Marinero y asador a bordo", stCrewP:"La tripulación navega, ancla y prepara tu asado. Tú solo disfrutas.", stItemsT:"Todo esto a bordo, sin costo extra", stSafeT:"Seguridad y tranquilidad", stSafeP:"Chalecos para todos, reprogramación sin costo si el mar no está seguro y atención por WhatsApp de principio a fin.", season:"Temporada", hours4:"4 horas",
@@ -924,6 +940,29 @@ function setupGetApp(){
 const t = (k,vars={}) => (UI[lang][k] ?? UI.pt[k]).replace(/\{(\w+)\}/g,(m,v)=>vars[v] ?? m);
 const tx = s => lang==="pt" ? s : ((PHRASES[s]||[])[lang==="en"?0:1] ?? s);
 const bt = (b,k) => b.i18n?.[lang]?.[k] ?? b[k];
+/* texto curto do topo de cada lancha: o que ela proporciona (o que ela tem já está no quadro de valores) */
+const PITCH = {
+  "miss-bardot":{
+    pt:"Imagine o seu grupo <strong>sozinho no mar de Búzios</strong>, com a playlist tocando alto no <strong>som Hertz</strong>, o churrasco saindo na popa e um <strong>mergulho em água cristalina</strong> a cada parada. Entre uma praia e outra, o ar-condicionado para descansar. Um dia para <strong>guardar na memória</strong>.",
+    en:"Picture your group <strong>alone on the Búzios sea</strong>, your playlist loud on the <strong>Hertz sound system</strong>, barbecue coming off the grill and a <strong>swim in crystal-clear water</strong> at every stop. Between beaches, air conditioning to rest. A day <strong>to remember</strong>.",
+    es:"Imagina a tu grupo <strong>solo en el mar de Búzios</strong>, con tu playlist a todo volumen en el <strong>sonido Hertz</strong>, el asado saliendo en la popa y un <strong>chapuzón en agua cristalina</strong> en cada parada. Entre una playa y otra, aire acondicionado para descansar. Un día <strong>para recordar</strong>."},
+  "midas":{
+    pt:"Um dia inteiro de <strong>sol, mar verde e risada</strong> com quem você gosta. Música no Bluetooth, <strong>churrasco a bordo</strong> e a lancha levando vocês às <strong>praias mais bonitas de Búzios</strong>, no ritmo do grupo.",
+    en:"A whole day of <strong>sun, green sea and laughter</strong> with the people you love. Music on Bluetooth, <strong>barbecue on board</strong> and the boat taking you to <strong>the most beautiful beaches of Búzios</strong>, at your group's pace.",
+    es:"Un día entero de <strong>sol, mar verde y risas</strong> con quien quieres. Música por Bluetooth, <strong>asado a bordo</strong> y la lancha llevándolos a <strong>las playas más lindas de Búzios</strong>, al ritmo del grupo."},
+  "les-zuzu":{
+    pt:"<strong>Perfeita para casais e grupos pequenos</strong>: sombra no toldo, <strong>sol no solário da popa</strong> e paradas nas praias de água mais calma. Um passeio <strong>tranquilo e só de vocês</strong>.",
+    en:"<strong>Perfect for couples and small groups</strong>: shade under the canopy, <strong>sun on the stern sundeck</strong> and stops at the calmest beaches. A <strong>quiet tour that's all yours</strong>.",
+    es:"<strong>Perfecta para parejas y grupos pequeños</strong>: sombra en el toldo, <strong>sol en el solárium de popa</strong> y paradas en las playas más tranquilas. Un paseo <strong>sereno y solo de ustedes</strong>."},
+  "compostela":{
+    pt:"Para viver <strong>Búzios a dois ou com poucos amigos</strong>: relaxar no tapete flutuante, <strong>música no Bluetooth</strong> e as praias mais bonitas <strong>sem multidão</strong>, no seu tempo.",
+    en:"To enjoy <strong>Búzios as a couple or with a few friends</strong>: relax on the floating mat, <strong>music on Bluetooth</strong> and the most beautiful beaches <strong>without the crowds</strong>, at your own pace.",
+    es:"Para vivir <strong>Búzios en pareja o con pocos amigos</strong>: relajarse en el tapete flotante, <strong>música por Bluetooth</strong> y las playas más lindas <strong>sin multitudes</strong>, a tu ritmo."},
+  "bubbles":{
+    pt:"<strong>Família e amigos juntos</strong> no sofá em U da popa, mergulho entre uma praia e outra e <strong>churrasco preparado pela tripulação</strong>. Vocês só escolhem a praia e <strong>aproveitam o dia</strong>.",
+    en:"<strong>Family and friends together</strong> on the U-shaped stern sofa, a swim between beaches and <strong>barbecue made by the crew</strong>. You just pick the beach and <strong>enjoy the day</strong>.",
+    es:"<strong>Familia y amigos juntos</strong> en el sofá en U de la popa, chapuzones entre una playa y otra y <strong>asado preparado por la tripulación</strong>. Ustedes solo eligen la playa y <strong>disfrutan el día</strong>."}
+};
 
 /* ============ helpers ============ */
 const brl = v => v==null ? "—" : v.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
@@ -1350,9 +1389,9 @@ function boatPage(b){
     <div class="boat">
       <div class="b-info">
         <div>
-          <div class="b-head"><span class="eyebrow">${b.featured?t("featured"):t("boat")}</span>
-          <div class="b-title"><h1>${b.name}</h1>${b.photos?`<img class="b-avatar" src="/img/${b.photos[0][0]}-t.jpg" alt="${t("photoOf",{name:b.name})}" style="object-position:${b.photos[0][2]}">`:""}</div>
-          </div><p class="lead">${bt(b,"description")}</p>
+          <div class="b-head"><span class="eyebrow">${b.featured?t("featured"):t("boat")}</span><h1 class="b-name">${b.name}</h1></div>
+          <div class="b-gal">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div></div>`}</div>
+          <p class="lead pitch">${(PITCH[b.slug]||{})[lang] || bt(b,"description")}</p>
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
             <div><b>${b.capacity}</b><span>${t("specPeople")}</span></div>
@@ -1360,11 +1399,12 @@ function boatPage(b){
           </div>
         </div>
         <div class="block b-inc"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
-        <div class="block b-bring"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
-        <div id="site-revs"><div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div></div>
+        <div class="block b-bring"><h2>${t("bring")}</h2><ul class="bring">${(UI[lang].bringList||UI.pt.bringList).map(x=>`<li><span aria-hidden="true">✅</span>${x}</li>`).join("")}</ul><p class="bring-note">${t("bringNote")}</p></div>
+        <div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>
+        ${b.reviews?`<div class="block b-reviews b-google"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
+          <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
       <div class="b-media">
-        <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
         <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="/img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
@@ -1466,6 +1506,15 @@ function waves(){
 }
 applyStatic();
 render();
+/* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
+fetch(AGENDA_URL.replace("bloqueios","precos")+"?select=lancha,baixa,media,alta,pico,reveillon,h7", {headers:{apikey:AGENDA_KEY}})
+  .then(r=>r.ok ? r.json() : Promise.reject(r.status))
+  .then(rows=>{ let mudou=false;
+    rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return;
+      const p={baixa:r.baixa, media:r.media, alta:r.alta, pico:r.pico, reveillon:r.reveillon};
+      if(JSON.stringify(p)!==JSON.stringify(b.prices) || (r.h7??null)!==(b.price7h??null)){ b.prices=p; b.price7h=r.h7??null; mudou=true; } });
+    if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
+  .catch(()=>{});
 /* chegando de outra página com #frota ou #como, desce até a seção */
 if(location.hash.length>1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 </script>
