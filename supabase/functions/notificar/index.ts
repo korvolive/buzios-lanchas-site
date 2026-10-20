@@ -5,7 +5,7 @@
 // POST { tipo: "pedido",   id: <pedido> }    (o próprio cliente, uma vez) avisa o administrador (no celular e por e-mail)
 // POST { tipo: "marinheiro", id: <bloqueio> }  (administrador ou dono da lancha) avisa o marinheiro escolhido para pilotar (celular e e-mail)
 // POST { tipo: "recusou", id: <bloqueio> }  (o marinheiro que acabou de sair do passeio) avisa os donos da lancha e o administrador (celular e e-mail)
-// POST { tipo: "teste" }                       avisa só quem chamou
+// POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
 // POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa o administrador quando um passeio da Búzios Lanchas termina,
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 // As chaves do envio são criadas aqui mesmo na primeira vez e ficam em push_config (ninguém do app lê).
@@ -68,20 +68,23 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
   },
 };
 
-async function enviar(users: string[], tipo: string, p: any, url: string) {
+async function enviar(users: string[], tipo: string, p: any, url: string, so?: string) {
   if (!users.length) return 0;
   const k = await chaves();
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
-  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", users);
+  let q = db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", users);
+  if (so) q = q.eq("endpoint", so); // teste: só este aparelho
+  const { data: subs } = await q;
   let n = 0;
   await Promise.all((subs || []).map(async s => {
     const m = (TXT[tipo][s.lang] || TXT[tipo].pt)(p);
     try {
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url, tag: `${tipo}-${p.id ?? "t"}` }), { TTL: 86400, urgency: "high" });
       n++;
+      console.log("push ok", tipo, new URL(s.endpoint).host);
     } catch (e: any) {
+      console.error("push falhou", tipo, e?.statusCode, new URL(s.endpoint).host, e?.body || String(e));
       if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint);
-      else console.error("push", e?.statusCode, e?.body || String(e));
     }
   }));
   return n;
@@ -182,7 +185,7 @@ Deno.serve(async req => {
     const admin = !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
     const nomeLancha = async (slug: string) => (await db.from("lanchas").select("nome").eq("slug", slug).maybeSingle()).data?.nome || slug;
 
-    if (tipo === "teste") return json({ enviados: await enviar([uid], "teste", {}, "/login/") });
+    if (tipo === "teste") return json({ enviados: await enviar([uid], "teste", {}, "/login/", typeof corpo.ep === "string" ? corpo.ep : undefined) });
 
     if (tipo === "aprovado") {
       if (!admin) return json({ erro: "só o administrador" }, 403);
