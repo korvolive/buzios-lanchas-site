@@ -2049,7 +2049,7 @@ function renderTrip(){
         <p class="muted" id="hrnote" style="margin:-4px 0 12px;font-size:13px"${n.hora_ini?"":" hidden"}>${t("hrNote")}</p></div>` : ""}
       ${S.notes && S.embOk ? `<fieldset class="origin emb"><legend>📍 ${t("embT")}${REQ}</legend><div>${BOARD_OPTS.map(o=>`<button type="button" role="radio" data-emb="${esc(o)}" aria-checked="${emb===o}">${esc(o)}</button>`).join("")}<button type="button" role="radio" data-emb="${OTHER}" aria-checked="${embOther}">${t("embOther")}</button></div>
         <input type="text" class="in" id="n-embo" maxlength="80" autocomplete="off" placeholder="${t("embOtherPh")}" aria-label="${t("embOther")}" value="${embOther?esc(emb):""}" style="margin-top:8px"${embOther?"":" hidden"}></fieldset>` : ""}
-      ${S.notes ? `<fieldset class="origin"><legend>${t("closedBy")}${REQ}</legend><div>${["buzios","fora"].map(o=>`<button type="button" role="radio" data-o="${o}" aria-checked="${n.origem===o}">${t("o_"+o)}</button>`).join("")}</div></fieldset>
+      ${S.notes ? `<fieldset class="origin"><legend>${t("closedBy")}${REQ}</legend><div>${(S.admin ? ["buzios","fora"] : [n.origem==="buzios"?"buzios":"fora"]).map(o=>`<button type="button" role="radio" data-o="${o}" aria-checked="${(S.admin?n.origem:n.origem||"fora")===o}">${t("o_"+o)}</button>`).join("")}</div></fieldset>
       ${f("cliente","text",'autocapitalize="words"')}
       <div class="f"><label for="n-telefone"><span>${t("phone")}${REQ}</span></label><div class="phone"><select class="in" id="n-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="n-telefone" inputmode="tel" autocomplete="off" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
       <label class="f"><span>${t("people")}${REQ} <small class="muted" style="font-weight:400">(${t("maxPeople",{n:boatCap()})})</small></span><select class="in" id="n-pessoas">${peopleOpts()}</select></label>
@@ -2075,7 +2075,8 @@ function renderTrip(){
   const fr=document.getElementById("nfree");
   if(fr) fr.onclick=async()=>{ if(!confirm(noteLine(n)?t("confirmFree"):t("freeSlot")+"?")) return;
     try{ await db(`bloqueios?id=eq.${r.id}`,{method:"DELETE"}); toast(t("freed")); closeDay(); loadBlocks(); }catch(e){ toast(t("saveErr")); } };
-  let origem = n.origem || null;
+  /* só o administrador marca passeio como Búzios Lanchas; o dono registra apenas os de fora */
+  let origem = n.origem || (S.admin ? null : "fora");
   sheet.querySelectorAll("[data-emb]").forEach(x=>x.onclick=()=>{ embOther = x.dataset.emb===OTHER; emb = embOther ? null : x.dataset.emb;
     sheet.querySelectorAll("[data-emb]").forEach(y=>y.setAttribute("aria-checked", y===x)); x.closest("fieldset").classList.remove("miss");
     const eo=document.getElementById("n-embo"); if(eo){ eo.hidden=!embOther; if(embOther) eo.focus(); } });
@@ -2087,7 +2088,7 @@ function renderTrip(){
   const lockVals = () => { const on = !S.admin && origem==="buzios";
     ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(el){ el.disabled=on; if(on && !lockOrigin) el.value=""; } });
     const h=document.getElementById("vlock"); if(h) h.hidden=!on; };
-  sheet.querySelectorAll("[data-o]").forEach(x=>{ if(lockOrigin) x.disabled=true; x.onclick=()=>{ origem = origem===x.dataset.o ? null : x.dataset.o;
+  sheet.querySelectorAll("[data-o]").forEach(x=>{ if(lockOrigin) x.disabled=true; x.onclick=()=>{ if(!S.admin) return; origem = origem===x.dataset.o ? null : x.dataset.o;
     sheet.querySelectorAll("[data-o]").forEach(y=>y.setAttribute("aria-checked", y.dataset.o===origem)); lockVals(); }; });
   lockVals();
   const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); const box=document.getElementById("marbox"); if(box){ const v=document.getElementById("n-mar")?.value; if(v) pick=v; box.innerHTML=marField(); } });
