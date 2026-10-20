@@ -73,6 +73,7 @@ html.is-app #hdr-login{display:none}
 .lang-pick .caret{right:9px;width:10px;height:10px}
 .lang{appearance:none;-webkit-appearance:none;font:700 13px/1 var(--mono);letter-spacing:.06em;color:#eaf4f6;background:rgba(224,181,77,.12);border:1.5px solid var(--brass);border-radius:999px;padding:10px 26px 10px 34px;cursor:pointer;color-scheme:dark}
 .lang:hover,.lang:focus-visible{background:rgba(224,181,77,.24)}
+.lang option{background:#0b3a4a;color:#fff;font-weight:700}
 @media (max-width:420px){nav.top{gap:10px}header.top .btn{padding:12px 14px}}
 
 /* Hero */
@@ -267,7 +268,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .long p{margin:6px 0 0;font-size:14px;color:var(--muted)}
 .pricebox .btn{width:100%;justify-content:center;margin-top:18px;padding:16px}
 .pricebox .fine{font-size:13px;color:var(--muted);margin:12px 0 0}
-.pricebox .acct{font-size:14px;margin:12px 0 0;text-align:center}.pricebox .acct a{color:var(--sea);font-weight:700}
+.pricebox .acct{font-size:14px;margin:8px 0 0;text-align:center}.pricebox .online{margin-top:14px}.pricebox .or{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:13px;opacity:.75}.pricebox .or::before,.pricebox .or::after{content:"";flex:1;border-top:1px solid currentColor;opacity:.35}#book-online{width:100%;justify-content:center}.pricebox .acct a{color:var(--sea);font-weight:700}
 .phone{font:500 14px/1 var(--mono);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
 .phone button{font:500 12px/1 var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer}
 .example-banner{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--muted);margin-top:16px}
@@ -305,7 +306,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .picker .pk-missing,.pk-slots.pk-missing button{border-color:#d9614c;box-shadow:0 0 0 1px #d9614c}
 .pk-hint{color:var(--muted);margin:10px 0 0;font-size:14px}
 .pk-res{margin:10px 0 0;padding:10px;border-radius:8px;background:var(--chip);font-size:14px}
-.pk-res.ok{background:color-mix(in srgb,#2f9e6a 16%,var(--surface))}
+.pk-res.ok p{margin:0 0 10px}.pk-res.ok .btn{width:100%;justify-content:center}.pk-res.ok{background:color-mix(in srgb,#2f9e6a 16%,var(--surface))}
 .pk-res.busy{background:color-mix(in srgb,#d9614c 16%,var(--surface))}
 /* com a disponibilidade, a caixa de valores fica mais alta que telas comuns: só fixa na rolagem em telas altas */
 @media (max-height:1100px){.boat .pricebox{position:static}}
@@ -649,7 +650,7 @@ const PHRASES = {
 /* Textos fixos do site. {n}, {name}, {date}, {slot}, {h} são trocados pelos valores. */
 const UI = {
   pt:{
-    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha agenda", navAccount:"Minha conta", reqSaved:"Pedido salvo em Meus passeios. A Búzios Lanchas confirma com você pelo WhatsApp.", acctOn:"Você está na sua conta: o pedido fica salvo em Meus passeios.", acctOff:"Quer acompanhar seus pedidos?", acctLink:"Crie sua conta", appLogin:"Entrar (donos)", footTeam:"Donos e marinheiros", footLogin:"Entrar na agenda",
+    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha agenda", navAccount:"Minha conta", reqSaved:"Pedido salvo em Meus passeios. A Búzios Lanchas confirma com você pelo WhatsApp.", acctOn:"Você está na sua conta: o pedido de reserva vai direto para a Búzios Lanchas e fica salvo em Meus passeios. A reserva só é confirmada depois do sinal de 50%.", orOnline:"ou reserve pelo site", bookOnline:"Reservar online", onlineHow:"Sem precisar consultar no WhatsApp: crie sua conta grátis (leva 1 minuto) e envie o pedido de reserva na hora. <strong>A reserva só é confirmada depois do sinal de 50%</strong>, com o comprovante enviado pelo WhatsApp.", bookSent:"<strong>Pedido de reserva enviado, mas ainda não confirmado.</strong> A reserva só é aprovada depois que você pagar o sinal de 50% e mandar o comprovante pelo WhatsApp. Acompanhe em <a href=\"/login/\">Meus passeios</a>.", bookErr:"Não deu para enviar agora. Tente de novo ou consulte pelo WhatsApp.", waDeposit:"Olá! Fiz um pedido de reserva pelo site Búzios Lanchas: lancha {name}, {date}, das {slot}, para {people}. Quero pagar o sinal de 50% para confirmar. Depois mando o comprovante por aqui.", depositBtn:"Combinar o sinal de 50% no WhatsApp", acctOff:"Quer acompanhar seus pedidos?", acctLink:"Crie sua conta", appLogin:"Entrar (donos)", footTeam:"Donos e marinheiros", footLogin:"Entrar na agenda",
     footAbout:"Passeios privativos de lancha em Armação dos Búzios, RJ.", footBook:"Reservas", footFollow:"Siga",
     coords:"22°45′S · 41°53′O — Aluguel de lanchas em Armação dos Búzios, RJ",
     seoTitle:"Aluguel de lancha em Búzios | Passeios privativos | Búzios Lanchas",
@@ -704,7 +705,7 @@ const UI = {
     waAvail:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para {date}, das {slot} ({h} horas), para {people}."
   },
   en:{
-    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My calendar", navAccount:"My account", reqSaved:"Request saved in My tours. Búzios Lanchas will confirm it with you on WhatsApp.", acctOn:"You're signed in: your request is saved in My tours.", acctOff:"Want to follow your requests?", acctLink:"Create your account", appLogin:"Owners sign in", footTeam:"Owners and skippers", footLogin:"Sign in to the calendar",
+    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My calendar", navAccount:"My account", reqSaved:"Request saved in My tours. Búzios Lanchas will confirm it with you on WhatsApp.", acctOn:"You're signed in: your booking request goes straight to Búzios Lanchas and is saved in My tours. The booking is only confirmed after the 50% deposit.", orOnline:"or book on the site", bookOnline:"Book online", onlineHow:"No need to ask on WhatsApp first: create your free account (takes 1 minute) and send your booking request right away. <strong>The booking is only confirmed after the 50% deposit</strong>, with the receipt sent on WhatsApp.", bookSent:"<strong>Booking request sent, but not confirmed yet.</strong> It is only approved after you pay the 50% deposit and send the receipt on WhatsApp. Follow it in <a href=\"/login/\">My tours</a>.", bookErr:"Couldn't send it right now. Try again or ask on WhatsApp.", waDeposit:"Hi! I made a booking request on the Búzios Lanchas website: boat {name}, {date}, from {slot}, for {people}. I'd like to pay the 50% deposit to confirm it. I'll send the receipt here.", depositBtn:"Arrange the 50% deposit on WhatsApp", acctOff:"Want to follow your requests?", acctLink:"Create your account", appLogin:"Owners sign in", footTeam:"Owners and skippers", footLogin:"Sign in to the calendar",
     footAbout:"Private boat tours in Armação dos Búzios, RJ, Brazil.", footBook:"Bookings", footFollow:"Follow us",
     coords:"22°45′S · 41°53′W — Boat rental in Armação dos Búzios, RJ",
     seoTitle:"Boat rental in Búzios, Brazil | Private boat tours | Búzios Lanchas",
@@ -759,7 +760,7 @@ const UI = {
     waAvail:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} on {date}, from {slot} ({h} hours), for {people}."
   },
   es:{
-    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi agenda", navAccount:"Mi cuenta", reqSaved:"Pedido guardado en Mis paseos. Búzios Lanchas lo confirma contigo por WhatsApp.", acctOn:"Estás en tu cuenta: el pedido queda guardado en Mis paseos.", acctOff:"¿Quieres seguir tus pedidos?", acctLink:"Crea tu cuenta", appLogin:"Entrar (dueños)", footTeam:"Dueños y marineros", footLogin:"Entrar a la agenda",
+    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi agenda", navAccount:"Mi cuenta", reqSaved:"Pedido guardado en Mis paseos. Búzios Lanchas lo confirma contigo por WhatsApp.", acctOn:"Estás en tu cuenta: el pedido de reserva va directo a Búzios Lanchas y queda guardado en Mis paseos. La reserva solo se confirma después de la seña del 50%.", orOnline:"o reserva en el sitio", bookOnline:"Reservar online", onlineHow:"Sin consultar antes por WhatsApp: crea tu cuenta gratis (lleva 1 minuto) y envía el pedido de reserva al instante. <strong>La reserva solo se confirma después de la seña del 50%</strong>, con el comprobante enviado por WhatsApp.", bookSent:"<strong>Pedido de reserva enviado, pero aún no confirmado.</strong> Solo se aprueba después de que pagues la seña del 50% y envíes el comprobante por WhatsApp. Síguelo en <a href=\"/login/\">Mis paseos</a>.", bookErr:"No se pudo enviar ahora. Inténtalo de nuevo o consulta por WhatsApp.", waDeposit:"¡Hola! Hice un pedido de reserva en el sitio de Búzios Lanchas: lancha {name}, {date}, de {slot}, para {people}. Quiero pagar la seña del 50% para confirmarla. Después envío el comprobante por aquí.", depositBtn:"Combinar la seña del 50% por WhatsApp", acctOff:"¿Quieres seguir tus pedidos?", acctLink:"Crea tu cuenta", appLogin:"Entrar (dueños)", footTeam:"Dueños y marineros", footLogin:"Entrar a la agenda",
     footAbout:"Paseos privados en lancha en Armação dos Búzios, RJ, Brasil.", footBook:"Reservas", footFollow:"Síguenos",
     coords:"22°45′S · 41°53′O — Alquiler de lanchas en Armação dos Búzios, RJ",
     seoTitle:"Alquiler de lanchas en Búzios, Brasil | Paseos privados | Búzios Lanchas",
@@ -867,6 +868,14 @@ let pick = {date:"", slot:"", people:"", board:""};
 (()=>{ const q=new URLSearchParams(location.search), d=q.get("data"), h=q.get("horario");
   if(/^\d{4}-\d{2}-\d{2}$/.test(d||"")) pick.date=d; if(["dia","manha","tarde","noite"].includes(h)) pick.slot=h;
   const n=+q.get("pessoas"); if(n>=1 && n<=99) pick.people=String(n); })();
+/* reserva online de quem precisou criar a conta: voltou do /login/ para a lancha, os dados voltam e o pedido sai sozinho */
+let autoBook = false;
+function takePending(b){
+  let r=null; try{ r=JSON.parse(localStorage.getItem("reserva-pendente")); }catch(e){}
+  if(!r || r.slug!==b.slug || Date.now()-r.t>7200000) return;
+  try{ localStorage.removeItem("reserva-pendente"); }catch(e){}
+  Object.assign(pick,{date:r.date, slot:r.slot, people:r.people, board:r.board||""}); autoBook = isClient();
+}
 const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const fmtDate = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(t("locale"),lang==="pt"?{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}:{weekday:"short",day:"numeric",month:"short",year:"numeric"}); };
@@ -901,6 +910,7 @@ async function clientToken(){
   }
   return s.access_token;
 }
+const isTeam = () => !!lsGet("dono-ses")?.refresh_token && !isClient(); /* donos e marinheiros não reservam pelo site */
 let lastReq = "";
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, key=JSON.stringify(body);
@@ -1000,14 +1010,24 @@ async function showBoatStatus(b){
   bx.querySelectorAll("button").forEach((x,i)=>x.onclick=()=>{ pick.board=boards[i]; showBoatStatus(b); });
   btn.href="#"; delete btn.dataset.ready;
   /* data, horário e pessoas são obrigatórios: sem eles o botão só aponta o que falta */
-  btn.onclick = e => { if(btn.dataset.ready){
-      if(isClient()) sendPedido(b).then(ok=>{ if(ok) out.innerHTML=`<p class="pk-res ok">${t("reqSaved")}</p>`; }, ()=>{});
-      return; }
-    e.preventDefault();
+  const missing = () => {
     document.getElementById("pk-date").classList.toggle("pk-missing",!pick.date);
     app.querySelector(".pk-slots").classList.toggle("pk-missing",!pick.slot);
     document.getElementById("pk-people").classList.toggle("pk-missing",!pick.people);
     out.innerHTML=`<p class="pk-res busy need">${t("needAll")}</p>`; };
+  btn.onclick = e => { if(btn.dataset.ready){
+      if(isClient()) sendPedido(b).then(ok=>{ if(ok) out.innerHTML=`<p class="pk-res ok">${t("reqSaved")}</p>`; }, ()=>{});
+      return; }
+    e.preventDefault(); missing(); };
+  /* reservar online: com conta, o pedido vai direto para a Búzios Lanchas; sem conta, cria a conta e volta para cá */
+  const ob=document.getElementById("book-online");
+  if(ob) ob.onclick = () => { if(!btn.dataset.ready){ if(!pick.date || !pick.slot || !pick.people) missing(); return; } /* lancha ocupada nesse horário: o aviso já está na tela */
+    if(!isClient()){
+      try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, t:Date.now()})); }catch(e){}
+      location.href="/login/?criar=1"; return; }
+    ob.disabled=true; lastReq="";
+    sendPedido(b).then(()=>{ out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p><a class="btn" href="${wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}))}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
+      ()=>{ out.innerHTML=`<p class="pk-res busy">${t("bookErr")}</p>`; }).finally(()=>ob.disabled=false); };
   if(pick.date) document.getElementById("pk-date").classList.remove("pk-missing");
   if(pick.slot) app.querySelector(".pk-slots").classList.remove("pk-missing");
   if(pick.people) document.getElementById("pk-people").classList.remove("pk-missing");
@@ -1015,9 +1035,10 @@ async function showBoatStatus(b){
   const my=++seq; out.innerHTML=`<p class="pk-hint">${t("checking")}</p>`;
   markSlots(b);
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
-  if(s==="ocupada"){ out.innerHTML=`<p class="pk-res busy">${t("busy",{date:fmtDate(pick.date), slot:slotLabel(pick.slot)})}</p>`; return; }
+  if(s==="ocupada"){ autoBook=false; out.innerHTML=`<p class="pk-res busy">${t("busy",{date:fmtDate(pick.date), slot:slotLabel(pick.slot)})}</p>`; return; }
   out.innerHTML="";
   btn.href=waBook(b,pick.date,pick.slot,pick.people,pick.board); btn.dataset.ready="1";
+  if(autoBook){ autoBook=false; document.getElementById("book-online")?.click(); }
 }
 
 document.getElementById("ano").textContent = new Date().getFullYear();
@@ -1240,7 +1261,9 @@ function boatPage(b){
         <div class="pk-boat"><h3>${t("pickTitle")}</h3>${pickerHTML(b)}<div id="pk-out" aria-live="polite"></div></div>
         <a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
         <div class="phone"><span id="ph-num">(21) 99927-2550</span><button type="button" id="copy">${t("copy")}</button></div>
-        <p class="acct">${isClient() ? t("acctOn") : `${t("acctOff")} <a href="/login/?criar=1">${t("acctLink")}</a>`}</p>
+        ${isTeam() ? "" : `<div class="online"><p class="or"><span>${t("orOnline")}</span></p>
+          <button type="button" class="btn ghost" id="book-online">${t("bookOnline")}</button>
+          <p class="acct">${isClient() ? t("acctOn") : t("onlineHow")}</p></div>`}
         <p class="fine">${t("fine")}</p>
         <p class="fine">${t("operNote")}</p>
       </aside>
@@ -1255,6 +1278,7 @@ function boatPage(b){
 const app = document.getElementById("app");
 function render(toTop=true){
   const b = route.slug && BOATS.find(x=>x.slug===route.slug);
+  if(b) takePending(b);
   app.innerHTML = b ? boatPage(b) : home();
   seo(b);
   if(b && toTop) window.scrollTo(0,0);

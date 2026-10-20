@@ -239,7 +239,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .trip.rq{cursor:default;align-items:flex-start;min-width:0}.trip.rq .tbody{flex:1;min-width:0}.trip.rq .tside{flex:none}
 .trip.rq.st-aprovado{border-left-color:#2f9e6a}.trip.rq.st-recusado,.trip.rq.st-cancelado{border-left-color:var(--line);opacity:.75}
 .tabs.four button{font-size:14px;padding:10px 2px;white-space:nowrap}
-.reqbtns{display:flex;gap:8px;margin-top:10px}.reqbtns .btn{padding:10px 12px;font-size:15px;width:auto;flex:1}
+.top-lang option{background:#0b3a4a;color:#fff}.payhint{display:block;font-size:13px;margin-top:6px;color:var(--warn,#9a6b00)}.reqbtns{display:flex;gap:8px;margin-top:10px}.reqbtns .btn{padding:10px 12px;font-size:15px;width:auto;flex:1}
 .tabs.sub button{font-size:14px;padding:8px 4px}
 .clibtn{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;padding:14px 16px}.clibtn>span:first-child{display:flex;flex-direction:column;gap:2px}.clibtn>span:last-child{font-size:26px;color:var(--muted)}
 .cli{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.cli .who span{display:flex;flex-direction:column;min-width:0}.cli small{word-break:break-word}.cli[hidden]{display:none}
@@ -385,7 +385,7 @@ Object.assign(T.pt, {
   teamHint:"É dono de lancha, marinheiro ou da equipe? Peça o acesso à Búzios Lanchas.",
   cliHello:"Olá, {name}!", myTripsT:"Meus passeios", cliSub:"Escolha a lancha no site, marque data, horário e pessoas e toque em Consultar disponibilidade. O pedido aparece aqui e a Búzios Lanchas confirma com você pelo WhatsApp.",
   seeBoats:"Ver as lanchas", cliNone:"Você ainda não fez nenhum pedido.", cliPast:"Anteriores",
-  st_pendente:"Aguardando confirmação", st_aprovado:"Confirmado", st_recusado:"Não fechado", st_cancelado:"Cancelado",
+  st_pendente:"Aguardando o sinal de 50%", st_aprovado:"Confirmado", st_recusado:"Não fechado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"Desistir deste pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Pedidos", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqNone:"Nenhum pedido aqui.",
   reqSub:"Pedidos feitos pelo site por clientes cadastrados. Só você vê. Aprove depois de receber o sinal: o passeio entra na agenda da lancha já preenchido.",
@@ -405,7 +405,7 @@ Object.assign(T.en, {
   teamHint:"Boat owner, skipper or crew? Ask Búzios Lanchas for access.",
   cliHello:"Hi, {name}!", myTripsT:"My tours", cliSub:"Pick a boat on the website, choose date, time and people and tap Check availability. Your request shows up here and Búzios Lanchas confirms it with you on WhatsApp.",
   seeBoats:"See the boats", cliNone:"You haven't made any requests yet.", cliPast:"Earlier",
-  st_pendente:"Awaiting confirmation", st_aprovado:"Confirmed", st_recusado:"Not booked", st_cancelado:"Cancelled",
+  st_pendente:"Awaiting 50% deposit", st_aprovado:"Confirmed", st_recusado:"Not booked", st_cancelado:"Cancelled",
   giveUp:"Cancel", giveUpQ:"Cancel this request?", gaveUp:"Request cancelled.",
   tabReq:"Requests", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqNone:"No requests here.",
   reqSub:"Requests made on the website by registered customers. Only you see them. Approve after receiving the deposit: the tour goes into the boat's calendar already filled in.",
@@ -425,7 +425,7 @@ Object.assign(T.es, {
   teamHint:"¿Eres dueño de lancha, marinero o del equipo? Pide el acceso a Búzios Lanchas.",
   cliHello:"¡Hola, {name}!", myTripsT:"Mis paseos", cliSub:"Elige la lancha en el sitio, marca fecha, horario y personas y toca Consultar disponibilidad. El pedido aparece aquí y Búzios Lanchas lo confirma contigo por WhatsApp.",
   seeBoats:"Ver las lanchas", cliNone:"Todavía no hiciste ningún pedido.", cliPast:"Anteriores",
-  st_pendente:"Esperando confirmación", st_aprovado:"Confirmado", st_recusado:"No cerrado", st_cancelado:"Cancelado",
+  st_pendente:"Esperando la seña del 50%", st_aprovado:"Confirmado", st_recusado:"No cerrado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"¿Desistir de este pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Pedidos", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqNone:"Ningún pedido aquí.",
   reqSub:"Pedidos hechos en el sitio por clientes registrados. Solo tú los ves. Aprueba después de recibir la seña: el paseo entra en la agenda de la lancha ya completo.",
@@ -462,9 +462,9 @@ Object.assign(T.pt, {marQ:"Procurar marinheiro pelo nome", marQNone:"Nenhum mari
 Object.assign(T.en, {marQ:"Search skipper by name", marQNone:"No skipper with that name."});
 Object.assign(T.es, {marQ:"Buscar marinero por nombre", marQNone:"Ningún marinero con ese nombre."});
 /* foto de perfil */
-Object.assign(T.pt, {avT:"Sua foto", avSub:"Aparece para a Búzios Lanchas e para quem trabalha com você.", avPick:"Escolher foto", avSelfie:"Tirar selfie", avGoogle:"Usar a foto do Google", avRm:"Remover foto", avSaved:"Foto salva!", avRemoved:"Foto removida.", avErr:"Não deu para salvar a foto. Tente outra imagem.", avNeedSql:"Falta criar a pasta de fotos no Supabase (arquivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Trocar foto", avSaving:"Salvando a foto…"});
-Object.assign(T.en, {avT:"Your photo", avSub:"Búzios Lanchas and the people you work with can see it.", avPick:"Choose a photo", avSelfie:"Take a selfie", avGoogle:"Use my Google photo", avRm:"Remove photo", avSaved:"Photo saved!", avRemoved:"Photo removed.", avErr:"Couldn't save the photo. Try another picture.", avNeedSql:"The photos folder is missing in Supabase (file 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Change photo", avSaving:"Saving the photo…"});
-Object.assign(T.es, {avT:"Tu foto", avSub:"La ven Búzios Lanchas y quienes trabajan contigo.", avPick:"Elegir foto", avSelfie:"Sacar selfie", avGoogle:"Usar mi foto de Google", avRm:"Quitar foto", avSaved:"¡Foto guardada!", avRemoved:"Foto quitada.", avErr:"No se pudo guardar la foto. Prueba con otra imagen.", avNeedSql:"Falta crear la carpeta de fotos en Supabase (archivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Cambiar foto", avSaving:"Guardando la foto…"});
+Object.assign(T.pt, {payHint:"Sua reserva só é confirmada depois do sinal de 50%. Pague e mande o comprovante pelo WhatsApp.", payBtn:"Enviar comprovante no WhatsApp", waDeposit:"Olá! Segue o comprovante do sinal de 50% da minha reserva: lancha {boat}, {date}, {slot}.", resSignupSub:"Falta só criar a sua conta (leva 1 minuto). Depois voltamos para a {boat} e o seu pedido de reserva é enviado na hora.", resLoginSub:"Entre na sua conta. Depois voltamos para a {boat} e o seu pedido de reserva é enviado na hora.", avT:"Sua foto", avSub:"Aparece para a Búzios Lanchas e para quem trabalha com você.", avPick:"Escolher foto", avSelfie:"Tirar selfie", avGoogle:"Usar a foto do Google", avRm:"Remover foto", avSaved:"Foto salva!", avRemoved:"Foto removida.", avErr:"Não deu para salvar a foto. Tente outra imagem.", avNeedSql:"Falta criar a pasta de fotos no Supabase (arquivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Trocar foto", avSaving:"Salvando a foto…"});
+Object.assign(T.en, {payHint:"Your booking is only confirmed after the 50% deposit. Pay it and send the receipt on WhatsApp.", payBtn:"Send receipt on WhatsApp", waDeposit:"Hi! Here is the receipt for the 50% deposit of my booking: boat {boat}, {date}, {slot}.", resSignupSub:"Just create your account (takes 1 minute). Then we take you back to {boat} and your booking request is sent right away.", resLoginSub:"Sign in to your account. Then we take you back to {boat} and your booking request is sent right away.", avT:"Your photo", avSub:"Búzios Lanchas and the people you work with can see it.", avPick:"Choose a photo", avSelfie:"Take a selfie", avGoogle:"Use my Google photo", avRm:"Remove photo", avSaved:"Photo saved!", avRemoved:"Photo removed.", avErr:"Couldn't save the photo. Try another picture.", avNeedSql:"The photos folder is missing in Supabase (file 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Change photo", avSaving:"Saving the photo…"});
+Object.assign(T.es, {payHint:"Tu reserva solo se confirma después de la seña del 50%. Págala y envía el comprobante por WhatsApp.", payBtn:"Enviar comprobante por WhatsApp", waDeposit:"¡Hola! Aquí está el comprobante de la seña del 50% de mi reserva: lancha {boat}, {date}, {slot}.", resSignupSub:"Solo falta crear tu cuenta (lleva 1 minuto). Después volvemos a {boat} y tu pedido de reserva se envía al instante.", resLoginSub:"Entra en tu cuenta. Después volvemos a {boat} y tu pedido de reserva se envía al instante.", avT:"Tu foto", avSub:"La ven Búzios Lanchas y quienes trabajan contigo.", avPick:"Elegir foto", avSelfie:"Sacar selfie", avGoogle:"Usar mi foto de Google", avRm:"Quitar foto", avSaved:"¡Foto guardada!", avRemoved:"Foto quitada.", avErr:"No se pudo guardar la foto. Prueba con otra imagen.", avNeedSql:"Falta crear la carpeta de fotos en Supabase (archivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Cambiar foto", avSaving:"Guardando la foto…"});
 const LANGS = ["pt","en","es"];
 const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
   set(k,v){ try{ v==null ? localStorage.removeItem(k) : localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
@@ -546,7 +546,7 @@ function loginView(){
   top_.hidden = true;
   app.innerHTML = `<div class="login">
     <div style="display:flex;justify-content:space-between;align-items:flex-start"><img class="logo" src="/login/icon-192.png" alt=""><span class="top-lang" style="background:var(--sea-deep);border-radius:999px">${langSel()}</span></div>
-    <h1>${t("loginTitle")}</h1><p class="muted">${t("loginSub")}</p>
+    <h1>${t("loginTitle")}</h1><p class="muted">${pendRes() ? t("resLoginSub",{boat:esc(pendRes().nome)}) : t("loginSub")}</p>
     ${googleBtn()}
     <form class="card" id="lf" novalidate>
       ${loginMsg?`<p class="msg ${loginErr?"err":"ok"}">${loginMsg}</p>`:""}
@@ -632,8 +632,10 @@ function loginShell(title, sub, form){
   const s=document.querySelector(".top-lang select"); if(s){ s.style.border="0"; s.style.background="transparent"; s.style.color="#fff"; s.style.padding="8px 12px"; }
   bindLang();
 }
+/* reserva online começada no site por quem ainda não tinha conta: depois do cadastro ou do login, volta para a lancha e o pedido sai */
+const pendRes = () => { const r=store.get("reserva-pendente"); return r && !r.voltou && Date.now()-r.t<7200000 && /^\//.test(r.path||"") ? r : null; };
 function signupView(){
-  loginShell(t("signupTitle"), t("signupSub"), `${googleBtn()}<form class="card" id="sf" novalidate><div id="smsg"></div>
+  loginShell(t("signupTitle"), pendRes() ? t("resSignupSub",{boat:esc(pendRes().nome)}) : t("signupSub"), `${googleBtn()}<form class="card" id="sf" novalidate><div id="smsg"></div>
       ${profileFields(store.get("cli-draft")||{})}
       <label class="f"><span>${t("email")}${REQ}</span><input type="email" id="em" autocomplete="email" inputmode="email" autocapitalize="off" value="${esc(typedEmail)}"></label>
       <label class="f"><span>${t("password")}${REQ} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>
@@ -734,13 +736,14 @@ function reqCard(p, adm){
       ${adm?`<span class="tmeta"><i>CPF ${esc(fmtCPF(c.cpf))}</i><i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
       ${adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn" data-ap="${p.id}">${t("approve")}</button><button type="button" class="btn sec" data-rq="${p.id}">${t("refuseReq")}</button></span>`
         : adm && p.status==="aprovado" && p.bloqueio_id ? `<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button></span>`
-        : !adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?"":pastState(p)}</span>
+        : !adm && p.status==="pendente" ? `<span class="payhint">${t("payHint")}</span><span class="reqbtns"><a class="btn" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("waDeposit",{boat:boatName(p.lancha), date:fmtLong(p.data), slot:t("slot_"+p.horario)}))}" target="_blank" rel="noopener">${t("payBtn")}</a><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?"":pastState(p)}</span>
     ${adm && wa.length>=8 ? `<span class="tside"><a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome||"")}">${WA_ICON}<span>WhatsApp</span></a></span>` : ""}</div>`;
 }
 function clientView(){
   top_.hidden = false; top_.innerHTML = headerHTML(); bindLang();
   document.getElementById("out").onclick = logout;
   if(!S.me) return completeView();
+  const pr=pendRes(); if(pr){ store.set("reserva-pendente",{...pr, voltou:true}); location.replace(pr.path); return; }
   const today=todayISO(), rows=S.myReq||[], live=p=>p.data>=today && (p.status==="pendente"||p.status==="aprovado");
   const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p));
   app.innerHTML = `<h1 class="hello">${t("cliHello",{name:esc(S.me.nome.split(" ")[0])})}</h1>
