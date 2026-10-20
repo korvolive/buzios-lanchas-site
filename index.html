@@ -175,14 +175,14 @@ html.is-app #hdr-login{display:none}
 .boat{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:36px;padding-block:20px 64px;align-items:start}
 .boat{grid-template-areas:"info price" "media price"}
 .b-info{grid-area:info;min-width:0}.b-media{grid-area:media;min-width:0}.boat .pricebox{grid-area:price}
-@media (max-width:880px){.boat{grid-template-columns:1fr;grid-template-areas:"info" "price" "media";gap:28px}.boat .pricebox{position:static}}
+@media (max-width:880px){.boat{grid-template-columns:1fr;grid-template-areas:"info" "media" "price";gap:20px}.boat .pricebox{position:static}}
 .gallery{display:grid;gap:10px}
 .gallery .main{aspect-ratio:16/10;border-radius:14px;overflow:hidden}
 .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gallery .main{position:relative;background:var(--sea-deep)}
 .gallery .main img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery{justify-items:stretch;min-width:0}
-.gallery .main.tall{aspect-ratio:1/1;width:100%;height:auto;max-width:min(100%,76vh,640px);justify-self:center} /* quadrado: as fotos (quase todas em pé) preenchem tudo cortando pouco */
+.gallery .main.tall{aspect-ratio:1/1;width:100%;height:auto;max-width:min(100%,680px);justify-self:center} /* quadrado: as fotos (quase todas em pé) preenchem tudo cortando pouco */
 @media (max-width:880px){
   .gallery{justify-items:center}
   .gallery .main.tall{width:100%;height:auto;aspect-ratio:3/4;max-width:100%}
@@ -353,7 +353,7 @@ footer p{margin:0;opacity:.8}
 h1,h2,h3{line-height:1.15}
 .b-name{font-size:clamp(34px,5vw,54px);font-weight:800;line-height:1;margin:6px 0 16px}
 .b-gal{margin-bottom:18px}
-.lead.pitch{font-size:17px;line-height:1.6;color:var(--ink)}.b-media .lead.pitch{margin-top:24px}.spec-row + .lead.pitch{margin-top:18px}.lead.pitch strong{color:var(--sea);font-weight:700}
+.b-gal{margin-top:0}.boat{row-gap:20px}.boat .b-info .spec-row{margin-bottom:0}.lead.pitch{font-size:17px;line-height:1.6;color:var(--ink)}.b-media .lead.pitch{margin-top:24px}.spec-row + .lead.pitch{margin-top:18px}.lead.pitch strong{color:var(--sea);font-weight:700}
 .bring{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}.bring li{display:flex;gap:10px;align-items:flex-start;line-height:1.45}.bring-note{margin:10px 0 0;color:var(--muted);font-size:14px}
 .b-inc{display:none} /* o empilhamento do quadro de valores já mostra tudo o que vem no passeio (pedido do Rodrigo) */
 @media (max-width:600px){
@@ -378,7 +378,8 @@ h1,h2,h3{line-height:1.15}
   footer .wrap{flex-direction:column;align-items:center;text-align:center;gap:22px}
   footer .legal{font-family:var(--body);text-align:center}
   .crumb{text-align:center}
-  .boat{display:flex;flex-direction:column;align-items:stretch;gap:26px;padding-top:12px}
+  .boat{display:flex;flex-direction:column;align-items:stretch;gap:18px;padding-top:12px}
+  .boat .pricebox{margin-top:8px}
   .boat .b-info{display:contents}
   .b-info > div:first-child{order:1}.b-media{order:2}.boat .pricebox{order:3}
   .b-head{text-align:center}
@@ -1399,7 +1400,7 @@ function boatPage(b){
         <div class="block b-inc"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
       </div>
       <div class="b-media">
-        <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
+        <div class="block b-gal"><div>${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
         <p class="lead pitch">${(PITCH[b.slug]||{})[lang] || bt(b,"description")}</p>
         <div class="block b-bring"><h2>${t("bring")}</h2><ul class="bring">${(UI[lang].bringList||UI.pt.bringList).map(x=>`<li><span aria-hidden="true">✅</span>${x}</li>`).join("")}</ul></div>
         <div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>
