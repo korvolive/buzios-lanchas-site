@@ -3,6 +3,8 @@
 // POST { tipo: "aprovado", id: <bloqueio> }  (só o administrador) avisa os donos da lancha
 // POST { tipo: "pedido",   id: <pedido> }    (o próprio cliente, uma vez) avisa o administrador
 // POST { tipo: "teste" }                       avisa só quem chamou
+// POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa o administrador quando um passeio da Búzios Lanchas termina,
+//                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 // As chaves do envio são criadas aqui mesmo na primeira vez e ficam em push_config (ninguém do app lê).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -41,6 +43,11 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     en: p => ({ title: "New request from the website", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people` }),
     es: p => ({ title: "Pedido nuevo desde el sitio", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas` }),
   },
+  fim: {
+    pt: p => ({ title: "Passeio terminou: confirme", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confirme que aconteceu para o cliente poder avaliar.` }),
+    en: p => ({ title: "Trip ended: please confirm", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confirm it happened so the client can rate it.` }),
+    es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confirma que ocurrió para que el cliente pueda evaluar.` }),
+  },
   teste: {
     pt: () => ({ title: "Notificações ativadas", body: "Você vai receber os avisos da Búzios Lanchas aqui." }),
     en: () => ({ title: "Notifications are on", body: "You will get Búzios Lanchas alerts here." }),
@@ -67,10 +74,39 @@ async function enviar(users: string[], tipo: string, p: any, url: string) {
   return n;
 }
 
+// fim do passeio no horário de Búzios (UTC-3): hora_fim combinada, senão o fim do horário padrão; a noite só conta no dia seguinte
+const FIM: Record<string, number> = { manha: 14, tarde: 18, dia: 17, noite: 99 };
+async function fins() {
+  const agora = new Date(Date.now() - 3 * 3600 * 1000), hoje = agora.toISOString().slice(0, 10), hora = agora.getUTCHours() + agora.getUTCMinutes() / 60;
+  const d0 = new Date(agora.getTime() - 3 * 86400 * 1000).toISOString().slice(0, 10);
+  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, anotacoes(origem, cliente, cliente_conta, hora_fim), realizados(aconteceu), fim_avisos(bloqueio_id)").gte("data", d0).lte("data", hoje);
+  if (error) { console.error("fim", error.message); return 0; }
+  const um = (x: any) => Array.isArray(x) ? x[0] : x;
+  const prontos = (bs || []).filter(b => {
+    const a = um(b.anotacoes);
+    if (!a || !(a.origem === "buzios" || a.cliente_conta) || um(b.realizados) || um(b.fim_avisos)) return false;
+    if (b.data < hoje) return true;
+    const fim = a.hora_fim ? (([h, m]) => h + m / 60)(String(a.hora_fim).split(":").map(Number)) : FIM[b.horario] ?? 99;
+    return hora >= fim;
+  });
+  if (!prontos.length) return 0;
+  const { data: novos } = await db.from("fim_avisos").upsert(prontos.map(b => ({ bloqueio_id: b.id })), { onConflict: "bloqueio_id", ignoreDuplicates: true }).select("bloqueio_id");
+  const ok = new Set((novos || []).map(n => n.bloqueio_id));
+  const { data: ads } = await db.from("admins").select("user_id");
+  const alvo = (ads || []).map(a => a.user_id);
+  const nomes = new Map<string, string>();
+  for (const l of new Set(prontos.map(b => b.lancha))) nomes.set(l, (await db.from("lanchas").select("nome").eq("slug", l).maybeSingle()).data?.nome || l);
+  let n = 0;
+  for (const b of prontos.filter(b => ok.has(b.id))) n += await enviar(alvo, "fim", { id: b.id, lancha: nomes.get(b.lancha), data: b.data, horario: b.horario, cliente: um(b.anotacoes)?.cliente || "" }, "/login/");
+  return n;
+}
+
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
     if (req.method === "GET") return json({ publica: (await chaves()).publica });
+    const corpo = await req.clone().json().catch(() => ({}));
+    if (corpo.tipo === "fim") return json({ enviados: await fins() });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     const { data: u } = await db.auth.getUser(token);
     const uid = u?.user?.id;
