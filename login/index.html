@@ -422,7 +422,7 @@ Object.assign(T.pt, {
   st_pendente:"Aguardando o sinal de 50%", st_aprovado:"Confirmado", st_recusado:"Não fechado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"Desistir deste pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Reservas", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqCanc:"Cancelados", reqNone:"Nenhuma reserva aqui.",
-  reqSub:"Reservas feitas pelo site por clientes cadastrados. Só você vê. Aprove depois de receber o sinal: o passeio entra na agenda da lancha já preenchido.",
+  reqSub:"Todas as reservas das lanchas: as lançadas na agenda e os pedidos do site. Só você vê. Pré-reservas sem sinal ficam em Pendentes. Pedidos do site: aprove depois de receber o sinal e o passeio entra na agenda já preenchido.",
   approve:"Aprovar", refuseReq:"Recusar", refuseQ:"Recusar o pedido de {name}?", approveT:"Aprovar pedido", approveSub:"Confira e ajuste lancha, data e horário se o cliente mudou. Ao salvar, o passeio entra na agenda da lancha.",
   approved:"Pedido aprovado! O passeio já está na agenda da {boat}.", refusedReq:"Pedido recusado.", openTripB:"Abrir o passeio", reqAt:"pedido em {d}",
   needSqlCli:"Falta criar a parte de clientes no Supabase (arquivo 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -442,7 +442,7 @@ Object.assign(T.en, {
   st_pendente:"Awaiting 50% deposit", st_aprovado:"Confirmed", st_recusado:"Not booked", st_cancelado:"Cancelled",
   giveUp:"Cancel", giveUpQ:"Cancel this request?", gaveUp:"Request cancelled.",
   tabReq:"Bookings", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqCanc:"Cancelled", reqNone:"No bookings here.",
-  reqSub:"Bookings made on the website by registered customers. Only you see them. Approve after receiving the deposit: the tour goes into the boat's calendar already filled in.",
+  reqSub:"All boat bookings: the ones entered in the calendar and the website requests. Only you see them. Pre-bookings without a deposit stay in Pending. Website requests: approve after receiving the deposit and the tour goes into the calendar already filled in.",
   approve:"Approve", refuseReq:"Decline", refuseQ:"Decline {name}'s request?", approveT:"Approve request", approveSub:"Check and adjust boat, date and time if the customer changed them. When you save, the tour goes into the boat's calendar.",
   approved:"Request approved! The tour is now in {boat}'s calendar.", refusedReq:"Request declined.", openTripB:"Open the tour", reqAt:"requested on {d}",
   needSqlCli:"The customers part is missing in Supabase (file 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -462,7 +462,7 @@ Object.assign(T.es, {
   st_pendente:"Esperando la seña del 50%", st_aprovado:"Confirmado", st_recusado:"No cerrado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"¿Desistir de este pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Reservas", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqCanc:"Cancelados", reqNone:"Ninguna reserva aquí.",
-  reqSub:"Reservas hechas en el sitio por clientes registrados. Solo tú los ves. Aprueba después de recibir la seña: el paseo entra en la agenda de la lancha ya completo.",
+  reqSub:"Todas las reservas de las lanchas: las cargadas en la agenda y los pedidos del sitio. Solo tú las ves. Las prerreservas sin seña quedan en Pendientes. Pedidos del sitio: aprueba después de recibir la seña y el paseo entra en la agenda ya completo.",
   approve:"Aprobar", refuseReq:"Rechazar", refuseQ:"¿Rechazar el pedido de {name}?", approveT:"Aprobar pedido", approveSub:"Revisa y ajusta lancha, fecha y horario si el cliente cambió. Al guardar, el paseo entra en la agenda de la lancha.",
   approved:"¡Pedido aprobado! El paseo ya está en la agenda de {boat}.", refusedReq:"Pedido rechazado.", openTripB:"Abrir el paseo", reqAt:"pedido el {d}",
   needSqlCli:"Falta crear la parte de clientes en Supabase (archivo 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -1037,14 +1037,14 @@ const isRO = (l=S.cur) => !!(l && l!=="*" && S.ro[l]);
 const boatName = slug => S.all.find(b=>b.slug===slug)?.nome || slug;
 const cmpRows = (x,z)=>x.data<z.data?-1:x.data>z.data?1:SLOT_ORDER[x.horario]-SLOT_ORDER[z.horario];
 const WA_ICON = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>`;
-function tripCard(r){
+function tripCard(r, rq){ /* rq===true: na aba Reservas (todas as lanchas, vários meses) */
   const n=r.nota||{}, d=dateOf(r.data), v=+n.valor||0, dp=+n.sinal||0;
   const pay = v ? (dp>=v ? `<small class="ok">${t("paid")}</small>` : `<small>${dp?t("toPay",{v:brl(v-dp)}):t("toPay",{v:brl(v)})}</small>`) : "";
   const ph=splitPhone(n.telefone), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
   return `<div role="button" tabindex="0" class="trip${r.horario==="dia"?" full":""}" data-trip="${r.id}">
-    <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".","")}</span></span>
+    <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),rq===true?{month:"short"}:{weekday:"short"}).replace(".","")}</span></span>
     <span class="tbody">${n.cliente?`<strong class="who">${n.cliente_conta?face(n.cliente_conta,n.cliente,"face sm"):""}<span class="cnm">${esc(n.cliente)}</span>${n.cliente_conta?`<small class="csite">✓ ${t("siteClient")}</small>`:""}</strong>`:`<em>${t("noClientName")}</em>`}
-      <span>${t("slot_"+r.horario)}${r.horario==="noite"&&!n.hora_ini?"":" · "+slotHours(r.horario,n)}${S.cur==="*"?" · "+esc(boatName(r.lancha)):""}</span>
+      <span>${t("slot_"+r.horario)}${r.horario==="noite"&&!n.hora_ini?"":" · "+slotHours(r.horario,n)}${S.cur==="*"||rq===true?" · "+esc(boatName(r.lancha)):""}</span>
       <span class="tmeta">${isPending(n)?`<i class="hold">⏳ ${t("holdTag")}</i>`:""}${n.origem?`<i class="org org-${n.origem}">${t("o_"+n.origem)}</i>`:""}${n.pessoas?`<i>${n.pessoas} ${t("people").toLowerCase()}</i>`:""}${n.embarque?`<i>📍 ${esc(n.embarque.replace(/ \(Praia dos Ossos\)/,""))}</i>`:""}${sailorName(r.lancha,n.marinheiro)?`<i class="who">⚓ ${face(n.marinheiro,sailorName(r.lancha,n.marinheiro),"face xs")}${esc(sailorName(r.lancha,n.marinheiro))}</i>`:n.marinheiro_recusou&&!n.marinheiro?`<i class="warn">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</i>`:S.marOk&&S.sailors&&!isRO(r.lancha)&&r.data>=todayISO()?`<i class="warn">⚠ ${t("sailorUnset")}</i>`:""}${n.ajudante?`<i>🤝 ${esc(n.ajudante)}</i>`:""}${n.obs?`<i class="obsch" role="button" tabindex="0" aria-label="${t("obsShow")}" data-obs="${esc(n.obs)}">📝 ${t("obsTag")}</i>`:""}${S.unseen?.has(r.id)?`<i class="newt">● ${t("newTag")}</i>`:""}${!n.cliente&&S.notes&&!isRO(r.lancha)?`<i class="addc">${t("addClient")}</i>`:""}</span></span>
     <span class="tside">${v?`<span class="tval"><b>${brl(v)}</b>${pay}</span>`:""}
     ${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("waClient",{name:esc(n.cliente||"")})}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`;
@@ -1370,12 +1370,16 @@ function pedidosHTML(){
   /* Histórico = passeios que já aconteceram e foram confirmados; Cancelados = apagados, recusados, desistências, os que não aconteceram e pendentes que passaram da data */
   const f=S.reqF||"pendente", today=todayISO(), feito=p=>(S.feitos||{})[p.bloqueio_id];
   const kind=p=> p.status==="pendente" ? (p.data>=today ? "pendente" : "canc") : p.status!=="aprovado" ? "canc" : feito(p)===true ? "hist" : feito(p)===false ? "canc" : "aprovado";
-  const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows);
-  return `<p class="how muted">${t("reqSub")}</p>
+  /* passeio da agenda: pré-reserva sem sinal = pendente; depois de confirmado que aconteceu = histórico */
+  const kindT=r=> isPending(r.nota) ? "pendente" : S.feitos?.[r.id]===true ? "hist" : S.feitos?.[r.id]===false ? "canc" : "aprovado";
+  const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); (S.reqTrips||[]).forEach(r=>L[kindT(r)].push(r));
+  L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows); L.hist.sort((x,z)=>cmpRows(z,x)); L.canc.sort((x,z)=>cmpRows(z,x));
+  const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
+  return `${confirmHTML()}<p class="how muted">${t("reqSub")}</p>
     <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${!L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
-      : f==="aprovado" ? byBoat(L[f]).map(([l,rs])=>`<div class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}</span></div><div class="trips">${rs.map(p=>reqCard(p,true)).join("")}</div>`).join("")
-      : `<div class="trips">${L[f].map(p=>reqCard(p,true)).join("")}</div>`}`;
+      : f==="aprovado" ? byBoat(L[f]).map(([l,rs])=>`<div class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}</span></div><div class="trips">${rs.map(card).join("")}</div>`).join("")
+      : `<div class="trips">${L[f].map(card).join("")}</div>`}`;
 }
 /* card "Clientes cadastrados" (com os convites que ainda não viraram conta), em Usuários › Clientes */
 const clisCardHTML = () => S.clis ? `<button type="button" class="card clibtn" id="clisgo"><span>👥 <b>${t("cliT")}</b><small class="muted">${t("cliCount",{n:S.clis.length})}${S.invs?.length?" · "+t(S.invs.length===1?"invCount1":"invCount",{n:1*S.invs.length}):""}</small></span><span aria-hidden="true">›</span></button>` : "";
@@ -1387,6 +1391,9 @@ async function loadReqs(){
   try{ S.reqs = await db("pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em,clientes(nome,cpf,whatsapp)&order=criado_em.desc&limit=300");
     S.reqs.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); /* o passeio foi apagado da agenda */
     S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
+    /* passeios lançados direto na agenda de qualquer lancha (sem pedido do site) também entram em Reservas */
+    const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
+    S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>r.nota && !ligados.has(r.id));
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
 }
@@ -1727,10 +1734,10 @@ function bindMain(){
     if(!ok && !confirm(t("cfNoQ"))) return;
     x.disabled=true;
     const b=S.toConfirm.find(b=>b.id===id);
-    try{ await db("rpc/confirmar_passeio",{method:"POST",body:{bid:id, ok}}); S.toConfirm=S.toConfirm.filter(b=>b.id!==id); toast(ok?t("cfDone"):t("cfNoDone")); mainView(); if(ok && b) askReview(b); }
+    try{ await db("rpc/confirmar_passeio",{method:"POST",body:{bid:id, ok}}); S.toConfirm=S.toConfirm.filter(b=>b.id!==id); if(S.feitos) S.feitos[id]=ok; toast(ok?t("cfDone"):t("cfNoDone")); mainView(); if(ok && b) askReview(b); }
     catch(e){ x.disabled=false; toast(e.code==="P0001"?e.message:t("saveErr")); } });
   const sa=document.getElementById("seenall"); if(sa) sa.onclick=()=>{ markSeen([...(S.unseen||[])]); mainView(); };
-  app.querySelectorAll("[data-trip]").forEach(x=>{ const go=()=>{ const id=+x.dataset.trip; if(S.unseen?.has(id)) markSeen([id]); openTrip([...S.upcoming,...(S.past||[])].find(r=>r.id===id)); };
+  app.querySelectorAll("[data-trip]").forEach(x=>{ const go=()=>{ const id=+x.dataset.trip; if(S.unseen?.has(id)) markSeen([id]); openTrip([...S.upcoming,...(S.past||[]),...(S.reqTrips||[])].find(r=>r.id===id)); };
     x.onclick=e=>{ if(!e.target.closest(".twa,.obsch")) go(); }; x.onkeydown=e=>{ if((e.key==="Enter"||e.key===" ")&&e.target===x){ e.preventDefault(); go(); } }; });
   app.querySelectorAll("[data-it]").forEach(x=>x.onclick=async()=>{ const k=x.dataset.it, was=(S.items||[]).includes(k), lancha=S.cur;
     const next = was ? S.items.filter(i=>i!==k) : [...(S.items||[]), k];
@@ -1917,6 +1924,7 @@ async function fetchRows(q){
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){
   if(!S.cur) return mainView();
+  if(S.admin && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
   if(S.tab==="pedidos" && S.admin){ const my=++loadSeq; await loadReqs(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await loadUsers(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="lancha" && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
@@ -2275,7 +2283,7 @@ async function boot(){
     S.pushWho = S.admin || mine.length>0 || S.isFree || (S.sailorOf||[]).length>0; /* marinheiros também: recebem o aviso quando são escolhidos para pilotar */
     S.marRates = {};
     if(owner) db("rpc/notas_marinheiros",{method:"POST",body:{}}).then(r=>{ r.forEach(x=>S.marRates[x.marinheiro]={media:+x.media,total:+x.total}); if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{});
-    await loadToConfirm();
+    if(S.tab!=="pedidos" && S.tab!=="lista") await loadToConfirm();
     await loadBlocks();
     autoPush();
   }catch(e){
