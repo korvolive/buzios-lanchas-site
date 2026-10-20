@@ -742,6 +742,7 @@ function completeView(msg=""){
 async function loadMyReq(){
   await db("rpc/resgatar_convites",{method:"POST",body:{}}).catch(()=>0); /* passeios que a Búzios Lanchas colocou para este e-mail */
   S.myReq = await db("pedidos?select=id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id&order=data.desc&limit=100").catch(()=>[]);
+  S.myReq.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); /* o passeio foi apagado da agenda */
   /* passeios que a Búzios Lanchas confirmou como realizados e as avaliações já feitas (sem as tabelas, segue sem elas) */
   const [re, av] = await Promise.all([db("rpc/meus_realizados",{method:"POST",body:{}}).catch(()=>null), db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro,comentario_mar").catch(()=>db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro")).catch(()=>null)]);
   S.revOk = re!==null && av!==null;
