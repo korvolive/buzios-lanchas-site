@@ -387,7 +387,6 @@ h1,h2,h3{line-height:1.15}
   .pricebox{padding:20px 18px}.pricebox > h2{text-align:center}
   .block h2{text-align:center}
   .pr-wait,.pricebox .fine{text-align:center}
-  .b-gal .gallery .main,.b-gal .gallery .main.tall{aspect-ratio:4/3;height:auto;width:100%}
   .b-media .block:has(.vid.empty){display:none} /* sem vídeo ainda: não ocupa espaço antes do valor */
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -1389,8 +1388,9 @@ function boatPage(b){
     <div class="boat">
       <div class="b-info">
         <div>
-          <div class="b-head"><span class="eyebrow">${b.featured?t("featured"):t("boat")}</span><h1 class="b-name">${b.name}</h1></div>
-          <div class="b-gal">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div></div>`}</div>
+          <div class="b-head"><span class="eyebrow">${b.featured?t("featured"):t("boat")}</span>
+          <div class="b-title"><h1>${b.name}</h1>${b.photos?`<img class="b-avatar" src="/img/${b.photos[0][0]}-t.jpg" alt="${t("photoOf",{name:b.name})}" style="object-position:${b.photos[0][2]}">`:""}</div>
+          </div>
           <p class="lead pitch">${(PITCH[b.slug]||{})[lang] || bt(b,"description")}</p>
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
@@ -1405,6 +1405,7 @@ function boatPage(b){
           <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
       <div class="b-media">
+        <div class="block"><h2>${t("photos")}</h2><div style="margin-top:12px">${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
         <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="/img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
