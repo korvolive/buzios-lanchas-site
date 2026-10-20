@@ -1371,9 +1371,9 @@ async function reloadPeople(){
 const teamKind = u => u.fixo.length ? {tipo:"fixo", lancha:u.fixo[0]} : u.freelancer ? {tipo:"freelancer"} : null;
 const avisarUser = (u, pw="") => { const k=teamKind(u); if(k) avisoEquipe({nome:u.nome||u.email, email:u.email, tel:u.telefone, ...k, pw}); };
 const roleList = u => { const R=[]; if(u.admin) R.push({k:"admin"}); u.donos.forEach(l=>R.push({k:"dono",l})); u.fixo.forEach(l=>R.push({k:"fixo",l}));
-  if(u.freelancer) R.push({k:"free"}); u.funcionario.forEach(l=>R.push({k:"func",l})); if(u.cliente) R.push({k:"cli"}); return R; };
+  if(u.freelancer) R.push({k:"free"}); /* funcionário não existe mais: o marinheiro fixo é quem vê a agenda da lancha */ if(u.cliente) R.push({k:"cli"}); return R; };
 const roleTag = r => `<span class="rtag r-${r.k}">${t("role_"+r.k)}${r.l?` · ${esc(boatName(r.l))}`:""}</span>`;
-const USER_F = [["todos",()=>true],["dono",u=>u.donos.length>0],["mar",u=>u.fixo.length>0||u.freelancer],["cli",u=>u.cliente],["func",u=>u.funcionario.length>0],["sem",u=>!roleList(u).length]];
+const USER_F = [["todos",()=>true],["dono",u=>u.donos.length>0],["mar",u=>u.fixo.length>0||u.freelancer],["cli",u=>u.cliente],["sem",u=>!roleList(u).length]];
 const fmtD = s => new Date(s).toLocaleDateString(t("locale"),{day:"numeric",month:"short",year:"numeric"}).replace(/\./g,"");
 function usuariosHTML(){
   if(S.users===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlUsers")}</p></div>`;
@@ -1414,7 +1414,7 @@ async function roleRm(u, k, l){ const e=u.email;
   if(k==="free") return RPC("remover_freelancer",{email_mar:e});
   if(k==="func") return RPC("remover_visualizador",{email_func:e, l});
 }
-const roleOpts = (skipFree) => [["dono"],["fixo"],["func"],...(skipFree?[]:[["free"]])].map(([k])=>`<option value="${k}">${t("role_"+k)}</option>`).join("");
+const roleOpts = (skipFree) => [["dono"],["fixo"],...(skipFree?[]:[["free"]])].map(([k])=>`<option value="${k}">${t("role_"+k)}</option>`).join("");
 const boatOpts = () => S.all.map(b=>`<option value="${b.slug}">${esc(b.nome)}</option>`).join("");
 const errMsg = x => x.code==="P0001" ? esc(x.message) : x.status ? t("saveErr") : t("netErr");
 async function afterUser(uid, msg=""){ await reloadPeople(); mainView(); if(S.users?.some(u=>u.user_id===uid)) openUser(uid, msg); else closeDay(); }
