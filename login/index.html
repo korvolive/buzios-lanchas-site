@@ -245,7 +245,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .top-lang option{background:#0b3a4a;color:#fff}.howcard{margin-top:22px}.howcard h3{margin:0 0 6px;font-size:16px}.howcard p{margin:0;font-size:14px}.rmcol{display:flex;flex-direction:column;gap:6px;align-items:flex-end}.rm.avs{color:var(--sea,#0b5d6b)}.payhint{display:block;font-size:13px;margin-top:6px;color:var(--warn,#9a6b00)}.reqbtns{display:flex;gap:8px;margin-top:10px}.reqbtns .btn{padding:10px 12px;font-size:15px;width:auto;flex:1}
 .tabs.sub button{font-size:14px;padding:8px 4px}
 .clibtn{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;padding:14px 16px}.clibtn>span:first-child{display:flex;flex-direction:column;gap:2px}.clibtn>span:last-child{font-size:26px;color:var(--muted)}
-.cli{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.cli .who span{display:flex;flex-direction:column;min-width:0}.cli small{word-break:break-word}.cli[hidden]{display:none}
+.cli{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.cliedit{flex:1;min-width:0;border:0;background:none;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}.cliedit .car{margin-left:auto;color:var(--muted);font-size:22px;flex:none}.cli .who span{display:flex;flex-direction:column;min-width:0}.cli small{word-break:break-word}.cli[hidden]{display:none}
 #hrf[hidden],#hrnote[hidden]{display:none}.acct{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}.acct h3{margin:0 0 2px}
 .hrbox{margin:0 0 10px}.hrbox .link{padding:4px 0;margin:0 0 8px;font-weight:700}
 .tmeta i.obsch{cursor:pointer;color:var(--sea);font-weight:700;border-bottom:1px dotted currentColor}#obspop{position:fixed;z-index:60;background:#0b2a3a;color:#fff;font-size:14px;line-height:1.4;padding:10px 12px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);white-space:pre-wrap;overflow-wrap:anywhere}#obspop[hidden]{display:none}.tmeta i.mnote{flex-basis:100%;white-space:pre-wrap;background:#fff7e0;border:1px solid #ecd9a4;border-radius:8px;padding:4px 8px;color:#5a4410}.mnbox{margin-top:14px}.mnview{background:#fff7e0;border:1px solid #ecd9a4;border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:14px}.mnview p{margin:4px 0 0;white-space:pre-wrap}
@@ -1369,7 +1369,7 @@ function openClients(){
   sheet.innerHTML = `<div class="grab"></div><h2>👥 ${t("cliT")} (${cl.length})</h2>
     ${cl.length>3?`<input type="search" class="in" id="cliq" placeholder="🔍 ${t("cliQ")}" aria-label="${t("cliQ")}" autocomplete="off" style="margin-bottom:10px">`:""}
     ${cl.length ? `<div class="clis">${cl.map(c=>`<div class="cli" data-q="${esc(fold([c.nome,c.email,c.whatsapp].join(" ")))}">
-      <div class="who">${face(c.user_id,c.nome,"face")}<span><strong>${esc(c.nome||"—")}</strong><small class="muted">${c.email?esc(c.email)+"<br>":""}${t(+c.passeios===1?"cliTrip1":"cliTripsN",{n:c.passeios})} · ${t("cliSince")} ${since(c.criado_em)}</small></span></div>
+      <button type="button" class="who cliedit" data-cu="${c.user_id}">${face(c.user_id,c.nome,"face")}<span><strong>${esc(c.nome||"—")}</strong><small class="muted">${c.email?esc(c.email)+"<br>":""}${t(+c.passeios===1?"cliTrip1":"cliTripsN",{n:c.passeios})} · ${t("cliSince")} ${since(c.criado_em)}</small></span><span class="car" aria-hidden="true">›</span></button>
       ${c.whatsapp?`<a class="twa" href="https://wa.me/${wa(c.whatsapp)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome||"")}">${WA_ICON}<span>WhatsApp</span></a>`:""}</div>`).join("")}</div>` : `<p class="muted">${t("cliNone")}</p>`}
     ${inv.length ? `<h3 style="margin:20px 0 4px">✉ ${t("invPendT")} (${inv.length})</h3><p class="muted" style="margin:0 0 8px;font-size:14px">${t("invPendSub")}</p>
       <div class="clis">${inv.map(v=>`<div class="cli" data-q="${esc(fold([v.nome,v.email,v.telefone].join(" ")))}"><div class="who">${face(null,v.nome||"?","face")}<span><strong>${esc(v.nome||"—")}</strong><small class="muted">${v.email?esc(v.email)+"<br>":""}${t("invSent")} ${new Date(v.criado_em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"})}</small></span></div>
@@ -1377,6 +1377,7 @@ function openClients(){
     <button type="button" class="btn sec" id="clix" style="margin-top:14px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   document.getElementById("clix").onclick=closeDay;
+  sheet.querySelectorAll("[data-cu]").forEach(x=>x.onclick=async()=>{ if(!S.users) await loadUsers(); openUser(x.dataset.cu); }); /* abre a mesma ficha de Usuários para editar */
   const q=document.getElementById("cliq"); if(q) q.oninput=()=>{ const v=fold(q.value.trim()); sheet.querySelectorAll(".cli").forEach(x=>x.hidden=!!v && !x.dataset.q.includes(v)); };
 }
 function profView(){
@@ -2146,6 +2147,8 @@ function renderTrip(){
       }
       if(pedidoFor) nota.cliente_conta = pedidoFor.cliente; else if(n.cliente_conta) nota.cliente_conta = n.cliente_conta; /* não perde o vínculo ao editar */
       if(S.notes && (hasNote || row.nota)) await db("anotacoes",{method:"POST", body:{bloqueio_id:row.id, ...nota}, prefer:"resolution=merge-duplicates,return=minimal"});
+      /* marinheiro escolhido (ou trocado) num passeio fechado: avisa ele no celular e por e-mail */
+      if(nota.marinheiro && !isPending(nota) && (tripNew || nota.marinheiro!==n.marinheiro || isPending(n))) callFn({tipo:"marinheiro", id:row.id}).catch(()=>{});
       if(pedidoFor){ await db(`pedidos?id=eq.${pedidoFor.id}`,{method:"PATCH",body:{status:"aprovado", bloqueio_id:row.id, lancha:nboat, data:nd, horario:nslot, pessoas:nota.pessoas, atualizado_em:new Date().toISOString()}});
         toast(t("approved",{boat:boatName(nboat)})); const ap=pedidoFor; callFn({tipo:"aprovado", id:row.id}).catch(()=>{}); closeDay(); S.reqF="aprovado"; await loadBlocks();
         return notifyOwner(ap, {lancha:nboat, data:nd, horario:nslot}, nota); }
