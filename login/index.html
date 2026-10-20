@@ -422,7 +422,7 @@ Object.assign(T.pt, {
   st_pendente:"Aguardando o sinal de 50%", st_aprovado:"Confirmado", st_recusado:"Não fechado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"Desistir deste pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Reservas", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqCanc:"Cancelados", reqNone:"Nenhuma reserva aqui.",
-  reqSub:"Todas as reservas das lanchas: as lançadas na agenda e os pedidos do site. Só você vê. Pré-reservas sem sinal ficam em Pendentes. Pedidos do site: aprove depois de receber o sinal e o passeio entra na agenda já preenchido.",
+  reqSub:"Todas as reservas das lanchas: as lançadas na agenda e os pedidos do site. Só você vê. Só entram passeios com pelo menos o sinal pago. Pedidos do site: aprove depois de receber o sinal e o passeio entra na agenda já preenchido.",
   approve:"Aprovar", refuseReq:"Recusar", refuseQ:"Recusar o pedido de {name}?", approveT:"Aprovar pedido", approveSub:"Confira e ajuste lancha, data e horário se o cliente mudou. Ao salvar, o passeio entra na agenda da lancha.",
   approved:"Pedido aprovado! O passeio já está na agenda da {boat}.", refusedReq:"Pedido recusado.", openTripB:"Abrir o passeio", reqAt:"pedido em {d}",
   needSqlCli:"Falta criar a parte de clientes no Supabase (arquivo 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -442,7 +442,7 @@ Object.assign(T.en, {
   st_pendente:"Awaiting 50% deposit", st_aprovado:"Confirmed", st_recusado:"Not booked", st_cancelado:"Cancelled",
   giveUp:"Cancel", giveUpQ:"Cancel this request?", gaveUp:"Request cancelled.",
   tabReq:"Bookings", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqCanc:"Cancelled", reqNone:"No bookings here.",
-  reqSub:"All boat bookings: the ones entered in the calendar and the website requests. Only you see them. Pre-bookings without a deposit stay in Pending. Website requests: approve after receiving the deposit and the tour goes into the calendar already filled in.",
+  reqSub:"All boat bookings: the ones entered in the calendar and the website requests. Only you see them. Only tours with at least the deposit paid are listed. Website requests: approve after receiving the deposit and the tour goes into the calendar already filled in.",
   approve:"Approve", refuseReq:"Decline", refuseQ:"Decline {name}'s request?", approveT:"Approve request", approveSub:"Check and adjust boat, date and time if the customer changed them. When you save, the tour goes into the boat's calendar.",
   approved:"Request approved! The tour is now in {boat}'s calendar.", refusedReq:"Request declined.", openTripB:"Open the tour", reqAt:"requested on {d}",
   needSqlCli:"The customers part is missing in Supabase (file 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -462,7 +462,7 @@ Object.assign(T.es, {
   st_pendente:"Esperando la seña del 50%", st_aprovado:"Confirmado", st_recusado:"No cerrado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"¿Desistir de este pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Reservas", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqCanc:"Cancelados", reqNone:"Ninguna reserva aquí.",
-  reqSub:"Todas las reservas de las lanchas: las cargadas en la agenda y los pedidos del sitio. Solo tú las ves. Las prerreservas sin seña quedan en Pendientes. Pedidos del sitio: aprueba después de recibir la seña y el paseo entra en la agenda ya completo.",
+  reqSub:"Todas las reservas de las lanchas: las cargadas en la agenda y los pedidos del sitio. Solo tú las ves. Solo entran los paseos con al menos la seña pagada. Pedidos del sitio: aprueba después de recibir la seña y el paseo entra en la agenda ya completo.",
   approve:"Aprobar", refuseReq:"Rechazar", refuseQ:"¿Rechazar el pedido de {name}?", approveT:"Aprobar pedido", approveSub:"Revisa y ajusta lancha, fecha y horario si el cliente cambió. Al guardar, el paseo entra en la agenda de la lancha.",
   approved:"¡Pedido aprobado! El paseo ya está en la agenda de {boat}.", refusedReq:"Pedido rechazado.", openTripB:"Abrir el paseo", reqAt:"pedido el {d}",
   needSqlCli:"Falta crear la parte de clientes en Supabase (archivo 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -1370,8 +1370,8 @@ function pedidosHTML(){
   /* Histórico = passeios que já aconteceram e foram confirmados; Cancelados = apagados, recusados, desistências, os que não aconteceram e pendentes que passaram da data */
   const f=S.reqF||"pendente", today=todayISO(), feito=p=>(S.feitos||{})[p.bloqueio_id];
   const kind=p=> p.status==="pendente" ? (p.data>=today ? "pendente" : "canc") : p.status!=="aprovado" ? "canc" : feito(p)===true ? "hist" : feito(p)===false ? "canc" : "aprovado";
-  /* passeio da agenda: pré-reserva sem sinal = pendente; depois de confirmado que aconteceu = histórico */
-  const kindT=r=> isPending(r.nota) ? "pendente" : S.feitos?.[r.id]===true ? "hist" : S.feitos?.[r.id]===false ? "canc" : "aprovado";
+  /* passeio da agenda (já com sinal): depois de confirmado que aconteceu = histórico */
+  const kindT=r=> S.feitos?.[r.id]===true ? "hist" : S.feitos?.[r.id]===false ? "canc" : "aprovado";
   const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); (S.reqTrips||[]).forEach(r=>L[kindT(r)].push(r));
   L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows); L.hist.sort((x,z)=>cmpRows(z,x)); L.canc.sort((x,z)=>cmpRows(z,x));
   const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
@@ -1393,7 +1393,7 @@ async function loadReqs(){
     S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
     /* passeios lançados direto na agenda de qualquer lancha (sem pedido do site) também entram em Reservas */
     const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
-    S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>r.nota && !ligados.has(r.id));
+    S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>+r.nota?.sinal>0 && !ligados.has(r.id)); /* só entra quem já pagou ao menos o sinal */
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
 }
