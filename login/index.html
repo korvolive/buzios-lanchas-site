@@ -808,7 +808,7 @@ function clientView(){
   document.getElementById("out").onclick = logout;
   if(!S.me) return completeView();
   const pr=pendRes(); if(pr){ store.set("reserva-pendente",{...pr, voltou:true}); location.replace(pr.path); return; }
-  const today=todayISO(), rows=S.myReq||[], live=p=>p.data>=today && (p.status==="pendente"||p.status==="aprovado") && !(p.status==="aprovado" && tripEnded(p.data,p.horario));
+  const today=todayISO(), rows=(S.myReq||[]).filter(p=>p.status!=="cancelado" && p.status!=="recusado" && S.done?.get(p.id)?.aconteceu!==false) /* cancelados só o administrador vê (aba Cancelados) */, live=p=>p.data>=today && (p.status==="pendente"||p.status==="aprovado") && !(p.status==="aprovado" && tripEnded(p.data,p.horario));
   const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p));
   app.innerHTML = `<h1 class="hello">${t("cliHello",{name:esc(S.me.nome.split(" ")[0])})}</h1>
     <div class="card"><h2>${t("myTripsT")}</h2><p class="muted" style="margin-top:0">${t("cliSub")}</p><a class="btn" href="/">${t("seeBoats")}</a></div>
