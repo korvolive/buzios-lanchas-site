@@ -90,6 +90,16 @@ html.is-app #hdr-login{display:none}
 
 /* Hero */
 .b-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px}.b-title h1{margin:0}.b-avatar{flex:none;width:128px;height:128px;margin-right:14%;position:relative;top:-14px;border-radius:50%;object-fit:cover;border:1.5px solid var(--brass);box-shadow:0 6px 20px rgba(0,0,0,.22)}@media (max-width:760px){.b-avatar{width:96px;height:96px;margin-right:11%;top:-10px}}
+.b-title.sel{justify-content:flex-start;flex-wrap:wrap;gap:8px 14px}
+.selo{position:relative}
+.selo > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font:700 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--brass-ink);background:var(--brass);border-radius:999px;padding:7px 11px;box-shadow:0 2px 10px rgba(201,154,46,.35);animation:selo 2.6s ease-in-out 1s 2}
+.selo > summary::-webkit-details-marker{display:none}
+@keyframes selo{50%{box-shadow:0 0 0 6px rgba(201,154,46,.18)}}
+.selo-pop{position:absolute;z-index:5;top:calc(100% + 8px);left:0;width:min(300px,86vw);background:var(--surface,#fff);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.18);font-size:14px;line-height:1.45;text-align:left}
+.selo-pop::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px} /* ponte para o mouse não fechar o selo */
+.selo-pop strong{display:block;font:800 15px/1.3 var(--display);margin-bottom:6px}
+.selo-pop ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+@media (max-width:600px){.b-title.sel{flex-direction:column;align-items:center}.selo-pop{left:50%;transform:translateX(-50%)}}
 .hero{background:var(--sea-deep);color:#eaf4f6;position:relative;overflow:hidden}
 .hero .wrap{padding-block:56px 72px;display:grid;gap:28px;position:relative;z-index:1}
 .hero h1{font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.02;max-width:14ch}
@@ -778,7 +788,7 @@ const UI = {
     fullDay:"Dia completo", tour7h:"Passeio de 7 horas", fromPrice:"a partir de {p}", priceOnRequest:"Valor sob consulta",
     longText:"Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.",
     exampleBanner:"Valores de exemplo, não são preços reais.",
-    pickTitle:"Data, horário e pessoas", pickDate:"Data do passeio", pickSlot:"Horário", otherTime:"Horários padrão. Outros horários podem ser combinados pelo WhatsApp.", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
+    pickTitle:"Data, horário e pessoas", seloT:"Lancha premium", seloH:"Por que a Miss Bardot é diferente", seloL:"❄️ Ar-condicionado para descansar no fresco entre uma praia e outra|🔊 Som premium de verdade, com qualidade de show|🛏️ Cabine com cama de casal, TV e Wi-Fi Starlink|⚡ Gerador próprio: tudo funcionando o passeio inteiro", pickDate:"Data do passeio", pickSlot:"Horário", otherTime:"Horários padrão. Outros horários podem ser combinados pelo WhatsApp.", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
     checking:"Verificando a agenda…", busy:"<strong>Indisponível</strong> em {date} ({slot}). Escolha outro horário ou outra data.", unavail:"Indisponível",
     whenTitle:"Em qual período você vai estar em Búzios?", whenFrom:"Chegada", whenTo:"Saída", whenClear:"Limpar", periodMax:"O período pode ter no máximo 15 dias.", rangeOne:"em {d}", rangeTwo:"entre {de} e {ate}",
     whenFree:"{n} lanchas com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenFree1:"1 lancha com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenWa:"Olá! Vi no site Búzios Lanchas e vou estar em Búzios {range}. Gostaria de saber quais lanchas estão disponíveis{people}.", fitNone:"Nenhuma lancha para {people}. Fale com a gente no WhatsApp que encontramos uma opção.", whenNone:"Nenhuma lancha livre {range}{people}. Mude as datas ou fale com a gente no WhatsApp.",
@@ -833,7 +843,7 @@ const UI = {
     fullDay:"Full day", tour7h:"7-hour tour", fromPrice:"from {p}", priceOnRequest:"Price on request",
     longText:"More beaches, more time for snorkeling and an unhurried barbecue. Ideal for spending the whole day at sea.",
     exampleBanner:"Example prices, not real rates.",
-    pickTitle:"Date, time and guests", pickDate:"Tour date", pickSlot:"Time", otherTime:"Standard times. Other times can be arranged on WhatsApp.", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
+    pickTitle:"Date, time and guests", seloT:"Premium boat", seloH:"Why Miss Bardot stands out", seloL:"❄️ Air conditioning to cool off between beaches|🔊 A truly premium sound system, concert quality|🛏️ Cabin with a double bed, TV and Starlink Wi-Fi|⚡ Its own generator: everything runs the whole tour", pickDate:"Tour date", pickSlot:"Time", otherTime:"Standard times. Other times can be arranged on WhatsApp.", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
     checking:"Checking availability…", busy:"<strong>Unavailable</strong> on {date} ({slot}). Pick another time or date.", unavail:"Unavailable",
     whenTitle:"When will you be in Búzios?", whenFrom:"Arrival", whenTo:"Departure", whenClear:"Clear", periodMax:"The period can be at most 15 days.", rangeOne:"on {d}", rangeTwo:"between {de} and {ate}",
     whenFree:"{n} boats with free times {range}{people}. Pick a boat to see the days and times.", whenFree1:"1 boat with free times {range}{people}. Pick the boat to see the days and times.", whenWa:"Hi! I saw the Búzios Lanchas website and I'll be in Búzios {range}. I'd like to know which boats are available{people}.", fitNone:"No boat for {people}. Message us on WhatsApp and we'll find an option.", whenNone:"No boats available {range}{people}. Change the dates or message us on WhatsApp.",
@@ -888,7 +898,7 @@ const UI = {
     fullDay:"Día completo", tour7h:"Paseo de 7 horas", fromPrice:"desde {p}", priceOnRequest:"Precio a consultar",
     longText:"Más playas, más tiempo para el snorkel y asado sin apuro. Ideal para aprovechar todo el día en el mar.",
     exampleBanner:"Precios de ejemplo, no son precios reales.",
-    pickTitle:"Fecha, horario y personas", pickDate:"Fecha del paseo", pickSlot:"Horario", otherTime:"Horarios estándar. Otros horarios se pueden combinar por WhatsApp.", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
+    pickTitle:"Fecha, horario y personas", seloT:"Lancha premium", seloH:"Por qué la Miss Bardot es diferente", seloL:"❄️ Aire acondicionado para descansar fresco entre una playa y otra|🔊 Sonido premium de verdad, calidad de concierto|🛏️ Camarote con cama doble, TV y Wi-Fi Starlink|⚡ Generador propio: todo funciona el paseo entero", pickDate:"Fecha del paseo", pickSlot:"Horario", otherTime:"Horarios estándar. Otros horarios se pueden combinar por WhatsApp.", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
     checking:"Verificando la agenda…", busy:"<strong>No disponible</strong> el {date} ({slot}). Elige otro horario u otra fecha.", unavail:"No disponible",
     whenTitle:"¿En qué fechas vas a estar en Búzios?", whenFrom:"Llegada", whenTo:"Salida", whenClear:"Borrar", periodMax:"El período puede tener como máximo 15 días.", rangeOne:"el {d}", rangeTwo:"entre el {de} y el {ate}",
     whenFree:"{n} lanchas con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenFree1:"1 lancha con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenWa:"¡Hola! Vi el sitio de Búzios Lanchas y voy a estar en Búzios {range}. Quisiera saber qué lanchas están disponibles{people}.", fitNone:"Ninguna lancha para {people}. Escríbenos por WhatsApp y encontramos una opción.", whenNone:"Ninguna lancha libre {range}{people}. Cambia las fechas o escríbenos por WhatsApp.",
@@ -1402,7 +1412,7 @@ function boatPage(b){
       <div class="b-info">
         <div>
           <div class="b-head"><span class="eyebrow">${t("boat")}</span>
-          <div class="b-title"><h1>${b.name}</h1></div>
+          <div class="b-title${b.featured?" sel":""}"><h1>${b.name}</h1>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
           </div>
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
@@ -1483,6 +1493,7 @@ function bind(){
     applyWhen();
   }
   bindScroll(); bindRoute();
+  const selo=app.querySelector(".selo"); if(selo && matchMedia("(hover:hover)").matches){ selo.onmouseenter=()=>selo.open=true; selo.onmouseleave=()=>selo.open=false; } /* no computador abre ao passar o mouse */
   const c=document.getElementById("copy");
   if(c) c.onclick=()=>{ const tt=document.getElementById("ph-num").textContent;
     try{ navigator.clipboard.writeText(tt).then(()=>c.textContent=t("copied"),()=>sel()); }catch(e){ sel(); }
@@ -1516,6 +1527,7 @@ function waves(){
   }
   draw();
 }
+document.addEventListener("click",e=>{ const x=document.querySelector(".selo[open]"); if(x && !x.contains(e.target)) x.open=false; }); /* selo da Miss Bardot fecha ao tocar fora */
 applyStatic();
 render();
 /* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
