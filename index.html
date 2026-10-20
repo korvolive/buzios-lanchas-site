@@ -294,6 +294,7 @@ html.is-app #hdr-login{display:none}
 .stack small{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4}
 .st-items{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-wrap:wrap;gap:4px}
 .st-items li{background:var(--chip);border-radius:6px;padding:3px 7px;font-size:12px;line-height:1.35;white-space:nowrap}
+.st-items li.gold{background:linear-gradient(135deg,#f3d27a,#e0b54d);color:#2a1f05;font-weight:600;box-shadow:0 1px 6px rgba(224,181,77,.35)}
 @media (max-width:600px){.st-items{margin-left:-46px;margin-top:12px}}
 .pr-val .from em{display:block;font-style:normal;font-size:14px;color:var(--sea);margin-top:6px;font-weight:600}
 .pr-wait{margin:0;padding:12px 14px;border-radius:12px;background:var(--chip);color:var(--muted);font-size:14px}
@@ -1146,7 +1147,9 @@ async function markSlots(b){
 }
 /* empilhamento de tudo o que vem no passeio, antes do valor (pedido do Rodrigo): lancha exclusiva, roteiro, tripulação, itens a bordo e garantias */
 const STACK_SKIP = ["Marinheiro","Marinheiro experiente","Serviço de churrasqueiro"];
-const stackItems = b => boatItems(b).filter(i=>!STACK_SKIP.includes(i)).map(i=>`<li>${tx(i)}</li>`).join("");
+/* destaque dourado (pedido do Rodrigo): esses itens vêm primeiro na lista */
+const STACK_GOLD = ["Wi-Fi Starlink","Ar-condicionado","Piscina inflável"];
+const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...l.filter(i=>STACK_GOLD.includes(i)),...l.filter(i=>!STACK_GOLD.includes(i))].map(i=>STACK_GOLD.includes(i)?`<li class="gold">✦ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join(""); };
 const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t("stBoatT",{f:b.feet})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${t("stRouteP")}</small></div></li>
