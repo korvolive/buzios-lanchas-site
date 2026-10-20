@@ -182,10 +182,10 @@ html.is-app #hdr-login{display:none}
 .gallery .main{position:relative;background:var(--sea-deep)}
 .gallery .main img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery{justify-items:stretch;min-width:0}
-.gallery .main.tall{aspect-ratio:1/1;width:100%;height:auto;max-width:min(100%,680px);justify-self:center} /* quadrado: as fotos (quase todas em pé) preenchem tudo cortando pouco */
+.gallery .main.tall{aspect-ratio:7/6;width:100%;height:auto;max-width:min(100%,680px);justify-self:center} /* quadrado: as fotos (quase todas em pé) preenchem tudo cortando pouco */
 @media (max-width:880px){
   .gallery{justify-items:center}
-  .gallery .main.tall{width:100%;height:auto;aspect-ratio:3/4;max-width:100%}
+  .gallery .main.tall{width:100%;height:auto;aspect-ratio:4/5;max-width:100%}
   .cap{text-align:center}
   .strip{max-width:100%;justify-self:stretch}
 }
@@ -381,7 +381,7 @@ h1,h2,h3{line-height:1.15}
   .boat{display:flex;flex-direction:column;align-items:stretch;gap:18px;padding-top:12px}
   .boat .pricebox{margin-top:8px}
   .boat .b-info{display:contents}
-  .b-info > div:first-child{order:1}.b-media{order:2}.boat .pricebox{order:3}
+  .b-info > div:first-child{order:1}.boat .b-media{display:contents}.b-media > *{order:2}.boat .pricebox{order:3}#site-revs,.b-google{order:4} /* avaliações depois da reserva */
   .b-head{text-align:center}
   .b-title{flex-direction:column-reverse;gap:10px}.b-avatar{margin:0;top:0;width:88px;height:88px}
   .lead{font-size:16px;line-height:1.6}
@@ -1361,7 +1361,6 @@ function gallery(b){
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
       <button type="button" class="nav next" id="g-next" aria-label="${t("nextPhoto")}">›</button>
       <span class="count" id="g-count">1 / ${P.length}</span></div>
-    <p class="cap" id="g-cap">${tx(P[0][1])}</p>
     <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${tx(p[1])}" ${i?"":'aria-current="true"'}><img src="/img/${p[0]}-t.jpg" alt="" loading="lazy"></button>`).join("")}</div>
   </div>`;
 }
@@ -1370,7 +1369,7 @@ function bindGallery(b){
   const mm=document.getElementById("g-main");
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
     m.src=`/img/${P[i][0]}.jpg`; m.alt=tx(P[i][1]); m.style.objectPosition=P[i][2]; document.getElementById("g-blur").src=`/img/${P[i][0]}-t.jpg`;
-    document.getElementById("g-cap").textContent=tx(P[i][1]); document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
+    document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
     document.querySelectorAll("#g-strip button").forEach((t,k)=>{ if(k===i){t.setAttribute("aria-current","true"); t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});} else t.removeAttribute("aria-current"); }); };
   document.getElementById("g-prev").onclick=()=>show(i-1);
   document.getElementById("g-next").onclick=()=>show(i+1);
