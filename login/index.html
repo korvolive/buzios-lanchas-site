@@ -1367,6 +1367,9 @@ async function reloadPeople(){
   const keep = (f, k) => RPC(f, {}).then(v=>{ S[k]=v; }, ()=>{});
   await Promise.all([loadUsers(), keep("lista_donos","owners"), keep("lista_freelancers","free"), keep("lista_marinheiros","sailors"), keep("lista_visualizadores","staff")]);
 }
+/* marinheiro fixo ou freelancer: avisa a pessoa (WhatsApp e e-mail) com o acesso ao app */
+const teamKind = u => u.fixo.length ? {tipo:"fixo", lancha:u.fixo[0]} : u.freelancer ? {tipo:"freelancer"} : null;
+const avisarUser = (u, pw="") => { const k=teamKind(u); if(k) avisoEquipe({nome:u.nome||u.email, email:u.email, tel:u.telefone, ...k, pw}); };
 const roleList = u => { const R=[]; if(u.admin) R.push({k:"admin"}); u.donos.forEach(l=>R.push({k:"dono",l})); u.fixo.forEach(l=>R.push({k:"fixo",l}));
   if(u.freelancer) R.push({k:"free"}); u.funcionario.forEach(l=>R.push({k:"func",l})); if(u.cliente) R.push({k:"cli"}); return R; };
 const roleTag = r => `<span class="rtag r-${r.k}">${t("role_"+r.k)}${r.l?` · ${esc(boatName(r.l))}`:""}</span>`;
@@ -1436,11 +1439,13 @@ function openUser(uid, msg=""){
       ${u.admin ? "" : `<label class="f"><span>${t("userPw")} <small class="muted" style="font-weight:400">(${t("newPwOwnerHint")})</small></span><input type="text" id="uepw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>`}
       <button class="btn" id="uego">${t("save")}</button></form>
     ${waOf(u.telefone).length>=8?`<a class="btn wa" style="margin-top:10px" href="https://wa.me/${waOf(u.telefone)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}
+    ${!me && teamKind(u) ? `<button type="button" class="btn sec" id="uavis" style="margin-top:10px">📣 ${t("teamT",{name:esc((u.nome||u.email).split(" ")[0])})}</button>` : ""}
     <button type="button" class="btn sec" id="ux" style="margin-top:10px">${t("close")}</button>
     ${me||u.admin ? "" : `<button type="button" class="link danger" id="udel">🗑 ${t("userDel")}</button>`}`;
   sheet.classList.add("on"); sheetBg.classList.add("on"); bindPhone("ue");
   const busy = on => sheet.querySelectorAll("button,input,select").forEach(b=>b.disabled=on);
   document.getElementById("ux").onclick = closeDay;
+  const av=document.getElementById("uavis"); if(av) av.onclick = () => avisarUser(u);
   /* foto */
   const my=document.getElementById("umyf"); if(my) my.onclick = openFace;
   const f=document.getElementById("uavf"); if(f) f.onchange = e => { const x=e.target.files[0]; if(x) openCrop(URL.createObjectURL(x), uid); };
@@ -1456,7 +1461,9 @@ function openUser(uid, msg=""){
     ua.onsubmit = async e => { e.preventDefault(); const k=tp.value, l=k==="free"?null:ls.value;
       if((k==="fixo"||k==="free") && !u.nome) return toast(t("userNeedName"));
       busy(true);
-      try{ const r=await roleAdd(u,k,l); if(r && r!=="ok") throw new Error(r); toast(t("userSaved")); await afterUser(uid); }
+      try{ const r=await roleAdd(u,k,l); if(r && r!=="ok") throw new Error(r); toast(t("userSaved"));
+        if(k==="fixo"||k==="free"){ await reloadPeople(); mainView(); return avisoEquipe({nome:u.nome, email:u.email, tel:u.telefone, tipo:k==="free"?"freelancer":"fixo", lancha:l}); }
+        await afterUser(uid); }
       catch(x){ busy(false); toast(errMsg(x)); } }; }
   /* nome, WhatsApp e senha */
   document.getElementById("uef").onsubmit = async e => { e.preventDefault();
@@ -1514,6 +1521,7 @@ function openNewUser(){
       const m=`<p class="msg ok">${created?t("created")+" ":""}${t("userAdded",{name:esc(nome)})}</p>${needConfirm?`<p class="msg err">${t("confirmOn")}</p>`:""}
         ${pw?`<a class="btn wa" style="margin:0 0 12px" href="https://wa.me/${w.length>=8?w:""}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("sendWa")}</a>`:""}`;
       S.userF="todos"; S.userQ="";
+      if(k==="fixo"||k==="free"){ await reloadPeople(); mainView(); toast(t("userAdded",{name:nome})); return avisoEquipe({nome, email, tel:ph.tel, tipo:k==="free"?"freelancer":"fixo", lancha:l, pw: created ? pw : ""}); }
       await afterUser(u.user_id, m);
     }catch(x){ fail(x.status===422 ? t("emTaken") : errMsg(x)); } };
 }
