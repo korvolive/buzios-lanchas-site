@@ -40,11 +40,11 @@ Deno.serve(async req => {
     };
     const { error } = await db.auth.admin.inviteUserByEmail(c.email, { data: dados, redirectTo: `${SITE}/login/` });
     if (error) {
-      if (/already|registered|exists/i.test(error.message)) return json({ status: "ja_tem_conta" });
+      if (/already|registered|exists/i.test(error.message)) return json({ status: "ja_tem_conta", email: c.email });
       console.error("invite", error.message);
-      return json({ status: "falhou", erro: error.message }, 502);
+      return json({ status: "falhou", erro: error.message, email: c.email }, 502);
     }
-    return json({ status: "enviado" });
+    return json({ status: "enviado", email: c.email });
   } catch (e) {
     console.error(e);
     return json({ erro: "falhou" }, 500);
