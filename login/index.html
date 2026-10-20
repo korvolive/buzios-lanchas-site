@@ -409,7 +409,7 @@ Object.assign(T.pt, {
   seeBoats:"Ver as lanchas", cliNone:"Você ainda não fez nenhum pedido.", cliPast:"Anteriores",
   st_pendente:"Aguardando o sinal de 50%", st_aprovado:"Confirmado", st_recusado:"Não fechado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"Desistir deste pedido?", gaveUp:"Pedido cancelado.",
-  tabReq:"Reservas", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqNone:"Nenhuma reserva aqui.",
+  tabReq:"Reservas", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqCanc:"Cancelados", reqNone:"Nenhuma reserva aqui.",
   reqSub:"Reservas feitas pelo site por clientes cadastrados. Só você vê. Aprove depois de receber o sinal: o passeio entra na agenda da lancha já preenchido.",
   approve:"Aprovar", refuseReq:"Recusar", refuseQ:"Recusar o pedido de {name}?", approveT:"Aprovar pedido", approveSub:"Confira e ajuste lancha, data e horário se o cliente mudou. Ao salvar, o passeio entra na agenda da lancha.",
   approved:"Pedido aprovado! O passeio já está na agenda da {boat}.", refusedReq:"Pedido recusado.", openTripB:"Abrir o passeio", reqAt:"pedido em {d}",
@@ -429,7 +429,7 @@ Object.assign(T.en, {
   seeBoats:"See the boats", cliNone:"You haven't made any requests yet.", cliPast:"Earlier",
   st_pendente:"Awaiting 50% deposit", st_aprovado:"Confirmed", st_recusado:"Not booked", st_cancelado:"Cancelled",
   giveUp:"Cancel", giveUpQ:"Cancel this request?", gaveUp:"Request cancelled.",
-  tabReq:"Bookings", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqNone:"No bookings here.",
+  tabReq:"Bookings", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqCanc:"Cancelled", reqNone:"No bookings here.",
   reqSub:"Bookings made on the website by registered customers. Only you see them. Approve after receiving the deposit: the tour goes into the boat's calendar already filled in.",
   approve:"Approve", refuseReq:"Decline", refuseQ:"Decline {name}'s request?", approveT:"Approve request", approveSub:"Check and adjust boat, date and time if the customer changed them. When you save, the tour goes into the boat's calendar.",
   approved:"Request approved! The tour is now in {boat}'s calendar.", refusedReq:"Request declined.", openTripB:"Open the tour", reqAt:"requested on {d}",
@@ -449,7 +449,7 @@ Object.assign(T.es, {
   seeBoats:"Ver las lanchas", cliNone:"Todavía no hiciste ningún pedido.", cliPast:"Anteriores",
   st_pendente:"Esperando la seña del 50%", st_aprovado:"Confirmado", st_recusado:"No cerrado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"¿Desistir de este pedido?", gaveUp:"Pedido cancelado.",
-  tabReq:"Reservas", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqNone:"Ninguna reserva aquí.",
+  tabReq:"Reservas", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqCanc:"Cancelados", reqNone:"Ninguna reserva aquí.",
   reqSub:"Reservas hechas en el sitio por clientes registrados. Solo tú los ves. Aprueba después de recibir la seña: el paseo entra en la agenda de la lancha ya completo.",
   approve:"Aprobar", refuseReq:"Rechazar", refuseQ:"¿Rechazar el pedido de {name}?", approveT:"Aprobar pedido", approveSub:"Revisa y ajusta lancha, fecha y horario si el cliente cambió. Al guardar, el paseo entra en la agenda de la lancha.",
   approved:"¡Pedido aprobado! El paseo ya está en la agenda de {boat}.", refusedReq:"Pedido rechazado.", openTripB:"Abrir el paseo", reqAt:"pedido el {d}",
@@ -1276,10 +1276,12 @@ function adminHTML(){
 function pedidosHTML(){
   if(S.reqs===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlCli")}</p></div>`;
   if(!S.reqs) return "";
-  const f=S.reqF||"pendente", today=todayISO(), ok=p=>p.status==="aprovado" && p.data>=today;
-  const L={pendente:S.reqs.filter(p=>p.status==="pendente").sort(cmpRows), aprovado:S.reqs.filter(ok).sort(cmpRows), hist:S.reqs.filter(p=>p.status!=="pendente" && !ok(p))};
+  /* Histórico = passeios que já aconteceram e foram confirmados; Cancelados = apagados, recusados, desistências, os que não aconteceram e pendentes que passaram da data */
+  const f=S.reqF||"pendente", today=todayISO(), feito=p=>(S.feitos||{})[p.bloqueio_id];
+  const kind=p=> p.status==="pendente" ? (p.data>=today ? "pendente" : "canc") : p.status!=="aprovado" ? "canc" : feito(p)===true ? "hist" : feito(p)===false ? "canc" : "aprovado";
+  const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows);
   return `<p class="how muted">${t("reqSub")}</p>
-    <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
+    <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${L[f].length ? `<div class="trips">${L[f].map(p=>reqCard(p,true)).join("")}</div>` : `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`}`;
 }
 /* card "Clientes cadastrados" (com os convites que ainda não viraram conta), em Usuários › Clientes */
@@ -1291,6 +1293,7 @@ function loadClis(){ /* só o administrador vê */
 async function loadReqs(){
   try{ S.reqs = await db("pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em,clientes(nome,cpf,whatsapp)&order=criado_em.desc&limit=300");
     S.reqs.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); /* o passeio foi apagado da agenda */
+    S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
 }
