@@ -348,6 +348,43 @@ footer .legal{flex-direction:column;gap:6px}
 footer h3{font-size:18px;color:#fff;margin-bottom:6px}
 footer p{margin:0;opacity:.8}
 
+/* celular (revisão de 20/10): títulos centralizados, ordem da página da lancha com fotos logo no começo e espaçamentos menores */
+h1,h2,h3{line-height:1.15}
+@media (max-width:600px){
+  .logo small{display:none}
+  .hero .wrap{padding-block:36px 64px}
+  .hero-text{justify-items:center;text-align:center;gap:18px}
+  .hero h1{margin-inline:auto;font-size:clamp(32px,9vw,40px)}
+  .hero p{font-size:16.5px;line-height:1.55}
+  .hero .ctas{justify-content:center;width:100%}
+  .hero .ctas .btn{flex:1 1 100%;justify-content:center}
+  .trust{text-align:center}.trust ul{text-align:left}
+  .section{padding-block:48px}
+  .section-head{justify-content:center;text-align:center;margin-bottom:18px}
+  .section-head > div{display:grid;justify-items:center;gap:8px}
+  .when > strong{text-align:center}
+  .card .body{text-align:center;align-items:center}
+  .specs{justify-content:center}
+  .price-from{flex-direction:column;align-items:center;gap:10px;width:100%}
+  .rt-grid > :not(.rt-map){text-align:center}
+  .rt-list{display:inline-block;text-align:left}
+  .how{text-align:center;gap:18px}
+  footer .wrap{flex-direction:column;align-items:center;text-align:center;gap:22px}
+  footer .legal{font-family:var(--body);text-align:center}
+  .crumb{text-align:center}
+  .boat{display:flex;flex-direction:column;gap:26px;padding-top:12px}
+  .boat .b-info{display:contents}
+  .b-info > div:first-child{order:1}.b-media{order:2}.boat .pricebox{order:3}.b-bring{order:4}#site-revs{order:5}
+  .b-inc{display:none} /* o empilhamento do quadro de valores já mostra tudo o que vem no passeio */
+  .b-head{text-align:center}
+  .b-title{flex-direction:column-reverse;gap:10px}.b-avatar{margin:0;top:0;width:88px;height:88px}
+  .lead{font-size:16px;line-height:1.6}
+  .spec-row{margin:18px 0 0}.spec-row div{text-align:center;padding:12px 8px}
+  .pricebox{padding:20px 18px}.pricebox > h2{text-align:center}
+  .block h2{text-align:center}
+  .pr-wait,.pricebox .fine{text-align:center}
+  .b-media .block:has(.vid.empty){display:none} /* sem vídeo ainda: não ocupa espaço antes do valor */
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -1313,17 +1350,17 @@ function boatPage(b){
     <div class="boat">
       <div class="b-info">
         <div>
-          <span class="eyebrow">${b.featured?t("featured"):t("boat")}</span>
+          <div class="b-head"><span class="eyebrow">${b.featured?t("featured"):t("boat")}</span>
           <div class="b-title"><h1>${b.name}</h1>${b.photos?`<img class="b-avatar" src="/img/${b.photos[0][0]}-t.jpg" alt="${t("photoOf",{name:b.name})}" style="object-position:${b.photos[0][2]}">`:""}</div>
-          <p class="lead">${bt(b,"description")}</p>
+          </div><p class="lead">${bt(b,"description")}</p>
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
             <div><b>${b.capacity}</b><span>${t("specPeople")}</span></div>
             <div><b>4h / 7h</b><span>${t("specTours")}</span></div>
           </div>
         </div>
-        <div class="block"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
-        <div class="block"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
+        <div class="block b-inc"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
+        <div class="block b-bring"><h2>${t("bring")}</h2><p style="color:var(--muted);margin:6px 0 0">${t("bringText")}</p></div>
         <div id="site-revs"><div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div></div>
       </div>
       <div class="b-media">
