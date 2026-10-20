@@ -422,7 +422,7 @@ const BOATS = [
           description:"La Miss Bardot es el escenario perfecto para vivir lo mejor de Búzios: un paseo romántico, un momento en familia o un día entre amigos. Son 35 pies con ambientes climatizados, camarote con cama doble y TV, baño, cocina con freidora de aire y parrilla. Lo más destacado es el sistema de sonido premium Hertz Marine: audio potente y nítido, hecho para sonar fuerte al aire libre sin perder calidad. Solo tienes que conectar tu playlist por Bluetooth y convertir el mar de Búzios en tu pista de baile. Paseos de día, al atardecer o nocturnos."}
     },
     itemLabel:{"Som Bluetooth":"Som Hertz Marine com Bluetooth"}, /* nome especial de um item da lista do app dos donos */
-    included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Gerador de energia","Air fryer","Cabine com cama de casal","TV na cabine","Som Hertz Marine com Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
+    included:["Marinheiro experiente","Combustível","Gelo escama e filtrado","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Ar-condicionado","Piscina inflável","Wi-Fi Starlink","Banheiro","Gerador de energia","Air fryer","Cabine com cama de casal","Televisão","Som Hertz Marine com Bluetooth","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho","Coletes para todos"],
     prices:{baixa:2200, media:2500, alta:3000, pico:4000, reveillon:4500}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* passeio de 7h: deixe null para "sob consulta" ou coloque o valor a partir de, ex.: 3500 */
     boarding:{4:["Porto Veleiro (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marinas Búzios"]}, /* local de embarque por duração do passeio (4 ou 7 horas); com mais de um, o cliente escolhe; null = "a combinar" */
@@ -601,12 +601,13 @@ const PHRASES = {
   "Gerador de energia":["Power generator","Generador eléctrico"],
   "Air fryer":["Air fryer","Freidora de aire"],
   "Cabine com cama de casal":["Cabin with double bed","Camarote con cama doble"],
-  "TV na cabine":["TV in the cabin","TV en el camarote"],
+  "Televisão":["Television","Televisión"],
   "Som Hertz Marine com Bluetooth":["Hertz Marine sound system with Bluetooth","Sonido Hertz Marine con Bluetooth"],
   "Som Bluetooth":["Bluetooth sound system","Sonido Bluetooth"],
   "Máscaras de mergulho":["Snorkel masks","Máscaras de snorkel"],
   "Ducha de água doce":["Freshwater shower","Ducha de agua dulce"],
   "Macarrão flutuante":["Pool noodles","Fideos flotantes"],
+  "Toalhas de banho":["Bath towels","Toallas de baño"],
   "Coletes para todos":["Life jackets for everyone","Chalecos salvavidas para todos"],
   "Toldo com sombra":["Shade canopy","Toldo con sombra"],
   "Solário na popa":["Stern sun pad","Solárium en la popa"],
@@ -932,7 +933,7 @@ function loadAgenda(){
 }
 /* Itens de cada lancha: o dono marca no app /login/ (tabela itens). Os básicos ficam sempre; os opcionais
    vêm do banco na ordem de ITEM_ORDER. Se o banco não responder, vale a lista "included" do código. */
-const ITEM_ORDER = ["Banheiro","Ar-condicionado","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","TV na cabine","Som Bluetooth","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante"];
+const ITEM_ORDER = ["Banheiro","Ar-condicionado","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","Televisão","Som Bluetooth","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
 /* Avaliações dos clientes (feitas no app depois do passeio): nota média e os últimos comentários da lancha.
    Se o banco não responder, a seção simplesmente não aparece. */
 const siteRevs = new Map();
