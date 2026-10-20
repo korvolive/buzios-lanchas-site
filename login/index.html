@@ -1658,7 +1658,7 @@ function renderTrip(){
       <div class="row2">${f("valor","number",'inputmode="decimal" min="0" step="any"')}${f("sinal","number",'inputmode="decimal" min="0" step="any"')}</div>
       <p class="muted" id="vlock" style="margin:-4px 0 12px;font-size:13px" hidden>${t("valLocked")}</p>
       <p class="muted" style="margin:-4px 0 12px;font-size:13px">⏳ ${t("holdHint")}</p>
-      ${f("obs","area")}}` : ""}
+      ${f("obs","area")}` : ""}
       ${waNum.length>=12?`<a class="btn sec" style="margin:0 0 10px" href="https://wa.me/${waNum}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
       <button class="btn" id="nsave">${t("save")}</button></form>
     <button type="button" class="btn sec" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>
