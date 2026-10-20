@@ -4,6 +4,7 @@
 //                                             e manda ao cliente com conta o e-mail "reserva confirmada"
 // POST { tipo: "pedido",   id: <pedido> }    (o próprio cliente, uma vez) avisa o administrador (no celular e por e-mail)
 // POST { tipo: "marinheiro", id: <bloqueio> }  (administrador ou dono da lancha) avisa o marinheiro escolhido para pilotar (celular e e-mail)
+// POST { tipo: "recusou", id: <bloqueio> }  (o marinheiro que acabou de sair do passeio) avisa os donos da lancha e o administrador (celular e e-mail)
 // POST { tipo: "teste" }                       avisa só quem chamou
 // POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa o administrador quando um passeio da Búzios Lanchas termina,
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
@@ -55,6 +56,11 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     en: p => ({ title: "You will drive", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. Tap to see the trip.` }),
     es: p => ({ title: "Vas a pilotar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. Toca para ver el paseo.` }),
   },
+  recusou: {
+    pt: p => ({ title: "Marinheiro saiu do passeio", body: `${p.nome} não vai poder pilotar a ${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Escolha outro marinheiro.` }),
+    en: p => ({ title: "Skipper left the trip", body: `${p.nome} can't drive ${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. Choose another skipper.` }),
+    es: p => ({ title: "El marinero dejó el paseo", body: `${p.nome} no podrá pilotar ${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. Elige otro marinero.` }),
+  },
   teste: {
     pt: () => ({ title: "Notificações ativadas", body: "Você vai receber os avisos da Búzios Lanchas aqui." }),
     en: () => ({ title: "Notifications are on", body: "You will get Búzios Lanchas alerts here." }),
@@ -104,9 +110,14 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Pedido nuevo de reserva desde el sitio: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, ...(p.whats ? [`WhatsApp: ${p.whats}`] : []), `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "El pedido está en Reservas › Pendientes. Apruébalo después de recibir la seña del 50%.", botao: "Abrir las reservas" }),
   },
   mar: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Você foi escolhido para pilotar a ${p.lancha}.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Se não puder ir, avise pelo app em \"Não vou poder ir\".", botao: "Ver meus passeios" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `You were chosen to drive ${p.lancha}.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "If you can't make it, tell us in the app with \"I can't make it\".", botao: "See my trips" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Te eligieron para pilotar ${p.lancha}.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Si no puedes ir, avisa en la app con \"No voy a poder ir\".", botao: "Ver mis paseos" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Você foi escolhido para pilotar a ${p.lancha}.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Dono da lancha: ${d}`)], nota: "Se não puder ir, avise pelo app em \"Não vou poder ir\".", botao: "Ver meus passeios" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `You were chosen to drive ${p.lancha}.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Boat owner: ${d}`)], nota: "If you can't make it, tell us in the app with \"I can't make it\".", botao: "See my trips" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Te eligieron para pilotar ${p.lancha}.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Dueño de la lancha: ${d}`)], nota: "Si no puedes ir, avisa en la app con \"No voy a poder ir\".", botao: "Ver mis paseos" }),
+  },
+  saiu: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `${p.nome} não vai poder pilotar a ${p.lancha} neste passeio.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abra a agenda e escolha outro marinheiro para este passeio.", botao: "Escolher outro marinheiro" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `${p.nome} can't drive ${p.lancha} on this trip.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "Open the schedule and choose another skipper for this trip.", botao: "Choose another skipper" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `${p.nome} no podrá pilotar ${p.lancha} en este paseo.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abre la agenda y elige otro marinero para este paseo.", botao: "Elegir otro marinero" }),
   },
   cliente: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Qualquer dúvida, fale com a gente no WhatsApp (21) 99927-2550. Bom passeio!", botao: "Ver minha reserva" }),
@@ -114,7 +125,7 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Cualquier duda, háblanos por WhatsApp +55 21 99927-2550. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at) return false;
@@ -199,7 +210,7 @@ Deno.serve(async req => {
       if (!b) return json({ erro: "passeio não encontrado" }, 404);
       const dono = !!(await db.from("donos").select("user_id").eq("user_id", uid).eq("lancha", b.lancha).maybeSingle()).data;
       if (!admin && !dono) return json({ erro: "só o administrador ou o dono" }, 403);
-      const { data: an } = await db.from("anotacoes").select("marinheiro, pessoas, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
+      const { data: an } = await db.from("anotacoes").select("marinheiro, cliente, pessoas, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
       const m = an?.marinheiro;
       if (!m || m === uid) return json({ enviados: 0 });
       const lancha = await nomeLancha(b.lancha);
@@ -207,8 +218,33 @@ Deno.serve(async req => {
       const nome = (await db.from("freelancers").select("nome").eq("user_id", m).maybeSingle()).data?.nome
         || (await db.from("marinheiros").select("nome").eq("user_id", m).limit(1).maybeSingle()).data?.nome
         || (await db.from("perfis").select("nome").eq("user_id", m).maybeSingle()).data?.nome || "";
-      const email = await mandarEmail(m, "mar", { b, a: an, lancha, data: dataBR(b.data), pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "", nomes: { [m]: nome } }).catch(e => (console.error(e), false));
+      // contato do dono para o marinheiro; o nome do cliente só vai para o marinheiro fixo da lancha (o freelancer recebe só o passeio)
+      const { data: ds } = await db.from("donos").select("user_id").eq("lancha", b.lancha);
+      const { data: ps } = await db.from("perfis").select("user_id, nome, telefone").in("user_id", (ds || []).map(d => d.user_id).concat(["00000000-0000-0000-0000-000000000000"]));
+      const donos = (ps || []).filter(x => x.user_id !== m && x.nome).map(x => x.nome + (x.telefone ? ` · WhatsApp ${x.telefone}` : ""));
+      const fixo = !!(await db.from("marinheiros").select("user_id").eq("user_id", m).eq("lancha", b.lancha).maybeSingle()).data;
+      const email = await mandarEmail(m, "mar", { b, a: an, lancha, data: dataBR(b.data), pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "", cliente: fixo ? an?.cliente || "" : "", donos, nomes: { [m]: nome } }).catch(e => (console.error(e), false));
       return json({ enviados, email });
+    }
+
+    if (tipo === "recusou") {
+      const { data: b } = await db.from("bloqueios").select("id, lancha, data, horario").eq("id", id).maybeSingle();
+      if (!b) return json({ erro: "passeio não encontrado" }, 404);
+      const { data: an } = await db.from("anotacoes").select("marinheiro, marinheiro_recusou, pessoas, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
+      // só quem acabou de sair (o nome gravado por recusar_passeio é o dele) dispara o aviso
+      const meu = (await db.from("marinheiros").select("nome").eq("user_id", uid).eq("lancha", b.lancha).maybeSingle()).data?.nome
+        || (await db.from("freelancers").select("nome").eq("user_id", uid).maybeSingle()).data?.nome || "Marinheiro";
+      if (an?.marinheiro || an?.marinheiro_recusou !== meu) return json({ enviados: 0 });
+      const { data: ds } = await db.from("donos").select("user_id").eq("lancha", b.lancha);
+      const { data: ads } = await db.from("admins").select("user_id");
+      const alvo = [...new Set([...(ds || []), ...(ads || [])].map(x => x.user_id))].filter(x => x !== uid);
+      const lancha = await nomeLancha(b.lancha);
+      const enviados = await enviar(alvo, "recusou", { ...b, lancha, nome: meu }, "/login/");
+      const { data: ps } = await db.from("perfis").select("user_id, nome").in("user_id", alvo.length ? alvo : ["00000000-0000-0000-0000-000000000000"]);
+      const p = { b, a: an, lancha, nome: meu, data: dataBR(b.data), pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "", nomes: Object.fromEntries((ps || []).map(x => [x.user_id, x.nome])) };
+      let emails = 0;
+      for (const d of alvo) if (await mandarEmail(d, "saiu", p).catch(e => (console.error(e), false))) emails++;
+      return json({ enviados, emails });
     }
 
     if (tipo === "pedido") {

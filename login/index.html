@@ -1749,7 +1749,7 @@ function bindMain(){
     }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
   };
   app.querySelectorAll("[data-refuse]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("cantGoQ"))) return; x.disabled=true;
-    try{ await db("rpc/recusar_passeio",{method:"POST",body:{bid:+x.dataset.refuse}}); S.myTrips = await db("rpc/passeios_marinheiro",{method:"POST",body:{}}); toast(t("refusedOk")); mainView(); }
+    try{ await db("rpc/recusar_passeio",{method:"POST",body:{bid:+x.dataset.refuse}}); callFn({tipo:"recusou", id:+x.dataset.refuse}).catch(()=>{}); /* avisa o dono no celular e por e-mail */ S.myTrips = await db("rpc/passeios_marinheiro",{method:"POST",body:{}}); toast(t("refusedOk")); mainView(); }
     catch(e){ x.disabled=false; toast(t("saveErr")); } });
   const reloadSailors = async () => { S.sailors = await db("rpc/lista_marinheiros",{method:"POST",body:{}}); mainView(); };
   /* dono como marinheiro fixo: o próprio dono se escolhe, ou o administrador escolhe qualquer dono da lancha */
