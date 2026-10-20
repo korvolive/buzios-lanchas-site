@@ -388,7 +388,6 @@ h1,h2,h3{line-height:1.15}
   .pricebox{padding:20px 18px}.pricebox > h2{text-align:center}
   .block h2{text-align:center}
   .pr-wait,.pricebox .fine{text-align:center}
-  .b-media .block:has(.vid.empty){display:none} /* sem vídeo ainda: não ocupa espaço antes do valor */
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -1407,7 +1406,7 @@ function boatPage(b){
         <div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>
         ${b.reviews?`<div class="block b-reviews b-google"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
           <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
-        <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="/img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
+        ${b.video?`<div class="block"><h2>${t("video")}</h2><video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video></div>`:""}
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
         <h2>${t("stackTitle")}</h2>
