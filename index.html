@@ -350,6 +350,7 @@ footer p{margin:0;opacity:.8}
 
 /* celular (revisão de 20/10): títulos centralizados, ordem da página da lancha com fotos logo no começo e espaçamentos menores */
 h1,h2,h3{line-height:1.15}
+.b-inc{display:none} /* o empilhamento do quadro de valores já mostra tudo o que vem no passeio (pedido do Rodrigo) */
 @media (max-width:600px){
   .logo small{display:none}
   .hero .wrap{padding-block:36px 64px}
@@ -375,7 +376,6 @@ h1,h2,h3{line-height:1.15}
   .boat{display:flex;flex-direction:column;gap:26px;padding-top:12px}
   .boat .b-info{display:contents}
   .b-info > div:first-child{order:1}.b-media{order:2}.boat .pricebox{order:3}.b-bring{order:4}#site-revs{order:5}
-  .b-inc{display:none} /* o empilhamento do quadro de valores já mostra tudo o que vem no passeio */
   .b-head{text-align:center}
   .b-title{flex-direction:column-reverse;gap:10px}.b-avatar{margin:0;top:0;width:88px;height:88px}
   .lead{font-size:16px;line-height:1.6}
