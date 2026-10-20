@@ -5,11 +5,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Búzios Lanchas">
-<title>Búzios Lanchas</title>
+<meta name="apple-mobile-web-app-title" content="Buzios Lanchas">
+<title>Buzios Lanchas</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/login/icon-192.png">
-<link rel="apple-touch-icon" href="/login/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
@@ -597,7 +597,7 @@ function bindLang(){ const s=document.getElementById("lang"); if(s) s.onchange=(
 /* ===== telas ===== */
 let view = "login", loginMsg = "", loginErr = false, typedEmail = "";
 function show(){
-  document.title = t("appName"); checkGoogle();
+  document.title = "Buzios Lanchas"; /* nome do app na tela de início: sem acento (pedido do Rodrigo) */ checkGoogle();
   if(!ses && view!=="newpw" && view!=="signup") view="login";
   if(view==="login") return loginView();
   if(view==="newpw") return newPwView();

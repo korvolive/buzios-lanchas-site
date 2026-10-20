@@ -123,9 +123,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `${p.nome} no podrá pilotar ${p.lancha} en este paseo.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abre la agenda y elige otro marinero para este paseo.", botao: "Elegir otro marinero" }),
   },
   cliente: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Qualquer dúvida, fale com a gente no WhatsApp (21) 99927-2550. Bom passeio!", botao: "Ver minha reserva" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your booking on ${p.lancha} is confirmed.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "Any questions, talk to us on WhatsApp +55 21 99927-2550. Enjoy your trip!", botao: "See my booking" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Cualquier duda, háblanos por WhatsApp +55 21 99927-2550. ¡Buen paseo!", botao: "Ver mi reserva" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Combine os detalhes do passeio direto com o dono da lancha. Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your booking on ${p.lancha} is confirmed.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(p.donos || []).map((d: string) => `Boat owner: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Arrange the trip details directly with the boat owner. Any questions, talk to us. Enjoy your trip!", botao: "See my booking" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Coordina los detalles del paseo directamente con el dueño de la lancha. Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
 };
 async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu", p: any) {
@@ -203,7 +203,10 @@ Deno.serve(async req => {
       for (const d of alvo) if (await mandarEmail(d, "dono", p).catch(e => (console.error(e), false))) emails.donos++;
       if (an?.cliente_conta) {
         const { data: c } = await db.from("clientes").select("nome").eq("user_id", an.cliente_conta).maybeSingle();
-        emails.cliente = await mandarEmail(an.cliente_conta, "cliente", { ...p, nomes: { [an.cliente_conta]: c?.nome || an.cliente || "" } }).catch(e => (console.error(e), false));
+        // nome e WhatsApp de todos os donos da lancha, para o cliente combinar o passeio direto com eles
+        const { data: pd } = await db.from("perfis").select("nome, telefone").in("user_id", (ds || []).map(d => d.user_id).concat(["00000000-0000-0000-0000-000000000000"]));
+        const donos = (pd || []).filter(x => x.nome).map(x => x.nome + (x.telefone ? ` · WhatsApp ${x.telefone}` : ""));
+        emails.cliente = await mandarEmail(an.cliente_conta, "cliente", { ...p, donos, nomes: { [an.cliente_conta]: c?.nome || an.cliente || "" } }).catch(e => (console.error(e), false));
       }
       return json({ enviados, emails });
     }
