@@ -262,6 +262,11 @@ html.is-app #hdr-login{display:none}
 
 .pricebox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
 .pricebox h2{font-size:22px}
+.pr-val{margin-top:14px}
+.pr-val .from{margin:0;padding:14px;border:1.5px solid var(--sea);border-radius:12px}
+.pr-val .from span{display:block;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--sea);margin-bottom:8px}
+.pr-val .long{margin-top:0}
+.pr-wait{margin:0;padding:12px 14px;border-radius:12px;background:var(--chip);color:var(--muted);font-size:14px}
 .pricebox .from{margin:8px 0 18px;color:var(--muted);font-size:14px}
 .pricebox .from strong{display:block;font:800 36px/1.05 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
 .tbl-wrap{overflow-x:auto}
@@ -286,8 +291,6 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .example-banner{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--muted);margin-top:16px}
 
 /* Data e horário na página da lancha */
-.pk-boat{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
-.pk-boat h3{font-size:16px}
 .picker{display:grid;gap:8px;margin-top:10px}
 .pk-date{display:block}
 .pk-date span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
@@ -691,7 +694,7 @@ const UI = {
     bringText:"Comidas e bebidas não estão inclusas no passeio. Traga as suas: a lancha já tem gelo e cooler, e se vocês trouxerem carnes ou peixes, a equipe prepara o churrasco a bordo.",
     crewTitle:"Tripulação e segurança", crewText:"Coletes salva-vidas para todos, extintores em dia e revisões periódicas nos motores.",
     siteRevT:"Avaliações dos clientes", siteRevNone:"Esta lancha ainda não tem avaliações. Depois do passeio, os clientes avaliam a lancha e o marinheiro pelo app.", siteRevSub:"{m} de 5 · {n} avaliações de clientes", siteRevSub1:"{m} de 5 · 1 avaliação de cliente", siteRevStars:"{n} de 5 estrelas", reviewsTitle:"Avaliações no Google", reviewsSub:"Nota máxima no Google", stars5:"5 de 5 estrelas", photos:"Fotos", mainPhoto:"Foto principal", video:"Vídeo", videoSoon:"Vídeo em breve", videoHere:"O vídeo da {name} aparece aqui.",
-    pricesAria:"Preços", prices:"Valores", from4hLong:"Passeio de 4 horas · a partir de", season:"Temporada", hours4:"4 horas",
+    pricesAria:"Preços", prices:"Valores", from4hLong:"Passeio de 4 horas · a partir de", from4hDate:"Passeio de 4 horas · {d} · a partir de", priceTitle:"Valor do passeio", priceWait:"Escolha a data e o horário para ver o valor do passeio.", season:"Temporada", hours4:"4 horas",
     s_baixa:"Baixa", s_media:"Média", s_alta:"Alta", sl_baixa:"Baixa temporada", sl_media:"Média temporada", sl_alta:"Alta temporada",
     m_baixa:"mai - jun - jul - ago - set", m_media:"abr - out - nov", m_alta:"dez - mar", s_pico:"Pico do verão", m_pico:"11 jan a fim de fev", s_reveillon:"Réveillon", m_reveillon:"26 dez a 10 jan",
     holidays:"Feriados", special:"valores especiais", ask:"A consultar",
@@ -703,7 +706,7 @@ const UI = {
     whenTitle:"Em qual período você vai estar em Búzios?", whenFrom:"Chegada", whenTo:"Saída", whenClear:"Limpar", periodMax:"O período pode ter no máximo 15 dias.", rangeOne:"em {d}", rangeTwo:"entre {de} e {ate}",
     whenFree:"{n} lanchas com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenFree1:"1 lancha com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenWa:"Olá! Vi no site Búzios Lanchas e vou estar em Búzios {range}. Gostaria de saber quais lanchas estão disponíveis{people}.", fitNone:"Nenhuma lancha para {people}. Fale com a gente no WhatsApp que encontramos uma opção.", whenNone:"Nenhuma lancha livre {range}{people}. Mude as datas ou fale com a gente no WhatsApp.",
     askDate:"Consultar data no WhatsApp", askAvail:"Consultar disponibilidade no WhatsApp", copy:"Copiar", copied:"Copiado",
-    operNote:"A Búzios Lanchas reúne as lanchas e conecta você ao dono de cada uma. O passeio é feito pelo dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo.", legalNote:"A Búzios Lanchas é uma plataforma que intermedeia a reserva entre clientes e donos de lanchas. Cada passeio é operado e de responsabilidade do dono da embarcação.", fine:"Valores a partir de, por lancha e não por pessoa. A tabela mostra o passeio de 4 horas; o de 7 horas tem valor próprio. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.",
+    operNote:"A Búzios Lanchas reúne as lanchas e conecta você ao dono de cada uma. O passeio é feito pelo dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo.", legalNote:"A Búzios Lanchas é uma plataforma que intermedeia a reserva entre clientes e donos de lanchas. Cada passeio é operado e de responsabilidade do dono da embarcação.", fine:"Valores a partir de, por lancha e não por pessoa, conforme a data e o horário. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.",
     slot_dia:"10h às 17h", slot_manha:"10h às 14h", slot_tarde:"14h às 18h", slot_noite:"Réveillon noturno",
     waNight:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para o passeio noturno de Réveillon em {date} (7 horas), para {people}.",
     waFleet:"Olá! Vi no site Búzios Lanchas e quero saber sobre as lanchas.",
@@ -746,7 +749,7 @@ const UI = {
     bringText:"Food and drinks are not included. Bring your own: the boat already has ice and a cooler, and if you bring meat or fish, the crew will grill it on board.",
     crewTitle:"Crew and safety", crewText:"Life jackets for everyone, up-to-date fire extinguishers and regular engine servicing.",
     siteRevT:"Client reviews", siteRevNone:"This boat has no reviews yet. After the tour, guests rate the boat and the skipper in the app.", siteRevSub:"{m} out of 5 · {n} guest reviews", siteRevSub1:"{m} out of 5 · 1 guest review", siteRevStars:"{n} out of 5 stars", reviewsTitle:"Google reviews", reviewsSub:"Top rating on Google", stars5:"5 out of 5 stars", photos:"Photos", mainPhoto:"Main photo", video:"Video", videoSoon:"Video coming soon", videoHere:"The {name} video will appear here.",
-    pricesAria:"Prices", prices:"Prices", from4hLong:"4-hour tour · from", season:"Season", hours4:"4 hours",
+    pricesAria:"Prices", prices:"Prices", from4hLong:"4-hour tour · from", from4hDate:"4-hour tour · {d} · from", priceTitle:"Tour price", priceWait:"Choose the date and time to see the tour price.", season:"Season", hours4:"4 hours",
     s_baixa:"Low", s_media:"Mid", s_alta:"High", sl_baixa:"Low season", sl_media:"Mid season", sl_alta:"High season",
     m_baixa:"May - Jun - Jul - Aug - Sep", m_media:"Apr - Oct - Nov", m_alta:"Dec - Mar", s_pico:"Peak summer", m_pico:"Jan 11 to end of Feb", s_reveillon:"New Year's", m_reveillon:"Dec 26 to Jan 10",
     holidays:"Holidays", special:"special rates", ask:"On request",
@@ -758,7 +761,7 @@ const UI = {
     whenTitle:"When will you be in Búzios?", whenFrom:"Arrival", whenTo:"Departure", whenClear:"Clear", periodMax:"The period can be at most 15 days.", rangeOne:"on {d}", rangeTwo:"between {de} and {ate}",
     whenFree:"{n} boats with free times {range}{people}. Pick a boat to see the days and times.", whenFree1:"1 boat with free times {range}{people}. Pick the boat to see the days and times.", whenWa:"Hi! I saw the Búzios Lanchas website and I'll be in Búzios {range}. I'd like to know which boats are available{people}.", fitNone:"No boat for {people}. Message us on WhatsApp and we'll find an option.", whenNone:"No boats available {range}{people}. Change the dates or message us on WhatsApp.",
     askDate:"Ask about dates on WhatsApp", askAvail:"Check availability on WhatsApp", copy:"Copy", copied:"Copied",
-    operNote:"Búzios Lanchas brings the boats together and connects you with each owner. The tour is run by the boat owner, who is responsible for the boat, the crew and safety on board.", legalNote:"Búzios Lanchas is a platform that arranges bookings between customers and boat owners. Each tour is run by, and is the responsibility of, the boat owner.", fine:"Starting prices, per boat, not per person. The table shows the 4-hour tour; the 7-hour tour has its own price. Ask about special weekday rates. A deposit secures your date. Free rescheduling if the sea is unsafe.",
+    operNote:"Búzios Lanchas brings the boats together and connects you with each owner. The tour is run by the boat owner, who is responsible for the boat, the crew and safety on board.", legalNote:"Búzios Lanchas is a platform that arranges bookings between customers and boat owners. Each tour is run by, and is the responsibility of, the boat owner.", fine:"Starting prices, per boat, not per person, based on the date and time. Ask about special weekday rates. A deposit secures your date. Free rescheduling if the sea is unsafe.",
     slot_dia:"10am to 5pm", slot_manha:"10am to 2pm", slot_tarde:"2pm to 6pm", slot_noite:"New Year's Eve night",
     waNight:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} for the New Year's Eve night tour on {date} (7 hours), for {people}.",
     waFleet:"Hi! I saw the Búzios Lanchas website and would like to know about your boats.",
@@ -801,7 +804,7 @@ const UI = {
     bringText:"Las comidas y bebidas no están incluidas. Trae las tuyas: la lancha ya tiene hielo y hielera, y si traen carnes o pescados, la tripulación prepara el asado a bordo.",
     crewTitle:"Tripulación y seguridad", crewText:"Chalecos salvavidas para todos, extintores al día y revisiones periódicas de los motores.",
     siteRevT:"Reseñas de clientes", siteRevNone:"Esta lancha todavía no tiene reseñas. Después del paseo, los clientes califican la lancha y al marinero en la app.", siteRevSub:"{m} de 5 · {n} reseñas de clientes", siteRevSub1:"{m} de 5 · 1 reseña de cliente", siteRevStars:"{n} de 5 estrellas", reviewsTitle:"Reseñas en Google", reviewsSub:"Nota máxima en Google", stars5:"5 de 5 estrellas", photos:"Fotos", mainPhoto:"Foto principal", video:"Video", videoSoon:"Video próximamente", videoHere:"El video de la {name} aparecerá aquí.",
-    pricesAria:"Precios", prices:"Precios", from4hLong:"Paseo de 4 horas · desde", season:"Temporada", hours4:"4 horas",
+    pricesAria:"Precios", prices:"Precios", from4hLong:"Paseo de 4 horas · desde", from4hDate:"Paseo de 4 horas · {d} · desde", priceTitle:"Precio del paseo", priceWait:"Elige la fecha y el horario para ver el precio del paseo.", season:"Temporada", hours4:"4 horas",
     s_baixa:"Baja", s_media:"Media", s_alta:"Alta", sl_baixa:"Temporada baja", sl_media:"Temporada media", sl_alta:"Temporada alta",
     m_baixa:"may - jun - jul - ago - sep", m_media:"abr - oct - nov", m_alta:"dic - mar", s_pico:"Pico del verano", m_pico:"11 ene a fin de feb", s_reveillon:"Año Nuevo", m_reveillon:"26 dic al 10 ene",
     holidays:"Feriados", special:"precios especiales", ask:"A consultar",
@@ -813,7 +816,7 @@ const UI = {
     whenTitle:"¿En qué fechas vas a estar en Búzios?", whenFrom:"Llegada", whenTo:"Salida", whenClear:"Borrar", periodMax:"El período puede tener como máximo 15 días.", rangeOne:"el {d}", rangeTwo:"entre el {de} y el {ate}",
     whenFree:"{n} lanchas con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenFree1:"1 lancha con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenWa:"¡Hola! Vi el sitio de Búzios Lanchas y voy a estar en Búzios {range}. Quisiera saber qué lanchas están disponibles{people}.", fitNone:"Ninguna lancha para {people}. Escríbenos por WhatsApp y encontramos una opción.", whenNone:"Ninguna lancha libre {range}{people}. Cambia las fechas o escríbenos por WhatsApp.",
     askDate:"Consultar fecha por WhatsApp", askAvail:"Consultar disponibilidad por WhatsApp", copy:"Copiar", copied:"Copiado",
-    operNote:"Búzios Lanchas reúne las lanchas y te conecta con el dueño de cada una. El paseo lo hace el dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo.", legalNote:"Búzios Lanchas es una plataforma que intermedia la reserva entre clientes y dueños de lanchas. Cada paseo es operado por el dueño de la embarcación y es de su responsabilidad.", fine:"Precios desde, por lancha y no por persona. La tabla muestra el paseo de 4 horas; el de 7 horas tiene precio propio. Consulta condiciones especiales para días de semana. La seña asegura la fecha. Reprogramación sin costo si el mar no está seguro.",
+    operNote:"Búzios Lanchas reúne las lanchas y te conecta con el dueño de cada una. El paseo lo hace el dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo.", legalNote:"Búzios Lanchas es una plataforma que intermedia la reserva entre clientes y dueños de lanchas. Cada paseo es operado por el dueño de la embarcación y es de su responsabilidad.", fine:"Precios desde, por lancha y no por persona, según la fecha y el horario. Consulta condiciones especiales para días de semana. La seña asegura la fecha. Reprogramación sin costo si el mar no está seguro.",
     slot_dia:"10 h a 17 h", slot_manha:"10 h a 14 h", slot_tarde:"14 h a 18 h", slot_noite:"Nochevieja nocturno",
     waNight:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera consultar la disponibilidad de la lancha {name} para el paseo nocturno de Nochevieja el {date} (7 horas), para {people}.",
     waFleet:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera información sobre las lanchas.",
@@ -1023,10 +1026,21 @@ async function markSlots(b){
   app.querySelectorAll("[data-slot]").forEach(x=>{ const off=!!d && isBusy(busyOn(busy,b,d),x.dataset.slot,d);
     x.classList.toggle("off",off); x.querySelector("small").textContent = off ? t("unavail") : t("hoursN",{h:slotOf(x.dataset.slot).hours}); });
 }
+/* o valor só aparece depois de escolher data e horário, e só o daquela data (regra do Rodrigo: não mostrar datas mais baratas) */
+function showPrices(b){
+  const box=document.getElementById("pr-val"); if(!box) return;
+  const sl=pick.slot && slotOf(pick.slot);
+  if(!pick.date || !sl){ box.innerHTML=`<p class="pr-wait">${t("priceWait")}</p>`; return; }
+  if(sl.hours===7){ box.innerHTML=`<div class="long"><span class="long-tag">${t("fullDay")}</span>
+    <div class="long-head"><strong>${sl.night?slotLabel(pick.slot):t("tour7h")}</strong><span>${b.price7h?t("fromPrice",{p:brl(b.price7h)}):t("priceOnRequest")}</span></div>
+    <p>${fmtDate(pick.date)}. ${t("longText")}</p></div>`; return; }
+  const v=b.prices[seasonOf(pick.date).key];
+  box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from4hDate",{d:fmtDate(pick.date)})} <strong>${v?brl(v):t("onRequest")}</strong></p>`;
+}
 async function showBoatStatus(b){
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
-  markSlots(b);
+  markSlots(b); showPrices(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
@@ -1261,7 +1275,6 @@ function bindGallery(b){
 
 /* ============ página da lancha ============ */
 function boatPage(b){
-  const mp = minPrice(b);
   return `
   <div class="wrap">
     <div class="crumb"><a href="${pathFor(lang)}#frota">${t("crumbFleet")}</a> / ${b.name}</div>
@@ -1286,19 +1299,10 @@ function boatPage(b){
         <div class="block"><h2>${t("video")}</h2>${b.video?`<video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video>`:`<div class="vid empty">${b.photos?`<img src="/img/${b.photos[0][0]}.jpg" alt="">`:""}<div><span class="play" aria-hidden="true">▶</span><strong>${t("videoSoon")}</strong><small>${t("videoHere",{name:b.name})}</small></div></div>`}</div>
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
-        <h2>${t("prices")}</h2>
-        <p class="from">${t("from4hLong")} <strong>${mp?brl(mp):t("onRequest")}</strong></p>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>${t("season")}</th><th>${t("hours4")}</th></tr></thead>
-          <tbody>${SEASONS.map(s=>`<tr><td class="season"><span class="dot" style="background:${s.color}"></span>${t("s_"+s.key)}<small>${t("m_"+s.key)}</small></td><td>${b.prices[s.key]==null?t("onRequest"):brl(b.prices[s.key])}</td></tr>`).join("")}<tr><td class="season"><span class="dot" style="background:#8a9aa3"></span>${t("holidays")}<small>${t("special")}</small></td><td>${t("ask")}</td></tr></tbody>
-        </table></div>
-        <div class="long">
-          <span class="long-tag">${t("fullDay")}</span>
-          <div class="long-head"><strong>${t("tour7h")}</strong><span>${b.price7h?t("fromPrice",{p:brl(b.price7h)}):t("priceOnRequest")}</span></div>
-          <p>${t("longText")}</p>
-        </div>
-                ${b.example?`<div class="example-banner">${t("exampleBanner")}</div>`:""}
-        <div class="pk-boat"><h3>${t("pickTitle")}</h3>${pickerHTML(b)}<div id="pk-out" aria-live="polite"></div></div>
+        <h2>${t("pickTitle")}</h2>
+        ${pickerHTML(b)}<div id="pk-out" aria-live="polite"></div>
+        <div class="pr-val" id="pr-val" aria-live="polite"></div>
+        ${b.example?`<div class="example-banner">${t("exampleBanner")}</div>`:""}
         <a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
         <div class="phone"><span id="ph-num">(21) 99927-2550</span><button type="button" id="copy">${t("copy")}</button></div>
         ${isTeam() ? "" : `<div class="online"><p class="or"><span>${t("orOnline")}</span></p>
