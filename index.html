@@ -948,6 +948,12 @@ async function clientToken(){
 }
 const isTeam = () => !!lsGet("dono-ses")?.refresh_token && !isClient(); /* donos e marinheiros não reservam pelo site */
 let lastReq = "";
+/* conversões: avisa o Google Tag Manager (Google Ads/GA4) e o Meta Pixel com lancha, data, horário e valor */
+function track(ev,b){
+  const v=priceFor(b,pick.date,pick.slot), d={event:ev, value:Number.isFinite(v)?v:0, currency:"BRL", lancha:b.name, data:pick.date, horario:pick.slot, pessoas:+pick.people||null};
+  try{ (window.dataLayer=window.dataLayer||[]).push(d); }catch(e){}
+  try{ if(window.fbq) fbq("track", ev==="pedido_reserva"?"Lead":"Contact", {value:d.value, currency:"BRL", content_name:b.name}); }catch(e){}
+}
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, key=JSON.stringify(body);
   if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
@@ -1063,6 +1069,7 @@ async function showBoatStatus(b){
     document.getElementById("pk-people").classList.toggle("pk-missing",!pick.people);
     out.innerHTML=`<p class="pk-res busy need">${t("needAll")}</p>`; };
   btn.onclick = e => { if(btn.dataset.ready){
+      track("reserva_whatsapp",b);
       if(isClient()) sendPedido(b).then(ok=>{ if(ok) out.innerHTML=`<p class="pk-res ok">${t("reqSaved")}</p>`; }, ()=>{});
       return; }
     e.preventDefault(); missing(); };
@@ -1073,7 +1080,7 @@ async function showBoatStatus(b){
       try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, t:Date.now()})); }catch(e){}
       location.href="/login/?criar=1"; return; }
     ob.disabled=true; lastReq="";
-    sendPedido(b).then(()=>{ out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p><a class="btn" href="${wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}))}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
+    sendPedido(b).then(()=>{ track("pedido_reserva",b); out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p><a class="btn" href="${wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}))}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
       ()=>{ out.innerHTML=`<p class="pk-res busy">${t("bookErr")}</p>`; }).finally(()=>ob.disabled=false); };
   if(pick.date) document.getElementById("pk-date").classList.remove("pk-missing");
   if(pick.slot) app.querySelector(".pk-slots").classList.remove("pk-missing");
