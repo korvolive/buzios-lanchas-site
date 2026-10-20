@@ -14,7 +14,7 @@ document,'script','https://connect.facebook.net/en_US/fbevents.js');
 fbq('init','1672637870274530');fbq('track','PageView');</script>
 <title>Búzios Lanchas | Aluguel de lanchas em Búzios</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1672637870274530&ev=PageView&noscript=1"></noscript>
-<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#06394a"><link rel="apple-touch-icon" href="/login/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Búzios Lanchas">
+<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#06394a"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Buzios Lanchas">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -816,6 +816,7 @@ const route = (()=>{
 })();
 /* buscadores (Google etc.) sempre veem o idioma do endereço; visitantes em / vão para a língua escolhida antes ou a do navegador */
 const IS_BOT = /bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent);
+const IS_IOS_TAB = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !IS_BOT;
 (()=>{
   const q = new URLSearchParams(location.search).get("lang"); /* links antigos com ?lang=en */
   const old = location.hash.match(/^#lancha-([a-z0-9-]+)$/);  /* links antigos com #lancha-nome */
@@ -1084,7 +1085,8 @@ function seo(b){
   const desc = b ? `${bt(b,"tagline")} ${t("seoBoatTail")}` : t("seoDesc");
   const url = SITE + pathFor(lang, b?.slug);
   const img = SITE + `/img/${(b?.photos||BOATS[0].photos)[0][0]}.jpg`;
-  document.title = title;
+  /* iPhone no Safari: "Adicionar à Tela de Início" usa o título da página como nome do app */
+  document.title = IS_IOS_TAB ? "Buzios Lanchas" : title;
   headTag('meta[name="description"]',"meta",{name:"description",content:desc});
   headTag('link[rel="canonical"]',"link",{rel:"canonical",href:url});
   [["pt-BR","pt"],["en","en"],["es","es"],["x-default","pt"]].forEach(([hl,l])=>
