@@ -182,7 +182,7 @@ html.is-app #hdr-login{display:none}
 .gallery .main{position:relative;background:var(--sea-deep)}
 .gallery .main img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery{justify-items:stretch;min-width:0}
-.gallery .main.tall{aspect-ratio:5/4;height:min(62vh,580px);width:auto;max-width:100%;justify-self:center}
+.gallery .main.tall{aspect-ratio:1/1;width:100%;height:auto;max-width:min(100%,76vh,640px);justify-self:center} /* quadrado: as fotos (quase todas em pé) preenchem tudo cortando pouco */
 @media (max-width:880px){
   .gallery{justify-items:center}
   .gallery .main.tall{width:100%;height:auto;aspect-ratio:3/4;max-width:100%}
@@ -1367,10 +1367,6 @@ function gallery(b){
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
-  /* no computador o quadro assume o formato de cada foto (altura fixa), para a foto preencher tudo cortando o mínimo */
-  const fitFrame=()=>{ const f=mm.parentElement; if(innerWidth<=880||!mm.naturalWidth){ f.style.aspectRatio=""; return; }
-    f.style.aspectRatio=Math.min(1.6,Math.max(.66,mm.naturalWidth/mm.naturalHeight)); };
-  mm.addEventListener("load",fitFrame); if(mm.complete) fitFrame();
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
     m.src=`/img/${P[i][0]}.jpg`; m.alt=tx(P[i][1]); m.style.objectPosition=P[i][2]; document.getElementById("g-blur").src=`/img/${P[i][0]}-t.jpg`;
     document.getElementById("g-cap").textContent=tx(P[i][1]); document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
