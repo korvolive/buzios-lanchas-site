@@ -1911,7 +1911,7 @@ function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheet
 function closeDay(){ sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; pedidoFor=null; }
 sheetBg.onclick = closeDay;
 /* trocar a própria senha (dono ou funcionário): confere a atual entrando de novo e só então grava a nova */
-const PW_LINK = () => `<p class="pwlink"><button type="button" class="link" id="chpw">${t("chPw")}</button><br><a class="link" href="/">${t("seeSite")}</a></p>`;
+const PW_LINK = () => `<p class="pwlink"><a class="link" href="/">${t("seeSite")}</a></p>`;
 app.addEventListener("click", e => { if(e.target.closest("#chpw")) openPw(); });
 function openPw(msg=""){
   const eye = id => `<div class="pw"><input type="password" id="${id}" autocomplete="${id==="pw-cur"?"current-password":"new-password"}"><button type="button" data-eye="${id}">${t("show")}</button></div>`;
