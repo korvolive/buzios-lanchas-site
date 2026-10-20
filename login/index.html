@@ -193,6 +193,10 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .tabs button[aria-selected=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .newtrip{margin:0 0 14px}
 .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:18px 2px 8px}
+.rqboat{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:10px 0;padding:0 12px}
+.rqboat > summary{list-style:none;cursor:pointer;align-items:center;margin:0;padding:12px 0}.rqboat > summary::-webkit-details-marker{display:none}
+.rqboat .chev{display:inline-block;font-style:normal;margin-left:10px;font-size:20px;line-height:1;transition:transform .15s}.rqboat[open] .chev{transform:rotate(90deg)}
+.rqboat[open] > .trips{padding-bottom:12px}
 .mhead h3{margin:0;font:800 18px/1.2 var(--display)}.mhead span{font-size:14px;color:var(--muted);font-weight:600}
 .trips{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 @media (max-width:520px){ /* celular: cartão cabe na tela */
@@ -1379,7 +1383,7 @@ function pedidosHTML(){
   return `${confirmHTML()}<p class="how muted">${t("reqSub")}</p>
     <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${!L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
-      : f==="aprovado" ? byBoat(L[f]).map(([l,rs])=>`<div class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}</span></div><div class="trips">${rs.map(card).join("")}</div>`).join("")
+      : f!=="pendente" ? byBoat(L[f]).map(([l,rs])=>`<details class="rqboat" data-rqb="${f}|${esc(l)}"${S.rqOpen?.has(f+"|"+l)?" open":""}><summary class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}<i class="chev" aria-hidden="true">›</i></span></summary><div class="trips">${rs.map(card).join("")}</div></details>`).join("") /* cada lancha abre e fecha com um toque */
       : `<div class="trips">${L[f].map(card).join("")}</div>`}`;
 }
 /* card "Clientes cadastrados" (com os convites que ainda não viraram conta), em Usuários › Clientes */
@@ -1725,6 +1729,7 @@ function bindMain(){
   app.querySelectorAll("[data-rq]").forEach(x=>x.onclick=async()=>{ const p=S.reqs.find(p=>p.id===+x.dataset.rq);
     if(!confirm(t("refuseQ",{name:p.clientes?.nome||""}))) return;
     try{ await db(`pedidos?id=eq.${p.id}`,{method:"PATCH",body:{status:"recusado",atualizado_em:new Date().toISOString()}}); toast(t("refusedReq")); await loadReqs(); mainView(); }catch(e){ toast(t("saveErr")); } });
+  app.querySelectorAll("details[data-rqb]").forEach(x=>x.ontoggle=()=>{ S.rqOpen ||= new Set(); S.rqOpen[x.open?"add":"delete"](x.dataset.rqb); });
   app.querySelectorAll("[data-ob]").forEach(x=>x.onclick=async()=>{ try{ const r=(await fetchRows(`id=eq.${+x.dataset.ob}`))[0]; if(r) openTrip(r); }catch(e){ toast(t("loadErr")); } });
   app.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{ S.cur=x.dataset.b; S.boatOpen=false; store.set("dono-boat",S.cur); loadBlocks(); });
   const bsel=document.getElementById("bsel"); if(bsel) bsel.onclick=()=>{ S.boatOpen=!S.boatOpen; mainView(); if(S.boatOpen) document.getElementById("bq")?.focus(); };
