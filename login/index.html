@@ -1757,7 +1757,7 @@ async function boot(){
       else{ S.me = me?.[0] || null; view="main";
         if(!me?.[0] && !store.get("cli-draft")){ const cv=(await db("rpc/meu_convite",{method:"POST",body:{}}).catch(()=>[]))[0]; if(cv) store.set("cli-draft",{nome:cv.nome||"", whatsapp:cv.telefone||""}); }
         const draft=store.get("cli-draft"); let err="";
-        if(!S.me && draft) err = await saveProfile(draft); /* conta criada com confirmação por e-mail: termina o cadastro agora */
+        if(!S.me && draft?.cpf) err = await saveProfile(draft); /* conta criada com confirmação por e-mail: termina o cadastro agora (o rascunho do convite não tem CPF: só preenche a tela) */
         if(S.me) await loadMyReq();
         return S.me ? clientView() : (top_.hidden=false, top_.innerHTML=headerHTML(), bindLang(), document.getElementById("out").onclick=logout, completeView(err)); }
     }
