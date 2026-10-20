@@ -1401,7 +1401,6 @@ function boatPage(b){
       </div>
       <div class="b-media">
         <div class="block b-gal"><div>${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
-        <p class="lead pitch">${(PITCH[b.slug]||{})[lang] || bt(b,"description")}</p>
         <div class="block b-bring"><h2>${t("bring")}</h2><ul class="bring">${(UI[lang].bringList||UI.pt.bringList).map(x=>`<li><span aria-hidden="true">✅</span>${x}</li>`).join("")}</ul></div>
         <div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>
         ${b.reviews?`<div class="block b-reviews b-google"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
