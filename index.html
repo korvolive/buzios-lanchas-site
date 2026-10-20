@@ -182,7 +182,7 @@ html.is-app #hdr-login{display:none}
 .gallery .main{position:relative;background:var(--sea-deep)}
 .gallery .main img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery{justify-items:stretch;min-width:0}
-.gallery .main.tall{aspect-ratio:5/4;height:min(56vh,520px);width:auto;max-width:100%;justify-self:center}
+.gallery .main.tall{aspect-ratio:5/4;height:min(62vh,580px);width:auto;max-width:100%;justify-self:center}
 @media (max-width:880px){
   .gallery{justify-items:center}
   .gallery .main.tall{width:100%;height:auto;aspect-ratio:3/4;max-width:100%}
@@ -190,7 +190,7 @@ html.is-app #hdr-login{display:none}
   .strip{max-width:100%;justify-self:stretch}
 }
 .gallery .main img.blur{position:absolute;inset:0;object-fit:cover;filter:blur(24px) brightness(.7);transform:scale(1.15)}
-.gallery .main img.fit{position:absolute;inset:0;object-fit:cover}
+.gallery .main img.fit{position:absolute;inset:0;object-fit:contain} /* foto inteira, sem corte; o fundo desfocado preenche as sobras */
 .strip button{width:60px;height:96px}
 .strip button img{object-fit:cover}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(6,57,74,.65);color:#fff;font-size:26px;line-height:1;cursor:pointer}
