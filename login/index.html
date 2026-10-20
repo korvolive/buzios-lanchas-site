@@ -815,7 +815,7 @@ function clientView(){
     ${up.length ? `<h2 style="margin:22px 0 10px">${t("upT")}</h2><div class="trips">${up.map(p=>reqCard(p)).join("")}</div>` : past.length ? "" : `<div class="card"><p class="muted" style="margin:0">${t("cliNone")}</p></div>`}
     ${past.length ? `<h2 style="margin:22px 0 10px">${t("cliPast")}</h2><div class="trips">${past.map(p=>reqCard(p)).join("")}</div>` : ""}
     <div class="card howcard"><h3>${t("cliHowT")}</h3><p class="muted">${t("cliHow")}</p></div>
-    <p class="muted" style="font-size:14px;text-align:center;margin-top:18px"><a href="https://wa.me/${WHATS}" target="_blank" rel="noopener">WhatsApp Búzios Lanchas</a></p>` + PW_LINK();
+    ` + PW_LINK();
   app.querySelectorAll("[data-rv]").forEach(x=>x.onclick=()=>openRate(rows.find(p=>p.id===+x.dataset.rv), +x.dataset.n||0));
   app.querySelectorAll("[data-gu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("giveUpQ"))) return;
     try{ await db("rpc/cancelar_pedido",{method:"POST",body:{pid:+x.dataset.gu}}); toast(t("gaveUp")); await loadMyReq(); clientView(); }catch(e){ toast(t("saveErr")); } });
@@ -1911,7 +1911,7 @@ function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheet
 function closeDay(){ sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; pedidoFor=null; }
 sheetBg.onclick = closeDay;
 /* trocar a própria senha (dono ou funcionário): confere a atual entrando de novo e só então grava a nova */
-const PW_LINK = () => `<p class="pwlink"><button type="button" class="link" id="chpw">${t("chPw")}</button><br><a class="link" href="/">${t("seeSite")}</a></p>`;
+const PW_LINK = () => `<p class="pwlink"><a class="link" href="/">${t("seeSite")}</a></p>`;
 app.addEventListener("click", e => { if(e.target.closest("#chpw")) openPw(); });
 function openPw(msg=""){
   const eye = id => `<div class="pw"><input type="password" id="${id}" autocomplete="${id==="pw-cur"?"current-password":"new-password"}"><button type="button" data-eye="${id}">${t("show")}</button></div>`;
