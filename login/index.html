@@ -520,7 +520,7 @@ const now = new Date(); S.month = new Date(now.getFullYear(), now.getMonth(), 1)
 
 function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove("on"),2600); }
 const langSel = () => `<select id="lang" aria-label="Idioma / Language / Idioma">${LANGS.map(l=>`<option value="${l}"${l===lang?" selected":""}>${{pt:"🌐 PT",en:"🌐 EN",es:"🌐 ES"}[l]}</option>`).join("")}</select>`;
-function bindLang(){ const s=document.getElementById("lang"); if(s) s.onchange=()=>{ lang=s.value; store.set("dono-lang",lang); document.documentElement.lang = lang==="pt"?"pt-BR":lang; show(); }; }
+function bindLang(){ const s=document.getElementById("lang"); if(s) s.onchange=()=>{ lang=s.value; store.set("dono-lang",lang); document.documentElement.lang = lang==="pt"?"pt-BR":lang; saveLang(); show(); }; }
 
 /* ===== telas ===== */
 let view = "login", loginMsg = "", loginErr = false, typedEmail = "";
@@ -652,7 +652,7 @@ function signupView(){
     if(msgs.length){ out.innerHTML=`<p class="msg err">${msgs.join("<br>")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); return; }
     go.disabled=true; go.textContent=t("creating");
     store.set("cli-draft", p.data); /* se o e-mail precisar de confirmação, o cadastro termina no primeiro login */
-    try{ const s = await authCall("signup", {email, password:pw.value});
+    try{ const s = await authCall("signup", {email, password:pw.value, data:{lang}});
       store.set("dono-email", email);
       if(!s.access_token){ loginErr=false; loginMsg=t("checkEmail",{email:esc(email)}); view="login"; return show(); }
       saveSes(s); view="main"; await boot(); }
@@ -775,6 +775,8 @@ function squareJpeg(src){ return new Promise((ok,no)=>{ const im=new Image(); im
   im.onload=()=>{ const w=im.naturalWidth, h=im.naturalHeight, q=Math.min(w,h), c=document.createElement("canvas"); c.width=c.height=320;
     c.getContext("2d").drawImage(im,(w-q)/2,(h-q)/2,q,q,0,0,320,320); c.toBlob(b=>b?ok(b):no(new Error("blob")),"image/jpeg",.85); };
   im.onerror=no; im.src=src; }); }
+/* idioma da pessoa guardado na conta: os e-mails do Supabase (trocar e-mail, esqueci a senha) saem nesse idioma */
+function saveLang(){ if(!ses?.user || meta().lang===lang) return; fresh().then(tk=>authCall("user",{data:{lang}},"PUT",tk)).then(u=>{ if(u?.id===ses?.user?.id){ ses.user=u; saveSes(ses); } }).catch(()=>{}); }
 async function setFoto(v){ ses.user = await authCall("user",{data:{foto:v}},"PUT",await fresh()); saveSes(ses); }
 async function avStore(init){
   const r = await fetch(`${SB}/storage/v1/object/avatares/${ses.user.id}.jpg`, {...init, headers:{apikey:KEY, authorization:"Bearer "+await fresh(), ...(init.headers||{})}});
@@ -1767,7 +1769,7 @@ async function boot(){
   app.innerHTML = `<p class="loading">…</p>`; S.notes = true;
   try{
     ses.user = await authCall("user",null,"GET",await fresh()); /* sempre confere de quem é o login (evita misturar contas no mesmo aparelho) */
-    saveSes(ses); importGoogle();
+    saveSes(ses); importGoogle(); saveLang();
     const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome&order=nome"), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
     /* funcionário: lanchas que só pode ver (tabela visualizadores); sem a tabela, segue sem eles */
