@@ -900,7 +900,7 @@ function openFace(){
     <div class="acct"><h3>${t("acctT")}</h3><p class="muted" style="margin:0 0 10px">${esc(ses.user.email||"")}</p>
       ${hasPw() ? `<button type="button" class="btn sec" id="avpw" style="margin:0 0 10px">🔑 ${t("chPw")}</button>` : ""}
       <button type="button" class="btn sec" id="avem" style="margin:0">✉ ${t("chEmail")}</button>
-      ${S.pushWho && pushOk() ? `<button type="button" class="btn sec" id="avpt" style="margin:10px 0 0">🔔 ${t("pushTest")}</button>` : ""}</div>
+      ${S.pushWho && (pushOk() || isIOS()) ? `<button type="button" class="btn sec" id="avpt" style="margin:10px 0 0">🔔 ${t("pushTest")}</button>` : ""}</div>
     <button type="button" class="btn sec" id="avx" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   const done = msg => { closeDay(); toast(msg); refreshTop(); };
@@ -916,6 +916,7 @@ function openFace(){
 /* manda uma notificação de teste só para este aparelho */
 async function pushTest(){
   closeDay();
+  if(!pushOk()) return void toast(t("pushIOS").replace(/<[^>]+>/g,"")); /* iPhone no Safari: só funciona pelo app instalado na tela de início */
   if(Notification.permission==="denied") return void toast(t("pushDenied"));
   if(Notification.permission!=="granted"){ await pushAsk(); if(Notification.permission!=="granted") return; }
   try{ const ep = await pushSubscribe(); const r = await callFn({tipo:"teste", ep}); toast(r.enviados ? t("pushTestOk") : t("pushTestFail")); }
