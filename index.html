@@ -161,6 +161,12 @@ html.is-app #hdr-login{display:none}
 /* texto do card sempre com 3 linhas, para pés/pessoas e preço ficarem na mesma altura em todos */
 .card .tagline{margin:0;color:var(--muted);line-height:1.55;min-height:4.65em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card{position:relative}
+/* itens no card da página inicial: destaques em dourado, básicos em azul (pedido do Rodrigo) */
+.c-items{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.c-items li{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--chip);border-radius:8px;padding:4px 8px;font-size:12.5px;line-height:1.3;white-space:nowrap}
+.c-items svg{width:15px;height:15px;flex:none;color:var(--sea)}
+.c-items li.gold{background:linear-gradient(135deg,#f3d27a,#e0b54d);border-color:transparent;color:#2a1f05;font-weight:600}
+.c-items li.gold svg{color:#2a1f05}
 .card>.tag{position:absolute;top:12px;left:12px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.25);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:6px;background:var(--brass);color:var(--brass-ink)}
 .card>.tag.ex{background:var(--chip);color:var(--muted)}
 .specs{display:flex;gap:18px;flex-wrap:wrap;font:500 14px/1.2 var(--mono);color:var(--muted)}
@@ -394,6 +400,7 @@ h1,h2,h3{line-height:1.15}
   .when > strong{text-align:center}
   .card .body{text-align:center;align-items:center}
   .specs{justify-content:center}
+  .c-items{justify-content:center}
   .price-from{flex-direction:column;align-items:center;gap:10px;width:100%}
   .rt-grid > :not(.rt-map){text-align:center}
   .rt-list{display:inline-block;text-align:left}
@@ -1156,6 +1163,23 @@ const STACK_SKIP = ["Marinheiro","Marinheiro experiente","Serviço de churrasque
 /* destaque dourado (pedido do Rodrigo): esses itens vêm primeiro na lista */
 const STACK_GOLD = ["Wi-Fi Starlink","Ar-condicionado","Piscina inflável"];
 const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...l.filter(i=>STACK_GOLD.includes(i)),...l.filter(i=>!STACK_GOLD.includes(i))].map(i=>STACK_GOLD.includes(i)?`<li class="gold">✦ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join(""); };
+/* card da página inicial: destaques que a lancha tem + itens básicos de todas */
+const CARD_BASIC = ["Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Cooler","Som Bluetooth"];
+const IC = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const ITEM_ICON = {
+  "Ar-condicionado":IC('<path d="M12 2v20M4 6.5l16 11M20 6.5l-16 11M9.5 3.5 12 6l2.5-2.5M9.5 20.5 12 18l2.5 2.5"/>'),
+  "Wi-Fi Starlink":IC('<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor"/>'),
+  "Piscina inflável":IC('<path d="M2 15c2 1.5 4 1.5 5 0s3-1.5 5 0 4 1.5 5 0 3-1.5 5 0M2 19.5c2 1.5 4 1.5 5 0s3-1.5 5 0 4 1.5 5 0 3-1.5 5 0M7 13V5a2 2 0 0 1 4 0M13 13V5a2 2 0 0 1 4 0M7 8h6"/>'),
+  "Combustível":IC('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 3v6a1.5 1.5 0 0 0 3 0V9l-3-3"/>'),
+  "Gelo escama":IC('<path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 12l8.5-5M12 12v10M12 12 3.5 7"/>'),
+  "Carvão":IC('<path d="M12 22c4 0 7-2.7 7-6.5 0-3.5-2.5-5.5-4-8-.8 2-2 3-3 3 .5-3-1-6-3-8.5C8.5 6 5 9.5 5 15.5 5 19.3 8 22 12 22z"/>'),
+  "Água mineral":IC('<path d="M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5z"/>'),
+  "Churrasqueira":IC('<path d="M3.5 9h17a8.5 8.5 0 0 1-17 0zM8 17.5 6 22M16 17.5l2 4.5M9 2c-1 1.5 1 2.5 0 4M12 2c-1 1.5 1 2.5 0 4M15 2c-1 1.5 1 2.5 0 4"/>'),
+  "Cooler":IC('<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 12h18M9 8V5h6v3"/>'),
+  "Som Bluetooth":IC('<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>')
+};
+const cardItems = b => { const has=boatItems(b); return [...STACK_GOLD.filter(i=>has.includes(i)).map(i=>[i,1]), ...CARD_BASIC.map(i=>[i,0])]
+  .map(([i,g])=>`<li${g?' class="gold"':""}>${ITEM_ICON[i]||""}${tx(i)}</li>`).join(""); };
 const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t("stBoatT",{f:b.feet})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${t("stRouteP")}</small></div></li>
@@ -1367,8 +1391,8 @@ function home(){
           ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
             <h3>${b.name}</h3>
-            <p class="tagline">${bt(b,"tagline")}</p>
             ${specs(b)}
+            <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
             <div class="price-from"><div><span>${t("from4h")}</span><br><strong>${minPrice(b)?brl(minPrice(b)):t("onRequest")}</strong></div><span class="go">${t("seeBoat")}</span></div>
           </div>
         </a>`).join("")}
@@ -1469,6 +1493,7 @@ function render(toTop=true){
   bind(); bindGallery(b);
   if(b) bindPicker(()=>showBoatStatus(b));
   if(b) loadSiteRevs(b);
+  if(!b && !itens && app.querySelector("[data-items]")) loadItens().then(m=>{ if(m) app.querySelectorAll("[data-items]").forEach(u=>{ const x=BOATS.find(y=>y.slug===u.dataset.items); if(x) u.innerHTML=cardItems(x); }); });
   if(b && !itens) loadItens().then(m=>{ const ul=document.getElementById("inc-list"); if(m && ul && route.slug===b.slug) ul.innerHTML=incItems(b); const si=document.getElementById("stack-items"); if(m && si && route.slug===b.slug) si.innerHTML=stackItems(b); });
 }
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
