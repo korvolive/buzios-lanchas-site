@@ -1139,7 +1139,7 @@ function staffHTML(){
 }
 function monthSummaryHTML(){
   const all=[...S.blocks.values()].flatMap(m=>[...m.values()]); if(!all.length) return "";
-  const v=all.reduce((a,r)=>a+(+r.nota?.valor||0),0), d=all.reduce((a,r)=>a+(+r.nota?.sinal||0),0);
+  const ro=isRO(), v=ro ? 0 : all.reduce((a,r)=>a+(+r.nota?.valor||0),0), d=ro ? 0 : all.reduce((a,r)=>a+(+r.nota?.sinal||0),0); /* total e sinais do mês: só o dono */
   const by=["buzios","fora"].map(o=>[o,all.filter(r=>r.nota?.origem===o).length]).filter(x=>x[1]);
   return `<p class="sum">${all.length===1?t("monthSum1"):t("monthSum",{n:all.length})}${v||d?`<br><small>${t("monthVal",{v:brl(v),d:brl(d)})}</small>`:""}${by.length?`<br><small>${by.map(([o,c])=>`${t("o_"+o)}: ${c}`).join(" · ")}</small>`:""}</p>`;
 }
