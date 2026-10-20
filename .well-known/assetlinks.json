@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "br.com.lanchaembuzios.app",
+      "sha256_cert_fingerprints": [
+        "11:35:46:1E:7A:4D:90:54:47:84:A5:4E:7D:8E:C9:C7:64:D5:44:26:66:85:DC:A1:D0:87:EA:09:4C:4E:B5:29"
+      ]
+    }
+  }
+]
