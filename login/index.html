@@ -2089,7 +2089,7 @@ function renderTrip(){
   if(cc) cc.ontoggle=async()=>{ if(!cc.open || cc.dataset.ok) return; cc.dataset.ok=1; const box=document.getElementById("clibody");
     try{ const c=(await db("rpc/cliente_do_passeio",{method:"POST",body:{bid:r.id}}))[0]; const ph=splitPhone(c?.whatsapp), wa=ph.cc+ph.num.replace(/\D/g,"");
       box.innerHTML = c ? `<div class="who" style="margin:4px 0 8px">${face(n.cliente_conta,c.nome,"face lg")}<strong>${esc(c.nome)}</strong></div><div class="rolist"><div class="rorow"><span>${t("fullName")}</span><strong>${esc(c.nome)}</strong></div><div class="rorow"><span>CPF</span><strong>${esc(fmtCPF(c.cpf))}</strong></div>
-        <div class="rorow"><span>WhatsApp</span><strong><a href="https://wa.me/${wa}" target="_blank" rel="noopener">${esc(c.whatsapp)}</a></strong></div>
+        <div class="rorow"><span>WhatsApp</span><strong><a href="https://wa.me/${wa}" target="_blank" rel="noopener">${esc(c.whatsapp)}</a></strong></div>${c.email?`<div class="rorow"><span>${t("email")}</span><strong style="overflow-wrap:anywhere"><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></strong></div>`:""}
         <div class="rorow"><span>${t("cliSince")}</span><strong>${new Date(c.desde).toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</strong></div><div class="rorow"><span>${t("cliTrips")}</span><strong>${c.passeios}</strong></div></div>` : `<p class="muted">—</p>`; }
     catch(e){ cc.dataset.ok=""; box.innerHTML=`<p class="msg err">${t("loadErr")}</p>`; } };
   const fr=document.getElementById("nfree");
