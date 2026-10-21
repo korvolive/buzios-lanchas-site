@@ -1203,8 +1203,8 @@ const BOARD_PV = ["miss-bardot","les-zuzu"];
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
 const BOARD_OPTS = ["Píer do Golfinho (Praia dos Ossos)", "Porto Veleiro (Praia dos Ossos)", "BR Marinas Búzios"], OTHER = "__outro";
 /* link de localização do embarque: no celular, o próprio sistema oferece abrir no Google Maps, Waze etc. */
-const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"Praia dos Ossos, Armação dos Búzios - RJ", "Porto Veleiro (Praia dos Ossos)":"Marina Porto Veleiro, Armação dos Búzios - RJ", "BR Marinas Búzios":"-22.748525,-41.956531" /* Alameda Andorinhas, Aretê (coordenadas da BR Marinas) */};
-const mapUrl = e => "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(MAP_Q[e] || e+", Armação dos Búzios - RJ");
+const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"Porto Veleiro Búzios, Tv. Santana, 1 - Praia da Armação, Armação dos Búzios - RJ", "BR Marinas Búzios":"-22.748525,-41.956531" /* Alameda Andorinhas, Aretê (coordenadas da BR Marinas) */};
+const mapUrl = e => /^https:/.test(MAP_Q[e]||"") ? MAP_Q[e] : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(MAP_Q[e] || e+", Armação dos Búzios - RJ");
 const mapLink = e => `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`;
 const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
 /* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
