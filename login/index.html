@@ -1200,7 +1200,7 @@ const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.u
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
-Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
+Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
 Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
 Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
 Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicación del embarque:", waConfirm:"¡Hola, {name}! Tu paseo en {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} personas\n{emb}Cualquier duda, escríbenos. ¡Buen paseo! Búzios Lanchas"});
@@ -2134,13 +2134,23 @@ function renderTripRO(){
   const v=+n.valor||0, d=+n.sinal||0, row=(k,val)=>val||val===0?`<div class="rorow"><span>${k}</span><strong>${val}</strong></div>`:"";
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${n.cliente?esc(n.cliente):t("noClientName")}</h2>
     <p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${r.horario==="noite"&&!n.hora_ini?"":" · "+slotHours(r.horario,n)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}</p>
-    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("embT"), n.embarque&&esc(n.embarque))}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}${row(t("ajT"), n.ajudante&&esc(n.ajudante))}
+    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("embT"), !r.nota&&n.embarque&&esc(n.embarque))}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}${row(t("ajT"), n.ajudante&&esc(n.ajudante))}
       ${row(t("value"), v?brl(v):"")}${row(t("deposit"), d?brl(d):"")}${v?row(t("toPayL"), d>=v?t("paid"):brl(v-d)):""}</div>
+    ${r.nota ? `<form id="emf" class="nform mnbox" novalidate><fieldset class="origin emb"><legend>📍 ${t("embT")}</legend><div>${BOARD_OPTS.map(o=>`<button type="button" role="radio" data-embr="${esc(o)}" aria-checked="${n.embarque===o}">${esc(o)}</button>`).join("")}<button type="button" role="radio" data-embr="${OTHER}" aria-checked="${!!n.embarque&&!BOARD_OPTS.includes(n.embarque)}">${t("embOther")}</button></div>
+      <input id="r-embo" maxlength="80" autocomplete="off" placeholder="${t("embOtherPh")}" aria-label="${t("embOther")}" value="${n.embarque&&!BOARD_OPTS.includes(n.embarque)?esc(n.embarque):""}" style="margin-top:8px"${n.embarque&&!BOARD_OPTS.includes(n.embarque)?"":" hidden"}></fieldset>
+      <p class="muted" style="margin:-4px 0 10px;font-size:13px">${t("embMarSub")}</p><button class="btn" id="emgo">${t("embMarSave")}</button></form>` : ""}
     ${r.nota ? `<form id="mnf" class="nform mnbox" novalidate><label class="f"><span>📝 ${t("marNoteT")}</span><textarea id="n-mn" rows="3" maxlength="500" placeholder="${t("marNotePh")}">${esc(n.obs||"")}</textarea></label>
       <p class="muted" style="margin:-4px 0 10px;font-size:13px">${t("marNoteSub")}</p><button class="btn" id="mngo">${t("marNoteSave")}</button></form>` : ""}
     ${wa.length>=10?`<a class="btn sec" style="margin:14px 0 0" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
     <button type="button" class="btn" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>`;
   document.getElementById("nback").onclick=()=>{ if(fromDay){ noteFor=null; renderSheet(); } else closeDay(); };
+  /* marinheiro fixo: pode trocar o local de embarque (o cliente vê o novo local no app) */
+  const emf=document.getElementById("emf"); if(emf){ let pick=n.embarque&&!BOARD_OPTS.includes(n.embarque)?OTHER:n.embarque||null; const other=document.getElementById("r-embo");
+    emf.querySelectorAll("[data-embr]").forEach(x=>x.onclick=()=>{ pick=x.dataset.embr; emf.querySelectorAll("[data-embr]").forEach(y=>y.setAttribute("aria-checked", y===x)); other.hidden=pick!==OTHER; if(pick===OTHER) other.focus(); });
+    emf.onsubmit=async e=>{ e.preventDefault(); const b=document.getElementById("emgo"), local=pick===OTHER?other.value.trim():pick;
+      if(!local) return toast(t("embMarNeed")); b.disabled=true;
+      try{ await db("rpc/embarque_marinheiro",{method:"POST",body:{bid:r.id, local}}); r.nota.embarque=local; toast(t("embMarSaved")); renderTripRO(); }
+      catch(x){ b.disabled=false; toast(x.status ? t("saveErr") : t("netErr")); } }; }
   const mnf=document.getElementById("mnf"); if(mnf) mnf.onsubmit=async e=>{ e.preventDefault(); const b=document.getElementById("mngo"), txt=document.getElementById("n-mn").value.trim(); b.disabled=true;
     try{ await db("rpc/nota_marinheiro",{method:"POST",body:{bid:r.id, texto:txt}}); r.nota.obs=txt||null; toast(t("marNoteSaved")); if(fromDay){ noteFor=null; renderSheet(); } else { closeDay(); mainView(); } }
     catch(x){ b.disabled=false; toast(x.status ? t("saveErr") : t("netErr")); } };
