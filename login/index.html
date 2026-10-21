@@ -688,23 +688,33 @@ function loginView(){
   };
 }
 /* confirmação do e-mail no cadastro: o Supabase manda um código (modelo "Confirm signup" com {{ .Token }}) */
-let codeEmail="", codePw="", codeMsg="", codeErr=false;
+let codeEmail="", codePw="", codeMsg="", codeErr=false, codeMode="signup"; /* "verify": conta antiga confirmando o e-mail uma vez (código do modelo "Magic Link") */
+/* manda o código de confirmação do e-mail para quem está logado; no máximo uma vez a cada 10 minutos, a não ser que peça de novo */
+async function sendVerify(force){
+  const k="ev-sent-"+ses.user.id, last=+store.get(k)||0;
+  if(!force && Date.now()-last < 10*60e3) return;
+  await authCall("user",{data:{verificar:{lang}}},"PUT",await fresh()); /* o modelo do e-mail mostra o código quando tem "verificar" */
+  await authCall("otp?redirect_to="+encodeURIComponent(location.origin+"/login/"),{email:codeEmail, create_user:false});
+  store.set(k, Date.now());
+}
 function codeView(){
-  loginShell(t("codeT"), t("codeSub",{email:`<b>${esc(codeEmail)}</b>`}), `<form class="card" id="kf" novalidate>${codeMsg?`<p class="msg ${codeErr?"err":"ok"}">${codeMsg}</p>`:""}
+  const vf = codeMode==="verify";
+  loginShell(t(vf?"vfT":"codeT"), t(vf?"vfSub":"codeSub",{email:`<b>${esc(codeEmail)}</b>`}), `<form class="card" id="kf" novalidate>${codeMsg?`<p class="msg ${codeErr?"err":"ok"}">${codeMsg}</p>`:""}
       <label class="f"><span>${t("codeL")}</span><input type="text" id="kc" inputmode="numeric" autocomplete="one-time-code" maxlength="10" style="font-size:24px;letter-spacing:6px;text-align:center"></label>
       <button class="btn" id="go">${t("codeGo")}</button>
       <button type="button" class="link" id="kr">${t("codeResend")}</button>
       <p class="muted" style="font-size:13px;margin:8px 0 0">${t("codeSpam")}</p></form>
-    <button type="button" class="link" id="kb" style="display:block;margin:0 auto">${t("codeBack")}</button>`);
+    <button type="button" class="link" id="kb" style="display:block;margin:0 auto">${t(vf?"logout":"codeBack")}</button>`);
   const kc=document.getElementById("kc"); kc.focus();
   kc.oninput=()=>{ kc.value=kc.value.replace(/\D/g,""); };
-  document.getElementById("kb").onclick=()=>{ codeMsg=""; view="login"; show(); };
-  document.getElementById("kr").onclick=async()=>{ try{ await authCall("resend",{type:"signup", email:codeEmail}); codeErr=false; codeMsg=t("codeSent",{email:esc(codeEmail)}); }
+  document.getElementById("kb").onclick=()=>{ codeMsg=""; if(vf){ codeMode="signup"; return logout(); } view="login"; show(); };
+  document.getElementById("kr").onclick=async()=>{ try{ if(vf) await sendVerify(true); else await authCall("resend",{type:"signup", email:codeEmail}); codeErr=false; codeMsg=t("codeSent",{email:esc(codeEmail)}); }
     catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : err.status ? esc(err.message) : t("netErr"); } codeView(); };
   document.getElementById("kf").onsubmit=async e=>{ e.preventDefault(); const go=document.getElementById("go"), token=kc.value.trim();
     if(token.length<6){ codeErr=true; codeMsg=t("codeBad"); return codeView(); }
     go.disabled=true;
-    try{ let s=await authCall("verify",{type:"signup", email:codeEmail, token});
+    try{ let s=await authCall("verify",{type:vf?"email":"signup", email:codeEmail, token});
+      if(vf && s.access_token){ authCall("user",{data:{verificar:null}},"PUT",s.access_token).catch(()=>{}); codeMode="signup"; }
       if(!s.access_token && codePw) s=await authCall("token?grant_type=password",{email:codeEmail, password:codePw});
       store.set("dono-email", codeEmail); codePw=""; codeMsg=""; saveSes(s); view="main"; await boot(); }
     catch(err){ codeErr=true; codeMsg = err.status ? t("codeBad") : t("netErr"); codeView(); } };
@@ -1269,9 +1279,9 @@ const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.u
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
-Object.assign(T.pt, {codeT:"Confirme o seu e-mail", codeSub:"Enviamos um código para {email}. Digite o código aqui para confirmar que o e-mail é seu.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar o código", codeSent:"Enviamos um novo código para {email}.", codeBad:"Código errado ou vencido. Confira o e-mail ou peça um novo código.", codeWait:"Espere um pouco antes de pedir outro código.", codeBack:"Voltar para o login", codeSpam:"Não chegou? Veja também a caixa de spam."});
-Object.assign(T.en, {codeT:"Confirm your email", codeSub:"We sent a code to {email}. Type it here to confirm the email is yours.", codeL:"Code", codeGo:"Confirm", codeResend:"Send the code again", codeSent:"We sent a new code to {email}.", codeBad:"Wrong or expired code. Check the email or ask for a new code.", codeWait:"Please wait a bit before asking for another code.", codeBack:"Back to sign in", codeSpam:"Didn't get it? Check your spam folder too."});
-Object.assign(T.es, {codeT:"Confirma tu correo", codeSub:"Enviamos un código a {email}. Escríbelo aquí para confirmar que el correo es tuyo.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar el código", codeSent:"Enviamos un código nuevo a {email}.", codeBad:"Código incorrecto o vencido. Revisa el correo o pide un código nuevo.", codeWait:"Espera un poco antes de pedir otro código.", codeBack:"Volver al inicio de sesión", codeSpam:"¿No llegó? Mira también la carpeta de spam."});
+Object.assign(T.pt, {vfT:"Confirme o seu e-mail", vfSub:"Por segurança, todas as contas confirmam o e-mail uma única vez. Enviamos um código para {email}: digite aqui ou toque no botão do e-mail.", codeT:"Confirme o seu e-mail", codeSub:"Enviamos um código para {email}. Digite o código aqui para confirmar que o e-mail é seu.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar o código", codeSent:"Enviamos um novo código para {email}.", codeBad:"Código errado ou vencido. Confira o e-mail ou peça um novo código.", codeWait:"Espere um pouco antes de pedir outro código.", codeBack:"Voltar para o login", codeSpam:"Não chegou? Veja também a caixa de spam."});
+Object.assign(T.en, {vfT:"Confirm your email", vfSub:"For security, every account confirms its email once. We sent a code to {email}: type it here or tap the button in the email.", codeT:"Confirm your email", codeSub:"We sent a code to {email}. Type it here to confirm the email is yours.", codeL:"Code", codeGo:"Confirm", codeResend:"Send the code again", codeSent:"We sent a new code to {email}.", codeBad:"Wrong or expired code. Check the email or ask for a new code.", codeWait:"Please wait a bit before asking for another code.", codeBack:"Back to sign in", codeSpam:"Didn't get it? Check your spam folder too."});
+Object.assign(T.es, {vfT:"Confirma tu correo", vfSub:"Por seguridad, todas las cuentas confirman el correo una sola vez. Enviamos un código a {email}: escríbelo aquí o toca el botón del correo.", codeT:"Confirma tu correo", codeSub:"Enviamos un código a {email}. Escríbelo aquí para confirmar que el correo es tuyo.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar el código", codeSent:"Enviamos un código nuevo a {email}.", codeBad:"Código incorrecto o vencido. Revisa el correo o pide un código nuevo.", codeWait:"Espera un poco antes de pedir otro código.", codeBack:"Volver al inicio de sesión", codeSpam:"¿No llegó? Mira también la carpeta de spam."});
 Object.assign(T.pt, {rvPendT:"⭐ Avaliação pendente", rvPendSub:"Conte como foi o seu passeio: dê a nota da lancha e do marinheiro. Leva menos de 1 minuto.", rvPendBtn:"Avaliar agora", rvGone:"Avaliação removida pela Búzios Lanchas", rvEditUntil:"Você pode alterar até {d}.", rvAdmT:"Avaliação do cliente", rvMarL:"Marinheiro", rvDel:"Excluir avaliação", rvDelQ:"Excluir esta avaliação? Ela sai do site e o cliente não poderá avaliar este passeio de novo.", rvDeleted:"Avaliação excluída.", rvExc:"Avaliação excluída por você", rvNeedSql:"Falta rodar a atualização do banco para excluir avaliações."});
 Object.assign(T.en, {rvPendT:"⭐ Review pending", rvPendSub:"Tell us how your tour went: rate the boat and the skipper. It takes less than a minute.", rvPendBtn:"Rate now", rvGone:"Review removed by Búzios Lanchas", rvEditUntil:"You can change it until {d}.", rvAdmT:"Client review", rvMarL:"Skipper", rvDel:"Delete review", rvDelQ:"Delete this review? It leaves the website and the client won't be able to rate this tour again.", rvDeleted:"Review deleted.", rvExc:"Review deleted by you", rvNeedSql:"The database update to delete reviews still needs to run."});
 Object.assign(T.es, {rvPendT:"⭐ Evaluación pendiente", rvPendSub:"Cuéntanos cómo fue tu paseo: califica la lancha y al marinero. Lleva menos de 1 minuto.", rvPendBtn:"Evaluar ahora", rvGone:"Evaluación eliminada por Búzios Lanchas", rvEditUntil:"Puedes cambiarla hasta el {d}.", rvAdmT:"Evaluación del cliente", rvMarL:"Marinero", rvDel:"Eliminar evaluación", rvDelQ:"¿Eliminar esta evaluación? Sale del sitio y el cliente no podrá evaluar este paseo de nuevo.", rvDeleted:"Evaluación eliminada.", rvExc:"Evaluación eliminada por ti", rvNeedSql:"Falta ejecutar la actualización de la base de datos para eliminar evaluaciones."});
@@ -2532,6 +2542,12 @@ async function boot(){
   try{
     ses.user = await authCall("user",null,"GET",await fresh()); /* sempre confere de quem é o login (evita misturar contas no mesmo aparelho) */
     saveSes(ses); importGoogle(); saveLang();
+    /* todas as contas confirmam o e-mail uma vez (as antigas também); sem a função no banco, segue normal */
+    const evOk = await db("rpc/conferir_email",{method:"POST",body:{}}).catch(()=>true);
+    if(evOk===false){ codeMode="verify"; codeEmail=ses.user.email; codeErr=false; codeMsg="";
+      try{ await sendVerify(); }catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : t("netErr"); }
+      view="code"; return codeView(); }
+    if(ses.user.user_metadata?.verificar) authCall("user",{data:{verificar:null}},"PUT",await fresh()).catch(()=>{});
     const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome&order=nome"), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
     /* funcionário: lanchas que só pode ver (tabela visualizadores); sem a tabela, segue sem eles */
