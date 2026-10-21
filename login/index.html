@@ -1200,7 +1200,7 @@ const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.u
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
-Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
+Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embNotT:"Avise o cliente", embNotSub:"O local de embarque mudou. Se {name} tiver conta no app, já recebeu o aviso por e-mail. Mande também pelo WhatsApp:", waEmb:"Olá, {name}! Mudou o local de embarque do seu passeio na {boat} ({date}, {slot}).\n📍 Novo local: {emb}\n{map}Qualquer dúvida, é só chamar. Búzios Lanchas"}); Object.assign(T.en, {embNotT:"Let the client know", embNotSub:"The boarding place changed. If {name} has an account in the app, they already got an email. Send it on WhatsApp too:", waEmb:"Hi, {name}! The boarding place for your tour on {boat} ({date}, {slot}) has changed.\n📍 New place: {emb}\n{map}Any questions, just message us. Búzios Lanchas"}); Object.assign(T.es, {embNotT:"Avisa al cliente", embNotSub:"El lugar de embarque cambió. Si {name} tiene cuenta en la app, ya recibió el aviso por correo. Mándalo también por WhatsApp:", waEmb:"¡Hola, {name}! Cambió el lugar de embarque de tu paseo en {boat} ({date}, {slot}).\n📍 Nuevo lugar: {emb}\n{map}Cualquier duda, escríbenos. Búzios Lanchas"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
 Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
 Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
 Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicación del embarque:", waConfirm:"¡Hola, {name}! Tu paseo en {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} personas\n{emb}Cualquier duda, escríbenos. ¡Buen paseo! Búzios Lanchas"});
@@ -1759,6 +1759,16 @@ async function mailInvite(bid, email){
   return {st, email};
 }
 const mailMsg = (st, email) => st==="sem_email" ? "" : `<p class="msg ${st==="enviado"?"ok":"err"}" id="invmail">${t(st==="enviado"?"mailSent":st==="ja_tem_conta"?"mailHasAcc":"mailFail",{email:esc(email)})}</p>`; /* sem e-mail: convite só pelo WhatsApp */
+/* local de embarque mudou: botão para avisar o cliente no WhatsApp, no idioma dele, com a localização */
+function notifyEmb(row, nota){
+  const cw=waOf(nota.telefone), cl=cliLang(nota.telefone);
+  const msg=inLang(cl, ()=>t("waEmb",{name:(nota.cliente||"").split(" ")[0]||"", boat:boatName(row.lancha), date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), emb:nota.embarque, map:mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}));
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>📍 ${t("embNotT")}</h2><p class="muted" style="margin-top:0">${t("embNotSub",{name:esc(nota.cliente||"")})}</p>
+    <a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${cw}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(nota.cliente||"")})}</a>
+    <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  document.getElementById("nfx").onclick = closeDay;
+}
 function notifyOwner(p, row, nota){
   const os=(S.owners||[]).filter(o=>o.lancha===row.lancha), boat=boatName(row.lancha);
   const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||p.pessoas, client:nota.cliente||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n`:"", url:location.origin+"/login/"});
@@ -2149,7 +2159,9 @@ function renderTripRO(){
     emf.querySelectorAll("[data-embr]").forEach(x=>x.onclick=()=>{ pick=x.dataset.embr; emf.querySelectorAll("[data-embr]").forEach(y=>y.setAttribute("aria-checked", y===x)); other.hidden=pick!==OTHER; if(pick===OTHER) other.focus(); });
     emf.onsubmit=async e=>{ e.preventDefault(); const b=document.getElementById("emgo"), local=pick===OTHER?other.value.trim():pick;
       if(!local) return toast(t("embMarNeed")); b.disabled=true;
-      try{ await db("rpc/embarque_marinheiro",{method:"POST",body:{bid:r.id, local}}); r.nota.embarque=local; toast(t("embMarSaved")); renderTripRO(); }
+      try{ await db("rpc/embarque_marinheiro",{method:"POST",body:{bid:r.id, local}}); const old=r.nota.embarque; r.nota.embarque=local; toast(t("embMarSaved"));
+        if(old!==local){ callFn({tipo:"embarque", id:r.id}).catch(()=>{}); if(waOf(n.telefone).length>=8) return notifyEmb(r, r.nota); }
+        renderTripRO(); }
       catch(x){ b.disabled=false; toast(x.status ? t("saveErr") : t("netErr")); } }; }
   const mnf=document.getElementById("mnf"); if(mnf) mnf.onsubmit=async e=>{ e.preventDefault(); const b=document.getElementById("mngo"), txt=document.getElementById("n-mn").value.trim(); b.disabled=true;
     try{ await db("rpc/nota_marinheiro",{method:"POST",body:{bid:r.id, texto:txt}}); r.nota.obs=txt||null; toast(t("marNoteSaved")); if(fromDay){ noteFor=null; renderSheet(); } else { closeDay(); mainView(); } }
@@ -2403,6 +2415,8 @@ function renderTrip(){
       if(confirmed && !n.cliente_conta && !nota.cliente_conta){ closeDay(); loadBlocks(); toast(t("holdConfirmed"));
         const m = await mailInvite(row.id, ""); return openInvite(m.email, nota, row, m.st); }
       toast(pending ? t("holdSaved") : confirmed ? t("holdConfirmed") : tripNew ? t("tripSaved") : t("noteSaved"));
+      /* local de embarque trocado num passeio já fechado: avisa o cliente (e-mail automático se tiver conta; WhatsApp pelo botão) */
+      if(!tripNew && !pending && !isPending(n) && nota.embarque && n.embarque && nota.embarque!==n.embarque){ callFn({tipo:"embarque", id:row.id}).catch(()=>{}); if(waOf(nota.telefone).length>=8){ closeDay(); loadBlocks(); return notifyEmb(row, nota); } }
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }
     }catch(err){ b.disabled=false;
       if(created) await db(`bloqueios?id=eq.${created}`,{method:"DELETE"}).catch(()=>{}); /* não deixa horário marcado sem os dados */

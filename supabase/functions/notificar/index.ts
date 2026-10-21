@@ -5,6 +5,7 @@
 // POST { tipo: "pedido",   id: <pedido> }    (o próprio cliente, uma vez) avisa o administrador (no celular e por e-mail)
 // POST { tipo: "marinheiro", id: <bloqueio> }  (administrador ou dono da lancha) avisa o marinheiro escolhido para pilotar (celular e e-mail)
 // POST { tipo: "recusou", id: <bloqueio> }  (o marinheiro que acabou de sair do passeio) avisa os donos da lancha e o administrador (celular e e-mail)
+// POST { tipo: "embarque", id: <bloqueio> }  (administrador, dono ou marinheiro fixo) avisa o cliente com conta que o local de embarque mudou
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
 // POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa o administrador quando um passeio da Búzios Lanchas termina,
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
@@ -60,6 +61,11 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Marinheiro saiu do passeio", body: `${p.nome} não vai poder pilotar a ${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Escolha outro marinheiro.` }),
     en: p => ({ title: "Skipper left the trip", body: `${p.nome} can't drive ${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. Choose another skipper.` }),
     es: p => ({ title: "El marinero dejó el paseo", body: `${p.nome} no podrá pilotar ${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. Elige otro marinero.` }),
+  },
+  embarque: {
+    pt: p => ({ title: "Novo local de embarque", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}: o embarque agora é em ${p.embarque}.` }),
+    en: p => ({ title: "New boarding place", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}: boarding is now at ${p.embarque}.` }),
+    es: p => ({ title: "Nuevo lugar de embarque", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}: el embarque ahora es en ${p.embarque}.` }),
   },
   teste: {
     pt: () => ({ title: "Notificações ativadas", body: "Você vai receber os avisos da Búzios Lanchas aqui." }),
@@ -128,13 +134,18 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `${p.nome} can't drive ${p.lancha} on this trip.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "Open the schedule and choose another skipper for this trip.", botao: "Choose another skipper" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `${p.nome} no podrá pilotar ${p.lancha} en este paseo.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abre la agenda y elige otro marinero para este paseo.", botao: "Elegir otro marinero" }),
   },
+  embarque: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O local de embarque do seu passeio na ${p.lancha} mudou.`, linhas: [`Novo local de embarque: ${p.embarque}`, ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), `Data: ${p.data}`, `Horário: ${p.horario}`, "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The boarding place for your trip on ${p.lancha} has changed.`, linhas: [`New boarding place: ${p.embarque}`, ...(MAPA[p.embarque] ? [`Location: ${MAPA[p.embarque]}`] : []), `Date: ${p.data}`, `Time: ${p.horario}`, "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Any questions, talk to us. Enjoy your trip!", botao: "See my booking" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `El lugar de embarque de tu paseo en ${p.lancha} cambió.`, linhas: [`Nuevo lugar de embarque: ${p.embarque}`, ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), `Fecha: ${p.data}`, `Horario: ${p.horario}`, "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
+  },
   cliente: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Combine os detalhes do passeio direto com o dono da lancha. Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your booking on ${p.lancha} is confirmed.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Location: ${MAPA[p.embarque]}`] : []), ...(p.donos || []).map((d: string) => `Boat owner: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Arrange the trip details directly with the boat owner. Any questions, talk to us. Enjoy your trip!", botao: "See my booking" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Coordina los detalles del paseo directamente con el dueño de la lancha. Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at) return false;
@@ -236,6 +247,22 @@ Deno.serve(async req => {
       const donos = (ps || []).filter(x => x.user_id !== m && x.nome).map(x => x.nome + (x.telefone ? ` · WhatsApp ${x.telefone}` : ""));
       const fixo = !!(await db.from("marinheiros").select("user_id").eq("user_id", m).eq("lancha", b.lancha).maybeSingle()).data;
       const email = await mandarEmail(m, "mar", { b, a: an, lancha, data: dataBR(b.data), pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "", cliente: fixo ? an?.cliente || "" : "", donos, nomes: { [m]: nome } }).catch(e => (console.error(e), false));
+      return json({ enviados, email });
+    }
+
+    if (tipo === "embarque") {
+      // o local de embarque mudou (dono, administrador ou marinheiro fixo): avisa o cliente com conta por e-mail e no celular
+      const { data: b } = await db.from("bloqueios").select("id, lancha, data, horario").eq("id", id).maybeSingle();
+      if (!b) return json({ erro: "passeio não encontrado" }, 404);
+      const dono = !!(await db.from("donos").select("user_id").eq("user_id", uid).eq("lancha", b.lancha).maybeSingle()).data;
+      const fixo = !!(await db.from("marinheiros").select("user_id").eq("user_id", uid).eq("lancha", b.lancha).eq("fixo", true).maybeSingle()).data;
+      if (!admin && !dono && !fixo) return json({ erro: "sem permissão" }, 403);
+      const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
+      if (!an?.cliente_conta || !an.embarque) return json({ enviados: 0, email: false });
+      const lancha = await nomeLancha(b.lancha);
+      const enviados = await enviar([an.cliente_conta], "embarque", { ...b, lancha, embarque: an.embarque }, "/login/");
+      const { data: c } = await db.from("clientes").select("nome").eq("user_id", an.cliente_conta).maybeSingle();
+      const email = await mandarEmail(an.cliente_conta, "embarque", { b, a: an, lancha, data: dataBR(b.data), embarque: an.embarque, nomes: { [an.cliente_conta]: c?.nome || an.cliente || "" } }).catch(e => (console.error(e), false));
       return json({ enviados, email });
     }
 
