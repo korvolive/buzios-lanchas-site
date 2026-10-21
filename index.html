@@ -1222,13 +1222,19 @@ function loadAgenda(){
 const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","Televisão","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
 /* Avaliações dos clientes (feitas no app depois do passeio): nota média e os últimos comentários da lancha.
    Se o banco não responder, a seção simplesmente não aparece. */
-const siteRevs = new Map();
+const siteRevs = new Map(), revsOk = new Map();
+/* nota dos clientes para o Google (aggregateRating + review no Product), só com avaliações feitas no app */
+const ratingLD = b => { const r = revsOk.get(b.slug); if(!r?.nota?.total) return {};
+  return {"aggregateRating":{"@type":"AggregateRating","ratingValue":Number(r.nota.media),"reviewCount":Number(r.nota.total),"bestRating":5,"worstRating":1},
+    ...(r.list.length?{"review":r.list.slice(0,5).map(v=>({"@type":"Review","reviewRating":{"@type":"Rating","ratingValue":v.nota,"bestRating":5,"worstRating":1},"author":{"@type":"Person","name":v.nome||"Cliente"},"datePublished":v.data,...(v.comentario?{"reviewBody":v.comentario}:{})}))}:{})}; };
 const esc = x => String(x??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function loadSiteRevs(b){
   const rpc = (f, body) => fetch(SB_URL+"/rest/v1/rpc/"+f, {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:JSON.stringify(body)}).then(r=>r.ok?r.json():Promise.reject(r.status));
   const p = siteRevs.get(b.slug) || Promise.all([rpc("avaliacoes_lancha",{l:b.slug, lim:20}), rpc("notas_lanchas",{})]).then(([list, notas])=>({list, nota:notas.find(n=>n.lancha===b.slug)})).catch(()=>null);
   siteRevs.set(b.slug, p);
   p.then(r=>{ const box=document.getElementById("site-revs"); if(!r || !box || route.slug!==b.slug || !r.nota?.total) return;
+    revsOk.set(b.slug, r);
+    try { const ld=document.getElementById("ld-json"), j=JSON.parse(ld.textContent), pr=j["@graph"].find(x=>x["@type"]==="Product"&&x.name===b.name); if(pr){ Object.assign(pr, ratingLD(b)); ld.textContent=JSON.stringify(j); } } catch(e){}
     const st = k => "★".repeat(k)+"☆".repeat(5-k), media = String(r.nota.media).replace(".", lang==="en"?".":",");
     box.innerHTML = `<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">${st(Math.round(r.nota.media))}</span>${t(r.nota.total===1?"siteRevSub1":"siteRevSub",{m:media, n:r.nota.total})}</p>
       ${r.list.length?`<ul class="reviews">${r.list.map(v=>`<li><span class="stars" aria-label="${t("siteRevStars",{n:v.nota})}">${st(v.nota)}</span><q>${esc(v.comentario)}</q><small>${esc(v.nome)} · ${new Date(v.data+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul>`:""}</div>`; });
@@ -1492,7 +1498,7 @@ function seo(b){
   if(b){
     const ps = Object.values(b.prices||{}).filter(Number.isFinite);
     graph.push({"@type":"Product","name":b.name,"description":bt(b,"description"),"url":url,
-      "image":(b.photos||[]).map(p=>SITE+`/img/${p[0]}.jpg`),"brand":{"@id":SITE+"/#empresa"},
+      "image":(b.photos||[]).map(p=>SITE+`/img/${p[0]}.jpg`),"brand":{"@id":SITE+"/#empresa"},...ratingLD(b),
       ...(ps.length&&!b.example?{"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":Math.min(...ps),"highPrice":Math.max(...ps),"offerCount":ps.length,"seller":{"@id":SITE+"/#empresa"}}}:{})});
     graph.push({"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"Búzios Lanchas","item":SITE+pathFor(lang)},
