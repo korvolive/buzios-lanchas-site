@@ -519,6 +519,9 @@ Object.assign(T.pt, {marQ:"Procurar marinheiro pelo nome", marQNone:"Nenhum mari
 Object.assign(T.en, {marQ:"Search skipper by name", marQNone:"No skipper with that name."});
 Object.assign(T.es, {marQ:"Buscar marinero por nombre", marQNone:"Ningún marinero con ese nombre."});
 /* foto de perfil */
+Object.assign(T.pt, {cliHadT:"Esse cliente já tem conta", cliHad:"O cliente {typed} já tinha conta na Búzios Lanchas, então o passeio foi colocado direto na conta dele. Para deixar tudo padrão, o nome do passeio agora é o do cadastro: {name}. Ele já vê o passeio no app e recebe os avisos sozinho."});
+Object.assign(T.en, {cliHadT:"This client already has an account", cliHad:"The client {typed} already had a Búzios Lanchas account, so the trip went straight into it. To keep things consistent, the trip now uses the name from their account: {name}. They already see the trip in the app and get the alerts automatically."});
+Object.assign(T.es, {cliHadT:"Este cliente ya tiene cuenta", cliHad:"El cliente {typed} ya tenía cuenta en Búzios Lanchas, así que el paseo se agregó directo a su cuenta. Para dejar todo estándar, el paseo ahora usa el nombre de su registro: {name}. Ya ve el paseo en la app y recibe los avisos solo."});
 Object.assign(T.pt, {cEmailWhy:"Com o e-mail, o cliente recebe um convite para entrar na Búzios Lanchas com 1 clique. Com a conta, ele recebe sozinho, no e-mail e no celular, a confirmação do passeio e, 1 hora antes, o local de embarque com a localização, o horário e os contatos. No fim, recebe o pedido para avaliar a lancha e o marinheiro. Não tem o e-mail agora? Salve sem ele. Quando conseguir, abra este passeio, preencha o e-mail aqui e salve de novo: o convite sai na hora."});
 Object.assign(T.en, {cEmailWhy:"With the email, the client gets an invite to join Búzios Lanchas in 1 click. With an account, they automatically get, by email and on their phone, the trip confirmation and, 1 hour before, the boarding place with the location, the time and the contacts. At the end, they get the request to rate the boat and the skipper. Don't have the email now? Save without it. When you get it, open this trip, fill in the email here and save again: the invite goes out right away."});
 Object.assign(T.es, {cEmailWhy:"Con el correo, el cliente recibe una invitación para entrar en Búzios Lanchas con 1 clic. Con la cuenta, recibe solo, por correo y en el celular, la confirmación del paseo y, 1 hora antes, el lugar de embarque con la ubicación, el horario y los contactos. Al final, recibe el pedido para calificar la lancha y al marinero. ¿No tienes el correo ahora? Guarda sin él. Cuando lo tengas, abre este paseo, completa el correo aquí y guarda de nuevo: la invitación sale en el momento."});
@@ -1941,6 +1944,15 @@ function openNewUser(){
     }catch(x){ fail(x.status===422 ? t("emTaken") : errMsg(x)); } };
 }
 /* depois de aprovar um pedido: botão para avisar o dono da lancha no WhatsApp, já com a mensagem pronta */
+/* o cliente já tinha conta: o passeio passa a usar o nome do cadastro dele; se o dono digitou outro nome, explica a troca */
+async function linkedInfo(bid, typed){
+  const nm = (await db(`anotacoes?select=cliente&bloqueio_id=eq.${bid}`).catch(()=>[]))[0]?.cliente || typed;
+  if(!typed || nm.trim().toLowerCase()===String(typed).trim().toLowerCase()) return toast(t("cliLinked",{name:nm}));
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✓ ${t("cliHadT")}</h2>
+    <p>${t("cliHad",{typed:`<b>${esc(typed)}</b>`, name:`<b>${esc(nm)}</b>`})}</p>
+    <button type="button" class="btn" id="nfx">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on"); document.getElementById("nfx").onclick = closeDay;
+}
 /* convite: link para o cliente criar a conta com o e-mail; o passeio entra na conta dele ao completar o cadastro */
 function openInvite(email, nota, row, mailDone){
   const name=(nota.cliente||"").split(" ")[0]||"", q=new URLSearchParams({criar:"1"}); if(email) q.set("email",email); if(nota.cliente) q.set("nome",nota.cliente); if(nota.telefone) q.set("tel",nota.telefone);
@@ -2479,10 +2491,10 @@ function renderTrip(){
   /* convite para o cadastro (admin ou dono, passeio de qualquer origem): some quando o cliente já tem conta */
   const ia=document.getElementById("invagain"); if(ia) ia.onclick=async()=>{ ia.disabled=true;
     const typed=document.getElementById("n-cemail")?.value.trim().toLowerCase()||"";
-    /* o dono não lê os convites: sem e-mail digitado, ele só reenvia o WhatsApp (o convite gravado ao salvar continua com o e-mail) */
+    /* sem e-mail digitado, o banco usa o e-mail que já estava no convite (o dono não lê os convites) */
     const em = typed || (S.admin ? (await db(`convites?select=email&bloqueio_id=eq.${r.id}`).catch(()=>[]))[0]?.email || "" : "");
-    try{ const res = (typed || S.admin) ? await db("rpc/convidar_cliente",{method:"POST",body:{bid:r.id, email_cli:em||null, nome_cli:n.cliente||"", tel:n.telefone||""}}) : "convite";
-      if(res==="ligado"){ closeDay(); loadBlocks(); return toast(t("cliLinked",{name:n.cliente||em})); }
+    try{ const res = await db("rpc/convidar_cliente",{method:"POST",body:{bid:r.id, email_cli:em||null, nome_cli:n.cliente||"", tel:n.telefone||""}});
+      if(res==="ligado"){ closeDay(); loadBlocks(); return linkedInfo(r.id, n.cliente||em); }
       openInvite(em, n, r); if(typed) mailInvite(r.id, typed);
     }catch(e){ ia.disabled=false; toast(e.status===404 ? t("needSqlConv") : e.code==="P0001" ? e.message : t("saveErr")); } };
   const cc=document.getElementById("clicard");
@@ -2634,7 +2646,7 @@ function renderTrip(){
       /* cadastra o cliente do passeio (admin ou dono): quem já tem conta recebe o passeio na hora; quem não tem recebe o convite no WhatsApp */
       const cemEl2 = document.getElementById("n-cemail"), cem = cemEl2?.value.trim().toLowerCase() || "";
       if(cemEl2 && (cem || tripNew)){ try{ const res = await db("rpc/convidar_cliente",{method:"POST",body:{bid:row.id, email_cli:cem||null, nome_cli:nota.cliente||"", tel:nota.telefone||""}});
-          closeDay(); loadBlocks(); if(pending) return toast(t("holdSaved")); if(res==="ligado") return toast(t("cliLinked",{name:nota.cliente||cem})); openInvite(cem, nota, row); if(cem) mailInvite(row.id, cem); return; }
+          closeDay(); loadBlocks(); if(pending) return toast(t("holdSaved")); if(res==="ligado") return linkedInfo(row.id, nota.cliente||cem); openInvite(cem, nota, row); if(cem) mailInvite(row.id, cem); return; }
         catch(e){ toast(e.status===404 ? t("needSqlConv") : e.code==="P0001" ? e.message : t("saveErr")); } }
       /* pagou depois: o convite que ficou guardado na pré-reserva sai agora (e-mail, se tiver, e WhatsApp) */
       if(confirmed && !n.cliente_conta && !nota.cliente_conta){ closeDay(); loadBlocks(); toast(t("holdConfirmed"));
