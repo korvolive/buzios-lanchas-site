@@ -6,11 +6,15 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { chromium } from "playwright";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const SOURCE = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const SITE = SOURCE.match(/const SITE = "([^"]+)"/)[1];
+/* lanchas cadastradas no app ficam no banco (Supabase): a página lê lanchas, fotos, valores e itens de lá */
+const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOURCE.match(/const AGENDA_KEY = "([^"]+)"/)[1];
+const DB_READ = new RegExp("^" + DB.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "/(lanchas|fotos|precos|itens)\\?");
 const LANGS = ["pt", "en", "es"];
 const pathFor = (l, slug) => (l === "pt" ? "/" : `/${l}/`) + (slug ? `lancha/${slug}/` : "");
 const TYPES = { ".jpg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".mp4": "video/mp4" };
@@ -32,7 +36,9 @@ const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const page = await browser.newPage();
 /* fontes e outros endereços externos não são necessários para gerar o HTML */
-await page.route("**/*", r => (r.request().url().startsWith(base) ? r.continue() : r.abort()));
+await page.route("**/*", r => (r.request().url().startsWith(base) || (r.request().method() === "GET" && DB_READ.test(r.request().url())) ? r.continue() : r.abort()));
+const ready = () => page.waitForFunction(() => window.dbBoatsDone && window.precosDone && window.fotosDone, null, { timeout: 30000 })
+  .then(() => page.waitForLoadState("networkidle", { timeout: 10000 })).catch(() => {});
 
 const pages = [];
 async function snap(l, slug) {
@@ -40,8 +46,11 @@ async function snap(l, slug) {
   await page.goto(base + url, { waitUntil: "domcontentloaded" });
   const final = new URL(page.url()).pathname;
   if (final !== url) throw new Error(`${url} foi redirecionado para ${final}`);
+  await ready();
   /* tira os scripts que o Google Tag Manager e o Meta Pixel acrescentam; eles são carregados de novo na visita */
   const html = "<!doctype html>\n" + (await page.evaluate(() => {
+    /* lanchas do banco que ganharam página nesta publicação: o site só mostra estas (as novas entram na próxima) */
+    document.documentElement.dataset.pub = BOATS.filter(b => b.db).map(b => b.slug).join(",");
     document.querySelectorAll('script[src*="googletagmanager.com"],script[src*="connect.facebook.net"]').forEach(s => s.remove());
     return document.documentElement.outerHTML;
   }));
@@ -49,7 +58,9 @@ async function snap(l, slug) {
   pages.push({ url, slug, html });
 }
 await page.goto(base + "/", { waitUntil: "domcontentloaded" });
+await ready();
 const slugs = await page.evaluate(() => BOATS.map(b => b.slug));
+const dbSlugs = await page.evaluate(() => BOATS.filter(b => b.db).map(b => b.slug));
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
 await browser.close();
 server.close();
@@ -67,4 +78,10 @@ fs.writeFileSync(path.join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
   pages.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${today}</lastmod>\n${alt(p.slug)}\n  </url>`).join("\n") +
   `\n</urlset>\n`);
-console.log(`${pages.length} páginas e sitemap.xml gerados`);
+/* marca do que foi publicado: a cada 10 minutos o GitHub compara com o banco e publica de novo se mudou (scripts/db-mudou.mjs) */
+const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&order=slug", { headers: { apikey: KEY } })
+  .then(r => (r.ok ? r.text() : null)).catch(() => null);
+const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
+const ok = rows && ativas === [...dbSlugs].sort().join();
+fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
+console.log(`${pages.length} páginas e sitemap.xml gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);

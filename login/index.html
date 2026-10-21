@@ -231,6 +231,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .prices.p2{gap:0}.prices .phd,.prices .prow{display:grid;grid-template-columns:1fr 92px 92px;gap:8px;align-items:center}.prices .phd{font-size:13px;color:var(--muted);text-align:center;padding-bottom:6px}.prices .phd b{font-weight:600}.prices .prow{border-bottom:1px solid var(--line);padding:10px 0}.prices .prow > span{display:grid;gap:2px}.prices .prow input{width:100%;box-sizing:border-box;padding:9px 6px}.prices .prow input::placeholder{font-size:11px}
 .prices .rs{display:flex;align-items:center;gap:6px;font-weight:600}.prices input{width:110px;font:inherit;font-size:16px;padding:9px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-align:right}
 .items{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+.nbh{font-size:15px;margin:18px 0 0} .nbtr{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px} .nbtr summary{font-weight:600;cursor:pointer} .nbon{display:flex;gap:10px;align-items:center;font-weight:600;margin:16px 0 0} .nbon input{width:22px;height:22px}
 .items button,.items span{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:9px 14px;font-size:15px;font-weight:600;color:var(--ink)}
 .items button[aria-pressed=true]{background:var(--sea);border-color:var(--sea);color:#fff}
 .items button[aria-pressed=true]::before{content:"✓ "}
@@ -540,6 +541,9 @@ Object.assign(T.pt, {invAgain:"Convidar o cliente para o cadastro"}); Object.ass
 Object.assign(T.pt, {ownBoatT:"Donos da {boat}", ownBoatSub:"Quem administra a {boat}. Pode ter mais de um, por exemplo um casal. Toque em Editar para mudar nome, WhatsApp ou senha, ou para remover.", ownAdd:"Adicionar dono"});
 Object.assign(T.en, {ownBoatT:"Owners of {boat}", ownBoatSub:"Who manages {boat}. There can be more than one, for example a couple. Tap Edit to change name, WhatsApp or password, or to remove.", ownAdd:"Add owner"});
 Object.assign(T.es, {ownBoatT:"Dueños de {boat}", ownBoatSub:"Quién administra {boat}. Puede haber más de uno, por ejemplo una pareja. Toca Editar para cambiar nombre, WhatsApp o contraseña, o para quitar.", ownAdd:"Agregar dueño"});
+Object.assign(T.pt, {"nbNew": "＋ Cadastrar lancha nova", "nbOff": "🚫 Fora do site (escondida)", "nbLive": "✅ No site.", "nbSee": "Ver a página", "nbSoon": "⏳ Entrando no site: leva até uns 15 minutos.", "nbInfoT": "ℹ️ Informações no site", "nbFeetU": "pés", "nbEdit": "Editar informações", "nbEditT": "Editar lancha", "nbNewT": "Lancha nova", "nbEditSub": "As mudanças aparecem no site sozinhas em até uns 15 minutos.", "nbNewSub": "Preencha tudo de uma vez. Depois de salvar, a lancha entra no site sozinha em até uns 15 minutos, já com a página em português, inglês e espanhol.", "nbName": "Nome da lancha", "nbNamePh": "Ex.: Bella Vista", "nbFeet": "Tamanho (pés)", "nbCap": "Pessoas (máximo)", "nbTag": "Frase curta", "nbTagPh": "Ex.: Lancha de 30 pés com banheiro e solário. Ideal para famílias e amigos.", "nbDesc": "Descrição", "nbDescPh": "Conte como é a lancha: ambientes, conforto, para quem é ideal…", "nbTrT": "🌎 Inglês e espanhol", "nbTrSub": "Se ficar vazio, o app traduz sozinho ao salvar. Você pode corrigir aqui quando quiser.", "nbTrGo": "Traduzir agora", "nbTrWait": "Traduzindo…", "nbTrOk": "Tradução pronta. Confira se quiser.", "nbTrErr": "Não deu para traduzir agora. O site mostra em português até você preencher.", "nbEmb4": "Embarque no passeio de 4 horas", "nbEmb7": "Embarque no dia inteiro (7 horas)", "nbEmbHint": "Com mais de um marcado, o cliente escolhe. Sem nenhum, o site mostra \"a combinar\".", "nbItemsSub": "Toque no que a lancha tem. Os itens básicos já vêm inclusos.", "nbPricesSub": "Pode deixar vazio e preencher depois na aba Lancha.", "nbOnL": "Mostrar no site", "nbPhSub": "A 1ª foto é a capa e precisa mostrar a lancha inteira. Até {max} fotos; a última fica como a do banheiro.", "nbSave": "Salvar", "nbCreate": "Cadastrar lancha", "nbNameBad": "Escreva o nome da lancha.", "nbExists": "Já existe uma lancha com esse nome. Use outro nome.", "nbFeetBad": "Tamanho em pés: um número entre 10 e 200.", "nbCapBad": "Pessoas: um número entre 1 e 80.", "nbTagBad": "Escreva a frase curta (pelo menos 10 letras).", "nbDescBad": "Escreva a descrição (pelo menos 30 letras).", "nbPhNeed": "Envie pelo menos 1 foto (a capa, com a lancha inteira).", "nbSaving": "Salvando…", "nbNeedSql": "Falta rodar o SQL da lancha nova no Supabase.", "nbSaved": "Salvo! O site atualiza em até uns 15 minutos.", "nbCreated": "Lancha cadastrada! Ela entra no site em até uns 15 minutos.", "nbTbd": "a combinar"});
+Object.assign(T.en, {"nbNew": "＋ Add a new boat", "nbOff": "🚫 Off the website (hidden)", "nbLive": "✅ On the website.", "nbSee": "See the page", "nbSoon": "⏳ Going live: it takes up to about 15 minutes.", "nbInfoT": "ℹ️ Website details", "nbFeetU": "ft", "nbEdit": "Edit details", "nbEditT": "Edit boat", "nbNewT": "New boat", "nbEditSub": "Changes show up on the website by themselves within about 15 minutes.", "nbNewSub": "Fill everything in at once. After saving, the boat goes live on the website by itself within about 15 minutes, with its page in Portuguese, English and Spanish.", "nbName": "Boat name", "nbNamePh": "E.g.: Bella Vista", "nbFeet": "Length (feet)", "nbCap": "People (maximum)", "nbTag": "Short line", "nbTagPh": "E.g.: 30-foot boat with bathroom and sun deck. Ideal for families and friends.", "nbDesc": "Description", "nbDescPh": "Describe the boat: spaces, comfort, who it's ideal for…", "nbTrT": "🌎 English and Spanish", "nbTrSub": "If left empty, the app translates it when saving. You can correct it here anytime.", "nbTrGo": "Translate now", "nbTrWait": "Translating…", "nbTrOk": "Translation ready. Check it if you like.", "nbTrErr": "Couldn't translate right now. The website shows Portuguese until you fill it in.", "nbEmb4": "Boarding for the 4-hour tour", "nbEmb7": "Boarding for the full day (7 hours)", "nbEmbHint": "With more than one checked, the client chooses. With none, the website shows \"to be arranged\".", "nbItemsSub": "Tap what the boat has. The basic items are already included.", "nbPricesSub": "You can leave it empty and fill it in later in the Boat tab.", "nbOnL": "Show on the website", "nbPhSub": "The 1st photo is the cover and must show the whole boat. Up to {max} photos; the last one stays as the bathroom photo.", "nbSave": "Save", "nbCreate": "Add boat", "nbNameBad": "Type the boat's name.", "nbExists": "There is already a boat with this name. Use another name.", "nbFeetBad": "Length in feet: a number between 10 and 200.", "nbCapBad": "People: a number between 1 and 80.", "nbTagBad": "Type the short line (at least 10 letters).", "nbDescBad": "Type the description (at least 30 letters).", "nbPhNeed": "Upload at least 1 photo (the cover, showing the whole boat).", "nbSaving": "Saving…", "nbNeedSql": "The new-boat SQL still needs to be run in Supabase.", "nbSaved": "Saved! The website updates within about 15 minutes.", "nbCreated": "Boat added! It goes live on the website within about 15 minutes.", "nbTbd": "to be arranged"});
+Object.assign(T.es, {"nbNew": "＋ Registrar lancha nueva", "nbOff": "🚫 Fuera del sitio (oculta)", "nbLive": "✅ En el sitio.", "nbSee": "Ver la página", "nbSoon": "⏳ Entrando en el sitio: tarda hasta unos 15 minutos.", "nbInfoT": "ℹ️ Información en el sitio", "nbFeetU": "pies", "nbEdit": "Editar información", "nbEditT": "Editar lancha", "nbNewT": "Lancha nueva", "nbEditSub": "Los cambios aparecen solos en el sitio en unos 15 minutos.", "nbNewSub": "Completa todo de una vez. Al guardar, la lancha entra sola en el sitio en unos 15 minutos, ya con la página en portugués, inglés y español.", "nbName": "Nombre de la lancha", "nbNamePh": "Ej.: Bella Vista", "nbFeet": "Tamaño (pies)", "nbCap": "Personas (máximo)", "nbTag": "Frase corta", "nbTagPh": "Ej.: Lancha de 30 pies con baño y solárium. Ideal para familias y amigos.", "nbDesc": "Descripción", "nbDescPh": "Cuenta cómo es la lancha: ambientes, comodidad, para quién es ideal…", "nbTrT": "🌎 Inglés y español", "nbTrSub": "Si queda vacío, la app lo traduce sola al guardar. Puedes corregirlo aquí cuando quieras.", "nbTrGo": "Traducir ahora", "nbTrWait": "Traduciendo…", "nbTrOk": "Traducción lista. Revísala si quieres.", "nbTrErr": "No se pudo traducir ahora. El sitio muestra el portugués hasta que lo completes.", "nbEmb4": "Embarque en el paseo de 4 horas", "nbEmb7": "Embarque en el día completo (7 horas)", "nbEmbHint": "Con más de uno marcado, el cliente elige. Sin ninguno, el sitio muestra \"a coordinar\".", "nbItemsSub": "Toca lo que tiene la lancha. Los ítems básicos ya están incluidos.", "nbPricesSub": "Puedes dejarlo vacío y completarlo después en la pestaña Lancha.", "nbOnL": "Mostrar en el sitio", "nbPhSub": "La 1ª foto es la portada y debe mostrar la lancha entera. Hasta {max} fotos; la última queda como la del baño.", "nbSave": "Guardar", "nbCreate": "Registrar lancha", "nbNameBad": "Escribe el nombre de la lancha.", "nbExists": "Ya existe una lancha con ese nombre. Usa otro nombre.", "nbFeetBad": "Tamaño en pies: un número entre 10 y 200.", "nbCapBad": "Personas: un número entre 1 y 80.", "nbTagBad": "Escribe la frase corta (al menos 10 letras).", "nbDescBad": "Escribe la descripción (al menos 30 letras).", "nbPhNeed": "Envía al menos 1 foto (la portada, con la lancha entera).", "nbSaving": "Guardando…", "nbNeedSql": "Falta ejecutar el SQL de la lancha nueva en Supabase.", "nbSaved": "¡Guardado! El sitio se actualiza en unos 15 minutos.", "nbCreated": "¡Lancha registrada! Entra en el sitio en unos 15 minutos.", "nbTbd": "a coordinar"});
 Object.assign(T.pt, {phNoCover:"Não dá para apagar a capa: nenhuma das outras fotos mostra a lancha inteira, de ponta a ponta. Envie primeiro uma foto assim e depois apague esta."});
 Object.assign(T.pt, {phT:"📷 Fotos da lancha", phSubAdm:"A 1ª foto é a capa no site e precisa mostrar a lancha inteira. Para mudar a ordem, segure uma foto e arraste. Até {max} fotos por lancha.", phSubOwn:"A 1ª foto é a capa no site e precisa mostrar a lancha inteira. Para mudar a ordem, segure uma foto e arraste. Fotos novas aparecem no site depois da aprovação da Búzios Lanchas. Até {max} fotos por lancha.", phCover:"Capa", phAdd:"＋ Enviar fotos", phSending:"Enviando foto {n} de {t}…", phSentOwn:"Fotos enviadas. Elas aparecem no site depois da aprovação da Búzios Lanchas.", phSentAdm:"Fotos adicionadas ao site.", phPendT:"Esperando aprovação", phDelQ:"Excluir esta foto da lancha?", phCancelQ:"Cancelar o envio desta foto?", phLast:"A lancha precisa ter pelo menos 1 foto.", phSaved:"Fotos salvas. O site já mostra a nova ordem.", phChecking:"Conferindo a capa…", phCoverNo:"Essa foto não pode ser a capa: {why} A capa precisa mostrar a lancha inteira, de ponta a ponta, sem cortes.", phWhyNone:"não encontramos a lancha nela.", phWhyCut:"a lancha aparece cortada.", phWhySmall:"a lancha aparece muito pequena.", phWhyErr:"não deu para conferir a foto agora. Tente de novo.", phCoverAdj:"Capa enquadrada para mostrar a lancha inteira.", phAdmOverride:"\n\nVocê é administrador: usar como capa mesmo assim?", phNeedSql:"Falta rodar o SQL das fotos no Supabase.", phMax:"Limite de {max} fotos por lancha. Exclua alguma para enviar outra.", phMaxSome:"Só cabem mais {n} fotos (limite de {max}).", phPendBanner:"📷 {n} fotos novas esperando a sua aprovação", phPendBanner1:"📷 1 foto nova esperando a sua aprovação", phPendSee:"Ver e aprovar", phPendSheetT:"Fotos para aprovar", phPendSheetSub:"Aprovada, a foto entra no site antes da última (a última é sempre o banheiro). Depois você pode mudar a ordem na aba Lancha.", phApprove:"✓ Aprovar", phReject:"Recusar", phApproveAll:"Aprovar todas", phApproved:"Foto aprovada: já está no site.", phRejected:"Foto recusada.", phRejectQ:"Recusar esta foto? Ela é apagada.", phNoPend:"Nenhuma foto esperando aprovação.", phBadFile:"Não deu para abrir uma das fotos. Envie em JPG ou PNG."});
 Object.assign(T.en, {phNoCover:"You can't delete the cover: none of the other photos shows the whole boat, end to end. Upload a photo like that first, then delete this one."});
@@ -1350,6 +1354,98 @@ function itemsHTML(){
     <h3 style="font-size:15px;margin:14px 0 0">${t("itemsBasic")}</h3><div class="items">${BASIC_ITEMS.map(it=>`<span>${itemName(it)}</span>`).join("")}</div>
     <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items">${ITEMS.map(it=>`<button type="button" data-it="${esc(it[0])}" aria-pressed="${on.includes(it[0])}">${itemName(it)}</button>`).join("")}</div></div>`;
 }
+/* ============ lancha nova (só administrador): cadastrada aqui, entra no site sozinha ============
+   Os dados ficam em lanchas.dados (rpc salvar_lancha); valores, itens e fotos usam as tabelas de sempre.
+   O site mostra a lancha na próxima publicação automática (o GitHub confere o banco a cada 10 minutos). */
+const boatRow = l => (S.all||[]).find(b=>b.slug===l);
+const slugOf = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40).replace(/-+$/,"");
+let pubSite = null; /* lanchas do app que já estão no site (lanchas-db.json, escrito a cada publicação) */
+const loadPub = () => fetch("/lanchas-db.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{ pubSite=j?.lanchas||[]; }, ()=>{ pubSite=[]; });
+function boatInfoHTML(){
+  if(!S.admin) return "";
+  const b=boatRow(S.cur), d=b?.dados;
+  const novo = `<button type="button" class="btn sec" id="nbnew" style="margin:0 0 14px">${t("nbNew")}</button>`;
+  if(!d) return novo;
+  const on = b.ativa!==false, live = on && pubSite?.includes(b.slug);
+  const st = !on ? t("nbOff") : pubSite==null ? "…" : live ? `${t("nbLive")} <a href="/lancha/${b.slug}/" target="_blank" rel="noopener">${t("nbSee")}</a>` : t("nbSoon");
+  return novo + `<div class="card"><h2>${t("nbInfoT")}</h2><p style="margin:0 0 6px"><strong>${esc(b.nome)}</strong> · ${d.pes} ${t("nbFeetU")} · ${d.capacidade} ${t("people").toLowerCase()}</p>
+    <p class="muted" style="margin:0 0 6px">${esc(d.frase?.[lang]||d.frase?.pt||"")}</p><p style="margin:0 0 12px">${st}</p>
+    <button type="button" class="btn" id="nbedit">${t("nbEdit")}</button></div>`;
+}
+function nbToggles(id, list, on){ return `<div class="items" id="${id}">${list.map(([k,label])=>`<button type="button" data-v="${esc(k)}" aria-pressed="${on.includes(k)}">${esc(label)}</button>`).join("")}</div>`; }
+const nbPicked = id => [...document.querySelectorAll(`#${id} [aria-pressed=true]`)].map(x=>x.dataset.v);
+async function nbTranslate(pt){ try{ const tok=await fresh(); const r=await fetch(FN.replace("notificar","traduzir"),{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+tok, "content-type":"application/json"}, body:JSON.stringify({textos:pt})}); return r.ok ? await r.json() : null; }catch(e){ return null; } }
+async function openBoatForm(l){
+  const b=l?boatRow(l):null, d=b?.dados||{}, emb=d.embarque||{}, tr=(o,k)=>esc(o?.[k]||"");
+  let items=[], pr={};
+  if(l){ [items, pr] = await Promise.all([db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`).then(r=>r[0]?.opcionais||[], ()=>[]), db(`precos?select=*&lancha=eq.${encodeURIComponent(l)}`).then(r=>r[0]||{}, ()=>({}))]); }
+  const files=[];
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${l?t("nbEditT"):t("nbNewT")}</h2><p class="muted" style="margin-top:0">${t(l?"nbEditSub":"nbNewSub")}</p>
+    <form id="nbf" class="nform" novalidate><div id="nbmsg"></div>
+      <label class="f"><span>${t("nbName")}${REQ}</span><input type="text" id="nb-nome" maxlength="40" autocapitalize="words" autocomplete="off" value="${esc(b?.nome||"")}" placeholder="${t("nbNamePh")}"></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label class="f"><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="numeric" min="10" max="200" value="${d.pes||""}" placeholder="30"></label>
+        <label class="f"><span>${t("nbCap")}${REQ}</span><input type="number" id="nb-cap" inputmode="numeric" min="1" max="80" value="${d.capacidade||""}" placeholder="10"></label></div>
+      <label class="f"><span>${t("nbTag")}${REQ}</span><textarea id="nb-fr" rows="2" maxlength="160" placeholder="${t("nbTagPh")}">${tr(d.frase,"pt")}</textarea></label>
+      <label class="f"><span>${t("nbDesc")}${REQ}</span><textarea id="nb-ds" rows="5" maxlength="1200" placeholder="${t("nbDescPh")}">${tr(d.descricao,"pt")}</textarea></label>
+      <details class="nbtr"${d.frase?.en?" open":""}><summary>${t("nbTrT")}</summary><p class="muted" style="margin:6px 0 10px">${t("nbTrSub")}</p>
+        <button type="button" class="btn sec" id="nb-tr" style="margin:0 0 12px">${t("nbTrGo")}</button>
+        ${["en","es"].map(k=>`<label class="f"><span>${t("nbTag")} · ${k.toUpperCase()}</span><textarea id="nb-fr-${k}" rows="2" maxlength="200">${tr(d.frase,k)}</textarea></label>
+        <label class="f"><span>${t("nbDesc")} · ${k.toUpperCase()}</span><textarea id="nb-ds-${k}" rows="5" maxlength="1500">${tr(d.descricao,k)}</textarea></label>`).join("")}</details>
+      <h3 class="nbh">📍 ${t("nbEmb4")}</h3>${nbToggles("nb-e4", BOARD_OPTS.map(o=>[o,o]), emb["4"]||[])}
+      <h3 class="nbh">📍 ${t("nbEmb7")}</h3>${nbToggles("nb-e7", BOARD_OPTS.map(o=>[o,o]), emb["7"]||[])}
+      <p class="muted" style="margin:4px 0 0;font-size:14px">${t("nbEmbHint")}</p>
+      <h3 class="nbh">${t("itemsOpt")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbItemsSub")}</p>${nbToggles("nb-it", ITEMS.map(it=>[it[0], itemName(it)]), items)}
+      <h3 class="nbh">${t("pricesT")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbPricesSub")}</p>
+      <div class="prices p2"><div class="phd"><span></span><b>${t("pr4")}</b><b>${t("pr7")}</b></div>${PRICE_KEYS.map(k=>`<div class="prow"><span><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></span>${[k,k+"7"].map(c=>`<input type="number" inputmode="numeric" min="0" step="50" data-nbpr="${c}" value="${pr[c]??""}" placeholder="${t("prOnReq")}" aria-label="${t("pr_"+k).split(" · ")[0]} · ${t(c.endsWith("7")?"pr7":"pr4")}">`).join("")}</div>`).join("")}</div>
+      ${l ? `<label class="nbon"><input type="checkbox" id="nb-on"${b.ativa!==false?" checked":""}> ${t("nbOnL")}</label>`
+        : `<h3 class="nbh">📷 ${t("phT").replace(/^📷 /,"")}</h3><p class="muted" style="margin:0 0 8px;font-size:14px">${t("nbPhSub",{max:PH_MAX})}</p>
+        <div class="phgrid" id="nb-ph"></div><label class="btn sec phadd">${t("phAdd")}<input type="file" id="nb-file" accept="image/*" multiple></label>`}
+      <button class="btn" id="nbgo" style="margin-top:14px">${l?t("nbSave"):t("nbCreate")}</button></form>
+    <button type="button" class="btn sec" id="nbx" style="margin-top:10px">${t("pwCancel")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  document.getElementById("nbx").onclick = closeDay;
+  sheet.querySelectorAll(".items button").forEach(x=>x.onclick=()=>x.setAttribute("aria-pressed", x.getAttribute("aria-pressed")!=="true"));
+  const val = id => document.getElementById(id).value.trim();
+  const fillTr = async () => { const pt=[val("nb-fr"), val("nb-ds")]; if(!pt[0] && !pt[1]) return true;
+    const r=await nbTranslate(pt); if(!r) return false;
+    ["en","es"].forEach(k=>{ if(r[k]?.[0]) document.getElementById("nb-fr-"+k).value=r[k][0]; if(r[k]?.[1]) document.getElementById("nb-ds-"+k).value=r[k][1]; }); return true; };
+  document.getElementById("nb-tr").onclick = async e => { const x=e.currentTarget; x.disabled=true; x.textContent=t("nbTrWait"); const ok=await fillTr(); x.disabled=false; x.textContent=t("nbTrGo"); toast(ok?t("nbTrOk"):t("nbTrErr")); };
+  const fi=document.getElementById("nb-file");
+  const drawPh = () => { const g=document.getElementById("nb-ph");
+    g.innerHTML=files.map((f,i)=>`<div class="phit"><img src="${URL.createObjectURL(f)}" alt="">${i?"":`<span class="phcap">${t("phCover")}</span>`}<button type="button" class="phdel" data-nbrm="${i}" aria-label="${t("remove")}">✕</button></div>`).join("");
+    g.querySelectorAll("[data-nbrm]").forEach(x=>x.onclick=()=>{ files.splice(+x.dataset.nbrm,1); drawPh(); }); };
+  if(fi) fi.onchange=()=>{ files.push(...[...fi.files].slice(0, PH_MAX-files.length)); fi.value=""; drawPh(); };
+  document.getElementById("nbf").onsubmit = async e => { e.preventDefault();
+    const out=document.getElementById("nbmsg"), go=document.getElementById("nbgo");
+    const fail = (m, el) => { out.innerHTML=`<p class="msg err">${m}</p>`; (el||out).scrollIntoView({block:"center",behavior:"smooth"}); el?.focus?.(); go.disabled=false; go.textContent=l?t("nbSave"):t("nbCreate"); };
+    const nome=val("nb-nome"), pes=+val("nb-pes"), cap=+val("nb-cap"), slug=l||slugOf(nome);
+    if(nome.length<2 || !slug) return fail(t("nbNameBad"), document.getElementById("nb-nome"));
+    if(!l && (S.all||[]).some(x=>x.slug===slug)) return fail(t("nbExists"), document.getElementById("nb-nome"));
+    if(!(pes>=10 && pes<=200)) return fail(t("nbFeetBad"), document.getElementById("nb-pes"));
+    if(!(cap>=1 && cap<=80)) return fail(t("nbCapBad"), document.getElementById("nb-cap"));
+    if(val("nb-fr").length<10) return fail(t("nbTagBad"), document.getElementById("nb-fr"));
+    if(val("nb-ds").length<30) return fail(t("nbDescBad"), document.getElementById("nb-ds"));
+    const prices={lancha:slug, atualizado_em:new Date().toISOString()};
+    for(const x of sheet.querySelectorAll("[data-nbpr]")){ const v=x.value.trim(); if(v && !(+v>0)) return fail(t("prBad"), x); prices[x.dataset.nbpr] = v ? Math.round(+v) : null; }
+    if(!l && !files.length) return fail(t("nbPhNeed"), document.getElementById("nb-ph"));
+    go.disabled=true; go.textContent=t("nbSaving");
+    if(["en","es"].some(k=>!val("nb-fr-"+k) || !val("nb-ds-"+k))) await fillTr(); /* inglês e espanhol: traduz o que estiver vazio */
+    const dados={pes, capacidade:cap, frase:{pt:val("nb-fr"), en:val("nb-fr-en"), es:val("nb-fr-es")}, descricao:{pt:val("nb-ds"), en:val("nb-ds-en"), es:val("nb-ds-es")}, embarque:{"4":nbPicked("nb-e4"), "7":nbPicked("nb-e7")}};
+    const ativa = l ? document.getElementById("nb-on").checked : true;
+    try{ await db("rpc/salvar_lancha",{method:"POST", body:{l:slug, nome, d:dados, ativa}}); }
+    catch(x){ return fail(x.status===404 ? t("nbNeedSql") : /lancha_do_codigo/.test(x.message||"") ? t("nbExists") : t("saveErr")); }
+    const opc=nbPicked("nb-it");
+    await Promise.all([db("precos",{method:"POST", body:prices, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{}),
+      db("itens",{method:"POST", body:{lancha:slug, opcionais:ITEMS.map(i=>i[0]).filter(i=>opc.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{})]);
+    const row={slug, nome, dados, ativa};
+    if(l){ Object.assign(boatRow(l), row); Object.assign(S.boats.find(x=>x.slug===l)||{}, row); }
+    else{ S.all=[...S.all, row].sort((a,c)=>a.nome.localeCompare(c.nome)); S.boats=S.all; } /* só o administrador cadastra: ele vê todas */
+    S.cur=slug; store.set("dono-boat",slug); S.tab="lancha"; store.set("dono-tab","lancha"); closeDay();
+    if(!l){ S.photos=[]; S.pend=[]; await phUpload(files); }
+    await loadBlocks(); toast(t(l?"nbSaved":"nbCreated"));
+  };
+}
 /* funcionários: o dono coloca quem só visualiza a agenda da lancha, com ou sem os valores */
 const sailorsOf = l => (S.sailors||[]).filter(m=>m.lancha===l);
 /* muitos donos pilotam a própria lancha: eles também aparecem em "Quem vai pilotar" */
@@ -1386,7 +1482,8 @@ const mapUrl = e => !MAP_Q[e] ? "" : /^https:/.test(MAP_Q[e]) ? MAP_Q[e] : "http
 const TAXA = {"Porto Veleiro (Praia dos Ossos)":["Porto Veleiro",10], "Píer do Golfinho (Praia dos Ossos)":["Píer do Golfinho",5]};
 const feeTxt = e => TAXA[e] ? t("embFee",{place:TAXA[e][0], v:TAXA[e][1]}) : "";
 const mapLink = e => (!mapUrl(e) ? `<span class="tmap">📍 ${esc(e)}</span>` : `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`) + (TAXA[e] ? `<span class="tfee">ℹ️ ${esc(feeTxt(e))}</span>` : "");
-const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marina" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
+const boarding = (l,h) => { const e=boatRow(l)?.dados?.embarque; if(e){ const L=(h==="dia"?e["7"]:e["4"])||[]; return L.length ? L.join(" / ") : t("nbTbd"); } return boardingCode(l,h); };
+const boardingCode = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marina" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
 /* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
 function sailorHTML(){
   const rows=S.myTrips||[];
@@ -2230,12 +2327,14 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? pricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? boatInfoHTML() + pricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   bindMain();
 }
 function bindMain(){
   bindUsers(); bindPhotos();
+  const nbn=document.getElementById("nbnew"); if(nbn) nbn.onclick=()=>openBoatForm(null);
+  const nbe=document.getElementById("nbedit"); if(nbe) nbe.onclick=()=>openBoatForm(S.cur);
   app.querySelectorAll("[data-rf]").forEach(x=>x.onclick=()=>{ S.reqF=x.dataset.rf; mainView(); });
   const cg=document.getElementById("clisgo"); if(cg) cg.onclick=openClients;
   app.querySelectorAll("[data-ap]").forEach(x=>x.onclick=()=>openReq(S.reqs.find(p=>p.id===+x.dataset.ap)));
@@ -2456,6 +2555,7 @@ async function loadBlocks(){
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await loadUsers(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="lancha" && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
   if(S.tab==="lancha"){ if(S.cur==="*") S.cur=S.boats[0].slug; const my=++loadSeq, l=S.cur;
+    if(S.admin && boatRow(l)?.dados) loadPub().then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     db("rpc/lista_visualizadores",{method:"POST",body:{}}).then(v=>{ S.staff=v; }, ()=>{ S.staff=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     if(S.admin) db(`precos?select=baixa,media,alta,pico,reveillon,baixa7,media7,alta7,pico7,reveillon7&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.no7=false; return r; }, e=>{ if(e.status!==400) throw e; S.no7=true; /* colunas de 7 horas ainda não criadas */ return db(`precos?select=baixa,media,alta,pico,reveillon&lancha=eq.${encodeURIComponent(l)}`); })
       .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
@@ -2621,7 +2721,7 @@ function renderTrip(){
     type==="area"?`<textarea id="n-${k}" rows="2" placeholder="${t("ph_obs")}">${esc(n[k]??"")}</textarea>`
     :`<input type="${type}" id="n-${k}" ${extra} placeholder="${t("ph_"+({cliente:"client",telefone:"phone",pessoas:"people",valor:"value",sinal:"deposit"}[k]))}" value="${esc(n[k]??"")}">`}</label>`;
   const ph=splitPhone(n.telefone), waNum = ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
-  const boatCap = () => CAPACITY[nboat] || 16;
+  const boatCap = () => CAPACITY[nboat] || boatRow(nboat)?.dados?.capacidade || 16;
   const peopleOpts = () => `<option value="">—</option>${Array.from({length:Math.max(boatCap(), +n.pessoas||0)},(_,i)=>`<option${+n.pessoas===i+1?" selected":""}>${i+1}</option>`).join("")}`;
   const fromDay = !!sheetDay;
   /* marinheiro do passeio: já vem o fixo da lancha; o dono troca só naquela data */
@@ -2888,7 +2988,7 @@ async function boot(){
       try{ await sendVerify(); }catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : t("netErr"); }
       view="code"; return codeView(); }
     if(ses.user.user_metadata?.verificar) authCall("user",{data:{verificar:null}},"PUT",await fresh()).catch(()=>{});
-    const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome&order=nome"), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
+    const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome,dados,ativa&order=nome").catch(e=>e.status===400 ? db("lanchas?select=slug,nome&order=nome") : Promise.reject(e)), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
     /* funcionário: lanchas que só pode ver (tabela visualizadores); sem a tabela, segue sem eles */
     const vis = S.admin ? [] : await db(`visualizadores?select=lancha,ver_valores&user_id=eq.${ses.user.id}`).catch(()=>[]);
