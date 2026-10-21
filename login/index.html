@@ -480,17 +480,17 @@ Object.assign(T.es, {
 Object.assign(T.pt, {ownerName:"Nome do dono", ph_owner:"Ex.: Carlos Souza", ownerWa:"WhatsApp do dono", needSqlNomes:"Falta criar a parte de nomes no Supabase (arquivo 2026-10-19_supabase-nomes.sql).", noName:"sem nome", setName:"Colocar nome e WhatsApp", editName:"Editar", ownerProfT:"Dono da {boat}", newPwOwner:"Nova senha", newPwOwnerHint:"só se quiser trocar; pelo menos 6 letras ou números", ownerPwSaved:"Dados e senha nova salvos.", dataSaved:"Dados salvos.", sendPwQ:"Mandar a senha nova para ele no WhatsApp?", rmOwner:"Tirar o acesso dele à {boat}",
   profT:"Antes de começar", profSub:"Coloque seu nome completo e seu WhatsApp. É por ele que a Búzios Lanchas avisa quando tiver passeio novo na sua lancha.", profSave:"Salvar e continuar",
   notifyT:"Pedido aprovado!", notifySub:"Avise o dono da {boat} pelo WhatsApp. Ele também vê o passeio novo marcado no app.", notifyBtn:"Avisar {name} no WhatsApp", notifyNoPhone:"{name} ainda não tem WhatsApp cadastrado.", notifyNone:"A {boat} ainda não tem dono cadastrado.",
-  waNotify:"Olá, {name}! Passeio confirmado pela Búzios Lanchas na {boat}:\n{date}, {slot}\n{people} pessoas\nCliente: {client}\nVeja os detalhes no app: {url}",
+  waNotify:"Olá, {name}! Passeio confirmado pela Búzios Lanchas na {boat}:\n{date}, {slot}\n{people} pessoas\n{emb}Cliente: {client}\nVeja os detalhes no app: {url}",
   newBanner:"🔔 {n} passeios novos da Búzios Lanchas", newBanner1:"🔔 1 passeio novo da Búzios Lanchas", newTag:"novo", seenAll:"Marcar como visto"});
 Object.assign(T.en, {ownerName:"Owner's name", ph_owner:"E.g. Carlos Souza", ownerWa:"Owner's WhatsApp", needSqlNomes:"The names part is missing in Supabase (file 2026-10-19_supabase-nomes.sql).", noName:"no name", setName:"Add name and WhatsApp", editName:"Edit", ownerProfT:"Owner of {boat}", newPwOwner:"New password", newPwOwnerHint:"only to change it; at least 6 letters or numbers", ownerPwSaved:"Details and new password saved.", dataSaved:"Details saved.", sendPwQ:"Send them the new password on WhatsApp?", rmOwner:"Remove their access to {boat}",
   profT:"Before you start", profSub:"Add your full name and your WhatsApp. That's how Búzios Lanchas lets you know when your boat has a new tour.", profSave:"Save and continue",
   notifyT:"Request approved!", notifySub:"Let the owner of {boat} know on WhatsApp. They also see the new tour marked in the app.", notifyBtn:"Message {name} on WhatsApp", notifyNoPhone:"{name} has no WhatsApp yet.", notifyNone:"{boat} has no owner yet.",
-  waNotify:"Hi {name}! Tour confirmed by Búzios Lanchas on {boat}:\n{date}, {slot}\n{people} people\nCustomer: {client}\nSee the details in the app: {url}",
+  waNotify:"Hi {name}! Tour confirmed by Búzios Lanchas on {boat}:\n{date}, {slot}\n{people} people\n{emb}Customer: {client}\nSee the details in the app: {url}",
   newBanner:"🔔 {n} new tours from Búzios Lanchas", newBanner1:"🔔 1 new tour from Búzios Lanchas", newTag:"new", seenAll:"Mark as seen"});
 Object.assign(T.es, {ownerName:"Nombre del dueño", ph_owner:"Ej.: Carlos Souza", ownerWa:"WhatsApp del dueño", needSqlNomes:"Falta crear la parte de nombres en Supabase (archivo 2026-10-19_supabase-nomes.sql).", noName:"sin nombre", setName:"Poner nombre y WhatsApp", editName:"Editar", ownerProfT:"Dueño de {boat}", newPwOwner:"Nueva contraseña", newPwOwnerHint:"solo si quieres cambiarla; al menos 6 letras o números", ownerPwSaved:"Datos y contraseña nueva guardados.", dataSaved:"Datos guardados.", sendPwQ:"¿Mandarle la contraseña nueva por WhatsApp?", rmOwner:"Quitarle el acceso a {boat}",
   profT:"Antes de empezar", profSub:"Pon tu nombre completo y tu WhatsApp. Por ahí Búzios Lanchas te avisa cuando haya un paseo nuevo en tu lancha.", profSave:"Guardar y seguir",
   notifyT:"¡Pedido aprobado!", notifySub:"Avisa al dueño de {boat} por WhatsApp. También ve el paseo nuevo marcado en la app.", notifyBtn:"Avisar a {name} por WhatsApp", notifyNoPhone:"{name} todavía no tiene WhatsApp registrado.", notifyNone:"{boat} todavía no tiene dueño registrado.",
-  waNotify:"¡Hola, {name}! Paseo confirmado por Búzios Lanchas en {boat}:\n{date}, {slot}\n{people} personas\nCliente: {client}\nMira los detalles en la app: {url}",
+  waNotify:"¡Hola, {name}! Paseo confirmado por Búzios Lanchas en {boat}:\n{date}, {slot}\n{people} personas\n{emb}Cliente: {client}\nMira los detalles en la app: {url}",
   newBanner:"🔔 {n} paseos nuevos de Búzios Lanchas", newBanner1:"🔔 1 paseo nuevo de Búzios Lanchas", newTag:"nuevo", seenAll:"Marcar como visto"});
 const nomeOk = n => n.length>=5 && /\S\s+\S/.test(n) && !n.includes("@"); /* nome e sobrenome, como no banco */
 /* busca de marinheiro freelancer pelo nome */
@@ -1201,9 +1201,16 @@ const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b=
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
+Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
+Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
+Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicación del embarque:", waConfirm:"¡Hola, {name}! Tu paseo en {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} personas\n{emb}Cualquier duda, escríbenos. ¡Buen paseo! Búzios Lanchas"});
+/* mensagem para o cliente no idioma dele, pelo DDI do WhatsApp */
+const ES_DDI = ["34","51","52","53","54","56","57","58","502","503","504","505","506","507","591","593","595","598"];
+const cliLang = tel => { const cc=splitPhone(tel).cc; return cc==="55" ? "pt" : ES_DDI.includes(cc) ? "es" : cc ? "en" : lang; };
+const inLang = (lg,f) => { const o=lang; lang=lg; try{ return f(); } finally{ lang=o; } };
 const BOARD_OPTS = ["Píer do Golfinho (Praia dos Ossos)", "Porto Veleiro (Praia dos Ossos)", "BR Marinas Búzios"], OTHER = "__outro";
-/* link de localização do embarque: no celular, o próprio sistema oferece abrir no Google Maps, Waze etc. */
-const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"Porto Veleiro Búzios, Tv. Santana, 1 - Praia da Armação, Armação dos Búzios - RJ", "BR Marinas Búzios":"https://maps.app.goo.gl/2cNUHqhBYXmWD8By9" /* pin enviado pelo Rodrigo */};
+/* link de localização do embarque, só para o cliente (dono e marinheiro já conhecem os lugares): no celular, o próprio sistema oferece abrir no Google Maps, Waze etc. */
+const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"Porto Veleiro Búzios" /* nome do lugar no Google (Tv. Santana, 1) */, "BR Marinas Búzios":"https://maps.app.goo.gl/2cNUHqhBYXmWD8By9" /* pin enviado pelo Rodrigo */};
 const mapUrl = e => !MAP_Q[e] ? "" : /^https:/.test(MAP_Q[e]) ? MAP_Q[e] : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(MAP_Q[e]); /* local "Outro" escrito pelo dono: sem link */
 const mapLink = e => !mapUrl(e) ? `<span class="tmap">📍 ${esc(e)}</span>` : `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`;
 const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
@@ -1216,7 +1223,7 @@ function sailorHTML(){
         <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short",month:"short"}).replace(/\./g,"")}</span></span>
         <span class="tbody"><strong>${avatar(r.lancha)} ${esc(boatName(r.lancha))}</strong>
           <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}</span>
-          ${r.embarque?mapLink(r.embarque):`<span>${t("boarding")}: ${esc(boarding(r.lancha,r.horario))}</span>`}
+          <span>${t("boarding")}: ${esc(r.embarque||boarding(r.lancha,r.horario))}</span>
           <span class="tmeta">${r.cliente?`<i>${esc(r.cliente)}</i>`:""}${r.pessoas?`<i>${r.pessoas} ${t("people").toLowerCase()}</i>`:""}<i class="${r.eu?"me":""}">⚓ ${r.eu?t("youPilot"):r.marinheiro?esc(r.marinheiro):t("sailorUnset")}</i>${r.ajudante?`<i>🤝 ${esc(r.ajudante)}</i>`:""}</span>
           ${r.obs?`<span>${esc(r.obs)}</span>`:""}
           ${r.eu?`<button type="button" class="link danger" style="margin:4px 0 0;padding:4px 0;text-align:left" data-refuse="${r.id}">${t("cantGo")}</button>`:""}</span></div>`; }).join("")}</div>` : `<p class="muted" style="margin:0">${t("sailorNone")}</p>`}</div>`;
@@ -1754,12 +1761,14 @@ async function mailInvite(bid, email){
 const mailMsg = (st, email) => st==="sem_email" ? "" : `<p class="msg ${st==="enviado"?"ok":"err"}" id="invmail">${t(st==="enviado"?"mailSent":st==="ja_tem_conta"?"mailHasAcc":"mailFail",{email:esc(email)})}</p>`; /* sem e-mail: convite só pelo WhatsApp */
 function notifyOwner(p, row, nota){
   const os=(S.owners||[]).filter(o=>o.lancha===row.lancha), boat=boatName(row.lancha);
-  const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||p.pessoas, client:nota.cliente||"", url:location.origin+"/login/"});
+  const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||p.pessoas, client:nota.cliente||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n`:"", url:location.origin+"/login/"});
+  const cw=waOf(nota.telefone), cl=cliLang(nota.telefone), cmsg=inLang(cl, ()=>t("waConfirm",{name:(nota.cliente||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||p.pessoas, emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}`:""}));
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✓ ${t("notifyT")}</h2><p class="muted" style="margin-top:0">${t("notifySub",{boat:esc(boat)})}</p>
     ${os.length ? os.map(o=>waOf(o.telefone).length>=8
       ? `<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${waOf(o.telefone)}?text=${encodeURIComponent(msg(o))}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(o.nome||o.email)})}</a>`
       : `<p class="msg err">${t("notifyNoPhone",{name:esc(o.nome||o.email)})} <button type="button" class="link" data-onm="${esc(o.email)}" data-ol="${o.lancha}">${t("setName")}</button></p>`).join("")
       : `<p class="msg err">${t("notifyNone",{boat:esc(boat)})}</p>`}
+    ${cw.length>=8 ? `<p class="muted" style="margin:14px 0 8px">${t("notifyCli")}</p><a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${cw}?text=${encodeURIComponent(cmsg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(nota.cliente||"")})}</a>` : ""}
     <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   document.getElementById("nfx").onclick = closeDay;
@@ -2125,7 +2134,7 @@ function renderTripRO(){
   const v=+n.valor||0, d=+n.sinal||0, row=(k,val)=>val||val===0?`<div class="rorow"><span>${k}</span><strong>${val}</strong></div>`:"";
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${n.cliente?esc(n.cliente):t("noClientName")}</h2>
     <p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${r.horario==="noite"&&!n.hora_ini?"":" · "+slotHours(r.horario,n)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}</p>
-    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("embT"), n.embarque&&(mapUrl(n.embarque)?`<a href="${mapUrl(n.embarque)}" target="_blank" rel="noopener">${esc(n.embarque)}</a>`:esc(n.embarque)))}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}${row(t("ajT"), n.ajudante&&esc(n.ajudante))}
+    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("embT"), n.embarque&&esc(n.embarque))}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}${row(t("ajT"), n.ajudante&&esc(n.ajudante))}
       ${row(t("value"), v?brl(v):"")}${row(t("deposit"), d?brl(d):"")}${v?row(t("toPayL"), d>=v?t("paid"):brl(v-d)):""}</div>
     ${r.nota ? `<form id="mnf" class="nform mnbox" novalidate><label class="f"><span>📝 ${t("marNoteT")}</span><textarea id="n-mn" rows="3" maxlength="500" placeholder="${t("marNotePh")}">${esc(n.obs||"")}</textarea></label>
       <p class="muted" style="margin:-4px 0 10px;font-size:13px">${t("marNoteSub")}</p><button class="btn" id="mngo">${t("marNoteSave")}</button></form>` : ""}
