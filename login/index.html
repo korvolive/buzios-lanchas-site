@@ -1203,9 +1203,9 @@ const BOARD_PV = ["miss-bardot","les-zuzu"];
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
 const BOARD_OPTS = ["Píer do Golfinho (Praia dos Ossos)", "Porto Veleiro (Praia dos Ossos)", "BR Marinas Búzios"], OTHER = "__outro";
 /* link de localização do embarque: no celular, o próprio sistema oferece abrir no Google Maps, Waze etc. */
-const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"Porto Veleiro Búzios, Tv. Santana, 1 - Praia da Armação, Armação dos Búzios - RJ", "BR Marinas Búzios":"-22.748525,-41.956531" /* Alameda Andorinhas, Aretê (coordenadas da BR Marinas) */};
-const mapUrl = e => /^https:/.test(MAP_Q[e]||"") ? MAP_Q[e] : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(MAP_Q[e] || e+", Armação dos Búzios - RJ");
-const mapLink = e => `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`;
+const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"Porto Veleiro Búzios, Tv. Santana, 1 - Praia da Armação, Armação dos Búzios - RJ", "BR Marinas Búzios":"https://maps.app.goo.gl/2cNUHqhBYXmWD8By9" /* pin enviado pelo Rodrigo */};
+const mapUrl = e => !MAP_Q[e] ? "" : /^https:/.test(MAP_Q[e]) ? MAP_Q[e] : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(MAP_Q[e]); /* local "Outro" escrito pelo dono: sem link */
+const mapLink = e => !mapUrl(e) ? `<span class="tmap">📍 ${esc(e)}</span>` : `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`;
 const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
 /* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
 function sailorHTML(){
@@ -1733,7 +1733,7 @@ function openNewUser(){
 function openInvite(email, nota, row, mailDone){
   const name=(nota.cliente||"").split(" ")[0]||"", q=new URLSearchParams({criar:"1"}); if(email) q.set("email",email); if(nota.cliente) q.set("nome",nota.cliente); if(nota.telefone) q.set("tel",nota.telefone);
   const url=`${location.origin}/login/?${q}`, wa=waOf(nota.telefone), dt=fmtLong(row.data);
-  const msg=t("waInvite",{name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n🗺️ ${mapUrl(nota.embarque)}\n`:"", page:`${location.origin}${lang==="pt"?"":"/"+lang}/lancha/${row.lancha}/`, mail: email ? t("waInviteMail",{email}) : "", url});
+  const msg=t("waInvite",{name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}`:"", page:`${location.origin}${lang==="pt"?"":"/"+lang}/lancha/${row.lancha}/`, mail: email ? t("waInviteMail",{email}) : "", url});
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✉ ${t("invT",{name:esc(nota.cliente||email)})}</h2><p class="muted" style="margin-top:0">${t(email?"invSub":"invSubTel",{name:esc(name||nota.cliente||""), email:esc(email)})}</p>
     ${mailDone ? mailMsg(mailDone, email) : email ? `<p class="muted" id="invmail">✉ ${t("mailSending",{email:esc(email)})}</p>` : ""}
     ${wa.length>=8?`<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("invBtn")}</a>`:""}
@@ -2125,7 +2125,7 @@ function renderTripRO(){
   const v=+n.valor||0, d=+n.sinal||0, row=(k,val)=>val||val===0?`<div class="rorow"><span>${k}</span><strong>${val}</strong></div>`:"";
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${n.cliente?esc(n.cliente):t("noClientName")}</h2>
     <p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${r.horario==="noite"&&!n.hora_ini?"":" · "+slotHours(r.horario,n)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}</p>
-    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("embT"), n.embarque&&`<a href="${mapUrl(n.embarque)}" target="_blank" rel="noopener">${esc(n.embarque)}</a>`)}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}${row(t("ajT"), n.ajudante&&esc(n.ajudante))}
+    <div class="rolist">${row(t("closedBy"), n.origem&&t("o_"+n.origem))}${row(t("phone"), n.telefone&&esc(n.telefone))}${row(t("people"), n.pessoas)}${row(t("embT"), n.embarque&&(mapUrl(n.embarque)?`<a href="${mapUrl(n.embarque)}" target="_blank" rel="noopener">${esc(n.embarque)}</a>`:esc(n.embarque)))}${row(t("sailor"), esc(sailorName(r.lancha,n.marinheiro)))}${row(t("ajT"), n.ajudante&&esc(n.ajudante))}
       ${row(t("value"), v?brl(v):"")}${row(t("deposit"), d?brl(d):"")}${v?row(t("toPayL"), d>=v?t("paid"):brl(v-d)):""}</div>
     ${r.nota ? `<form id="mnf" class="nform mnbox" novalidate><label class="f"><span>📝 ${t("marNoteT")}</span><textarea id="n-mn" rows="3" maxlength="500" placeholder="${t("marNotePh")}">${esc(n.obs||"")}</textarea></label>
       <p class="muted" style="margin:-4px 0 10px;font-size:13px">${t("marNoteSub")}</p><button class="btn" id="mngo">${t("marNoteSave")}</button></form>` : ""}
