@@ -1212,7 +1212,7 @@ async function sendPedido(b){
 }
 /* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
 function loadAgenda(){
-  return agenda ||= fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}})
+  return agenda ||= fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}&revenda=is.null`, {headers:{apikey:AGENDA_KEY}})
     .then(r=>r.ok ? r.json() : Promise.reject(r.status))
     .then(rows=>{ const m=new Map(); rows.forEach(r=>{ const k=r.lancha+"|"+r.data; if(!m.has(k)) m.set(k,new Set()); m.get(k).add(r.horario); }); return m; })
     .catch(()=>{ agenda=null; return null; });
