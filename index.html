@@ -326,6 +326,21 @@ html.is-app #hdr-login{display:none}
 .pricebox{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
 .pricebox h2{font-size:22px}
 .pr-val{margin-top:14px}
+.vcont{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:12px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--chip);font-size:14px}
+.vcont a{font-weight:600;color:var(--sea);white-space:nowrap}
+/* painel do vendedor logado na página da lancha */
+.vbox{padding:14px;border:1.5px dashed var(--brass);border-radius:12px;display:grid;gap:10px;background:var(--surface)}
+.vrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;font-size:15px}
+.vrow small{color:var(--muted);font-size:12px}
+.vlab{display:grid;gap:2px;white-space:nowrap}
+.vrow.tot{border-top:1px solid var(--line);padding-top:10px}.vrow.tot b{font-size:20px;color:var(--sea)}
+.vin{display:inline-flex;align-items:center;gap:4px}.vin i{font-style:normal;color:var(--muted);font-size:13px;margin-right:4px}
+.vin input{width:64px;font:inherit;font-size:16px;padding:7px 8px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:right}
+.vin input#v-rs{width:78px}
+.vbox input[type=range]{width:100%;accent-color:var(--sea)}
+.vnote{margin:0;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.vbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.vbtns .btn{padding-left:8px;padding-right:8px;font-size:14px;text-align:center;justify-content:center}
+@media (max-width:380px){.vrow:has(.vin){flex-wrap:wrap}}
 .pr-val .from{margin:0;padding:14px;border:1.5px solid var(--sea);border-radius:12px}
 .pr-val .from span{display:block;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--sea);margin-bottom:8px}
 .pr-val .long{margin-top:0}
@@ -861,7 +876,7 @@ const PHRASES = {
 /* Textos fixos do site. {n}, {name}, {date}, {slot}, {h} são trocados pelos valores. */
 const UI = {
   pt:{
-    locale:"pt-BR", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha conta", navAccount:"Minha conta", reqSaved:"Pedido salvo em Meus passeios. A Búzios Lanchas confirma com você pelo WhatsApp.", confT:"<strong>Conta pronta!</strong> Confira os dados da reserva. Se quiser, mude a data, o horário ou as pessoas acima. Estando tudo certo, confirme:", confBtn:"Confirmar pedido de reserva", confNote:"Como funciona: a Búzios Lanchas cuida da sua reserva e conecta você ao dono da lancha. O passeio é feito pelo próprio dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo. Ao confirmar, você concorda com os <a href=\"/privacidade/\" target=\"_blank\">termos de uso</a>.", acctOn:"Você está na sua conta: o pedido de reserva vai direto para a Búzios Lanchas e fica salvo em Meus passeios. A reserva só é confirmada depois do sinal de 50%.", orOnline:"ou reserve pelo site", bookOnline:"Reservar online", onlineHow:"Sem precisar consultar no WhatsApp: crie sua conta grátis (leva 1 minuto) e envie o pedido de reserva na hora. <strong>A reserva só é confirmada depois do sinal de 50%</strong>, com o comprovante enviado pelo WhatsApp.", bookSent:"<strong>Pedido de reserva enviado, mas ainda não confirmado.</strong> A reserva só é aprovada depois que você pagar o sinal de 50% e mandar o comprovante pelo WhatsApp. Acompanhe em <a href=\"/login/\">Meus passeios</a>. Lembrando: o passeio é feito pelo dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo.", bookErr:"Não deu para enviar agora. Tente de novo ou consulte pelo WhatsApp.", waDeposit:"Olá! Fiz um pedido de reserva pelo site Búzios Lanchas: lancha {name}, {date}, das {slot}, para {people}. Quero pagar o sinal de 50% para confirmar. Depois mando o comprovante por aqui.", depositBtn:"Combinar o sinal de 50% no WhatsApp", acctOff:"Quer acompanhar seus pedidos?", acctLink:"Crie sua conta", appLogin:"Entrar", footTeam:"Donos e marinheiros", getApp:"Baixar o app",getAppT:"Baixe o app da Búzios Lanchas",getAppSub:"Reserve, acompanhe seus passeios e receba os avisos direto no celular. É grátis.",getAppIOS:"No iPhone: toque em <b>Compartilhar</b> (o quadrado com a seta) e depois em <b>Adicionar à Tela de Início</b>.",getAppIOSOther:"No iPhone, o app só pode ser instalado pelo <b>Safari</b>. Abra lanchaembuzios.com.br no Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.",getAppAndroid:"No Android: toque nos <b>três pontinhos ⋮</b> do Chrome e depois em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.",getAppDesk:"Abra lanchaembuzios.com.br no navegador do celular e toque em <b>Baixar o app</b>.",getAppBtn:"Instalar agora",getAppClose:"Fechar",footApp:"Aplicativo",footLogin:"Entrar",
+    locale:"pt-BR", vendOwn:"Esta lancha é sua: você pode vender, mas sem comissão. O cliente vê o valor neto.", vendBy:"Seu atendimento: <b>{n}</b>", vendWa:"Falar no WhatsApp", waVend:"Olá, {n}! Vi as lanchas no site Búzios Lanchas e quero ajuda para o meu passeio.", waVendBoat:"Olá, {n}! Vi a lancha {boat} no site Búzios Lanchas e quero ajuda para o meu passeio.", vendFrom:"Valor neto a partir de", vendWait:"Escolha a data e o horário para ver o valor neto e montar o link do cliente.", vendNoPrice:"Sem valor cadastrado para esse período. Fale com a Búzios Lanchas.", vendNet:"Valor neto", vendMine:"Sua comissão", vendPct:"Sua comissão em %", vendRs:"Sua comissão em R$", vendClient:"Valor para o cliente", vendNote:"De 1% a {n}%, vale para todas as lanchas neste período. Você recebe a comissão quando o cliente pagar o sinal de 50%. O cliente vê só o valor cheio.", vendCopy:"Copiar link", vendSend:"Enviar no WhatsApp", waPrice:" Valor: {p}.", season_baixa:"baixa", season_media:"média", season_alta:"alta", season_pico:"pico do verão", season_reveillon:"Réveillon", logoSub:"Aluguel de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, início", navFleet:"Lanchas", navHow:"Como funciona", navLogin:"Entrar", navAgenda:"Minha conta", navAccount:"Minha conta", reqSaved:"Pedido salvo em Meus passeios. A Búzios Lanchas confirma com você pelo WhatsApp.", confT:"<strong>Conta pronta!</strong> Confira os dados da reserva. Se quiser, mude a data, o horário ou as pessoas acima. Estando tudo certo, confirme:", confBtn:"Confirmar pedido de reserva", confNote:"Como funciona: a Búzios Lanchas cuida da sua reserva e conecta você ao dono da lancha. O passeio é feito pelo próprio dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo. Ao confirmar, você concorda com os <a href=\"/privacidade/\" target=\"_blank\">termos de uso</a>.", acctOn:"Você está na sua conta: o pedido de reserva vai direto para a Búzios Lanchas e fica salvo em Meus passeios. A reserva só é confirmada depois do sinal de 50%.", orOnline:"ou reserve pelo site", bookOnline:"Reservar online", onlineHow:"Sem precisar consultar no WhatsApp: crie sua conta grátis (leva 1 minuto) e envie o pedido de reserva na hora. <strong>A reserva só é confirmada depois do sinal de 50%</strong>, com o comprovante enviado pelo WhatsApp.", bookSent:"<strong>Pedido de reserva enviado, mas ainda não confirmado.</strong> A reserva só é aprovada depois que você pagar o sinal de 50% e mandar o comprovante pelo WhatsApp. Acompanhe em <a href=\"/login/\">Meus passeios</a>. Lembrando: o passeio é feito pelo dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo.", bookErr:"Não deu para enviar agora. Tente de novo ou consulte pelo WhatsApp.", waDeposit:"Olá! Fiz um pedido de reserva pelo site Búzios Lanchas: lancha {name}, {date}, das {slot}, para {people}. Quero pagar o sinal de 50% para confirmar. Depois mando o comprovante por aqui.", depositBtn:"Combinar o sinal de 50% no WhatsApp", acctOff:"Quer acompanhar seus pedidos?", acctLink:"Crie sua conta", appLogin:"Entrar", footTeam:"Donos e marinheiros", getApp:"Baixar o app",getAppT:"Baixe o app da Búzios Lanchas",getAppSub:"Reserve, acompanhe seus passeios e receba os avisos direto no celular. É grátis.",getAppIOS:"No iPhone: toque em <b>Compartilhar</b> (o quadrado com a seta) e depois em <b>Adicionar à Tela de Início</b>.",getAppIOSOther:"No iPhone, o app só pode ser instalado pelo <b>Safari</b>. Abra lanchaembuzios.com.br no Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.",getAppAndroid:"No Android: toque nos <b>três pontinhos ⋮</b> do Chrome e depois em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.",getAppDesk:"Abra lanchaembuzios.com.br no navegador do celular e toque em <b>Baixar o app</b>.",getAppBtn:"Instalar agora",getAppClose:"Fechar",footApp:"Aplicativo",footLogin:"Entrar",
     footAbout:"Passeios privativos de lancha em Armação dos Búzios, RJ.", footBook:"Reservas", footFollow:"Siga",
     coords:"22°45′S · 41°53′O — Aluguel de lanchas em Armação dos Búzios, RJ",
     seoTitle:"Aluguel de lancha em Búzios | Passeios privativos | Búzios Lanchas",
@@ -916,7 +931,7 @@ const UI = {
     waAvail:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para {date}, das {slot} ({h} horas), para {people}."
   },
   en:{
-    locale:"en-US", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My account", navAccount:"My account", reqSaved:"Request saved in My tours. Búzios Lanchas will confirm it with you on WhatsApp.", confT:"<strong>Account ready!</strong> Check your booking details. You can still change the date, time or guests above. If everything is right, confirm:", confBtn:"Confirm booking request", confNote:"How it works: Búzios Lanchas handles your booking and connects you with the boat owner. The tour is run by the boat owner, who is responsible for the boat, the crew and safety on board. By confirming, you agree to the <a href=\"/privacidade/\" target=\"_blank\">terms of use</a>.", acctOn:"You're signed in: your booking request goes straight to Búzios Lanchas and is saved in My tours. The booking is only confirmed after the 50% deposit.", orOnline:"or book on the site", bookOnline:"Book online", onlineHow:"No need to ask on WhatsApp first: create your free account (takes 1 minute) and send your booking request right away. <strong>The booking is only confirmed after the 50% deposit</strong>, with the receipt sent on WhatsApp.", bookSent:"<strong>Booking request sent, but not confirmed yet.</strong> It is only approved after you pay the 50% deposit and send the receipt on WhatsApp. Follow it in <a href=\"/login/\">My tours</a>. Remember: the tour is run by the boat owner, who is responsible for the boat, the crew and safety on board.", bookErr:"Couldn't send it right now. Try again or ask on WhatsApp.", waDeposit:"Hi! I made a booking request on the Búzios Lanchas website: boat {name}, {date}, from {slot}, for {people}. I'd like to pay the 50% deposit to confirm it. I'll send the receipt here.", depositBtn:"Arrange the 50% deposit on WhatsApp", acctOff:"Want to follow your requests?", acctLink:"Create your account", appLogin:"Sign in", footTeam:"Owners and skippers", getApp:"Get the app",getAppT:"Get the Búzios Lanchas app",getAppSub:"Book, follow your trips and get alerts right on your phone. It's free.",getAppIOS:"On iPhone: tap <b>Share</b> (the square with the arrow) and then <b>Add to Home Screen</b>.",getAppIOSOther:"On iPhone, the app can only be installed from <b>Safari</b>. Open lanchaembuzios.com.br in Safari, tap <b>Share</b> and then <b>Add to Home Screen</b>.",getAppAndroid:"On Android: tap Chrome's <b>three dots ⋮</b> and then <b>Install app</b> or <b>Add to Home screen</b>.",getAppDesk:"Open lanchaembuzios.com.br in your phone's browser and tap <b>Get the app</b>.",getAppBtn:"Install now",getAppClose:"Close",footApp:"App",footLogin:"Sign in",
+    locale:"en-US", vendOwn:"This boat is yours: you can sell it, but without commission. The client sees the net price.", vendBy:"Your contact: <b>{n}</b>", vendWa:"Chat on WhatsApp", waVend:"Hi {n}! I saw the boats on the Búzios Lanchas website and would like help with my tour.", waVendBoat:"Hi {n}! I saw the boat {boat} on the Búzios Lanchas website and would like help with my tour.", vendFrom:"Net price from", vendWait:"Choose the date and time to see the net price and build the client link.", vendNoPrice:"No price set for this period. Talk to Búzios Lanchas.", vendNet:"Net price", vendMine:"Your commission", vendPct:"Your commission in %", vendRs:"Your commission in R$", vendClient:"Price for the client", vendNote:"From 1% to {n}%, applies to every boat in this period. You get your commission when the client pays the 50% deposit. The client only sees the full price.", vendCopy:"Copy link", vendSend:"Send on WhatsApp", waPrice:" Price: {p}.", season_baixa:"low season", season_media:"mid season", season_alta:"high season", season_pico:"summer peak", season_reveillon:"New Year", logoSub:"Boat rental", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, home", navFleet:"Boats", navHow:"How it works", navLogin:"Sign in", navAgenda:"My account", navAccount:"My account", reqSaved:"Request saved in My tours. Búzios Lanchas will confirm it with you on WhatsApp.", confT:"<strong>Account ready!</strong> Check your booking details. You can still change the date, time or guests above. If everything is right, confirm:", confBtn:"Confirm booking request", confNote:"How it works: Búzios Lanchas handles your booking and connects you with the boat owner. The tour is run by the boat owner, who is responsible for the boat, the crew and safety on board. By confirming, you agree to the <a href=\"/privacidade/\" target=\"_blank\">terms of use</a>.", acctOn:"You're signed in: your booking request goes straight to Búzios Lanchas and is saved in My tours. The booking is only confirmed after the 50% deposit.", orOnline:"or book on the site", bookOnline:"Book online", onlineHow:"No need to ask on WhatsApp first: create your free account (takes 1 minute) and send your booking request right away. <strong>The booking is only confirmed after the 50% deposit</strong>, with the receipt sent on WhatsApp.", bookSent:"<strong>Booking request sent, but not confirmed yet.</strong> It is only approved after you pay the 50% deposit and send the receipt on WhatsApp. Follow it in <a href=\"/login/\">My tours</a>. Remember: the tour is run by the boat owner, who is responsible for the boat, the crew and safety on board.", bookErr:"Couldn't send it right now. Try again or ask on WhatsApp.", waDeposit:"Hi! I made a booking request on the Búzios Lanchas website: boat {name}, {date}, from {slot}, for {people}. I'd like to pay the 50% deposit to confirm it. I'll send the receipt here.", depositBtn:"Arrange the 50% deposit on WhatsApp", acctOff:"Want to follow your requests?", acctLink:"Create your account", appLogin:"Sign in", footTeam:"Owners and skippers", getApp:"Get the app",getAppT:"Get the Búzios Lanchas app",getAppSub:"Book, follow your trips and get alerts right on your phone. It's free.",getAppIOS:"On iPhone: tap <b>Share</b> (the square with the arrow) and then <b>Add to Home Screen</b>.",getAppIOSOther:"On iPhone, the app can only be installed from <b>Safari</b>. Open lanchaembuzios.com.br in Safari, tap <b>Share</b> and then <b>Add to Home Screen</b>.",getAppAndroid:"On Android: tap Chrome's <b>three dots ⋮</b> and then <b>Install app</b> or <b>Add to Home screen</b>.",getAppDesk:"Open lanchaembuzios.com.br in your phone's browser and tap <b>Get the app</b>.",getAppBtn:"Install now",getAppClose:"Close",footApp:"App",footLogin:"Sign in",
     footAbout:"Private boat tours in Armação dos Búzios, RJ, Brazil.", footBook:"Bookings", footFollow:"Follow us",
     coords:"22°45′S · 41°53′W — Boat rental in Armação dos Búzios, RJ",
     seoTitle:"Boat rental in Búzios, Brazil | Private boat tours | Búzios Lanchas",
@@ -971,7 +986,7 @@ const UI = {
     waAvail:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} on {date}, from {slot} ({h} hours), for {people}."
   },
   es:{
-    locale:"es", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi cuenta", navAccount:"Mi cuenta", reqSaved:"Pedido guardado en Mis paseos. Búzios Lanchas lo confirma contigo por WhatsApp.", confT:"<strong>¡Cuenta lista!</strong> Revisa los datos de la reserva. Si quieres, cambia la fecha, el horario o las personas arriba. Si todo está bien, confirma:", confBtn:"Confirmar pedido de reserva", confNote:"Cómo funciona: Búzios Lanchas gestiona tu reserva y te conecta con el dueño de la lancha. El paseo lo hace el propio dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo. Al confirmar, aceptas los <a href=\"/privacidade/\" target=\"_blank\">términos de uso</a>.", acctOn:"Estás en tu cuenta: el pedido de reserva va directo a Búzios Lanchas y queda guardado en Mis paseos. La reserva solo se confirma después de la seña del 50%.", orOnline:"o reserva en el sitio", bookOnline:"Reservar online", onlineHow:"Sin consultar antes por WhatsApp: crea tu cuenta gratis (lleva 1 minuto) y envía el pedido de reserva al instante. <strong>La reserva solo se confirma después de la seña del 50%</strong>, con el comprobante enviado por WhatsApp.", bookSent:"<strong>Pedido de reserva enviado, pero aún no confirmado.</strong> Solo se aprueba después de que pagues la seña del 50% y envíes el comprobante por WhatsApp. Síguelo en <a href=\"/login/\">Mis paseos</a>. Recuerda: el paseo lo hace el dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo.", bookErr:"No se pudo enviar ahora. Inténtalo de nuevo o consulta por WhatsApp.", waDeposit:"¡Hola! Hice un pedido de reserva en el sitio de Búzios Lanchas: lancha {name}, {date}, de {slot}, para {people}. Quiero pagar la seña del 50% para confirmarla. Después envío el comprobante por aquí.", depositBtn:"Combinar la seña del 50% por WhatsApp", acctOff:"¿Quieres seguir tus pedidos?", acctLink:"Crea tu cuenta", appLogin:"Entrar", footTeam:"Dueños y marineros", getApp:"Descargar la app",getAppT:"Descarga la app de Búzios Lanchas",getAppSub:"Reserva, sigue tus paseos y recibe avisos directo en el celular. Es gratis.",getAppIOS:"En iPhone: toca <b>Compartir</b> (el cuadrado con la flecha) y luego <b>Agregar a pantalla de inicio</b>.",getAppIOSOther:"En iPhone, la app solo se instala desde <b>Safari</b>. Abre lanchaembuzios.com.br en Safari, toca <b>Compartir</b> y luego <b>Agregar a pantalla de inicio</b>.",getAppAndroid:"En Android: toca los <b>tres puntos ⋮</b> de Chrome y luego <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.",getAppDesk:"Abre lanchaembuzios.com.br en el navegador del celular y toca <b>Descargar la app</b>.",getAppBtn:"Instalar ahora",getAppClose:"Cerrar",footApp:"App",footLogin:"Entrar",
+    locale:"es", vendOwn:"Esta lancha es tuya: puedes venderla, pero sin comisión. El cliente ve el valor neto.", vendBy:"Tu contacto: <b>{n}</b>", vendWa:"Hablar por WhatsApp", waVend:"¡Hola, {n}! Vi las lanchas en el sitio de Búzios Lanchas y quiero ayuda con mi paseo.", waVendBoat:"¡Hola, {n}! Vi la lancha {boat} en el sitio de Búzios Lanchas y quiero ayuda con mi paseo.", vendFrom:"Valor neto desde", vendWait:"Elige la fecha y el horario para ver el valor neto y armar el link del cliente.", vendNoPrice:"No hay valor cargado para este período. Habla con Búzios Lanchas.", vendNet:"Valor neto", vendMine:"Tu comisión", vendPct:"Tu comisión en %", vendRs:"Tu comisión en R$", vendClient:"Valor para el cliente", vendNote:"De 1% a {n}%, vale para todas las lanchas en este período. Recibes la comisión cuando el cliente paga la seña del 50%. El cliente solo ve el valor total.", vendCopy:"Copiar link", vendSend:"Enviar por WhatsApp", waPrice:" Valor: {p}.", season_baixa:"baja", season_media:"media", season_alta:"alta", season_pico:"pico del verano", season_reveillon:"Año Nuevo", logoSub:"Alquiler de lanchas", logoCity:"Búzios, RJ", logoAria:"Búzios Lanchas, inicio", navFleet:"Lanchas", navHow:"Cómo funciona", navLogin:"Entrar", navAgenda:"Mi cuenta", navAccount:"Mi cuenta", reqSaved:"Pedido guardado en Mis paseos. Búzios Lanchas lo confirma contigo por WhatsApp.", confT:"<strong>¡Cuenta lista!</strong> Revisa los datos de la reserva. Si quieres, cambia la fecha, el horario o las personas arriba. Si todo está bien, confirma:", confBtn:"Confirmar pedido de reserva", confNote:"Cómo funciona: Búzios Lanchas gestiona tu reserva y te conecta con el dueño de la lancha. El paseo lo hace el propio dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo. Al confirmar, aceptas los <a href=\"/privacidade/\" target=\"_blank\">términos de uso</a>.", acctOn:"Estás en tu cuenta: el pedido de reserva va directo a Búzios Lanchas y queda guardado en Mis paseos. La reserva solo se confirma después de la seña del 50%.", orOnline:"o reserva en el sitio", bookOnline:"Reservar online", onlineHow:"Sin consultar antes por WhatsApp: crea tu cuenta gratis (lleva 1 minuto) y envía el pedido de reserva al instante. <strong>La reserva solo se confirma después de la seña del 50%</strong>, con el comprobante enviado por WhatsApp.", bookSent:"<strong>Pedido de reserva enviado, pero aún no confirmado.</strong> Solo se aprueba después de que pagues la seña del 50% y envíes el comprobante por WhatsApp. Síguelo en <a href=\"/login/\">Mis paseos</a>. Recuerda: el paseo lo hace el dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo.", bookErr:"No se pudo enviar ahora. Inténtalo de nuevo o consulta por WhatsApp.", waDeposit:"¡Hola! Hice un pedido de reserva en el sitio de Búzios Lanchas: lancha {name}, {date}, de {slot}, para {people}. Quiero pagar la seña del 50% para confirmarla. Después envío el comprobante por aquí.", depositBtn:"Combinar la seña del 50% por WhatsApp", acctOff:"¿Quieres seguir tus pedidos?", acctLink:"Crea tu cuenta", appLogin:"Entrar", footTeam:"Dueños y marineros", getApp:"Descargar la app",getAppT:"Descarga la app de Búzios Lanchas",getAppSub:"Reserva, sigue tus paseos y recibe avisos directo en el celular. Es gratis.",getAppIOS:"En iPhone: toca <b>Compartir</b> (el cuadrado con la flecha) y luego <b>Agregar a pantalla de inicio</b>.",getAppIOSOther:"En iPhone, la app solo se instala desde <b>Safari</b>. Abre lanchaembuzios.com.br en Safari, toca <b>Compartir</b> y luego <b>Agregar a pantalla de inicio</b>.",getAppAndroid:"En Android: toca los <b>tres puntos ⋮</b> de Chrome y luego <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.",getAppDesk:"Abre lanchaembuzios.com.br en el navegador del celular y toca <b>Descargar la app</b>.",getAppBtn:"Instalar ahora",getAppClose:"Cerrar",footApp:"App",footLogin:"Entrar",
     footAbout:"Paseos privados en lancha en Armação dos Búzios, RJ, Brasil.", footBook:"Reservas", footFollow:"Síguenos",
     coords:"22°45′S · 41°53′O — Alquiler de lanchas en Armação dos Búzios, RJ",
     seoTitle:"Alquiler de lanchas en Búzios, Brasil | Paseos privados | Búzios Lanchas",
@@ -1142,9 +1157,16 @@ const curSwitch = () => { if(IS_BOT) return ""; const other = cur==="BRL" ? (CUR
   return `${cur!=="BRL"&&fxRate?`${t("curNote",{c:curSym(cur)})} `:""}<button type="button" data-cur="${other}">${t("curSee",{c:curSym(other)})}</button>`; };
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-cur]"); if(!b) return; cur=b.dataset.cur; fxRate=null;
   try{ localStorage.setItem("moeda",cur); }catch(x){} refreshMoney(); loadFx(); });
-/* valores: o site mostra "valor sob consulta" para todos (regra do Rodrigo, 2026-10-21); só quem chegar pelo link de um vendedor verá o preço (em construção) */
+/* valores: o site mostra "valor sob consulta" para todos (regra do Rodrigo, 2026-10-21).
+   Só veem valores: quem chega pelo link de um vendedor (?v=CODIGO), já com a comissão do vendedor somada num valor cheio,
+   e o próprio vendedor logado, que vê o valor neto (lancha + Búzios Lanchas, sem a divisão) e monta o link. */
 const PRECOS_PUBLICOS = false;
-const showPrice = () => PRECOS_PUBLICOS;
+let VEND = null, ME = null; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
+const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME;
+const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[key] ?? 10), 1), +v?.teto || 20); /* comissão do vendedor no período (padrão 10%) */
+const ownBoat = (v, b) => !!b && (v?.proprias||[]).includes(b.slug); /* dono que também vende: sem comissão nas próprias lanchas */
+const cliPrice = (base, key, v=VEND, b=null) => base && v && !ownBoat(v,b) ? Math.round(base*(1+vPct(v,key)/100)/10)*10 : base; /* valor cheio, redondo de 10 em 10 */
+const minCli = b => { const all=Object.entries(b.prices||{}).filter(([,v])=>v!=null).map(([k,v])=>ME&&!VEND?v:cliPrice(v,k,VEND,b)); return all.length?Math.min(...all):null; };
 const minPrice = b => { const all=Object.values(b.prices).filter(v=>v!=null); return all.length?Math.min(...all):null; };
 const wa = text => `https://wa.me/${WHATS}?text=${encodeURIComponent(text)}`;
 const waLink = name => wa(t("waBoat",{name}));
@@ -1190,7 +1212,8 @@ const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? price7(b,iso) : b.pric
 const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 /* locais de embarque da lancha para o horário escolhido; [] = a combinar */
 const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
-const waBook = (b,iso,slot,n,bd) => wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (bd?t("waBoard",{p:bd}):""));
+const waBook = (b,iso,slot,n,bd) => { const v=VEND && cliPrice(priceFor(b,iso,slot), seasonOf(iso).key, VEND, b);
+  return wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (bd?t("waBoard",{p:bd}):"") + (v?t("waPrice",{p:brl(v)}):"") + (VEND?` (ref. ${VEND.codigo})`:"")); };
 
 /* Agenda das lanchas: os donos marcam no app /login/ os horários já alugados (banco Supabase).
    A chave é a pública: só lê lancha, data e horário. Se o banco não responder, tudo aparece livre. */
@@ -1220,7 +1243,9 @@ function track(ev,b){
   try{ if(window.fbq) fbq("track", ev==="pedido_reserva"?"Lead":"Contact", {value:d.value, currency:"BRL", content_name:b.name}); }catch(e){}
 }
 async function sendPedido(b){
-  const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, key=JSON.stringify(body);
+  const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, base=priceFor(b,pick.date,pick.slot);
+  if(VEND){ body.vendedor_cod=VEND.codigo; if(base){ body.preco_base=base; body.preco_cliente=cliPrice(base,seasonOf(pick.date).key,VEND,b); } } /* o banco confere o vendedor e o teto */
+  const key=JSON.stringify(body);
   if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
   const tok=await clientToken();
   const r=await fetch(SB_URL+"/rest/v1/pedidos?select=id",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json",prefer:"return=representation"},body:key});
@@ -1415,15 +1440,63 @@ function showPrices(b){
   const box=document.getElementById("pr-val"); if(!box) return;
   const sl=pick.slot && slotOf(pick.slot);
   if(!showPrice()){ box.innerHTML=`<p class="pr-wait">${t("priceAsk")}</p>`; return; }
+  if(ME && !VEND) return sellerBox(b, box, sl);
   if(!pick.date || !sl){ box.innerHTML=`<p class="pr-wait">${t("priceWait")}</p>`; return; }
   const np=+pick.people;
   const v7 = sl.hours===7 && !sl.night ? price7(b,pick.date) : null;
-  if(v7){ box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from7hDate",{d:fmtDate(pick.date)})} <strong>${money(v7)}</strong>${np>1?`<em>${t("perPerson",{p:money(Math.ceil(v7/np)),n:np})}</em>`:""}</p><p class="cur-sw">${curSwitch()}</p>`; return; }
+  const key=seasonOf(pick.date).key;
+  if(v7){ const c=cliPrice(v7,key,VEND,b); box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from7hDate",{d:fmtDate(pick.date)})} <strong>${money(c)}</strong>${np>1?`<em>${t("perPerson",{p:money(Math.ceil(c/np)),n:np})}</em>`:""}</p><p class="cur-sw">${curSwitch()}</p>`; return; }
   if(sl.hours===7){ box.innerHTML=`<div class="long"><span class="long-tag">${t("fullDay")}</span>
     <div class="long-head"><strong>${sl.night?slotLabel(pick.slot):t("tour7h")}</strong><span>${t("priceOnRequest")}</span></div>
     <p>${fmtDate(pick.date)}. ${t("longText")}</p></div>`; return; }
-  const v=b.prices[seasonOf(pick.date).key];
+  const v=cliPrice(b.prices[key],key,VEND,b);
   box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from4hDate",{d:fmtDate(pick.date)})} <strong>${v?money(v):t("onRequest")}</strong>${v&&np>1?`<em>${t("perPerson",{p:money(Math.ceil(v/np)),n:np})}</em>`:""}</p>${v?`<p class="cur-sw">${curSwitch()}</p>`:""}`;
+}
+/* vendedor logado, na página da lancha: valor neto, a comissão dele no período (em % ou R$, de 1% ao teto) e o link para o cliente */
+function sellerBox(b, box, sl){
+  if(!pick.date || !sl){ box.innerHTML=`<p class="pr-wait">${t("vendWait")}</p>`; return; }
+  const key=seasonOf(pick.date).key, base = sl.hours===7 ? (sl.night ? null : price7(b,pick.date)) : b.prices[key];
+  if(!base){ box.innerHTML=`<p class="pr-wait">${t("vendNoPrice")}</p>`; return; }
+  if(ownBoat(ME,b)){ box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p><p class="vnote">${t("vendOwn")}</p></div>`; return; }
+  const teto=+ME.teto||20, pct=vPct(ME,key), cli=cliPrice(base,key,ME);
+  const q=new URLSearchParams({v:ME.codigo, data:pick.date, horario:pick.slot, ...(pick.people?{pessoas:pick.people}:{})});
+  const link=SITE+pathFor(lang,b.slug)+"?"+q;
+  box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p>
+    <div class="vrow"><span class="vlab">${t("vendMine")}<small>${t("season")}: ${t(`season_${key}`)}</small></span><span class="vin"><input type="number" id="v-pct" min="1" max="${teto}" step="0.5" value="${pct}" inputmode="decimal" aria-label="${t("vendPct")}"><i>%</i><input type="number" id="v-rs" min="1" step="10" value="${cli-base}" inputmode="numeric" aria-label="${t("vendRs")}"><i>R$</i></span></div>
+    <input type="range" id="v-rg" min="1" max="${teto}" step="0.5" value="${pct}" aria-label="${t("vendPct")}">
+    <p class="vrow tot"><span>${t("vendClient")}</span><b id="v-cli">${brl(cli)}</b></p>
+    <p class="vnote">${t("vendNote",{n:teto})}</p>
+    <div class="vbtns"><button type="button" class="btn ghost" id="v-copy">${t("vendCopy")}</button><a class="btn" id="v-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(link)}">${t("vendSend")}</a></div></div>`;
+  const P=document.getElementById("v-pct"), R=document.getElementById("v-rs"), G=document.getElementById("v-rg"), C=document.getElementById("v-cli");
+  let tm=null;
+  const set = (p, from) => { p=Math.min(Math.max(Math.round(p*2)/2,1),teto); ME.pcts={...(ME.pcts||{}), [key]:p};
+    const c=cliPrice(base,key,ME); if(from!=="p") P.value=p; if(from!=="g") G.value=p; if(from!=="r") R.value=c-base; C.textContent=brl(c);
+    clearTimeout(tm); tm=setTimeout(()=>saveMine(), 700); };
+  P.oninput=()=>{ if(P.value!=="") set(+P.value,"p"); }; G.oninput=()=>set(+G.value,"g");
+  R.oninput=()=>{ if(R.value!=="") set(+R.value/base*100,"r"); };
+  P.onblur=R.onblur=()=>set(+G.value,"");
+  document.getElementById("v-copy").onclick=e=>{ const b2=e.currentTarget; navigator.clipboard?.writeText(link).then(()=>{ b2.textContent=t("copied"); },()=>prompt("",link)); };
+}
+async function saveMine(){
+  try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/salvar_pcts",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({p:ME.pcts})});
+    if(r.ok) ME.pcts=await r.json(); }catch(e){}
+}
+/* quem veio pelo link: o vendedor é o atendimento dele, com nome e WhatsApp (as comissões nunca aparecem) */
+const vendCard = b => { const w=String(VEND?.telefone||"").replace(/\D/g,""); if(!VEND || ME || w.length<10) return "";
+  return `<div class="vcont">${t("vendBy",{n:esc(VEND.nome)})}<a href="https://wa.me/${w}?text=${encodeURIComponent(t(b?"waVendBoat":"waVend",{n:VEND.nome, boat:b?.name||""}))}" target="_blank" rel="noopener">${t("vendWa")}</a></div>`; };
+/* link do vendedor (?v=CODIGO): fica guardado 30 dias neste aparelho */
+const vRpc = (f, body, tok) => fetch(SB_URL+"/rest/v1/rpc/"+f,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json",...(tok?{authorization:"Bearer "+tok}:{})},body:JSON.stringify(body)}).then(r=>r.ok?r.json():Promise.reject(r.status));
+function loadVend(){
+  if(IS_BOT) return;
+  const q=new URLSearchParams(location.search), c=(q.get("v")||"").trim().toUpperCase();
+  let saved=null; try{ saved=JSON.parse(localStorage.getItem("vend")); }catch(e){}
+  const cod = /^[A-Z0-9]{2,14}$/.test(c) ? c : saved && Date.now()-saved.t < 30*864e5 ? saved.cod : "";
+  if(c && cod===c) try{ localStorage.setItem("vend",JSON.stringify({cod, t:Date.now()})); }catch(e){} /* guarda já: a troca de idioma pode recarregar a página */
+  if(c){ q.delete("v"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
+  const jobs=[];
+  if(cod) jobs.push(vRpc("vendedor_publico",{cod}).then(r=>{ if(r[0]){ VEND=r[0]; } else { try{ localStorage.removeItem("vend"); }catch(e){} } }).catch(()=>{}));
+  if(lsGet("dono-ses")?.refresh_token) jobs.push(clientToken().then(tok=>vRpc("meu_vendedor",{},tok)).then(r=>{ if(r[0]) ME=r[0]; }).catch(()=>{}));
+  if(jobs.length) Promise.all(jobs).then(()=>{ if(VEND||ME){ const y=scrollY; render(false); scrollTo(0,y); } });
 }
 async function showBoatStatus(b){
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
@@ -1609,6 +1682,7 @@ function home(){
       ${when.de||when.people?`<button type="button" class="when-clear" id="w-clear">${t("whenClear")}</button>`:""}
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
+    ${vendCard(null)}
     <div class="grid">
       ${list.map(b=>`
         <a class="card" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
@@ -1618,7 +1692,7 @@ function home(){
           <div class="body">
             <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
-            <div class="price-from">${showPrice()?`<div><span>${t("from4h")}</span><br><strong>${minPrice(b)?money(minPrice(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t("seeBoat")}</span></div>
+            <div class="price-from">${showPrice()?`<div><span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t("seeBoat")}</span></div>
           </div>
         </a>`).join("")}
     </div>
@@ -1701,6 +1775,7 @@ function boatPage(b){
         <div class="pr-val" id="pr-val" aria-live="polite"></div>
         ${b.example?`<div class="example-banner">${t("exampleBanner")}</div>`:""}
         <a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
+        ${vendCard(b)}
         ${isTeam() ? "" : `<div class="online"><p class="or"><span>${t("orOnline")}</span></p>
           <button type="button" class="btn ghost" id="book-online">${t("bookOnline")}</button>
           <p class="acct">${isClient() ? t("acctOn") : t("onlineHow")}</p></div>`}
@@ -1824,6 +1899,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
   .finally(()=>{ dbDone=true; window.dbBoatsDone=true; if(dbWait || (dbAdded && !route.slug)){ const y=scrollY; render(dbWait); if(!dbWait) scrollTo(0,y); } });
 applyStatic();
 render();
+loadVend();
 /* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
 const precosURL = c => AGENDA_URL.replace("bloqueios","precos")+"?select=lancha,baixa,media,alta,pico,reveillon"+c;
 Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7"), {headers:{apikey:AGENDA_KEY}})
