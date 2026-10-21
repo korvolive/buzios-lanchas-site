@@ -661,7 +661,7 @@ const ROUTE_CREDITS = [
   ["Halley Pacheco de Oliveira · CC BY-SA 3.0","https://commons.wikimedia.org/wiki/File:Praia_de_Jo%C3%A3o_Fernandes_03.jpg"],
   ["Fulviusbsas · CC BY-SA 3.0","https://commons.wikimedia.org/wiki/File:Buzios-JoaoFernandinho2.jpg"],
   ["Scuba Búzios","https://www.scubabuzios.com.br/"],
-  ["Isadoraacrd · CC BY-SA 3.0","https://commons.wikimedia.org/wiki/File:Ilha_Feia.JPG"],
+  null, /* foto enviada pelo Rodrigo */
   ["Gledson Agra de Carvalho · CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Praia_da_Tartaruga_-_B%C3%BAzios_-_RJ_Imagem_A%C3%A9rea.jpg"],
   ["Porto Veleiro Búzios","https://portoveleirobuzios.com.br/galeria-de-fotos.asp"],
   ["O Globo","https://oglobo.globo.com/rio/verao-2016/buzios-praias-recantos-que-permanecem-isolados-18290311"],
@@ -692,7 +692,7 @@ function routeSection(){
 function openStop(i){
   const dl=document.getElementById("stop-dlg"); if(!dl) return;
   const n=ROUTE.length; i=(i+n)%n; const ph=stopPhoto(i), nm=ROUTE[i][0];
-  dl.innerHTML = `${ph?`<div class="stop-ph"><img src="${ph}.jpg" alt="${nm}"></div>`:""}
+  dl.innerHTML = `${ph?`<div class="stop-ph"><img src="${ph}.jpg?v=2" alt="${nm}"></div>`:""}
     <div class="stop-body"><span class="stop-n">${i+1}</span><div><h3 id="stop-name">${nm}</h3><p>${(UI[lang].stops||UI.pt.stops)[i]||""}</p>${ph&&ROUTE_CREDITS[i]?`<small class="stop-cr">${t("photoBy")}: <a href="${ROUTE_CREDITS[i][1]}" target="_blank" rel="noopener nofollow">${ROUTE_CREDITS[i][0]}</a></small>`:""}</div></div>
     <div class="stop-nav"><button type="button" data-go="${i-1}" aria-label="${t("stopPrev")}">‹</button><button type="button" class="stop-x">${t("stopClose")}</button><button type="button" data-go="${i+1}" aria-label="${t("stopNext")}">›</button></div>`;
   dl.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openStop(+b.dataset.go));
@@ -706,7 +706,7 @@ function bindRoute(){
   const pk=app.querySelector(".rt-peek");
   if(pk && matchMedia("(hover:hover)").matches) app.querySelectorAll(".rt-map-wrap .pin").forEach(p=>{
     const i=+p.dataset.stop, ph=stopPhoto(i);
-    p.onmouseenter=()=>{ if(!ph) return; pk.querySelector("img").src=ph+".jpg"; pk.querySelector("b").innerHTML=`<span>${i+1}</span>${ROUTE[i][0]}`; pk.classList.add("show"); };
+    p.onmouseenter=()=>{ if(!ph) return; pk.querySelector("img").src=ph+".jpg?v=2"; pk.querySelector("b").innerHTML=`<span>${i+1}</span>${ROUTE[i][0]}`; pk.classList.add("show"); };
     p.onmouseleave=()=>pk.classList.remove("show");
   });
   app.querySelectorAll("[data-stop]").forEach(el=>{ el.onclick=()=>openStop(+el.dataset.stop);
