@@ -421,7 +421,7 @@ Object.assign(T.pt, {
   signupBtn:"Criar conta de cliente", google:"Entrar com Google", orEmail:"ou com e-mail e senha", haveAcc:"Já tenho conta: entrar", signupTitle:"Criar sua conta", signupSub:"Com a conta, seus pedidos de lancha ficam salvos e você acompanha tudo por aqui.",
   fullName:"Nome completo", ph_fullName:"Ex.: Maria da Silva", cpf:"CPF", whats:"WhatsApp",
   consent:'Li e aceito os <a href="/privacidade/" target="_blank" rel="noopener">termos de uso e a política de privacidade</a>.', consentNeed:"Para criar a conta, aceite os termos.",
-  nameBad:"Escreva o nome completo (nome e sobrenome).", myPhoneBad:"Seu WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", cpfBad:"CPF inválido. Confira os números.", cpfTaken:"Esse CPF já tem uma conta. Entre com o e-mail dela ou fale com a Búzios Lanchas.",
+  nameBad:"Escreva o nome completo (nome e sobrenome).", myPhoneBad:"Seu WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", cpfBad:"CPF inválido. Confira os números.", cpfTaken:"Esse CPF já tem uma conta. Entre com o e-mail dela ou fale com a Búzios Lanchas.", telTaken:"Esse WhatsApp já tem uma conta. Entre com ele (opção Celular) ou fale com a Búzios Lanchas.",
   emailBad:"Digite um e-mail válido.", createAcc:"Criar conta", creating:"Criando…", emailTaken:"Esse e-mail já tem conta. Entre com a sua senha. Se você recebeu um convite por e-mail, use o link do e-mail ou toque em Esqueci minha senha.",
   checkEmail:"Conta criada! Confirme pelo link que enviamos para {email} e depois entre.",
   completeT:"Complete seu cadastro", completeSub:"Falta pouco: precisamos do seu nome completo, CPF e WhatsApp.", saveData:"Salvar",
@@ -441,7 +441,7 @@ Object.assign(T.en, {
   signupBtn:"Create a customer account", google:"Continue with Google", orEmail:"or with email and password", haveAcc:"I already have an account: sign in", signupTitle:"Create your account", signupSub:"With an account, your boat requests are saved and you can follow everything here.",
   fullName:"Full name", ph_fullName:"E.g. Maria da Silva", cpf:"CPF (Brazilian tax ID)", whats:"WhatsApp",
   consent:'I have read and accept the <a href="/privacidade/" target="_blank" rel="noopener">terms of use and privacy policy</a>.', consentNeed:"Please accept the terms to create your account.",
-  nameBad:"Type your full name (first and last name).", myPhoneBad:"Your WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", cpfBad:"Invalid CPF. Please check the numbers.", cpfTaken:"This CPF already has an account. Sign in with its email or contact Búzios Lanchas.",
+  nameBad:"Type your full name (first and last name).", myPhoneBad:"Your WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", cpfBad:"Invalid CPF. Please check the numbers.", cpfTaken:"This CPF already has an account. Sign in with its email or contact Búzios Lanchas.", telTaken:"This WhatsApp number already has an account. Sign in with it (Phone option) or contact Búzios Lanchas.",
   emailBad:"Type a valid email.", createAcc:"Create account", creating:"Creating…", emailTaken:"This email already has an account. Sign in with your password. If you got an invite by email, use the link in it or tap I forgot my password.",
   checkEmail:"Account created! Confirm it with the link we sent to {email}, then sign in.",
   completeT:"Complete your profile", completeSub:"Almost there: we need your full name, CPF and WhatsApp.", saveData:"Save",
@@ -461,7 +461,7 @@ Object.assign(T.es, {
   signupBtn:"Crear cuenta de cliente", google:"Entrar con Google", orEmail:"o con correo y contraseña", haveAcc:"Ya tengo cuenta: entrar", signupTitle:"Crea tu cuenta", signupSub:"Con la cuenta, tus pedidos de lancha quedan guardados y sigues todo por aquí.",
   fullName:"Nombre completo", ph_fullName:"Ej.: María da Silva", cpf:"CPF (documento brasileño)", whats:"WhatsApp",
   consent:'Leí y acepto los <a href="/privacidade/" target="_blank" rel="noopener">términos de uso y la política de privacidad</a>.', consentNeed:"Para crear la cuenta, acepta los términos.",
-  nameBad:"Escribe tu nombre completo (nombre y apellido).", myPhoneBad:"Tu WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", cpfBad:"CPF inválido. Revisa los números.", cpfTaken:"Este CPF ya tiene una cuenta. Entra con su correo o habla con Búzios Lanchas.",
+  nameBad:"Escribe tu nombre completo (nombre y apellido).", myPhoneBad:"Tu WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", cpfBad:"CPF inválido. Revisa los números.", cpfTaken:"Este CPF ya tiene una cuenta. Entra con su correo o habla con Búzios Lanchas.", telTaken:"Este WhatsApp ya tiene una cuenta. Entra con él (opción Celular) o habla con Búzios Lanchas.",
   emailBad:"Escribe un correo válido.", createAcc:"Crear cuenta", creating:"Creando…", emailTaken:"Este correo ya tiene cuenta. Entra con tu contraseña. Si recibiste una invitación por correo, usa el enlace o toca Olvidé mi contraseña.",
   checkEmail:"¡Cuenta creada! Confírmala con el enlace que enviamos a {email} y después entra.",
   completeT:"Completa tu registro", completeSub:"Falta poco: necesitamos tu nombre completo, CPF y WhatsApp.", saveData:"Guardar",
@@ -756,7 +756,7 @@ function readProfile(){
 }
 async function saveProfile(data){
   try{ await db("clientes",{method:"POST", body:data, prefer:"return=minimal"}); S.me=data; store.set("cli-draft",null); return ""; }
-  catch(e){ return e.code==="23505" ? t("cpfTaken") : e.status===400 && /check/i.test(e.message) ? t("cpfBad") : t("saveErr"); }
+  catch(e){ return e.code==="23505" ? t(/whatsapp/i.test(e.message) ? "telTaken" : "cpfTaken") : e.status===400 && /check/i.test(e.message) ? t("cpfBad") : t("saveErr"); }
 }
 function loginShell(title, sub, form){
   top_.hidden = true;
