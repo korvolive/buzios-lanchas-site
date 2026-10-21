@@ -58,6 +58,7 @@ label.btn{display:block;text-align:center;cursor:pointer}
 .top select,.top .out{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 10px;font-size:14px}
 .top select option{color:#000}
 main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+body.has-help .login{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 body.has-help main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .help{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:700;font-size:15px;padding:11px 16px 11px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28)}.help svg{width:22px;height:22px;fill:#fff;flex:none}.help[hidden]{display:none}
 h1,h2{font-family:var(--display);line-height:1.15;margin:0 0 6px}
@@ -333,7 +334,7 @@ const T = {
     monthSum:"{n} aluguéis neste mês", monthSum1:"1 aluguel neste mês", monthVal:"Total anotado {v} · sinais recebidos {d}",
     needSql:"Para usar as anotações de cliente, rode no Supabase o arquivo 2026-10-19_supabase-anotacoes.sql.",
     prev:"Mês anterior", next:"Próximo mês", loadErr:"Não foi possível carregar o app. Puxe a tela para baixo ou tente de novo.", retry:"Tentar de novo",
-    helpBtn:"Suporte", helpAria:"Falar com o suporte da Búzios Lanchas no WhatsApp", waHelp:"Olá, Rodrigo! Preciso de ajuda no app da Búzios Lanchas.", noBoat:"Seu login ainda não está ligado a nenhuma lancha.", noBoatSub:"Fale com o Rodrigo para ele ligar sua lancha ao seu e-mail.", talk:"Falar com o Rodrigo no WhatsApp",
+    helpBtn:"Suporte", helpAria:"Falar com o suporte da Búzios Lanchas no WhatsApp", waHelp:"Olá, Rodrigo! Preciso de ajuda no app da Búzios Lanchas.", waHelpLogin:"Olá! Preciso de ajuda para entrar ou criar minha conta na Búzios Lanchas.", noBoat:"Seu login ainda não está ligado a nenhuma lancha.", noBoatSub:"Fale com o Rodrigo para ele ligar sua lancha ao seu e-mail.", talk:"Falar com o Rodrigo no WhatsApp",
     installT:"Coloque o app da Búzios Lanchas na tela do celular", installIOS:"No iPhone, use o <strong>Safari</strong>: toque em <strong>Compartilhar</strong> (quadrado com seta, na barra de baixo), role a lista e toque em <strong>Adicionar à Tela de Início</strong>.", installInApp:"Este link abriu dentro de outro app, e assim não dá para instalar. Toque em <strong>⋯</strong> e escolha <strong>Abrir no Safari</strong>, ou copie o link e cole no Safari. Lá, toque em Compartilhar e em <strong>Adicionar à Tela de Início</strong>.", copyLink:"Copiar link", copied:"Link copiado. Agora abra o Safari e cole.",
     installAnd:"No Android: toque nos <strong>três pontinhos ⋮</strong> do Chrome e depois em <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>.", installBtn:"Instalar agora",
     adminT:"Donos das lanchas", adminSub:"Só você (administrador) vê esta parte.",
@@ -368,7 +369,7 @@ const T = {
     monthSum:"{n} rentals this month", monthSum1:"1 rental this month", monthVal:"Total noted {v} · deposits received {d}",
     needSql:"To use client notes, run the file 2026-10-19_supabase-anotacoes.sql in Supabase.",
     prev:"Previous month", next:"Next month", loadErr:"Couldn't load the app. Try again.", retry:"Try again",
-    helpBtn:"Support", helpAria:"Message Búzios Lanchas support on WhatsApp", waHelp:"Hi, Rodrigo! I need help with the Búzios Lanchas app.", noBoat:"Your login isn't linked to any boat yet.", noBoatSub:"Ask Rodrigo to link your boat to your email.", talk:"Message Rodrigo on WhatsApp",
+    helpBtn:"Support", helpAria:"Message Búzios Lanchas support on WhatsApp", waHelp:"Hi, Rodrigo! I need help with the Búzios Lanchas app.", waHelpLogin:"Hi! I need help signing in or creating my Búzios Lanchas account.", noBoat:"Your login isn't linked to any boat yet.", noBoatSub:"Ask Rodrigo to link your boat to your email.", talk:"Message Rodrigo on WhatsApp",
     installT:"Put the Búzios Lanchas app on your phone's home screen", installIOS:"On iPhone, use <strong>Safari</strong>: tap <strong>Share</strong> (square with an arrow, in the bottom bar), scroll the list and tap <strong>Add to Home Screen</strong>.", installInApp:"This link opened inside another app, where it can't be installed. Tap <strong>⋯</strong> and choose <strong>Open in Safari</strong>, or copy the link and paste it in Safari. There, tap Share and <strong>Add to Home Screen</strong>.", copyLink:"Copy link", copied:"Link copied. Now open Safari and paste it.",
     installAnd:"On Android: tap Chrome's <strong>three dots ⋮</strong>, then <strong>Install app</strong> or <strong>Add to Home screen</strong>.", installBtn:"Install now",
     adminT:"Boat owners", adminSub:"Only you (admin) can see this part.",
@@ -403,7 +404,7 @@ const T = {
     monthSum:"{n} alquileres este mes", monthSum1:"1 alquiler este mes", monthVal:"Total anotado {v} · señas recibidas {d}",
     needSql:"Para usar las anotaciones de clientes, ejecuta en Supabase el archivo 2026-10-19_supabase-anotacoes.sql.",
     prev:"Mes anterior", next:"Mes siguiente", loadErr:"No se pudo cargar la app. Inténtalo de nuevo.", retry:"Intentar de nuevo",
-    helpBtn:"Soporte", helpAria:"Hablar con el soporte de Búzios Lanchas por WhatsApp", waHelp:"¡Hola, Rodrigo! Necesito ayuda en la app de Búzios Lanchas.", noBoat:"Tu acceso aún no está vinculado a ninguna lancha.", noBoatSub:"Pide a Rodrigo que vincule tu lancha a tu correo.", talk:"Hablar con Rodrigo por WhatsApp",
+    helpBtn:"Soporte", helpAria:"Hablar con el soporte de Búzios Lanchas por WhatsApp", waHelp:"¡Hola, Rodrigo! Necesito ayuda en la app de Búzios Lanchas.", waHelpLogin:"¡Hola! Necesito ayuda para entrar o crear mi cuenta en Búzios Lanchas.", noBoat:"Tu acceso aún no está vinculado a ninguna lancha.", noBoatSub:"Pide a Rodrigo que vincule tu lancha a tu correo.", talk:"Hablar con Rodrigo por WhatsApp",
     installT:"Pon la app de Búzios Lanchas en la pantalla del celular", installIOS:"En iPhone, usa <strong>Safari</strong>: toca <strong>Compartir</strong> (cuadrado con flecha, en la barra de abajo), desliza la lista y toca <strong>Agregar a inicio</strong>.", installInApp:"Este enlace se abrió dentro de otra app, y así no se puede instalar. Toca <strong>⋯</strong> y elige <strong>Abrir en Safari</strong>, o copia el enlace y pégalo en Safari. Allí, toca Compartir y <strong>Agregar a inicio</strong>.", copyLink:"Copiar enlace", copied:"Enlace copiado. Ahora abre Safari y pégalo.",
     installAnd:"En Android: toca los <strong>tres puntos ⋮</strong> de Chrome y luego <strong>Instalar app</strong> o <strong>Agregar a la pantalla principal</strong>.", installBtn:"Instalar ahora",
     adminT:"Dueños de las lanchas", adminSub:"Solo tú (administrador) ves esta parte.",
@@ -2623,10 +2624,10 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
 })();
 </script>
 <script>
-// Botão de suporte (WhatsApp do Rodrigo) em todo o painel logado, menos para o admin
+// Botão de suporte (WhatsApp do Rodrigo) nas telas de entrar/cadastro e em todo o painel logado, menos para o admin
 (()=>{ const a=document.createElement("a"); a.className="help"; a.id="help"; a.target="_blank"; a.rel="noopener"; a.hidden=true; document.body.appendChild(a);
-  const sync=()=>{ const on=!top_.hidden && !S.admin; a.hidden=!on; document.body.classList.toggle("has-help",on); if(!on) return;
-    a.href=`https://wa.me/${WHATS}?text=${encodeURIComponent(t("waHelp"))}`; a.setAttribute("aria-label",t("helpAria"));
+  const sync=()=>{ const auth=!!app.querySelector(".login"), on=auth || (!top_.hidden && !S.admin); a.hidden=!on; document.body.classList.toggle("has-help",on); if(!on) return;
+    a.href=`https://wa.me/${WHATS}?text=${encodeURIComponent(t(auth?"waHelpLogin":"waHelp"))}`; a.setAttribute("aria-label",t("helpAria"));
     a.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${WA_PATH}"/></svg>${t("helpBtn")}`; };
   new MutationObserver(sync).observe(top_,{attributes:true,attributeFilter:["hidden"],childList:true}); new MutationObserver(sync).observe(app,{childList:true}); sync(); })();
 </script>
