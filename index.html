@@ -1476,7 +1476,7 @@ function seo(b){
   const title = b ? t("seoBoatTitle",{name:b.name, feet:b.feet??"", cap:b.capacity}) : t("seoTitle");
   const desc = b ? `${bt(b,"tagline")} ${t("seoBoatTail")}` : t("seoDesc");
   const url = SITE + pathFor(lang, b?.slug);
-  const img = SITE + `/img/${(b?.photos||BOATS[0].photos)[0][0]}.jpg`;
+  const img = absImg((b?.photos||BOATS[0].photos)[0]);
   /* iPhone no Safari: "Adicionar à Tela de Início" usa o título da página como nome do app */
   document.title = IS_IOS_TAB ? "Buzios Lanchas" : title;
   headTag('meta[name="description"]',"meta",{name:"description",content:desc});
@@ -1489,7 +1489,7 @@ function seo(b){
   headTag('meta[name="twitter:card"]',"meta",{name:"twitter:card",content:"summary_large_image"});
   const all = BOATS.flatMap(x=>Object.values(x.prices||{})).filter(Number.isFinite);
   const biz = {"@type":"LocalBusiness","@id":SITE+"/#empresa","name":"Búzios Lanchas","url":SITE+"/","telephone":"+55-21-99927-2550",
-    "image":SITE+`/img/${BOATS[0].photos[0][0]}.jpg`,"description":t("seoDesc"),
+    "image":absImg(BOATS[0].photos[0]),"description":t("seoDesc"),
     "address":{"@type":"PostalAddress","addressLocality":"Armação dos Búzios","addressRegion":"RJ","addressCountry":"BR"},
     "areaServed":"Armação dos Búzios","sameAs":["https://www.instagram.com/missbardotbuzios/"],
     ...(all.length?{"priceRange":`R$ ${Math.min(...all)} - R$ ${Math.max(...all)}`}:{})};
@@ -1498,7 +1498,7 @@ function seo(b){
   if(b){
     const ps = Object.values(b.prices||{}).filter(Number.isFinite);
     graph.push({"@type":"Product","name":b.name,"description":bt(b,"description"),"url":url,
-      "image":(b.photos||[]).map(p=>SITE+`/img/${p[0]}.jpg`),"brand":{"@id":SITE+"/#empresa"},...ratingLD(b),
+      "image":(b.photos||[]).map(p=>absImg(p)),"brand":{"@id":SITE+"/#empresa"},...ratingLD(b),
       ...(ps.length&&!b.example?{"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":Math.min(...ps),"highPrice":Math.max(...ps),"offerCount":ps.length,"seller":{"@id":SITE+"/#empresa"}}}:{})});
     graph.push({"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"Búzios Lanchas","item":SITE+pathFor(lang)},
@@ -1565,7 +1565,7 @@ function home(){
       ${list.map(b=>`
         <a class="card" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
-          ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
+          ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],1)}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0])} 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
             <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
@@ -1588,21 +1588,25 @@ function home(){
 }
 
 /* ============ galeria ============ */
+/* foto: nome em /img (ex.: mb-01) ou foto enviada pelo app (URL do Supabase, sem .jpg); "-t" é a miniatura */
+const imgSrc = (p,thumb) => (/^https?:/.test(p[0]) ? p[0] : "/img/"+p[0]) + (thumb?"-t":"") + ".jpg";
+const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p);
+const altOf = (b,i) => b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`;
 function gallery(b){
   const P=b.photos;
   return `<div class="gallery" data-i="0">
-    <div class="main tall"><img class="blur" id="g-blur" src="/img/${P[0][0]}-t.jpg" alt="" aria-hidden="true"><img id="g-main" class="fit" src="/img/${P[0][0]}.jpg" alt="${tx(P[0][1])}" style="object-position:${P[0][2]}">
+    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" src="${imgSrc(P[0])}" alt="${altOf(b,0)}" style="object-position:${P[0][2]||"center"}">
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
       <button type="button" class="nav next" id="g-next" aria-label="${t("nextPhoto")}">›</button>
       <span class="count" id="g-count">1 / ${P.length}</span></div>
-    <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${tx(p[1])}" ${i?"":'aria-current="true"'}><img src="/img/${p[0]}-t.jpg" alt="" loading="lazy"></button>`).join("")}</div>
+    <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${altOf(b,i)}" ${i?"":'aria-current="true"'}><img src="${imgSrc(p,1)}" alt="" loading="lazy"></button>`).join("")}</div>
   </div>`;
 }
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
-    m.src=`/img/${P[i][0]}.jpg`; m.alt=tx(P[i][1]); m.style.objectPosition=P[i][2]; document.getElementById("g-blur").src=`/img/${P[i][0]}-t.jpg`;
+    m.src=imgSrc(P[i]); m.alt=altOf(b,i); m.style.objectPosition=P[i][2]||"center"; document.getElementById("g-blur").src=imgSrc(P[i],1);
     document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
     document.querySelectorAll("#g-strip button").forEach((t,k)=>{ if(k===i){t.setAttribute("aria-current","true"); t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});} else t.removeAttribute("aria-current"); }); };
   document.getElementById("g-prev").onclick=()=>show(i-1);
@@ -1638,7 +1642,7 @@ function boatPage(b){
         <div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>
         ${b.reviews?`<div class="block b-reviews b-google"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
           <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
-        ${b.video?`<div class="block"><h2>${t("video")}</h2><video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="/img/${b.photos[0][0]}.jpg"`:""}></video></div>`:""}
+        ${b.video?`<div class="block"><h2>${t("video")}</h2><video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" controls playsinline preload="metadata" ${b.photos?`poster="${imgSrc(b.photos[0])}"`:""}></video></div>`:""}
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
         <h2>${t("stackTitle")}</h2>
@@ -1759,6 +1763,15 @@ fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7"), {headers:{apikey:AGEND
       const p={baixa:r.baixa, media:r.media, alta:r.alta, pico:r.pico, reveillon:r.reveillon};
       const p7={baixa:r.baixa7??null, media:r.media7??null, alta:r.alta7??null, pico:r.pico7??null, reveillon:r.reveillon7??null};
       if(JSON.stringify(p)!==JSON.stringify(b.prices) || JSON.stringify(p7)!==JSON.stringify(b.prices7||{})){ b.prices=p; b.prices7=p7; mudou=true; } });
+    if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
+  .catch(()=>{});
+/* fotos e ordem editadas no app (tabela fotos): a 1ª é a capa; se o banco não responder, ficam as do código */
+fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista", {headers:{apikey:AGENDA_KEY}})
+  .then(r=>r.ok ? r.json() : Promise.reject(r.status))
+  .then(rows=>{ let mudou=false;
+    rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b || !Array.isArray(r.lista) || !r.lista.length) return;
+      const P=r.lista.map(x=>[x.f, x.a||"", x.p||"center 50%"]);
+      if(JSON.stringify(P)!==JSON.stringify(b.photos)){ b.photos=P; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .catch(()=>{});
 /* chegando de outra página com #frota ou #como, desce até a seção */

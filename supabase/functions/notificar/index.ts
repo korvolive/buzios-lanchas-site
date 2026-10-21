@@ -2,6 +2,7 @@
 // GET  -> { publica }  chave pública para o celular se inscrever
 // POST { tipo: "aprovado", id: <bloqueio> }  (só o administrador) avisa os donos da lancha (no celular e por e-mail)
 //                                             e manda ao cliente com conta o e-mail "reserva confirmada"
+// POST { tipo: "fotos",    lancha: <slug> }  (o dono, depois de enviar fotos) avisa o administrador para aprovar
 // POST { tipo: "pedido",   id: <pedido> }    (o próprio cliente, uma vez) avisa o administrador (no celular e por e-mail)
 // POST { tipo: "marinheiro", id: <bloqueio> }  (administrador ou dono da lancha) avisa o marinheiro escolhido para pilotar (celular e e-mail)
 // POST { tipo: "recusou", id: <bloqueio> }  (o marinheiro que acabou de sair do passeio) avisa os donos da lancha e o administrador (celular e e-mail)
@@ -59,6 +60,11 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Você vai pilotar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Toque para ver o passeio.` }),
     en: p => ({ title: "You will drive", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. Tap to see the trip.` }),
     es: p => ({ title: "Vas a pilotar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. Toca para ver el paseo.` }),
+  },
+  fotos: {
+    pt: p => ({ title: "Fotos novas para aprovar", body: `${p.lancha}: ${p.n} foto${p.n > 1 ? "s" : ""} esperando a sua aprovação. Toque para ver.` }),
+    en: p => ({ title: "New photos to approve", body: `${p.lancha}: ${p.n} photo${p.n > 1 ? "s" : ""} waiting for your approval. Tap to see.` }),
+    es: p => ({ title: "Fotos nuevas para aprobar", body: `${p.lancha}: ${p.n} foto${p.n > 1 ? "s" : ""} esperando tu aprobación. Toca para ver.` }),
   },
   recusou: {
     pt: p => ({ title: "Marinheiro saiu do passeio", body: `${p.nome} não vai poder pilotar a ${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Escolha outro marinheiro.` }),
@@ -405,6 +411,16 @@ Deno.serve(async req => {
       let emails = 0;
       for (const d of alvo) if (await mandarEmail(d, "saiu", p).catch(e => (console.error(e), false))) emails++;
       return json({ enviados, emails });
+    }
+
+    if (tipo === "fotos") { // o dono enviou fotos da lancha: avisa o administrador para aprovar
+      const l = String(corpo.lancha || "");
+      const desde = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { data: ps } = await db.from("fotos_pendentes").select("id").eq("lancha", l).eq("enviado_por", uid).gte("criado_em", desde);
+      if (!ps?.length) return json({ enviados: 0 });
+      const { data: ads } = await db.from("admins").select("user_id");
+      const alvo = (ads || []).map(a => a.user_id).filter(x => x !== uid);
+      return json({ enviados: await enviar(alvo, "fotos", { lancha: await nomeLancha(l), n: ps.length }, "/login/?fotos=1") });
     }
 
     if (tipo === "pedido") {
