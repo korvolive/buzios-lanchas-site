@@ -1407,6 +1407,7 @@ const phBase = SB + "/storage/v1/object/public/lanchas/";
 function photosHTML(){
   if(isRO()) return "";
   if(S.photos===false) return S.admin ? `<div class="card"><p class="msg err" style="margin:0">${t("phNeedSql")}</p></div>` : "";
+  if(S.photos==="err") return `<div class="card"><h2>${t("phT")}</h2><p class="msg err" style="margin:0">${t("loadErr")} <button type="button" class="link" id="phretry">${t("retry")}</button></p></div>`;
   if(S.photos==null) return `<div class="card"><h2>${t("phT")}</h2><p class="muted" style="margin:0">…</p></div>`;
   const L=S.photos, P=S.pend||[];
   return `<div class="card"><h2>${t("phT")}</h2><p class="muted" style="margin-top:0">${t(S.admin?"phSubAdm":"phSubOwn",{max:PH_MAX})}</p>
@@ -1423,7 +1424,7 @@ const loadFotoPend = () => S.admin ? db("fotos_pendentes?select=id,lancha,f,cria
 function setCover(l, L){ if(L?.[0]) PHOTO[l]=[L[0].f, L[0].p||"center"]; }
 async function loadPhotos(l){
   try{ const r=await db(`fotos?select=lista&lancha=eq.${encodeURIComponent(l)}`); S.photos=r[0]?.lista||[]; setCover(l,S.photos); }
-  catch(e){ S.photos = (e.status===404||e.status===400) ? false : null; }
+  catch(e){ S.photos = (e.status===404||e.status===400) ? false : "err"; } /* erro: mostra a mensagem com "tentar de novo", nunca fica carregando */
   S.pend = await db(`fotos_pendentes?select=id,f&lancha=eq.${encodeURIComponent(l)}&order=id`).catch(()=>[]);
 }
 /* capa: precisa mostrar a lancha inteira (detector de objetos no aparelho, modelo /login/lancha.tflite).
@@ -1513,6 +1514,7 @@ function bindPhotos(){
   app.querySelectorAll("[data-phok]").forEach(x=>x.onclick=async()=>{ x.disabled=true; await phApprove(+x.dataset.phok); await loadPhotos(S.cur); await loadFotoPend(); mainView(); });
   const fi=document.getElementById("phfile"); if(fi) fi.onchange=()=>{ const fs=[...fi.files]; fi.value=""; if(fs.length) phUpload(fs); };
   const pg=document.getElementById("phpendgo"); if(pg) pg.onclick=openFotoPend;
+  const pr=document.getElementById("phretry"); if(pr) pr.onclick=async()=>{ S.photos=null; mainView(); await loadPhotos(S.cur); mainView(); };
 }
 /* lista de fotos para aprovar (todas as lanchas), aprovação em 1 toque */
 async function openFotoPend(){
