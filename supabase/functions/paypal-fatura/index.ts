@@ -4,7 +4,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
-const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, apikey, content-type, x-client-info", "access-control-allow-methods": "POST, OPTIONS" };
+const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, apikey, content-type, x-client-info", "access-control-allow-methods": "GET, POST, OPTIONS" };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const API = Deno.env.get("PAYPAL_ENV") === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
 const ITEM: Record<string, (p: any) => { name: string; desc: string; note: string }> = {
@@ -23,11 +23,17 @@ async function pp(path: string, tok: string, body?: unknown) {
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
+    const id = Deno.env.get("PAYPAL_CLIENT_ID"), sec = Deno.env.get("PAYPAL_SECRET");
+    if (req.method === "GET") { // só confere se as chaves funcionam (não cria nada nem mostra as chaves)
+      if (!id || !sec) return json({ chaves: false });
+      const a = await fetch(API + "/v1/oauth2/token", { method: "POST", headers: { authorization: "Basic " + btoa(`${id}:${sec}`), "content-type": "application/x-www-form-urlencoded" }, body: "grant_type=client_credentials" });
+      const j = a.ok ? await a.json() : {};
+      return json({ chaves: true, ok: a.ok, status: a.status, ambiente: API.includes("sandbox") ? "sandbox" : "live", faturas: String(j.scope || "").includes("invoicing") });
+    }
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     const uid = (await db.auth.getUser(token)).data?.user?.id;
     if (!uid) return json({ erro: "login" }, 401);
     if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "admin" }, 403);
-    const id = Deno.env.get("PAYPAL_CLIENT_ID"), sec = Deno.env.get("PAYPAL_SECRET");
     if (!id || !sec) return json({ erro: "sem_chaves" }, 503);
     const p = await req.json().catch(() => ({}));
     const valor = Number(p.valor), moeda = String(p.moeda || "USD").toUpperCase();
