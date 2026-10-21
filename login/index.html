@@ -255,7 +255,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .stars{display:inline-flex;gap:2px;color:#d9d2c3;font-style:normal}.stars i{font-style:normal;background:none!important;padding:0!important}.stars .on{color:#e0a526}
 .stars.pick button{font-size:28px;line-height:1;padding:2px 3px;background:none;border:0;color:#d9d2c3;cursor:pointer}.stars.pick button.on{color:#e0a526}.stars.pick.big button{font-size:40px}
 .mrate{color:#b07d10;font-weight:700;font-size:13px;white-space:nowrap}.mrate small{font-weight:400;color:var(--muted)}.rvm{display:flex;align-items:center;gap:6px;margin-top:4px}
-.rvask{display:flex;flex-direction:column;gap:2px;margin-top:8px}.rvd{display:block;margin-top:8px}.rvd q{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.rvask{display:flex;flex-direction:column;gap:2px;margin-top:8px}.rvpend{border:2px solid var(--gold,#d9b65d)}.rvpend h2{margin-top:0}.rvpend .trow{display:flex;align-items:center;gap:10px;margin-top:12px}.rvpend .trow span{flex:1;min-width:0}.rvpend .btn{width:auto;padding:10px 16px;margin:0}.rvadm{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}.rvadm q{display:block;font-size:14px;color:var(--muted);margin-top:4px}.rvadm .link{color:#e06c6c;margin-top:6px}.rvd{display:block;margin-top:8px}.rvd q{display:block;font-size:14px;color:var(--muted);margin-top:4px}
 .cfb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.cfb .btn{width:auto;padding:8px 14px;font-size:14px}.cfm .owners li{flex-wrap:wrap}.cfm .owners li span{word-break:normal}
 .trip.rq{cursor:default;align-items:flex-start;min-width:0}.trip.rq .tbody{flex:1;min-width:0}.trip.rq .tside{flex:none}
 .trip.rq.st-aprovado{border-left-color:#2f9e6a}.trip.rq.st-recusado,.trip.rq.st-cancelado{border-left-color:var(--line);opacity:.75}
@@ -777,19 +777,27 @@ async function loadMyReq(){
   const emb = await db("rpc/meus_embarques",{method:"POST",body:{}}).catch(()=>[]); /* o local de embarque que ficou marcado no passeio */
   (emb||[]).forEach(x=>{ const p=S.myReq.find(r=>r.id===x.pedido_id); if(p) p.embarque=x.embarque; }); /* o passeio foi apagado da agenda */
   /* passeios que a Búzios Lanchas confirmou como realizados e as avaliações já feitas (sem as tabelas, segue sem elas) */
-  const [re, av] = await Promise.all([db("rpc/meus_realizados",{method:"POST",body:{}}).catch(()=>null), db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro,comentario_mar").catch(()=>db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro")).catch(()=>null)]);
+  const [re, av, fi, ex] = await Promise.all([db("rpc/meus_realizados",{method:"POST",body:{}}).catch(()=>null), db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro,comentario_mar,criado_em").catch(()=>db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro")).catch(()=>null),
+    db("rpc/meus_fins",{method:"POST",body:{}}).catch(()=>[]), db("avaliacoes_excluidas?select=pedido_id").catch(()=>[])]);
   S.revOk = re!==null && av!==null;
   S.done = new Map((re||[]).map(r=>[r.pedido_id, r])); S.revs = new Map((av||[]).map(a=>[a.pedido_id, a]));
+  S.fins = new Map((fi||[]).map(f=>[f.pedido_id, f])); S.exc = new Set((ex||[]).map(x=>x.pedido_id)); /* fim real do passeio (data, horário e hora combinada da agenda) e avaliações excluídas pelo administrador */
 }
 const starsHTML = n => `<span class="stars" role="img" aria-label="${t("stars",{n})}">${[1,2,3,4,5].map(k=>`<i class="${k<=n?"on":""}">★</i>`).join("")}</span>`;
 /* passeio que já passou: realizado (e a avaliação), não realizado ou aguardando a confirmação */
+/* o passeio acabou: no minuto em que termina (hora combinada na agenda, senão o fim do horário) */
+const reqEnded = p => { const f=S.fins?.get(p.id); return f ? tripEnded(f.data, f.horario, {hora_fim:f.hora_fim}) : tripEnded(p.data, p.horario); };
+/* a avaliação pode ser alterada por 7 dias depois de feita (regra do Rodrigo) */
+const RV_EDIT_MS = 7*864e5, rvEditEnd = rv => rv?.criado_em ? new Date(Date.parse(rv.criado_em)+RV_EDIT_MS) : null;
+const rvCanEdit = rv => { const e=rvEditEnd(rv); return !e || e > new Date(); };
+const rvPending = p => S.revOk && p.status==="aprovado" && reqEnded(p) && S.done.get(p.id)?.aconteceu!==false && !S.revs.get(p.id) && !S.exc?.has(p.id);
 function pastState(p){
-  if(!S.revOk || p.status!=="aprovado" || !tripEnded(p.data, p.horario)) return "";
+  if(!S.revOk || p.status!=="aprovado" || !reqEnded(p)) return "";
   const ok = S.done.get(p.id)?.aconteceu, rv = S.revs.get(p.id), mar = S.done.get(p.id);
   if(ok===false) return `<span class="tmeta"><i class="stb st-cancelado">${t("notRlzd")}</i></span>`;
-  if(ok!==true) return `<span class="tmeta"><i>${t("waitConf")}</i></span>`;
+  if(S.exc?.has(p.id)) return `<span class="tmeta"><i class="stb st-aprovado">${t("rlzd")}</i><i>${t("rvGone")}</i></span>`;
   return `<span class="tmeta"><i class="stb st-aprovado">${t("rlzd")}</i></span>` + (rv
-    ? `<span class="rvd"><small>${t("rateYours")}</small> ${starsHTML(rv.nota)} <button type="button" class="link" data-rv="${p.id}">${t("rateEdit")}</button>${rv.nota_marinheiro&&mar?.marinheiro_nome?`<span class="who rvm">${face(mar.marinheiro,mar.marinheiro_nome,"face xs")}<small>${esc(mar.marinheiro_nome)}</small> ${starsHTML(rv.nota_marinheiro)}</span>`:""}${rv.comentario?`<q>${esc(rv.comentario)}</q>`:""}</span>`
+    ? `<span class="rvd"><small>${t("rateYours")}</small> ${starsHTML(rv.nota)} ${rvCanEdit(rv)?`<button type="button" class="link" data-rv="${p.id}">${t("rateEdit")}</button>${rvEditEnd(rv)?`<small class="muted" style="display:block">${t("rvEditUntil",{d:rvEditEnd(rv).toLocaleDateString(t("locale"),{day:"numeric",month:"long"})})}</small>`:""}`:""}${rv.nota_marinheiro&&mar?.marinheiro_nome?`<span class="who rvm">${face(mar.marinheiro,mar.marinheiro_nome,"face xs")}<small>${esc(mar.marinheiro_nome)}</small> ${starsHTML(rv.nota_marinheiro)}</span>`:""}${rv.comentario?`<q>${esc(rv.comentario)}</q>`:""}</span>`
     : `<span class="rvask"><strong>${t("rateT")}</strong><span class="stars pick">${[1,2,3,4,5].map(k=>`<button type="button" data-rv="${p.id}" data-n="${k}" aria-label="${t("stars",{n:k})}">★</button>`).join("")}</span></span>`);
 }
 function openRate(p, n0){
@@ -885,22 +893,29 @@ function reqCard(p, adm){
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
     <span class="tbody">${adm?`<strong class="who">${face(p.cliente,c.nome,"face sm")}${esc(c.nome||"—")}</strong>`:`<strong class="who">${avatar(p.lancha,"bav")}${esc(boatName(p.lancha))}</strong>`}
       <span>${fmtLong(p.data)}${!adm && dateOf(p.data).getFullYear()!==new Date().getFullYear()?" "+dateOf(p.data).getFullYear():""} · ${t("slot_"+p.horario)}${p.horario==="noite"?"":" · "+t("hours_"+p.horario)}</span>
-      <span class="tmeta">${!adm && p.status==="aprovado" && tripEnded(p.data,p.horario) && S.revOk ? "" : `<i class="stb st-${p.status}">${t("st_"+p.status)}</i>`}${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque&&adm?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>${p.embarque&&!adm?mapLink(p.embarque):""}
+      <span class="tmeta">${!adm && p.status==="aprovado" && reqEnded(p) && S.revOk ? "" : `<i class="stb st-${p.status}">${t("st_"+p.status)}</i>`}${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque&&adm?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>${p.embarque&&!adm?mapLink(p.embarque):""}
       ${adm?`<span class="tmeta"><i>CPF ${esc(fmtCPF(c.cpf))}</i><i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
       ${adm && p.status==="pendente" && S.cpOk ? admPay(p) : ""}
       ${adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn" data-ap="${p.id}">${t("approve")}</button><button type="button" class="btn sec" data-rq="${p.id}">${t("refuseReq")}</button></span>`
         : adm && p.status==="aprovado" && p.bloqueio_id ? `<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button></span>`
-        : !adm && p.status==="pendente" ? `<span class="payhint">${t("payHint")}</span>${S.cpOk?payBox(p):""}<span class="reqbtns"><a class="btn" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("waDeposit",{boat:boatName(p.lancha), date:fmtLong(p.data), slot:t("slot_"+p.horario)}))}" target="_blank" rel="noopener">${t("payBtn")}</a><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?"":pastState(p)}</span>
+        : !adm && p.status==="pendente" ? `<span class="payhint">${t("payHint")}</span>${S.cpOk?payBox(p):""}<span class="reqbtns"><a class="btn" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("waDeposit",{boat:boatName(p.lancha), date:fmtLong(p.data), slot:t("slot_"+p.horario)}))}" target="_blank" rel="noopener">${t("payBtn")}</a><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?admRev(p):pastState(p)}</span>
     ${adm && wa.length>=8 ? `<span class="tside"><a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome||"")}">${WA_ICON}<span>WhatsApp</span></a></span>` : ""}</div>`;
+}
+/* avaliação feita pelo cliente, no card da reserva do administrador, com o botão de excluir */
+function admRev(p){
+  if(S.admExc?.has(p.id)) return `<span class="rvadm"><small class="muted">${t("rvExc")}</small></span>`;
+  const rv=S.admRevs?.get(p.id); if(!rv) return "";
+  return `<span class="rvadm"><small>${t("rvAdmT")}</small> ${starsHTML(rv.nota)}${rv.comentario?`<q>${esc(rv.comentario)}</q>`:""}${rv.nota_marinheiro?`<small class="muted" style="display:block;margin-top:4px">${t("rvMarL")}: ${starsHTML(rv.nota_marinheiro)}</small>${rv.comentario_mar?`<q>${esc(rv.comentario_mar)}</q>`:""}`:""}<button type="button" class="link" data-delrv="${p.id}">🗑 ${t("rvDel")}</button></span>`;
 }
 function clientView(){
   top_.hidden = false; top_.innerHTML = headerHTML(); bindLang();
   document.getElementById("out").onclick = logout;
   if(!S.me) return completeView();
   const pr=pendRes(); if(pr){ store.set("reserva-pendente",{...pr, voltou:true}); location.replace(pr.path); return; }
-  const today=todayISO(), rows=(S.myReq||[]).filter(p=>p.status!=="cancelado" && p.status!=="recusado" && S.done?.get(p.id)?.aconteceu!==false) /* cancelados só o administrador vê (aba Cancelados) */, live=p=>p.data>=today && (p.status==="pendente"||p.status==="aprovado") && !(p.status==="aprovado" && tripEnded(p.data,p.horario));
-  const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p));
+  const today=todayISO(), rows=(S.myReq||[]).filter(p=>p.status!=="cancelado" && p.status!=="recusado" && S.done?.get(p.id)?.aconteceu!==false) /* cancelados só o administrador vê (aba Cancelados) */, live=p=>(p.status==="pendente" ? p.data>=today : p.status==="aprovado" && !reqEnded(p));
+  const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p)), pend=rows.filter(rvPending).sort(cmpRows);
   app.innerHTML = `<h1 class="hello">${t("cliHello",{name:esc(S.me.nome.split(" ")[0])})}</h1>
+    ${pend.length ? `<div class="card rvpend"><h2>${t("rvPendT")}</h2><p class="muted" style="margin:0">${t("rvPendSub")}</p>${pend.map(p=>`<div class="trow"><span class="who">${avatar(p.lancha,"bav")}<span><strong>${esc(boatName(p.lancha))}</strong><br><small class="muted">${fmtLong(p.data)} · ${t("slot_"+p.horario)}</small></span></span><button type="button" class="btn" data-rv="${p.id}">${t("rvPendBtn")}</button></div>`).join("")}</div>` : ""}
     <div class="card"><h2>${t("myTripsT")}</h2><p class="muted" style="margin-top:0">${t("cliSub")}</p><a class="btn" href="/">${t("seeBoats")}</a></div>
     ${up.length ? `<h2 style="margin:22px 0 10px">${t("upT")}</h2><div class="trips">${up.map(p=>reqCard(p)).join("")}</div>` : past.length ? "" : `<div class="card"><p class="muted" style="margin:0">${t("cliNone")}</p></div>`}
     ${past.length ? `<h2 style="margin:22px 0 10px">${t("cliPast")}</h2><div class="trips">${past.map(p=>reqCard(p)).join("")}</div>` : ""}
@@ -1200,6 +1215,9 @@ const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.u
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
+Object.assign(T.pt, {rvPendT:"⭐ Avaliação pendente", rvPendSub:"Conte como foi o seu passeio: dê a nota da lancha e do marinheiro. Leva menos de 1 minuto.", rvPendBtn:"Avaliar agora", rvGone:"Avaliação removida pela Búzios Lanchas", rvEditUntil:"Você pode alterar até {d}.", rvAdmT:"Avaliação do cliente", rvMarL:"Marinheiro", rvDel:"Excluir avaliação", rvDelQ:"Excluir esta avaliação? Ela sai do site e o cliente não poderá avaliar este passeio de novo.", rvDeleted:"Avaliação excluída.", rvExc:"Avaliação excluída por você", rvNeedSql:"Falta rodar a atualização do banco para excluir avaliações."});
+Object.assign(T.en, {rvPendT:"⭐ Review pending", rvPendSub:"Tell us how your tour went: rate the boat and the skipper. It takes less than a minute.", rvPendBtn:"Rate now", rvGone:"Review removed by Búzios Lanchas", rvEditUntil:"You can change it until {d}.", rvAdmT:"Client review", rvMarL:"Skipper", rvDel:"Delete review", rvDelQ:"Delete this review? It leaves the website and the client won't be able to rate this tour again.", rvDeleted:"Review deleted.", rvExc:"Review deleted by you", rvNeedSql:"The database update to delete reviews still needs to run."});
+Object.assign(T.es, {rvPendT:"⭐ Evaluación pendiente", rvPendSub:"Cuéntanos cómo fue tu paseo: califica la lancha y al marinero. Lleva menos de 1 minuto.", rvPendBtn:"Evaluar ahora", rvGone:"Evaluación eliminada por Búzios Lanchas", rvEditUntil:"Puedes cambiarla hasta el {d}.", rvAdmT:"Evaluación del cliente", rvMarL:"Marinero", rvDel:"Eliminar evaluación", rvDelQ:"¿Eliminar esta evaluación? Sale del sitio y el cliente no podrá evaluar este paseo de nuevo.", rvDeleted:"Evaluación eliminada.", rvExc:"Evaluación eliminada por ti", rvNeedSql:"Falta ejecutar la actualización de la base de datos para eliminar evaluaciones."});
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embFee:"Por ser um píer privativo, o {place} cobra uma pequena taxa de embarque de R$ {v} por pessoa, paga direto no local."}); Object.assign(T.en, {embFee:"Because it is a private pier, {place} charges a small boarding fee of R$ {v} per person, paid directly there."}); Object.assign(T.es, {embFee:"Por ser un muelle privado, {place} cobra una pequeña tasa de embarque de R$ {v} por persona, que se paga directamente allí."}); Object.assign(T.pt, {embNotT:"Avise o cliente", embNotSub:"O local de embarque mudou. Se {name} tiver conta no app, já recebeu o aviso por e-mail. Mande também pelo WhatsApp:", waEmb:"Olá, {name}! Mudou o local de embarque do seu passeio na {boat} ({date}, {slot}).\n📍 Novo local: {emb}\n{map}Qualquer dúvida, é só chamar. Búzios Lanchas"}); Object.assign(T.en, {embNotT:"Let the client know", embNotSub:"The boarding place changed. If {name} has an account in the app, they already got an email. Send it on WhatsApp too:", waEmb:"Hi, {name}! The boarding place for your tour on {boat} ({date}, {slot}) has changed.\n📍 New place: {emb}\n{map}Any questions, just message us. Búzios Lanchas"}); Object.assign(T.es, {embNotT:"Avisa al cliente", embNotSub:"El lugar de embarque cambió. Si {name} tiene cuenta en la app, ya recibió el aviso por correo. Mándalo también por WhatsApp:", waEmb:"¡Hola, {name}! Cambió el lugar de embarque de tu paseo en {boat} ({date}, {slot}).\n📍 Nuevo lugar: {emb}\n{map}Cualquier duda, escríbenos. Búzios Lanchas"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
 Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
 Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
@@ -1486,6 +1504,8 @@ async function loadReqs(){
     S.reqs = await q(",sinal_valor,comprovante,comprovante_em").then(r=>(S.cpOk=true,r)).catch(e=>{ if(e.status!==400) throw e; S.cpOk=false; return q(""); });
     S.reqs.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); /* o passeio foi apagado da agenda */
     S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
+    const [ar, ae] = await Promise.all([db("avaliacoes?select=pedido_id,nota,comentario,nota_marinheiro,comentario_mar").catch(()=>[]), db("avaliacoes_excluidas?select=pedido_id").catch(()=>null)]);
+    S.admRevs = new Map(ar.map(a=>[a.pedido_id, a])); S.admExc = ae ? new Set(ae.map(x=>x.pedido_id)) : null;
     /* passeios lançados direto na agenda de qualquer lancha (sem pedido do site) também entram em Reservas */
     const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
     S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>+r.nota?.sinal>0 && !ligados.has(r.id)); /* só entra quem já pagou ao menos o sinal */
@@ -1828,6 +1848,8 @@ function bindMain(){
   app.querySelectorAll("[data-rf]").forEach(x=>x.onclick=()=>{ S.reqF=x.dataset.rf; mainView(); });
   const cg=document.getElementById("clisgo"); if(cg) cg.onclick=openClients;
   app.querySelectorAll("[data-ap]").forEach(x=>x.onclick=()=>openReq(S.reqs.find(p=>p.id===+x.dataset.ap)));
+  app.querySelectorAll("[data-delrv]").forEach(x=>x.onclick=async()=>{ if(!S.admExc) return toast(t("rvNeedSql")); if(!confirm(t("rvDelQ"))) return; const pid=+x.dataset.delrv;
+    try{ await db("rpc/excluir_avaliacao",{method:"POST",body:{pid}}); S.admRevs.delete(pid); S.admExc.add(pid); toast(t("rvDeleted")); mainView(); }catch(e){ toast(e.status===404?t("rvNeedSql"):t("saveErr")); } });
   app.querySelectorAll("[data-cpv]").forEach(x=>x.onclick=()=>cpOpen(x.dataset.cpv));
   app.querySelectorAll("[data-cpa]").forEach(x=>x.onchange=()=>cpAdmPedido(+x.dataset.cpa, x.files[0]));
   app.querySelectorAll("[data-svs]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.svs, el=app.querySelector(`[data-sv="${id}"]`), v=el.value===""?null:+String(el.value).replace(",",".");
