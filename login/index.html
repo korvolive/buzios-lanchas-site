@@ -529,6 +529,7 @@ Object.assign(T.pt, {invAgain:"Convidar o cliente para o cadastro"}); Object.ass
 Object.assign(T.pt, {ownBoatT:"Donos da {boat}", ownBoatSub:"Quem administra a {boat}. Pode ter mais de um, por exemplo um casal. Toque em Editar para mudar nome, WhatsApp ou senha, ou para remover.", ownAdd:"Adicionar dono"});
 Object.assign(T.en, {ownBoatT:"Owners of {boat}", ownBoatSub:"Who manages {boat}. There can be more than one, for example a couple. Tap Edit to change name, WhatsApp or password, or to remove.", ownAdd:"Add owner"});
 Object.assign(T.es, {ownBoatT:"Dueños de {boat}", ownBoatSub:"Quién administra {boat}. Puede haber más de uno, por ejemplo una pareja. Toca Editar para cambiar nombre, WhatsApp o contraseña, o para quitar.", ownAdd:"Agregar dueño"});
+Object.assign(T.pt, {mailTypo:"Confira o e-mail: você quis dizer {fix}?", mailFixBtn:"Corrigir"}); Object.assign(T.en, {mailTypo:"Check the email: did you mean {fix}?", mailFixBtn:"Fix it"}); Object.assign(T.es, {mailTypo:"Revisa el correo: ¿quisiste decir {fix}?", mailFixBtn:"Corregir"});
 Object.assign(T.pt, {sinalMax:"O sinal não pode ser maior que o valor do passeio ({v})."}); Object.assign(T.en, {sinalMax:"The deposit can't be higher than the trip price ({v})."}); Object.assign(T.es, {sinalMax:"La seña no puede ser mayor que el valor del paseo ({v})."});
 Object.assign(T.pt, {sinalMinHint:"O passeio só é marcado com sinal pago: no mínimo 10% do valor (ou R$ 100 se o valor não estiver definido) e no máximo o valor total.", sinalMin:"O sinal precisa ser de pelo menos {v} (10% do valor do passeio, ou R$ 100 se o valor não estiver definido)."});
 Object.assign(T.en, {sinalMinHint:"A trip is only booked with a deposit paid: at least 10% of the price (or R$ 100 if the price isn't set) and at most the full price.", sinalMin:"The deposit must be at least {v} (10% of the trip price, or R$ 100 if the price isn't set)."});
@@ -586,6 +587,24 @@ let lang = store.get("dono-lang") || (/^en/i.test(navigator.language) ? "en" : /
 if(!LANGS.includes(lang)) lang="pt";
 const t = (k,v={}) => (T[lang][k] ?? T.pt[k]).replace(/\{(\w+)\}/g,(m,x)=>v[x] ?? m);
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* e-mail com domínio digitado errado (gamail.com, hotmal.com, gmail.con...): sugere o certo */
+const MAIL_OK = ["gmail.com","hotmail.com","hotmail.com.br","outlook.com","outlook.com.br","live.com","msn.com","yahoo.com","yahoo.com.br","ymail.com","icloud.com","me.com","mac.com","uol.com.br","uol.com","bol.com.br","terra.com.br","ig.com.br","globo.com","globomail.com","aol.com","gmx.com","mail.com","proton.me","protonmail.com","zoho.com"];
+const editDist = (a,b) => { const d=[...Array(b.length+1).keys()]; for(let i=1;i<=a.length;i++){ let p=d[0]; d[0]=i; for(let j=1;j<=b.length;j++){ const q=d[j]; d[j]=Math.min(d[j]+1, d[j-1]+1, p+(a[i-1]===b[j-1]?0:1)); p=q; } } return d[b.length]; };
+function mailFix(e){
+  const m=String(e||"").trim().toLowerCase().match(/^([^@\s]+)@([^@\s]+)$/); if(!m) return "";
+  const dom=m[2].replace(/\.+$/,""); if(MAIL_OK.includes(dom)) return "";
+  if(dom==="gmail.com.br") return m[1]+"@gmail.com";
+  let best="", bd=9; for(const k of MAIL_OK){ const x=editDist(dom,k); if(x<bd){ bd=x; best=k; } }
+  return bd && bd<=(dom.length>=8?2:1) ? m[1]+"@"+best : "";
+}
+/* em qualquer campo de e-mail do app: ao sair do campo, mostra "você quis dizer ...?" com botão para corrigir */
+document.addEventListener("change", e => { const el=e.target; if(!(el instanceof HTMLInputElement) || el.type!=="email") return;
+  const box=el.closest("label")||el, old=box.nextElementSibling?.classList.contains("mailfix") ? box.nextElementSibling : null; old?.remove();
+  const fix=mailFix(el.value); if(!fix) return;
+  const d=document.createElement("p"); d.className="msg err mailfix"; d.innerHTML=`${esc(t("mailTypo",{fix}))} <button type="button" class="link">${esc(t("mailFixBtn"))}</button>`;
+  d.querySelector("button").onclick=()=>{ el.value=fix; el.dispatchEvent(new Event("input",{bubbles:true})); d.remove(); el.classList.remove("miss"); };
+  box.after(d);
+});
 const pad = n => String(n).padStart(2,"0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const todayISO = () => iso(new Date());
@@ -827,6 +846,7 @@ function signupView(){
   document.getElementById("sf").onsubmit = async e => { e.preventDefault();
     const out=document.getElementById("smsg"), go=document.getElementById("go"), p=readProfile(), msgs=p.msg?[p.msg]:[], email=em.value.trim();
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ em.classList.add("miss"); msgs.push(t("emailBad")); }
+    else if(mailFix(email)){ em.classList.add("miss"); msgs.push(t("mailTypo",{fix:mailFix(email)})); em.dispatchEvent(new Event("change",{bubbles:true})); }
     if(pw.value.length<6){ pw.classList.add("miss"); msgs.push(t("pwShort")); }
     if(!document.getElementById("c-ok").checked) msgs.push(t("consentNeed"));
     if(msgs.length){ out.innerHTML=`<p class="msg err">${msgs.join("<br>")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); return; }
