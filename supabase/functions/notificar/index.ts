@@ -6,9 +6,9 @@
 // POST { tipo: "marinheiro", id: <bloqueio> }  (administrador ou dono da lancha) avisa o marinheiro escolhido para pilotar (celular e e-mail)
 // POST { tipo: "recusou", id: <bloqueio> }  (o marinheiro que acabou de sair do passeio) avisa os donos da lancha e o administrador (celular e e-mail)
 // POST { tipo: "embarque", id: <bloqueio> }  (administrador, dono ou marinheiro fixo) avisa o cliente com conta que o local de embarque mudou
-// POST { tipo: "avaliar", id: <bloqueio> }  (só o administrador, depois de confirmar que o passeio aconteceu) pede a avaliação ao cliente (celular e e-mail)
+// POST { tipo: "avaliar", id: <bloqueio> }  (administrador; ou o dono, nos passeios de fora; depois de confirmar que o passeio aconteceu) pede a avaliação ao cliente (celular e e-mail)
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
-// POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa o administrador quando um passeio da Búzios Lanchas termina,
+// POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa quando um passeio termina (da Búzios Lanchas: o administrador; de fora: os donos),
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 // As chaves do envio são criadas aqui mesmo na primeira vez e ficam em push_config (ninguém do app lê).
 import webpush from "npm:web-push@3.6.7";
@@ -49,9 +49,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Pedido nuevo desde el sitio", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas` }),
   },
   fim: {
-    pt: p => ({ title: "Passeio terminou: confirme", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confirme que aconteceu para o cliente poder avaliar.` }),
-    en: p => ({ title: "Trip ended: please confirm", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confirm it happened so the client can rate it.` }),
-    es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confirma que ocurrió para que el cliente pueda evaluar.` }),
+    pt: p => ({ title: "Passeio terminou: confirme", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirme que foi concluído e que não há saldo pendente para o cliente poder avaliar." : "Confirme que aconteceu para o cliente poder avaliar."}` }),
+    en: p => ({ title: "Trip ended: please confirm", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}` }),
+    es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para que el cliente pueda evaluar." : "Confirma que ocurrió para que el cliente pueda evaluar."}` }),
   },
   marinheiro: {
     pt: p => ({ title: "Você vai pilotar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Toque para ver o passeio.` }),
@@ -162,9 +162,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${p.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`], nota: "Lleva menos de 1 minuto y ayuda a otros clientes a elegir. Puedes cambiar tu evaluación hasta 7 días.", botao: "Evaluar el paseo" }),
   },
   fim: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Terminou um passeio na ${p.lancha}. Confirme se ele aconteceu para liberar a avaliação do cliente.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abra o app em Reservas e toque em \"Aconteceu\" ou \"Não aconteceu\".", botao: "Confirmar o passeio" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. Confirm it happened so the client can rate it.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : [])], nota: "Open the app in Bookings and tap whether it happened.", botao: "Confirm the tour" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. Confirma si ocurrió para liberar la evaluación del cliente.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abre la app en Reservas y toca si ocurrió.", botao: "Confirmar el paseo" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Terminou um passeio na ${p.lancha}. ${p.fora ? "Confirme que ele foi concluído e que não há saldo pendente para liberar a avaliação do cliente." : "Confirme se ele aconteceu para liberar a avaliação do cliente."}`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abra o app na aba Passeios: o passeio está no topo, em \"Passeios pendentes de confirmação\".", botao: "Confirmar o passeio" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : [])], nota: "Open the app on the Tours tab: the tour is at the top, under \"Tours waiting for confirmation\".", botao: "Confirm the tour" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para liberar la evaluación del cliente." : "Confirma si ocurrió para liberar la evaluación del cliente."}`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abre la app en la pestaña Paseos: el paseo está arriba, en \"Paseos pendientes de confirmación\".", botao: "Confirmar el paseo" }),
   },
   cliente: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "pt")] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Combine os detalhes do passeio direto com o dono da lancha. Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
@@ -190,6 +190,7 @@ async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" |
 
 // fim do passeio no horário de Búzios (UTC-3): hora_fim combinada, senão o fim do horário padrão; a noite só conta no dia seguinte
 const FIM: Record<string, number> = { manha: 14, tarde: 18, dia: 17, noite: 99 };
+const FORA_DESDE = "2026-10-21"; // passeios de fora: o dono confirma a partir desta data (os antigos não entram)
 async function fins() {
   const agora = new Date(Date.now() - 3 * 3600 * 1000), hoje = agora.toISOString().slice(0, 10), hora = agora.getUTCHours() + agora.getUTCMinutes() / 60;
   const d0 = new Date(agora.getTime() - 3 * 86400 * 1000).toISOString().slice(0, 10);
@@ -198,7 +199,7 @@ async function fins() {
   const um = (x: any) => Array.isArray(x) ? x[0] : x;
   const prontos = (bs || []).filter(b => {
     const a = um(b.anotacoes);
-    if (!a || !(a.origem === "buzios" || a.cliente_conta) || um(b.realizados) || um(b.fim_avisos)) return false;
+    if (!a || !(a.origem === "buzios" || b.data >= FORA_DESDE) || um(b.realizados) || um(b.fim_avisos)) return false;
     if (b.data < hoje) return true;
     const fim = a.hora_fim ? (([h, m]) => h + m / 60)(String(a.hora_fim).split(":").map(Number)) : FIM[b.horario] ?? 99;
     return hora >= fim;
@@ -206,18 +207,23 @@ async function fins() {
   if (!prontos.length) return 0;
   const { data: novos } = await db.from("fim_avisos").upsert(prontos.map(b => ({ bloqueio_id: b.id })), { onConflict: "bloqueio_id", ignoreDuplicates: true }).select("bloqueio_id");
   const ok = new Set((novos || []).map(n => n.bloqueio_id));
+  // passeio da Búzios Lanchas: avisa o administrador; passeio de fora: avisa os donos da lancha
   const { data: ads } = await db.from("admins").select("user_id");
-  const alvo = (ads || []).map(a => a.user_id);
-  const nomes = new Map<string, string>();
-  for (const l of new Set(prontos.map(b => b.lancha))) nomes.set(l, (await db.from("lanchas").select("nome").eq("slug", l).maybeSingle()).data?.nome || l);
+  const adms = (ads || []).map(a => a.user_id);
+  const nomes = new Map<string, string>(), donos = new Map<string, string[]>();
+  for (const l of new Set(prontos.map(b => b.lancha))) {
+    nomes.set(l, (await db.from("lanchas").select("nome").eq("slug", l).maybeSingle()).data?.nome || l);
+    donos.set(l, ((await db.from("donos").select("user_id").eq("lancha", l)).data || []).map(d => d.user_id));
+  }
   let n = 0;
-  const { data: ps } = await db.from("perfis").select("user_id, nome").in("user_id", alvo.length ? alvo : ["00000000-0000-0000-0000-000000000000"]);
-  const nomesAdm = Object.fromEntries((ps || []).map(x => [x.user_id, x.nome]));
+  const todos = [...new Set([...adms, ...[...donos.values()].flat()])];
+  const { data: ps } = await db.from("perfis").select("user_id, nome").in("user_id", todos.length ? todos : ["00000000-0000-0000-0000-000000000000"]);
+  const nomesPs = Object.fromEntries((ps || []).map(x => [x.user_id, x.nome]));
   for (const b of prontos.filter(b => ok.has(b.id))) {
-    const a = um(b.anotacoes);
-    n += await enviar(alvo, "fim", { id: b.id, lancha: nomes.get(b.lancha), data: b.data, horario: b.horario, cliente: a?.cliente || "" }, "/login/");
-    // também por e-mail, para o administrador confirmar o quanto antes mesmo sem o aviso no celular
-    for (const ad of alvo) await mandarEmail(ad, "fim", { b, a, lancha: nomes.get(b.lancha), data: dataBR(b.data), cliente: a?.cliente || "", nomes: nomesAdm }).catch(e => console.error(e));
+    const a = um(b.anotacoes), fora = a?.origem !== "buzios", alvo = fora ? donos.get(b.lancha) || [] : adms;
+    n += await enviar(alvo, "fim", { id: b.id, lancha: nomes.get(b.lancha), data: b.data, horario: b.horario, cliente: a?.cliente || "", fora }, "/login/");
+    // também por e-mail, para confirmar o quanto antes mesmo sem o aviso no celular
+    for (const ad of alvo) await mandarEmail(ad, "fim", { b, a, lancha: nomes.get(b.lancha), data: dataBR(b.data), cliente: a?.cliente || "", fora, nomes: nomesPs }).catch(e => console.error(e));
   }
   return n;
 }
@@ -302,9 +308,11 @@ Deno.serve(async req => {
 
     if (tipo === "avaliar") {
       // o administrador confirmou que o passeio aconteceu: pede a avaliação ao cliente com conta (celular e e-mail)
-      if (!admin) return json({ erro: "só o administrador" }, 403);
       const { data: b } = await db.from("bloqueios").select("id, lancha, data, horario").eq("id", id).maybeSingle();
       if (!b) return json({ erro: "passeio não encontrado" }, 404);
+      const { data: og } = await db.from("anotacoes").select("origem").eq("bloqueio_id", b.id).maybeSingle();
+      const dono = !!(await db.from("donos").select("user_id").eq("user_id", uid).eq("lancha", b.lancha).maybeSingle()).data;
+      if (!admin && !(dono && og?.origem !== "buzios")) return json({ erro: "só o administrador ou o dono (passeio de fora)" }, 403);
       const { data: r } = await db.from("realizados").select("aconteceu").eq("bloqueio_id", b.id).maybeSingle();
       if (!r?.aconteceu) return json({ enviados: 0, email: false });
       const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
