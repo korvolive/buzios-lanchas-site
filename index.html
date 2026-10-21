@@ -274,10 +274,10 @@ html.is-app #hdr-login{display:none}
 .rt-list button{font:inherit;color:inherit;background:none;border:0;padding:0;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .rt-list button:hover{color:var(--sea);text-decoration-color:currentColor}
 .rt-tap{margin:0 0 8px;font-size:14px;color:var(--muted)}
-.stop-dlg{border:0;padding:0;border-radius:18px;width:min(440px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+.stop-dlg{border:0;padding:0;border-radius:18px;width:min(440px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow-y:auto;background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
 .stop-dlg::backdrop{background:rgba(4,24,32,.6)}
-.stop-ph{aspect-ratio:4/3;background:var(--chip);display:grid;place-items:center;color:var(--muted);position:relative}
-.stop-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.stop-ph{aspect-ratio:4/3;max-height:42vh;width:100%;overflow:hidden;background:var(--chip);color:var(--muted);position:relative}
+.stop-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .stop-body{display:flex;gap:12px;padding:18px 18px 6px}
 .stop-body h3{margin:0 0 4px;font:700 20px/1.2 var(--display)}.stop-body p{margin:0;color:var(--muted)}
 .stop-n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--sea-deep);color:#fff;font:700 14px/1 var(--body)}
@@ -722,7 +722,7 @@ function routeSection(){
 function openStop(i){
   const dl=document.getElementById("stop-dlg"); if(!dl) return;
   const n=ROUTE.length; i=(i+n)%n; const ph=stopPhoto(i), nm=ROUTE[i][0];
-  dl.innerHTML = `${ph?`<div class="stop-ph"><img src="${ph}.jpg?v=3" alt="${nm}"></div>`:""}
+  dl.innerHTML = `${ph?`<div class="stop-ph"><img src="${ph}.jpg?v=4" alt="${nm}"></div>`:""}
     <div class="stop-body"><span class="stop-n">${i+1}</span><div><h3 id="stop-name">${nm}</h3><p>${(UI[lang].stops||UI.pt.stops)[i]||""}</p>${ph&&ROUTE_CREDITS[i]?`<small class="stop-cr">${t("photoBy")}: <a href="${ROUTE_CREDITS[i][1]}" target="_blank" rel="noopener nofollow">${ROUTE_CREDITS[i][0]}</a></small>`:""}</div></div>
     <div class="stop-nav"><button type="button" data-go="${i-1}" aria-label="${t("stopPrev")}">‹</button><button type="button" class="stop-x">${t("stopClose")}</button><button type="button" data-go="${i+1}" aria-label="${t("stopNext")}">›</button></div>`;
   dl.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openStop(+b.dataset.go));
@@ -761,7 +761,7 @@ function bindRoute(){
   const pk=app.querySelector(".rt-peek");
   if(pk && matchMedia("(hover:hover)").matches) app.querySelectorAll(".rt-map-wrap .pin").forEach(p=>{
     const i=+p.dataset.stop, ph=stopPhoto(i);
-    p.onmouseenter=()=>{ if(!ph) return; pk.querySelector("img").src=ph+".jpg?v=3"; pk.querySelector("b").innerHTML=`<span>${i+1}</span>${ROUTE[i][0]}`; pk.classList.add("show"); };
+    p.onmouseenter=()=>{ if(!ph) return; pk.querySelector("img").src=ph+".jpg?v=4"; pk.querySelector("b").innerHTML=`<span>${i+1}</span>${ROUTE[i][0]}`; pk.classList.add("show"); };
     p.onmouseleave=()=>pk.classList.remove("show");
   });
   app.querySelectorAll("[data-stop]").forEach(el=>{ el.onclick=()=>openStop(+el.dataset.stop);
