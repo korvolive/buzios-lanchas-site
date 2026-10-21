@@ -1208,15 +1208,15 @@ Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicac
 const ES_DDI = ["34","51","52","53","54","56","57","58","502","503","504","505","506","507","591","593","595","598"];
 const cliLang = tel => { const cc=splitPhone(tel).cc; return cc==="55" ? "pt" : ES_DDI.includes(cc) ? "es" : cc ? "en" : lang; };
 const inLang = (lg,f) => { const o=lang; lang=lg; try{ return f(); } finally{ lang=o; } };
-const BOARD_OPTS = ["Píer do Golfinho (Praia dos Ossos)", "Porto Veleiro (Praia dos Ossos)", "Píer do Centro", "Píer Porto da Barra", "BR Marinas Búzios"], OTHER = "__outro";
+const BOARD_OPTS = ["Píer do Golfinho (Praia dos Ossos)", "Porto Veleiro (Praia dos Ossos)", "Píer do Centro", "Píer Porto da Barra", "Azul Marina", "BR Marina"], OTHER = "__outro";
 /* link de localização do embarque, só para o cliente (dono e marinheiro já conhecem os lugares): no celular, o próprio sistema oferece abrir no Google Maps, Waze etc. */
-const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"https://maps.app.goo.gl/3YanCFbVSmcZjGdCA" /* pin enviado pelo Rodrigo */, "BR Marinas Búzios":"https://maps.app.goo.gl/2cNUHqhBYXmWD8By9" /* pin enviado pelo Rodrigo */, "Píer do Centro":"https://maps.app.goo.gl/ZBat1GF7X6DfnJ9W7" /* pin enviado pelo Rodrigo */, "Píer Porto da Barra":"https://maps.app.goo.gl/EEHSdyrpAcoogHULA" /* pin enviado pelo Rodrigo */};
+const MAP_Q = {"Píer do Golfinho (Praia dos Ossos)":"https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9" /* pin enviado pelo Rodrigo */, "Porto Veleiro (Praia dos Ossos)":"https://maps.app.goo.gl/3YanCFbVSmcZjGdCA" /* pin enviado pelo Rodrigo */, "BR Marina":"https://maps.app.goo.gl/2cNUHqhBYXmWD8By9" /* pin enviado pelo Rodrigo */, "Píer do Centro":"https://maps.app.goo.gl/ZBat1GF7X6DfnJ9W7" /* pin enviado pelo Rodrigo */, "Píer Porto da Barra":"https://maps.app.goo.gl/EEHSdyrpAcoogHULA" /* pin enviado pelo Rodrigo */, "Azul Marina":"https://maps.app.goo.gl/92BjzPAprjhsMJxm6" /* pin enviado pelo Rodrigo */};
 const mapUrl = e => !MAP_Q[e] ? "" : /^https:/.test(MAP_Q[e]) ? MAP_Q[e] : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(MAP_Q[e]); /* local "Outro" escrito pelo dono: sem link */
-/* taxa de embarque cobrada pelo píer particular, paga pelo cliente direto ao local (BR Marinas, Píer do Centro e Píer Porto da Barra não cobram) */
+/* taxa de embarque cobrada pelo píer particular, paga pelo cliente direto ao local (BR Marina, Azul Marina, Píer do Centro e Píer Porto da Barra não cobram) */
 const TAXA = {"Porto Veleiro (Praia dos Ossos)":["Porto Veleiro",10], "Píer do Golfinho (Praia dos Ossos)":["Píer do Golfinho",5]};
 const feeTxt = e => TAXA[e] ? t("embFee",{place:TAXA[e][0], v:TAXA[e][1]}) : "";
 const mapLink = e => (!mapUrl(e) ? `<span class="tmap">📍 ${esc(e)}</span>` : `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`) + (TAXA[e] ? `<span class="tfee">ℹ️ ${esc(feeTxt(e))}</span>` : "");
-const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marinas" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
+const boarding = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marina" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
 /* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
 function sailorHTML(){
   const rows=S.myTrips||[];
