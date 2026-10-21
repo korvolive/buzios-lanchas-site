@@ -20,9 +20,19 @@ const LIGA: Record<string, string> = { pt: "às", en: "to", es: "a" };
 // localização dos locais de embarque fixos (pins do Rodrigo); vai só para o cliente, dono e marinheiro já conhecem os lugares
 const MAPA: Record<string, string> = {
   "Píer do Golfinho (Praia dos Ossos)": "https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9",
-  "Porto Veleiro (Praia dos Ossos)": "https://www.google.com/maps/search/?api=1&query=Porto+Veleiro+B%C3%BAzios",
+  "Porto Veleiro (Praia dos Ossos)": "https://maps.app.goo.gl/3YanCFbVSmcZjGdCA",
   "BR Marinas Búzios": "https://maps.app.goo.gl/2cNUHqhBYXmWD8By9",
+  "Píer do Centro": "https://maps.app.goo.gl/ZBat1GF7X6DfnJ9W7",
+  "Píer Porto da Barra": "https://maps.app.goo.gl/EEHSdyrpAcoogHULA",
 };
+// taxa de embarque dos píeres particulares, paga pelo cliente direto no local (BR Marinas, Píer do Centro e Píer Porto da Barra não cobram)
+const TAXA: Record<string, [string, number]> = { "Porto Veleiro (Praia dos Ossos)": ["Porto Veleiro", 10], "Píer do Golfinho (Praia dos Ossos)": ["Píer do Golfinho", 5] };
+const TAXA_TXT: Record<string, (l: string, v: number) => string> = {
+  pt: (l, v) => `Por ser um píer privativo, o ${l} cobra uma pequena taxa de embarque de R$ ${v} por pessoa, paga direto no local.`,
+  en: (l, v) => `Because it is a private pier, ${l} charges a small boarding fee of R$ ${v} per person, paid directly there.`,
+  es: (l, v) => `Por ser un muelle privado, ${l} cobra una pequeña tasa de embarque de R$ ${v} por persona, que se paga directamente allí.`,
+};
+const taxa = (e: string, lang: string) => TAXA[e] ? (TAXA_TXT[lang] || TAXA_TXT.pt)(TAXA[e][0], TAXA[e][1]) : "";
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
@@ -44,7 +54,7 @@ Deno.serve(async req => {
     const dados = {
       convite: true, lang, nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",
       lancha: nomeL, data: dataBR(b.data), horario: an?.hora_ini && an?.hora_fim ? `${(SLOT[lang][b.horario] || b.horario).replace(/ \(.*$/, "")} (${hm(an.hora_ini, lang)} ${LIGA[lang]} ${hm(an.hora_fim, lang)})` : SLOT[lang][b.horario] || b.horario,
-      pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque ? an.embarque + (MAPA[an.embarque] ? ` · ${{ pt: "Localização", en: "Location", es: "Ubicación" }[lang] || "Localização"}: ${MAPA[an.embarque]}` : "") : "",
+      pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque ? an.embarque + (MAPA[an.embarque] ? ` · ${{ pt: "Localização", en: "Location", es: "Ubicación" }[lang] || "Localização"}: ${MAPA[an.embarque]}` : "") + (TAXA[an.embarque] ? ` · ${taxa(an.embarque, lang)}` : "") : "",
       pagina: `${SITE}${lang === "pt" ? "" : "/" + lang}/lancha/${b.lancha}/`,
     };
     const { error } = await db.auth.admin.inviteUserByEmail(c.email, { data: dados, redirectTo: `${SITE}/login/` });
