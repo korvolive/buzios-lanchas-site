@@ -389,7 +389,8 @@ Deno.serve(async req => {
       const lancha = await nomeLancha(b.lancha);
       const enviados = await enviar([cli], "avaliar", { ...b, lancha }, "/login/");
       const { data: c } = await db.from("clientes").select("nome").eq("user_id", cli).maybeSingle();
-      const email = await mandarEmail(cli, "avaliar", { b, a: an, lancha, data: dataBR(b.data), nomes: { [cli]: c?.nome || an?.cliente || "" } }).catch(e => (console.error(e), false));
+      // o administrador confirma pelo app, que já manda o e-mail da avaliação pela função "avaliacao" (link que entra logado): aqui só o dono manda e-mail, para o cliente não receber dois
+      const email = admin ? false : await mandarEmail(cli, "avaliar", { b, a: an, lancha, data: dataBR(b.data), nomes: { [cli]: c?.nome || an?.cliente || "" } }).catch(e => (console.error(e), false));
       return json({ enviados, email });
     }
 
