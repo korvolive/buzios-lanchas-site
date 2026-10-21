@@ -811,9 +811,11 @@ function signupView(){
   };
 }
 /* conta sem os dados de cliente (ou o CPF deu problema): completa aqui */
+/* quem entrou pelo Google já chega com o nome (e o celular, se a conta tiver) preenchidos; o que a pessoa digitou antes tem prioridade */
+const googleDraft = () => { const d=store.get("cli-draft")||{}, m=meta(); return {...d, nome:d.nome||m.full_name||m.name||"", whatsapp:d.whatsapp||(ses?.user?.phone?"+"+ses.user.phone:"")}; };
 function completeView(msg=""){
   app.innerHTML = `<div class="card"><h2>${t("completeT")}</h2><p class="muted" style="margin-top:0">${t("completeSub")}</p>
-    <form id="cf" novalidate><div id="cmsg">${msg?`<p class="msg err">${msg}</p>`:""}</div>${profileFields(store.get("cli-draft")||{})}
+    <form id="cf" novalidate><div id="cmsg">${msg?`<p class="msg err">${msg}</p>`:""}</div>${profileFields(googleDraft())}
     <label class="chk"><input type="checkbox" id="c-ok"><span>${t("consent")}</span></label>
     <button class="btn" id="go">${t("saveData")}</button></form></div>
     <p class="muted" style="font-size:14px;text-align:center">${t("teamHint")} <a href="https://wa.me/${WHATS}" target="_blank" rel="noopener">WhatsApp</a></p>` + PW_LINK();
