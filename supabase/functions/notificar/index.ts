@@ -111,11 +111,12 @@ const horario = (b: any, a: any, lang: string) => a?.hora_ini && a?.hora_fim
 const MAPA: Record<string, string> = {
   "Píer do Golfinho (Praia dos Ossos)": "https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9",
   "Porto Veleiro (Praia dos Ossos)": "https://maps.app.goo.gl/3YanCFbVSmcZjGdCA",
-  "BR Marinas Búzios": "https://maps.app.goo.gl/2cNUHqhBYXmWD8By9",
+  "BR Marina": "https://maps.app.goo.gl/2cNUHqhBYXmWD8By9",
   "Píer do Centro": "https://maps.app.goo.gl/ZBat1GF7X6DfnJ9W7",
   "Píer Porto da Barra": "https://maps.app.goo.gl/EEHSdyrpAcoogHULA",
+  "Azul Marina": "https://maps.app.goo.gl/92BjzPAprjhsMJxm6",
 };
-// taxa de embarque dos píeres particulares, paga pelo cliente direto no local (BR Marinas, Píer do Centro e Píer Porto da Barra não cobram)
+// taxa de embarque dos píeres particulares, paga pelo cliente direto no local (BR Marina, Azul Marina, Píer do Centro e Píer Porto da Barra não cobram)
 const TAXA: Record<string, [string, number]> = { "Porto Veleiro (Praia dos Ossos)": ["Porto Veleiro", 10], "Píer do Golfinho (Praia dos Ossos)": ["Píer do Golfinho", 5] };
 const TAXA_TXT: Record<string, (l: string, v: number) => string> = {
   pt: (l, v) => `Por ser um píer privativo, o ${l} cobra uma pequena taxa de embarque de R$ ${v} por pessoa, paga direto no local.`,
