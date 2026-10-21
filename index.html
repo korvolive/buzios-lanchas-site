@@ -356,6 +356,24 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-date input::-webkit-calendar-picker-indicator{opacity:0;width:24px;margin:0;padding:0}
 .pk-date.empty span{left:12px;top:0;width:auto;height:44px;line-height:44px;clip-path:none;overflow:visible;pointer-events:none;color:var(--muted);font:500 16px/44px var(--body)}
 .pk-date.empty input::-webkit-datetime-edit{color:transparent}
+/* calendário próprio da página da lancha: um toque abre o mês inteiro, mais fácil que o campo de data do navegador */
+.pk-dbtn{display:block;width:100%;height:44px;text-align:left;font:500 16px/44px var(--body);color:var(--ink);background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid var(--line);border-radius:8px;padding:0 36px 0 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-date.empty .pk-dbtn{color:var(--muted)}
+.pk-dbtn[aria-expanded="true"]{border-color:var(--sea);box-shadow:0 0 0 1px var(--sea)}
+.cal{margin-top:6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cal-h strong{font:600 15px/1 var(--body);text-transform:capitalize}
+.cal-h button{width:38px;height:38px;border:0;border-radius:50%;background:var(--chip);color:var(--ink);font:600 20px/1 var(--body);cursor:pointer}
+.cal-h button:disabled{opacity:.3;cursor:default}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-w{font:600 11px/26px var(--mono);color:var(--muted);text-transform:uppercase}
+.cal-g button{aspect-ratio:1;min-height:38px;border:0;border-radius:50%;background:none;color:var(--ink);font:500 15px/1 var(--body);cursor:pointer;font-variant-numeric:tabular-nums}
+.cal-g button:hover:not(:disabled){background:var(--chip)}
+.cal-g button.today{box-shadow:inset 0 0 0 1px var(--line)}
+.cal-g button.on{background:var(--sea);color:var(--surface);font-weight:700}
+.cal-g button.full:not(.on){color:var(--muted);text-decoration:line-through}
+.cal-g button:disabled{color:var(--muted);opacity:.35;cursor:default}
+.cal-k{margin:6px 2px 0;font-size:12px;color:var(--muted)}.cal-k s{margin-right:4px}
 .pk-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pk-slots button.night{grid-column:1/-1;background:var(--sea-deep);color:#fff;border-color:var(--sea-deep)}
 .pk-slots button.night small{color:inherit;opacity:.8}
@@ -865,7 +883,7 @@ const UI = {
     fullDay:"Dia completo", tour7h:"Passeio de 7 horas", fromPrice:"a partir de {p}", priceOnRequest:"Valor sob consulta",
     longText:"Mais praias, mais tempo de mergulho e churrasco sem pressa. Ideal para aproveitar o dia inteiro no mar.",
     exampleBanner:"Valores de exemplo, não são preços reais.",
-    pickTitle:"Data, horário e pessoas", seloT:"Lancha premium", seloH:"Por que a Miss Bardot é diferente", seloL:"❄️ Ar-condicionado para descansar no fresco entre uma praia e outra|🔊 Som premium por toda a lancha, da proa à popa|🛏️ Cabine com cama de casal e TV|📶 Wi-Fi Starlink|⚡ Gerador próprio: tudo funcionando o passeio inteiro", pickDate:"Data do passeio", pickSlot:"Horário", otherTime:"Horários padrão. Outros horários podem ser combinados pelo WhatsApp.", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
+    pickTitle:"Data, horário e pessoas", calPrev:"Mês anterior", calNext:"Próximo mês", calFull:"lotada nesse dia", seloT:"Lancha premium", seloH:"Por que a Miss Bardot é diferente", seloL:"❄️ Ar-condicionado para descansar no fresco entre uma praia e outra|🔊 Som premium por toda a lancha, da proa à popa|🛏️ Cabine com cama de casal e TV|📶 Wi-Fi Starlink|⚡ Gerador próprio: tudo funcionando o passeio inteiro", pickDate:"Data do passeio", pickSlot:"Horário", otherTime:"Horários padrão. Outros horários podem ser combinados pelo WhatsApp.", pickPeople:"Pessoas a bordo", peoplePh:"Quantas pessoas?", person1:"1 pessoa", peopleN:"{n} pessoas", needAll:"Escolha a data, o horário e a quantidade de pessoas para consultar.", hoursN:"{h} horas",
     checking:"Verificando a agenda…", busy:"<strong>Indisponível</strong> em {date} ({slot}). Escolha outro horário ou outra data.", unavail:"Indisponível",
     whenTitle:"Em qual período você vai estar em Búzios?", whenFrom:"Chegada", whenTo:"Saída", whenClear:"Limpar", periodMax:"O período pode ter no máximo 15 dias.", rangeOne:"em {d}", rangeTwo:"entre {de} e {ate}",
     whenFree:"{n} lanchas com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenFree1:"1 lancha com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenWa:"Olá! Vi no site Búzios Lanchas e vou estar em Búzios {range}. Gostaria de saber quais lanchas estão disponíveis{people}.", fitNone:"Nenhuma lancha para {people}. Fale com a gente no WhatsApp que encontramos uma opção.", whenNone:"Nenhuma lancha livre {range}{people}. Mude as datas ou fale com a gente no WhatsApp.",
@@ -920,7 +938,7 @@ const UI = {
     fullDay:"Full day", tour7h:"7-hour tour", fromPrice:"from {p}", priceOnRequest:"Price on request",
     longText:"More beaches, more time for snorkeling and an unhurried barbecue. Ideal for spending the whole day at sea.",
     exampleBanner:"Example prices, not real rates.",
-    pickTitle:"Date, time and guests", seloT:"Premium boat", seloH:"Why Miss Bardot stands out", seloL:"❄️ Air conditioning to cool off between beaches|🔊 Premium sound throughout the boat, bow to stern|🛏️ Cabin with a double bed and TV|📶 Starlink Wi-Fi|⚡ Its own generator: everything runs the whole tour", pickDate:"Tour date", pickSlot:"Time", otherTime:"Standard times. Other times can be arranged on WhatsApp.", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
+    pickTitle:"Date, time and guests", calPrev:"Previous month", calNext:"Next month", calFull:"fully booked that day", seloT:"Premium boat", seloH:"Why Miss Bardot stands out", seloL:"❄️ Air conditioning to cool off between beaches|🔊 Premium sound throughout the boat, bow to stern|🛏️ Cabin with a double bed and TV|📶 Starlink Wi-Fi|⚡ Its own generator: everything runs the whole tour", pickDate:"Tour date", pickSlot:"Time", otherTime:"Standard times. Other times can be arranged on WhatsApp.", pickPeople:"People on board", peoplePh:"How many people?", person1:"1 person", peopleN:"{n} people", needAll:"Choose the date, time and number of people to check availability.", hoursN:"{h} hours",
     checking:"Checking availability…", busy:"<strong>Unavailable</strong> on {date} ({slot}). Pick another time or date.", unavail:"Unavailable",
     whenTitle:"When will you be in Búzios?", whenFrom:"Arrival", whenTo:"Departure", whenClear:"Clear", periodMax:"The period can be at most 15 days.", rangeOne:"on {d}", rangeTwo:"between {de} and {ate}",
     whenFree:"{n} boats with free times {range}{people}. Pick a boat to see the days and times.", whenFree1:"1 boat with free times {range}{people}. Pick the boat to see the days and times.", whenWa:"Hi! I saw the Búzios Lanchas website and I'll be in Búzios {range}. I'd like to know which boats are available{people}.", fitNone:"No boat for {people}. Message us on WhatsApp and we'll find an option.", whenNone:"No boats available {range}{people}. Change the dates or message us on WhatsApp.",
@@ -975,7 +993,7 @@ const UI = {
     fullDay:"Día completo", tour7h:"Paseo de 7 horas", fromPrice:"desde {p}", priceOnRequest:"Precio a consultar",
     longText:"Más playas, más tiempo para el snorkel y asado sin apuro. Ideal para aprovechar todo el día en el mar.",
     exampleBanner:"Precios de ejemplo, no son precios reales.",
-    pickTitle:"Fecha, horario y personas", seloT:"Lancha premium", seloH:"Por qué la Miss Bardot es diferente", seloL:"❄️ Aire acondicionado para descansar fresco entre una playa y otra|🔊 Sonido premium en toda la lancha, de proa a popa|🛏️ Camarote con cama doble y TV|📶 Wi-Fi Starlink|⚡ Generador propio: todo funciona el paseo entero", pickDate:"Fecha del paseo", pickSlot:"Horario", otherTime:"Horarios estándar. Otros horarios se pueden combinar por WhatsApp.", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
+    pickTitle:"Fecha, horario y personas", calPrev:"Mes anterior", calNext:"Mes siguiente", calFull:"completa ese día", seloT:"Lancha premium", seloH:"Por qué la Miss Bardot es diferente", seloL:"❄️ Aire acondicionado para descansar fresco entre una playa y otra|🔊 Sonido premium en toda la lancha, de proa a popa|🛏️ Camarote con cama doble y TV|📶 Wi-Fi Starlink|⚡ Generador propio: todo funciona el paseo entero", pickDate:"Fecha del paseo", pickSlot:"Horario", otherTime:"Horarios estándar. Otros horarios se pueden combinar por WhatsApp.", pickPeople:"Personas a bordo", peoplePh:"¿Cuántas personas?", person1:"1 persona", peopleN:"{n} personas", needAll:"Elige la fecha, el horario y la cantidad de personas para consultar.", hoursN:"{h} horas",
     checking:"Verificando la agenda…", busy:"<strong>No disponible</strong> el {date} ({slot}). Elige otro horario u otra fecha.", unavail:"No disponible",
     whenTitle:"¿En qué fechas vas a estar en Búzios?", whenFrom:"Llegada", whenTo:"Salida", whenClear:"Borrar", periodMax:"El período puede tener como máximo 15 días.", rangeOne:"el {d}", rangeTwo:"entre el {de} y el {ate}",
     whenFree:"{n} lanchas con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenFree1:"1 lancha con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenWa:"¡Hola! Vi el sitio de Búzios Lanchas y voy a estar en Búzios {range}. Quisiera saber qué lanchas están disponibles{people}.", fitNone:"Ninguna lancha para {people}. Escríbenos por WhatsApp y encontramos una opción.", whenNone:"Ninguna lancha libre {range}{people}. Cambia las fechas o escríbenos por WhatsApp.",
@@ -1242,7 +1260,7 @@ function isBusy(s,slot,iso){
 async function statusFor(b,iso,slot){ return isBusy(busyOn(await loadAgenda(),b,iso),slot,iso) ? "ocupada" : "livre"; }
 const pickerHTML = b => `
   <div class="picker">
-    <label class="pk-date${pick.date?"":" empty"}"><span>${t("pickDate")}</span><input type="date" id="pk-date" lang="${t("locale")}" min="${todayISO()}" value="${pick.date}"></label>
+    <div class="pk-date${pick.date?"":" empty"}"><button type="button" id="pk-date" class="pk-dbtn" aria-expanded="false" aria-controls="pk-cal">${pick.date?fmtDate(pick.date):t("pickDate")}</button><div class="cal" id="pk-cal" hidden></div></div>
     <div class="pk-slots" role="radiogroup" aria-label="${t("pickSlot")}">
       ${SLOTS.map(s=>`<button type="button" role="radio" data-slot="${s.key}" aria-checked="${pick.slot===s.key}"${s.night?` class="night"${hasNight(pick.date)?"":" hidden"}`:""}><strong>${slotLabel(s.key)}</strong><small>${t("hoursN",{h:s.hours})}</small></button>`).join("")}
     </div>
@@ -1250,9 +1268,29 @@ const pickerHTML = b => `
     <label class="pk-people"><span>${t("pickPeople")}</span><select id="pk-people"><option value="">${t("peoplePh")}</option>${Array.from({length:b.capacity},(_,i)=>`<option value="${i+1}"${+pick.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
     <div class="pk-board"><span>${t("boardingTitle")}</span><div id="pk-board"></div></div>
   </div>`;
-function bindPicker(onChange){
-  const di=document.getElementById("pk-date"); if(!di) return;
-  di.onchange=()=>{ pick.date = di.value && di.value>=todayISO() ? di.value : ""; di.parentElement.classList.toggle("empty",!di.value); onChange(); };
+/* mês em grade: dias passados e depois de 2 anos ficam apagados; dias em que a lancha está lotada aparecem riscados (mas dá para escolher e perguntar) */
+function calendar(box, o){
+  let cur=(o.sel||todayISO()).slice(0,7);
+  const draw=()=>{ const [y,m]=cur.split("-").map(Number), first=new Date(y,m-1,1), n=new Date(y,m,0).getDate(), loc=t("locale"), min=todayISO(), max=maxISO();
+    const iso=d=>`${y}-${pad(m)}-${pad(d)}`, wd=[...Array(7)].map((_,i)=>new Date(2023,0,1+i).toLocaleDateString(loc,{weekday:"narrow"}));
+    let anyFull=false;
+    const days=[...Array(n)].map((_,i)=>{ const d=iso(i+1), dis=d<min||d>max, full=!dis&&o.busy&&o.busy(d); if(full) anyFull=true;
+      return `<button type="button" data-d="${d}"${dis?" disabled":""} class="${d===o.sel?"on":""}${full?" full":""}${d===min?" today":""}" aria-label="${fmtDate(d)}${full?" · "+t("calFull"):""}">${i+1}</button>`; }).join("");
+    box.innerHTML=`<div class="cal-h"><button type="button" data-cm="-1"${cur>min.slice(0,7)?"":" disabled"} aria-label="${t("calPrev")}">‹</button><strong>${first.toLocaleDateString(loc,{month:"long",year:"numeric"})}</strong><button type="button" data-cm="1"${cur<max.slice(0,7)?"":" disabled"} aria-label="${t("calNext")}">›</button></div>
+      <div class="cal-g">${wd.map(w=>`<b class="cal-w">${w}</b>`).join("")}${"<i></i>".repeat(first.getDay())}${days}</div>${anyFull?`<p class="cal-k"><s>12</s>${t("calFull")}</p>`:""}`;
+    box.querySelectorAll("[data-cm]").forEach(x=>x.onclick=()=>{ const d=new Date(y,m-1+(+x.dataset.cm),1); cur=`${d.getFullYear()}-${pad(d.getMonth()+1)}`; draw(); });
+    box.querySelectorAll("[data-d]").forEach(x=>x.onclick=()=>o.onPick(x.dataset.d)); };
+  draw(); return { set(k,v){ o[k]=v; draw(); } };
+}
+function bindPicker(onChange, b){
+  const di=document.getElementById("pk-date"), cb=document.getElementById("pk-cal"); if(!di) return;
+  const open=v=>{ cb.hidden=!v; di.setAttribute("aria-expanded",v); };
+  const cal=calendar(cb,{sel:pick.date, onPick:d=>{ pick.date=d; di.textContent=fmtDate(d); di.parentElement.classList.remove("empty"); cal.set("sel",d); open(false); onChange(); }});
+  di.onclick=()=>open(cb.hidden); cb.addEventListener("click",e=>e.stopPropagation()); /* trocar de mês redesenha o calendário: o clique não pode contar como "fora" */
+  if(b) loadAgenda().then(ag=>{ if(ag && document.getElementById("pk-cal")===cb) cal.set("busy", d=>isBusy(busyOn(ag,b,d),null,d)); });
+  if(!window.__calOut){ window.__calOut=1; /* fecha ao tocar fora ou no Esc */
+    document.addEventListener("click",e=>{ const w=document.querySelector(".pk-date"); if(w && !w.contains(e.target)){ const c=document.getElementById("pk-cal"); if(c && !c.hidden){ c.hidden=true; document.getElementById("pk-date")?.setAttribute("aria-expanded","false"); } } });
+    document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ const c=document.getElementById("pk-cal"); if(c && !c.hidden){ c.hidden=true; document.getElementById("pk-date")?.focus(); } } }); }
   const pp=document.getElementById("pk-people"); pp.onchange=()=>{ pick.people=pp.value; onChange(); };
   app.querySelectorAll("[data-slot]").forEach(btn=>btn.onclick=()=>{ pick.slot=btn.dataset.slot;
     app.querySelectorAll("[data-slot]").forEach(x=>x.setAttribute("aria-checked", x===btn)); onChange(); });
@@ -1614,7 +1652,7 @@ function render(toTop=true){
   seo(b);
   if(b && toTop) window.scrollTo(0,0);
   bind(); bindGallery(b);
-  if(b) bindPicker(()=>showBoatStatus(b));
+  if(b) bindPicker(()=>showBoatStatus(b), b);
   if(b) loadSiteRevs(b);
   loadFx();
   if(!b && !itens && app.querySelector("[data-items]")) loadItens().then(m=>{ if(m) app.querySelectorAll("[data-items]").forEach(u=>{ const x=BOATS.find(y=>y.slug===u.dataset.items); if(x) u.innerHTML=cardItems(x); }); });
