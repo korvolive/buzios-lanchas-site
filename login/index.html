@@ -2811,7 +2811,7 @@ function renderTrip(){
   let nd = tripNew ? (tripRow?.data||"") : r.data, nslot = tripRow?.horario || "", nboat = tripRow?.lancha || (S.cur==="*" ? S.boats[0].slug : S.cur);
   /* passeio já marcado: o administrador (e o dono, nos passeios que ele fechou) troca lancha, data e horário no mesmo formulário */
   const canMove = !tripNew && r.data>=todayISO() && (S.admin || n.origem!=="buzios");
-  const canRv = !tripNew && !!r?.id && r.data>=todayISO() && (S.admin || n.origem!=="buzios"); /* cliente pediu para revender: o horário volta a aparecer livre no site */
+  const canRv = !tripNew && !!r?.id && r.data>=todayISO() && S.admin; /* cliente pediu para revender (só o administrador marca): o horário volta a aparecer livre no site */
   const showWhen = tripNew || canMove, showBoat = S.boats.length>1 && (S.cur==="*" || pedidoFor || canMove);
   const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}">${t("slot_"+k)}<small>${t("hours_"+k)}</small></button>`).join("")}`;
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${pedidoFor?t("approveT"):tripNew?t("tripNew"):t("tripEdit")}</h2>
