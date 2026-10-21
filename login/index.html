@@ -1957,8 +1957,8 @@ async function linkedInfo(bid, typed){
 /* convite: link para o cliente criar a conta com o e-mail; o passeio entra na conta dele ao completar o cadastro */
 function openInvite(email, nota, row, mailDone){
   const name=(nota.cliente||"").split(" ")[0]||"", q=new URLSearchParams({criar:"1"}); if(email) q.set("email",email); if(nota.cliente) q.set("nome",nota.cliente); if(nota.telefone) q.set("tel",nota.telefone);
-  const url=`${location.origin}/login/?${q}`, wa=waOf(nota.telefone), dt=fmtLong(row.data);
-  const msg=t("waInvite",{name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}${TAXA[nota.embarque]?`ℹ️ ${feeTxt(nota.embarque)}\n`:""}`:"", page:`${location.origin}${lang==="pt"?"":"/"+lang}/lancha/${row.lancha}/`, mail: email ? t("waInviteMail",{email}) : "", url});
+  const url=`${location.origin}/login/?${q}`, wa=waOf(nota.telefone);
+  const msg=inLang(cliLang(nota.telefone), ()=>{ const dt=fmtLong(row.data); return t("waInvite",{name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}${TAXA[nota.embarque]?`ℹ️ ${feeTxt(nota.embarque)}\n`:""}`:"", page:`${location.origin}${lang==="pt"?"":"/"+lang}/lancha/${row.lancha}/`, mail: email ? t("waInviteMail",{email}) : "", url}); });
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✉ ${t("invT",{name:esc(nota.cliente||email)})}</h2><p class="muted" style="margin-top:0">${t(email?"invSub":"invSubTel",{name:esc(name||nota.cliente||""), email:esc(email)})}</p>
     ${mailDone ? mailMsg(mailDone, email) : email ? `<p class="muted" id="invmail">✉ ${t("mailSending",{email:esc(email)})}</p>` : ""}
     ${wa.length>=8?`<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("invBtn")}</a>`:""}
@@ -2450,8 +2450,7 @@ function renderTrip(){
   const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}">${t("slot_"+k)}<small>${t("hours_"+k)}</small></button>`).join("")}`;
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${pedidoFor?t("approveT"):tripNew?t("tripNew"):t("tripEdit")}</h2>
     ${pedidoFor ? `<p class="muted" style="margin-top:0">${t("approveSub")}</p>` : tripNew ? "" : `<p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}<br><small>${t("noteSub")}</small></p>`}
-    ${!tripNew && !pedidoFor && !n.cliente_conta && !isPending(n) && waNum.length>=8 && r.data>=todayISO() ? `<button type="button" class="btn wa" id="avini" style="margin:0 0 12px">${WA_ICON} ${t("iniBtn")}</button>` : ""}
-    ${!tripNew && !pedidoFor && !n.cliente_conta && !isPending(n) && waNum.length>=8 ? `<button type="button" class="btn sec" id="invagain" style="margin:0 0 12px">✉ ${t("invAgain")}</button>` : ""}
+    ${!tripNew && !pedidoFor && !n.cliente_conta && !isPending(n) && waNum.length>=8 ? `<button type="button" class="btn wa" id="invagain" style="margin:0 0 12px">${WA_ICON} ${t(r.data>=todayISO()?"iniBtn":"invAgain")}</button>` : ""}
     ${n.cliente_conta && !tripNew ? `<details class="clicard" id="clicard"><summary>✓ ${t("cliCard")}</summary><div id="clibody"><p class="muted">…</p></div></details>` : ""}
     <form id="nform" class="nform" novalidate><div id="nmsg"></div>
       ${showWhen ? `<div class="when">${canMove?`<p class="muted" style="margin:0 0 10px;font-size:13px">${t("moveHint")}</p>`:""}${showBoat?`<label class="f"><span>${t("boat")}</span><select class="in" id="n-boat">${S.boats.map(b=>`<option value="${b.slug}"${b.slug===nboat?" selected":""}>${esc(b.nome)}</option>`).join("")}</select></label>`:""}
@@ -2488,15 +2487,15 @@ function renderTrip(){
     <button type="button" class="btn sec" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>
     ${!tripNew && !fromDay ? `<button type="button" class="link danger" id="nfree">${t("freeSlot")}</button>` : ""}`;
   document.getElementById("nback").onclick=()=>{ if(fromDay){ noteFor=null; renderSheet(); } else closeDay(); };
-  const ai=document.getElementById("avini"); if(ai) ai.onclick=()=>avisarInicio(r);
-  /* convite para o cadastro (admin ou dono, passeio de qualquer origem): some quando o cliente já tem conta */
+    /* um botão só (admin ou dono, passeio de qualquer origem; some quando o cliente já tem conta): confere se o cliente já tem conta,
+     renova o convite e abre a mensagem no idioma do cliente. Passeio por vir: aviso com embarque e contatos + link do cadastro; passeio passado: convite para avaliar */
   const ia=document.getElementById("invagain"); if(ia) ia.onclick=async()=>{ ia.disabled=true;
     const typed=document.getElementById("n-cemail")?.value.trim().toLowerCase()||"";
     /* sem e-mail digitado, o banco usa o e-mail que já estava no convite (o dono não lê os convites) */
     const em = typed || (S.admin ? (await db(`convites?select=email&bloqueio_id=eq.${r.id}`).catch(()=>[]))[0]?.email || "" : "");
     try{ const res = await db("rpc/convidar_cliente",{method:"POST",body:{bid:r.id, email_cli:em||null, nome_cli:n.cliente||"", tel:n.telefone||""}});
       if(res==="ligado"){ closeDay(); loadBlocks(); return linkedInfo(r.id, n.cliente||em); }
-      openInvite(em, n, r); if(typed) mailInvite(r.id, typed);
+      ia.disabled=false; if(r.data>=todayISO()) avisarInicio(r); else openInvite(em, n, r); if(typed) mailInvite(r.id, typed);
     }catch(e){ ia.disabled=false; toast(e.status===404 ? t("needSqlConv") : e.code==="P0001" ? e.message : t("saveErr")); } };
   const cc=document.getElementById("clicard");
   if(cc) cc.ontoggle=async()=>{ if(!cc.open || cc.dataset.ok) return; cc.dataset.ok=1; const box=document.getElementById("clibody");
