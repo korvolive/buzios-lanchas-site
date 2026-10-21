@@ -1527,7 +1527,7 @@ const lastDay = () => { const a=addDay(when.de,MAX_DAYS-1), m=maxISO(); return a
 function periodDays(){ const out=[]; if(!when.de) return out; for(let d=when.de; d<=(when.ate||when.de) && out.length<MAX_DAYS; d=addDay(d)) out.push(d); return out; }
 const fmtShort = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(t("locale"),lang==="pt"?{day:"2-digit",month:"2-digit"}:{day:"numeric",month:"short"}); };
 const firstFree = (busy,b) => periodDays().find(d=>!isBusy(busyOn(busy,b,d),"",d));
-const MAX_CAP = Math.max(...BOATS.map(b=>b.capacity));
+const maxCap = () => Math.max(...BOATS.map(b=>b.capacity));
 function home(){
   const sorted = [...BOATS].sort((a,b)=>(b.capacity-a.capacity)||((b.feet||0)-(a.feet||0)));
   /* a lancha destaque (Miss Bardot) vem sempre em primeiro, depois da maior para a menor */
@@ -1557,7 +1557,7 @@ function home(){
       <div class="wl"><span>${t("whenFrom")}</span><button type="button" id="w-de" class="pk-dbtn${when.de?"":" ph"}" aria-expanded="false" aria-controls="w-cal">${when.de?fmtShort(when.de):t("calPick")}</button></div>
       <div class="wl"><span>${t("whenTo")}</span><button type="button" id="w-ate" class="pk-dbtn${when.ate?"":" ph"}" aria-expanded="false" aria-controls="w-cal">${when.ate?fmtShort(when.ate):t("calPick")}</button></div>
       <div class="cal" id="w-cal" hidden></div></div>
-      <label><span>${t("pickPeople")}</span><select id="w-people"><option value="">${t("peoplePh")}</option>${Array.from({length:MAX_CAP},(_,i)=>`<option value="${i+1}"${+when.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
+      <label><span>${t("pickPeople")}</span><select id="w-people"><option value="">${t("peoplePh")}</option>${Array.from({length:maxCap()},(_,i)=>`<option value="${i+1}"${+when.people===i+1?" selected":""}>${peopleLabel(i+1)}</option>`).join("")}</select></label>
       ${when.de||when.people?`<button type="button" class="when-clear" id="w-clear">${t("whenClear")}</button>`:""}
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
@@ -1666,6 +1666,8 @@ function boatPage(b){
 const app = document.getElementById("app");
 function render(toTop=true){
   const b = route.slug && BOATS.find(x=>x.slug===route.slug);
+  /* lancha cadastrada no app: espera o banco antes de decidir que a página não existe */
+  if(route.slug && !b && !dbDone){ dbWait=true; if(!app.querySelector(".boat")) app.innerHTML=`<p style="padding:90px 16px;text-align:center;color:var(--muted)">…</p>`; return; } /* página já gerada na publicação: fica como está até o banco responder */
   if(b) takePending(b);
   app.innerHTML = b ? boatPage(b) : home();
   seo(b);
@@ -1752,28 +1754,46 @@ function waves(){
   draw();
 }
 document.addEventListener("click",e=>{ const x=document.querySelector(".selo[open]"); if(x && !x.contains(e.target)) x.open=false; }); /* selo da Miss Bardot fecha ao tocar fora */
+/* lanchas cadastradas no app pelo administrador (tabela lanchas com "dados"): entram na vitrine junto com as do código.
+   No site publicado só aparecem as que já têm página gerada (lista data-pub do <html>, escrita a cada publicação). */
+const PUB = document.documentElement.dataset.pub;
+const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
+let dbDone = false, dbWait = false, dbAdded = 0;
+const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
+  .then(r=>r.ok ? r.json() : Promise.reject(r.status))
+  .then(rows=>rows.forEach(r=>{ const d=r.dados||{};
+    if(BOATS.some(b=>b.slug===r.slug) || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
+    const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
+    dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true,
+      feet:d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
+      tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
+      i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
+      included:[...BASICS_NEW], prices:{}, price7h:null,
+      boarding: e4.length||e7.length ? {4:e4.length?e4:e7, 7:e7.length?e7:e4} : null}); }))
+  .catch(()=>{})
+  .finally(()=>{ dbDone=true; window.dbBoatsDone=true; if(dbWait || (dbAdded && !route.slug)){ const y=scrollY; render(dbWait); if(!dbWait) scrollTo(0,y); } });
 applyStatic();
 render();
 /* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
 const precosURL = c => AGENDA_URL.replace("bloqueios","precos")+"?select=lancha,baixa,media,alta,pico,reveillon"+c;
-fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7"), {headers:{apikey:AGENDA_KEY}})
-  .then(r=>r.ok ? r.json() : r.status===400 ? fetch(precosURL(""), {headers:{apikey:AGENDA_KEY}}).then(x=>x.ok?x.json():Promise.reject(x.status)) : Promise.reject(r.status))
-  .then(rows=>{ let mudou=false;
+Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7"), {headers:{apikey:AGENDA_KEY}})
+  .then(r=>r.ok ? r.json() : r.status===400 ? fetch(precosURL(""), {headers:{apikey:AGENDA_KEY}}).then(x=>x.ok?x.json():Promise.reject(x.status)) : Promise.reject(r.status)), dbBoats])
+  .then(([rows])=>{ let mudou=false;
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return;
       const p={baixa:r.baixa, media:r.media, alta:r.alta, pico:r.pico, reveillon:r.reveillon};
       const p7={baixa:r.baixa7??null, media:r.media7??null, alta:r.alta7??null, pico:r.pico7??null, reveillon:r.reveillon7??null};
       if(JSON.stringify(p)!==JSON.stringify(b.prices) || JSON.stringify(p7)!==JSON.stringify(b.prices7||{})){ b.prices=p; b.prices7=p7; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
-  .catch(()=>{});
+  .catch(()=>{}).finally(()=>window.precosDone=true);
 /* fotos e ordem editadas no app (tabela fotos): a 1ª é a capa; se o banco não responder, ficam as do código */
-fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista", {headers:{apikey:AGENDA_KEY}})
-  .then(r=>r.ok ? r.json() : Promise.reject(r.status))
-  .then(rows=>{ let mudou=false;
+Promise.all([fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista", {headers:{apikey:AGENDA_KEY}})
+  .then(r=>r.ok ? r.json() : Promise.reject(r.status)), dbBoats])
+  .then(([rows])=>{ let mudou=false;
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b || !Array.isArray(r.lista) || !r.lista.length) return;
       const P=r.lista.map(x=>[x.f, x.a||"", x.p||"center 50%"]);
       if(JSON.stringify(P)!==JSON.stringify(b.photos)){ b.photos=P; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
-  .catch(()=>{});
+  .catch(()=>{}).finally(()=>window.fotosDone=true);
 /* chegando de outra página com #frota ou #como, desce até a seção */
 if(location.hash.length>1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 </script>

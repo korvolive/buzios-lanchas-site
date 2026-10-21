@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *" # lancha nova ou editada no app: publica sozinho (só quando o banco mudou)
 
 jobs:
   deploy:
@@ -13,12 +15,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Conferir se as lanchas do app mudaram (só na verificação automática)
+        id: db
+        if: github.event_name == 'schedule'
+        run: node scripts/db-mudou.mjs
       - name: Gerar páginas para o Google (início e lanchas, em pt, en e es) e sitemap.xml
+        if: github.event_name != 'schedule' || steps.db.outputs.mudou == 'true'
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
           node scripts/prerender.mjs
       - name: Enviar arquivos por FTP
+        if: github.event_name != 'schedule' || steps.db.outputs.mudou == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
