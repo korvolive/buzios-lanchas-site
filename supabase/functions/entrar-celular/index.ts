@@ -1,7 +1,7 @@
 // Búzios Lanchas: entrar com o celular (WhatsApp) e a senha.
 // Toda conta tem e-mail (confirmado por código no cadastro); aqui o celular só serve para achar a conta.
 // POST { tel, senha }        -> a sessão (igual ao login por e-mail), { erro: "sem_conta" }, { erro: "senha" } ou { erro: "confirmar", email }
-// POST { tel, recuperar: 1 } -> manda o e-mail de nova senha para a conta desse celular (sem mostrar o e-mail)
+// POST { tel, recuperar: 1 } -> manda o e-mail de nova senha para a conta desse celular (devolve o e-mail só mascarado)
 // O e-mail da conta nunca volta para quem só sabe o celular.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -10,6 +10,8 @@ const db = createClient(URL_SB, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { au
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, apikey, content-type, x-client-info", "access-control-allow-methods": "POST, OPTIONS" };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const dig = (x: unknown) => String(x || "").replace(/\D/g, "");
+// e-mail só com o começo e o domínio (ro•••@gmail.com), para a pessoa saber onde procurar o link
+const mascara = (e: string) => { const [u, d] = e.split("@"); return `${u.slice(0, 2)}•••@${d}`; };
 
 // contas com esse celular: clientes (WhatsApp do cadastro) e equipe (perfis)
 async function contas(d: string) {
@@ -37,7 +39,7 @@ Deno.serve(async req => {
     if (recuperar) {
       const to = typeof volta === "string" && volta.startsWith("https://www.lanchaembuzios.com.br/") ? volta : "https://www.lanchaembuzios.com.br/login/";
       for (const email of emails) await fetch(`${URL_SB}/auth/v1/recover?redirect_to=${encodeURIComponent(to)}`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ email }) });
-      return json({ ok: true });
+      return json({ ok: true, para: emails.map(mascara).join(", ") });
     }
     if (typeof senha !== "string" || !senha) return json({ erro: "senha" });
     const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
