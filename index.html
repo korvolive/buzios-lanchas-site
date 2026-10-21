@@ -169,8 +169,9 @@ html.is-app #hdr-login{display:none}
 .c-items li.gold svg{color:#2a1f05}
 .card>.tag{position:absolute;top:12px;left:12px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.25);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:6px;background:var(--brass);color:var(--brass-ink)}
 .card>.tag.ex{background:var(--chip);color:var(--muted)}
-.specs{display:flex;gap:18px;flex-wrap:wrap;font:500 14px/1.2 var(--mono);color:var(--muted)}
-.specs b{display:block;font:700 20px/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.c-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}
+.specs{display:flex;gap:12px;font:500 13px/1.2 var(--mono);color:var(--muted);white-space:nowrap}
+.specs b{font:700 16px/1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
 .price-from{margin-top:auto;display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:14px}
 .price-from span{font-size:13px;color:var(--muted)}
 .price-from strong{font:700 22px/1 var(--display);font-variant-numeric:tabular-nums}
@@ -415,7 +416,7 @@ h1,h2,h3{line-height:1.15}
   .section-head > div{display:grid;justify-items:center;gap:8px}
   .when > strong{text-align:center}
   .card .body{text-align:center;align-items:center}
-  .specs{justify-content:center}
+  .specs{justify-content:center}.c-head{justify-content:center}
   .c-items{justify-content:center}
   .price-from{flex-direction:column;align-items:center;gap:10px;width:100%}
   .rt-grid > :not(.rt-map){text-align:center}
@@ -1108,7 +1109,7 @@ const wa = text => `https://wa.me/${WHATS}?text=${encodeURIComponent(text)}`;
 const waLink = name => wa(t("waBoat",{name}));
 const boatSVG = `<svg viewBox="0 0 200 90" aria-hidden="true"><path d="M8 58h184l-22 24H34z" fill="currentColor"/><path d="M52 58l16-22h70l18 22z" fill="currentColor" opacity=".55"/><rect x="80" y="40" width="40" height="8" rx="2" fill="currentColor" opacity=".35"/><path d="M0 86c20-6 40 6 60 0s40 6 60 0 40 6 60 0 20 4 20 4" stroke="currentColor" stroke-width="2" fill="none" opacity=".5"/></svg>`;
 const ph = (note) => `<div class="ph">${boatSVG}<span class="note">${note}</span></div>`;
-const specs = b => `<div class="specs"><div><b>${b.feet??"—"}</b>${t("feet")}</div><div><b>${b.capacity}</b>${t("people")}</div></div>`;
+const specs = b => `<span class="specs"><span><b>${b.feet??"—"}</b> ${t("feet")}</span><span><b>${b.capacity}</b> ${t("people")}</span></span>`; /* ao lado do nome, no card */
 
 /* ============ reserva por data ============ */
 /* "dia" ocupa o dia inteiro; "manha" e "tarde" podem ser vendidos na mesma lancha no mesmo dia */
@@ -1513,8 +1514,7 @@ function home(){
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           ${b.photos?`<div class="ph"><img src="/img/${b.photos[0][0]}-t.jpg" srcset="/img/${b.photos[0][0]}-t.jpg 360w, /img/${b.photos[0][0]}.jpg 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${tx(b.photos[0][1])}" style="object-position:${b.photos[0][2]}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
-            <h3>${b.name}</h3>
-            ${specs(b)}
+            <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
             <div class="price-from"><div><span>${t("from4h")}</span><br><strong>${minPrice(b)?money(minPrice(b)):t("onRequest")}</strong></div><span class="go">${t("seeBoat")}</span></div>
           </div>
