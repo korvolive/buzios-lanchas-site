@@ -10,6 +10,8 @@
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
 // POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa quando um passeio termina (da Búzios Lanchas: o administrador; de fora: os donos),
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
+//                       Na mesma rodada avisa o cliente com conta 1 hora antes do início do passeio (celular e e-mail), com embarque, mapa e contatos
+//                       (dono da lancha; nos passeios da Búzios Lanchas também a Búzios Lanchas). Uma vez por passeio (tabela inicio_avisos).
 // As chaves do envio são criadas aqui mesmo na primeira vez e ficam em push_config (ninguém do app lê).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -72,6 +74,16 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.` }),
     en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.` }),
     es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.` }),
+  },
+  inicio: {
+    pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
+    en: p => ({ title: "Your tour starts soon", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Boarding: " + p.embarque : ""}. Tap to see the place and contacts.` }),
+    es: p => ({ title: "Tu paseo empieza pronto", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toca para ver el lugar y los contactos.` }),
+  },
+  avisarCli: {
+    pt: p => ({ title: "Avise o cliente: passeio em breve", body: `${p.cliente || "Cliente"} · ${p.lancha} · ${p.hora}. Ele ainda não tem conta no app: toque para mandar o aviso no WhatsApp.` }),
+    en: p => ({ title: "Tell the client: tour soon", body: `${p.cliente || "Client"} · ${p.lancha} · ${p.hora}. They have no app account yet: tap to send the reminder on WhatsApp.` }),
+    es: p => ({ title: "Avisa al cliente: paseo pronto", body: `${p.cliente || "Cliente"} · ${p.lancha} · ${p.hora}. Todavía no tiene cuenta en la app: toca para mandar el aviso por WhatsApp.` }),
   },
   teste: {
     pt: () => ({ title: "Notificações ativadas", body: "Você vai receber os avisos da Búzios Lanchas aqui." }),
@@ -166,13 +178,23 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : [])], nota: "Open the app on the Tours tab: the tour is at the top, under \"Tours waiting for confirmation\".", botao: "Confirm the tour" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para liberar la evaluación del cliente." : "Confirma si ocurrió para liberar la evaluación del cliente."}`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abre la app en la pestaña Paseos: el paseo está arriba, en \"Paseos pendientes de confirmación\".", botao: "Confirmar el paseo" }),
   },
+  inicio: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Seu passeio na ${p.lancha} começa em breve!`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "pt")] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), ...(p.buzios ? ["Búzios Lanchas: WhatsApp (21) 99927-2550"] : [])], nota: "Chegue ao local de embarque uns 10 minutos antes. Qualquer imprevisto, fale com o dono da lancha. Bom passeio!", botao: "Ver minha reserva" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your tour on ${p.lancha} starts soon!`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Location: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "en")] : []), ...(p.donos || []).map((d: string) => `Boat owner: ${d}`), ...(p.buzios ? ["Búzios Lanchas: WhatsApp +55 21 99927-2550"] : [])], nota: "Please be at the boarding place about 10 minutes early. If anything comes up, talk to the boat owner. Enjoy your tour!", botao: "See my booking" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Tu paseo en ${p.lancha} empieza pronto!`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "es")] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), ...(p.buzios ? ["Búzios Lanchas: WhatsApp +55 21 99927-2550"] : [])], nota: "Llega al lugar de embarque unos 10 minutos antes. Ante cualquier imprevisto, habla con el dueño de la lancha. ¡Buen paseo!", botao: "Ver mi reserva" }),
+  },
+  avisarCli: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O passeio de ${p.cliente || "um cliente"} na ${p.lancha} começa em breve. O cliente ainda não tem conta na Búzios Lanchas, então não recebe o aviso automático.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abra o app e mande para ele no WhatsApp a mensagem pronta com o local, a localização, os contatos e o link para se cadastrar e avaliar a lancha e o marinheiro.", botao: "Mandar o aviso ao cliente" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `${p.cliente || "A client"}'s tour on ${p.lancha} starts soon. The client has no Búzios Lanchas account yet, so they don't get the automatic reminder.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "Open the app and send them the ready WhatsApp message with the place, location, contacts and the link to sign up and rate the boat and skipper.", botao: "Send the reminder to the client" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `El paseo de ${p.cliente || "un cliente"} en ${p.lancha} empieza pronto. El cliente todavía no tiene cuenta en Búzios Lanchas, así que no recibe el aviso automático.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abre la app y mándale por WhatsApp el mensaje listo con el lugar, la ubicación, los contactos y el enlace para registrarse y calificar la lancha y al marinero.", botao: "Mandar el aviso al cliente" }),
+  },
   cliente: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "pt")] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Combine os detalhes do passeio direto com o dono da lancha. Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your booking on ${p.lancha} is confirmed.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Location: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "en")] : []), ...(p.donos || []).map((d: string) => `Boat owner: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Arrange the trip details directly with the boat owner. Any questions, talk to us. Enjoy your trip!", botao: "See my booking" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "es")] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Coordina los detalles del paseo directamente con el dueño de la lancha. Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "avaliar" | "fim", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "avaliar" | "fim" | "inicio" | "avisarCli", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at) return false;
@@ -228,12 +250,52 @@ async function fins() {
   return n;
 }
 
+// aviso ao cliente 1 hora antes do início (hora_ini combinada, senão o início do horário padrão; noite só com hora combinada)
+const INI: Record<string, number> = { manha: 10, tarde: 14, dia: 10, noite: 99 };
+async function inicios() {
+  const agora = new Date(Date.now() - 3 * 3600 * 1000), hoje = agora.toISOString().slice(0, 10), hora = agora.getUTCHours() + agora.getUTCMinutes() / 60;
+  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, anotacoes(origem, cliente, cliente_conta, telefone, embarque, hora_ini, hora_fim, valor, sinal), realizados(aconteceu), inicio_avisos(bloqueio_id)").eq("data", hoje);
+  if (error) { console.error("inicio", error.message); return 0; }
+  const um = (x: any) => Array.isArray(x) ? x[0] : x;
+  const prontos = (bs || []).filter(b => {
+    const a = um(b.anotacoes);
+    if (a && +a.valor > 0 && a.sinal !== null && a.sinal !== "" && +a.sinal === 0) return false; // pré-reserva (sinal zero): ainda não confirmado
+    if (!a || !(a.cliente_conta || String(a.telefone || "").replace(/\D/g, "").length >= 8) || um(b.realizados) || um(b.inicio_avisos)) return false;
+    const ini = a.hora_ini ? (([h, m]) => h + m / 60)(String(a.hora_ini).split(":").map(Number)) : INI[b.horario] ?? 99;
+    return hora >= ini - 1 && hora < ini + 1; // a partir de 1 hora antes; se o aviso atrasar mais de 1 hora depois do início, não manda
+  });
+  if (!prontos.length) return 0;
+  const { data: novos } = await db.from("inicio_avisos").upsert(prontos.map(b => ({ bloqueio_id: b.id })), { onConflict: "bloqueio_id", ignoreDuplicates: true }).select("bloqueio_id");
+  const ok = new Set((novos || []).map(n => n.bloqueio_id));
+  const adms = ((await db.from("admins").select("user_id")).data || []).map(x => x.user_id);
+  let n = 0;
+  for (const b of prontos.filter(b => ok.has(b.id))) {
+    const a = um(b.anotacoes), lancha = (await db.from("lanchas").select("nome").eq("slug", b.lancha).maybeSingle()).data?.nome || b.lancha;
+    const { data: ds } = await db.from("donos").select("user_id").eq("lancha", b.lancha);
+    const { data: pd } = await db.from("perfis").select("nome, telefone").in("user_id", (ds || []).map(d => d.user_id).concat(["00000000-0000-0000-0000-000000000000"]));
+    const donos = (pd || []).filter(x => x.nome).map(x => x.nome + (x.telefone ? ` · WhatsApp ${x.telefone}` : ""));
+    const hora = a.hora_ini ? String(a.hora_ini).replace(/^0/, "").replace(":00", "h").replace(":", "h") : `${INI[b.horario]}h`;
+    if (!a.cliente_conta) {
+      // cliente sem conta: avisa quem cuida do passeio (Búzios Lanchas: administrador; de fora: donos) para mandar a mensagem pronta no WhatsApp
+      const alvo = a.origem === "buzios" ? adms : (ds || []).map(d => d.user_id);
+      n += await enviar(alvo, "avisarCli", { id: b.id, lancha, hora, cliente: a.cliente || "" }, `/login/?avisar=${b.id}`);
+      const { data: ns } = await db.from("perfis").select("user_id, nome").in("user_id", alvo.concat(["00000000-0000-0000-0000-000000000000"]));
+      for (const u of alvo) await mandarEmail(u, "avisarCli", { b, a, lancha, data: dataBR(b.data), embarque: a.embarque || "", cliente: a.cliente || "", nomes: Object.fromEntries((ns || []).map(x => [x.user_id, x.nome])) }).catch(e => console.error(e));
+      continue;
+    }
+    const { data: c } = await db.from("clientes").select("nome").eq("user_id", a.cliente_conta).maybeSingle();
+    n += await enviar([a.cliente_conta], "inicio", { id: b.id, lancha, hora, embarque: a.embarque || "" }, "/login/");
+    await mandarEmail(a.cliente_conta, "inicio", { b, a, lancha, data: dataBR(b.data), embarque: a.embarque || "", donos, buzios: a.origem === "buzios", nomes: { [a.cliente_conta]: c?.nome || a.cliente || "" } }).catch(e => console.error(e));
+  }
+  return n;
+}
+
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
     if (req.method === "GET") return json({ publica: (await chaves()).publica });
     const corpo = await req.clone().json().catch(() => ({}));
-    if (corpo.tipo === "fim") return json({ enviados: await fins() });
+    if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)) });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     const { data: u } = await db.auth.getUser(token);
     const uid = u?.user?.id;
