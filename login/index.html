@@ -428,7 +428,7 @@ Object.assign(T.pt, {
   nameBad:"Escreva o nome completo (nome e sobrenome).", myPhoneBad:"Seu WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", cpfBad:"CPF inválido. Confira os números.", cpfTaken:"Esse CPF já tem uma conta. Entre com o e-mail dela ou fale com a Búzios Lanchas.", telTaken:"Esse WhatsApp já tem uma conta. Entre com ele (opção Celular) ou fale com a Búzios Lanchas.",
   emailBad:"Digite um e-mail válido.", createAcc:"Criar conta", creating:"Criando…", emailTaken:"Esse e-mail já tem conta. Entre com a sua senha. Se você recebeu um convite por e-mail, use o link do e-mail ou toque em Esqueci minha senha.",
   checkEmail:"Conta criada! Confirme pelo link que enviamos para {email} e depois entre.",
-  completeT:"Complete seu cadastro", completeSub:"Falta pouco: precisamos do seu nome completo, CPF, WhatsApp e data de nascimento.", saveData:"Salvar",
+  completeT:"Complete seu cadastro", completeSub:"Falta pouco: precisamos do seu nome completo, WhatsApp e data de nascimento.", saveData:"Salvar",
   teamHint:"É dono de lancha, marinheiro ou da equipe? Peça o acesso à Búzios Lanchas.",
   cliHello:"Olá, {name}!", myTripsT:"Reservar um passeio", cliSub:"Escolha a lancha no site, marque data, horário e pessoas e toque em Consultar disponibilidade. Seu pedido aparece aqui embaixo e a Búzios Lanchas confirma com você pelo WhatsApp.",
   seeBoats:"Ver as lanchas", cliNone:"Você ainda não fez nenhum pedido.", cliPast:"Anteriores",
@@ -448,7 +448,7 @@ Object.assign(T.en, {
   nameBad:"Type your full name (first and last name).", myPhoneBad:"Your WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", cpfBad:"Invalid CPF. Please check the numbers.", cpfTaken:"This CPF already has an account. Sign in with its email or contact Búzios Lanchas.", telTaken:"This WhatsApp number already has an account. Sign in with it (Phone option) or contact Búzios Lanchas.",
   emailBad:"Type a valid email.", createAcc:"Create account", creating:"Creating…", emailTaken:"This email already has an account. Sign in with your password. If you got an invite by email, use the link in it or tap I forgot my password.",
   checkEmail:"Account created! Confirm it with the link we sent to {email}, then sign in.",
-  completeT:"Complete your profile", completeSub:"Almost there: we need your full name, CPF, WhatsApp and date of birth.", saveData:"Save",
+  completeT:"Complete your profile", completeSub:"Almost there: we need your full name, WhatsApp and date of birth.", saveData:"Save",
   teamHint:"Boat owner, skipper or crew? Ask Búzios Lanchas for access.",
   cliHello:"Hi, {name}!", myTripsT:"Book a tour", cliSub:"Pick a boat on the website, choose date, time and people and tap Check availability. Your request shows up below and Búzios Lanchas confirms it with you on WhatsApp.",
   seeBoats:"See the boats", cliNone:"You haven't made any requests yet.", cliPast:"Earlier",
@@ -468,7 +468,7 @@ Object.assign(T.es, {
   nameBad:"Escribe tu nombre completo (nombre y apellido).", myPhoneBad:"Tu WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", cpfBad:"CPF inválido. Revisa los números.", cpfTaken:"Este CPF ya tiene una cuenta. Entra con su correo o habla con Búzios Lanchas.", telTaken:"Este WhatsApp ya tiene una cuenta. Entra con él (opción Celular) o habla con Búzios Lanchas.",
   emailBad:"Escribe un correo válido.", createAcc:"Crear cuenta", creating:"Creando…", emailTaken:"Este correo ya tiene cuenta. Entra con tu contraseña. Si recibiste una invitación por correo, usa el enlace o toca Olvidé mi contraseña.",
   checkEmail:"¡Cuenta creada! Confírmala con el enlace que enviamos a {email} y después entra.",
-  completeT:"Completa tu registro", completeSub:"Falta poco: necesitamos tu nombre completo, CPF, WhatsApp y fecha de nacimiento.", saveData:"Guardar",
+  completeT:"Completa tu registro", completeSub:"Falta poco: necesitamos tu nombre completo, WhatsApp y fecha de nacimiento.", saveData:"Guardar",
   teamHint:"¿Eres dueño de lancha, marinero o del equipo? Pide el acceso a Búzios Lanchas.",
   cliHello:"¡Hola, {name}!", myTripsT:"Reservar un paseo", cliSub:"Elige la lancha en el sitio, marca fecha, horario y personas y toca Consultar disponibilidad. Tu pedido aparece aquí abajo y Búzios Lanchas lo confirma contigo por WhatsApp.",
   seeBoats:"Ver las lanchas", cliNone:"Todavía no hiciste ningún pedido.", cliPast:"Anteriores",
@@ -753,7 +753,7 @@ function cpfOk(c){
 const fmtCPF = v => { const d=String(v||"").replace(/\D/g,"").slice(0,11); return d.replace(/^(\d{3})(\d)/,"$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3").replace(/\.(\d{3})(\d{1,2})$/,".$1-$2"); };
 const profileFields = (v={}) => { const ph=splitPhone(v.whatsapp);
   return `<label class="f"><span>${t("fullName")}${REQ}</span><input type="text" id="c-nome" autocomplete="name" autocapitalize="words" placeholder="${t("ph_fullName")}" value="${esc(v.nome||"")}"></label>
-    <label class="f"><span>${t("cpf")}${REQ}</span><input type="text" id="c-cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" value="${esc(fmtCPF(v.cpf))}"></label>
+    <label class="f" id="cpfbox"${ph.cc==="55"?"":" hidden"}><span>${t("cpf")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span><input type="text" id="c-cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" value="${esc(fmtCPF(v.cpf))}"></label>
     <div class="f"><label for="c-tel"><span>${t("whats")}${REQ}</span></label><div class="phone"><select class="in" id="c-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="c-tel" inputmode="tel" autocomplete="tel-national" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
     ${nascField(v.nascimento)}`; };
 /* data de nascimento do cliente (Rodrigo: para chamar a pessoa para comemorar o aniversário na lancha) */
@@ -764,7 +764,7 @@ const fmtNasc = d => dateOf(d).toLocaleDateString(t("locale"),{day:"numeric",mon
 function bindProfile(){
   const cpf=document.getElementById("c-cpf"), ddi=document.getElementById("c-ddi"), tel=document.getElementById("c-tel");
   cpf.oninput=()=>{ const end=cpf.selectionStart===cpf.value.length; cpf.value=fmtCPF(cpf.value); if(end) cpf.selectionStart=cpf.selectionEnd=cpf.value.length; };
-  ddi.onchange=()=>{ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
+  ddi.onchange=()=>{ document.getElementById("cpfbox").hidden = ddi.value!=="55"; /* CPF só para brasileiros, e opcional */ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
   tel.oninput=()=>{ if(ddi.value==="55"){ const end=tel.selectionStart===tel.value.length; tel.value=fmtBR(tel.value); if(end) tel.selectionStart=tel.selectionEnd=tel.value.length; } };
   app.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",()=>x.classList.remove("miss")));
 }
@@ -773,11 +773,11 @@ function readProfile(){
   const v=id=>document.getElementById(id).value.trim(), miss=[], msgs=[];
   const nome=v("c-nome").replace(/\s+/g," "), cpf=v("c-cpf").replace(/\D/g,""), cc=v("c-ddi"), tel=v("c-tel"), d=tel.replace(/\D/g,"");
   if(nome.length<5 || !nome.includes(" ")){ miss.push("c-nome"); msgs.push(t("nameBad")); }
-  if(!cpfOk(cpf)){ miss.push("c-cpf"); msgs.push(t("cpfBad")); }
+  if(cc==="55" && cpf && !cpfOk(cpf)){ miss.push("c-cpf"); msgs.push(t("cpfBad")); } /* CPF opcional; estrangeiro não informa */
   if(!okPhone(cc,d)){ miss.push("c-tel"); msgs.push(t("myPhoneBad")); }
   const nascimento=v("c-nasc"); if(!nascOk(nascimento)){ miss.push("c-nasc"); msgs.push(t("nascBad")); }
   miss.forEach(id=>document.getElementById(id).classList.add("miss"));
-  return {miss, msg:msgs.join("<br>"), data:{nome, cpf, whatsapp:`+${cc} ${tel}`, nascimento}};
+  return {miss, msg:msgs.join("<br>"), data:{nome, cpf:cc==="55" && cpf ? cpf : null, whatsapp:`+${cc} ${tel}`, nascimento}};
 }
 async function saveProfile(data){
   try{ await db("clientes",{method:"POST", body:data, prefer:"return=minimal"}); S.me=data; store.set("cli-draft",null); return ""; }
@@ -980,7 +980,7 @@ function reqCard(p, adm){
     <span class="tbody">${adm?`<strong class="who">${face(p.cliente,c.nome,"face sm")}${esc(c.nome||"—")}</strong>`:`<strong class="who">${avatar(p.lancha,"bav")}${esc(boatName(p.lancha))}</strong>`}
       <span>${fmtLong(p.data)}${!adm && dateOf(p.data).getFullYear()!==new Date().getFullYear()?" "+dateOf(p.data).getFullYear():""} · ${t("slot_"+p.horario)}${p.horario==="noite"?"":" · "+t("hours_"+p.horario)}</span>
       <span class="tmeta">${!adm && p.status==="aprovado" && reqEnded(p) && S.revOk ? "" : `<i class="stb st-${p.status}">${t("st_"+p.status)}</i>`}${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque&&adm?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>${p.embarque&&!adm?mapLink(p.embarque):""}
-      ${adm?`<span class="tmeta"><i>CPF ${esc(fmtCPF(c.cpf))}</i><i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
+      ${adm?`<span class="tmeta">${c.cpf?`<i>CPF ${esc(fmtCPF(c.cpf))}</i>`:""}<i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
       ${adm && p.status==="pendente" && S.cpOk ? admPay(p) : ""}
       ${adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn" data-ap="${p.id}">${t("approve")}</button><button type="button" class="btn sec" data-rq="${p.id}">${t("refuseReq")}</button></span>`
         : adm && p.status==="aprovado" && p.bloqueio_id ? `<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button></span>`
@@ -2442,7 +2442,7 @@ function renderTrip(){
   const cc=document.getElementById("clicard");
   if(cc) cc.ontoggle=async()=>{ if(!cc.open || cc.dataset.ok) return; cc.dataset.ok=1; const box=document.getElementById("clibody");
     try{ const c=(await db("rpc/cliente_do_passeio",{method:"POST",body:{bid:r.id}}))[0]; const ph=splitPhone(c?.whatsapp), wa=ph.cc+ph.num.replace(/\D/g,"");
-      box.innerHTML = c ? `<div class="who" style="margin:4px 0 8px">${face(n.cliente_conta,c.nome,"face lg")}<strong>${esc(c.nome)}</strong></div><div class="rolist"><div class="rorow"><span>${t("fullName")}</span><strong>${esc(c.nome)}</strong></div><div class="rorow"><span>CPF</span><strong>${esc(fmtCPF(c.cpf))}</strong></div>
+      box.innerHTML = c ? `<div class="who" style="margin:4px 0 8px">${face(n.cliente_conta,c.nome,"face lg")}<strong>${esc(c.nome)}</strong></div><div class="rolist"><div class="rorow"><span>${t("fullName")}</span><strong>${esc(c.nome)}</strong></div>${c.cpf?`<div class="rorow"><span>CPF</span><strong>${esc(fmtCPF(c.cpf))}</strong></div>`:""}
         <div class="rorow"><span>WhatsApp</span><strong><a href="https://wa.me/${wa}" target="_blank" rel="noopener">${esc(c.whatsapp)}</a></strong></div>${c.email?`<div class="rorow"><span>${t("email")}</span><strong style="overflow-wrap:anywhere"><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></strong></div>`:""}
         <div class="rorow"><span>${t("cliSince")}</span><strong>${new Date(c.desde).toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</strong></div><div class="rorow"><span>${t("cliTrips")}</span><strong>${c.passeios}</strong></div></div>` : `<p class="muted">—</p>`; }
     catch(e){ cc.dataset.ok=""; box.innerHTML=`<p class="msg err">${t("loadErr")}</p>`; } };
@@ -2660,7 +2660,7 @@ async function boot(){
       else{ S.me = me?.[0] || null; view="main";
         if(!me?.[0] && !store.get("cli-draft")){ const cv=(await db("rpc/meu_convite",{method:"POST",body:{}}).catch(()=>[]))[0]; if(cv) store.set("cli-draft",{nome:cv.nome||"", whatsapp:cv.telefone||""}); }
         const draft=store.get("cli-draft"); let err="";
-        if(!S.me && draft?.cpf) err = await saveProfile(draft); /* conta criada com confirmação por e-mail: termina o cadastro agora (o rascunho do convite não tem CPF: só preenche a tela) */
+        if(!S.me && draft?.nascimento) err = await saveProfile(draft); /* conta criada com confirmação por e-mail: termina o cadastro agora (o rascunho do convite não tem nascimento: só preenche a tela) */
         if(S.me) await loadMyReq();
         return S.me ? clientView() : (top_.hidden=false, top_.innerHTML=headerHTML(), bindLang(), document.getElementById("out").onclick=logout, completeView(err)); }
     }
