@@ -301,6 +301,17 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .uav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}.uav .btn{width:auto;margin:0;padding:10px 16px;font-size:15px}
 .uh{margin:18px 0 4px;font-size:16px}.uroles li{align-items:center}
 .uadd{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}.uadd select{flex:1 1 140px;min-width:0}.uadd .btn{width:100%;margin:0}
+/* fotos da lancha: segurar e arrastar para mudar a ordem; a 1ª é a capa */
+.phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:12px 0}
+.phit{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--chip);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab}
+.phit img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.phit .phcap{position:absolute;left:6px;bottom:6px;background:var(--brass);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.phit .phdel,.phit .phok{position:absolute;top:4px;right:4px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:14px;cursor:pointer;display:grid;place-items:center}
+.phit .phok{right:auto;left:4px;background:#1f8f4e}
+.phit.pend{cursor:default}.phit.pend img{opacity:.55}
+.phit.sortable-ghost{opacity:.3}.phit.sortable-chosen{box-shadow:0 0 0 3px var(--brass)}
+.phadd{position:relative;overflow:hidden}.phadd input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.phpend{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line,#e5e5e5)}.phpend>a>img{width:84px;height:84px;object-fit:cover;border-radius:10px;flex:none}.phpend .b{display:flex;flex-direction:column;gap:6px;margin-left:auto}
 </style></head><body>
 <header class="top" id="top" hidden></header>
 <main id="app"><p class="loading">…</p></main>
@@ -529,6 +540,9 @@ Object.assign(T.pt, {invAgain:"Convidar o cliente para o cadastro"}); Object.ass
 Object.assign(T.pt, {ownBoatT:"Donos da {boat}", ownBoatSub:"Quem administra a {boat}. Pode ter mais de um, por exemplo um casal. Toque em Editar para mudar nome, WhatsApp ou senha, ou para remover.", ownAdd:"Adicionar dono"});
 Object.assign(T.en, {ownBoatT:"Owners of {boat}", ownBoatSub:"Who manages {boat}. There can be more than one, for example a couple. Tap Edit to change name, WhatsApp or password, or to remove.", ownAdd:"Add owner"});
 Object.assign(T.es, {ownBoatT:"Dueños de {boat}", ownBoatSub:"Quién administra {boat}. Puede haber más de uno, por ejemplo una pareja. Toca Editar para cambiar nombre, WhatsApp o contraseña, o para quitar.", ownAdd:"Agregar dueño"});
+Object.assign(T.pt, {phT:"📷 Fotos da lancha", phSubAdm:"A 1ª foto é a capa no site e precisa mostrar a lancha inteira. Para mudar a ordem, segure uma foto e arraste. Até {max} fotos por lancha.", phSubOwn:"A 1ª foto é a capa no site e precisa mostrar a lancha inteira. Para mudar a ordem, segure uma foto e arraste. Fotos novas aparecem no site depois da aprovação da Búzios Lanchas. Até {max} fotos por lancha.", phCover:"Capa", phAdd:"＋ Enviar fotos", phSending:"Enviando foto {n} de {t}…", phSentOwn:"Fotos enviadas. Elas aparecem no site depois da aprovação da Búzios Lanchas.", phSentAdm:"Fotos adicionadas ao site.", phPendT:"Esperando aprovação", phDelQ:"Excluir esta foto da lancha?", phCancelQ:"Cancelar o envio desta foto?", phLast:"A lancha precisa ter pelo menos 1 foto.", phSaved:"Fotos salvas. O site já mostra a nova ordem.", phChecking:"Conferindo a capa…", phCoverNo:"Essa foto não pode ser a capa: {why} A capa precisa mostrar a lancha inteira, como a da Miss Bardot.", phWhyNone:"não encontramos a lancha nela.", phWhyCut:"a lancha aparece cortada.", phWhySmall:"a lancha aparece muito pequena.", phWhyErr:"não deu para conferir a foto agora. Tente de novo.", phCoverAdj:"Capa enquadrada para mostrar a lancha inteira.", phAdmOverride:"\n\nVocê é administrador: usar como capa mesmo assim?", phNeedSql:"Falta rodar o SQL das fotos no Supabase.", phMax:"Limite de {max} fotos por lancha. Exclua alguma para enviar outra.", phMaxSome:"Só cabem mais {n} fotos (limite de {max}).", phPendBanner:"📷 {n} fotos novas esperando a sua aprovação", phPendBanner1:"📷 1 foto nova esperando a sua aprovação", phPendSee:"Ver e aprovar", phPendSheetT:"Fotos para aprovar", phPendSheetSub:"Aprovada, a foto entra no site antes da última (a última é sempre o banheiro). Depois você pode mudar a ordem na aba Lancha.", phApprove:"✓ Aprovar", phReject:"Recusar", phApproveAll:"Aprovar todas", phApproved:"Foto aprovada: já está no site.", phRejected:"Foto recusada.", phRejectQ:"Recusar esta foto? Ela é apagada.", phNoPend:"Nenhuma foto esperando aprovação.", phBadFile:"Não deu para abrir uma das fotos. Envie em JPG ou PNG."});
+Object.assign(T.en, {phT:"📷 Boat photos", phSubAdm:"The 1st photo is the cover on the website and must show the whole boat. To change the order, hold a photo and drag it. Up to {max} photos per boat.", phSubOwn:"The 1st photo is the cover on the website and must show the whole boat. To change the order, hold a photo and drag it. New photos go live after Búzios Lanchas approves them. Up to {max} photos per boat.", phCover:"Cover", phAdd:"＋ Upload photos", phSending:"Uploading photo {n} of {t}…", phSentOwn:"Photos sent. They go live after Búzios Lanchas approves them.", phSentAdm:"Photos added to the website.", phPendT:"Waiting for approval", phDelQ:"Delete this photo from the boat?", phCancelQ:"Cancel this upload?", phLast:"The boat needs at least 1 photo.", phSaved:"Photos saved. The website already shows the new order.", phChecking:"Checking the cover…", phCoverNo:"This photo can't be the cover: {why} The cover must show the whole boat, like Miss Bardot's.", phWhyNone:"we couldn't find the boat in it.", phWhyCut:"the boat is cut off.", phWhySmall:"the boat looks too small.", phWhyErr:"we couldn't check the photo right now. Try again.", phCoverAdj:"Cover framed to show the whole boat.", phAdmOverride:"\n\nYou're an admin: use it as the cover anyway?", phNeedSql:"The photos SQL still needs to be run in Supabase.", phMax:"Limit of {max} photos per boat. Delete one to upload another.", phMaxSome:"Only {n} more photos fit (limit of {max}).", phPendBanner:"📷 {n} new photos waiting for your approval", phPendBanner1:"📷 1 new photo waiting for your approval", phPendSee:"See and approve", phPendSheetT:"Photos to approve", phPendSheetSub:"Once approved, the photo goes live before the last one (the last is always the bathroom). You can change the order later in the Boat tab.", phApprove:"✓ Approve", phReject:"Reject", phApproveAll:"Approve all", phApproved:"Photo approved: it's live.", phRejected:"Photo rejected.", phRejectQ:"Reject this photo? It will be deleted.", phNoPend:"No photos waiting for approval.", phBadFile:"One of the photos couldn't be opened. Send JPG or PNG."});
+Object.assign(T.es, {phT:"📷 Fotos de la lancha", phSubAdm:"La 1ª foto es la portada en el sitio y debe mostrar la lancha entera. Para cambiar el orden, mantén pulsada una foto y arrástrala. Hasta {max} fotos por lancha.", phSubOwn:"La 1ª foto es la portada en el sitio y debe mostrar la lancha entera. Para cambiar el orden, mantén pulsada una foto y arrástrala. Las fotos nuevas aparecen en el sitio después de la aprobación de Búzios Lanchas. Hasta {max} fotos por lancha.", phCover:"Portada", phAdd:"＋ Enviar fotos", phSending:"Enviando foto {n} de {t}…", phSentOwn:"Fotos enviadas. Aparecen en el sitio después de la aprobación de Búzios Lanchas.", phSentAdm:"Fotos agregadas al sitio.", phPendT:"Esperando aprobación", phDelQ:"¿Eliminar esta foto de la lancha?", phCancelQ:"¿Cancelar el envío de esta foto?", phLast:"La lancha necesita al menos 1 foto.", phSaved:"Fotos guardadas. El sitio ya muestra el nuevo orden.", phChecking:"Revisando la portada…", phCoverNo:"Esta foto no puede ser la portada: {why} La portada debe mostrar la lancha entera, como la de la Miss Bardot.", phWhyNone:"no encontramos la lancha en ella.", phWhyCut:"la lancha aparece cortada.", phWhySmall:"la lancha aparece muy pequeña.", phWhyErr:"no pudimos revisar la foto ahora. Inténtalo de nuevo.", phCoverAdj:"Portada encuadrada para mostrar la lancha entera.", phAdmOverride:"\n\nEres administrador: ¿usarla como portada de todos modos?", phNeedSql:"Falta ejecutar el SQL de las fotos en Supabase.", phMax:"Límite de {max} fotos por lancha. Elimina alguna para enviar otra.", phMaxSome:"Solo caben {n} fotos más (límite de {max}).", phPendBanner:"📷 {n} fotos nuevas esperando tu aprobación", phPendBanner1:"📷 1 foto nueva esperando tu aprobación", phPendSee:"Ver y aprobar", phPendSheetT:"Fotos para aprobar", phPendSheetSub:"Al aprobarla, la foto entra en el sitio antes de la última (la última es siempre el baño). Después puedes cambiar el orden en la pestaña Lancha.", phApprove:"✓ Aprobar", phReject:"Rechazar", phApproveAll:"Aprobar todas", phApproved:"Foto aprobada: ya está en el sitio.", phRejected:"Foto rechazada.", phRejectQ:"¿Rechazar esta foto? Se elimina.", phNoPend:"Ninguna foto esperando aprobación.", phBadFile:"No se pudo abrir una de las fotos. Envíala en JPG o PNG."});
 Object.assign(T.pt, {mailTypo:"Confira o e-mail: você quis dizer {fix}?", mailFixBtn:"Corrigir"}); Object.assign(T.en, {mailTypo:"Check the email: did you mean {fix}?", mailFixBtn:"Fix it"}); Object.assign(T.es, {mailTypo:"Revisa el correo: ¿quisiste decir {fix}?", mailFixBtn:"Corregir"});
 Object.assign(T.pt, {sinalMax:"O sinal não pode ser maior que o valor do passeio ({v})."}); Object.assign(T.en, {sinalMax:"The deposit can't be higher than the trip price ({v})."}); Object.assign(T.es, {sinalMax:"La seña no puede ser mayor que el valor del paseo ({v})."});
 Object.assign(T.pt, {sinalMinHint:"O passeio só é marcado com sinal pago: no mínimo 10% do valor (ou R$ 100 se o valor não estiver definido) e no máximo o valor total.", sinalMin:"O sinal precisa ser de pelo menos {v} (10% do valor do passeio, ou R$ 100 se o valor não estiver definido)."});
@@ -1384,6 +1398,138 @@ function sailorHTML(){
           ${r.obs?`<span>${esc(r.obs)}</span>`:""}
           ${r.eu?`<button type="button" class="link danger" style="margin:4px 0 0;padding:4px 0;text-align:left" data-refuse="${r.id}">${t("cantGo")}</button>`:""}</span></div>`; }).join("")}</div>` : `<p class="muted" style="margin:0">${t("sailorNone")}</p>`}</div>`;
 }
+/* ============ fotos da lancha (tabela fotos; site lê a mesma lista, a 1ª é a capa) ============
+   administrador: envia (já vai ao ar), exclui, reordena e aprova as fotos que os donos enviam.
+   dono: reordena, exclui (fica pelo menos 1) e envia fotos que só vão ao ar depois da aprovação. */
+const PH_MAX = 20;
+const phUrl = (f,thumb) => (/^https?:/.test(f) ? f : "/img/"+f) + (thumb?"-t":"") + ".jpg";
+const phBase = SB + "/storage/v1/object/public/lanchas/";
+function photosHTML(){
+  if(isRO()) return "";
+  if(S.photos===false) return S.admin ? `<div class="card"><p class="msg err" style="margin:0">${t("phNeedSql")}</p></div>` : "";
+  if(S.photos==null) return `<div class="card"><h2>${t("phT")}</h2><p class="muted" style="margin:0">…</p></div>`;
+  const L=S.photos, P=S.pend||[];
+  return `<div class="card"><h2>${t("phT")}</h2><p class="muted" style="margin-top:0">${t(S.admin?"phSubAdm":"phSubOwn",{max:PH_MAX})}</p>
+    <div class="phgrid" id="phgrid">${L.map((x,i)=>`<div class="phit" data-f="${esc(x.f)}"><img src="${esc(phUrl(x.f,1))}" alt="" style="object-position:${esc(x.p||"center")}">${i?"":`<span class="phcap">${t("phCover")}</span>`}<button type="button" class="phdel" data-phdel="${esc(x.f)}" aria-label="${t("remove")}">✕</button></div>`).join("")}</div>
+    ${P.length?`<h3 style="font-size:15px;margin:14px 0 0">⏳ ${t("phPendT")}</h3><div class="phgrid">${P.map(x=>`<div class="phit pend"><img src="${esc(phUrl(x.f,1))}" alt="">${S.admin?`<button type="button" class="phok" data-phok="${x.id}" aria-label="${t("phApprove")}">✓</button>`:""}<button type="button" class="phdel" data-phno="${x.id}" aria-label="${t("remove")}">✕</button></div>`).join("")}</div>`:""}
+    ${L.length+P.length<PH_MAX ? `<label class="btn sec phadd">${t("phAdd")}<input type="file" id="phfile" accept="image/*" multiple></label>` : `<p class="muted" style="margin:0">${t("phMax",{max:PH_MAX})}</p>`}</div>`;
+}
+/* aviso no painel do administrador: fotos esperando aprovação (todas as lanchas) */
+function fotoPendHTML(){
+  const n=(S.fotoPend||[]).length; if(!S.admin || !n) return "";
+  return `<div class="card" style="border:2px solid var(--brass)"><p style="margin:0 0 10px;font-weight:700">${n===1?t("phPendBanner1"):t("phPendBanner",{n})}</p><button type="button" class="btn" id="phpendgo">${t("phPendSee")}</button></div>`;
+}
+const loadFotoPend = () => S.admin ? db("fotos_pendentes?select=id,lancha,f,criado_em&order=id").then(r=>{ S.fotoPend=r; }, ()=>{ S.fotoPend=[]; }) : Promise.resolve();
+function setCover(l, L){ if(L?.[0]) PHOTO[l]=[L[0].f, L[0].p||"center"]; }
+async function loadPhotos(l){
+  try{ const r=await db(`fotos?select=lista&lancha=eq.${encodeURIComponent(l)}`); S.photos=r[0]?.lista||[]; setCover(l,S.photos); }
+  catch(e){ S.photos = (e.status===404||e.status===400) ? false : null; }
+  S.pend = await db(`fotos_pendentes?select=id,f&lancha=eq.${encodeURIComponent(l)}&order=id`).catch(()=>[]);
+}
+/* capa: precisa mostrar a lancha inteira (detector de objetos no aparelho, modelo /login/lancha.tflite).
+   Se a lancha couber no recorte 4:3 do card do site, devolve o enquadramento (p) que centraliza a lancha. */
+let boatDet = null;
+async function capaCheck(f){
+  boatDet ||= import(MP+"/vision_bundle.mjs").then(async v=>v.ObjectDetector.createFromOptions(await v.FilesetResolver.forVisionTasks(MP+"/wasm"),
+    {baseOptions:{modelAssetPath:"/login/lancha.tflite"}, runningMode:"IMAGE", scoreThreshold:.3, maxResults:5, categoryAllowlist:["boat"]}));
+  let d, im;
+  try{ d=await boatDet; im=new Image(); im.crossOrigin="anonymous"; im.src=phUrl(f); await im.decode(); }
+  catch(e){ boatDet=null; return {ok:false, why:"phWhyErr"}; }
+  const W=im.naturalWidth, H=im.naturalHeight;
+  const bs=d.detect(im).detections.filter(x=>x.categories[0].score>=.6).map(x=>x.boundingBox).sort((a,b)=>b.width*b.height-a.width*a.height);
+  if(!bs.length) return {ok:false, why:"phWhyNone"};
+  const b=bs[0], x0=b.originX/W, y0=b.originY/H, x1=(b.originX+b.width)/W, y1=(b.originY+b.height)/H;
+  if(x0<.015 || y0<.01 || x1>.985 || y1>.99) return {ok:false, why:"phWhyCut"};
+  if(x1-x0<.35) return {ok:false, why:"phWhySmall"};
+  const a=W/H, vw=Math.min(1,(4/3)/a), vh=Math.min(1,a/(4/3)); /* parte da foto que aparece no card 4:3 */
+  if(x1-x0>vw*.98 || y1-y0>vh*.98) return {ok:false, why:"phWhyCut"};
+  const pos=(c,v)=> v>=.999 ? 50 : Math.round(Math.max(0,Math.min(1,(c-v/2)/(1-v)))*100);
+  return {ok:true, p:`${pos((x0+x1)/2,vw)}% ${pos((y0+y1)/2,vh)}%`};
+}
+/* salva a lista; se a capa mudou, confere antes (o dono não consegue usar capa fora do padrão) */
+async function savePhotos(nova, l=S.cur){
+  if(nova[0] && nova[0].f!==S.photos?.[0]?.f){
+    toast(t("phChecking")); const r=await capaCheck(nova[0].f);
+    if(r.ok){ nova=[{...nova[0], p:r.p}, ...nova.slice(1)]; toast(t("phCoverAdj")); }
+    else{ const msg=t("phCoverNo",{why:t(r.why)});
+      if(!(S.admin && confirm(msg+t("phAdmOverride")))){ if(!S.admin) alert(msg); mainView(); return false; } }
+  }
+  try{ await db("rpc/salvar_fotos",{method:"POST", body:{l, nova}}); S.photos=nova; setCover(l,nova); toast(t("phSaved")); mainView(); return true; }
+  catch(e){ toast(/limite_20/.test(e.message||"") ? t("phMax",{max:PH_MAX}) : t("saveErr")); await loadPhotos(l); mainView(); return false; }
+}
+const phRmFiles = async f => /^https?:/.test(f) && f.startsWith(phBase) ? fetch(`${SB}/storage/v1/object/lanchas`,{method:"DELETE", headers:{apikey:KEY, authorization:"Bearer "+await fresh(), "content-type":"application/json"}, body:JSON.stringify({prefixes:[f.slice(phBase.length)+".jpg", f.slice(phBase.length)+"-t.jpg"]})}).catch(()=>{}) : Promise.resolve();
+/* redimensiona no aparelho para o padrão da galeria do site: até 1400 px no lado maior (JPEG) e miniatura de 360 px de altura */
+async function fitJpeg(file, maxW, maxH, q){
+  let src; try{ src=await createImageBitmap(file,{imageOrientation:"from-image"}); }
+  catch(e){ src=new Image(); src.src=URL.createObjectURL(file); await src.decode(); }
+  const w=src.width||src.naturalWidth, h=src.height||src.naturalHeight, k=Math.min(1,maxW/w,maxH/h), c=document.createElement("canvas");
+  c.width=Math.round(w*k); c.height=Math.round(h*k); c.getContext("2d").drawImage(src,0,0,c.width,c.height);
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(b):no(new Error("blob")),"image/jpeg",q));
+}
+async function phUpload(files){
+  const l=S.cur, room=PH_MAX-(S.photos||[]).length-(S.pend||[]).length;
+  if(room<=0) return toast(t("phMax",{max:PH_MAX}));
+  if(files.length>room){ alert(t("phMaxSome",{n:room, max:PH_MAX})); files=files.slice(0,room); }
+  const novas=[];
+  for(let i=0;i<files.length;i++){
+    toast(t("phSending",{n:i+1, t:files.length}));
+    let big, small; try{ big=await fitJpeg(files[i],1400,1400,.82); small=await fitJpeg(files[i],640,360,.78); }catch(e){ toast(t("phBadFile")); continue; }
+    const name=`${l}/${Date.now()}-${Math.random().toString(36).slice(2,7)}`, tk=await fresh();
+    try{ for(const [suf,b] of [[".jpg",big],["-t.jpg",small]]){
+        const r=await fetch(`${SB}/storage/v1/object/lanchas/${name}${suf}`,{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+tk, "content-type":"image/jpeg", "cache-control":"max-age=31536000"}, body:b});
+        if(!r.ok){ const j=await r.json().catch(()=>({})); throw Object.assign(new Error(j.message||r.status),{missing:/bucket/i.test(j.message||j.error||"")}); } }
+      novas.push(phBase+name); }
+    catch(e){ toast(e.missing && S.admin ? t("phNeedSql") : t("saveErr")); return; }
+  }
+  if(!novas.length) return;
+  if(S.admin){ const L=S.photos||[], add=novas.map(f=>({f, p:"center 50%"}));
+    /* entram antes da última (a última é sempre o banheiro) */
+    if(await savePhotos(L.length>=2 ? [...L.slice(0,-1), ...add, L[L.length-1]] : [...L, ...add], l)) toast(t("phSentAdm")); }
+  else{
+    try{ await db("fotos_pendentes",{method:"POST", body:novas.map(f=>({lancha:l, f})), prefer:"return=minimal"}); }
+    catch(e){ novas.forEach(phRmFiles); toast(e.status===403||e.code==="42501" ? t("phMax",{max:PH_MAX}) : t("saveErr")); return; }
+    callFn({tipo:"fotos", lancha:l}).catch(()=>{}); /* avisa o administrador no celular */
+    await loadPhotos(l); mainView(); toast(t("phSentOwn")); }
+}
+async function phApprove(id){
+  try{ await db("rpc/aprovar_foto",{method:"POST", body:{pid:id}}); toast(t("phApproved")); }
+  catch(e){ toast(/limite_20/.test(e.message||"") ? t("phMax",{max:PH_MAX}) : t("saveErr")); }
+}
+async function phReject(x){
+  try{ await db(`fotos_pendentes?id=eq.${x.id}`,{method:"DELETE"}); await phRmFiles(x.f); toast(t("phRejected")); }catch(e){ toast(t("saveErr")); }
+}
+function bindPhotos(){
+  const g=document.getElementById("phgrid");
+  if(g){ const go=()=>window.Sortable.create(g,{animation:150, delay:180, delayOnTouchOnly:true, filter:".phdel", preventOnFilter:false, onEnd:()=>{
+      const ord=[...g.children].map(el=>el.dataset.f); if(ord.join()===S.photos.map(x=>x.f).join()) return;
+      savePhotos(ord.map(f=>S.photos.find(x=>x.f===f))); }});
+    if(window.Sortable) go(); else{ const sc=document.createElement("script"); sc.src="/login/sortable.min.js"; sc.onload=go; document.head.appendChild(sc); } }
+  app.querySelectorAll("[data-phdel]").forEach(x=>x.onclick=async()=>{ const f=x.dataset.phdel;
+    if(S.photos.length<=1) return toast(t("phLast"));
+    if(!confirm(t("phDelQ"))) return;
+    if(await savePhotos(S.photos.filter(y=>y.f!==f))) phRmFiles(f); });
+  app.querySelectorAll("[data-phno]").forEach(x=>x.onclick=async()=>{ const p=(S.pend||[]).find(y=>y.id===+x.dataset.phno); if(!p || !confirm(t(S.admin?"phRejectQ":"phCancelQ"))) return;
+    await phReject(p); await loadPhotos(S.cur); await loadFotoPend(); mainView(); });
+  app.querySelectorAll("[data-phok]").forEach(x=>x.onclick=async()=>{ x.disabled=true; await phApprove(+x.dataset.phok); await loadPhotos(S.cur); await loadFotoPend(); mainView(); });
+  const fi=document.getElementById("phfile"); if(fi) fi.onchange=()=>{ const fs=[...fi.files]; fi.value=""; if(fs.length) phUpload(fs); };
+  const pg=document.getElementById("phpendgo"); if(pg) pg.onclick=openFotoPend;
+}
+/* lista de fotos para aprovar (todas as lanchas), aprovação em 1 toque */
+async function openFotoPend(){
+  await loadFotoPend(); const L=S.fotoPend||[];
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${t("phPendSheetT")}</h2><p class="muted" style="margin-top:0">${t("phPendSheetSub")}</p>
+    ${L.length ? L.map(x=>`<div class="phpend"><a href="${esc(phUrl(x.f))}" target="_blank" rel="noopener"><img src="${esc(phUrl(x.f,1))}" alt=""></a><span><strong>${avatar(x.lancha)} ${esc(boatName(x.lancha))}</strong><br><small class="muted">${new Date(x.criado_em).toLocaleString(t("locale"),{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</small></span>
+      <span class="b"><button type="button" class="btn" style="padding:8px 14px" data-pok="${x.id}">${t("phApprove")}</button><button type="button" class="link danger" style="padding:4px 0" data-pno="${x.id}">${t("phReject")}</button></span></div>`).join("")
+      + (L.length>1 ? `<button type="button" class="btn" id="pokall" style="margin-top:12px">${t("phApproveAll")} (${L.length})</button>` : "")
+      : `<p class="muted">${t("phNoPend")}</p>`}
+    <button type="button" class="btn sec" id="ppx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  const done=async()=>{ await loadFotoPend(); if(S.tab==="lancha" && S.cur) await loadPhotos(S.cur); if((S.fotoPend||[]).length) openFotoPend(); else closeDay(); mainView(); };
+  document.getElementById("ppx").onclick=closeDay;
+  sheet.querySelectorAll("[data-pok]").forEach(x=>x.onclick=async()=>{ x.disabled=true; await phApprove(+x.dataset.pok); done(); });
+  sheet.querySelectorAll("[data-pno]").forEach(x=>x.onclick=async()=>{ const p=L.find(y=>y.id===+x.dataset.pno); if(!confirm(t("phRejectQ"))) return; await phReject(p); done(); });
+  const all=document.getElementById("pokall"); if(all) all.onclick=async()=>{ all.disabled=true; for(const x of L) await phApprove(x.id); done(); };
+}
 /* donos da lancha aberta (só o administrador): editar/remover e adicionar outro dono, na própria aba Lancha */
 function ownersHTML(){
   if(!S.admin) return "";
@@ -2066,18 +2212,18 @@ function mainView(){
   if(S.tab!=="lista" && S.tab!=="pedidos" && S.tab!=="usuarios" && S.cur==="*") S.cur=S.boats[0].slug;
   if(S.tab==="lancha" && isRO()) S.tab="lista";
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
-  app.innerHTML = installHTML() + pushHTML()
+  app.innerHTML = fotoPendHTML() + installHTML() + pushHTML()
     + (S.tab==="pedidos" || S.tab==="usuarios" ? "" : S.boats.length>1 ? boatPicker(chips) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + `<div class="tabs${S.admin && !isRO() ? " four five" : ""}" role="tablist">${[["lista","tabList"],["cal","tabCal"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.admin?[["pedidos","tabReq"],["usuarios","tabUsers"]]:[])].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="pedidos"&&S.reqCount?` <b class="cnt">${S.reqCount}</b>`:""}</button>`).join("")}</div>`
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? pricesHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? pricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   bindMain();
 }
 function bindMain(){
-  bindUsers();
+  bindUsers(); bindPhotos();
   app.querySelectorAll("[data-rf]").forEach(x=>x.onclick=()=>{ S.reqF=x.dataset.rf; mainView(); });
   const cg=document.getElementById("clisgo"); if(cg) cg.onclick=openClients;
   app.querySelectorAll("[data-ap]").forEach(x=>x.onclick=()=>openReq(S.reqs.find(p=>p.id===+x.dataset.ap)));
@@ -2301,6 +2447,7 @@ async function loadBlocks(){
     db("rpc/lista_visualizadores",{method:"POST",body:{}}).then(v=>{ S.staff=v; }, ()=>{ S.staff=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     if(S.admin) db(`precos?select=baixa,media,alta,pico,reveillon,baixa7,media7,alta7,pico7,reveillon7&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.no7=false; return r; }, e=>{ if(e.status!==400) throw e; S.no7=true; /* colunas de 7 horas ainda não criadas */ return db(`precos?select=baixa,media,alta,pico,reveillon&lancha=eq.${encodeURIComponent(l)}`); })
       .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
+    S.photos=null; S.pend=[]; loadPhotos(l).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     try{ const r=await db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`); if(my!==loadSeq) return; S.items = r[0]?.opcionais || []; S.err=""; }
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
     return mainView(); }
@@ -2397,7 +2544,7 @@ function fmtBR(v){ const d=v.replace(/\D/g,"").slice(0,11); if(d.length<3) retur
 const CAPACITY = {"miss-bardot":16, "les-zuzu":8, "midas":12, "compostela":6, "bubbles":11};
 /* fotinho redonda de cada lancha: mesma 1ª foto do site (img/<id>-t.jpg) e o mesmo enquadramento */
 const PHOTO = {"miss-bardot":["mb-01","center 70%"], "les-zuzu":["lz-01","center 62%"], "midas":["md-05","center 50%"], "compostela":["cp-01","center 45%"], "bubbles":["bb-01","center 60%"]};
-const avatar = (slug,cls="bav") => PHOTO[slug] ? `<img class="${cls}" src="/img/${PHOTO[slug][0]}-t.jpg" alt="" style="object-position:${PHOTO[slug][1]}">` : "";
+const avatar = (slug,cls="bav") => PHOTO[slug] ? `<img class="${cls}" src="${phUrl(PHOTO[slug][0],1)}" alt="" style="object-position:${PHOTO[slug][1]}">` : "";
 function renderNote(){ tripRow = S.blocks.get(sheetDay)?.get(noteFor); tripNew=false; if(!tripRow){ noteFor=null; return renderSheet(); } renderTrip(); }
 function renderTripRO(){
   const r=tripRow, n=r.nota||{}, ph=splitPhone(n.telefone), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "", fromDay=!!sheetDay;
@@ -2753,6 +2900,8 @@ async function boot(){
     /* cliente: quem não é administrador, dono, funcionário nem marinheiro */
     S.isClient = !S.admin && !S.boats.length && !sOf.length && !S.isFree;
     store.set("conta-tipo", S.isClient ? "cliente" : "equipe");
+    if(S.admin) loadFotoPend().then(()=>{ if(view==="main" && !sheetDay && !tripRow) mainView(); if(new URLSearchParams(location.search).get("fotos")){ history.replaceState(null,"",location.pathname); openFotoPend(); } });
+    db("fotos?select=lancha,lista").then(rows=>{ rows.forEach(r=>setCover(r.lancha,r.lista)); if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{}); /* capa de cada lancha (avatares) */
     if(S.admin) db("pedidos?select=id&status=eq.pendente").then(r=>{ S.reqCount=r.length; if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{});
     if(S.isClient){
       const me = await db(`clientes?select=nome,cpf,whatsapp,nascimento&user_id=eq.${ses.user.id}`).catch(e=>e.status===404||e.status===400 ? false : null);
