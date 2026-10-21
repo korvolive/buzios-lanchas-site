@@ -101,6 +101,12 @@ const hm = (x: string, lang: string) => { const [h, m] = x.split(":").map(Number
 const horario = (b: any, a: any, lang: string) => a?.hora_ini && a?.hora_fim
   ? `${(HOR[lang][b.horario] || b.horario).replace(/ \(.*$/, "")} (${hm(a.hora_ini, lang)} ${{ pt: "às", en: "to", es: "a" }[lang]} ${hm(a.hora_fim, lang)})`
   : HOR[lang][b.horario] || b.horario;
+// localização dos locais de embarque fixos (pins do Rodrigo); vai só para o cliente, dono e marinheiro já conhecem os lugares
+const MAPA: Record<string, string> = {
+  "Píer do Golfinho (Praia dos Ossos)": "https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9",
+  "Porto Veleiro (Praia dos Ossos)": "https://www.google.com/maps/search/?api=1&query=Porto+Veleiro+B%C3%BAzios",
+  "BR Marinas Búzios": "https://maps.app.goo.gl/2cNUHqhBYXmWD8By9",
+};
 const MAIL: Record<string, Record<string, (p: any) => any>> = {
   dono: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A Búzios Lanchas confirmou um passeio novo na ${p.lancha}.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: p.semMar ? "Abra a agenda e escolha quem vai pilotar." : "O passeio já está na sua agenda.", botao: "Abrir minha agenda" }),
@@ -123,9 +129,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `${p.nome} no podrá pilotar ${p.lancha} en este paseo.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abre la agenda y elige otro marinero para este paseo.", botao: "Elegir otro marinero" }),
   },
   cliente: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Combine os detalhes do passeio direto com o dono da lancha. Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your booking on ${p.lancha} is confirmed.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(p.donos || []).map((d: string) => `Boat owner: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Arrange the trip details directly with the boat owner. Any questions, talk to us. Enjoy your trip!", botao: "See my booking" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Coordina los detalles del paseo directamente con el dueño de la lancha. Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Sua reserva na ${p.lancha} está confirmada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), "Búzios Lanchas: WhatsApp (21) 99927-2550"], nota: "Combine os detalhes do passeio direto com o dono da lancha. Qualquer dúvida, fale com a gente. Bom passeio!", botao: "Ver minha reserva" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your booking on ${p.lancha} is confirmed.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Location: ${MAPA[p.embarque]}`] : []), ...(p.donos || []).map((d: string) => `Boat owner: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Arrange the trip details directly with the boat owner. Any questions, talk to us. Enjoy your trip!", botao: "See my booking" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Coordina los detalles del paseo directamente con el dueño de la lancha. Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
 };
 async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu", p: any) {

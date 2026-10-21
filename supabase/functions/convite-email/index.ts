@@ -17,6 +17,12 @@ const dataBR = (d: string) => d.split("-").reverse().join("/");
 const hm = (x: string, lang: string) => { const [h, m] = x.split(":").map(Number); if (lang === "en") return (h % 12 || 12) + (m ? ":" + String(m).padStart(2, "0") : "") + (h < 12 ? "am" : "pm"); return h + "h" + (m ? String(m).padStart(2, "0") : ""); };
 const LIGA: Record<string, string> = { pt: "às", en: "to", es: "a" };
 
+// localização dos locais de embarque fixos (pins do Rodrigo); vai só para o cliente, dono e marinheiro já conhecem os lugares
+const MAPA: Record<string, string> = {
+  "Píer do Golfinho (Praia dos Ossos)": "https://maps.app.goo.gl/Qe2YacVDVvZcgYbN9",
+  "Porto Veleiro (Praia dos Ossos)": "https://www.google.com/maps/search/?api=1&query=Porto+Veleiro+B%C3%BAzios",
+  "BR Marinas Búzios": "https://maps.app.goo.gl/2cNUHqhBYXmWD8By9",
+};
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
@@ -38,7 +44,7 @@ Deno.serve(async req => {
     const dados = {
       convite: true, lang, nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",
       lancha: nomeL, data: dataBR(b.data), horario: an?.hora_ini && an?.hora_fim ? `${(SLOT[lang][b.horario] || b.horario).replace(/ \(.*$/, "")} (${hm(an.hora_ini, lang)} ${LIGA[lang]} ${hm(an.hora_fim, lang)})` : SLOT[lang][b.horario] || b.horario,
-      pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "",
+      pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque ? an.embarque + (MAPA[an.embarque] ? ` · ${{ pt: "Localização", en: "Location", es: "Ubicación" }[lang] || "Localização"}: ${MAPA[an.embarque]}` : "") : "",
       pagina: `${SITE}${lang === "pt" ? "" : "/" + lang}/lancha/${b.lancha}/`,
     };
     const { error } = await db.auth.admin.inviteUserByEmail(c.email, { data: dados, redirectTo: `${SITE}/login/` });
