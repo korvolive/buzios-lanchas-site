@@ -1427,7 +1427,7 @@ let avSeq=0;
 function listHTML(){
   const nw = unseenTrips(); S.unseen = new Set(nw.map(r=>r.id));
   return `${S.vend ? vendHTML() : ""}${confirmHTML()}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
-    ${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}${avHTML()}
+    ${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}
     ${(()=>{ /* Próximos x Anteriores: o passeio finalizado (confirmado que aconteceu) sai de Próximos no mesmo dia */
       const done=r=>stOf(r)==="finalizado", up=S.upcoming.filter(r=>!done(r)), hoje=S.upcoming.filter(done), ant=S.lt==="ant";
       const seg=`<div class="tabs sub ltabs" role="tablist"><button type="button" role="tab" data-lt="prox" aria-selected="${!ant}">${t("ltNext")} <small>${up.length}</small></button><button type="button" role="tab" data-lt="ant" aria-selected="${ant}">${t("ltPast")}</button></div>`;
@@ -2473,7 +2473,7 @@ function mainView(){
   if(S.tab!=="lista" && S.tab!=="pedidos" && S.tab!=="usuarios" && S.cur==="*") S.cur=S.boats[0].slug;
   if(S.tab==="lancha" && isRO()) S.tab="lista";
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
-  app.innerHTML = fotoPendHTML() + installHTML() + pushHTML()
+  app.innerHTML = (S.tab==="lista" ? avHTML() : "") /* "Lancha livre em" no topo, antes da escolha da lancha */ + fotoPendHTML() + installHTML() + pushHTML()
     + (S.tab==="pedidos" || S.tab==="usuarios" ? "" : S.boats.length>1 ? boatPicker(chips) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + `<div class="tabs${S.admin && !isRO() ? " four five" : ""}" role="tablist">${[["lista","tabList"],["cal","tabCal"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.admin?[["pedidos","tabReq"],["usuarios","tabUsers"]]:[])].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="pedidos"&&S.reqCount?` <b class="cnt">${S.reqCount}</b>`:""}</button>`).join("")}</div>`
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
