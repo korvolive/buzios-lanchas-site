@@ -526,6 +526,9 @@ Object.assign(T.pt, {cEmailWhy:"Com o e-mail, o cliente recebe um convite para e
 Object.assign(T.en, {cEmailWhy:"With the email, the client gets an invite to join Búzios Lanchas in 1 click. With an account, they automatically get, by email and on their phone, the trip confirmation and, 1 hour before, the boarding place with the location, the time and the contacts. At the end, they get the request to rate the boat and the skipper. Don't have the email now? Save without it. When you get it, open this trip, fill in the email here and save again: the invite goes out right away."});
 Object.assign(T.es, {cEmailWhy:"Con el correo, el cliente recibe una invitación para entrar en Búzios Lanchas con 1 clic. Con la cuenta, recibe solo, por correo y en el celular, la confirmación del paseo y, 1 hora antes, el lugar de embarque con la ubicación, el horario y los contactos. Al final, recibe el pedido para calificar la lancha y al marinero. ¿No tienes el correo ahora? Guarda sin él. Cuando lo tengas, abre este paseo, completa el correo aquí y guarda de nuevo: la invitación sale en el momento."});
 Object.assign(T.pt, {invAgain:"Convidar o cliente para o cadastro"}); Object.assign(T.en, {invAgain:"Invite the client to sign up"}); Object.assign(T.es, {invAgain:"Invitar al cliente a registrarse"});
+Object.assign(T.pt, {ownBoatT:"Donos da {boat}", ownBoatSub:"Quem administra a {boat}. Pode ter mais de um, por exemplo um casal. Toque em Editar para mudar nome, WhatsApp ou senha, ou para remover.", ownAdd:"Adicionar dono"});
+Object.assign(T.en, {ownBoatT:"Owners of {boat}", ownBoatSub:"Who manages {boat}. There can be more than one, for example a couple. Tap Edit to change name, WhatsApp or password, or to remove.", ownAdd:"Add owner"});
+Object.assign(T.es, {ownBoatT:"Dueños de {boat}", ownBoatSub:"Quién administra {boat}. Puede haber más de uno, por ejemplo una pareja. Toca Editar para cambiar nombre, WhatsApp o contraseña, o para quitar.", ownAdd:"Agregar dueño"});
 Object.assign(T.pt, {sinalMax:"O sinal não pode ser maior que o valor do passeio ({v})."}); Object.assign(T.en, {sinalMax:"The deposit can't be higher than the trip price ({v})."}); Object.assign(T.es, {sinalMax:"La seña no puede ser mayor que el valor del paseo ({v})."});
 Object.assign(T.pt, {sinalMinHint:"O passeio só é marcado com sinal pago: no mínimo 10% do valor (ou R$ 100 se o valor não estiver definido) e no máximo o valor total.", sinalMin:"O sinal precisa ser de pelo menos {v} (10% do valor do passeio, ou R$ 100 se o valor não estiver definido)."});
 Object.assign(T.en, {sinalMinHint:"A trip is only booked with a deposit paid: at least 10% of the price (or R$ 100 if the price isn't set) and at most the full price.", sinalMin:"The deposit must be at least {v} (10% of the trip price, or R$ 100 if the price isn't set)."});
@@ -1361,13 +1364,28 @@ function sailorHTML(){
           ${r.obs?`<span>${esc(r.obs)}</span>`:""}
           ${r.eu?`<button type="button" class="link danger" style="margin:4px 0 0;padding:4px 0;text-align:left" data-refuse="${r.id}">${t("cantGo")}</button>`:""}</span></div>`; }).join("")}</div>` : `<p class="muted" style="margin:0">${t("sailorNone")}</p>`}</div>`;
 }
+/* donos da lancha aberta (só o administrador): editar/remover e adicionar outro dono, na própria aba Lancha */
+function ownersHTML(){
+  if(!S.admin) return "";
+  const os=(S.owners||[]).filter(o=>o.lancha===S.cur), boat=boatName(S.cur);
+  return `<div class="card"><h2>👤 ${t("ownBoatT",{boat:esc(boat)})}</h2><p class="muted" style="margin-top:0">${t("ownBoatSub",{boat:esc(boat)})}</p>
+    <ul class="owners">${os.length ? os.map(o=>`<li style="align-items:center"><span class="who" style="flex:1;min-width:0">${face(o.user_id,o.nome||o.email,"face")}<span style="min-width:0"><strong>${o.nome?esc(o.nome):`<em class="muted">${t("noName")}</em>`}</strong><br><small class="muted">${esc(o.email)}${o.telefone?"<br>"+esc(o.telefone):""}</small></span></span>${waOf(o.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(o.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}<button type="button" class="rm edt" data-onm="${esc(o.email)}" data-ol="${S.cur}">✎ ${t("editName")}</button></li>`).join("") : `<li class="muted">${t("nobody")}</li>`}</ul>
+    <details class="cob" style="margin-top:12px"><summary>＋ ${t("ownAdd")}</summary>
+    <form id="af" novalidate style="margin-top:12px"><div id="amsg"></div>
+      <label class="f"><span>${t("ownerName")}</span><input type="text" id="anm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_owner")}"></label>
+      <div class="f"><label for="atel"><span>${t("ownerWa")}</span></label><div class="phone"><select class="in" id="addi" aria-label="${t("country")}">${countryOpts("55")}</select><input type="tel" id="atel" inputmode="tel" autocomplete="off" placeholder="${t("ph_phone")}"></div></div>
+      <label class="f"><span>${t("ownerEmail")}</span><input type="email" id="aem" autocapitalize="off" inputmode="email"></label>
+      <label class="f"><span>${t("ownerPw")} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><input type="text" id="apw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
+      <select id="abt" hidden><option value="${S.cur}" selected></option></select>
+      <button class="btn" id="asub">${t("link")}</button></form></details></div>`;
+}
 function marHTML(){
   if(S.sailors===null) return `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
   const list=sailorsOf(S.cur), boat=boatName(S.cur);
   /* o marinheiro fixo também vê a agenda toda (tabela visualizadores); o dono escolhe se ele vê os valores */
   const seesVals = email => { const v=(S.staff||[]).find(x=>x.lancha===S.cur && x.email===email); return v ? !!v.ver_valores : true; };
   const freeCard = S.free ? `<div class="card"><h2>⚓ ${t("freeGroup")}</h2><p class="muted" style="margin-top:0">${t("freeCall")}</p>${freeWaList()}</div>` : "";
-  return freeCard + `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="muted" style="margin-top:0;line-height:1.5">${t("marSub",{boat:esc(boat)})}</p>
+  return `<div class="card"><h2>⚓ ${t("marT")}</h2><p class="muted" style="margin-top:0;line-height:1.5">${t("marSub",{boat:esc(boat)})}</p>
     <ul class="owners staff">${list.length ? list.map(m=>`<li style="flex-wrap:wrap;align-items:center"><span style="flex:1 1 0;min-width:0" class="who">${face(m.user_id,m.nome,"face")}<span><strong>${esc(m.nome)}</strong>${m.user_id===ses.user.id?` <small class="muted">(${t("you")})</small>`:""}${marRate(m.user_id)}${m.telefone?`<br><small class="muted">${esc(m.telefone)}</small>`:""}</span></span>
       ${m.user_id===ses.user.id?"":waOf(m.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(m.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}
       ${m.user_id===ses.user.id?"":`<span style="flex-basis:100%;height:0"></span><span class="vv">${t("staffValsQ")}<span class="yn" role="radiogroup">${[[true,"yes"],[false,"no"]].map(([v,k])=>`<button type="button" role="radio" data-sv="${esc(m.email)}" data-v="${v}" aria-checked="${seesVals(m.email)===v}">${t(k)}</button>`).join("")}</span></span>`}
@@ -1381,7 +1399,7 @@ function marHTML(){
       <label class="f"><span>${t("marPw")} <small class="muted" style="font-weight:400">(${t("staffPwHint")})</small></span><input type="text" id="mpw" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
       <label class="check"><input type="checkbox" id="mvals" checked> ${t("staffValsLong")}</label>
       <button class="btn" id="msub">${t("marAdd")}</button></form>`}
-</div>`;
+</div>` + freeCard;
 }
 function staffHTML(){
   if(S.staff===null) return `<div class="card"><h2>${t("staffT")}</h2><p class="msg err" style="margin:0">${t("needSqlStaff")}</p></div>`;
@@ -2034,7 +2052,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? pricesHTML() + itemsHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? pricesHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   bindMain();
 }
