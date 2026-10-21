@@ -790,11 +790,13 @@ const reqEnded = p => { const f=S.fins?.get(p.id); return f ? tripEnded(f.data, 
 /* a avaliação pode ser alterada por 7 dias depois de feita (regra do Rodrigo) */
 const RV_EDIT_MS = 7*864e5, rvEditEnd = rv => rv?.criado_em ? new Date(Date.parse(rv.criado_em)+RV_EDIT_MS) : null;
 const rvCanEdit = rv => { const e=rvEditEnd(rv); return !e || e > new Date(); };
-const rvPending = p => S.revOk && p.status==="aprovado" && reqEnded(p) && S.done.get(p.id)?.aconteceu!==false && !S.revs.get(p.id) && !S.exc?.has(p.id);
+/* a avaliação só abre depois que o administrador confirma que o passeio aconteceu (regra do Rodrigo) */
+const rvPending = p => S.revOk && p.status==="aprovado" && reqEnded(p) && S.done.get(p.id)?.aconteceu===true && !S.revs.get(p.id) && !S.exc?.has(p.id);
 function pastState(p){
   if(!S.revOk || p.status!=="aprovado" || !reqEnded(p)) return "";
   const ok = S.done.get(p.id)?.aconteceu, rv = S.revs.get(p.id), mar = S.done.get(p.id);
   if(ok===false) return `<span class="tmeta"><i class="stb st-cancelado">${t("notRlzd")}</i></span>`;
+  if(ok!==true) return `<span class="tmeta"><i>${t("waitConf")}</i></span>`;
   if(S.exc?.has(p.id)) return `<span class="tmeta"><i class="stb st-aprovado">${t("rlzd")}</i><i>${t("rvGone")}</i></span>`;
   return `<span class="tmeta"><i class="stb st-aprovado">${t("rlzd")}</i></span>` + (rv
     ? `<span class="rvd"><small>${t("rateYours")}</small> ${starsHTML(rv.nota)} ${rvCanEdit(rv)?`<button type="button" class="link" data-rv="${p.id}">${t("rateEdit")}</button>${rvEditEnd(rv)?`<small class="muted" style="display:block">${t("rvEditUntil",{d:rvEditEnd(rv).toLocaleDateString(t("locale"),{day:"numeric",month:"long"})})}</small>`:""}`:""}${rv.nota_marinheiro&&mar?.marinheiro_nome?`<span class="who rvm">${face(mar.marinheiro,mar.marinheiro_nome,"face xs")}<small>${esc(mar.marinheiro_nome)}</small> ${starsHTML(rv.nota_marinheiro)}</span>`:""}${rv.comentario?`<q>${esc(rv.comentario)}</q>`:""}</span>`
