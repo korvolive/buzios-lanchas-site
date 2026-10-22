@@ -1060,6 +1060,7 @@ function updateView(msg=""){
 }
 /* área do cliente: os pedidos feitos pelo site e o que a Búzios Lanchas já confirmou */
 async function loadMyReq(){
+  const cc=store.get("conv-c"); if(cc){ await db("rpc/resgatar_codigo",{method:"POST",body:{c:cc}}).catch(()=>0); store.set("conv-c",null); }
   await db("rpc/resgatar_convites",{method:"POST",body:{}}).catch(()=>0); /* passeios que a Búzios Lanchas colocou para este e-mail */
   const sel="id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id,vendedor,motivo";
   S.myReq = await db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em${S.ppCol===false?"":",paypal_link,paypal_valor"}&order=data.desc&limit=100`).then(r=>(S.cpOk=true,r)).catch(()=>db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em&order=data.desc&limit=100`).then(r=>(S.cpOk=true,S.ppCol=false,r))).catch(()=>(S.cpOk=false, db(`pedidos?select=${sel}&order=data.desc&limit=100`))).catch(()=>[]);
@@ -2246,9 +2247,11 @@ document.addEventListener("click", e => { const b=e.target.closest("[data-frpick
 /* avisa o marinheiro que foi cadastrado (fixo de uma lancha ou freelancer): e-mail pelo Supabase e mensagem pronta para o WhatsApp dele */
 /* início do passeio, para cliente sem cadastro (quem tem conta recebe sozinho por e-mail e no celular, 1 hora antes):
    WhatsApp pronto com horário, embarque, localização, contatos (dono; nos passeios da Búzios Lanchas também a Búzios Lanchas) e o link do cadastro para avaliar */
-function startMsg(row){
+/* código secreto do convite: só quem recebe o link no WhatsApp liga o passeio à própria conta (segurança, 2026-10-22) */
+async function convQ(bid, q){ try{ const c=await db("rpc/codigo_convite",{method:"POST",body:{bid}}); if(c) q.set("c",c); }catch(e){} return q; }
+function startMsg(row, q0){
   const n=row.nota||{}, cl=cliLang(n.telefone), boat=boatName(row.lancha);
-  const q=new URLSearchParams({criar:"1"}); if(n.cliente) q.set("nome",n.cliente); if(n.telefone) q.set("tel",n.telefone);
+  const q=q0||new URLSearchParams({criar:"1"}); if(n.cliente) q.set("nome",n.cliente); if(n.telefone) q.set("tel",n.telefone);
   return inLang(cl, ()=>{
     const donos = S.admin ? (S.owners||[]).filter(o=>o.lancha===row.lancha && o.nome).map(o=>`${o.nome}${o.telefone?` · WhatsApp ${o.telefone}`:""}`) : S.myProf ? [`${S.myProf}${S.myTel?` · WhatsApp ${S.myTel}`:""}`] : [];
     return t("waStart",{name:(n.cliente||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!n.hora_ini?"":" ("+slotHours(row.horario,n)+")"),
@@ -2256,8 +2259,8 @@ function startMsg(row){
       contatos: donos.map(d=>`📞 ${t("ownerC")}: ${d}\n`).join("") + (n.origem==="buzios" ? `📞 Búzios Lanchas: WhatsApp +55 21 99927-2550\n` : ""),
       url: location.origin+"/login/?"+q}); });
 }
-function avisarInicio(row){
-  const n=row.nota||{}, wa=waOf(n.telefone), msg=startMsg(row);
+async function avisarInicio(row){
+  const n=row.nota||{}, wa=waOf(n.telefone), msg=startMsg(row, await convQ(row.id, new URLSearchParams({criar:"1"})));
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>📲 ${t("iniT")}</h2><p class="muted" style="margin-top:0">${t("iniSub",{name:esc(n.cliente||"")})}</p>
     <pre class="wamsg">${esc(msg)}</pre>
     <a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("iniWa")}</a>
@@ -2270,7 +2273,7 @@ function avisarInicio(row){
 /* passeio confirmado: pede ao cliente que avalie (WhatsApp pronto e e-mail; sem conta, o link já abre o cadastro) */
 async function askReview(b){
   const n=(Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes)||{}, wa=waOf(n.telefone), first=(n.cliente||"").split(" ")[0], boat=boatName(b.lancha);
-  const url = n.cliente_conta ? location.origin+"/login/" : location.origin+"/login/?criar=1"+(n.cliente?"&nome="+encodeURIComponent(n.cliente):"")+(n.telefone?"&tel="+encodeURIComponent(n.telefone):"");
+  const url = n.cliente_conta ? location.origin+"/login/" : location.origin+"/login/?"+(await convQ(b.id, new URLSearchParams({criar:"1", ...(n.cliente?{nome:n.cliente}:{}), ...(n.telefone?{tel:n.telefone}:{})})));
   const msg = t(n.cliente_conta ? "waReview" : "waReviewNew", {name:first, boat, url});
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>⭐ ${t("revAskT")}</h2><p class="muted" style="margin-top:0">${t("revAskSub",{name:esc(n.cliente||""), boat:esc(boat)})}</p>
     <p class="muted" id="rvmail">✉ ${t("revMailSending")}</p>
@@ -3051,8 +3054,8 @@ async function linkedInfo(bid, typed){
   sheet.classList.add("on"); sheetBg.classList.add("on"); document.getElementById("nfx").onclick = closeDay;
 }
 /* convite: link para o cliente criar a conta com o e-mail; o passeio entra na conta dele ao completar o cadastro */
-function openInvite(email, nota, row, mailDone){
-  const name=(nota.cliente||"").split(" ")[0]||"", q=new URLSearchParams({criar:"1"}); if(email) q.set("email",email); if(nota.cliente) q.set("nome",nota.cliente); if(nota.telefone) q.set("tel",nota.telefone);
+async function openInvite(email, nota, row, mailDone){
+  const name=(nota.cliente||"").split(" ")[0]||"", q=await convQ(row.id, new URLSearchParams({criar:"1"})); if(email) q.set("email",email); if(nota.cliente) q.set("nome",nota.cliente); if(nota.telefone) q.set("tel",nota.telefone);
   const url=`${location.origin}/login/?${q}`, wa=waOf(nota.telefone);
   const msg=inLang(cliLang(nota.telefone), ()=>{ const dt=fmtLong(row.data); return t("waInvite",{name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:t("slot_"+row.horario)+(row.horario==="noite"&&!nota.hora_ini?"":" ("+slotHours(row.horario,nota)+")"), people:nota.pessoas||"", emb:nota.embarque?`📍 ${t("embT")}: ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}${TAXA[nota.embarque]?`ℹ️ ${feeTxt(nota.embarque)}\n`:""}`:"", page:`${location.origin}${lang==="pt"?"":"/"+lang}/lancha/${row.lancha}/`, mail: email ? t("waInviteMail",{email}) : "", url}); });
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✉ ${t("invT",{name:esc(nota.cliente||email)})}</h2><p class="muted" style="margin-top:0">${t(email?"invSub":"invSubTel",{name:esc(name||nota.cliente||""), email:esc(email)})}</p>
@@ -4061,6 +4064,7 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
     if(h.get("type")==="recovery" || h.get("type")==="invite"){ view="newpw"; return show(); }
   }
   const qs=new URLSearchParams(location.search);
+  if(/^[0-9a-f-]{36}$/i.test(qs.get("c")||"")) store.set("conv-c", qs.get("c")); /* convite pelo WhatsApp: o passeio entra na conta de quem abriu o link */
   if(!ses && qs.get("criar")==="1"){ view="signup"; /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
     if(qs.get("email")) typedEmail=qs.get("email");
     if((qs.get("nome")||qs.get("tel")) && !store.get("cli-draft")) store.set("cli-draft",{nome:qs.get("nome")||"", whatsapp:qs.get("tel")||""}); }
