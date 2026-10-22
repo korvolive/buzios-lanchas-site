@@ -91,6 +91,12 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .mnet .pseason,.pnet .pseason{margin-bottom:10px}.dsb{margin:8px 0 2px}.dsl{display:block;font-weight:600;font-size:12.5px;color:var(--muted);margin-bottom:4px}.dsg{display:grid;grid-template-columns:auto 76px 92px;justify-content:start;gap:4px 8px;align-items:center}.dsg>b{font-size:11px;color:var(--muted);font-weight:600}.dsg .pl{font-size:12px;font-weight:700}.dsg input{width:100%;box-sizing:border-box;min-width:0;min-height:0;padding:5px 8px;font-size:14px;border-radius:8px;border-width:1px}.dsg .mnpi{display:flex;align-items:center;gap:3px}.dsg .mnpi i{font-size:12px;font-style:normal;color:var(--muted)}.dsg .mnpi input{width:100%}.pprev{display:block;color:var(--muted);font-size:12.5px;line-height:1.5;margin:2px 0 6px}.pprev b{color:var(--ink,inherit);font-weight:600}.pnet .psh{flex-wrap:wrap}.pnet .apct span:first-child{font-size:14px}
 .mnet .psh{flex-wrap:wrap}
 .mng{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prhd{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.prhd h2{margin:0}.prchev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .2s}
+.prhd[aria-expanded=true] .prchev{transform:rotate(180deg)}.prc .prsub{margin:6px 0 0}.prc .prbody{margin-top:12px}
+.mnc input{padding-top:8px;padding-bottom:8px}
+.mnt{display:grid;grid-template-columns:24px minmax(0,1.2fr) auto minmax(0,1fr);gap:5px 6px;align-items:center}.mnt>b{font-size:11px;color:var(--muted);font-weight:600}.mnt .pl{font-size:12px;font-weight:700}.mnt input.in{width:100%;box-sizing:border-box;padding:7px 8px;min-height:0;height:38px;font-size:15px}.mnt .mnpi input{width:58px}.mnr{display:block;color:var(--muted);font-size:11.5px;margin-top:5px}
+.prc .ferchips{display:grid;grid-template-columns:1fr 1fr;gap:5px}.prc .ferc{padding:5px 8px}.prc input[type=number]{padding:7px 8px;font-size:15px}.prc .ferc b{font-size:12.5px}.prc .ferc small{font-size:10.5px;line-height:1.25}.prc .mnet>p.muted small,.prc .prbody>p.muted small{font-size:12px;line-height:1.4}
 .mnc{display:flex;flex-direction:column;gap:4px;min-width:0}
 .mnc>span{font-weight:700;font-size:13px}
 .mnc input{width:100%;box-sizing:border-box}
@@ -1660,6 +1666,9 @@ function listHTML(){
 /* valores da lancha (tabela precos): só o administrador vê e edita; o site usa estes valores */
 const SEASON3 = ["baixa","media","alta"]; /* épocas com valor próprio; feriado e Réveillon são % (Rodrigo 2026-10-22) */
 const PRICE_KEYS = ["baixa","media","alta","pico","reveillon"]; /* cada temporada tem o valor de 4 horas (k) e o de 7 horas (k+"7") */
+/* cards de valores começam fechados; um toque no título abre ou fecha (Rodrigo 2026-10-22: ocupavam a tela toda) */
+const prWrap = (cls, title, sub, body) => `<div class="card prc ${cls}"><button type="button" class="prhd" data-prt aria-expanded="${!!S.prOpen}"><h2>${title}</h2><span class="prchev" aria-hidden="true">▾</span></button>
+  <p class="muted prsub">${S.prOpen ? sub : t("prTap")}</p><div class="prbody"${S.prOpen?"":" hidden"} data-sub="${esc(sub)}">${body}</div></div>`;
 function pricesHTML(){
   if(!S.admin) return "";
   if(S.prices===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlPrecos")}</p></div>`;
@@ -1673,13 +1682,13 @@ function pricesHTML(){
   /* % do feriado, do Réveillon e Carnaval e desconto de segunda a quinta: cada um dentro da sua época (Rodrigo 2026-10-22) */
   const pc = "pct_feriado" in S.prices;
   const apc = (c, lab, mx, v, pp) => `<div class="apct"><span>${lab}</span><span class="mnpi"><input type="number" class="in" inputmode="numeric" min="0" max="${mx}" step="5" data-apc="${c}" value="${v ?? 0}"><i>%</i></span></div>${pp?`<small class="pprev" data-pp="${pp}"></small>`:""}`;
-  return `<div class="card"><h2>${t("pricesT")}</h2><p class="muted" style="margin-top:0">${t("pricesSub2")}</p>
+  return prWrap("", t("pricesT"), t("pricesSub2"), `
     <div class="pnet">${SEASON3.map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>
       <div class="pg"><span></span><b>${t("prNet")}</b><b>${t("prBl")} %</b><b>${t("prBl")} R$</b><b>${t("prTotal")}</b>
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
       <p class="pvend" data-pv="${k}">${prVend(k)}</p>${pc ? pairHTML("ds", k, dsGet(S.prices.desc_semana)) : ""}</div>`).join("")}
     ${pc ? ["pico","reveillon"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
-    <button class="btn" id="prsave">${t("pricesSave")}</button></div>`;
+    <button class="btn" id="prsave">${t("pricesSave")}</button>`);
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
 const prBrOf = c => { const x=app.querySelector(`[data-br="${c}"]`); return x ? (x.value.trim()===""?0:+x.value) : S.neto?.[c]?.comissao || 0; };
@@ -1732,14 +1741,20 @@ function ownPricesHTML(){
   const cell = c => { const x=it[c], h=t(c.endsWith("7")?"pr7s":"pr4s"); if(!(x?.ref>0)) return `<span class="mnc"><span>${h}</span><span class="muted">${t("prOnReq")}</span></span>`; const [lo,hi]=mnRange(x.ref);
     return `<label class="mnc"><span>${h}</span><input type="number" class="in" inputmode="numeric" step="50" min="${lo}" max="${hi}" data-mn="${c}" data-k="${c}" value="${dr[c] ?? x.neto ?? x.ref}"${dis}><small>${t("mnRange",{a:brl(lo), b:brl(hi)})}</small></label>`; };
   const pct = (k, attr, v, mx, lab) => `<label class="mnp"><span>${lab}</span><span class="mnpi"><input type="number" class="in" inputmode="numeric" step="5" min="0" max="${mx}" ${attr} data-k="${k}" value="${dr[k] ?? v ?? 0}"${dis}><i>%</i></span><small>${t("mnPctMax",{n:mx})}</small></label>`;
+  /* época numa tabela só: valor, desconto de segunda a quinta e quanto fica, 4h e 7h (Rodrigo 2026-10-22: ocupar menos espaço) */
+  const dsv = dsGet(ds), h = c => t(c.endsWith("7")?"pr7s":"pr4s");
+  const mnRow = k => `<div class="mnt"><span></span><b>${t("mnYour")}</b><b>${t("mnDsS")}</b><b>${t("dsVal")}</b>
+    ${[k,k+"7"].map(c=>{ const x=it[c], [lo,hi]=mnRange(x.ref); return `<span class="pl">${h(c)}</span><input type="number" class="in" inputmode="numeric" step="50" min="${lo}" max="${hi}" data-mn="${c}" data-k="${c}" value="${dr[c] ?? x.neto ?? x.ref}" aria-label="${t("mnYour")} ${h(c)}"${dis}>
+      <span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR.ds.max}" step="any" data-xp="ds:${c}" data-k="ds_${c}" value="${dr["ds_"+c] ?? pctTxt(dsv(c))}" aria-label="${t("mnDs")} ${h(c)} %"${dis}><i>%</i></span><input type="number" class="in" inputmode="numeric" min="0" step="10" data-xv="ds:${c}" aria-label="${t("dsVal")} ${h(c)}"${dis}>`; }).join("")}</div>
+    <small class="mnr">${[k,k+"7"].map(c=>{ const [lo,hi]=mnRange(it[c].ref); return `${h(c)} ${t("mnRange",{a:brl(lo), b:brl(hi)})}`; }).join(" · ")}</small>`;
   const season = k => `<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>`;
-  return `<div class="card mnet"><h2>${t("mnT")}</h2><p class="muted" style="margin-top:0">${t("mnSub")}</p>
+  return prWrap("mnet", t("mnT"), t("mnSub"), `
     ${lock?`<p class="msg">${t("mnLock",{d:dm(S.mn.prox)})}</p>`:""}
-    ${["baixa","media","alta"].map(k=>`${season(k)}<div class="mng">${cell(k)}${cell(k+"7")}</div>${pairHTML("ds", k, dsGet(ds), dis, dr)}</div>`).join("")}
+    ${["baixa","media","alta"].map(k=>`${season(k)}${it[k]?.ref>0 && it[k+"7"]?.ref>0 ? mnRow(k) : `<div class="mng">${cell(k)}${cell(k+"7")}</div>${pairHTML("ds", k, dsGet(ds), dis, dr)}`}</div>`).join("")}
     ${season("pico")}${pct("pf", "data-mpf", S.mn.pct_feriado, PCT_MAX.pf, t("mnPf"))}<small class="pprev" data-pp="pf"></small>
       ${ferChips(off, "data-mfer", dis)}</div>
     ${season("reveillon")}${pairHTML("rv", "alta", rvGet(S.mn.pct_reveillon, S.mn.pct_reveillon7), dis, dr)}</div>
-    <button class="btn" id="mnsave"${dis}>${t("mnSave")}</button><p class="muted" style="margin-bottom:0"><small>${t("mnRules")}</small></p></div>`;
+    <button class="btn" id="mnsave"${dis}>${t("mnSave")}</button><p class="muted" style="margin-bottom:0"><small>${t("mnRules")}</small></p>`);
 }
 /* administrador: mudanças de preço feitas pelos donos, com "Desfazer" (rpc desfazer_netos) */
 /* períodos de preço especial da Miss Bardot (Rodrigo 2026-10-22): datas + valor de 4h e 7h, qualquer valor, acima de todos os outros */
@@ -1912,6 +1927,9 @@ Object.assign(T.pt, {rvPendT:"⭐ Avaliação pendente", rvPendSub:"Conte como f
 Object.assign(T.en, {rvPendT:"⭐ Review pending", rvPendSub:"Tell us how your tour went: rate the boat and the skipper. It takes less than a minute.", rvPendBtn:"Rate now", rvGone:"Review removed by Búzios Lanchas", rvEditUntil:"You can change it until {d}.", rvAdmT:"Client review", rvMarL:"Skipper", rvDel:"Delete review", rvDelQ:"Delete this review? It leaves the website and the client won't be able to rate this tour again.", rvDeleted:"Review deleted.", rvExc:"Review deleted by you", rvNeedSql:"The database update to delete reviews still needs to run."});
 Object.assign(T.es, {rvPendT:"⭐ Evaluación pendiente", rvPendSub:"Cuéntanos cómo fue tu paseo: califica la lancha y al marinero. Lleva menos de 1 minuto.", rvPendBtn:"Evaluar ahora", rvGone:"Evaluación eliminada por Búzios Lanchas", rvEditUntil:"Puedes cambiarla hasta el {d}.", rvAdmT:"Evaluación del cliente", rvMarL:"Marinero", rvDel:"Eliminar evaluación", rvDelQ:"¿Eliminar esta evaluación? Sale del sitio y el cliente no podrá evaluar este paseo de nuevo.", rvDeleted:"Evaluación eliminada.", rvExc:"Evaluación eliminada por ti", rvNeedSql:"Falta ejecutar la actualización de la base de datos para eliminar evaluaciones."});
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embFee:"Por ser um píer privativo, o {place} cobra uma pequena taxa de embarque de R$ {v} por pessoa, paga direto no local."}); Object.assign(T.en, {embFee:"Because it is a private pier, {place} charges a small boarding fee of R$ {v} per person, paid directly there."}); Object.assign(T.es, {embFee:"Por ser un muelle privado, {place} cobra una pequeña tasa de embarque de R$ {v} por persona, que se paga directamente allí."}); Object.assign(T.pt, {embNotT:"Avise o cliente", embNotSub:"O local de embarque mudou. Se {name} tiver conta no app, já recebeu o aviso por e-mail. Mande também pelo WhatsApp:", waEmb:"Olá, {name}! Mudou o local de embarque do seu passeio na {boat} ({date}, {slot}).\n📍 Novo local: {emb}\n{map}Qualquer dúvida, é só chamar. Búzios Lanchas"}); Object.assign(T.en, {embNotT:"Let the client know", embNotSub:"The boarding place changed. If {name} has an account in the app, they already got an email. Send it on WhatsApp too:", waEmb:"Hi, {name}! The boarding place for your tour on {boat} ({date}, {slot}) has changed.\n📍 New place: {emb}\n{map}Any questions, just message us. Búzios Lanchas"}); Object.assign(T.es, {embNotT:"Avisa al cliente", embNotSub:"El lugar de embarque cambió. Si {name} tiene cuenta en la app, ya recibió el aviso por correo. Mándalo también por WhatsApp:", waEmb:"¡Hola, {name}! Cambió el lugar de embarque de tu paseo en {boat} ({date}, {slot}).\n📍 Nuevo lugar: {emb}\n{map}Cualquier duda, escríbenos. Búzios Lanchas"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
+Object.assign(T.pt, {prTap:"Toque para abrir e mudar os valores.", mnYour:"Seu valor", mnDsS:"Desc. seg-qui"});
+Object.assign(T.en, {prTap:"Tap to open and change the prices.", mnYour:"Your price", mnDsS:"Mon-Thu off"});
+Object.assign(T.es, {prTap:"Toca para abrir y cambiar los valores.", mnYour:"Tu valor", mnDsS:"Desc. lun-jue"});
 Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}{resto}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
 Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}{resto}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
 Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicación del embarque:", waConfirm:"¡Hola, {name}! Tu paseo en {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} personas\n{emb}{resto}Cualquier duda, escríbenos. ¡Buen paseo! Búzios Lanchas"});
@@ -3298,6 +3316,8 @@ function bindMain(){
     x.setAttribute("aria-pressed", !was); S.items = next;
     try{ await db("itens",{method:"POST", body:{lancha, opcionais:ITEMS.map(i=>i[0]).filter(i=>next.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}); toast(t("itemsSaved")); }
     catch(e){ if(S.cur===lancha){ S.items = was ? [...next,k] : next.filter(i=>i!==k); x.setAttribute("aria-pressed", was); } toast(t("saveErr")); } });
+  app.querySelectorAll("[data-prt]").forEach(b=>b.onclick=()=>{ S.prOpen=!S.prOpen; const c=b.closest(".prc"), body=c.querySelector(".prbody");
+    body.hidden=!S.prOpen; b.setAttribute("aria-expanded",S.prOpen); c.querySelector(".prsub").textContent=S.prOpen?body.dataset.sub:t("prTap"); });
   const prs=document.getElementById("prsave");
   /* rascunho dos valores: tudo o que é digitado fica guardado no aparelho até salvar (sair da tela ou do app não apaga) */
   const PRF="[data-nt],[data-bp],[data-br],[data-pr]", prKey="dono-prdraft:"+S.cur, prCard=prs?.closest(".card");
