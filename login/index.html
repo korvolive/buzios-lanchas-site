@@ -345,6 +345,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .nslots button small{font-weight:400;font-size:11px;color:var(--muted)}
 .nslots button[aria-checked=true]{background:var(--sea);border-color:var(--sea);color:#fff}.nslots button[aria-checked=true] small{color:inherit}
 .nslots button[data-ns=noite]{grid-column:1/-1}
+.nslots button:disabled{opacity:.45;cursor:not-allowed}
 .pwlink{text-align:center;margin:18px 0 0}
 .gbtn{display:flex;width:max-content;align-items:center;justify-content:center;gap:8px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:999px;padding:7px 16px;font-size:14px;font-weight:600;text-decoration:none;margin:0 auto 16px}.gbtn svg{width:18px;height:18px}
 .or{text-align:center;font-size:14px;margin:4px 0 12px}
@@ -3762,7 +3763,10 @@ function renderTrip(){
   const canMove = !tripNew && r.data>=todayISO() && (S.admin || n.origem!=="buzios");
   const canRv = !tripNew && !!r?.id && r.data>=todayISO() && S.admin; /* cliente pediu para revender (só o administrador marca): o horário volta a aparecer livre no site */
   const showWhen = tripNew || canMove, showBoat = S.boats.length>1 && (S.cur==="*" || pedidoFor || canMove);
-  const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}">${t("slot_"+k)}<small>${t("hours_"+k)}</small></button>`).join("")}`;
+  /* horários já ocupados da lancha na data não podem ser escolhidos (manhã ou tarde ocupada trava o dia todo, e vice-versa; Rodrigo 2026-10-22) */
+  let taken = [];
+  const slotOff = k => taken.some(h=>choca(h,k));
+  const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}"${slotOff(k)?" disabled":""}>${t("slot_"+k)}<small>${slotOff(k)?t("avBusy"):t("hours_"+k)}</small></button>`).join("")}`;
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${pedidoFor?t("approveT"):tripNew?t("tripNew"):t("tripEdit")}</h2>
     ${pedidoFor ? `<p class="muted" style="margin-top:0">${t("approveSub")}</p>` : tripNew ? "" : `<p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}<br><small>${t("noteSub")}</small></p>`}
     ${!tripNew && r?.nota ? `<div class="strow"><span>${t("rsL")}</span>${canRv ? `<select class="stsel st-${stOf(r)}" id="stsel" aria-label="${t("rsL")}"><option value="">${t("rsAuto",{s:t("rs_"+stAuto(n,r.id))})}</option>${["sinal","confirmada","pago","revenda","finalizado"].map(k=>`<option value="${k}"${r.stm===k||(!r.stm&&k==="revenda"&&r.revenda)?" selected":""}>${t("rs_"+k)}</option>`).join("")}</select>` : stPill(r)}<small class="muted">${stOf(r)==="revenda"?t("rvOnTxt"):canRv?t("rsHintAdm"):t("rsHint")}</small></div>` : ""}
@@ -3846,9 +3850,13 @@ function renderTrip(){
     sheet.querySelectorAll("[data-o]").forEach(y=>y.setAttribute("aria-checked", y.dataset.o===origem)); lockVals(); }; });
   lockVals();
   const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); const box=document.getElementById("marbox"); if(box){ const v=document.getElementById("n-mar")?.value; if(v) pick=v; box.innerHTML=marField(); } });
-  bindSlots(); refreshBusy();
-  const di=document.getElementById("n-date"); if(di) di.onchange=()=>{ if(di.value && (di.value<todayISO() || di.value>maxISO())){ di.value=nd>=todayISO()&&nd<=maxISO()?nd:""; toast(t("pastDate")); } nd=di.value; /* iPhone ignora o min: data passada volta */ if(nslot==="noite"&&!hasNight(nd)) nslot=""; document.getElementById("nslots").innerHTML=slotBtns(); bindSlots(); refreshBusy(); };
-  const bs=document.getElementById("n-boat"); if(bs) bs.onchange=()=>{ nboat=bs.value; const sp=document.getElementById("n-pessoas"), v=sp.value; sp.innerHTML=peopleOpts(); if(+v<=boatCap()) sp.value=v; sp.previousElementSibling.querySelector("small").textContent=`(${t("maxPeople",{n:boatCap()})})`; document.getElementById("marbox").innerHTML=marField(); };
+  const paintSlots=()=>{ const box=document.getElementById("nslots"); if(!box) return; if(nslot && slotOff(nslot)) nslot=""; box.innerHTML=slotBtns(); bindSlots(); };
+  const loadTaken=async()=>{ const d=nd, b=nboat; taken=[]; paintSlots(); if(!d || !b || !document.getElementById("nslots")) return;
+    const rows=await db(`bloqueios?select=id,horario,revenda&data=eq.${d}&lancha=eq.${encodeURIComponent(b)}`).catch(()=>[]);
+    if(d!==nd || b!==nboat) return; taken=rows.filter(x=>!x.revenda && x.id!==r?.id).map(x=>x.horario); paintSlots(); }; /* revenda: o horário está à venda de novo */
+  bindSlots(); refreshBusy(); loadTaken();
+  const di=document.getElementById("n-date"); if(di) di.onchange=()=>{ if(di.value && (di.value<todayISO() || di.value>maxISO())){ di.value=nd>=todayISO()&&nd<=maxISO()?nd:""; toast(t("pastDate")); } nd=di.value; /* iPhone ignora o min: data passada volta */ if(nslot==="noite"&&!hasNight(nd)) nslot=""; document.getElementById("nslots").innerHTML=slotBtns(); bindSlots(); refreshBusy(); loadTaken(); };
+  const bs=document.getElementById("n-boat"); if(bs) bs.onchange=()=>{ nboat=bs.value; const sp=document.getElementById("n-pessoas"), v=sp.value; sp.innerHTML=peopleOpts(); if(+v<=boatCap()) sp.value=v; sp.previousElementSibling.querySelector("small").textContent=`(${t("maxPeople",{n:boatCap()})})`; document.getElementById("marbox").innerHTML=marField(); loadTaken(); };
   const ddi=document.getElementById("n-ddi"), tel=document.getElementById("n-telefone");
   if(ddi){ ddi.onchange=()=>{ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
     tel.oninput=()=>{ if(ddi.value==="55"){ const end=tel.selectionStart===tel.value.length; tel.value=fmtBR(tel.value); if(end) tel.selectionStart=tel.selectionEnd=tel.value.length; } }; }
