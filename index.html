@@ -1204,14 +1204,14 @@ const fmtDate = iso => { const [y,m,d]=iso.split("-").map(Number); return new Da
    Réveillon (26/dez a 5/jan) e Carnaval (sábado a terça) = alta + % do dono (precos.pct_reveillon).
    Feriadão (sem o dia da volta) = valor da época + % do dono (precos.pct_feriado); todos valem, e o dono pode tirar os que não quer (precos.sem_feriados).
    De segunda a quinta, fora de feriadão, Réveillon e Carnaval, o dono pode dar desconto em % em cada época (precos.desc_semana). */
-const FERIADOS = ["semana_santa","tiradentes","sao_jorge","trabalho","corpus","independencia","aparecida","finados","republica","consciencia"];
+const FERIADOS = ["semana_santa","tiradentes","sao_jorge","trabalho","corpus","ferias_julho","independencia","aparecida","finados","republica","consciencia"];
 const DIA = 864e5;
 const pascoa = y => { const a=y%19, b=Math.floor(y/100), c=y%100, d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25), g=Math.floor((b-f+1)/3), h=(19*a+b-d-g+15)%30, i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-h-k)%7, m=Math.floor((a+11*h+22*l)/451), n=h+l-7*m+114;
   return Date.UTC(y, Math.floor(n/31)-1, n%31+1); };
 const ferData = (k, y) => { const p=pascoa(y);
-  return {semana_santa:p-2*DIA, tiradentes:Date.UTC(y,3,21), sao_jorge:Date.UTC(y,3,23), trabalho:Date.UTC(y,4,1), corpus:p+60*DIA, independencia:Date.UTC(y,8,7), aparecida:Date.UTC(y,9,12), finados:Date.UTC(y,10,2), republica:Date.UTC(y,10,15), consciencia:Date.UTC(y,10,20)}[k]; };
-/* dias do feriadão, sem o dia da volta: seg → sex a dom; ter → sex a seg; qui → qui a sáb; sex → sex e sáb; Semana Santa → qui a sáb; outros → só o dia */
-const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r = k==="semana_santa" ? [-1,0,1] : ({1:[-3,-2,-1], 2:[-4,-3,-2,-1], 4:[0,1,2], 5:[0,1]})[w] || [0];
+  return {semana_santa:p-2*DIA, tiradentes:Date.UTC(y,3,21), sao_jorge:Date.UTC(y,3,23), trabalho:Date.UTC(y,4,1), corpus:p+60*DIA, ferias_julho:Date.UTC(y,6,15), independencia:Date.UTC(y,8,7), aparecida:Date.UTC(y,9,12), finados:Date.UTC(y,10,2), republica:Date.UTC(y,10,15), consciencia:Date.UTC(y,10,20)}[k]; };
+/* dias do feriadão, sem o dia da volta: seg → sex a dom; ter → sex a seg; qui → qui a sáb; sex, sáb ou dom → sex a dom; Semana Santa → qui a sáb; outros → só o dia */
+const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r = k==="ferias_julho" ? [...Array(17).keys()] /* férias de julho: 15 a 31 (Rodrigo 2026-10-22) */ : k==="semana_santa" ? [-1,0,1] : ({1:[-3,-2,-1], 2:[-4,-3,-2,-1], 4:[0,1,2], 5:[0,1,2], 6:[-1,0,1], 0:[-2,-1,0]})[w] || [0]; /* sexta, sábado ou domingo: sexta a domingo (Rodrigo 2026-10-22) */
   return r.map(o=>new Date(t+o*DIA).toISOString().slice(0,10)); };
 const ferOf = (iso, off=[]) => { const y=+iso.slice(0,4); return FERIADOS.find(k=>!off.includes(k) && ferDias(k,y).includes(iso)) || null; };
 const seasonBase = iso => { const y=+iso.slice(0,4), m=+iso.slice(5,7), md=iso.slice(5), t=Date.UTC(y,m-1,+iso.slice(8,10)), p=pascoa(y);
@@ -1220,17 +1220,17 @@ const seasonBase = iso => { const y=+iso.slice(0,4), m=+iso.slice(5,7), md=iso.s
 /* chave da data para a lancha: "reveillon", "pico" (feriadão) ou a época; off = feriados que o dono tirou */
 const seasonKey = (iso, off=[]) => { const k=seasonBase(iso); return k!=="reveillon" && ferOf(iso, off) ? "pico" : k; };
 /* desconto de segunda a quinta (só baixa, média e alta; nunca no feriadão nem no Réveillon e Carnaval) */
-const descSemana = (iso, k, ds) => { const w=new Date(iso+"T12:00:00Z").getUTCDay(); return w>=1 && w<=4 && ["baixa","media","alta"].includes(k) ? +(ds||{})[k]||0 : 0; };
+const descSemana = (iso, k, ds, h7) => { const w=new Date(iso+"T12:00:00Z").getUTCDay(), o=ds||{}; return w>=1 && w<=4 && ["baixa","media","alta"].includes(k) ? +(o[k+(h7?"7":"")] ?? o[k])||0 : 0; }; /* 4h e 7h podem ter descontos diferentes (baixa / baixa7) */
 /* valor na data a partir dos valores de baixa, média e alta (p[k] ou p[k+"7"]), com o % de feriado, de Réveillon ou o desconto; arredonda em R$ 10 */
 const valorNaData = (p, iso, h7, o={}) => { const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
-  if(!(v>0)) return null; const pc = k==="reveillon" ? +o.pr||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds); return pc ? Math.round(v*(1+pc/100)/10)*10 : v; };
+  if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ return pc ? Math.round(v*(1+pc/100)/10)*10 : v; };
 const seasonOf = (iso,b) => SEASONS.find(s=>s.key===seasonKey(iso, b?.semFer||[]));
-const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, ds:b.ds}); /* % de feriado e de Réveillon da lancha (tabela precos) */
+const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, ds:b.ds}); /* % de feriado e de Réveillon da lancha (tabela precos) */
 const slotOf = k => SLOTS.find(s=>s.key===k);
 const slotLabel = k => t("slot_"+k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const price4 = (b,iso) => valorNaData(b.prices, iso, false, valOpts(b));
-const price7 = (b,iso) => valorNaData(b.prices7, iso, false, valOpts(b)); /* 7 horas por temporada; vazio = sob consulta */
+const price7 = (b,iso) => valorNaData(b.prices7, iso, false, {...valOpts(b), h7:true}); /* 7 horas por temporada; vazio = sob consulta */
 const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? price7(b,iso) : price4(b,iso);
 const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 /* locais de embarque da lancha para o horário escolhido; [] = a combinar */
@@ -1949,14 +1949,14 @@ render();
 loadVend();
 /* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
 const precosURL = c => AGENDA_URL.replace("bloqueios","precos")+"?select=lancha,baixa,media,alta,pico,reveillon"+c;
-Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados,pct_feriado,pct_reveillon,desc_semana"), {headers:{apikey:AGENDA_KEY}})
+Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados,pct_feriado,pct_reveillon,pct_reveillon7,desc_semana"), {headers:{apikey:AGENDA_KEY}})
   .then(r=>r.ok ? r.json() : r.status===400 ? fetch(precosURL(""), {headers:{apikey:AGENDA_KEY}}).then(x=>x.ok?x.json():Promise.reject(x.status)) : Promise.reject(r.status)), dbBoats])
   .then(([rows])=>{ let mudou=false;
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return;
       const p={baixa:r.baixa, media:r.media, alta:r.alta, pico:r.pico, reveillon:r.reveillon};
       const p7={baixa:r.baixa7??null, media:r.media7??null, alta:r.alta7??null, pico:r.pico7??null, reveillon:r.reveillon7??null};
       const off=Array.isArray(r.sem_feriados)?r.sem_feriados:[]; if(JSON.stringify(off)!==JSON.stringify(b.semFer||[])){ b.semFer=off; mudou=true; } /* feriados que o dono tirou */
-      if(r.pct_feriado!=null && (r.pct_feriado!==b.pf || r.pct_reveillon!==b.pr || JSON.stringify(r.desc_semana)!==JSON.stringify(b.ds))){ b.pf=r.pct_feriado; b.pr=r.pct_reveillon; b.ds=r.desc_semana; mudou=true; }
+      if(r.pct_feriado!=null && (r.pct_feriado!==b.pf || +r.pct_reveillon!==b.pr || (r.pct_reveillon7??null)!==(b.pr7??null) || JSON.stringify(r.desc_semana)!==JSON.stringify(b.ds))){ b.pf=r.pct_feriado; b.pr=+r.pct_reveillon; b.pr7=r.pct_reveillon7==null?null:+r.pct_reveillon7; b.ds=r.desc_semana; mudou=true; }
       if(JSON.stringify(p)!==JSON.stringify(b.prices) || JSON.stringify(p7)!==JSON.stringify(b.prices7||{})){ b.prices=p; b.prices7=p7; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .catch(()=>{}).finally(()=>window.precosDone=true);
