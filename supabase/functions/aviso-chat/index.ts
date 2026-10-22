@@ -1,6 +1,6 @@
 // Búzios Lanchas: avisa quem participa de uma conversa do pedido (celular e e-mail) quando chega mensagem nova.
 // POST { id: <mensagem> }       chamado por quem acabou de escrever. Avisa os outros participantes:
-//   cliente, vendedor (se houver), o dono da lancha (só pedido aprovado sem vendedor) e o suporte (admins) só quando não há vendedor ou quando um admin já escreveu nessa conversa.
+//   cliente, vendedor (se houver), o dono da lancha (só pedido aprovado sem vendedor) e o suporte (admins), sempre.
 // POST { denuncia: <mensagem> } chamado por quem denunciou. Avisa os admins.
 // Celular: chaves e inscrições do notificar (push_config, push_subs). E-mail: modelo "Magic Link" com user_metadata.msg,
 //   só para quem não tem celular inscrito, e no máximo um a cada 30 min por conversa (conversa_lidas.email_em).
@@ -20,13 +20,12 @@ const T: Record<string, any> = {
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "pt");
 
 async function nomeDe(uid: string, admins: Set<string>, l: string) {
-  if (admins.has(uid)) return T[l].sup;
   const c = (await db.from("clientes").select("nome").eq("user_id", uid).maybeSingle()).data?.nome;
   const p = c || (await db.from("perfis").select("nome").eq("user_id", uid).maybeSingle()).data?.nome;
-  if (p) return String(p).trim().split(" ")[0];
-  const { data } = await db.auth.admin.getUserById(uid);
-  const m = data?.user?.user_metadata || {};
-  return String(m.nome || m.full_name || "").trim().split(" ")[0] || "—";
+  let n = p ? String(p).trim().split(" ")[0] : "";
+  if (!n) { const { data } = await db.auth.admin.getUserById(uid); const m = data?.user?.user_metadata || {}; n = String(m.nome || m.full_name || "").trim().split(" ")[0]; }
+  if (admins.has(uid)) return n ? `${n} (${T[l].sup})` : T[l].sup; // quem atende pela Búzios Lanchas aparece com o nome (Rodrigo, 2026-10-22)
+  return n || "—";
 }
 
 async function pushAll(uids: string[], mk: (l: string) => { title: string; body: string }, url: string, tag: string) {
@@ -98,9 +97,7 @@ Deno.serve(async req => {
     if (p.vendedor) dest.add(p.vendedor);
     // o dono da lancha só participa depois do pedido aprovado e nunca quando há vendedor (regra do Rodrigo, 2026-10-22)
     if (p.status === "aprovado" && !p.vendedor) ((await db.from("donos").select("user_id").eq("lancha", p.lancha)).data || []).forEach((d: any) => dest.add(d.user_id));
-    let suporte = !p.vendedor || admins.has(uid);
-    if (!suporte) { const { data: ja } = await db.from("mensagens").select("id").eq("conversa", m.conversa).in("autor", [...admins]).limit(1); suporte = !!ja?.length; }
-    if (suporte) admins.forEach(a => dest.add(a));
+    admins.forEach(a => dest.add(a)); // a Búzios Lanchas participa de todas as conversas e é avisada sempre (Rodrigo, 2026-10-22)
     dest.delete(uid);
     const autor = await nomeDe(uid, admins, "pt");
     const prev = m.texto.length > 120 ? m.texto.slice(0, 117) + "…" : m.texto;
