@@ -1513,19 +1513,21 @@ const vendPickMsg = b => { const base=priceFor(b,pick.date,pick.slot), v=base?cl
   return t("waVendPick",{n:VEND.nome, boat:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}) + (v ? t("waPrice",{p:brl(v)}) : ""); };
 const vendCard = b => { const w=String(VEND?.telefone||"").replace(/\D/g,""); if(!VEND || ME || w.length<10) return "";
   return `<div class="vcont">${t("vendBy",{n:esc(VEND.nome)})}<a id="vend-wa" href="${vendWaHref(b)}" target="_blank" rel="noopener">${b&&viaVend(b)?t("vendWaN",{n:esc(VEND.nome.split(" ")[0])}):t("vendWa")}</a></div>`; };
-/* link do vendedor (?v=CODIGO): fica guardado 30 dias neste aparelho */
+/* link do vendedor (?v=CODIGO): fica guardado neste aparelho até chegar o link de outro vendedor (Rodrigo 2026-10-22) */
 const vRpc = (f, body, tok) => fetch(SB_URL+"/rest/v1/rpc/"+f,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json",...(tok?{authorization:"Bearer "+tok}:{})},body:JSON.stringify(body)}).then(r=>r.ok?r.json():Promise.reject(r.status));
 function loadVend(){
   if(IS_BOT) return;
   const q=new URLSearchParams(location.search), c=(q.get("v")||"").trim().toUpperCase();
   let saved=null; try{ saved=JSON.parse(localStorage.getItem("vend")); }catch(e){}
-  const cod = /^[A-Z0-9]{2,14}$/.test(c) ? c : saved && Date.now()-saved.t < 30*864e5 ? saved.cod : "";
-  if(c && cod===c) try{ localStorage.setItem("vend",JSON.stringify({cod, t:Date.now()})); }catch(e){} /* guarda já: a troca de idioma pode recarregar a página */
+  const cod = /^[A-Z0-9]{2,14}$/.test(c) ? c : saved?.cod || "";
+  /* n: link novo que a conta do cliente ainda não conferiu (pode trocar de vendedor) */
+  const novo = !!(c && cod===c) || !!saved?.n;
+  if(c && cod===c) try{ localStorage.setItem("vend",JSON.stringify({cod, t:Date.now(), n:1})); }catch(e){} /* guarda já: a troca de idioma pode recarregar a página */
   if(c){ q.delete("v"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
   const jobs=[], dropV=()=>{ VEND=null; try{ localStorage.removeItem("vend"); }catch(e){} };
   const pub = k => vRpc("vendedor_publico",{cod:k}).then(r=>{ if(r[0]) VEND=r[0]; else dropV(); });
-  /* cliente com conta: a conta fica ligada ao vendedor do link por 30 dias (o primeiro vale); o banco diz qual vendedor vale */
-  if(isClient()) jobs.push(clientToken().then(tok=>vRpc("ligar_vendedor",{cod:cod||null},tok)).then(k=>{ if(typeof k==="string" && k){ try{ localStorage.setItem("vend",JSON.stringify({cod:k, t:saved?.cod===k?saved.t:Date.now()})); }catch(e){} return pub(k); } dropV(); }, ()=>cod?pub(cod):null).catch(()=>{}));
+  /* cliente com conta: fica ligado para sempre ao vendedor; o link de outro vendedor troca só se o atual não tiver passeio em aberto com ele. O banco diz qual vale */
+  if(isClient()) jobs.push(clientToken().then(tok=>vRpc("vincular_vendedor",{cod:cod||null, novo},tok)).then(k=>{ if(typeof k==="string" && k){ try{ localStorage.setItem("vend",JSON.stringify({cod:k, t:saved?.cod===k?saved.t:Date.now()})); }catch(e){} return pub(k); } dropV(); }, ()=>cod?pub(cod):null).catch(()=>{}));
   else if(cod) jobs.push(pub(cod).catch(()=>{}));
   if(lsGet("dono-ses")?.refresh_token) jobs.push(clientToken().then(tok=>vRpc("meu_vendedor",{},tok)).then(r=>{ if(r[0]) ME=r[0]; }).catch(()=>{}));
   if(jobs.length) Promise.all(jobs).then(()=>{ applyStatic(); if(VEND||ME){ const y=scrollY; render(false); scrollTo(0,y); } });
