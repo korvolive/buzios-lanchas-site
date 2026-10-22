@@ -434,7 +434,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-boards button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
 .picker .pk-missing,.pk-slots.pk-missing button{border-color:#d9614c;box-shadow:0 0 0 1px #d9614c}
 .pk-hint{color:var(--muted);margin:10px 0 0;font-size:14px}
-.pk-res{margin:10px 0 0;padding:10px;border-radius:8px;background:var(--chip);font-size:14px}
+.pk-cup{display:flex;gap:10px;align-items:flex-start;margin:10px 0 0;padding:10px 12px;border:1.5px dashed var(--brass);border-radius:10px;cursor:pointer;font-size:14px}.pk-cup input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--brass);flex:none}.pk-cup small{display:block;opacity:.8;margin-top:2px}.pk-res{margin:10px 0 0;padding:10px;border-radius:8px;background:var(--chip);font-size:14px}
 .pk-res.conf{background:color-mix(in srgb,var(--brass) 18%,var(--surface))}.pk-res.conf .confnote{display:block;margin-top:10px;font-size:12.5px;line-height:1.45;opacity:.85}.pk-res.conf .confnote a{color:inherit}.pk-res.conf p{margin:0 0 6px}.pk-res.conf ul{margin:0 0 10px;padding-left:4px;list-style:none}.pk-res.conf .btn{width:100%;justify-content:center}.pk-res.ok p{margin:0 0 10px}.pk-res.ok .btn{width:100%;justify-content:center;text-align:center}.pk-res.ok .pk-or{display:block;margin:12px 0 6px;font-size:13px;opacity:.85}.pk-res.ok .btn.sec{background:transparent;color:inherit;border:1.5px solid currentColor;box-shadow:none}.pk-res.ok{background:color-mix(in srgb,#2f9e6a 16%,var(--surface))}
 .pk-res.busy{background:color-mix(in srgb,#d9614c 16%,var(--surface))}
 /* com a disponibilidade, a caixa de valores fica mais alta que telas comuns: só fixa na rolagem em telas altas */
@@ -1040,6 +1040,10 @@ const UI = {
     waAvail:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera consultar la disponibilidad de la lancha {name} para el {date}, de {slot} ({h} horas), para {people}."
   }
 };
+/* cupom de fidelidade (Rodrigo, 2026-10-22) */
+Object.assign(UI.pt, {cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
+Object.assign(UI.en, {cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
+Object.assign(UI.es, {cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
 const LANGS = ["pt","en","es"];
 const SITE = "https://lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
 /* endereços: / e /lancha/miss-bardot/ em português; /en/... e /es/... nas outras línguas */
@@ -1267,14 +1271,29 @@ function track(ev,b){
 }
 /* depois do pedido: o chat com a Búzios Lanchas, onde já chegou a mensagem do pedido e depois chega o Pix (Rodrigo, 2026-10-22) */
 async function chatId(){ try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/abrir_chat",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({com:"suporte"})}); return r.ok ? +(await r.json())||0 : 0; }catch(e){ return 0; } }
+/* cupons do cliente logado: aparecem só se ele tem cupom; ele toca para usar (um por passeio) */
+let CUPS=null;
+async function loadCups(){ if(CUPS) return CUPS; if(!isClient()) return [];
+  try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/meus_cupons",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"});
+    const d=new Date(), today=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    CUPS = r.ok ? (await r.json()).filter(c=>!c.pedido && c.expira_em>=today) : []; }catch(e){ CUPS=[]; } return CUPS; }
+async function showCup(out){
+  const L=await loadCups(); if(!L.length || !out.isConnected || out.querySelector(".pk-cup")) return;
+  if(!L.some(c=>c.id===pick.cup)) pick.cup=null;
+  const c=L[0], brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
+  out.insertAdjacentHTML("afterbegin", `<label class="pk-cup"><input type="checkbox" id="pk-cupcb"${pick.cup?" checked":""}><span><b>${t("cupUse",{v:brlS(c.valor)})}</b><small>${t("cupUntil",{d})}${pick.cup?" · "+t("cupOn",{v:brlS(c.valor)}):""}</small></span></label>`);
+  out.querySelector("#pk-cupcb").onchange=e=>{ pick.cup=e.target.checked?c.id:null; out.querySelector(".pk-cup").remove(); showCup(out); };
+}
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, base=priceFor(b,pick.date,pick.slot);
+  if(pick.cup) body.cupom=pick.cup;
   if(VEND){ body.vendedor_cod=VEND.codigo; if(base){ body.preco_base=base; body.preco_cliente=cliPrice(base,seasonOf(pick.date,b).key,VEND,b); } } /* o banco confere o vendedor e o teto */
   const key=JSON.stringify(body);
   if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
   const tok=await clientToken();
   const r=await fetch(SB_URL+"/rest/v1/pedidos?select=id",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json",prefer:"return=representation"},body:key});
-  if(!r.ok) throw r.status; lastReq=key;
+  if(!r.ok){ if(pick.cup){ pick.cup=null; CUPS=null; } throw r.status; } lastReq=key;
+  if(pick.cup){ pick.cup=null; CUPS=null; } /* o cupom ficou reservado para este pedido */
   /* avisa a Búzios Lanchas no celular que chegou pedido novo */
   const id=(await r.json().catch(()=>[]))[0]?.id;
   if(id) fetch(SB_URL+"/functions/v1/notificar",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({tipo:"pedido",id})}).catch(()=>{});
@@ -1582,6 +1601,7 @@ async function showBoatStatus(b){
   if(autoBook){ out.innerHTML=`<div class="pk-res conf"><p>${t("confT")}</p><ul><li>📅 ${fmtDate(pick.date)}</li><li>🕙 ${slotLabel(pick.slot)}</li><li>👥 ${peopleLabel(pick.people)}</li>${pick.board?`<li>⚓ ${pick.board}</li>`:""}</ul><button type="button" class="btn" id="conf-go">${t("confBtn")}</button><small class="confnote">${t("confNote")}</small></div>`;
     document.getElementById("conf-go").onclick=()=>{ autoBook=false; document.getElementById("book-online")?.click(); };
     out.scrollIntoView({block:"center",behavior:"smooth"}); }
+  if(isClient()) showCup(out);
 }
 
 document.getElementById("ano").textContent = new Date().getFullYear();
