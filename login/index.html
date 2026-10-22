@@ -109,7 +109,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .mnpi input{width:84px}
 .mnp small{flex-basis:100%;color:var(--muted);font-size:12px}
 .apct{display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center;margin:8px 0 2px}
-.apct input{width:84px}.ocup span{flex:1;min-width:200px}.ocup .btn{flex:none;margin:0;padding:6px 12px;font-size:13px;min-height:0;width:auto}.ocup .chpx{flex:none;border:0;background:none;font-size:15px;cursor:pointer;color:inherit;padding:2px 6px}.pnudge{display:flex;align-items:center;gap:8px;margin:0 0 14px}.pnudge span{flex:1;min-width:0}.pnudge .btn{flex:none;margin:0;padding:6px 12px;font-size:13px;min-height:0;width:auto}.pnudge .chpx{flex:none;border:0;background:none;font-size:15px;cursor:pointer;color:inherit;padding:2px 6px}.chhead small{display:block;color:var(--muted)}@media(max-width:560px){.chhead{flex-wrap:wrap}.chhead>div{flex:1;min-width:0;margin-right:52px}.chhead .chact{margin:0;width:100%;justify-content:flex-end}}
+.apct input{width:84px}.ocup span{flex:1;min-width:200px}.ocup .btn{flex:none;margin:0;padding:6px 12px;font-size:13px;min-height:0;width:auto}.ocup .chpx{flex:none;border:0;background:none;font-size:15px;cursor:pointer;color:inherit;padding:2px 6px}.pnudge{display:flex;align-items:center;gap:8px;margin:0 0 14px}.pnudge span{flex:1;min-width:0}.pnudge .btn{flex:none;margin:0;padding:6px 12px;font-size:13px;min-height:0;width:auto}.pnudge .chpx{flex:none;border:0;background:none;font-size:15px;cursor:pointer;color:inherit;padding:2px 6px}.chhead small{display:block;color:var(--muted)}.espl{list-style:none;padding:0;margin:0 0 12px}.espl li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line,#e3e8ec)}.espl li span{flex:1}.espl small{display:block;color:var(--muted)}.espf .espn{grid-column:1/-1}.espc .btn+.btn{margin-top:8px}.espf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.espf label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.espf .in{width:100%;min-width:0;box-sizing:border-box}@media(max-width:560px){.chhead{flex-wrap:wrap}.chhead>div{flex:1;min-width:0;margin-right:52px}.chhead .chact{margin:0;width:100%;justify-content:flex-end}}
 .chlist{display:flex;flex-direction:column;gap:6px;height:min(52vh,460px);overflow:auto;padding:6px 2px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .chm{max-width:86%;align-self:flex-start;background:var(--chip);border-radius:14px 14px 14px 4px;padding:8px 10px;font-size:15px}
 .chm.me{align-self:flex-end;background:color-mix(in srgb,var(--full) 18%,var(--surface));border-radius:14px 14px 4px 14px}
@@ -718,6 +718,9 @@ Object.assign(T.es, {chBotPed:"¡Hola! Recibimos tu pedido de reserva: {boat}, {
 Object.assign(T.pt, {ppPay:"Pagar com PayPal ({v})", ppOr:"ou pague com Pix aqui:", ppMade:"Cobrança do PayPal no site: {v}", ppWa:"Mandar o PayPal no WhatsApp do cliente", ppCopy:"Copiar link do PayPal", ppVal:"Cliente do exterior: valor no PayPal ({c})", ppGen:"Criar cobrança", ppPaid:"Sinal pago pelo PayPal: {v} em {d}. Agora é só aprovar.", ppPaidC:"Sinal pago pelo PayPal: {v}. A Búzios Lanchas vai confirmar a sua reserva.", ppSentMail:"Cobrança do PayPal criada e enviada por e-mail ao cliente", ppMadeT:"Cobrança do PayPal salva"});
 Object.assign(T.pt, {cupT:"Você tem um cupom de desconto", cupTn:"Você tem {n} cupons de desconto", cupUntil:"para o próximo passeio · vale até {d}", cupHow:"Para usar, escolha a lancha no site e, na hora de reservar, toque em Usar meu cupom. Um cupom por passeio.", cupUsed:"Cupom de {v} neste passeio", cupGift:"Você ganhou um cupom de {v} para o próximo passeio, válido até {d}.", cupAdm:"cupom −{v} (sai da comissão)"});
 Object.assign(T.pt, {ctMake:"Criar a central de pagamento", ctMadePix:"Central de pagamento com Pix: {v}", ctWa:"Mandar a central de pagamento no WhatsApp", ctCopy:"Copiar link da central", ctOpen:"Abrir a central de pagamento", ctSentMail:"Central de pagamento criada e enviada por e-mail ao cliente"});
+Object.assign(T.pt, {espT:"Períodos de preço especial", espNome:"Nome do período", espNomePh:"Ex.: Réveillon 2027", espNew:"+ Criar período especial", espCancel:"Cancelar", espSub:"Nesses dias o valor que você puser aqui vale acima de qualquer outro (época, feriado, Réveillon e desconto). Vale no site, no app e para os vendedores, que somam a % deles por cima.", espDe:"De", espAte:"Até", espV4:"Valor 4h", espV7:"Valor 7h", espAdd:"Adicionar período", espDel:"Remover", espNone:"Nenhum período criado.", espBad:"Dê um nome, escolha as datas (de hoje em diante) e pelo menos um valor.", espOver:"Já existe um período nessas datas. Remova o outro antes.", espOk:"Período salvo", espDelQ:"Remover este período?", espDelOk:"Período removido", espTag:"Preço especial"});
+Object.assign(T.en, {espT:"Special price periods", espNome:"Period name", espNomePh:"E.g. New Year 2027", espNew:"+ Create special period", espCancel:"Cancel", espSub:"On these days the value you set here overrides any other (season, holiday, New Year and discount). It applies on the site, in the app and for sellers, who add their % on top.", espDe:"From", espAte:"To", espV4:"4h price", espV7:"7h price", espAdd:"Add period", espDel:"Remove", espNone:"No period created.", espBad:"Give it a name, choose the dates (from today on) and at least one value.", espOver:"There is already a period on these dates. Remove the other one first.", espOk:"Period saved", espDelQ:"Remove this period?", espDelOk:"Period removed", espTag:"Special price"});
+Object.assign(T.es, {espT:"Períodos de precio especial", espNome:"Nombre del período", espNomePh:"Ej.: Año Nuevo 2027", espNew:"+ Crear período especial", espCancel:"Cancelar", espSub:"En estos días el valor que pongas aquí vale por encima de cualquier otro (temporada, feriado, Año Nuevo y descuento). Vale en el sitio, en la app y para los vendedores, que suman su % encima.", espDe:"Desde", espAte:"Hasta", espV4:"Valor 4h", espV7:"Valor 7h", espAdd:"Agregar período", espDel:"Quitar", espNone:"Ningún período creado.", espBad:"Pon un nombre, elige las fechas (de hoy en adelante) y al menos un valor.", espOver:"Ya existe un período en esas fechas. Quita el otro antes.", espOk:"Período guardado", espDelQ:"¿Quitar este período?", espDelOk:"Período quitado", espTag:"Precio especial"});
 Object.assign(T.pt, {chTrT:"Tradução automática das mensagens", chTrOn:"Traduzir", chTrOff:"Original", chTrOrig:"Traduzido · ver original", chTrSee:"Ver tradução", chTrOnT:"Tradução automática ligada", chTrOffT:"Tradução desligada: mensagens no idioma original"});
 Object.assign(T.pt, {chBotPago:"Pagamento do sinal recebido pelo PayPal: {v}. Agora a Búzios Lanchas confirma a sua reserva."});
 Object.assign(T.pt, {chBotOk:"Pagamento do sinal confirmado: sua reserva na {boat} em {date} está confirmada! ✅", chBotResto:"Na hora do embarque, você paga o restante ({v}) direto ao responsável pela lancha.", pixWa:"Mandar o Pix no WhatsApp do cliente", repT:"Para onde vai o dinheiro", repSin:"Sinal que você recebe: {v}", repDono:"Você repassa ao dono: {v}", repDonoNeg:"O dono repassa a você: {v}", repVend:"Comissão do vendedor: {v}", repBz:"Fica com a Búzios Lanchas: {v}", repResto:"No embarque, o cliente paga ao dono: {v}"});
@@ -1142,7 +1145,7 @@ function payBox(p){
    O pagamento só aparece para o cliente depois que o administrador toca em Liberar pagamento. */
 function pedCalc(p){
   const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=p.horario==="dia", nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
-  const base=+p.preco_base || (r ? valorNaData(r,p.data,h7,o) : null), tot=+p.preco_cliente || base, net=valorNaData(nm,p.data,h7,o);
+  const base=+p.preco_base || (r ? valorNaData(r,p.data,h7,o) : null), tot=+p.preco_cliente || base, net=valorNaData(nm,p.data,h7,{...o, esp:null}); /* o neto do dono não muda no período especial */
   const com0 = base && net ? base-net : null, cup = +p.cupom_valor ? (com0!=null ? Math.min(+p.cupom_valor, Math.floor(Math.max(com0,0)/2)) : +p.cupom_valor) : 0;
   /* cupom de fidelidade: sai só da comissão da Búzios Lanchas, no máximo metade dela (Rodrigo, 2026-10-22) */
   return {tot: tot ? tot-cup : tot, net, com: com0!=null ? com0-cup : null, vd: p.preco_cliente && p.preco_base ? p.preco_cliente-p.preco_base : null, cup};
@@ -1594,10 +1597,12 @@ const seasonKey = (iso, off=[]) => { const k=seasonBase(iso); return k!=="reveil
 /* desconto de segunda a quinta (só baixa, média e alta; nunca no feriadão nem no Réveillon e Carnaval) */
 const descSemana = (iso, k, ds, h7) => { const w=new Date(iso+"T12:00:00Z").getUTCDay(), o=ds||{}; return w>=1 && w<=4 && ["baixa","media","alta"].includes(k) ? +(o[k+(h7?"7":"")] ?? o[k])||0 : 0; }; /* 4h e 7h podem ter descontos diferentes (baixa / baixa7) */
 /* valor na data a partir dos valores de baixa, média e alta (p[k] ou p[k+"7"]), com o % de feriado, de Réveillon ou o desconto; arredonda em R$ 10 */
-const valorNaData = (p, iso, h7, o={}) => { const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
+/* período de preço especial (precos.especiais, só o administrador cria; Rodrigo 2026-10-22): qualquer valor, e vale acima de tudo na data */
+const espOf = (iso, esp) => (Array.isArray(esp) ? esp : []).find(e=>e && e.de<=iso && iso<=e.ate) || null;
+const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
   if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ return pc ? Math.round(v*(1+pc/100)/10)*10 : v; };
 /* opções da lancha (linha da tabela precos): feriados tirados, os % de feriado e de Réveillon e o desconto de segunda a quinta */
-const valOpts = r => ({off:r?.sem_feriados||[], pf:r?.pct_feriado, pr:r?.pct_reveillon, pr7:r?.pct_reveillon7, ds:r?.desc_semana});
+const valOpts = r => ({off:r?.sem_feriados||[], pf:r?.pct_feriado, pr:r?.pct_reveillon, pr7:r?.pct_reveillon7, ds:r?.desc_semana, esp:r?.especiais});
 const kOf = (rows, slug, d) => seasonKey(d, (rows||[]).find(x=>x.lancha===slug)?.sem_feriados||[]);
 const seasonLab = d => { const k=seasonBase(d), f=ferOf(d); return t("avSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k)}) + (f && k!=="reveillon" ? " "+t("ferNote",{f:t("fer_"+f)}) : ""); };
 /* administrador: o valor de 4h e 7h de cada lancha na data buscada (Rodrigo 2026-10-22: achar o valor de uma cotação rápido) */
@@ -1609,8 +1614,8 @@ const paxSel = (id, v) => { const mx=Math.max(1, ...S.all.filter(b=>b.ativa!==fa
 const capTag = b => { const c=CAPACITY[b.slug] || b.dados?.capacidade; return c ? ` <small class="cap">👥 ${c}</small>` : ""; };
 const avPrice = slug => { const r=(S.avPr||[]).find(x=>x.lancha===slug), k=kOf(S.avPr,slug,S.avD); if(!r) return "";
   const o=valOpts(r), v4=valorNaData(r,S.avD,false,o), v7=valorNaData(r,S.avD,true,o), nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===slug).map(x=>[x.chave,x.neto]));
-  const n4=valorNaData(nm,S.avD,false,o), n7=valorNaData(nm,S.avD,true,o);
-  return v4||v7 ? `<small class="avp">4h ${v4?brl(v4):t("prOnReq")} · 7h ${v7?brl(v7):t("prOnReq")}</small>${n4||n7?`<small class="avp avn">${t("avNet")}: 4h ${n4?brl(n4):"—"} · 7h ${n7?brl(n7):"—"}</small>`:""}` : ""; };
+  const on={...o, esp:null}, n4=valorNaData(nm,S.avD,false,on), n7=valorNaData(nm,S.avD,true,on);
+  return v4||v7 ? `<small class="avp">${(e=>e?`⭐ ${esc(e.nome||t("espTag"))} · `:"")(espOf(S.avD, r.especiais))}4h ${v4?brl(v4):t("prOnReq")} · 7h ${v7?brl(v7):t("prOnReq")}</small>${n4||n7?`<small class="avp avn">${t("avNet")}: 4h ${n4?brl(n4):"—"} · 7h ${n7?brl(n7):"—"}</small>`:""}` : ""; };
 /* busca rápida: quais lanchas estão livres numa data (para não fechar com o cliente à toa) */
 function avHTML(){
   const boats=S.boats.filter(b=>b.ativa!==false && !isRO(b.slug)); if(isRO() || boats.length<2) return "";
@@ -1730,6 +1735,23 @@ function ownPricesHTML(){
     <button class="btn" id="mnsave"${dis}>${t("mnSave")}</button><p class="muted" style="margin-bottom:0"><small>${t("mnRules")}</small></p></div>`;
 }
 /* administrador: mudanças de preço feitas pelos donos, com "Desfazer" (rpc desfazer_netos) */
+/* períodos de preço especial da Miss Bardot (Rodrigo 2026-10-22): datas + valor de 4h e 7h, qualquer valor, acima de todos os outros */
+const ESP_BOATS = ["miss-bardot"];
+const espList = () => (Array.isArray(S.prices?.especiais) ? S.prices.especiais : []).slice().sort((a,b)=>a.de.localeCompare(b.de));
+function espHTML(){
+  if(!S.admin || !ESP_BOATS.includes(S.cur) || !S.prices || !("especiais" in S.prices)) return "";
+  const L=espList(), d=x=>x.split("-").reverse().join("/");
+  return `<div class="card espc"><h2>⭐ ${t("espT")}</h2><p class="muted" style="margin-top:0">${t("espSub")}</p>
+    ${L.length ? `<ul class="espl">${L.map((e,i)=>`<li><span><b>${esc(e.nome||t("espTag"))}</b><small>${d(e.de)}${e.ate!==e.de?" – "+d(e.ate):""}</small><small>${e.v4>0?"4h "+brl(e.v4):""}${e.v4>0&&e.v7>0?" · ":""}${e.v7>0?"7h "+brl(e.v7):""}</small></span><button type="button" class="link" data-espdel="${e.de}|${e.ate}">${t("espDel")}</button></li>`).join("")}</ul>` : `<p class="muted">${t("espNone")}</p>`}
+    ${S.espOpen || !L.length ? `<div class="espf"><label class="espn">${t("espNome")}<input type="text" class="in" id="espnome" maxlength="40" placeholder="${t("espNomePh")}"></label><label>${t("espDe")}<input type="date" class="in" id="espde" min="${todayISO()}"></label><label>${t("espAte")}<input type="date" class="in" id="espate" min="${todayISO()}"></label>
+    <label>${t("espV4")}<input type="number" class="in" id="espv4" inputmode="numeric" min="0" step="50" placeholder="R$"></label><label>${t("espV7")}<input type="number" class="in" id="espv7" inputmode="numeric" min="0" step="50" placeholder="R$"></label></div>
+    <button type="button" class="btn" id="espadd">${t("espAdd")}</button>${L.length?`<button type="button" class="btn sec" id="espcancel">${t("espCancel")}</button>`:""}` : `<button type="button" class="btn sec" id="espnew">${t("espNew")}</button>`}</div>`;
+}
+async function espSave(list, okMsg){
+  const lancha=S.cur, especiais=list.filter(e=>e.ate>=todayISO()); /* períodos que já passaram saem sozinhos */
+  await db(`precos?lancha=eq.${encodeURIComponent(lancha)}`,{method:"PATCH", body:{especiais}, prefer:"return=minimal"});
+  if(lancha===S.cur){ S.espOpen=false; S.prices={...S.prices, especiais}; S.avPr=null; S.vavPr=null; mainView(); } toast(t(okMsg));
+}
 function priceHistHTML(){
   if(!S.admin || !S.ph?.length) return "";
   const lab = c => `${t("pr_"+c.replace("7","")).split(" · ")[0]} ${t(c.endsWith("7")?"pr7s":"pr4s")}`;
@@ -3108,7 +3130,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? boatInfoHTML() + pricesHTML() + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? boatInfoHTML() + pricesHTML() + espHTML() + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   bindMain();
 }
@@ -3289,6 +3311,14 @@ function bindMain(){
     prs.disabled=true;
     try{ await db("precos",{method:"POST", body, prefer:"resolution=merge-duplicates,return=minimal"}); S.prices=body; prDone(); toast(t("pricesSaved")); }
     catch(e){ toast(t("saveErr")); } finally{ prs.disabled=false; } };
+  const en=document.getElementById("espnew"); if(en) en.onclick=()=>{ S.espOpen=true; mainView(); document.getElementById("espnome")?.focus(); };
+  const ec=document.getElementById("espcancel"); if(ec) ec.onclick=()=>{ S.espOpen=false; mainView(); };
+  const ea=document.getElementById("espadd"); if(ea) ea.onclick=async()=>{ const g=id=>document.getElementById(id).value.trim(), nome=g("espnome"), de=g("espde"), ate=g("espate")||de, v4=+g("espv4")||0, v7=+g("espv7")||0;
+    if(!nome || !de || ate<de || de<todayISO() || !(v4>0 || v7>0)) return toast(t("espBad"));
+    const L=espList(); if(L.some(e=>e.de<=ate && de<=e.ate)) return toast(t("espOver"));
+    ea.disabled=true; try{ await espSave([...L, {nome, de, ate, v4:v4>0?Math.round(v4):null, v7:v7>0?Math.round(v7):null}], "espOk"); }catch(e){ toast(t("saveErr")); ea.disabled=false; } };
+  app.querySelectorAll("[data-espdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("espDelQ"))) return; const [de,ate]=x.dataset.espdel.split("|"); x.disabled=true;
+    try{ await espSave(espList().filter(e=>!(e.de===de && e.ate===ate)), "espDelOk"); }catch(e){ toast(t("saveErr")); x.disabled=false; } });
   ppPaint(); app.querySelectorAll(".mnet, .pnet").forEach(x=>x.addEventListener("input", ppPaint)); app.querySelectorAll("[data-xv]").forEach(x=>x.addEventListener("blur", ()=>ppPaint()));
   app.querySelectorAll("[data-afer]").forEach(x=>x.onclick=()=>{ const on=x.getAttribute("aria-pressed")!=="true"; x.setAttribute("aria-pressed", on); x.querySelector("b").textContent=`${on?"✓":"✕"} ${t("fer_"+x.dataset.afer)}`; });
     app.querySelectorAll("[data-mfer]").forEach(x=>x.onclick=()=>{ const k=x.dataset.mfer, off=[...(S.mnOff ?? (S.mn.sem_feriados||[]))]; S.mnOff = off.includes(k) ? off.filter(f=>f!==k) : [...off, k]; mnKeep(); mainView(); });
