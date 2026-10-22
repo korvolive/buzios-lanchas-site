@@ -1,7 +1,8 @@
-// Búzios Lanchas: pagamento do sinal pelo PayPal dentro do site, para clientes estrangeiros (Rodrigo, 2026-10-22).
-// Depois de "Liberar pagamento", o administrador cria a cobrança: o cliente recebe por e-mail (e o administrador manda no WhatsApp)
-// o link interno /pagar/?p=<pedido>&k=<token>, paga com PayPal ou cartão sem sair do site, e o pagamento é conferido aqui
-// direto com o PayPal. Só para pedido sem vendedor. O pedido fica marcado como "sinal pago pelo PayPal"; quem aprova a reserva continua sendo o administrador.
+// Búzios Lanchas: central de pagamento da reserva (/pagar/), para todos os pedidos do site (Rodrigo, 2026-10-22).
+// Brasileiro e pedido de vendedor: só Pix (moeda BRL). Estrangeiro sem vendedor: PayPal (pago na hora, conferido aqui) e também Pix.
+// A página mostra as etapas: aguardando pagamento, pagamento recebido (PayPal ou comprovante do Pix) e reserva confirmada (quando o administrador aprova).
+// Ao "Liberar pagamento", o app cria a cobrança e o cliente recebe por e-mail (e o administrador manda no WhatsApp) o link /pagar/?p=<pedido>&k=<token>.
+// O PayPal é conferido aqui direto com o PayPal; quem aprova a reserva continua sendo o administrador.
 // GET  ?p&k                                     dados da cobrança para a página (sem login)
 // POST {acao:"link", pid, valor, moeda, email?}  só administrador: cria ou muda a cobrança e manda o e-mail
 // POST {acao:"criar", p, k}                       a página: cria a ordem no PayPal
@@ -15,8 +16,8 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const API = Deno.env.get("PAYPAL_ENV") === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
 const SITE = "https://www.lanchaembuzios.com.br";
-const SYM: Record<string, string> = { USD: "US$", EUR: "€", GBP: "£" };
-const fmt = (m: string, v: number) => `${SYM[m] || m} ${Number(v).toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(+v) ? 0 : 2, maximumFractionDigits: 2 })}`;
+const SYM: Record<string, string> = { USD: "US$", EUR: "€", GBP: "£", BRL: "R$" };
+const fmt = (m: string, v: number) => `${SYM[m] || m} ${Number(v).toLocaleString(m === "BRL" ? "pt-BR" : "en-US", { minimumFractionDigits: Number.isInteger(+v) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "en");
 const dataBR = (d: string) => d.split("-").reverse().join("/");
 const MAIL: Record<string, any> = {
@@ -49,14 +50,19 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, status, sinal_valor, sinal_liberado_em").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, status, sinal_valor, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id").eq("id", pid).maybeSingle();
   if (!p) return null;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
   return { c, p, lancha, nome };
 }
 
-async function email(uid: string, url: string, lancha: string, dia: string, valor: string) {
+const MAIL_PIX: Record<string, (l: string, d: string) => string> = {
+  pt: (l, d) => `A lancha ${l} está disponível em ${d}. Para confirmar a sua reserva, pague o sinal pela nossa central de pagamento:`,
+  en: (l, d) => `The boat ${l} is available on ${d}. To confirm your booking, pay the deposit in our payment page:`,
+  es: (l, d) => `La lancha ${l} está disponible el ${d}. Para confirmar tu reserva, paga la seña en nuestra central de pago:`,
+};
+async function email(uid: string, url: string, lancha: string, dia: string, valor: string, pix = false) {
   const { data } = await db.auth.admin.getUserById(uid);
   const u = data?.user;
   if (!u?.email) return false;
@@ -64,7 +70,7 @@ async function email(uid: string, url: string, lancha: string, dia: string, valo
   const l = lang(meta.lang);
   const primeiro = String(meta.nome || meta.full_name || "").trim().split(" ")[0];
   const M = MAIL[l];
-  const msg = { lang: l, oi: M.oi(primeiro), texto: M.texto(lancha, dataBR(dia)), linhas: [`💳 ${valor}`], nota: M.nota, botao: M.botao, url };
+  const msg = { lang: l, oi: M.oi(primeiro), texto: pix ? MAIL_PIX[l](lancha, dataBR(dia)) : M.texto(lancha, dataBR(dia)), linhas: [`${pix ? "🧾" : "💳"} ${valor}`], nota: M.nota, botao: M.botao, url };
   await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
   await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null } });
@@ -95,9 +101,18 @@ Deno.serve(async req => {
       const x = await carregar(Number(u.searchParams.get("p")), u.searchParams.get("k") || "");
       if (!x) return json({ erro: "link" }, 404);
       const { c, p, lancha, nome } = x;
-      return json({ cliente_id: Deno.env.get("PAYPAL_CLIENT_ID") || "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
-        lancha, data: p.data, horario: p.horario, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
-        sinal_brl: +p.sinal_valor || null, pago_em: c.pago_em, status: p.status });
+      const sup = (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data?.id || null;
+      const vc = p.vendedor ? (await db.from("conversas").select("id").eq("tipo", "vendedor").eq("cliente", p.cliente).eq("vendedor", p.vendedor).maybeSingle()).data?.id || null : null;
+      let vn = "";
+      if (p.vendedor) for (const t of ["perfis", "clientes", "freelancers", "marinheiros"]) { // o vendedor pode ser dono, cliente ou marinheiro
+        const n = (await db.from(t).select("nome").eq("user_id", p.vendedor).limit(1).maybeSingle()).data?.nome;
+        if (n) { vn = String(n).trim().split(/\s+/)[0]; break; }
+      }
+      const pp = c.moeda !== "BRL" && !p.vendedor;
+      return json({ cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
+        pedido: p.id, lancha, data: p.data, horario: p.horario, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
+        sinal_brl: +p.sinal_valor || null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
+        confirmada: p.status === "aprovado" && !!p.bloqueio_id, chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -110,7 +125,7 @@ Deno.serve(async req => {
       if (!(valor > 0) || !SYM[moeda]) return json({ erro: "valor" }, 400);
       const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, status, sinal_liberado_em, vendedor").eq("id", pid).maybeSingle();
       if (!p || p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "pedido" }, 400);
-      if (p.vendedor) return json({ erro: "vendedor" }, 400); // com vendedor, o pagamento é combinado com ele (Rodrigo, 2026-10-22)
+      if (p.vendedor && moeda !== "BRL") return json({ erro: "vendedor" }, 400); // com vendedor: só Pix, sem cobrança automática (Rodrigo, 2026-10-22)
       const { data: old } = await db.from("pagamentos_pp").select("token, pago_em").eq("pedido", pid).maybeSingle();
       if (old?.pago_em) return json({ erro: "pago" }, 409);
       const { data: c, error } = await db.from("pagamentos_pp").upsert({ pedido: pid, moeda, valor, order_id: null, atualizado_em: new Date().toISOString(), ...(old ? { token: old.token } : {}) }, { onConflict: "pedido" }).select("token").single();
@@ -118,7 +133,7 @@ Deno.serve(async req => {
       const url = `${SITE}/pagar/?p=${pid}&k=${c.token}`, texto = fmt(moeda, valor);
       await db.from("pedidos").update({ paypal_link: url, paypal_valor: texto, atualizado_em: new Date().toISOString() }).eq("id", pid);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
-      const enviado = b.email === false ? false : await email(p.cliente, url, lancha, p.data, texto).catch(e => (console.error(e), false));
+      const enviado = b.email === false ? false : await email(p.cliente, url, lancha, p.data, texto, moeda === "BRL").catch(e => (console.error(e), false));
       return json({ link: url, texto, email: enviado });
     }
 
@@ -128,6 +143,7 @@ Deno.serve(async req => {
     if (c.pago_em) return json({ pago: true });
     if (p.status !== "pendente") return json({ erro: "status" }, 409);
 
+    if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
     if (b.acao === "criar") {
       const o = await pp("/v2/checkout/orders", {
         intent: "CAPTURE",
