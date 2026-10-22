@@ -13,6 +13,7 @@ const SLOT: Record<string, Record<string, string>> = {
   es: { manha: "Mañana (10h a 14h)", tarde: "Tarde (14h a 18h)", dia: "Día completo (10h a 17h)", noite: "Noche" },
 };
 const dataBR = (d: string) => d.split("-").reverse().join("/");
+const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
 // horário combinado diferente do padrão (anotacoes.hora_ini / hora_fim)
 const hm = (x: string, lang: string) => { const [h, m] = x.split(":").map(Number); if (lang === "en") return (h % 12 || 12) + (m ? ":" + String(m).padStart(2, "0") : "") + (h < 12 ? "am" : "pm"); return h + "h" + (m ? String(m).padStart(2, "0") : ""); };
 const LIGA: Record<string, string> = { pt: "às", en: "to", es: "a" };
@@ -42,7 +43,7 @@ Deno.serve(async req => {
     const uid = u?.user?.id;
     if (!uid) return json({ erro: "login" }, 401);
     const { bid, lang: l0 } = await req.json().catch(() => ({}));
-    const lang = ["pt", "en", "es"].includes(l0) ? l0 : "pt";
+    let lang = ["pt", "en", "es"].includes(l0) ? l0 : "pt";
     const { data: b } = await db.from("bloqueios").select("id, lancha, data, horario").eq("id", bid).maybeSingle();
     if (!b) return json({ erro: "passeio" }, 404);
     const admin = !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
@@ -50,7 +51,10 @@ Deno.serve(async req => {
     if (!admin && !dono) return json({ erro: "só o administrador ou o dono" }, 403);
     const { data: c } = await db.from("convites").select("email, nome, resgatado_em").eq("bloqueio_id", b.id).maybeSingle();
     if (!c?.email || c.resgatado_em) return json({ status: "sem_email" });
-    const { data: an } = await db.from("anotacoes").select("pessoas, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
+    const { data: an } = await db.from("anotacoes").select("pessoas, embarque, hora_ini, hora_fim, telefone").eq("bloqueio_id", b.id).maybeSingle();
+    // o e-mail vai no idioma do cliente, pelo DDI do WhatsApp dele, não no de quem cadastrou o passeio (Rodrigo, 2026-10-22)
+    const cc = String(an?.telefone || "").match(/^\s*\+(\d{1,3})\b/)?.[1];
+    if (cc) lang = cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en";
     const nomeL = (await db.from("lanchas").select("nome").eq("slug", b.lancha).maybeSingle()).data?.nome || b.lancha;
     const dados = {
       convite: true, lang, nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",

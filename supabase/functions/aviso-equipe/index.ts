@@ -43,7 +43,7 @@ Deno.serve(async req => {
     const nomeL = tipo === "fixo" ? (await db.from("lanchas").select("nome").eq("slug", lancha).maybeSingle()).data?.nome || lancha : "";
     const meta = { ...(u.user_metadata || {}) };
     const aviso = { tipo, lancha: nomeL, nome: String(cad.nome || "").split(" ")[0], lang: meta.lang || lang };
-    await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, aviso } });
+    await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang: aviso.lang, aviso } });
     const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: `${SITE}/login/` });
     // tira o aviso de novo: um "Esqueci minha senha" depois volta a ser o e-mail normal
     await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, aviso: null } });
