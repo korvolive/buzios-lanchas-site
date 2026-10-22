@@ -83,9 +83,10 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .link{background:none;border:0;color:var(--sea);font-weight:600;padding:10px 0;text-decoration:underline}
 .msg{padding:12px 14px;border-radius:12px;margin:0 0 14px;font-size:15px}
 /* chat do pedido */
-.convs{list-style:none;margin:0;padding:0}.convs li{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.convs li:first-child{border-top:0}
-.convs .cvb{flex:1;min-width:0}.convs strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.convs small{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.unr{background:var(--bad);color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:1px 7px;min-width:20px;text-align:center;flex:none}
+.convs{list-style:none;margin:0 -8px;padding:0}.convs li{display:flex;gap:12px;align-items:center;padding:10px 8px;border-top:1px solid var(--line);cursor:pointer;border-radius:12px}.convs li:first-child{border-top:0}.convs li:hover{background:var(--chip)}.convs .face{width:48px;height:48px;font-size:17px}
+.convs .cvb{flex:1;min-width:0}.convs .cvt{display:flex;align-items:baseline;gap:8px}.convs strong{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px}.convs .cvw{font-size:12px;color:var(--muted);flex:none}.convs li.new .cvw{color:#1e9e5a;font-weight:700}
+.convs .cvl{display:flex;align-items:center;gap:8px;margin-top:1px}.convs small{flex:1;min-width:0;display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}.convs li.new small{color:var(--ink)}.convs .cvc{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unr{background:#1e9e5a;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:1px 7px;min-width:20px;text-align:center;flex:none}
 .chhead{display:flex;gap:10px;align-items:center;margin:4px 0 6px}.chhead small{display:block;color:var(--muted)}
 .chlist{display:flex;flex-direction:column;gap:6px;height:min(52vh,460px);overflow:auto;padding:6px 2px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .chm{max-width:86%;align-self:flex-start;background:var(--chip);border-radius:14px 14px 14px 4px;padding:8px 10px;font-size:15px}
@@ -1159,7 +1160,7 @@ function clientView(){
     ${pend.length ? `<div class="card rvpend"><h2>${t("rvPendT")}</h2><p class="muted" style="margin:0">${t("rvPendSub")}</p>${pend.map(p=>`<div class="trow"><span class="who">${avatar(p.lancha,"bav")}<span><strong>${esc(boatName(p.lancha))}</strong><br><small class="muted">${fmtLong(p.data)} · ${t("slot_"+p.horario)}</small></span></span><button type="button" class="btn" data-rv="${p.id}">${t("rvPendBtn")}</button></div>`).join("")}</div>` : ""}
     ${S.vend ? vendHTML() : ""}
     <div class="card"><h2>${t("myTripsT")}</h2><p class="muted" style="margin-top:0">${t("cliSub")}</p><a class="btn" href="/">${t("seeBoats")}</a></div>
-    ${S.convs?.length ? convsCardHTML(t("chCliSub"), S.convs) : ""}
+    ${S.convs?.some(c=>+c.total) ? convsCardHTML(t("chCliSub"), S.convs.filter(c=>+c.total)) : ""}
     ${up.length ? `<h2 style="margin:22px 0 10px">${t("upT")}</h2><div class="trips">${up.map(p=>reqCard(p)).join("")}</div>` : past.length ? "" : `<div class="card"><p class="muted" style="margin:0">${t("cliNone")}</p></div>`}
     ${past.length ? `<h2 style="margin:22px 0 10px">${t("cliPast")}</h2><div class="trips">${past.map(p=>reqCard(p)).join("")}</div>` : ""}
     <div class="card howcard"><h3>${t("cliHowT")}</h3><p class="muted">${t("cliHow")}</p></div>
@@ -1444,7 +1445,7 @@ async function loadAv(){ const d=S.avD, my=++avSeq; S.avRows=null; mainView();
 let avSeq=0;
 function listHTML(){
   const nw = unseenTrips(); S.unseen = new Set(nw.map(r=>r.id));
-  const dconvs=(S.convs||[]).filter(convDono);
+  const dconvs=(S.convs||[]).filter(c=>convDono(c) && +c.total);
   return `${S.vend ? vendHTML() : ""}${dconvs.length ? convsCardHTML(t("chDonoSub"), dconvs) : ""}${confirmHTML()}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
     ${isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`}
     ${(()=>{ /* Próximos x Anteriores: o passeio finalizado (confirmado que aconteceu) sai de Próximos no mesmo dia */
@@ -2240,10 +2241,15 @@ const convOther = c => S.admin ? {uid:c.cliente, nome:c.cliente_nome} : c.client
 /* o dono da lancha só entra na conversa de pedido aprovado e sem vendedor (regra do Rodrigo, 2026-10-22) */
 const convDono = c => !S.admin && c.com_dono && c.cliente!==ses.user.id && c.vendedor!==ses.user.id;
 const convFace = (o, cls="face") => o.uid ? face(o.uid, o.nome, cls) : `<span class="${cls} ini" aria-hidden="true">BL</span>`;
+/* hora da última mensagem na lista (como no WhatsApp): hoje = hora; nesta semana = dia; senão dd/mm */
+function whenShort(ts){ if(!ts) return ""; const d=new Date(ts), n=new Date(); if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
+  if(n-d < 6*864e5) return d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".",""); return d.toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"}); }
 function convListHTML(list){
   if(!list.length) return `<p class="muted" style="margin:0">${t("chNone")}</p>`;
-  return `<ul class="convs">${list.map(c=>{ const o=convOther(c);
-    return `<li data-conv="${c.id}" role="button" tabindex="0">${convFace(o)}<span class="cvb"><strong>${esc(o.nome||"—")}${S.admin&&c.vendedor?` <small style="display:inline">· 💼 ${esc(c.vendedor_nome||"")}</small>`:""}</strong><small>${esc(boatName(c.lancha))} · ${fmtLong(c.data)}${c.ultima_msg?` · ${c.ultimo_autor===ses.user.id?t("chYou")+": ":""}${esc(c.ultima_msg)}`:""}</small></span>${+c.nao_lidas?`<span class="unr">${c.nao_lidas}</span>`:""}</li>`; }).join("")}</ul>`;
+  return `<ul class="convs">${list.map(c=>{ const o=convOther(c), me=c.ultimo_autor===ses.user.id;
+    return `<li data-conv="${c.id}" role="button" tabindex="0" class="${+c.nao_lidas?"new":""}">${convFace(o)}<span class="cvb"><span class="cvt"><strong>${esc(o.nome||"—")}${S.admin&&c.vendedor?` <small style="display:inline;font-size:12px">· 💼 ${esc(c.vendedor_nome||"")}</small>`:""}</strong><span class="cvw">${whenShort(c.ultima_em)}</span></span>
+      <span class="cvl"><small>${c.ultima_msg?`${me?t("chYou")+": ":""}${esc(c.ultima_msg)}`:`<i>${t("chEmpty")}</i>`}</small>${+c.nao_lidas?`<span class="unr">${c.nao_lidas}</span>`:""}</span>
+      <span class="cvc">⛵ ${esc(boatName(c.lancha))} · ${fmtLong(c.data)}</span></span></li>`; }).join("")}</ul>`;
 }
 /* botão 💬 no card do pedido (cliente: botão normal; administrador: ao lado do WhatsApp) */
 function chatBtn(p, cli){ const c=convFor(p.id); if(!c) return ""; const u=+c.nao_lidas?`<span class="unr">${c.nao_lidas}</span>`:"";
@@ -2605,7 +2611,7 @@ function vendHTML(){
     <details class="vdet"><summary>${t("vdPcts",{n:teto})}</summary><div class="vpcts">${PRICE_KEYS.map(k=>`<label><span>${t("pr_"+k).split(" · ")[0]}<small>${t("prm_"+k)}</small></span><span class="vpi"><input type="number" inputmode="decimal" min="1" max="${teto}" step="0.5" data-vp="${k}" value="${pc(k)}"><i>%</i></span></label>`).join("")}</div>
       <button type="button" class="btn sec" id="vpsave">${t("save")}</button></details>
     <details class="vdet" open><summary>${t("vdSales")}</summary><div id="vsales">${vSalesHTML()}</div></details>
-    ${(S.convs||[]).some(c=>c.vendedor===ses.user.id) ? `<details class="vdet" open><summary>💬 ${t("chT")}${S.convs.some(c=>c.vendedor===ses.user.id&&+c.nao_lidas)?` <span class="unr">${S.convs.filter(c=>c.vendedor===ses.user.id).reduce((a,c)=>a+(+c.nao_lidas||0),0)}</span>`:""}</summary><p class="muted chnote">${t("chVendSub")}</p>${convListHTML(S.convs.filter(c=>c.vendedor===ses.user.id))}</details>` : ""}</div>`;
+    ${(S.convs||[]).some(c=>c.vendedor===ses.user.id && +c.total) ? `<details class="vdet" open><summary>💬 ${t("chT")}${S.convs.some(c=>c.vendedor===ses.user.id&&+c.nao_lidas)?` <span class="unr">${S.convs.filter(c=>c.vendedor===ses.user.id).reduce((a,c)=>a+(+c.nao_lidas||0),0)}</span>`:""}</summary><p class="muted chnote">${t("chVendSub")}</p>${convListHTML(S.convs.filter(c=>c.vendedor===ses.user.id && +c.total))}</details>` : ""}</div>`;
 }
 function vSalesHTML(){
   if(S.vendas==null) return `<p class="muted">…</p>`;
