@@ -95,8 +95,10 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .prhd h2{margin:0}.prchev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .2s}
 .prhd[aria-expanded=true] .prchev{transform:rotate(180deg)}.prc .prsub{margin:6px 0 0}.prc .prbody{margin-top:12px}
 .mnc input{padding-top:8px;padding-bottom:8px}
-.mnt{display:grid;grid-template-columns:24px minmax(0,1.2fr) auto minmax(0,1fr);gap:5px 6px;align-items:center}.mnt>b{font-size:11px;color:var(--muted);font-weight:600}.mnt .pl{font-size:12px;font-weight:700}.mnt input.in{width:100%;box-sizing:border-box;padding:7px 8px;min-height:0;height:38px;font-size:15px}.mnt .mnpi input{width:58px}.mnr{display:block;color:var(--muted);font-size:11.5px;margin-top:5px}
-.prc .ferchips{display:grid;grid-template-columns:1fr 1fr;gap:5px}.prc .ferc{padding:5px 8px}.prc input[type=number]{padding:7px 8px;font-size:15px}.prc .ferc b{font-size:12.5px}.prc .ferc small{font-size:10.5px;line-height:1.25}.prc .mnet>p.muted small,.prc .prbody>p.muted small{font-size:12px;line-height:1.4}
+.mnt{display:grid;grid-template-columns:24px 70px auto 70px;justify-content:start;gap:5px 6px;align-items:center}.mnt>b{font-size:11px;color:var(--muted);font-weight:600}.mnt .pl{font-size:12px;font-weight:700}.mnt input.in{width:100%;box-sizing:border-box;padding:6px 6px;min-height:0;height:34px;font-size:14px}.mnt .mnpi input.in{width:50px}.mnr{display:block;color:var(--muted);font-size:11.5px;margin-top:5px}
+.prc .ferchips{display:grid;grid-template-columns:1fr 1fr;gap:5px}.prc .ferc{padding:5px 8px}.prc input[type=number]{padding:6px 6px;font-size:14px}
+.dsr{display:flex;flex-wrap:wrap;gap:6px 10px}.dsi{display:inline-flex;align-items:center;gap:4px}.dsi .pl{font-size:12px;font-weight:700;width:18px}.dsi .mnpi{gap:2px}.dsi .mnpi input.in{width:46px;padding:4px}.dsi input.in[data-xv]{width:60px;padding:4px}.dsi input.in{min-height:0;height:32px;border-radius:8px}.dsl small{font-weight:500}
+.prc .apct input.in,.prc .mnp .mnpi input.in{width:56px}.prc .ferc b{font-size:12.5px}.prc .ferc small{font-size:10.5px;line-height:1.25}.prc .mnet>p.muted small,.prc .prbody>p.muted small{font-size:12px;line-height:1.4}
 .mnc{display:flex;flex-direction:column;gap:4px;min-width:0}
 .mnc>span{font-weight:700;font-size:13px}
 .mnc input{width:100%;box-sizing:border-box}
@@ -333,10 +335,10 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .pnet{display:grid;gap:12px;margin:10px 0 14px}
 .pseason{border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px}
 .psh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.psh small{color:var(--muted);font-size:12.5px}
-.pg{display:grid;grid-template-columns:26px minmax(0,1.25fr) minmax(0,.8fr) minmax(0,1fr) minmax(0,1.15fr);gap:6px 5px;align-items:center}
-.pg > b{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}
+.pg{display:grid;grid-template-columns:20px 64px 50px 56px auto;justify-content:start;gap:5px 5px;align-items:center}
+.pg > b{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}.pg > b:last-of-type{text-align:right}.pg input[type=number]{min-height:0;height:34px;padding:4px;font-size:14px;border-radius:8px}
 .pg .pl{font-size:12px;font-weight:600;color:var(--muted)}
-.pg input{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:8px 5px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:right}
+.pg input{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:6px 5px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:center}
 .pg output{font-weight:700;font-size:14px;text-align:right;white-space:nowrap}
 .pg output .muted{font-weight:500}
 .pvend{margin:6px 0 0;font-size:12px;color:var(--muted)}
@@ -1676,8 +1678,8 @@ function pricesHTML(){
   if(S.neto===false) return oldPricesHTML();
   /* valor de cada período = valor neto (do dono) + comissão Búzios Lanchas (0% a 20% sobre o neto, em % ou R$). O total é o "valor neto" que o vendedor vê */
   const cols = c => { const r=S.neto[c]||{}, n=r.neto, cm=r.comissao, pc = n>0 && cm!=null ? Math.round(cm/n*1000)/10 : "";
-    return `<span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><input type="number" inputmode="numeric" min="0" step="50" data-nt="${c}" value="${n??""}" aria-label="${t("prNet")}">
-      <input type="number" inputmode="decimal" min="0" max="20" step="0.5" data-bp="${c}" value="${pc}" aria-label="${t("prBl")} %"><input type="number" inputmode="numeric" min="0" step="10" data-br="${c}" value="${cm??""}" aria-label="${t("prBl")} R$">
+    return `<span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><input type="number" inputmode="numeric" min="0" max="${VMAX}" step="50" data-nt="${c}" value="${n??""}" aria-label="${t("prNet")}">
+      <input type="number" inputmode="decimal" min="0" max="20" step="0.5" data-bp="${c}" value="${pc}" aria-label="${t("prBl")} %"><input type="number" inputmode="numeric" min="0" max="2000" step="10" data-br="${c}" value="${cm??""}" aria-label="${t("prBl")} R$">
       <output data-tt="${c}">${prTot(c)}</output>`; };
   /* % do feriado, do Réveillon e Carnaval e desconto de segunda a quinta: cada um dentro da sua época (Rodrigo 2026-10-22) */
   const pc = "pct_feriado" in S.prices;
@@ -1687,7 +1689,7 @@ function pricesHTML(){
       <div class="pg"><span></span><b>${t("prNet")}</b><b>${t("prBl")} %</b><b>${t("prBl")} R$</b><b>${t("prTotal")}</b>
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
       <p class="pvend" data-pv="${k}">${prVend(k)}</p>${pc ? pairHTML("ds", k, dsGet(S.prices.desc_semana)) : ""}</div>`).join("")}
-    ${pc ? ["pico","reveillon"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
+    ${pc ? ["reveillon","pico"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
     <button class="btn" id="prsave">${t("pricesSave")}</button>`);
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
@@ -1702,7 +1704,7 @@ function oldPricesHTML(){
 }
 /* dono: escolhe o próprio valor neto, até 30% acima ou abaixo da referência do administrador, de R$ 50 em R$ 50 (Rodrigo, 2026-10-22).
    Não vê a comissão nem o valor final; o banco confere a faixa, a ordem das épocas, 7h acima de 4h e 1 mudança a cada 7 dias (rpc salvar_netos) */
-const mnRange = ref => [Math.ceil(ref*0.7/50)*50, Math.floor(ref*1.3/50)*50];
+const mnRange = ref => [Math.ceil(ref*0.7/50)*50, Math.min(Math.floor(ref*1.3/50)*50, 9950)];
 const dm = x => new Date(x).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"});
 const ws = d => cap(dateOf(d).toLocaleDateString(t("locale"),{weekday:"short",day:"2-digit",month:"2-digit"})).replace(/\./g,"");
 /* próxima data de cada feriado (dentro de 12 meses) e os dias do feriadão */
@@ -1729,9 +1731,10 @@ function ppPaint(e){
 const pctTxt = n => String(Math.round((+n||0)*100)/100);
 /* par de campos por 4h e 7h: % ou valor final, um preenche o outro. ds = desconto de segunda a quinta (tira), rv = Réveillon e Carnaval sobre a alta (soma) */
 const PAIR = {ds:{max:30, sign:-1, lab:"mnDs", pct:"dsPct"}, rv:{max:100, sign:1, lab:"mnPr", pct:"rvPct"}};
-const pairHTML = (kind, k, get, dis="", dr={}) => `<div class="dsb"><span class="dsl">${t(PAIR[kind].lab)}</span><div class="dsg"><span></span><b>${t(PAIR[kind].pct)}</b><b>${t("dsVal")}</b>
-  ${[k,k+"7"].map(c=>`<span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR[kind].max}" step="any" data-xp="${kind}:${c}" data-k="${kind}_${c}" value="${dr[kind+"_"+c] ?? pctTxt(get(c))}" aria-label="${t(PAIR[kind].lab)} ${t(c.endsWith("7")?"pr7s":"pr4s")} %"${dis}><i>%</i></span><input type="number" class="in" inputmode="numeric" min="0" step="10" data-xv="${kind}:${c}" aria-label="${t("dsVal")} ${t(c.endsWith("7")?"pr7s":"pr4s")}"${dis}>`).join("")}</div></div>`;
+const pairHTML = (kind, k, get, dis="", dr={}) => `<div class="dsb"><span class="dsl">${t(PAIR[kind].lab)} <small>(${t(PAIR[kind].pct)} % · ${t("dsVal")})</small></span><div class="dsr">
+  ${[k,k+"7"].map(c=>`<span class="dsi"><span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR[kind].max}" step="any" data-xp="${kind}:${c}" data-k="${kind}_${c}" value="${dr[kind+"_"+c] ?? pctTxt(get(c))}" aria-label="${t(PAIR[kind].lab)} ${t(c.endsWith("7")?"pr7s":"pr4s")} %"${dis}><i>%</i></span><input type="number" class="in" inputmode="numeric" min="0" max="${VMAX}" step="10" data-xv="${kind}:${c}" aria-label="${t("dsVal")} ${t(c.endsWith("7")?"pr7s":"pr4s")}"${dis}></span>`).join("")}</div></div>`;
 const dsGet = ds => c => ds?.[c] ?? ds?.[c.replace("7","")] ?? 0, rvGet = (pr, pr7) => c => c.endsWith("7") ? (pr7 ?? pr ?? 0) : (pr ?? 0);
+const VMAX = 9999; /* nenhum valor de passeio passa de R$ 9.999 (Rodrigo 2026-10-22; o banco também barra) */
 const PCT_MAX = {pf:50, pr:100, ds:30}; /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
 function ownPricesHTML(){
   if(S.admin || !(S.own||[]).includes(S.cur) || !S.mn) return "";
@@ -1751,9 +1754,9 @@ function ownPricesHTML(){
   return prWrap("mnet", t("mnT"), t("mnSub"), `
     ${lock?`<p class="msg">${t("mnLock",{d:dm(S.mn.prox)})}</p>`:""}
     ${["baixa","media","alta"].map(k=>`${season(k)}${it[k]?.ref>0 && it[k+"7"]?.ref>0 ? mnRow(k) : `<div class="mng">${cell(k)}${cell(k+"7")}</div>${pairHTML("ds", k, dsGet(ds), dis, dr)}`}</div>`).join("")}
+    ${season("reveillon")}${pairHTML("rv", "alta", rvGet(S.mn.pct_reveillon, S.mn.pct_reveillon7), dis, dr)}</div>
     ${season("pico")}${pct("pf", "data-mpf", S.mn.pct_feriado, PCT_MAX.pf, t("mnPf"))}<small class="pprev" data-pp="pf"></small>
       ${ferChips(off, "data-mfer", dis)}</div>
-    ${season("reveillon")}${pairHTML("rv", "alta", rvGet(S.mn.pct_reveillon, S.mn.pct_reveillon7), dis, dr)}</div>
     <button class="btn" id="mnsave"${dis}>${t("mnSave")}</button><p class="muted" style="margin-bottom:0"><small>${t("mnRules")}</small></p>`);
 }
 /* administrador: mudanças de preço feitas pelos donos, com "Desfazer" (rpc desfazer_netos) */
@@ -1766,7 +1769,7 @@ function espHTML(){
   return `<div class="card espc"><h2>⭐ ${t("espT")}</h2><p class="muted" style="margin-top:0">${t("espSub")}</p>
     ${L.length ? `<ul class="espl">${L.map((e,i)=>`<li><span><b>${esc(e.nome||t("espTag"))}</b><small>${d(e.de)}${e.ate!==e.de?" – "+d(e.ate):""}</small><small>${e.v4>0?"4h "+brl(e.v4):""}${e.v4>0&&e.v7>0?" · ":""}${e.v7>0?"7h "+brl(e.v7):""}</small></span><span class="espb"><button type="button" class="link" data-espedit="${e.de}|${e.ate}">${t("espEdit")}</button><button type="button" class="link" data-espdel="${e.de}|${e.ate}">${t("espDel")}</button></span></li>`).join("")}</ul>` : `<p class="muted">${t("espNone")}</p>`}
     ${S.espOpen || S.espEdit || !L.length ? `<div class="espf"><label class="espn">${t("espNome")}<input type="text" class="in" id="espnome" maxlength="40" placeholder="${t("espNomePh")}" value="${v(E?.nome)}"></label><label>${t("espDe")}<input type="date" class="in" id="espde" min="${E && E.de<todayISO() ? E.de : todayISO()}" value="${v(E?.de)}"></label><label>${t("espAte")}<input type="date" class="in" id="espate" min="${todayISO()}" value="${v(E?.ate)}"></label>
-    <label>${t("espV4")}<input type="number" class="in" id="espv4" inputmode="numeric" min="0" step="50" placeholder="R$" value="${v(E?.v4)}"></label><label>${t("espV7")}<input type="number" class="in" id="espv7" inputmode="numeric" min="0" step="50" placeholder="R$" value="${v(E?.v7)}"></label></div>
+    <label>${t("espV4")}<input type="number" class="in" id="espv4" inputmode="numeric" min="0" max="9999" step="50" placeholder="R$" value="${v(E?.v4)}"></label><label>${t("espV7")}<input type="number" class="in" id="espv7" inputmode="numeric" min="0" max="9999" step="50" placeholder="R$" value="${v(E?.v7)}"></label></div>
     <button type="button" class="btn" id="espadd">${t(E?"espSaveEd":"espAdd")}</button>${L.length?`<button type="button" class="btn sec" id="espcancel">${t("espCancel")}</button>`:""}` : `<button type="button" class="btn sec" id="espnew">${t("espNew")}</button>`}</div>`;
 }
 async function espSave(list, okMsg){
@@ -1927,9 +1930,9 @@ Object.assign(T.pt, {rvPendT:"⭐ Avaliação pendente", rvPendSub:"Conte como f
 Object.assign(T.en, {rvPendT:"⭐ Review pending", rvPendSub:"Tell us how your tour went: rate the boat and the skipper. It takes less than a minute.", rvPendBtn:"Rate now", rvGone:"Review removed by Búzios Lanchas", rvEditUntil:"You can change it until {d}.", rvAdmT:"Client review", rvMarL:"Skipper", rvDel:"Delete review", rvDelQ:"Delete this review? It leaves the website and the client won't be able to rate this tour again.", rvDeleted:"Review deleted.", rvExc:"Review deleted by you", rvNeedSql:"The database update to delete reviews still needs to run."});
 Object.assign(T.es, {rvPendT:"⭐ Evaluación pendiente", rvPendSub:"Cuéntanos cómo fue tu paseo: califica la lancha y al marinero. Lleva menos de 1 minuto.", rvPendBtn:"Evaluar ahora", rvGone:"Evaluación eliminada por Búzios Lanchas", rvEditUntil:"Puedes cambiarla hasta el {d}.", rvAdmT:"Evaluación del cliente", rvMarL:"Marinero", rvDel:"Eliminar evaluación", rvDelQ:"¿Eliminar esta evaluación? Sale del sitio y el cliente no podrá evaluar este paseo de nuevo.", rvDeleted:"Evaluación eliminada.", rvExc:"Evaluación eliminada por ti", rvNeedSql:"Falta ejecutar la actualización de la base de datos para eliminar evaluaciones."});
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embFee:"Por ser um píer privativo, o {place} cobra uma pequena taxa de embarque de R$ {v} por pessoa, paga direto no local."}); Object.assign(T.en, {embFee:"Because it is a private pier, {place} charges a small boarding fee of R$ {v} per person, paid directly there."}); Object.assign(T.es, {embFee:"Por ser un muelle privado, {place} cobra una pequeña tasa de embarque de R$ {v} por persona, que se paga directamente allí."}); Object.assign(T.pt, {embNotT:"Avise o cliente", embNotSub:"O local de embarque mudou. Se {name} tiver conta no app, já recebeu o aviso por e-mail. Mande também pelo WhatsApp:", waEmb:"Olá, {name}! Mudou o local de embarque do seu passeio na {boat} ({date}, {slot}).\n📍 Novo local: {emb}\n{map}Qualquer dúvida, é só chamar. Búzios Lanchas"}); Object.assign(T.en, {embNotT:"Let the client know", embNotSub:"The boarding place changed. If {name} has an account in the app, they already got an email. Send it on WhatsApp too:", waEmb:"Hi, {name}! The boarding place for your tour on {boat} ({date}, {slot}) has changed.\n📍 New place: {emb}\n{map}Any questions, just message us. Búzios Lanchas"}); Object.assign(T.es, {embNotT:"Avisa al cliente", embNotSub:"El lugar de embarque cambió. Si {name} tiene cuenta en la app, ya recibió el aviso por correo. Mándalo también por WhatsApp:", waEmb:"¡Hola, {name}! Cambió el lugar de embarque de tu paseo en {boat} ({date}, {slot}).\n📍 Nuevo lugar: {emb}\n{map}Cualquier duda, escríbenos. Búzios Lanchas"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
-Object.assign(T.pt, {prTap:"Toque para abrir e mudar os valores.", mnYour:"Seu valor", mnDsS:"Desc. seg-qui"});
-Object.assign(T.en, {prTap:"Tap to open and change the prices.", mnYour:"Your price", mnDsS:"Mon-Thu off"});
-Object.assign(T.es, {prTap:"Toca para abrir y cambiar los valores.", mnYour:"Tu valor", mnDsS:"Desc. lun-jue"});
+Object.assign(T.pt, {valMax:"O valor máximo é R$ 9.999.", prTap:"Toque para abrir e mudar os valores.", mnYour:"Seu valor", mnDsS:"Desc. seg-qui"});
+Object.assign(T.en, {valMax:"The maximum value is R$ 9,999.", prTap:"Tap to open and change the prices.", mnYour:"Your price", mnDsS:"Mon-Thu off"});
+Object.assign(T.es, {valMax:"El valor máximo es R$ 9.999.", prTap:"Toca para abrir y cambiar los valores.", mnYour:"Tu valor", mnDsS:"Desc. lun-jue"});
 Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}{resto}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
 Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}{resto}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
 Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicación del embarque:", waConfirm:"¡Hola, {name}! Tu paseo en {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} personas\n{emb}{resto}Cualquier duda, escríbenos. ¡Buen paseo! Búzios Lanchas"});
@@ -3339,6 +3342,7 @@ function bindMain(){
     prs.onclick=async()=>{ const lancha=S.cur, body={lancha, atualizado_em:new Date().toISOString()}, rows=[];
       for(const x of app.querySelectorAll("[data-nt]")){ const c=x.dataset.nt, n=prNetOf(c), P=app.querySelector(`[data-bp="${c}"]`), br=prBrOf(c);
         if(x.value.trim()!=="" && !(n>0)){ x.focus(); return toast(t("prBad")); }
+        if(n>VMAX || prTotVal(c)>VMAX){ x.focus(); return toast(t("valMax")); }
         if(n>0){ const pc=br/n*100; if(pc>20.05){ P.focus(); return toast(t("prBlBad")); } }
         body[c] = n>0 ? Math.round(n+br) : (S.prices[c] ?? null);
         const was=S.neto[c], nn=n>0?Math.round(n):null; /* referência do dono: muda quando o administrador muda o valor */
@@ -3354,7 +3358,7 @@ function bindMain(){
         S.prices={...S.prices, ...body}; S.neto={...S.neto, ...Object.fromEntries(rows.map(r=>[r.chave,r]))}; prDone(); toast(t("pricesSaved")); }
       catch(e){ toast(t("saveErr")); } finally{ prs.disabled=false; } };
   } else if(prs) prs.onclick=async()=>{ const lancha=S.cur, body={lancha, atualizado_em:new Date().toISOString()};
-    for(const x of app.querySelectorAll("[data-pr]")){ const v=x.value.trim(); if(v && !(+v>0)){ x.focus(); return toast(t("prBad")); } body[x.dataset.pr]= v ? Math.round(+v) : null; }
+    for(const x of app.querySelectorAll("[data-pr]")){ const v=x.value.trim(); if(v && !(+v>0)){ x.focus(); return toast(t("prBad")); } if(+v>VMAX){ x.focus(); return toast(t("valMax")); } body[x.dataset.pr]= v ? Math.round(+v) : null; }
     prs.disabled=true;
     try{ await db("precos",{method:"POST", body, prefer:"resolution=merge-duplicates,return=minimal"}); S.prices=body; prDone(); toast(t("pricesSaved")); }
     catch(e){ toast(t("saveErr")); } finally{ prs.disabled=false; } };
@@ -3364,6 +3368,7 @@ function bindMain(){
   const ea=document.getElementById("espadd"); if(ea) ea.onclick=async()=>{ const g=id=>document.getElementById(id).value.trim(), nome=g("espnome"), de=g("espde"), ate=g("espate")||de, v4=+g("espv4")||0, v7=+g("espv7")||0;
     const ed=S.espEdit, L=espList().filter(e=>e.de+"|"+e.ate!==ed); /* editando: troca o período pelo novo */
     if(!nome || !de || ate<de || (de<todayISO() && de!==ed?.split("|")[0]) || ate<todayISO() || !(v4>0 || v7>0)) return toast(t("espBad"));
+    if(v4>VMAX || v7>VMAX) return toast(t("valMax"));
     if(L.some(e=>e.de<=ate && de<=e.ate)) return toast(t("espOver"));
     { const o={...valOpts(S.prices), esp:null}; /* o 7h nunca fica mais barato (nem igual) que o 4h, contando o valor da época no que ficar vazio */
       for(let d=new Date(de+"T12:00:00"), n=0; n<400 && d.toISOString().slice(0,10)<=ate; d.setDate(d.getDate()+1), n++){ const iso=d.toISOString().slice(0,10),
@@ -3809,11 +3814,11 @@ function renderTrip(){
       ${!n.cliente_conta && !pedidoFor ? `<label class="f"><span>✉ ${t("cEmail")} <small class="muted" style="font-weight:400">(${t("cEmailHint")})</small></span><input type="email" id="n-cemail" inputmode="email" autocapitalize="off" autocomplete="off"></label><p class="muted" style="margin:-4px 0 12px;font-size:13px">💡 ${t("cEmailWhy")}</p>` : ""}
       <div id="marbox">${marField()}</div>
       ${S.ajOk ? `<label class="f"><span>🤝 ${t("ajT")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span><input type="text" id="n-ajudante" maxlength="60" autocapitalize="words" autocomplete="off" placeholder="${t("ajPh")}" value="${esc(n.ajudante??"")}"></label>` : ""}
-      <div class="row2">${f("valor","number",'inputmode="decimal" min="0" step="any"')}${f("sinal","number",'inputmode="decimal" min="0" step="any"')}</div>
+      <div class="row2">${f("valor","number",'inputmode="decimal" min="0" max="9999" step="any"')}${f("sinal","number",'inputmode="decimal" min="0" max="9999" step="any"')}</div>
       <p class="muted" id="vlock" style="margin:-4px 0 12px;font-size:13px" hidden>${t("valLocked")}</p>
       <p class="muted" id="sminh" style="margin:-4px 0 12px;font-size:13px">💰 ${t("sinalMinHint")}${S.admin ? `<br>⏳ ${t("holdHint")}` : ""}</p>
       ${S.admin ? `<details class="cob" id="cob"><summary>💰 ${t("cobT")}</summary>
-        <label class="f"><span>${t("cobVal")}</span><input type="number" id="cob-v" inputmode="decimal" min="1" step="any"></label>
+        <label class="f"><span>${t("cobVal")}</span><input type="number" id="cob-v" inputmode="decimal" min="1" max="9999" step="any"></label>
         <div class="origin"><div><button type="button" role="radio" data-cobm="pix" aria-checked="true">Pix (CNPJ)</button><button type="button" role="radio" data-cobm="pp" aria-checked="false">${t("cobCard")}</button></div></div>
         <div id="cob-fxf" hidden><p class="muted" style="margin:0 0 10px;font-size:13px">${t("cobPpNote")}</p>
         <label class="f"><span id="cob-fxl"></span><input type="number" id="cob-fx" inputmode="decimal" min="1" step="any"></label>
@@ -3962,8 +3967,9 @@ function renderTrip(){
       const sEl=document.getElementById("n-sinal"); let sMin=0;
       if(sEl && !sEl.disabled && nota.sinal!=null && !(S.admin && +nota.sinal===0)){ const m = +nota.valor>0 ? Math.ceil(+nota.valor*0.1) : 100; if(+nota.sinal<m){ sMin=m; miss.push(sEl); } }
       let sMax=0; if(sEl && !sEl.disabled && +nota.valor>0 && +nota.sinal>+nota.valor){ sMax=+nota.valor; if(!miss.includes(sEl)) miss.push(sEl); }
+      let vBig=false; ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(el && !el.disabled && +nota[k]>VMAX){ vBig=true; if(!miss.includes(el)) miss.push(el); } });
       sheet.querySelectorAll(".miss").forEach(x=>x.classList.remove("miss"));
-      if(miss.length){ miss.forEach(x=>x.classList.add("miss")); out.innerHTML=`<p class="msg err">${sMax && miss.length===1 ? t("sinalMax",{v:brl(sMax)}) : sMin && miss.length===1 ? t("sinalMin",{v:brl(sMin)}) : tel && !telOk ? (miss.length>1 ? t("needAll")+"<br>" : "")+t("phoneBad") : t("needAll")+(sMin ? "<br>"+t("sinalMin",{v:brl(sMin)}) : "")}</p>`;
+      if(miss.length){ miss.forEach(x=>x.classList.add("miss")); out.innerHTML=`<p class="msg err">${vBig ? t("valMax") : sMax && miss.length===1 ? t("sinalMax",{v:brl(sMax)}) : sMin && miss.length===1 ? t("sinalMin",{v:brl(sMin)}) : tel && !telOk ? (miss.length>1 ? t("needAll")+"<br>" : "")+t("phoneBad") : t("needAll")+(sMin ? "<br>"+t("sinalMin",{v:brl(sMin)}) : "")}</p>`;
         miss[0].scrollIntoView({block:"center",behavior:"smooth"}); if(!miss[0].matches("fieldset")) miss[0].focus({preventScroll:true}); return; }
     }
     b.disabled=true;
