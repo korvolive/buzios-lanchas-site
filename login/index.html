@@ -1926,10 +1926,10 @@ function pushState(){
   if(p==="default") return "ask";
   return store.get("push-off") ? "off" : store.get("push-ep") ? "on" : "pend";
 }
-/* faixa para o cliente na tela inicial quando os avisos não estão ligados; o ✕ esconde por 3 dias (7 se desligou de propósito) */
+/* faixa para o cliente na tela inicial quando os avisos não estão ligados; o ✕ esconde por 3 dias (1 dia se desligou de propósito) */
 function pushNudgeHTML(){
   const st=pushState(); if(["on","pend","na"].includes(st)) return "";
-  const off=+store.get("push-off")||0; if(Date.now() < Math.max((+store.get("push-nudge-no")||0)+3*864e5, off+7*864e5)) return "";
+  const off=+store.get("push-off")||0; if(Date.now() < Math.max((+store.get("push-nudge-no")||0)+3*864e5, off+864e5)) return "";
   const msg = st==="ios" ? t("chPushIOS") : st==="den" ? t("chPushDen") : st==="off" ? t("nudgeOff") : t("nudgeAsk");
   return `<div class="msg pushm pnudge" id="pnudge"><span>🔔 ${msg}</span>${st==="ask"||st==="off"?`<button type="button" class="btn" id="pushgo">${t("chPushBtn")}</button>`:""}<button type="button" class="chpx" id="pnx" aria-label="${t("close")}">✕</button></div>`;
 }
@@ -2473,12 +2473,12 @@ function openChat(cid, pid){
   chatPushBar();
 }
 /* ao abrir o chat e depois de mandar a mensagem: faixa discreta convidando a ligar os avisos deste aparelho (Rodrigo, 2026-10-22).
-   Só aparece se os avisos não estão ligados; o ✕ esconde por 3 dias; quem desligou no sininho vê de novo depois de 7 dias */
+   Só aparece se os avisos não estão ligados; o ✕ esconde por 3 dias; quem desligou no sininho vê de novo depois de 1 dia (Rodrigo) */
 function chatPushBar(){
   const el=document.getElementById("chpush"); if(!el || !el.hidden) return;
   const st=pushState(), off=+store.get("push-off")||0;
   if(["on","pend","na"].includes(st)) return;
-  if(Date.now() < Math.max((+store.get("chat-push-no")||0)+3*864e5, off+7*864e5)) return;
+  if(Date.now() < Math.max((+store.get("chat-push-no")||0)+3*864e5, off+864e5)) return;
   let msg, btn=false;
   if(st==="ios") msg=t("chPushIOS");
   else if(st==="den") msg=t("chPushDen");
