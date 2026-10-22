@@ -57,7 +57,8 @@ Deno.serve(async req => {
     if (cc) lang = cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en";
     const nomeL = (await db.from("lanchas").select("nome").eq("slug", b.lancha).maybeSingle()).data?.nome || b.lancha;
     const dados = {
-      convite: true, lang, nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",
+      convite: true, lang, assunto: { pt: `Seu passeio na ${nomeL} · ${dataBR(b.data)}`, en: `Your tour on ${nomeL} · ${dataBR(b.data)}`, es: `Tu paseo en ${nomeL} · ${dataBR(b.data)}` }[lang as "pt"], // assunto com o motivo (Rodrigo 2026-10-22)
+      nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",
       lancha: nomeL, data: dataBR(b.data), horario: an?.hora_ini && an?.hora_fim ? `${(SLOT[lang][b.horario] || b.horario).replace(/ \(.*$/, "")} (${hm(an.hora_ini, lang)} ${LIGA[lang]} ${hm(an.hora_fim, lang)})` : SLOT[lang][b.horario] || b.horario,
       pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque ? an.embarque + (MAPA[an.embarque] ? ` · ${{ pt: "Localização", en: "Location", es: "Ubicación" }[lang] || "Localização"}: ${MAPA[an.embarque]}` : "") + (TAXA[an.embarque] ? ` · ${taxa(an.embarque, lang)}` : "") : "",
       pagina: `${SITE}${lang === "pt" ? "" : "/" + lang}/lancha/${b.lancha}/`,

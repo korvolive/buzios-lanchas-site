@@ -43,10 +43,10 @@ Deno.serve(async req => {
     const nomeL = tipo === "fixo" ? (await db.from("lanchas").select("nome").eq("slug", lancha).maybeSingle()).data?.nome || lancha : "";
     const meta = { ...(u.user_metadata || {}) };
     const aviso = { tipo, lancha: nomeL, nome: String(cad.nome || "").split(" ")[0], lang: meta.lang || lang };
-    await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang: aviso.lang, aviso } });
+    await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang: aviso.lang, aviso, assunto: (tipo === "fixo" ? { pt: `Você é o marinheiro da ${nomeL}`, en: `You are the skipper of ${nomeL}`, es: `Eres el marinero de ${nomeL}` } : { pt: "Você é marinheiro freelancer da Búzios Lanchas", en: "You are a Búzios Lanchas freelance skipper", es: "Eres marinero freelancer de Búzios Lanchas" })[aviso.lang as "pt"] || null } });
     const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: `${SITE}/login/` });
     // tira o aviso de novo: um "Esqueci minha senha" depois volta a ser o e-mail normal
-    await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, aviso: null } });
+    await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, aviso: null, assunto: null } });
     if (error) { console.error("recover", error.message); return json({ status: "falhou", erro: error.message }, 502); }
     return json({ status: "enviado" });
   } catch (e) {

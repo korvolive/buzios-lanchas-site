@@ -59,9 +59,11 @@ async function email(uid: string, cid: number, autor: string, lancha: string, di
   const primeiro = String(meta.nome || meta.full_name || "").trim().split(" ")[0];
   const msg = { lang: l, oi: T[l].oi(primeiro).replace(/, !$/, "!"), texto: T[l].texto(autor, lancha, dia ? dataBR(dia) : ""), linhas: [`“${texto.slice(0, 300)}${texto.length > 300 ? "…" : ""}”`], nota: T[l].nota, botao: T[l].botao, url: `${SITE}/login/?chat=${cid}` };
   await db.from("conversa_lidas").upsert({ conversa: cid, user_id: uid, ate: lida ? undefined : 0, email_em: new Date().toISOString() } as any, { onConflict: "conversa,user_id" });
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg } });
+  const sobre = lancha ? ` · ${lancha}${dia ? " " + dataBR(dia) : ""}` : "";
+  const assunto = { pt: `Nova mensagem de ${autor}${sobre}`, en: `New message from ${autor}${sobre}`, es: `Nuevo mensaje de ${autor}${sobre}` }[l]; // assunto com o motivo (Rodrigo 2026-10-22)
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null } });
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
   if (error) { console.error("email", error.message); return false; }
   return true;
 }
