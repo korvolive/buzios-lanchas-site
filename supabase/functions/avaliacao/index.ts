@@ -9,6 +9,7 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const SITE = "https://www.lanchaembuzios.com.br";
 const dataBR = (d: string) => d.split("-").reverse().join("/");
+const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
 
 async function userByEmail(email: string) {
   for (let page = 1; page < 50; page++) {
@@ -32,7 +33,7 @@ Deno.serve(async req => {
     const { data: b } = await db.from("bloqueios").select("id, lancha, data, horario").eq("id", bid).maybeSingle();
     if (!b) return json({ erro: "passeio" }, 404);
     if (!(await db.from("realizados").select("aconteceu").eq("bloqueio_id", b.id).eq("aconteceu", true).maybeSingle()).data) return json({ erro: "passeio não confirmado" }, 409);
-    const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta").eq("bloqueio_id", b.id).maybeSingle();
+    const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, telefone").eq("bloqueio_id", b.id).maybeSingle();
     let email = "", nome = an?.cliente || "";
     if (an?.cliente_conta) email = (await db.auth.admin.getUserById(an.cliente_conta)).data.user?.email || "";
     if (!email) { const { data: c } = await db.from("convites").select("email, nome").eq("bloqueio_id", b.id).maybeSingle(); email = c?.email || ""; nome = c?.nome || nome; }
@@ -41,10 +42,13 @@ Deno.serve(async req => {
     const nomeL = (await db.from("lanchas").select("nome").eq("slug", b.lancha).maybeSingle()).data?.nome || b.lancha;
     const u = await userByEmail(email);
     const meta = { ...(u?.user_metadata || {}) };
-    const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : ["pt", "en", "es"].includes(l0) ? l0 : "pt";
+    // idioma do cliente: o da conta dele; sem conta, o do DDI do WhatsApp (Rodrigo, 2026-10-22)
+    const cc = String(an?.telefone || "").match(/^\s*\+(\d{1,3})\b/)?.[1];
+    const ddi = cc ? (cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en") : "";
+    const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : ddi || (["pt", "en", "es"].includes(l0) ? l0 : "pt");
     const avaliar = { lancha: nomeL, data: dataBR(b.data), primeiro: (meta.nome || nome || "").split(" ")[0], lang };
     if (u?.email_confirmed_at) {
-      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, avaliar } });
+      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang, avaliar } });
       const { error } = await db.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
       // tira o pedido de avaliação de novo: um "entrar por link" depois volta a ser o e-mail normal
       await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, avaliar: null } });
