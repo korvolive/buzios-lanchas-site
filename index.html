@@ -1419,7 +1419,7 @@ async function markSlots(b){
 const STACK_SKIP = ["Marinheiro","Marinheiro experiente","Serviço de churrasqueiro"];
 /* destaque dourado (pedido do Rodrigo): esses itens vêm primeiro na lista */
 const STACK_GOLD = ["Wi-Fi Starlink","Ar-condicionado","Som na proa","Piscina inflável","Gelo filtrado"];
-const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...l.filter(i=>!STACK_GOLD.includes(i)),...STACK_GOLD.filter(i=>l.includes(i))].map(itemChip).join(""); };
+const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...STACK_GOLD.filter(i=>l.includes(i)),...l.filter(i=>!STACK_GOLD.includes(i))].map(itemChip).join(""); };
 /* card da página inicial: itens básicos de todas (azul) e depois os destaques que a lancha tem (dourado) */
 const CARD_BASIC = ["Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Cooler","Som Bluetooth"];
 const IC = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
