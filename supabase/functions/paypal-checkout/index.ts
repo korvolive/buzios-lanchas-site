@@ -71,9 +71,10 @@ async function email(uid: string, url: string, lancha: string, dia: string, valo
   const primeiro = String(meta.nome || meta.full_name || "").trim().split(" ")[0];
   const M = MAIL[l];
   const msg = { lang: l, oi: M.oi(primeiro), texto: pix ? MAIL_PIX[l](lancha, dataBR(dia)) : M.texto(lancha, dataBR(dia)), linhas: [`${pix ? "🧾" : "💳"} ${valor}`], nota: M.nota, botao: M.botao, url };
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg } });
+  const assunto = { pt: `Pagamento da reserva: ${lancha} · ${dataBR(dia)}`, en: `Booking payment: ${lancha} · ${dataBR(dia)}`, es: `Pago de la reserva: ${lancha} · ${dataBR(dia)}` }[l]; // assunto com o motivo (Rodrigo 2026-10-22)
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null } });
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
   if (error) { console.error("email", error.message); return false; }
   return true;
 }

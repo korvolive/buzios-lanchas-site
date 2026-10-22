@@ -47,15 +47,16 @@ Deno.serve(async req => {
     const ddi = cc ? (cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en") : "";
     const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : ddi || (["pt", "en", "es"].includes(l0) ? l0 : "pt");
     const avaliar = { lancha: nomeL, data: dataBR(b.data), primeiro: (meta.nome || nome || "").split(" ")[0], lang };
+    const assunto = { pt: `Avalie o seu passeio na ${nomeL}`, en: `Rate your tour on ${nomeL}`, es: `Califica tu paseo en ${nomeL}` }[lang as "pt"]; // assunto com o motivo (Rodrigo 2026-10-22)
     if (u?.email_confirmed_at) {
-      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang, avaliar } });
+      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang, avaliar, assunto } });
       const { error } = await db.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
       // tira o pedido de avaliação de novo: um "entrar por link" depois volta a ser o e-mail normal
-      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, avaliar: null } });
+      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, avaliar: null, assunto: null } });
       if (error) { console.error("otp", error.message); return json({ status: "falhou", erro: error.message, email }, 502); }
       return json({ status: "enviado", email });
     }
-    const { error } = await db.auth.admin.inviteUserByEmail(email, { data: { lang, primeiro: avaliar.primeiro, avaliar }, redirectTo: `${SITE}/login/` });
+    const { error } = await db.auth.admin.inviteUserByEmail(email, { data: { lang, primeiro: avaliar.primeiro, avaliar, assunto }, redirectTo: `${SITE}/login/` });
     if (error) { console.error("invite", error.message); return json({ status: "falhou", erro: error.message, email }, 502); }
     return json({ status: "enviado", email });
   } catch (e) {

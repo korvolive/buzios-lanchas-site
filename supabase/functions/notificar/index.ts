@@ -200,6 +200,20 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} está confirmada.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "es")] : []), ...(p.resto ? [`Al embarcar, paga el resto al responsable de la lancha: ${p.resto}`] : []), ...(p.donos || []).map((d: string) => `Dueño de la lancha: ${d}`), "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Coordina los detalles del paseo directamente con el dueño de la lancha. Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
 };
+/* assunto de cada e-mail dizendo o motivo (Rodrigo 2026-10-22); o modelo do Supabase usa .Data.assunto quando existe */
+const dd = (p: any) => (p.data ? ` · ${p.data}` : "");
+const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
+  dono: { pt: p => `Passeio confirmado: ${p.lancha}${dd(p)}`, en: p => `Tour confirmed: ${p.lancha}${dd(p)}`, es: p => `Paseo confirmado: ${p.lancha}${dd(p)}` },
+  pedido: { pt: p => `Nova reserva pelo site: ${p.lancha}${dd(p)}`, en: p => `New booking request: ${p.lancha}${dd(p)}`, es: p => `Nueva reserva por el sitio: ${p.lancha}${dd(p)}` },
+  mar: { pt: p => `Você vai pilotar: ${p.lancha}${dd(p)}`, en: p => `You will skipper: ${p.lancha}${dd(p)}`, es: p => `Vas a pilotar: ${p.lancha}${dd(p)}` },
+  saiu: { pt: p => `Marinheiro saiu do passeio: ${p.lancha}${dd(p)}`, en: p => `Skipper left the tour: ${p.lancha}${dd(p)}`, es: p => `El marinero dejó el paseo: ${p.lancha}${dd(p)}` },
+  embarque: { pt: p => `Novo local de embarque: ${p.lancha}${dd(p)}`, en: p => `New boarding place: ${p.lancha}${dd(p)}`, es: p => `Nuevo lugar de embarque: ${p.lancha}${dd(p)}` },
+  avaliar: { pt: p => `Avalie o seu passeio na ${p.lancha}`, en: p => `Rate your tour on ${p.lancha}`, es: p => `Califica tu paseo en ${p.lancha}` },
+  fim: { pt: p => `Passeio terminou, confirme: ${p.lancha}${dd(p)}`, en: p => `Tour ended, please confirm: ${p.lancha}${dd(p)}`, es: p => `Paseo terminado, confirma: ${p.lancha}${dd(p)}` },
+  inicio: { pt: p => `Seu passeio começa em breve: ${p.lancha}`, en: p => `Your tour starts soon: ${p.lancha}`, es: p => `Tu paseo empieza pronto: ${p.lancha}` },
+  avisarCli: { pt: p => `Avise o cliente: passeio em breve na ${p.lancha}`, en: p => `Remind the client: tour soon on ${p.lancha}`, es: p => `Avisa al cliente: paseo pronto en ${p.lancha}` },
+  cliente: { pt: p => `Reserva confirmada: ${p.lancha}${dd(p)}`, en: p => `Booking confirmed: ${p.lancha}${dd(p)}`, es: p => `Reserva confirmada: ${p.lancha}${dd(p)}` },
+};
 async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "avaliar" | "fim" | "inicio" | "avisarCli", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
@@ -209,9 +223,10 @@ async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" |
   const nome = p.nomes?.[userId] || meta.nome || meta.full_name || "";
   const msg = { lang, ...MAIL[tipo][lang]({ ...p, horario: horario(p.b, p.a, lang), primeiro: String(nome).trim().split(" ")[0] || "" }) };
   msg.oi = msg.oi.replace(/, !$/, "!"); /* sem nome: só "Olá!" */
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg } });
+  const assunto = ASSUNTO[tipo]?.[lang]?.(p) || null;
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: "https://www.lanchaembuzios.com.br/login/" } });
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null } });
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
   if (error) { console.error("email", tipo, error.message); return false; }
   return true;
 }

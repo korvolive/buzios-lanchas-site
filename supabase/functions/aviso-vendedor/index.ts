@@ -51,9 +51,10 @@ async function email(uid: string, p: any) {
   const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : "pt";
   const msg = { lang, ...MAIL[lang]({ ...p, primeiro: String(p.nomeVend || meta.nome || meta.full_name || "").trim().split(" ")[0] || "" }) };
   msg.oi = msg.oi.replace(/, !$/, "!");
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg } });
+  const assunto = { pt: `Pedido pelo seu link: ${p.lancha} · ${dataBR(p.data)}`, en: `Booking through your link: ${p.lancha} · ${dataBR(p.data)}`, es: `Pedido por tu enlace: ${p.lancha} · ${dataBR(p.data)}` }[lang]; // assunto com o motivo (Rodrigo 2026-10-22)
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: "https://www.lanchaembuzios.com.br/login/" } });
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null } });
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
   if (error) { console.error("email", error.message); return false; }
   return true;
 }

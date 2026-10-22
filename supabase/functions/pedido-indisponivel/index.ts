@@ -62,9 +62,9 @@ async function email(uid: string, boat: string, d: string) {
   const l = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : ddiLang(c?.whatsapp), t = T[l];
   const nome = c?.nome || meta.nome || meta.full_name || "";
   const msg = { lang: l, oi: t.oi(String(nome).trim().split(" ")[0]), texto: t.texto(boat, dataBR(d)), linhas: t.linhas(livres(l, d)), nota: t.nota, botao: t.botao, url: `${SITE}/login/` };
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang: l, msg } }); // lang no topo: o assunto do e-mail sai no idioma dele
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang: l, msg, assunto: { pt: `Data indisponível: ${boat} · ${dataBR(d)}`, en: `Date unavailable: ${boat} · ${dataBR(d)}`, es: `Fecha no disponible: ${boat} · ${dataBR(d)}` }[l as "pt"] } }); // lang no topo: o assunto do e-mail sai no idioma dele
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null } });
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
   if (error) { console.error("email", error.message); return false; }
   return true;
 }
