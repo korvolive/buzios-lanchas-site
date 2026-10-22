@@ -232,10 +232,8 @@ html.is-app #hdr-login{display:none}
   .cap{text-align:center}
   .strip{max-width:100%;justify-self:stretch}
 }
-.gallery .main.tall{transition:aspect-ratio .25s ease}
-/* a moldura acompanha o formato da foto, então ela aparece inteira; sem fundo desfocado (Rodrigo, 2026-10-22) */
 .gallery .main img.blur{display:none}
-.gallery .main img.fit{position:absolute;inset:0;object-fit:cover}
+.gallery .main img.fit{position:absolute;inset:0;object-fit:cover;object-position:center} /* galeria: quadro fixo, foto sempre centralizada (Rodrigo, 2026-10-22) */
 .strip button{width:60px;height:96px}
 .strip button img{object-fit:cover}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(6,57,74,.65);color:#fff;font-size:26px;line-height:1;cursor:pointer}
@@ -1732,7 +1730,7 @@ const altOf = (b,i) => b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1
 function gallery(b){
   const P=b.photos;
   return `<div class="gallery" data-i="0">
-    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" src="${imgSrc(P[0])}" alt="${altOf(b,0)}" style="object-position:${P[0][2]||"center"}">
+    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" src="${imgSrc(P[0])}" alt="${altOf(b,0)}">
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
       <button type="button" class="nav next" id="g-next" aria-label="${t("nextPhoto")}">›</button>
       <span class="count" id="g-count">1 / ${P.length}</span></div>
@@ -1742,12 +1740,8 @@ function gallery(b){
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
-  /* moldura no formato da foto: entre 3:4 e 16:9 no celular, entre 1:1 e 16:9 no computador */
-  const fitAr=()=>{ if(!mm.naturalWidth) return; const lo=matchMedia("(max-width:880px)").matches?.75:1;
-    mm.parentNode.style.aspectRatio=String(Math.min(1.78,Math.max(lo,mm.naturalWidth/mm.naturalHeight))); };
-  mm.addEventListener("load",fitAr); if(mm.complete) fitAr(); if(!window.galFit) addEventListener("resize",()=>window.galFit()); window.galFit=fitAr;
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
-    m.src=imgSrc(P[i]); m.alt=altOf(b,i); m.style.objectPosition=P[i][2]||"center"; document.getElementById("g-blur").src=imgSrc(P[i],1);
+    m.src=imgSrc(P[i]); m.alt=altOf(b,i); document.getElementById("g-blur").src=imgSrc(P[i],1);
     document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
     document.querySelectorAll("#g-strip button").forEach((t,k)=>{ if(k===i){t.setAttribute("aria-current","true"); t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});} else t.removeAttribute("aria-current"); }); };
   document.getElementById("g-prev").onclick=()=>show(i-1);
