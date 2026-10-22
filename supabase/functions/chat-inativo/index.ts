@@ -1,14 +1,14 @@
 // Búzios Lanchas: chat inativo (Rodrigo, 2026-10-22). Chamada a cada 15 min pelo pg_cron (job "chat-inativo").
-// O banco (inativar_chats) marca os chats sem mensagem há 24 h, com a última palavra de quem atende, e grava no chat
+// O banco (inativar_chats) marca os chats sem mensagem há 6 h, com a última palavra de quem atende, e grava no chat
 // a mensagem de sistema 'inativo'. Aqui só avisa o cliente no celular. Sem login: repetir a chamada não faz nada novo.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 const T: Record<string, { title: string; body: string }> = {
-  pt: { title: "Atendimento inativo", body: "Seu chat com a Búzios Lanchas ficou inativo. Se precisar de algo, é só escrever de novo que a gente responde." },
-  en: { title: "Chat inactive", body: "Your Búzios Lanchas chat is now inactive. If you need anything, just write again and we'll reply." },
-  es: { title: "Atención inactiva", body: "Tu chat con Búzios Lanchas quedó inactivo. Si necesitas algo, solo escribe de nuevo y te respondemos." },
+  pt: { title: "Atendimento inativo", body: "Seu chat com a Búzios Lanchas ficou inativo. É só mandar qualquer mensagem que a gente continua de onde parou." },
+  en: { title: "Chat inactive", body: "Your Búzios Lanchas chat is now inactive. Just send any message and we'll pick up where we left off." },
+  es: { title: "Atención inactiva", body: "Tu chat con Búzios Lanchas quedó inactivo. Solo envía cualquier mensaje y seguimos donde lo dejamos." },
 };
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "pt");
 
