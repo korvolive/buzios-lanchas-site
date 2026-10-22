@@ -548,7 +548,7 @@ const T = {
 };
 /* contas de clientes, pedidos do site e troca de data/horário/lancha */
 Object.assign(T.pt, {
-  signupBtn:"Criar conta de cliente", google:"Entrar com Google", orEmail:"ou com e-mail e senha", orGoogle:"ou", haveAcc:"Já tenho conta: entrar", signupTitle:"Criar sua conta", signupSub:"Com a conta, seus pedidos de lancha ficam salvos e você acompanha tudo por aqui.",
+  signupBtn:"Criar conta de cliente", google:"Entrar com Google", orEmail:"ou com e-mail e senha", orGoogle:"ou", haveAcc:"Já tenho conta: entrar", orNew:"ou crie sua conta abaixo", signupTitle:"Criar sua conta", signupSub:"Com a conta, seus pedidos de lancha ficam salvos e você acompanha tudo por aqui.",
   fullName:"Nome completo", ph_fullName:"Ex.: Maria da Silva", cpf:"CPF", whats:"WhatsApp",
   consent:'Li e aceito os <a href="/privacidade/" target="_blank" rel="noopener">termos de uso e a política de privacidade</a>.', consentNeed:"Para criar a conta, aceite os termos.",
   nameBad:"Escreva o nome completo (nome e sobrenome).", myPhoneBad:"Seu WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", cpfBad:"CPF inválido. Confira os números.", cpfTaken:"Esse CPF já tem uma conta. Entre com o e-mail dela ou fale com a Búzios Lanchas.", telTaken:"Esse WhatsApp já tem uma conta. Entre com ele (opção Celular) ou fale com a Búzios Lanchas.",
@@ -568,7 +568,7 @@ Object.assign(T.pt, {
   siteClient:"Cliente verificado", cliCard:"Ver cadastro do cliente", cliSince:"Cliente desde", cliTrips:"Passeios confirmados", moved:"Passeio alterado.", moveHint:"Mude lancha, data ou horário aqui: a agenda e o calendário da lancha mudam juntos."
 });
 Object.assign(T.en, {
-  signupBtn:"Create a customer account", google:"Continue with Google", orEmail:"or with email and password", orGoogle:"or", haveAcc:"I already have an account: sign in", signupTitle:"Create your account", signupSub:"With an account, your boat requests are saved and you can follow everything here.",
+  signupBtn:"Create a customer account", google:"Continue with Google", orEmail:"or with email and password", orGoogle:"or", haveAcc:"I already have an account: sign in", orNew:"or create your account below", signupTitle:"Create your account", signupSub:"With an account, your boat requests are saved and you can follow everything here.",
   fullName:"Full name", ph_fullName:"E.g. Maria da Silva", cpf:"CPF (Brazilian tax ID)", whats:"WhatsApp",
   consent:'I have read and accept the <a href="/privacidade/" target="_blank" rel="noopener">terms of use and privacy policy</a>.', consentNeed:"Please accept the terms to create your account.",
   nameBad:"Type your full name (first and last name).", myPhoneBad:"Your WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", cpfBad:"Invalid CPF. Please check the numbers.", cpfTaken:"This CPF already has an account. Sign in with its email or contact Búzios Lanchas.", telTaken:"This WhatsApp number already has an account. Sign in with it (Phone option) or contact Búzios Lanchas.",
@@ -588,7 +588,7 @@ Object.assign(T.en, {
   siteClient:"Verified customer", cliCard:"See customer details", cliSince:"Customer since", cliTrips:"Confirmed tours", moved:"Tour changed.", moveHint:"Change boat, date or time here: the boat's list and calendar change too."
 });
 Object.assign(T.es, {
-  signupBtn:"Crear cuenta de cliente", google:"Entrar con Google", orEmail:"o con correo y contraseña", orGoogle:"o", haveAcc:"Ya tengo cuenta: entrar", signupTitle:"Crea tu cuenta", signupSub:"Con la cuenta, tus pedidos de lancha quedan guardados y sigues todo por aquí.",
+  signupBtn:"Crear cuenta de cliente", google:"Entrar con Google", orEmail:"o con correo y contraseña", orGoogle:"o", haveAcc:"Ya tengo cuenta: entrar", orNew:"o crea tu cuenta abajo", signupTitle:"Crea tu cuenta", signupSub:"Con la cuenta, tus pedidos de lancha quedan guardados y sigues todo por aquí.",
   fullName:"Nombre completo", ph_fullName:"Ej.: María da Silva", cpf:"CPF (documento brasileño)", whats:"WhatsApp",
   consent:'Leí y acepto los <a href="/privacidade/" target="_blank" rel="noopener">términos de uso y la política de privacidad</a>.', consentNeed:"Para crear la cuenta, acepta los términos.",
   nameBad:"Escribe tu nombre completo (nombre y apellido).", myPhoneBad:"Tu WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", cpfBad:"CPF inválido. Revisa los números.", cpfTaken:"Este CPF ya tiene una cuenta. Entra con su correo o habla con Búzios Lanchas.", telTaken:"Este WhatsApp ya tiene una cuenta. Entra con él (opción Celular) o habla con Búzios Lanchas.",
@@ -974,13 +974,13 @@ function loginShell(title, sub, form){
 /* reserva online começada no site por quem ainda não tinha conta: depois do cadastro ou do login, volta para a lancha e o pedido sai */
 const pendRes = () => { const r=store.get("reserva-pendente"); return r && !r.voltou && Date.now()-r.t<7200000 && /^\//.test(r.path||"") ? r : null; };
 function signupView(){
-  loginShell(t("signupTitle"), pendRes() ? t("resSignupSub",{boat:esc(pendRes().nome)}) : t("signupSub"), `<form class="card" id="sf" novalidate><div id="smsg">${loginMsg && !loginErr ? `<p class="msg ok">${loginMsg}</p>` : ""}</div>
+  loginShell(t("signupTitle"), pendRes() ? t("resSignupSub",{boat:esc(pendRes().nome)}) : t("signupSub"), `${googleOn?`<a class="gbtn" href="${googleHref()}">${GOOGLE_ICON}<span>${t("google")}</span></a>`:""}<button type="button" class="link" id="tologin" style="display:block;margin:0 auto 6px">${t("haveAcc")}</button><p class="or muted">${t("orNew")}</p><form class="card" id="sf" novalidate><div id="smsg">${loginMsg && !loginErr ? `<p class="msg ok">${loginMsg}</p>` : ""}</div>
       ${profileFields(store.get("cli-draft")||{})}
       <label class="f"><span>${t("email")}${REQ}</span><input type="email" id="em" autocomplete="email" inputmode="email" autocapitalize="off" value="${esc(typedEmail)}"></label>
       <label class="f"><span>${t("password")}${REQ} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>
       <label class="chk"><input type="checkbox" id="c-ok"><span>${t("consent")}</span></label>
       <button class="btn" id="go">${t("createAcc")}</button>
-    </form>${googleBtn()}<button type="button" class="link" id="tologin" style="display:block;margin:0 auto">${t("haveAcc")}</button>`);
+    </form>`);
   bindProfile();
   const pw=document.getElementById("pw"), eye=document.getElementById("eye"), em=document.getElementById("em");
   eye.onclick=()=>{ const h=pw.type==="password"; pw.type=h?"text":"password"; eye.textContent=h?t("hide"):t("show"); };
