@@ -1566,6 +1566,11 @@ if(new URLSearchParams(location.search).get("app")==="1"){
   if(logged && !client) location.replace("/login/"); /* donos, marinheiros e equipe abrem na agenda; clientes ficam no site */ else history.replaceState(null,"",location.pathname+location.hash);
 }
 if("serviceWorker" in navigator && !/bot|crawl|spider|headless/i.test(navigator.userAgent)) navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(()=>{});
+/* aviso do app (passeio confirmado, mensagem no chat...) chegando com o site aberto: toca o mesmo som do app, e a notificação aparece normal (Rodrigo, 2026-10-22) */
+let pingCtx=null;
+document.addEventListener("pointerdown", ()=>{ try{ if(!pingCtx) pingCtx=new (window.AudioContext||window.webkitAudioContext)(); if(pingCtx.state==="suspended") pingCtx.resume(); }catch(e){} }, {passive:true});
+if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e=>{ if(e.data?.tipo!=="som" || !pingCtx || pingCtx.state!=="running") return;
+  try{ const n=pingCtx.currentTime; [[880,0],[1175,.12]].forEach(([f,d])=>{ const o=pingCtx.createOscillator(), g=pingCtx.createGain(); o.type="sine"; o.frequency.value=f; g.gain.setValueAtTime(0.0001,n+d); g.gain.exponentialRampToValueAtTime(0.25,n+d+.02); g.gain.exponentialRampToValueAtTime(0.0001,n+d+.22); o.connect(g).connect(pingCtx.destination); o.start(n+d); o.stop(n+d+.25); }); }catch(x){} });
 
 /* textos fixos do cabeçalho e do rodapé */
 /* WhatsApp do topo: quem veio pelo link do vendedor fala com o vendedor */
@@ -1653,6 +1658,8 @@ const TRUST_ICONS = [
 /* ============ vitrine ============ */
 /* período em Búzios e pessoas escolhidos na vitrine: esconde só as lanchas pequenas demais ou sem nenhum horário livre no período inteiro */
 let when = {de:"", ate:"", people:""};
+/* ?data= na vitrine (aviso de lancha já reservada): já abre filtrando as lanchas livres nesse dia */
+if(pick.date && pick.date>=todayISO()) when.de = when.ate = pick.date;
 const maxISO = () => { const d=new Date(); d.setFullYear(d.getFullYear()+2); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const addDay = (iso,k=1) => { const [y,m,d]=iso.split("-").map(Number), x=new Date(y,m-1,d+k); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; };
 const MAX_DAYS = 15; /* regra do Rodrigo: o período tem no máximo 15 dias */
