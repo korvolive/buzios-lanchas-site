@@ -15,16 +15,12 @@ async function google(q: string, to: string) {
   return { t: (j[0] as [string][]).map(p => p[0]).join(""), de: String(j[2] || "").slice(0, 2) };
 }
 
-async function participa(uid: string, cid: number) {
-  if ((await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return true;
-  const { data: c } = await db.from("conversas").select("tipo, cliente, vendedor, ref").eq("id", cid).maybeSingle();
-  if (!c) return false;
-  if (c.cliente === uid || (c.tipo === "vendedor" && c.vendedor === uid)) return true;
-  if (c.tipo === "dono" && c.ref) {
-    const l = (await db.from("pedidos").select("lancha").eq("id", c.ref).maybeSingle()).data?.lancha;
-    return !!l && !!(await db.from("donos").select("user_id").eq("lancha", l).eq("user_id", uid).maybeSingle()).data;
-  }
-  return false;
+// mesma regra do banco (public.participa), chamada com o login de quem pede (auditoria de segurança 2026-10-22)
+async function participa(token: string, cid: number) {
+  const u = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false }, global: { headers: { Authorization: `Bearer ${token}` } } });
+  const { data, error } = await u.rpc("participa", { cid });
+  if (error) { console.error("participa", error.message); return false; }
+  return data === true;
 }
 
 Deno.serve(async req => {
@@ -35,7 +31,7 @@ Deno.serve(async req => {
     if (!uid) return json({ erro: "login" }, 401);
     const { cid, ids, para } = await req.json().catch(() => ({}));
     if (!["pt", "en", "es"].includes(para) || !Array.isArray(ids) || !ids.length || ids.length > 40) return json({ erro: "dados" }, 400);
-    if (!(await participa(uid, Number(cid)))) return json({ erro: "acesso" }, 403);
+    if (!(await participa(token, Number(cid)))) return json({ erro: "acesso" }, 403);
     const { data: ms } = await db.from("mensagens").select("id, texto").eq("conversa", Number(cid)).in("id", ids.map(Number)).not("autor", "is", null).is("apagada_em", null).is("anexo", null);
     const out: Record<number, { t: string; de: string }> = {};
     if (!ms?.length) return json(out);

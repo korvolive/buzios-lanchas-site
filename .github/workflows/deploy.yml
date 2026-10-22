@@ -41,3 +41,5 @@ jobs:
             scripts/**
             node_modules/**
             package*.json
+            supabase/**
+            .claude/**
