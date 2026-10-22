@@ -46,7 +46,7 @@ h2{font-size:16px;margin:0 0 10px}
 .msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
 .msg.err{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 #pp{min-height:60px;margin-top:8px}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0f2a33;color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+.qr{max-width:240px;margin:12px auto 0;background:#fff;padding:8px;border-radius:12px}.qr svg{display:block;width:100%;height:auto}.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0f2a33;color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
 </style>
 </head>
@@ -55,6 +55,7 @@ h2{font-size:16px;margin:0 0 10px}
   <button type="button" data-lg="pt">PT</button><button type="button" data-lg="en">EN</button><button type="button" data-lg="es">ES</button></div></div></header>
 <main id="box"><div class="card"><p class="muted">…</p></div></main>
 <div class="toast" id="toast" role="status"></div>
+<script src="/pagar/qrcode.js"></script> <!-- qrcode-generator 1.4.4 (MIT), para o QR code do Pix -->
 <script>
 const FN="https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/paypal-checkout";
 const KEY="sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
@@ -62,19 +63,19 @@ const PIX_CNPJ="32154099000172", PIX_FMT="32.154.099/0001-72";
 const T={
   pt:{title:"Pagamento da reserva", boat:"Lancha", date:"Data", time:"Horário", people:"Pessoas", dep:"Sinal para confirmar a sua reserva", rest:"O restante é pago na hora do embarque, direto ao responsável pela lancha.",
     st:"Andamento", s1:"Aguardando pagamento", s1d:"Pague o sinal por uma das opções abaixo.", s2:"Pagamento recebido", s2d:"Aguardando a confirmação da Búzios Lanchas.", s2pp:"Pago pelo PayPal: {v}.", s2px:"Comprovante do Pix enviado.", s3:"Reserva confirmada", s3d:"Tudo certo! Você recebe os detalhes do embarque no app e por e-mail.",
-    pixT:"Pix", pixBr:"Pix (tenho conta no Brasil)", pixV:"Valor do Pix", pixKey:"Chave Pix (CNPJ)", copyKey:"Copiar chave", copyCC:"Copiar Pix copia e cola", copied:"Copiado!", pixSend:"Depois de pagar, envie o comprovante no chat com a Búzios Lanchas.", sendRcpt:"📎 Enviar o comprovante no chat",
+    pixT:"Pix", pixBr:"Pix (tenho conta no Brasil)", pixV:"Valor do Pix", pixKey:"Chave Pix (CNPJ)", copyKey:"Copiar chave", copyCC:"Copiar Pix copia e cola", copied:"Copiado!", pixSend:"Depois de pagar, envie o comprovante no chat com a Búzios Lanchas.", qrHow:"Abra o app do seu banco, escolha Pix e leia o QR code, ou use o copia e cola.", sendRcpt:"📎 Enviar o comprovante no chat",
     ppT:"PayPal ou cartão de crédito", ppHow:"Pague com segurança pelo PayPal ou cartão. A confirmação do pagamento é automática.", paid:"Pagamento recebido! A Búzios Lanchas vai confirmar a sua reserva em instantes.",
     chats:"Dúvidas? Fale com a gente", chatSup:"💬 Chat com a Búzios Lanchas", chatVend:"💬 Chat com {n} (vendedor)", closed:"Esta reserva não está mais aguardando pagamento.", bad:"Este link de pagamento não é válido.", fail:"O pagamento não foi concluído. Tente de novo ou fale com a gente.", keys:"O PayPal não está disponível agora. Use o Pix ou fale com a gente.", wa:"Fale com a gente no WhatsApp", my:"Ver meus passeios", loc:"pt-BR",
     slot:{manha:"10h às 14h",tarde:"14h às 18h",dia:"10h às 17h",noite:"noite"}, hi:n=>`Olá${n?", "+n:""}!`},
   en:{title:"Booking payment", boat:"Boat", date:"Date", time:"Time", people:"People", dep:"Deposit to confirm your booking", rest:"The balance is paid at boarding, directly to the boat's crew.",
     st:"Status", s1:"Waiting for payment", s1d:"Pay the deposit with one of the options below.", s2:"Payment received", s2d:"Waiting for Búzios Lanchas to confirm.", s2pp:"Paid with PayPal: {v}.", s2px:"Pix receipt sent.", s3:"Booking confirmed", s3d:"All set! You get the boarding details in the app and by e-mail.",
-    pixT:"Pix", pixBr:"Pix (I have a Brazilian bank account)", pixV:"Pix amount", pixKey:"Pix key (CNPJ)", copyKey:"Copy key", copyCC:"Copy Pix code", copied:"Copied!", pixSend:"After paying, send the receipt in the chat with Búzios Lanchas.", sendRcpt:"📎 Send the receipt in the chat",
+    pixT:"Pix", pixBr:"Pix (I have a Brazilian bank account)", pixV:"Pix amount", pixKey:"Pix key (CNPJ)", copyKey:"Copy key", copyCC:"Copy Pix code", copied:"Copied!", pixSend:"After paying, send the receipt in the chat with Búzios Lanchas.", qrHow:"Open your bank app, choose Pix and scan the QR code, or use the Pix code.", sendRcpt:"📎 Send the receipt in the chat",
     ppT:"PayPal or credit card", ppHow:"Pay securely with PayPal or a card. The payment is confirmed automatically.", paid:"Payment received! Búzios Lanchas will confirm your booking shortly.",
     chats:"Questions? Talk to us", chatSup:"💬 Chat with Búzios Lanchas", chatVend:"💬 Chat with {n} (seller)", closed:"This booking is no longer waiting for payment.", bad:"This payment link is not valid.", fail:"The payment did not go through. Please try again or talk to us.", keys:"PayPal is not available right now. Use Pix or talk to us.", wa:"Talk to us on WhatsApp", my:"See my trips", loc:"en-US",
     slot:{manha:"10 am to 2 pm",tarde:"2 pm to 6 pm",dia:"10 am to 5 pm",noite:"night"}, hi:n=>`Hi${n?" "+n:""}!`},
   es:{title:"Pago de la reserva", boat:"Lancha", date:"Fecha", time:"Horario", people:"Personas", dep:"Seña para confirmar tu reserva", rest:"El resto se paga al embarcar, directamente al responsable de la lancha.",
     st:"Estado", s1:"Esperando el pago", s1d:"Paga la seña con una de las opciones de abajo.", s2:"Pago recibido", s2d:"Esperando la confirmación de Búzios Lanchas.", s2pp:"Pagado con PayPal: {v}.", s2px:"Comprobante del Pix enviado.", s3:"Reserva confirmada", s3d:"¡Todo listo! Recibes los detalles del embarque en la app y por e-mail.",
-    pixT:"Pix", pixBr:"Pix (tengo cuenta en Brasil)", pixV:"Valor del Pix", pixKey:"Clave Pix (CNPJ)", copyKey:"Copiar clave", copyCC:"Copiar Pix copia y pega", copied:"¡Copiado!", pixSend:"Después de pagar, envía el comprobante en el chat con Búzios Lanchas.", sendRcpt:"📎 Enviar el comprobante en el chat",
+    pixT:"Pix", pixBr:"Pix (tengo cuenta en Brasil)", pixV:"Valor del Pix", pixKey:"Clave Pix (CNPJ)", copyKey:"Copiar clave", copyCC:"Copiar Pix copia y pega", copied:"¡Copiado!", pixSend:"Después de pagar, envía el comprobante en el chat con Búzios Lanchas.", qrHow:"Abre la app de tu banco, elige Pix y lee el código QR, o usa el copia y pega.", sendRcpt:"📎 Enviar el comprobante en el chat",
     ppT:"PayPal o tarjeta de crédito", ppHow:"Paga de forma segura con PayPal o tarjeta. La confirmación del pago es automática.", paid:"¡Pago recibido! Búzios Lanchas confirmará tu reserva en breve.",
     chats:"¿Dudas? Habla con nosotros", chatSup:"💬 Chat con Búzios Lanchas", chatVend:"💬 Chat con {n} (vendedor)", closed:"Esta reserva ya no espera pago.", bad:"Este link de pago no es válido.", fail:"El pago no se completó. Inténtalo de nuevo o habla con nosotros.", keys:"PayPal no está disponible ahora. Usa el Pix o habla con nosotros.", wa:"Escríbenos por WhatsApp", my:"Ver mis paseos", loc:"es",
     slot:{manha:"10 a 14 h",tarde:"14 a 18 h",dia:"10 a 17 h",noite:"noche"}, hi:n=>`¡Hola${n?" "+n:""}!`}
@@ -94,6 +95,8 @@ function pixPayload(key, valor, txid){
   const p=f("00","01")+f("26",f("00","br.gov.bcb.pix")+f("01",key))+f("52","0000")+f("53","986")+f("54",(+valor).toFixed(2))+f("58","BR")+f("59","BUZIOS LANCHAS")+f("60","BUZIOS")+f("62",f("05",(txid||"***").replace(/[^A-Za-z0-9]/g,"").slice(0,25)||"***"))+"6304";
   return p+crc16(p);
 }
+/* QR code do Pix (o mesmo conteúdo do copia e cola) */
+function qrSvg(txt){ try{ const q=qrcode(0,"M"); q.addData(txt); q.make(); return q.createSvgTag({cellSize:4, margin:2, scalable:true}); }catch(e){ return ""; } }
 function toast(m){ const e=document.getElementById("toast"); e.textContent=m; e.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("on"),1800); }
 document.addEventListener("click", async e=>{ const c=e.target.closest("[data-copy]"); if(!c) return;
   try{ await navigator.clipboard.writeText(c.dataset.copy); }catch(x){ const ta=document.createElement("textarea"); ta.value=c.dataset.copy; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
@@ -115,6 +118,7 @@ function render(){
   const brlV=D.sinal_brl||(D.moeda==="BRL"?D.valor:0), foreign=D.moeda!=="BRL";
   const pix = brlV ? `<div class="pay" data-m="pix"><h3>${foreign?L.pixBr:L.pixT}</h3>
     <div class="muted">${L.pixV}: <b>${brl(brlV)}</b></div>
+    <div class="qr" aria-label="QR code Pix">${qrSvg(pixPayload(PIX_CNPJ, brlV, "PED"+D.pedido))}</div><p class="muted" style="text-align:center;margin:4px 0 0">${L.qrHow}</p>
     <div class="key"><span><span class="muted">${L.pixKey}</span><br><strong>${PIX_FMT}</strong><br><small class="muted">Búzios Lanchas</small></span><button type="button" class="btn sec" data-copy="${PIX_CNPJ}">${L.copyKey}</button></div>
     <button type="button" class="btn sec" data-copy="${esc(pixPayload(PIX_CNPJ, brlV, "PED"+D.pedido))}">${L.copyCC}</button>
     <p class="muted" style="margin:10px 0 0">${L.pixSend}</p>${D.chat?`<a class="btn" href="${chatUrl(D.chat)}">${L.sendRcpt}</a>`:""}</div>` : "";
