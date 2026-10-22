@@ -1,5 +1,5 @@
 /* Agenda (donos, marinheiros e equipe): guarda a tela do app para abrir rápido; a agenda vem sempre da internet */
-const CACHE = "agenda-acesso-v2";
+const CACHE = "agenda-acesso-v3";
 const SHELL = ["/login/", "/login/manifest.webmanifest", "/login/icon-192.png"];
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); });
 self.addEventListener("activate", e => e.waitUntil(
@@ -18,8 +18,15 @@ self.addEventListener("fetch", e => {
 self.addEventListener("push", e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(d.title || "Búzios Lanchas", {
-    body: d.body || "", tag: d.tag, renotify: !!d.tag, icon: "/login/icon-192.png", badge: "/login/icon-192.png", data: { url: d.url || "/login/" } }));
+  const show = () => self.registration.showNotification(d.title || "Búzios Lanchas", {
+    body: d.body || "", tag: d.tag, renotify: !!d.tag, icon: "/login/icon-192.png", badge: "/login/icon-192.png", data: { url: d.url || "/login/" } });
+  /* mensagem de chat com o app aberto na frente: avisa a página (som + aviso dentro do app) em vez da notificação do sistema */
+  if (/^chat-/.test(d.tag || "")) e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(ws => {
+    const w = ws.find(x => x.visibilityState === "visible" && x.focused && new URL(x.url).pathname.startsWith("/login/"));
+    if (w) { w.postMessage({ tipo: "chat", ...d }); return; }
+    return show();
+  }));
+  else e.waitUntil(show());
 });
 /* toque na notificação: abre (ou traz para frente) a agenda */
 self.addEventListener("notificationclick", e => {
