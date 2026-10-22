@@ -9,14 +9,7 @@ jobs:
       - name: Achar e baixar o vídeo
         run: |
           set -e
-          for u in https://www.lanchaembuzios.com.br/videos/ https://lanchaembuzios.com.br/videos/ https://missbardot.com.br/videos/; do echo "$u -> $(curl -sL -o /dev/null -w "%{http_code}" $u)"; done
-          for n in miss-bardot.mp4 missbardot.mp4 "Miss Bardot.mp4" video.mp4 miss-bardot.MP4 MissBardot.mp4 miss_bardot.mp4; do echo "$n -> $(curl -s -o /dev/null -w "%{http_code} %{size_download}" -r 0-10 "https://www.lanchaembuzios.com.br/videos/$n")"; done
-          curl -sL https://www.lanchaembuzios.com.br/videos/ -o idx.html || true; head -c 1500 idx.html
-          echo "--- listagem ---"; grep -oiE 'href="[^"]+\.(mp4|mov|m4v|webm)"' idx.html || true
-          F=$(grep -oiE 'href="[^"]+\.(mp4|mov|m4v|webm)"' idx.html | head -1 | sed 's/href="//;s/"$//')
-          echo "arquivo: $F"
-          test -n "$F"
-          curl -sL "https://www.lanchaembuzios.com.br/videos/$F" -o in.vid
+          curl -sL --fail "https://www.lanchaembuzios.com.br/videos/Miss%20Bardot%20v1.mov" -o in.vid
           ls -l in.vid
       - name: Comprimir
         run: |
