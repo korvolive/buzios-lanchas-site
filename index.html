@@ -1226,10 +1226,12 @@ const seasonKey = (iso, off=[]) => { const k=seasonBase(iso); return k!=="reveil
 /* desconto de segunda a quinta (só baixa, média e alta; nunca no feriadão nem no Réveillon e Carnaval) */
 const descSemana = (iso, k, ds, h7) => { const w=new Date(iso+"T12:00:00Z").getUTCDay(), o=ds||{}; return w>=1 && w<=4 && ["baixa","media","alta"].includes(k) ? +(o[k+(h7?"7":"")] ?? o[k])||0 : 0; }; /* 4h e 7h podem ter descontos diferentes (baixa / baixa7) */
 /* valor na data a partir dos valores de baixa, média e alta (p[k] ou p[k+"7"]), com o % de feriado, de Réveillon ou o desconto; arredonda em R$ 10 */
-const valorNaData = (p, iso, h7, o={}) => { const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
+/* período de preço especial (precos.especiais, criado pelo administrador no app; Rodrigo 2026-10-22): qualquer valor, e vale acima de tudo na data */
+const espOf = (iso, esp) => (Array.isArray(esp) ? esp : []).find(e=>e && e.de<=iso && iso<=e.ate) || null;
+const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
   if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ return pc ? Math.round(v*(1+pc/100)/10)*10 : v; };
 const seasonOf = (iso,b) => SEASONS.find(s=>s.key===seasonKey(iso, b?.semFer||[]));
-const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, ds:b.ds}); /* % de feriado e de Réveillon da lancha (tabela precos) */
+const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, ds:b.ds, esp:b.esp}); /* % de feriado e de Réveillon da lancha (tabela precos) */
 const slotOf = k => SLOTS.find(s=>s.key===k);
 const slotLabel = k => t("slot_"+k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
@@ -1971,7 +1973,7 @@ render();
 loadVend();
 /* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
 const precosURL = c => AGENDA_URL.replace("bloqueios","precos")+"?select=lancha,baixa,media,alta,pico,reveillon"+c;
-Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados,pct_feriado,pct_reveillon,pct_reveillon7,desc_semana"), {headers:{apikey:AGENDA_KEY}})
+Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados,pct_feriado,pct_reveillon,pct_reveillon7,desc_semana,especiais"), {headers:{apikey:AGENDA_KEY}})
   .then(r=>r.ok ? r.json() : r.status===400 ? fetch(precosURL(""), {headers:{apikey:AGENDA_KEY}}).then(x=>x.ok?x.json():Promise.reject(x.status)) : Promise.reject(r.status)), dbBoats])
   .then(([rows])=>{ let mudou=false;
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return;
@@ -1979,6 +1981,7 @@ Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados
       const p7={baixa:r.baixa7??null, media:r.media7??null, alta:r.alta7??null, pico:r.pico7??null, reveillon:r.reveillon7??null};
       const off=Array.isArray(r.sem_feriados)?r.sem_feriados:[]; if(JSON.stringify(off)!==JSON.stringify(b.semFer||[])){ b.semFer=off; mudou=true; } /* feriados que o dono tirou */
       if(r.pct_feriado!=null && (r.pct_feriado!==b.pf || +r.pct_reveillon!==b.pr || (r.pct_reveillon7??null)!==(b.pr7??null) || JSON.stringify(r.desc_semana)!==JSON.stringify(b.ds))){ b.pf=r.pct_feriado; b.pr=+r.pct_reveillon; b.pr7=r.pct_reveillon7==null?null:+r.pct_reveillon7; b.ds=r.desc_semana; mudou=true; }
+      const esp=Array.isArray(r.especiais)?r.especiais:[]; if(JSON.stringify(esp)!==JSON.stringify(b.esp||[])){ b.esp=esp; mudou=true; } /* períodos de preço especial */
       if(JSON.stringify(p)!==JSON.stringify(b.prices) || JSON.stringify(p7)!==JSON.stringify(b.prices7||{})){ b.prices=p; b.prices7=p7; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .catch(()=>{}).finally(()=>window.precosDone=true);
