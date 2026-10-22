@@ -77,7 +77,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--sea);font-weight:600;font-size:14px;padding:8px}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;background:var(--brass);color:var(--brass-ink);font-weight:700;font-size:17px;text-align:center;text-decoration:none}
 .btn.sec{background:var(--chip);color:var(--ink)}
-.paybox{display:flex;flex-direction:column;gap:8px;margin:8px 0 4px;padding:10px;border:1px solid var(--line);border-radius:12px;font-size:14px}.paybox .pkey{display:flex;gap:8px;align-items:center;justify-content:space-between}.paybox .pkey>span{display:flex;flex-direction:column}.paybox .pkey small{color:var(--muted);font-size:12px}.paybox .btn{padding:10px;font-size:14px;width:auto}.paybox .pkey .btn{flex:none}.paybox .pkey .in{flex:1;min-width:0}.paybox .cpok{color:#1a7f4b;font-size:13px}.paybox.adm .pkey{flex-wrap:wrap}.paybox.adm .pkey .in{flex:1 1 110px;min-width:110px}.paybox.adm .pkey .btn{flex:1 1 auto}.repbox{display:flex;flex-direction:column;gap:2px;margin:8px 0;padding:8px 10px;border-radius:10px;background:var(--chip);font-size:13px;line-height:1.4}.repbox b{font-size:13px;margin-bottom:2px}.paybox .sincalc{color:var(--muted);font-size:12.5px;line-height:1.4}.paybox .cpup{cursor:pointer;width:100%}.paybox.adm .f{margin:0}.cobfiles{display:flex;flex-direction:column;gap:8px;margin-top:8px}.cobfiles:empty{display:none}
+.ppbox{display:flex;flex-direction:column;gap:8px}.paybox .pkey{flex-wrap:wrap}.paybox{display:flex;flex-direction:column;gap:8px;margin:8px 0 4px;padding:10px;border:1px solid var(--line);border-radius:12px;font-size:14px}.paybox .pkey{display:flex;gap:8px;align-items:center;justify-content:space-between}.paybox .pkey>span{display:flex;flex-direction:column}.paybox .pkey small{color:var(--muted);font-size:12px}.paybox .btn{padding:10px;font-size:14px;width:auto}.paybox .pkey .btn{flex:none}.paybox .pkey .in{flex:1;min-width:0}.paybox .cpok{color:#1a7f4b;font-size:13px}.paybox.adm .pkey{flex-wrap:wrap}.paybox.adm .pkey .in{flex:1 1 110px;min-width:110px}.paybox.adm .pkey .btn{flex:1 1 auto}.repbox{display:flex;flex-direction:column;gap:2px;margin:8px 0;padding:8px 10px;border-radius:10px;background:var(--chip);font-size:13px;line-height:1.4}.repbox b{font-size:13px;margin-bottom:2px}.paybox .sincalc{color:var(--muted);font-size:12.5px;line-height:1.4}.paybox .cpup{cursor:pointer;width:100%}.paybox.adm .f{margin:0}.cobfiles{display:flex;flex-direction:column;gap:8px;margin-top:8px}.cobfiles:empty{display:none}
 .cob{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}.cob summary{cursor:pointer;font-weight:700;padding:4px 0}.cob[open] summary{margin-bottom:8px}.cob [disabled]{opacity:.45}
 .btn:disabled{opacity:.6}
 .link{background:none;border:0;color:var(--sea);font-weight:600;padding:10px 0;text-decoration:underline}
@@ -715,8 +715,11 @@ Object.assign(T.es, {cpAttach:"Adjuntar comprobante", cpVal:"Seña: {v}", cpCopy
 Object.assign(T.pt, {chBotPed:"Olá! Recebemos o seu pedido de reserva: {boat}, {date}, {slot}, {n} pessoas.\nAgora vamos conferir a disponibilidade. Assim que aprovarmos, mandamos aqui os dados do Pix para o sinal de 50%, e você anexa o comprovante aqui mesmo no chat para confirmar a reserva.", chBotSinal:"Boa notícia: a lancha está disponível! ✅\nPara confirmar a sua reserva, pague o sinal de {v} pelo Pix:", chBotAnexo:"Depois, toque no 📎 aqui embaixo e anexe o comprovante. A reserva é confirmada assim que conferirmos.", sinLib:"Liberar pagamento", sinLibQ:"Liberar o pagamento? O cliente recebe no chat o Pix do sinal de {v} e pode anexar o comprovante.", sinLibOk:"Pagamento liberado. O cliente já recebeu o Pix no chat.", sinLibEm:"✓ Pagamento liberado em {d}. O comprovante chega no chat.", sinTot:"Valor do dia", sinNet:"neto do dono", sinCom:"comissão Búzios", sinVend:"vendedor", sinBad:"Digite o valor do sinal.", payWait:"A Búzios Lanchas está conferindo a disponibilidade. Assim que aprovar, o Pix do sinal chega no chat.", payChat:"💬 Abrir o chat", sinHalf:"Sinal (50%) que o cliente paga (R$)"});
 Object.assign(T.en, {chBotPed:"Hi! We received your booking request: {boat}, {date}, {slot}, {n} people.\nWe are now checking availability. As soon as we approve it, we will send the Pix details for the 50% deposit here, and you attach the receipt right here in the chat to confirm the booking.", chBotSinal:"Good news: the boat is available! ✅\nTo confirm your booking, pay the {v} deposit by Pix:", chBotAnexo:"Then tap the 📎 below and attach the receipt. The booking is confirmed as soon as we check it.", sinLib:"Release payment", sinLibQ:"Release the payment? The client gets the Pix for the {v} deposit in the chat and can attach the receipt.", sinLibOk:"Payment released. The client already got the Pix in the chat.", sinLibEm:"✓ Payment released on {d}. The receipt arrives in the chat.", sinTot:"Price for the day", sinNet:"owner net", sinCom:"Búzios commission", sinVend:"seller", sinBad:"Type the deposit amount.", payWait:"Búzios Lanchas is checking availability. Once approved, the Pix for the deposit arrives in the chat.", payChat:"💬 Open the chat", sinHalf:"Deposit (50%) the client pays (R$)"});
 Object.assign(T.es, {chBotPed:"¡Hola! Recibimos tu pedido de reserva: {boat}, {date}, {slot}, {n} personas.\nAhora vamos a revisar la disponibilidad. Apenas lo aprobemos, te enviamos aquí los datos del Pix para la seña del 50%, y adjuntas el comprobante aquí mismo en el chat para confirmar la reserva.", chBotSinal:"Buena noticia: ¡la lancha está disponible! ✅\nPara confirmar tu reserva, paga la seña de {v} por Pix:", chBotAnexo:"Después, toca el 📎 aquí abajo y adjunta el comprobante. La reserva se confirma apenas lo revisemos.", sinLib:"Liberar pago", sinLibQ:"¿Liberar el pago? El cliente recibe en el chat el Pix de la seña de {v} y puede adjuntar el comprobante.", sinLibOk:"Pago liberado. El cliente ya recibió el Pix en el chat.", sinLibEm:"✓ Pago liberado el {d}. El comprobante llega por el chat.", sinTot:"Valor del día", sinNet:"neto del dueño", sinCom:"comisión Búzios", sinVend:"vendedor", sinBad:"Escribe el valor de la seña.", payWait:"Búzios Lanchas está revisando la disponibilidad. Apenas lo apruebe, el Pix de la seña llega por el chat.", payChat:"💬 Abrir el chat", sinHalf:"Seña (50%) que paga el cliente (R$)"});
+Object.assign(T.pt, {ppPay:"Pagar com PayPal ({v})", ppOr:"ou pague com Pix:", ppMade:"Fatura do PayPal criada: {v}", ppWa:"Mandar o PayPal no WhatsApp do cliente", ppCopy:"Copiar link do PayPal", ppVal:"Cliente do exterior: valor no PayPal ({c})", ppGen:"Gerar fatura"});
 Object.assign(T.pt, {chBotOk:"Pagamento do sinal confirmado: sua reserva na {boat} em {date} está confirmada! ✅", chBotResto:"Na hora do embarque, você paga o restante ({v}) direto ao responsável pela lancha.", pixWa:"Mandar o Pix no WhatsApp do cliente", repT:"Para onde vai o dinheiro", repSin:"Sinal que você recebe: {v}", repDono:"Você repassa ao dono: {v}", repDonoNeg:"O dono repassa a você: {v}", repVend:"Comissão do vendedor: {v}", repBz:"Fica com a Búzios Lanchas: {v}", repResto:"No embarque, o cliente paga ao dono: {v}"});
+Object.assign(T.en, {ppPay:"Pay with PayPal ({v})", ppOr:"or pay with Pix:", ppMade:"PayPal invoice created: {v}", ppWa:"Send PayPal to the client on WhatsApp", ppCopy:"Copy PayPal link", ppVal:"Client from abroad: PayPal amount ({c})", ppGen:"Create invoice"});
 Object.assign(T.en, {chBotOk:"Deposit received: your booking on {boat} on {date} is confirmed! ✅", chBotResto:"At boarding, you pay the balance ({v}) directly to the boat's crew.", pixWa:"Send the Pix on the client's WhatsApp", repT:"Where the money goes", repSin:"Deposit you receive: {v}", repDono:"You pass on to the owner: {v}", repDonoNeg:"The owner passes on to you: {v}", repVend:"Seller commission: {v}", repBz:"Búzios Lanchas keeps: {v}", repResto:"At boarding, the client pays the owner: {v}"});
+Object.assign(T.es, {ppPay:"Pagar con PayPal ({v})", ppOr:"o paga con Pix:", ppMade:"Factura de PayPal creada: {v}", ppWa:"Mandar el PayPal al WhatsApp del cliente", ppCopy:"Copiar link de PayPal", ppVal:"Cliente del exterior: valor en PayPal ({c})", ppGen:"Crear factura"});
 Object.assign(T.es, {chBotOk:"Seña recibida: ¡tu reserva en {boat} el {date} está confirmada! ✅", chBotResto:"Al embarcar, pagas el resto ({v}) directamente al responsable de la lancha.", pixWa:"Enviar el Pix al WhatsApp del cliente", repT:"A dónde va el dinero", repSin:"Seña que recibes: {v}", repDono:"Le pasas al dueño: {v}", repDonoNeg:"El dueño te pasa: {v}", repVend:"Comisión del vendedor: {v}", repBz:"Queda para Búzios Lanchas: {v}", repResto:"Al embarcar, el cliente le paga al dueño: {v}"});
 Object.assign(T.es, {tabUsers:"Usuarios", usersQ:"Buscar por nombre, correo o WhatsApp", usersQNone:"No se encontró a nadie.", userNew:"Nuevo usuario", userNewShort:"Nuevo",
   needSqlUsers:"Falta crear la parte de usuarios en Supabase (función lista_usuarios).", needSqlDel:"Falta habilitar en Supabase la función para borrar cuentas (excluir_usuario).",
@@ -1044,7 +1047,7 @@ function updateView(msg=""){
 async function loadMyReq(){
   await db("rpc/resgatar_convites",{method:"POST",body:{}}).catch(()=>0); /* passeios que a Búzios Lanchas colocou para este e-mail */
   const sel="id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id,vendedor,motivo";
-  S.myReq = await db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em&order=data.desc&limit=100`).then(r=>(S.cpOk=true,r)).catch(()=>(S.cpOk=false, db(`pedidos?select=${sel}&order=data.desc&limit=100`))).catch(()=>[]);
+  S.myReq = await db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em${S.ppCol===false?"":",paypal_link,paypal_valor"}&order=data.desc&limit=100`).then(r=>(S.cpOk=true,r)).catch(()=>db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em&order=data.desc&limit=100`).then(r=>(S.cpOk=true,S.ppCol=false,r))).catch(()=>(S.cpOk=false, db(`pedidos?select=${sel}&order=data.desc&limit=100`))).catch(()=>[]);
   S.myReq.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; });
   const emb = await db("rpc/meus_embarques",{method:"POST",body:{}}).catch(()=>[]); /* o local de embarque que ficou marcado no passeio */
   (emb||[]).forEach(x=>{ const p=S.myReq.find(r=>r.id===x.pedido_id); if(p) p.embarque=x.embarque; }); /* o passeio foi apagado da agenda */
@@ -1115,6 +1118,7 @@ const fmtCNPJ = "32.154.099/0001-72";
 function payBox(p){
   const v=+p.sinal_valor||0;
   return `<span class="paybox">${v?`<b>${t("cpVal",{v:brl(v)})}</b>`:""}
+    ${p.paypal_link ? `<a class="btn" href="${esc(p.paypal_link)}" target="_blank" rel="noopener">💳 ${t("ppPay",{v:esc(p.paypal_valor||"")})}</a><small class="muted">${t("ppOr")}</small>` : ""}
     <span class="pkey"><span>Pix (CNPJ) <strong>${fmtCNPJ}</strong><small>Búzios Lanchas</small></span><button type="button" class="btn sec" data-copy="${PIX_CNPJ}">${t("cpCopy")}</button></span>
     ${v?`<button type="button" class="btn sec" data-copy="${esc(pixPayload(PIX_CNPJ, v, "PED"+p.id))}">${t("cpCopyPaste")}</button>`:""}
     ${p.comprovante ? `<span class="cpok">✓ ${t("cpSent",{d:new Date(p.comprovante_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</span>` : ""}
@@ -1146,11 +1150,26 @@ function pixWa(p){
   const txt=M.msg({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:SLOT_TXT[lg][p.horario]||"", v:brl(v), resto:c.tot>v?brl(c.tot-v):"", pix:pixPayload(PIX_CNPJ, v, "PED"+p.id)});
   return `<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("pixWa")}</a>`;
 }
+/* cliente estrangeiro (WhatsApp fora do +55): fatura do PayPal na moeda dele, com o câmbio do dia + 10% (editável).
+   O link fica no pedido (o cliente vê o botão Pagar com PayPal) e vai pronto no WhatsApp (Rodrigo, 2026-10-22) */
+const ppCC = p => String(splitPhone(p.clientes?.whatsapp).cc||"55").replace(/\D/g,"");
+function ppAdm(p){
+  const cc=ppCC(p); if(cc==="55" || !(+p.sinal_valor>0)) return "";
+  const c=cobCur(cc);
+  if(p.paypal_link){
+    const ph=splitPhone(p.clientes?.whatsapp), tel=ph.num.replace(/\D/g,""), lg=COB_ES.has(cc)?"es":"en", M=COB_MSG[lg], k=pedCalc(p), v=+p.sinal_valor;
+    const txt=COB_PP[lg]({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:SLOT_TXT[lg][p.horario]||"", fx:p.paypal_valor||"", link:p.paypal_link, resto:k.tot>v?brl(k.tot-v):""});
+    return `<span class="ppbox"><small class="cpok">💳 ${t("ppMade",{v:esc(p.paypal_valor||"")})}</small>
+      ${tel.length>=8?`<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("ppWa")}</a>`:""}
+      <button type="button" class="btn sec" data-copy="${esc(p.paypal_link)}">${t("ppCopy")}</button></span>`;
+  }
+  return `<span class="ppbox"><label class="f"><span>💳 ${t("ppVal",{c:COB_SYM[c]})}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="1" step="any" data-ppv="${p.id}" data-cur="${c}" placeholder="${COB_SYM[c]}"><button type="button" class="btn" data-ppg="${p.id}">${t("ppGen")}</button></span></label></span>`;
+}
 function admPay(p){
   const c=pedCalc(p), sug = p.sinal_valor ?? (c.tot ? Math.round(c.tot/2) : ""), lib=p.sinal_liberado_em, dd=x=>new Date(x).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"});
   return `<span class="paybox adm">${c.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(c.tot)}</b>${c.net?` · ${t("sinNet")} ${brl(c.net)}`:""}${c.com!=null?` · ${t("sinCom")} ${brl(c.com)}`:""}${c.vd?` · ${t("sinVend")} ${brl(c.vd)}`:""}</small>`:""}
     <label class="f"><span>${t("sinHalf")}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="0" step="any" data-sv="${p.id}" value="${sug}" placeholder="R$">${lib?`<button type="button" class="btn sec" data-svs="${p.id}">${t("save")}</button>`:`<button type="button" class="btn" data-sl="${p.id}">${t("sinLib")}</button>`}</span></label>
-    ${lib?`<small class="cpok">${t("sinLibEm",{d:dd(lib)})}</small>${pixWa(p)}`:""}
+    ${lib?`<small class="cpok">${t("sinLibEm",{d:dd(lib)})}</small>${pixWa(p)}${ppAdm(p)}`:""}
     ${repHTML(p, c, +sug||0)}
     ${p.comprovante ? `<button type="button" class="btn sec" data-cpv="${esc(p.comprovante)}">📎 ${t("cpSee",{d:dd(p.comprovante_em)})}</button>` : ""}
     <label class="btn sec cpup">📎 ${t("cpAttach")}<input type="file" accept="image/*,application/pdf" data-cpa="${p.id}" hidden></label></span>`;
@@ -2297,7 +2316,8 @@ function loadClis(){ /* só o administrador vê */
 }
 async function loadReqs(){
   try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp)&order=criado_em.desc&limit=300`);
-    S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga").then(r=>(S.cpOk=true,r))
+    S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor").then(r=>(S.cpOk=true,r))
+      .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem o PayPal no pedido */
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,comprovante,comprovante_em").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem vendedores */
       .catch(e=>{ if(e.status!==400) throw e; S.cpOk=false; return q(""); });
     if(!S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* sinal de 50% e neto do dia no pedido */
@@ -3122,6 +3142,19 @@ function bindMain(){
     x.disabled=true;
     try{ const mid=await RPC("liberar_sinal",{pid:id, valor:v}); fnPost("aviso-chat",{id:mid}); const p=S.reqs.find(p=>p.id===id); if(p){ p.sinal_valor=v; p.sinal_liberado_em=new Date().toISOString(); } toast(t("sinLibOk")); mainView(); }
     catch(e){ x.disabled=false; toast(t("saveErr")); } });
+  app.querySelectorAll("[data-ppv]").forEach(async el=>{ const p=S.reqs.find(r=>r.id===+el.dataset.ppv); if(!p || el.value) return;
+    try{ const R=await fxRates(); if(!el.value) el.value=niceUp(+p.sinal_valor*R[el.dataset.cur.toLowerCase()]*FX_MARKUP); }catch(e){} });
+  app.querySelectorAll("[data-ppg]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.ppg, p=S.reqs.find(r=>r.id===id), el=app.querySelector(`[data-ppv="${id}"]`), fx=+String(el.value).replace(",",".");
+    if(!p) return; if(!(fx>0)){ el.focus(); return toast(t("cobNoVal")); }
+    const cc=ppCC(p), c=el.dataset.cur, lg=COB_ES.has(cc)?"es":"en"; x.disabled=true; toast(t("cobPpGenning"));
+    try{ const r=await fetch(FN.replace(/notificar$/,"paypal-fatura"), {method:"POST", headers:{apikey:KEY, authorization:"Bearer "+await fresh(), "content-type":"application/json"},
+        body:JSON.stringify({valor:fx, moeda:c, lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(lg==="es"?"es":"en-US",{day:"numeric",month:"long",year:"numeric"}), horario:SLOT_TXT[lg][p.horario]||"", nome:p.clientes?.nome||"", lang:lg})});
+      const j=await r.json().catch(()=>({}));
+      if(!(r.ok && j.link)){ x.disabled=false; return toast(t(j.erro==="sem_chaves"?"cobPpNoKeys":"cobPpGenErr")); }
+      const fv=`${COB_SYM[c]} ${fx.toLocaleString(lg==="es"?"es":"en-US")}`;
+      await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{paypal_link:j.link, paypal_valor:fv, atualizado_em:new Date().toISOString()}});
+      p.paypal_link=j.link; p.paypal_valor=fv; toast(t("cobPpGenOk")); mainView(); }
+    catch(e){ x.disabled=false; toast(t("cobPpGenErr")); } });
   app.querySelectorAll("[data-svs]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.svs, el=app.querySelector(`[data-sv="${id}"]`), v=el.value===""?null:+String(el.value).replace(",",".");
     try{ await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{sinal_valor:v,atualizado_em:new Date().toISOString()}}); const p=S.reqs.find(p=>p.id===id); if(p) p.sinal_valor=v; toast(t("cpValOk")); }catch(e){ toast(t("saveErr")); } });
   app.querySelectorAll("[data-rq]").forEach(x=>x.onclick=async()=>{ const p=S.reqs.find(p=>p.id===+x.dataset.rq);
