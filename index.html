@@ -232,8 +232,10 @@ html.is-app #hdr-login{display:none}
   .cap{text-align:center}
   .strip{max-width:100%;justify-self:stretch}
 }
-.gallery .main img.blur{display:none}
-.gallery .main img.fit{position:absolute;inset:0;object-fit:cover}
+.gallery .main.tall{transition:aspect-ratio .25s ease}
+/* a foto aparece inteira (contain); a moldura acompanha o formato da foto e o fundo desfocado preenche o que sobrar (Rodrigo, 2026-10-22) */
+.gallery .main img.blur{position:absolute;inset:-20px;width:calc(100% + 40px);height:calc(100% + 40px);object-fit:cover;filter:blur(18px) brightness(.8)}
+.gallery .main img.fit{position:absolute;inset:0;object-fit:contain}
 .strip button{width:60px;height:96px}
 .strip button img{object-fit:cover}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(6,57,74,.65);color:#fff;font-size:26px;line-height:1;cursor:pointer}
@@ -1740,6 +1742,10 @@ function gallery(b){
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
+  /* moldura no formato da foto: entre 4:5 e 16:10 no celular, entre 1:1 e 16:10 no computador */
+  const fitAr=()=>{ if(!mm.naturalWidth) return; const lo=matchMedia("(max-width:880px)").matches?.8:1;
+    mm.parentNode.style.aspectRatio=String(Math.min(1.6,Math.max(lo,mm.naturalWidth/mm.naturalHeight))); };
+  mm.addEventListener("load",fitAr); if(mm.complete) fitAr(); if(!window.galFit) addEventListener("resize",()=>window.galFit()); window.galFit=fitAr;
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
     m.src=imgSrc(P[i]); m.alt=altOf(b,i); m.style.objectPosition=P[i][2]||"center"; document.getElementById("g-blur").src=imgSrc(P[i],1);
     document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
