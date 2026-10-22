@@ -216,7 +216,7 @@ html.is-app #hdr-login{display:none}
 .crumb{font-size:14px;color:var(--muted);padding-block:22px 0}
 .crumb a{color:var(--sea);text-decoration:none;font-weight:600}
 .boat{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:36px;padding-block:20px 64px;align-items:start}
-.boat{grid-template-areas:"info price" "media price"}
+.boat{grid-template-areas:"info price" "media price";grid-template-rows:auto 1fr} /* quadro de preço alto: a sobra vai para baixo das fotos, não entre o topo e a galeria */
 .b-info{grid-area:info;min-width:0}.b-media{grid-area:media;min-width:0}.boat .pricebox{grid-area:price}
 @media (max-width:880px){.boat{grid-template-columns:1fr;grid-template-areas:"info" "media" "price";gap:20px}.boat .pricebox{position:static}}
 .gallery{display:grid;gap:10px}
