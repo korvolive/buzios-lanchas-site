@@ -76,7 +76,7 @@ Deno.serve(async req => {
     const { id, denuncia } = await req.json().catch(() => ({}));
     const admins = new Set<string>(((await db.from("admins").select("user_id")).data || []).map((a: any) => a.user_id));
     const mid = Number(denuncia || id);
-    const { data: m } = await db.from("mensagens").select("id, conversa, autor, texto, criado_em, pedido").eq("id", mid).maybeSingle();
+    const { data: m } = await db.from("mensagens").select("id, conversa, autor, texto, criado_em, pedido, sistema").eq("id", mid).maybeSingle();
     if (!m) return json({ erro: "mensagem não encontrada" }, 404);
     const { data: c } = await db.from("conversas").select("id, tipo, cliente, vendedor, ref").eq("id", m.conversa).maybeSingle();
     if (!c?.tipo) return json({ erro: "conversa não encontrada" }, 404);
@@ -94,7 +94,9 @@ Deno.serve(async req => {
       return json({ enviados: ok.size });
     }
 
-    if (m.autor !== uid || Date.now() - Date.parse(m.criado_em) > 10 * 60 * 1000) return json({ enviados: 0 });
+    // pagamento liberado pelo administrador: a mensagem é da Búzios Lanchas (sem autor) e avisa o cliente (Rodrigo, 2026-10-22)
+    const sys = String(m.sistema || "").startsWith("sinal:") && admins.has(uid);
+    if ((m.autor !== uid && !sys) || Date.now() - Date.parse(m.criado_em) > 10 * 60 * 1000) return json({ enviados: 0 });
     const dest = new Set<string>();
     if (c.cliente) dest.add(c.cliente);
     if (c.tipo === "vendedor" && c.vendedor) dest.add(c.vendedor);
@@ -102,7 +104,7 @@ Deno.serve(async req => {
     if (c.tipo === "dono" && p && p.status === "aprovado" && !p.vendedor) ((await db.from("donos").select("user_id").eq("lancha", p.lancha)).data || []).forEach((d: any) => dest.add(d.user_id));
     admins.forEach(a => dest.add(a)); // a Búzios Lanchas participa de todas as conversas e é avisada sempre (Rodrigo, 2026-10-22)
     dest.delete(uid);
-    const autor = await nomeDe(uid, admins, "pt");
+    const autor = sys ? "Búzios Lanchas" : await nomeDe(uid, admins, "pt");
     const prev = m.texto.length > 120 ? m.texto.slice(0, 117) + "…" : m.texto;
     const ok = await pushAll([...dest], () => ({ title: p ? `${autor} · ${lancha} ${dataBR(p.data)}` : autor, body: prev }), url, `chat-${c.id}`);
     let mails = 0;

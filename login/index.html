@@ -77,7 +77,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--sea);font-weight:600;font-size:14px;padding:8px}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;background:var(--brass);color:var(--brass-ink);font-weight:700;font-size:17px;text-align:center;text-decoration:none}
 .btn.sec{background:var(--chip);color:var(--ink)}
-.paybox{display:flex;flex-direction:column;gap:8px;margin:8px 0 4px;padding:10px;border:1px solid var(--line);border-radius:12px;font-size:14px}.paybox .pkey{display:flex;gap:8px;align-items:center;justify-content:space-between}.paybox .pkey>span{display:flex;flex-direction:column}.paybox .pkey small{color:var(--muted);font-size:12px}.paybox .btn{padding:10px;font-size:14px;width:auto}.paybox .pkey .btn{flex:none}.paybox .pkey .in{flex:1;min-width:0}.paybox .cpok{color:#1a7f4b;font-size:13px}.paybox .cpup{cursor:pointer;width:100%}.paybox.adm .f{margin:0}.cobfiles{display:flex;flex-direction:column;gap:8px;margin-top:8px}.cobfiles:empty{display:none}
+.paybox{display:flex;flex-direction:column;gap:8px;margin:8px 0 4px;padding:10px;border:1px solid var(--line);border-radius:12px;font-size:14px}.paybox .pkey{display:flex;gap:8px;align-items:center;justify-content:space-between}.paybox .pkey>span{display:flex;flex-direction:column}.paybox .pkey small{color:var(--muted);font-size:12px}.paybox .btn{padding:10px;font-size:14px;width:auto}.paybox .pkey .btn{flex:none}.paybox .pkey .in{flex:1;min-width:0}.paybox .cpok{color:#1a7f4b;font-size:13px}.paybox.adm .pkey{flex-wrap:wrap}.paybox.adm .pkey .in{flex:1 1 110px;min-width:110px}.paybox.adm .pkey .btn{flex:1 1 auto}.paybox .sincalc{color:var(--muted);font-size:12.5px;line-height:1.4}.paybox .cpup{cursor:pointer;width:100%}.paybox.adm .f{margin:0}.cobfiles{display:flex;flex-direction:column;gap:8px;margin-top:8px}.cobfiles:empty{display:none}
 .cob{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}.cob summary{cursor:pointer;font-weight:700;padding:4px 0}.cob[open] summary{margin-bottom:8px}.cob [disabled]{opacity:.45}
 .btn:disabled{opacity:.6}
 .link{background:none;border:0;color:var(--sea);font-weight:600;padding:10px 0;text-decoration:underline}
@@ -127,7 +127,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .chclip{flex:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;background:var(--chip);font-size:20px;cursor:pointer}.chclip[hidden]{display:none}.chclip.busy{opacity:.4;pointer-events:none}
 .chatt{display:block;border:0;background:none;padding:0;margin:2px 0;cursor:pointer;font:inherit;color:inherit;text-align:left}.chatt.img img{display:block;max-width:220px;max-height:260px;min-width:80px;min-height:60px;border-radius:10px;background:var(--chip);object-fit:cover}.chatt.err img{display:none}.chatt.err::after{content:"📎";font-size:22px}
 .chatt.pdf{display:flex;align-items:center;gap:8px;background:var(--chip);border-radius:10px;padding:8px 10px;max-width:240px}.chatt.pdf span{font-size:22px}.chatt.pdf b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.chatt.pdf small{font-size:12px;color:var(--sea)}
-.chsys{align-self:center;margin:8px auto;max-width:88%;text-align:center;font-size:13px;line-height:1.35;color:var(--muted);background:var(--chip);border-radius:12px;padding:8px 12px}
+.chm.bot .cht{white-space:pre-line}.chm.bot .chpay{margin:8px 0}.chsys{align-self:center;margin:8px auto;max-width:88%;text-align:center;font-size:13px;line-height:1.35;color:var(--muted);background:var(--chip);border-radius:12px;padding:8px 12px}
 .cvina{margin-top:10px;border-top:1px solid var(--line);padding-top:6px}.cvina summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted);padding:6px 0;list-style:none}.cvina summary::-webkit-details-marker{display:none}.cvina summary::after{content:" ›";display:inline-block;transition:transform .2s}.cvina[open] summary::after{transform:rotate(90deg)}.cvina summary small{display:block;font-weight:400;font-size:12px}.cvina .convs li{opacity:.75}
 .chrefin{display:flex;align-items:center;gap:8px;font-size:13px;background:var(--chip);border-radius:10px;padding:6px 6px 6px 10px;margin:6px 0 0}.chrefin span{flex:1;min-width:0}.chrefin button{border:0;background:none;font-size:15px;cursor:pointer;color:var(--muted);padding:2px 6px}.chrefin[hidden]{display:none}
 .chbtns .unr{margin-left:4px}.reqbtns.chbtns{flex-wrap:nowrap}.trip.rq{flex-wrap:wrap}.trip.rq>.chbtns{flex:0 0 100%;min-width:0;max-width:100%;margin-top:0}.reqbtns.chbtns .btn{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(10.5px,2.85vw,15px);letter-spacing:-.15px;padding-left:3px;padding-right:3px}.vsales li .tchat{flex:0 0 auto;margin-left:8px;padding:6px 10px;align-self:flex-start}.vasteps{margin:0 0 14px;padding-left:22px;display:grid;gap:8px;line-height:1.45}#vreq .tside{flex-direction:row;align-items:center}
@@ -561,7 +561,7 @@ Object.assign(T.pt, {
   st_pendente:"Aguardando o sinal de 50%", st_aprovado:"Confirmado", st_recusado:"Não fechado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"Desistir deste pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Reservas", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqCanc:"Cancelados", reqNone:"Nenhuma reserva aqui.",
-  reqSub:"Todas as reservas das lanchas: as lançadas na agenda e os pedidos do site. Só você vê. Só entram passeios com pelo menos o sinal pago. Pedidos do site: aprove depois de receber o sinal e o passeio entra na agenda já preenchido.",
+  reqSub:"Todas as reservas das lanchas: as lançadas na agenda e os pedidos do site. Só você vê. Só entram passeios com pelo menos o sinal pago. Pedidos do site: 1º confira a lancha e toque em Liberar pagamento (o cliente recebe o Pix no chat); 2º quando o sinal chegar, toque em Aprovar e o passeio entra na agenda já preenchido.",
   approve:"Aprovar", refuseReq:"Recusar", refuseQ:"Recusar o pedido de {name}?", approveT:"Aprovar pedido", approveSub:"Confira e ajuste lancha, data e horário se o cliente mudou. Ao salvar, o passeio entra na agenda da lancha.",
   approved:"Pedido aprovado! O passeio já está na agenda da {boat}.", refusedReq:"Pedido recusado.", openTripB:"Abrir o passeio", reqAt:"pedido em {d}",
   needSqlCli:"Falta criar a parte de clientes no Supabase (arquivo 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -581,7 +581,7 @@ Object.assign(T.en, {
   st_pendente:"Awaiting 50% deposit", st_aprovado:"Confirmed", st_recusado:"Not booked", st_cancelado:"Cancelled",
   giveUp:"Cancel", giveUpQ:"Cancel this request?", gaveUp:"Request cancelled.",
   tabReq:"Bookings", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqCanc:"Cancelled", reqNone:"No bookings here.",
-  reqSub:"All boat bookings: the ones entered in the calendar and the website requests. Only you see them. Only tours with at least the deposit paid are listed. Website requests: approve after receiving the deposit and the tour goes into the calendar already filled in.",
+  reqSub:"All boat bookings: the ones entered in the calendar and the website requests. Only you see them. Only tours with at least the deposit paid are listed. Website requests: 1st check the boat and tap Release payment (the client gets the Pix in the chat); 2nd when the deposit arrives, tap Approve and the tour goes into the calendar already filled in.",
   approve:"Approve", refuseReq:"Decline", refuseQ:"Decline {name}'s request?", approveT:"Approve request", approveSub:"Check and adjust boat, date and time if the customer changed them. When you save, the tour goes into the boat's calendar.",
   approved:"Request approved! The tour is now in {boat}'s calendar.", refusedReq:"Request declined.", openTripB:"Open the tour", reqAt:"requested on {d}",
   needSqlCli:"The customers part is missing in Supabase (file 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -601,7 +601,7 @@ Object.assign(T.es, {
   st_pendente:"Esperando la seña del 50%", st_aprovado:"Confirmado", st_recusado:"No cerrado", st_cancelado:"Cancelado",
   giveUp:"Desistir", giveUpQ:"¿Desistir de este pedido?", gaveUp:"Pedido cancelado.",
   tabReq:"Reservas", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqCanc:"Cancelados", reqNone:"Ninguna reserva aquí.",
-  reqSub:"Todas las reservas de las lanchas: las cargadas en la agenda y los pedidos del sitio. Solo tú las ves. Solo entran los paseos con al menos la seña pagada. Pedidos del sitio: aprueba después de recibir la seña y el paseo entra en la agenda ya completo.",
+  reqSub:"Todas las reservas de las lanchas: las cargadas en la agenda y los pedidos del sitio. Solo tú las ves. Solo entran los paseos con al menos la seña pagada. Pedidos del sitio: 1º revisa la lancha y toca Liberar pago (el cliente recibe el Pix en el chat); 2º cuando llegue la seña, toca Aprobar y el paseo entra en la agenda ya completo.",
   approve:"Aprobar", refuseReq:"Rechazar", refuseQ:"¿Rechazar el pedido de {name}?", approveT:"Aprobar pedido", approveSub:"Revisa y ajusta lancha, fecha y horario si el cliente cambió. Al guardar, el paseo entra en la agenda de la lancha.",
   approved:"¡Pedido aprobado! El paseo ya está en la agenda de {boat}.", refusedReq:"Pedido rechazado.", openTripB:"Abrir el paseo", reqAt:"pedido el {d}",
   needSqlCli:"Falta crear la parte de clientes en Supabase (archivo 2026-10-19_supabase-clientes-pedidos.sql).",
@@ -711,6 +711,10 @@ Object.assign(T.en, {tabUsers:"Users", usersQ:"Search by name, email or WhatsApp
   waUserNew:"Hi {name}! This is your Búzios Lanchas access ({role}).\nAddress: {url}\nEmail: {email}\nPassword: {pw}"});
 Object.assign(T.es, {cobT:"Cobrar seña", cobVal:"Valor a cobrar (R$)", cobCard:"PayPal (exterior)", cobPpNote:"Valor en la moneda del cliente, con el cambio del día + 10% (se puede cambiar). Toca Generar factura y después Enviar. El cliente paga con cuenta PayPal o tarjeta.", cobPpLink:"Enlace de la factura de PayPal", cobPpGen:"⚡ Generar factura en PayPal", cobPpGenning:"Creando la factura en PayPal…", cobPpGenOk:"¡Factura creada! Ahora toca Enviar.", cobPpNoKeys:"PayPal todavía no está conectado a la app. Crea la factura en la app de PayPal y pega el enlace aquí.", cobPpGenErr:"PayPal no creó la factura. Créala en la app de PayPal y pega el enlace aquí.", cobPpNoLink:"Pega el enlace de la factura de PayPal.", cobFx:"Valor en PayPal ({c})", cobFxWait:"Buscando el tipo de cambio…", cobFxErr:"No se pudo obtener el cambio. Escribe el valor en la moneda del cliente.", cobSend:"Enviar cobro por WhatsApp", cobGot:"Pix recibido: sumar a la seña", cobGotOk:"Sumado a la seña. Toca Guardar.", cobNoVal:"Escribe el valor a cobrar.", cobNoPhone:"Completa el WhatsApp del cliente."});
 Object.assign(T.es, {cpAttach:"Adjuntar comprobante", cpVal:"Seña: {v}", cpCopy:"Copiar clave", cpCopyPaste:"Copiar Pix copia y pega", cpCopied:"¡Copiado!", cpSend:"Enviar comprobante del Pix", cpResend:"Cambiar comprobante", cpSent:"Comprobante enviado el {d}. Búzios Lanchas lo revisará y confirmará tu reserva.", cpSending:"Enviando comprobante…", cpOk:"¡Comprobante enviado!", cpErr:"No se pudo enviar. Inténtalo de nuevo.", cpBig:"Archivo muy grande (máximo 5 MB).", cpAdmVal:"Seña que el cliente ve en la app (R$)", cpValOk:"Seña guardada. El cliente ya la ve en la app.", cpSee:"Ver comprobante ({d})", cpNone:"El cliente aún no envió el comprobante."});
+/* pagamento do sinal pelo chat, liberado pelo administrador (Rodrigo, 2026-10-22) */
+Object.assign(T.pt, {chBotPed:"Olá! Recebemos o seu pedido de reserva: {boat}, {date}, {slot}, {n} pessoas.\nAgora vamos conferir a disponibilidade. Assim que aprovarmos, mandamos aqui os dados do Pix para o sinal de 50%, e você anexa o comprovante aqui mesmo no chat para confirmar a reserva.", chBotSinal:"Boa notícia: a lancha está disponível! ✅\nPara confirmar a sua reserva, pague o sinal de {v} pelo Pix:", chBotAnexo:"Depois, toque no 📎 aqui embaixo e anexe o comprovante. A reserva é confirmada assim que conferirmos.", sinLib:"Liberar pagamento", sinLibQ:"Liberar o pagamento? O cliente recebe no chat o Pix do sinal de {v} e pode anexar o comprovante.", sinLibOk:"Pagamento liberado. O cliente já recebeu o Pix no chat.", sinLibEm:"✓ Pagamento liberado em {d}. O comprovante chega no chat.", sinTot:"Valor do dia", sinNet:"neto do dono", sinCom:"comissão Búzios", sinVend:"vendedor", sinBad:"Digite o valor do sinal.", payWait:"A Búzios Lanchas está conferindo a disponibilidade. Assim que aprovar, o Pix do sinal chega no chat.", payChat:"💬 Abrir o chat", sinHalf:"Sinal (50%) que o cliente paga (R$)"});
+Object.assign(T.en, {chBotPed:"Hi! We received your booking request: {boat}, {date}, {slot}, {n} people.\nWe are now checking availability. As soon as we approve it, we will send the Pix details for the 50% deposit here, and you attach the receipt right here in the chat to confirm the booking.", chBotSinal:"Good news: the boat is available! ✅\nTo confirm your booking, pay the {v} deposit by Pix:", chBotAnexo:"Then tap the 📎 below and attach the receipt. The booking is confirmed as soon as we check it.", sinLib:"Release payment", sinLibQ:"Release the payment? The client gets the Pix for the {v} deposit in the chat and can attach the receipt.", sinLibOk:"Payment released. The client already got the Pix in the chat.", sinLibEm:"✓ Payment released on {d}. The receipt arrives in the chat.", sinTot:"Price for the day", sinNet:"owner net", sinCom:"Búzios commission", sinVend:"seller", sinBad:"Type the deposit amount.", payWait:"Búzios Lanchas is checking availability. Once approved, the Pix for the deposit arrives in the chat.", payChat:"💬 Open the chat", sinHalf:"Deposit (50%) the client pays (R$)"});
+Object.assign(T.es, {chBotPed:"¡Hola! Recibimos tu pedido de reserva: {boat}, {date}, {slot}, {n} personas.\nAhora vamos a revisar la disponibilidad. Apenas lo aprobemos, te enviamos aquí los datos del Pix para la seña del 50%, y adjuntas el comprobante aquí mismo en el chat para confirmar la reserva.", chBotSinal:"Buena noticia: ¡la lancha está disponible! ✅\nPara confirmar tu reserva, paga la seña de {v} por Pix:", chBotAnexo:"Después, toca el 📎 aquí abajo y adjunta el comprobante. La reserva se confirma apenas lo revisemos.", sinLib:"Liberar pago", sinLibQ:"¿Liberar el pago? El cliente recibe en el chat el Pix de la seña de {v} y puede adjuntar el comprobante.", sinLibOk:"Pago liberado. El cliente ya recibió el Pix en el chat.", sinLibEm:"✓ Pago liberado el {d}. El comprobante llega por el chat.", sinTot:"Valor del día", sinNet:"neto del dueño", sinCom:"comisión Búzios", sinVend:"vendedor", sinBad:"Escribe el valor de la seña.", payWait:"Búzios Lanchas está revisando la disponibilidad. Apenas lo apruebe, el Pix de la seña llega por el chat.", payChat:"💬 Abrir el chat", sinHalf:"Seña (50%) que paga el cliente (R$)"});
 Object.assign(T.es, {tabUsers:"Usuarios", usersQ:"Buscar por nombre, correo o WhatsApp", usersQNone:"No se encontró a nadie.", userNew:"Nuevo usuario", userNewShort:"Nuevo",
   needSqlUsers:"Falta crear la parte de usuarios en Supabase (función lista_usuarios).", needSqlDel:"Falta habilitar en Supabase la función para borrar cuentas (excluir_usuario).",
   uf_todos:"Todos", uf_dono:"Dueños", uf_mar:"Marineros", userWa:"Hablar con {name} por WhatsApp", ug_mar_fixo:"Marineros fijos", ug_mar_free:"Marineros freelancers", uf_cli:"Clientes", uf_func:"Empleados", uf_sem:"Registro incompleto",
@@ -1037,7 +1041,7 @@ function updateView(msg=""){
 async function loadMyReq(){
   await db("rpc/resgatar_convites",{method:"POST",body:{}}).catch(()=>0); /* passeios que a Búzios Lanchas colocou para este e-mail */
   const sel="id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id,vendedor,motivo";
-  S.myReq = await db(`pedidos?select=${sel},sinal_valor,comprovante,comprovante_em&order=data.desc&limit=100`).then(r=>(S.cpOk=true,r)).catch(()=>(S.cpOk=false, db(`pedidos?select=${sel}&order=data.desc&limit=100`))).catch(()=>[]);
+  S.myReq = await db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em&order=data.desc&limit=100`).then(r=>(S.cpOk=true,r)).catch(()=>(S.cpOk=false, db(`pedidos?select=${sel}&order=data.desc&limit=100`))).catch(()=>[]);
   S.myReq.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; });
   const emb = await db("rpc/meus_embarques",{method:"POST",body:{}}).catch(()=>[]); /* o local de embarque que ficou marcado no passeio */
   (emb||[]).forEach(x=>{ const p=S.myReq.find(r=>r.id===x.pedido_id); if(p) p.embarque=x.embarque; }); /* o passeio foi apagado da agenda */
@@ -1113,9 +1117,19 @@ function payBox(p){
     ${p.comprovante ? `<span class="cpok">✓ ${t("cpSent",{d:new Date(p.comprovante_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</span>` : ""}
     <label class="btn${p.comprovante?" sec":""} cpup">📎 ${t(p.comprovante?"cpResend":"cpSend")}<input type="file" accept="image/*,application/pdf" data-cp="${p.id}" hidden></label></span>`;
 }
+/* sinal já calculado em 50% do valor da data (editável) e, pequeno, o valor do dia, o neto do dono e a comissão (Rodrigo, 2026-10-22).
+   O pagamento só aparece para o cliente depois que o administrador toca em Liberar pagamento. */
+function pedCalc(p){
+  const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=p.horario==="dia", nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
+  const base=+p.preco_base || (r ? valorNaData(r,p.data,h7,o) : null), tot=+p.preco_cliente || base, net=valorNaData(nm,p.data,h7,o);
+  return {tot, net, com: base && net ? base-net : null, vd: p.preco_cliente && p.preco_base ? p.preco_cliente-p.preco_base : null};
+}
 function admPay(p){
-  return `<span class="paybox adm"><label class="f"><span>${t("cpAdmVal")}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="0" step="any" data-sv="${p.id}" value="${p.sinal_valor??""}" placeholder="R$"><button type="button" class="btn sec" data-svs="${p.id}">${t("save")}</button></span></label>
-    ${p.comprovante ? `<button type="button" class="btn sec" data-cpv="${esc(p.comprovante)}">📎 ${t("cpSee",{d:new Date(p.comprovante_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</button>` : `<small class="muted">${t("cpNone")}</small>`}
+  const c=pedCalc(p), sug = p.sinal_valor ?? (c.tot ? Math.round(c.tot/2) : ""), lib=p.sinal_liberado_em, dd=x=>new Date(x).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"});
+  return `<span class="paybox adm">${c.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(c.tot)}</b>${c.net?` · ${t("sinNet")} ${brl(c.net)}`:""}${c.com!=null?` · ${t("sinCom")} ${brl(c.com)}`:""}${c.vd?` · ${t("sinVend")} ${brl(c.vd)}`:""}</small>`:""}
+    <label class="f"><span>${t("sinHalf")}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="0" step="any" data-sv="${p.id}" value="${sug}" placeholder="R$">${lib?`<button type="button" class="btn sec" data-svs="${p.id}">${t("save")}</button>`:`<button type="button" class="btn" data-sl="${p.id}">${t("sinLib")}</button>`}</span></label>
+    ${lib?`<small class="cpok">${t("sinLibEm",{d:dd(lib)})}</small>`:""}
+    ${p.comprovante ? `<button type="button" class="btn sec" data-cpv="${esc(p.comprovante)}">📎 ${t("cpSee",{d:dd(p.comprovante_em)})}</button>` : ""}
     <label class="btn sec cpup">📎 ${t("cpAttach")}<input type="file" accept="image/*,application/pdf" data-cpa="${p.id}" hidden></label></span>`;
 }
 const cpExt = f => f.type==="application/pdf" ? "pdf" : (f.type.split("/")[1]||"jpg").replace("jpeg","jpg");
@@ -1166,7 +1180,7 @@ function reqCard(p, adm){
       ${adm && p.status==="pendente" && S.cpOk ? admPay(p) : ""}
       ${adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn" data-ap="${p.id}">${t("approve")}</button><button type="button" class="btn sec" data-rq="${p.id}">${t("refuseReq")}</button></span>`
         : adm && p.status==="aprovado" && p.bloqueio_id ? `<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button></span>`
-        : !adm && p.status==="pendente" ? `<span class="payhint">${t("payHint")}</span>${S.cpOk?payBox(p):""}<span class="reqbtns"><a class="btn" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("waDeposit",{boat:boatName(p.lancha), date:fmtLong(p.data), slot:t("slot_"+p.horario)}))}" target="_blank" rel="noopener">${t("payBtn")}</a><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?admRev(p):pastState(p)}</span>${!adm ? chatBtns(p) : ""}
+        : !adm && p.status==="pendente" ? `${p.sinal_liberado_em || !S.cpOk ? `<span class="payhint">${t("payHint")}</span>${S.cpOk?payBox(p):""}` : `<span class="payhint">${t("payWait")}</span>`}<span class="reqbtns"><a class="btn" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("waDeposit",{boat:boatName(p.lancha), date:fmtLong(p.data), slot:t("slot_"+p.horario)}))}" target="_blank" rel="noopener">${t("payBtn")}</a><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>` : ""}${adm?admRev(p):pastState(p)}</span>${!adm ? chatBtns(p) : ""}
     ${adm ? `<span class="tside">${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome||"")}">${WA_ICON}<span>WhatsApp</span></a>`:""}${chatBtnAdm(p)}</span>` : ""}</div>`;
 }
 /* pedido que veio pelo link de um vendedor: só o administrador vê quem vendeu, o valor que o cliente viu e a comissão */
@@ -2260,9 +2274,10 @@ function loadClis(){ /* só o administrador vê */
 }
 async function loadReqs(){
   try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp)&order=criado_em.desc&limit=300`);
-    S.reqs = await q(",sinal_valor,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga").then(r=>(S.cpOk=true,r))
+    S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga").then(r=>(S.cpOk=true,r))
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,comprovante,comprovante_em").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem vendedores */
       .catch(e=>{ if(e.status!==400) throw e; S.cpOk=false; return q(""); });
+    if(!S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* sinal de 50% e neto do dia no pedido */
     if(S.reqs.some(p=>p.vendedor) && !S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null); /* nome dos vendedores */
     S.reqs.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); /* o passeio foi apagado da agenda */
     S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
@@ -2457,7 +2472,16 @@ function bindConvs(root=app){
 }
 const chErr = e => e.code==="P0001" ? ({FLOOD:t("chFlood"), PALAVRA:t("chWord"), LONGA:t("chLong"), ENCERRADO:t("chClosedMsg")}[e.message] || esc(e.message)) : t("chErr");
 const markRead = cid => RPC("marcar_lida",{cid}).then(()=>{ const c=(S.convs||[]).find(x=>x.id===cid); if(c && +c.nao_lidas){ S.chatUnread=Math.max(0,S.chatUnread-(+c.nao_lidas)); c.nao_lidas=0; } },()=>{});
+/* mensagens automáticas da Búzios Lanchas (Rodrigo, 2026-10-22): pedido recebido (sistema:pedido:<horário>:<pessoas>) e pagamento liberado (sistema:sinal:<valor>) com o Pix para copiar */
+function chBotHTML(m){
+  const [, k, a, b] = String(m.papel).split(":"), hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
+  let body;
+  if(k==="pedido") body = esc(t("chBotPed",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):"", slot:t("slot_"+a)+(a==="noite"?"":" · "+t("hours_"+a)), n:b}));
+  else { const v=+a||0; body = `${esc(t("chBotSinal",{v:brl(v)}))}<span class="paybox chpay"><span class="pkey"><span>Pix (CNPJ) <strong>${fmtCNPJ}</strong><small>Búzios Lanchas</small></span><button type="button" class="btn sec" data-copy="${PIX_CNPJ}">${t("cpCopy")}</button></span>${v?`<button type="button" class="btn sec" data-copy="${esc(pixPayload(PIX_CNPJ, v, "PED"+(m.pedido||"")))}">${t("cpCopyPaste")}</button>`:""}</span>${esc(t("chBotAnexo"))}`; }
+  return `<div class="chm sup bot" data-mid="${m.id}"><div class="cha"><span class="face ini" aria-hidden="true">BL</span><b>Búzios Lanchas</b></div><div class="cht">${body}</div><div class="chx"><span>${hora}</span></div></div>`;
+}
 function chMsgHTML(m){
+  if(/^sistema:(pedido|sinal):/.test(m.papel||"")) return chBotHTML(m);
   if(String(m.papel||"").startsWith("sistema:")) return `<div class="chsys" data-mid="${m.id}">${t({"sistema:inativo":S.admin?"chSysInAdm":"chSysIn", "sistema:encerrado":"chSysEnc", "sistema:reaberto":"chSysReab"}[m.papel]||"chSysIn")}</div>`;
   const me=m.autor===ses.user.id, canDel = !m.apagada && S.admin; /* só o administrador apaga (Rodrigo, 2026-10-22) */
   const canRep = !m.apagada && !me && !S.admin && m.papel!=="suporte";
@@ -3068,6 +3092,12 @@ function bindMain(){
     try{ await db("rpc/excluir_avaliacao",{method:"POST",body:{pid}}); S.admRevs.delete(pid); S.admExc.add(pid); toast(t("rvDeleted")); mainView(); }catch(e){ toast(e.status===404?t("rvNeedSql"):t("saveErr")); } });
   app.querySelectorAll("[data-cpv]").forEach(x=>x.onclick=()=>cpOpen(x.dataset.cpv));
   app.querySelectorAll("[data-cpa]").forEach(x=>x.onchange=()=>cpAdmPedido(+x.dataset.cpa, x.files[0]));
+  app.querySelectorAll("[data-sl]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.sl, el=app.querySelector(`[data-sv="${id}"]`), v=+String(el.value).replace(",",".");
+    if(!(v>0)){ el.focus(); return toast(t("sinBad")); }
+    if(!confirm(t("sinLibQ",{v:brl(v)}))) return;
+    x.disabled=true;
+    try{ const mid=await RPC("liberar_sinal",{pid:id, valor:v}); fnPost("aviso-chat",{id:mid}); const p=S.reqs.find(p=>p.id===id); if(p){ p.sinal_valor=v; p.sinal_liberado_em=new Date().toISOString(); } toast(t("sinLibOk")); mainView(); }
+    catch(e){ x.disabled=false; toast(t("saveErr")); } });
   app.querySelectorAll("[data-svs]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.svs, el=app.querySelector(`[data-sv="${id}"]`), v=el.value===""?null:+String(el.value).replace(",",".");
     try{ await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{sinal_valor:v,atualizado_em:new Date().toISOString()}}); const p=S.reqs.find(p=>p.id===id); if(p) p.sinal_valor=v; toast(t("cpValOk")); }catch(e){ toast(t("saveErr")); } });
   app.querySelectorAll("[data-rq]").forEach(x=>x.onclick=async()=>{ const p=S.reqs.find(p=>p.id===+x.dataset.rq);
