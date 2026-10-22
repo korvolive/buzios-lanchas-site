@@ -45,6 +45,15 @@ async function pp(path: string, body?: unknown, method = "POST") {
   return j;
 }
 
+// a lancha ainda está livre para este pedido? (Rodrigo 2026-10-22: quem pagar primeiro fica com a lancha, o outro não consegue pagar)
+// rpc pp_vaga: "ocupada" (agenda, pedido aprovado, outro cliente pagou ou mandou comprovante), "pagando" (outro está no PayPal agora, 10 min) ou "livre";
+// segurar = marca que este cliente está pagando. Se a consulta falhar, deixa pagar (o administrador ainda aprova cada reserva).
+async function vaga(pid: number, segurar = false) {
+  const { data, error } = await db.rpc("pp_vaga", { pid, segurar });
+  if (error) { console.error("pp_vaga", error.message); return "livre"; }
+  return String(data || "livre");
+}
+
 // pedido + cobrança, conferindo o token do link
 async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
@@ -110,10 +119,11 @@ Deno.serve(async req => {
         if (n) { vn = String(n).trim().split(/\s+/)[0]; break; }
       }
       const pp = c.moeda !== "BRL" && !p.vendedor;
+      const vg = p.status === "pendente" && !c.pago_em && !p.comprovante_em ? await vaga(p.id) : "livre";
       return json({ cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor || null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
-        confirmada: p.status === "aprovado" && !!p.bloqueio_id, chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
+        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -142,10 +152,12 @@ Deno.serve(async req => {
     if (!x) return json({ erro: "link" }, 404);
     const { c, p, lancha, nome } = x;
     if (c.pago_em) return json({ pago: true });
-    if (p.status !== "pendente") return json({ erro: "status" }, 409);
+    if (p.status !== "pendente") return json({ erro: p.status === "recusado" ? "ocupada" : "status" }, 409);
 
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
     if (b.acao === "criar") {
+      const v = await vaga(p.id, true);
+      if (v !== "livre") return json({ erro: v }, 409);
       const o = await pp("/v2/checkout/orders", {
         intent: "CAPTURE",
         purchase_units: [{ reference_id: `PED${p.id}`, custom_id: String(p.id), description: `Búzios Lanchas · ${lancha} · ${dataBR(p.data)}`.slice(0, 127),
@@ -159,6 +171,8 @@ Deno.serve(async req => {
     if (b.acao === "capturar") {
       const oid = String(b.order || "");
       if (!oid || oid !== c.order_id) return json({ erro: "ordem" }, 400);
+      const v = await vaga(p.id, true); // confere de novo antes de cobrar: se outro cliente pagou antes, não cobra nada
+      if (v !== "livre") return json({ erro: v }, 409);
       let o: any;
       try { o = await pp(`/v2/checkout/orders/${oid}/capture`, {}); }
       catch (e) { // já capturada (página recarregada): confere a ordem
