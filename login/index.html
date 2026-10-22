@@ -238,7 +238,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .avl b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .avs{flex:none;font-size:13px;padding:2px 9px;border-radius:999px;text-align:right}
 .avs.ok{background:var(--chip);color:var(--sea)} .avs.half{background:var(--half);color:var(--half-ink)} .avs.no{background:transparent;color:var(--bad)}
-.avq small.muted{display:block;margin-top:6px}.avq .avp{display:block;font-weight:400;font-size:13px;color:var(--muted)}.avq .avn{font-size:12px}.vav .avl span.avr{flex-wrap:wrap;row-gap:2px}.vav .avr .vp{flex-basis:100%;order:3;margin-top:-2px}.vav .avseason .link{padding:0;font-size:inherit;min-height:0}.avq .avseason{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.avq small.muted{display:block;margin-top:6px}.avq .avp{display:block;font-weight:400;font-size:13px;color:var(--muted)}.avq .avn{font-size:12px}.avq .cap{font-weight:400;font-size:12px;color:var(--muted);white-space:nowrap}.vav .avl span.avr{flex-wrap:wrap;row-gap:2px}.vav .avr .vp{flex-basis:100%;order:3;margin-top:-2px}.vav .avseason .link{padding:0;font-size:inherit;min-height:0}.avq .avseason{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .avq .avtop{display:flex;align-items:center;gap:8px}.avq .avtop .avh{flex:1;min-width:0}.avq .avx{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:var(--chip);color:var(--ink);font-size:16px;cursor:pointer}
 .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:18px 2px 8px}
 .rqboat{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:10px 0;padding:0 12px}
@@ -1448,6 +1448,8 @@ function confirmHTML(){
 const seasonKey = iso => { const m=+iso.slice(5,7), md=iso.slice(5);
   return md>="12-26"||md<="01-10" ? "reveillon" : m<=2 ? "pico" : [12,3].includes(m) ? "alta" : [4,10,11].includes(m) ? "media" : "baixa"; };
 /* administrador: o valor de 4h e 7h de cada lancha na data buscada (Rodrigo 2026-10-22: achar o valor de uma cotação rápido) */
+/* capacidade ao lado do nome nas buscas por data (Rodrigo, 2026-10-22) */
+const capTag = b => { const c=CAPACITY[b.slug] || b.dados?.capacidade; return c ? ` <small class="cap">👥 ${c}</small>` : ""; };
 const avPrice = slug => { const r=(S.avPr||[]).find(x=>x.lancha===slug), k=seasonKey(S.avD); if(!r) return "";
   const v4=r[k], v7=r[k+"7"], net=c=>(S.avNet||[]).find(x=>x.lancha===slug && x.chave===c)?.neto, n4=net(k), n7=net(k+"7");
   return v4||v7 ? `<small class="avp">4h ${v4?brl(v4):t("prOnReq")} · 7h ${v7?brl(v7):t("prOnReq")}</small>${n4||n7?`<small class="avp avn">${t("avNet")}: 4h ${n4?brl(n4):"—"} · 7h ${n7?brl(n7):"—"}</small>`:""}` : ""; };
@@ -1463,7 +1465,7 @@ function avHTML(){
       const lab = (st===2 ? t("avBusy") : st===1 ? t(m?"avOnlyT":"avOnlyM",{h:t("hours_"+slot)}) : t("avFree")) + (nt ? " · "+t(s.has("noite")?"avNightB":"avNightF") : "") + (rv ? " · "+t("avRv") : "");
       const nf=full&&nt&&!s.has("noite");
       return {b, rv, st:nf ? 1.5 : st, slot:nf ? "noite" : slot, lab, cls: st===2 ? (nt&&!s.has("noite")?"half":"no") : st===1 ? "half" : "ok"}; }).sort((x,y)=>x.st-y.st || x.b.nome.localeCompare(y.b.nome));
-    list=`${S.admin&&S.avPr?.length?`<p class="avseason">${t("avSeason",{s:t("pr_"+seasonKey(d)).split(" · ")[0], m:t("prm_"+seasonKey(d))})}</p>`:""}<ul class="avl">${rows.map(r=>`<li>${r.st===2&&!r.rv?`<span class="avr">`:r.rv?`<button type="button" data-avr="${r.rv.id}">`:`<button type="button" data-avb="${esc(r.b.slug)}" data-avs="${r.slot}">`}<b>${esc(r.b.nome)}${S.admin?avPrice(r.b.slug):""}</b><span class="avs ${r.cls}">${r.lab}</span>${r.st===2&&!r.rv?"</span>":"</button>"}</li>`).join("")}</ul><small class="muted">${t("avTap")}</small>`; }
+    list=`${S.admin&&S.avPr?.length?`<p class="avseason">${t("avSeason",{s:t("pr_"+seasonKey(d)).split(" · ")[0], m:t("prm_"+seasonKey(d))})}</p>`:""}<ul class="avl">${rows.map(r=>`<li>${r.st===2&&!r.rv?`<span class="avr">`:r.rv?`<button type="button" data-avr="${r.rv.id}">`:`<button type="button" data-avb="${esc(r.b.slug)}" data-avs="${r.slot}">`}<b>${esc(r.b.nome)}${capTag(r.b)}${S.admin?avPrice(r.b.slug):""}</b><span class="avs ${r.cls}">${r.lab}</span>${r.st===2&&!r.rv?"</span>":"</button>"}</li>`).join("")}</ul><small class="muted">${t("avTap")}</small>`; }
   /* com data escolhida, o ✕ fecha a busca e volta ao normal (Rodrigo 2026-10-22: abria sem querer e não fechava) */
   return `<div class="card avq"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="avd" min="${todayISO()}" value="${S.avD||""}"></label>${S.avD?`<button type="button" class="avx" id="avx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
@@ -2858,7 +2860,7 @@ function vAvHTML(){
       const cli=own.includes(b.slug) ? base : Math.round(base*(1+pc/100)/10)*10; /* na própria lancha o dono-vendedor não soma comissão */
       return `${h} ${brl(base)} → <b>${brl(cli)}</b>`; };
     list=`<p class="avseason">${t("vavSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k), p:String(pc).replace(".",",")})} <button type="button" class="link" id="vpgo">${t("vavAdj")}</button></p>
-      <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b,k)} · ${val(r.b,k+"7")}</small>`:""}</span></li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
+      <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b,k)} · ${val(r.b,k+"7")}</small>`:""}</span></li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
   return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" value="${S.vavD||""}"></label>${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
 let vavSeq=0;
