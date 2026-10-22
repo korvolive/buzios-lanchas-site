@@ -563,7 +563,7 @@ const SEASONS = [ /* datas de cada uma em seasonKey, mais abaixo */
 ];
 const BOATS = [
   {
-    slug:"miss-bardot", name:"Miss Bardot", featured:true, example:false,
+    slug:"miss-bardot", name:"Miss Bardot", featured:true, example:false, siteRevs:false, /* avaliações do site só na tela inicial até ter umas 15 (Rodrigo 2026-10-22); a nota continua no JSON-LD */
     feet:35, capacity:16, crew:"Marinheiro com carteira de mestre",
     video:"video/miss-bardot.mp4", videoCapa:"img/miss-bardot-video.jpg",
     photos:[
@@ -1330,9 +1330,10 @@ function loadSiteRevs(b){
   const rpc = (f, body) => fetch(SB_URL+"/rest/v1/rpc/"+f, {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:JSON.stringify(body)}).then(r=>r.ok?r.json():Promise.reject(r.status));
   const p = siteRevs.get(b.slug) || Promise.all([rpc("avaliacoes_lancha",{l:b.slug, lim:20}), rpc("notas_lanchas",{})]).then(([list, notas])=>({list, nota:notas.find(n=>n.lancha===b.slug)})).catch(()=>null);
   siteRevs.set(b.slug, p);
-  p.then(r=>{ const box=document.getElementById("site-revs"); if(!r || !box || route.slug!==b.slug || !r.nota?.total) return;
+  p.then(r=>{ const box=document.getElementById("site-revs"); if(!r || route.slug!==b.slug || !r.nota?.total) return;
     revsOk.set(b.slug, r);
     try { const ld=document.getElementById("ld-json"), j=JSON.parse(ld.textContent), pr=j["@graph"].find(x=>x["@type"]==="Product"&&x.name===b.name); if(pr){ Object.assign(pr, ratingLD(b)); ld.textContent=JSON.stringify(j); } } catch(e){}
+    if(!box) return; /* lancha sem o bloco na página (siteRevs:false): só a nota no JSON-LD */
     const st = k => "★".repeat(k)+"☆".repeat(5-k), media = String(r.nota.media).replace(".", lang==="en"?".":",");
     box.innerHTML = `<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">${st(Math.round(r.nota.media))}</span>${t(r.nota.total===1?"siteRevSub1":"siteRevSub",{m:media, n:r.nota.total})}</p>
       ${r.list.length?`<ul class="reviews">${r.list.map(v=>`<li><span class="stars" aria-label="${t("siteRevStars",{n:v.nota})}">${st(v.nota)}</span><q>${esc(v.comentario)}</q><small>${esc(v.nome)} · ${new Date(v.data+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul>`:""}</div>`; if(location.hash==="#site-revs") box.scrollIntoView({block:"start"}); });
@@ -1352,7 +1353,7 @@ function cardRatings(){
         const p=cardRevs.get(n.lancha) || revRpc("avaliacoes_lancha",{l:n.lancha, lim:3}); cardRevs.set(n.lancha,p);
         p.then(list=>{ rev.innerHTML=`<strong>${t(n.total===1?"siteRevSub1":"siteRevSub",{m, n:n.total})}</strong>
           ${list.length?`<ul style="margin-top:8px">${list.map(v=>`<li><span class="st" aria-label="${t("siteRevStars",{n:v.nota})}">${"★".repeat(v.nota)}${"☆".repeat(5-v.nota)}</span>${v.comentario?`<q>${esc(v.comentario)}</q>`:""}<small>${esc(v.nome)} · ${new Date(v.data+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul>`:""}
-          <span class="all" role="link" tabindex="0">${t("cardRevAll")} ›</span>`; })
+          ${BOATS.find(x=>x.slug===n.lancha)?.siteRevs===false?"":`<span class="all" role="link" tabindex="0">${t("cardRevAll")} ›</span>`}`; })
           .catch(()=>{ delete w.dataset.ok; rev.innerHTML=""; }); };
       w.onmouseenter=fill; w.onfocusin=fill;
       /* dentro do card (que é um link): tocar no selo abre/fecha os comentários sem abrir a lancha */
@@ -1841,7 +1842,7 @@ function boatPage(b){
         <div class="block b-gal"><div>${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
         ${b.video?`<div class="vidrow"><div class="block b-vid"><h2>${t("video")}</h2><div class="vidbox" id="vidbox"><video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" playsinline preload="none" disablepictureinpicture controlslist="nofullscreen nodownload noremoteplayback" ${b.videoCapa?`poster="/${b.videoCapa}"`:b.photos?`poster="${imgSrc(b.photos[0])}"`:""}></video><button type="button" class="vidplay" aria-label="${t("videoPlay")}"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button></div></div>`:""}
         <div class="block b-bring"><h2>${t("bring")}</h2><ul class="bring">${(UI[lang].bringList||UI.pt.bringList).map(x=>`<li><span aria-hidden="true">✅</span>${x}</li>`).join("")}</ul></div>${b.video?"</div>":""}
-        <div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>
+        ${b.siteRevs===false?"":`<div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>`}
         ${b.reviews?`<div class="block b-reviews b-google"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
           <ul class="reviews">${b.reviews.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul></div>`:""}
       </div>
