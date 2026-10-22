@@ -5,6 +5,8 @@ on:
 jobs:
   comprimir:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - name: Achar e baixar o vídeo
         run: |
@@ -21,7 +23,9 @@ jobs:
           ffmpeg -v error -y -ss 2 -i in.vid -frames:v 1 -vf "scale='if(gt(iw,ih),-2,1080)':'if(gt(iw,ih),1080,-2)'" -q:v 4 out/miss-bardot-capa.jpg
           ffprobe -v error -show_entries format=duration,size:stream=width,height -of compact out/miss-bardot.mp4
           ls -l out
-      - uses: actions/upload-artifact@v4
-        with:
-          name: video
-          path: out/
+      - name: Publicar em branch
+        run: |
+          set -e
+          cd out && git init -q -b video-out && git add . \
+          && git -c user.name=ci -c user.email=ci@x commit -qm video \
+          && git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" video-out
