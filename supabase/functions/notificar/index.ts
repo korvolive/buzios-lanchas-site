@@ -77,9 +77,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Nuevo lugar de embarque", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}: el embarque ahora es en ${p.embarque}.` }),
   },
   avaliar: {
-    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.` }),
-    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.` }),
-    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.` }),
+    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Você ganhou um cupom de ${p.cup.valor} para usar em qualquer lancha do site até ${p.cup.ate}.` : ""}` }),
+    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 You earned a ${p.cup.valor} coupon for any boat on the website, valid until ${p.cup.ate}.` : ""}` }),
+    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Ganaste un cupón de ${p.cup.valor} para cualquier lancha del sitio, válido hasta ${p.cup.ate}.` : ""}` }),
   },
   inicio: {
     pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
@@ -118,6 +118,28 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
     }
   }));
   return n;
+}
+
+// cupom de fidelidade do passeio: vai junto do pedido de avaliação, no celular e no e-mail (Rodrigo 2026-10-23)
+const CUP_TXT: Record<string, (c: any) => string> = {
+  pt: c => `🎁 Você ganhou um cupom de ${c.valor} para usar em qualquer lancha do site da Búzios Lanchas, válido por 6 meses (até ${c.ate}).`,
+  en: c => `🎁 You earned a ${c.valor} coupon to use on any boat on the Búzios Lanchas website, valid for 6 months (until ${c.ate}).`,
+  es: c => `🎁 Ganaste un cupón de ${c.valor} para usar en cualquier lancha del sitio de Búzios Lanchas, válido por 6 meses (hasta ${c.ate}).`,
+};
+const CUP_USO: Record<string, string> = {
+  pt: "Para usar o cupom, entre no site com a sua conta e, na hora de reservar, toque em Usar meu cupom.",
+  en: "To use the coupon, sign in on the website and, when booking, tap Use my coupon.",
+  es: "Para usar el cupón, entra al sitio con tu cuenta y, al reservar, toca Usar mi cupón.",
+};
+async function cupomDo(bid: number, cli: string) {
+  const { error } = await db.rpc("gerar_cupons", { uid: cli }); // o cupom nasce no fim do passeio; garante que já existe
+  if (error) console.error("cupom", error.message);
+  const { data: ps } = await db.from("pedidos").select("id").eq("bloqueio_id", bid).eq("cliente", cli);
+  if (!ps?.length) return null;
+  const { data: c } = await db.from("cupons").select("id, valor, expira_em").in("origem_pedido", ps.map(p => p.id)).is("pedido", null).limit(1).maybeSingle();
+  if (!c) return null;
+  await db.from("cupons").update({ avisado_em: new Date().toISOString() }).eq("id", c.id);
+  return { valor: `R$ ${Math.round(+c.valor)}`, ate: dataBR(c.expira_em) };
 }
 
 // e-mail pelo Supabase (modelo "Magic Link", SMTP da Brevo): com user_metadata.msg preenchido o modelo mostra esta mensagem,
@@ -175,9 +197,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `El lugar de embarque de tu paseo en ${p.lancha} cambió.`, linhas: [`Nuevo lugar de embarque: ${p.embarque}`, ...(MAPA[p.embarque] ? [`Ubicación: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "es")] : []), `Fecha: ${p.data}`, `Horario: ${p.horario}`, "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Cualquier duda, háblanos. ¡Buen paseo!", botao: "Ver mi reserva" }),
   },
   avaliar: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Obrigado por passear com a gente na ${p.lancha}! Conte como foi: dê a nota da lancha e do marinheiro.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`], nota: "Leva menos de 1 minuto e ajuda outros clientes a escolher. Você pode alterar a avaliação por até 7 dias.", botao: "Avaliar o passeio" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Thank you for touring with us on ${p.lancha}! Tell us how it went: rate the boat and the skipper.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`], nota: "It takes less than a minute and helps other guests choose. You can change your review for up to 7 days.", botao: "Rate the tour" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${p.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`], nota: "Lleva menos de 1 minuto y ayuda a otros clientes a elegir. Puedes cambiar tu evaluación hasta 7 días.", botao: "Evaluar el paseo" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Obrigado por passear com a gente na ${p.lancha}! Conte como foi: dê a nota da lancha e do marinheiro.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cup ? [CUP_TXT.pt(p.cup)] : [])], nota: `${p.cup ? CUP_USO.pt + " " : ""}A avaliação leva menos de 1 minuto e ajuda outros clientes a escolher. Você pode alterá-la por até 7 dias.`, botao: "Avaliar o passeio" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Thank you for touring with us on ${p.lancha}! Tell us how it went: rate the boat and the skipper.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cup ? [CUP_TXT.en(p.cup)] : [])], nota: `${p.cup ? CUP_USO.en + " " : ""}The review takes less than a minute and helps other guests choose. You can change it for up to 7 days.`, botao: "Rate the tour" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${p.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cup ? [CUP_TXT.es(p.cup)] : [])], nota: `${p.cup ? CUP_USO.es + " " : ""}La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir. Puedes cambiarla hasta 7 días.`, botao: "Evaluar el paseo" }),
   },
   fim: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Terminou um passeio na ${p.lancha}. ${p.fora ? "Confirme que ele foi concluído e que não há saldo pendente para liberar a avaliação do cliente." : "Confirme se ele aconteceu para liberar a avaliação do cliente."}`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abra o app na aba Passeios: o passeio está no topo, em \"Passeios pendentes de confirmação\".", botao: "Confirmar o passeio" }),
@@ -414,10 +436,11 @@ Deno.serve(async req => {
       const cli = an?.cliente_conta || (await db.from("pedidos").select("cliente").eq("bloqueio_id", b.id).eq("status", "aprovado").limit(1).maybeSingle()).data?.cliente;
       if (!cli) return json({ enviados: 0, email: false });
       const lancha = await nomeLancha(b.lancha);
-      const enviados = await enviar([cli], "avaliar", { ...b, lancha }, "/login/");
+      const cup = await cupomDo(b.id, cli).catch(e => (console.error(e), null));
+      const enviados = await enviar([cli], "avaliar", { ...b, lancha, cup }, "/login/");
       const { data: c } = await db.from("clientes").select("nome").eq("user_id", cli).maybeSingle();
       // o administrador confirma pelo app, que já manda o e-mail da avaliação pela função "avaliacao" (link que entra logado): aqui só o dono manda e-mail, para o cliente não receber dois
-      const email = admin ? false : await mandarEmail(cli, "avaliar", { b, a: an, lancha, data: dataBR(b.data), nomes: { [cli]: c?.nome || an?.cliente || "" } }).catch(e => (console.error(e), false));
+      const email = admin ? false : await mandarEmail(cli, "avaliar", { b, a: an, lancha, cup, data: dataBR(b.data), nomes: { [cli]: c?.nome || an?.cliente || "" } }).catch(e => (console.error(e), false));
       return json({ enviados, email });
     }
 

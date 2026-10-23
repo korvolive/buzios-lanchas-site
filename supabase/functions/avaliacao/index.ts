@@ -11,6 +11,23 @@ const SITE = "https://www.lanchaembuzios.com.br";
 const dataBR = (d: string) => d.split("-").reverse().join("/");
 const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
 
+// cupom de fidelidade do passeio: com cupom, o e-mail usa a mensagem montada aqui (modelo com user_metadata.msg) e conta do cupom (Rodrigo 2026-10-23)
+const CUP_MSG: Record<string, (a: any, c: any) => any> = {
+  pt: (a, c) => ({ oi: `Olá, ${a.primeiro}!`, texto: `Obrigado por passear com a gente na ${a.lancha}! Conte como foi: dê a nota da lancha e do marinheiro.`, linhas: [`Data: ${a.data}`, `🎁 Você ganhou um cupom de ${c.valor} para usar em qualquer lancha do site da Búzios Lanchas, válido por 6 meses (até ${c.ate}).`], nota: "Para usar o cupom, entre no site com a sua conta e, na hora de reservar, toque em Usar meu cupom. A avaliação leva menos de 1 minuto e ajuda outros clientes a escolher.", botao: "Avaliar o passeio" }),
+  en: (a, c) => ({ oi: `Hi, ${a.primeiro}!`, texto: `Thank you for touring with us on ${a.lancha}! Tell us how it went: rate the boat and the skipper.`, linhas: [`Date: ${a.data}`, `🎁 You earned a ${c.valor} coupon to use on any boat on the Búzios Lanchas website, valid for 6 months (until ${c.ate}).`], nota: "To use the coupon, sign in on the website and, when booking, tap Use my coupon. The review takes less than a minute and helps other guests choose.", botao: "Rate the tour" }),
+  es: (a, c) => ({ oi: `¡Hola, ${a.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${a.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${a.data}`, `🎁 Ganaste un cupón de ${c.valor} para usar en cualquier lancha del sitio de Búzios Lanchas, válido por 6 meses (hasta ${c.ate}).`], nota: "Para usar el cupón, entra al sitio con tu cuenta y, al reservar, toca Usar mi cupón. La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir.", botao: "Evaluar el paseo" }),
+};
+async function cupomDo(bid: number, cli: string) {
+  const { error } = await db.rpc("gerar_cupons", { uid: cli }); // o cupom nasce no fim do passeio; garante que já existe
+  if (error) console.error("cupom", error.message);
+  const { data: ps } = await db.from("pedidos").select("id").eq("bloqueio_id", bid).eq("cliente", cli);
+  if (!ps?.length) return null;
+  const { data: c } = await db.from("cupons").select("id, valor, expira_em").in("origem_pedido", ps.map(p => p.id)).is("pedido", null).limit(1).maybeSingle();
+  if (!c) return null;
+  await db.from("cupons").update({ avisado_em: new Date().toISOString() }).eq("id", c.id);
+  return { valor: `R$ ${Math.round(+c.valor)}`, ate: dataBR(c.expira_em) };
+}
+
 async function userByEmail(email: string) {
   for (let page = 1; page < 50; page++) {
     const { data, error } = await db.auth.admin.listUsers({ page, perPage: 1000 });
@@ -49,12 +66,15 @@ Deno.serve(async req => {
     const avaliar = { lancha: nomeL, data: dataBR(b.data), primeiro: (meta.nome || nome || "").split(" ")[0], lang };
     const assunto = { pt: `Avalie o seu passeio na ${nomeL}`, en: `Rate your tour on ${nomeL}`, es: `Califica tu paseo en ${nomeL}` }[lang as "pt"]; // assunto com o motivo (Rodrigo 2026-10-22)
     if (u?.email_confirmed_at) {
-      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang, avaliar, assunto } });
+      const cup = await cupomDo(b.id, an?.cliente_conta || u.id).catch(e => (console.error(e), null));
+      const msg = cup ? { lang, ...CUP_MSG[lang](avaliar, cup) } : null;
+      if (msg) msg.oi = msg.oi.replace(/, !$/, "!"); /* sem nome: só "Olá!" */
+      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, lang, ...(msg ? { msg } : { avaliar }), assunto } });
       const { error } = await db.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });
       // tira o pedido de avaliação de novo: um "entrar por link" depois volta a ser o e-mail normal
-      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, avaliar: null, assunto: null } });
+      await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, avaliar: null, msg: null, assunto: null } });
       if (error) { console.error("otp", error.message); return json({ status: "falhou", erro: error.message, email }, 502); }
-      return json({ status: "enviado", email });
+      return json({ status: "enviado", email, cupom: !!cup });
     }
     const { error } = await db.auth.admin.inviteUserByEmail(email, { data: { lang, primeiro: avaliar.primeiro, avaliar, assunto }, redirectTo: `${SITE}/login/` });
     if (error) { console.error("invite", error.message); return json({ status: "falhou", erro: error.message, email }, 502); }
