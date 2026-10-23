@@ -262,7 +262,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .newtrip{margin:0 0 14px}
 .avq{margin:0 0 14px;padding:12px 14px}
 .avq .avh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:600;font-size:15px}
-.avq .avh input{flex:1;min-width:150px;font:inherit;font-weight:400;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.avq .avh .dpb{flex:1;min-width:150px}.avq .avh input{flex:1;min-width:150px;font:inherit;font-weight:400;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
 .avl{list-style:none;margin:10px 0 0;padding:0;font-size:14px}
 .avl li{border-top:1px solid var(--line)}
 .avl button,.avl span.avr{all:unset;box-sizing:border-box;width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;cursor:pointer}
@@ -445,6 +445,32 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .phit.sortable-ghost{opacity:.3}.phit.sortable-chosen{box-shadow:0 0 0 3px var(--brass)}
 .phadd{position:relative;overflow:hidden}.phadd input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .phpend{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line,#e5e5e5)}.phpend>a>img{width:84px;height:84px;object-fit:cover;border-radius:10px;flex:none}.phpend .b{display:flex;flex-direction:column;gap:6px;margin-left:auto}
+
+/* calendário próprio no lugar do seletor de data do celular */
+.dp-src{display:none!important}
+.dpb{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-size:17px;text-align:left;cursor:pointer}
+.dpb svg{flex:none;color:var(--sea)}.dpb span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dpb.empty span{color:var(--muted)}
+.dpb.sm{min-height:40px;font-size:15px;border-width:1px;border-radius:10px;background:var(--surface);padding:0 10px;font-weight:400}
+.dp-src.miss+.dpb{border-color:var(--bad)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--bad) 25%,transparent)}
+.dpov{position:fixed;inset:0;z-index:9999;background:rgba(4,20,28,.45);display:flex;align-items:center;justify-content:center;padding:16px;animation:dpf .15s ease}
+@keyframes dpf{from{opacity:0}}
+.dpbox{width:100%;max-width:340px;background:var(--surface);color:var(--ink);border-radius:20px;padding:14px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.dph{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.dph>button{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:var(--chip);color:var(--ink);font:600 20px/1 inherit;cursor:pointer}
+.dph>button:disabled{opacity:.3;cursor:default}
+.dph .dpsel{flex:1;display:flex;gap:4px;justify-content:center}
+.dph select{appearance:none;-webkit-appearance:none;border:0;background:none;color:var(--ink);font:700 16px/1.2 inherit;padding:6px 18px 6px 4px;cursor:pointer;text-align:center;min-height:0;width:auto;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 2px center}
+.dph select:focus-visible{outline:2px solid var(--sea);border-radius:8px}
+.dpg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.dpg b{font:600 11px/26px inherit;color:var(--muted);text-transform:uppercase}
+.dpg button{height:42px;border:0;border-radius:50%;background:none;color:var(--ink);font:500 15px/1 inherit;cursor:pointer;font-variant-numeric:tabular-nums}
+.dpg button:hover:not(:disabled){background:var(--chip)}
+.dpg button.td{box-shadow:inset 0 0 0 1.5px var(--sea)}
+.dpg button.on{background:var(--sea);color:var(--surface);font-weight:700}
+.dpg button:disabled{opacity:.25;cursor:default}
+.dpf{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+.dpf button{border:0;background:none;color:var(--sea);font:600 15px/1 inherit;padding:10px 8px;cursor:pointer}
+.dpf button:disabled{opacity:.3}
 </style></head><body>
 <header class="top" id="top" hidden></header>
 <main id="app"><p class="loading">…</p></main>
@@ -471,7 +497,7 @@ const T = {
     slot_manha:"Manhã", slot_tarde:"Tarde", slot_dia:"Dia todo", slot_noite:"Réveillon noturno", hours_noite:"passeio noturno de 7 horas", c_noite:"Noite",
     hours_manha:"10h às 14h", hours_tarde:"14h às 18h", hours_dia:"10h às 17h",
     sheetSub:"Toque no horário que já está alugado. Toque de novo para liberar.",
-    rented:"Alugada", inDay:"já incluída no dia todo", close:"Pronto",
+    rented:"Alugada", inDay:"já incluída no dia todo", close:"Pronto", dpPick:"Escolher data", dpToday:"Hoje", dpClear:"Limpar",
     saved:"Salvo! O site já mostra como indisponível.", freed:"Liberado! O site já mostra como disponível.", saveErr:"Não foi possível salvar. Confira a internet e tente de novo.",
     upcoming:"Próximos aluguéis", noneUp:"Nenhum dia alugado marcado ainda.",
     addNote:"+ Anotar dados do cliente", client:"Cliente", phone:"WhatsApp do cliente", country:"País", maxPeople:"até {n}", people:"Pessoas", value:"Valor do passeio (R$)", deposit:"Sinal já pago (R$)", obs:"Observações",
@@ -506,7 +532,7 @@ const T = {
     slot_manha:"Morning", slot_tarde:"Afternoon", slot_dia:"Full day", slot_noite:"New Year's Eve night", hours_noite:"7-hour night tour", c_noite:"Night",
     hours_manha:"10am to 2pm", hours_tarde:"2pm to 6pm", hours_dia:"10am to 5pm",
     sheetSub:"Tap the slot that is already rented. Tap again to free it.",
-    rented:"Rented", inDay:"already part of the full day", close:"Done",
+    rented:"Rented", inDay:"already part of the full day", close:"Done", dpPick:"Choose a date", dpToday:"Today", dpClear:"Clear",
     saved:"Saved! The website now shows it as unavailable.", freed:"Freed! The website now shows it as available.", saveErr:"Couldn't save. Check your internet and try again.",
     upcoming:"Upcoming rentals", noneUp:"No rented days marked yet.",
     addNote:"+ Add client details", client:"Client", phone:"Client's WhatsApp", country:"Country", maxPeople:"up to {n}", people:"People", value:"Tour price (R$)", deposit:"Deposit paid (R$)", obs:"Notes",
@@ -541,7 +567,7 @@ const T = {
     slot_manha:"Mañana", slot_tarde:"Tarde", slot_dia:"Día completo", slot_noite:"Nochevieja nocturno", hours_noite:"paseo nocturno de 7 horas", c_noite:"Noche",
     hours_manha:"10h a 14h", hours_tarde:"14h a 18h", hours_dia:"10h a 17h",
     sheetSub:"Toca el horario que ya está alquilado. Toca de nuevo para liberarlo.",
-    rented:"Alquilada", inDay:"ya incluida en el día completo", close:"Listo",
+    rented:"Alquilada", inDay:"ya incluida en el día completo", close:"Listo", dpPick:"Elegir fecha", dpToday:"Hoy", dpClear:"Borrar",
     saved:"¡Guardado! El sitio ya lo muestra como no disponible.", freed:"¡Liberado! El sitio ya lo muestra como disponible.", saveErr:"No se pudo guardar. Revisa internet e inténtalo de nuevo.",
     upcoming:"Próximos alquileres", noneUp:"Todavía no hay días alquilados marcados.",
     addNote:"+ Anotar datos del cliente", client:"Cliente", phone:"WhatsApp del cliente", country:"País", maxPeople:"hasta {n}", people:"Personas", value:"Valor del paseo (R$)", deposit:"Seña ya pagada (R$)", obs:"Observaciones",
@@ -4398,6 +4424,59 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
     if(qs.get("email")) typedEmail=qs.get("email");
     if((qs.get("nome")||qs.get("tel")) && !store.get("cli-draft")) store.set("cli-draft",{nome:qs.get("nome")||"", whatsapp:qs.get("tel")||""}); }
   if(ses){ view="main"; boot(); } else show();
+})();
+
+/* calendário próprio: todo <input type="date"> do app vira um botão que abre um calendário moderno (o input fica escondido e continua guardando o valor e disparando input/change) */
+(function(){
+  const VD=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value");
+  const p2=n=>String(n).padStart(2,"0"), ISO=(y,m,d)=>`${y}-${p2(m)}-${p2(d)}`;
+  const today=()=>{ const d=new Date(); return ISO(d.getFullYear(),d.getMonth()+1,d.getDate()); };
+  const loc=()=>{ try{ return t("locale"); }catch(e){ return "pt-BR"; } };
+  const tx=k=>{ try{ return t(k); }catch(e){ return ""; } };
+  const ICO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+  const label=v=>{ if(!v) return tx("dpPick"); const [y,m,d]=v.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(loc(),{weekday:"short",day:"numeric",month:"short",year:"numeric"}).replace(/\./g,""); };
+  function open(inp){
+    const min=inp.min||"1900-01-01", max=inp.max||"2100-12-31", sel=VD.get.call(inp), td=today();
+    let cur=(sel||(td<min?min:td>max?max:td)).slice(0,7);
+    const ov=document.createElement("div"); ov.className="dpov"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-modal","true");
+    const box=document.createElement("div"); box.className="dpbox"; ov.appendChild(box);
+    const close=()=>{ ov.remove(); document.removeEventListener("keydown",esc_); inp.__dpb&&inp.__dpb.focus(); };
+    const esc_=e=>{ if(e.key==="Escape") close(); };
+    const pick=v=>{ inp.value=v; inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true})); close(); };
+    const draw=()=>{
+      const [y,m]=cur.split("-").map(Number), first=new Date(y,m-1,1), n=new Date(y,m,0).getDate(), L=loc();
+      const wd=[...Array(7)].map((_,i)=>new Date(2023,0,1+i).toLocaleDateString(L,{weekday:"narrow"}));
+      const yMin=+min.slice(0,4), yMax=+max.slice(0,4), years=[]; for(let k=yMax;k>=yMin;k--) years.push(k);
+      const months=[...Array(12)].map((_,i)=>{ const a=ISO(y,i+1,1).slice(0,7); const ok=a>=min.slice(0,7)&&a<=max.slice(0,7); return `<option value="${i+1}"${i+1===m?" selected":""}${ok?"":" disabled"}>${new Date(2023,i,1).toLocaleDateString(L,{month:"long"}).replace(/^./,c=>c.toUpperCase())}</option>`; }).join("");
+      const days=[...Array(n)].map((_,i)=>{ const d=ISO(y,m,i+1), dis=d<min||d>max; return `<button type="button" data-d="${d}"${dis?" disabled":""} class="${d===sel?"on":""}${d===td?" td":""}" aria-label="${new Date(y,m-1,i+1).toLocaleDateString(L,{weekday:"long",day:"numeric",month:"long",year:"numeric"})}">${i+1}</button>`; }).join("");
+      box.innerHTML=`<div class="dph"><button type="button" data-cm="-1"${cur>min.slice(0,7)?"":" disabled"} aria-label="‹">‹</button><div class="dpsel"><select data-m aria-label="mês">${months}</select><select data-y aria-label="ano">${years.map(k=>`<option${k===y?" selected":""}>${k}</option>`).join("")}</select></div><button type="button" data-cm="1"${cur<max.slice(0,7)?"":" disabled"} aria-label="›">›</button></div>
+        <div class="dpg">${wd.map(w=>`<b>${w}</b>`).join("")}${"<i></i>".repeat(first.getDay())}${days}</div>
+        <div class="dpf"><button type="button" data-x>${inp.required?"":tx("dpClear")}</button><span><button type="button" data-t${td<min||td>max?" disabled":""}>${tx("dpToday")}</button><button type="button" data-c>${tx("close")}</button></span></div>`;
+      const go=(yy,mm)=>{ const d=new Date(yy,mm-1,1); let c=`${d.getFullYear()}-${p2(d.getMonth()+1)}`; if(c<min.slice(0,7)) c=min.slice(0,7); if(c>max.slice(0,7)) c=max.slice(0,7); cur=c; draw(); };
+      box.querySelectorAll("[data-cm]").forEach(b=>b.onclick=()=>go(y,m+(+b.dataset.cm)));
+      box.querySelector("[data-m]").onchange=e=>go(y,+e.target.value);
+      box.querySelector("[data-y]").onchange=e=>go(+e.target.value,m);
+      box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>pick(b.dataset.d));
+      const x=box.querySelector("[data-x]"); if(!x.textContent||!sel) x.style.visibility="hidden"; x.onclick=()=>pick("");
+      box.querySelector("[data-t]").onclick=()=>pick(td);
+      box.querySelector("[data-c]").onclick=close;
+    };
+    ov.onclick=e=>{ if(e.target===ov) close(); };
+    document.addEventListener("keydown",esc_);
+    draw(); document.body.appendChild(ov); (box.querySelector(".on")||box.querySelector(".td:not(:disabled)")||box.querySelector("[data-d]:not(:disabled)"))?.focus({preventScroll:true});
+  }
+  function enhance(inp){
+    if(inp.__dpb) return;
+    const b=document.createElement("button"); b.type="button"; b.className="dpb"+(inp.classList.contains("in")||inp.closest(".f")?"":" sm");
+    const sync=()=>{ const v=VD.get.call(inp); b.classList.toggle("empty",!v); b.innerHTML=`${ICO}<span>${label(v)}</span>`; };
+    Object.defineProperty(inp,"value",{configurable:true,get(){ return VD.get.call(this); },set(v){ VD.set.call(this,v); sync(); }});
+    inp.__dpb=b; inp.classList.add("dp-src"); inp.tabIndex=-1; if(inp.id) b.setAttribute("aria-describedby",inp.id);
+    b.onclick=()=>{ inp.classList.remove("miss"); open(inp); };
+    inp.after(b); sync();
+  }
+  const scan=r=>{ if(r.querySelectorAll) r.querySelectorAll('input[type="date"]:not(.dp-src)').forEach(enhance); };
+  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1){ if(n.matches('input[type="date"]')) enhance(n); else scan(n); } }))).observe(document.documentElement,{childList:true,subtree:true});
+  scan(document);
 })();
 </script>
 <script>
