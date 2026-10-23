@@ -53,7 +53,7 @@ async function email(uid: string, cid: number, autor: string, lancha: string, di
   if (lida?.email_em && Date.now() - Date.parse(lida.email_em) < 30 * 60 * 1000) return false;
   const { data } = await db.auth.admin.getUserById(uid);
   const u = data?.user;
-  if (!u?.email || !u.email_confirmed_at) return false;
+  if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
   const meta = { ...(u.user_metadata || {}) };
   const l = lang(meta.lang);
   const primeiro = String(meta.nome || meta.full_name || "").trim().split(" ")[0];

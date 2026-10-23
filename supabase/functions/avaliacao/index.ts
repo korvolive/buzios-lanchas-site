@@ -35,7 +35,7 @@ Deno.serve(async req => {
     if (!(await db.from("realizados").select("aconteceu").eq("bloqueio_id", b.id).eq("aconteceu", true).maybeSingle()).data) return json({ erro: "passeio não confirmado" }, 409);
     const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, telefone").eq("bloqueio_id", b.id).maybeSingle();
     let email = "", nome = an?.cliente || "";
-    if (an?.cliente_conta) email = (await db.auth.admin.getUserById(an.cliente_conta)).data.user?.email || "";
+    if (an?.cliente_conta) email = (await db.auth.admin.getUserById(an.cliente_conta)).data.user?.email?.replace(/^.*@sem-email\.lanchaembuzios\.com\.br$/, "") || ""; // conta só com WhatsApp: tenta o e-mail do convite
     if (!email) { const { data: c } = await db.from("convites").select("email, nome").eq("bloqueio_id", b.id).maybeSingle(); email = c?.email || ""; nome = c?.nome || nome; }
     email = email.trim().toLowerCase();
     if (!email) return json({ status: "sem_email" });

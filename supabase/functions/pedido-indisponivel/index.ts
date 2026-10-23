@@ -56,7 +56,7 @@ async function push(uid: string, mk: (l: string) => { title: string; body: strin
 async function email(uid: string, boat: string, d: string) {
   const { data } = await db.auth.admin.getUserById(uid);
   const u = data?.user;
-  if (!u?.email || !u.email_confirmed_at) return false;
+  if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
   const meta = { ...(u.user_metadata || {}) };
   const { data: c } = await db.from("clientes").select("nome, whatsapp").eq("user_id", uid).maybeSingle();
   const l = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : ddiLang(c?.whatsapp), t = T[l];
