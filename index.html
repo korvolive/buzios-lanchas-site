@@ -299,6 +299,16 @@ html.is-app #hdr-login{display:none}
 .rt-tap{margin:0 0 8px;font-size:14px;color:var(--muted)}
 .stop-dlg{border:0;padding:0;border-radius:18px;width:min(440px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow-y:auto;background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
 .stop-dlg::backdrop{background:rgba(4,24,32,.6)}
+.lead-dlg{padding:22px 20px 18px}
+.lead-dlg h3{margin:0 28px 6px 0;font:600 20px/1.25 var(--display,inherit)}
+.lead-dlg p{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.45}
+.lead-dlg label{display:block;margin:0 0 10px;font-size:13px;font-weight:600}
+.lead-dlg input,.lead-dlg select{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--ink) 22%,transparent);border-radius:10px;background:var(--surface);color:var(--ink);font:400 16px/1.2 var(--body)}
+.lead-dlg .lphone{display:flex;gap:6px}.lead-dlg .lphone select{width:auto;flex:0 0 auto}.lead-dlg .lphone input{flex:1;min-width:0}
+.lead-dlg .btn{width:100%;justify-content:center;margin-top:6px}
+.lead-dlg .lerr{color:#b3412c;font-size:13px;margin:4px 0 0;min-height:1em}
+.lead-dlg small{display:block;margin-top:10px;color:var(--muted);font-size:12px;line-height:1.4}
+.lead-dlg .lx{position:absolute;top:10px;right:10px;border:0;background:transparent;color:inherit;font-size:20px;cursor:pointer;padding:6px 10px}
 .stop-ph{aspect-ratio:4/3;max-height:42vh;width:100%;overflow:hidden;background:var(--chip);color:var(--muted);position:relative}
 .stop-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .stop-body{display:flex;gap:12px;padding:18px 18px 6px}
@@ -927,7 +937,7 @@ const UI = {
     checking:"Verificando a agenda…", busy:"<strong>Indisponível</strong> em {date} ({slot}). Escolha outro horário ou outra data.", unavail:"Indisponível",
     whenTitle:"Em qual período você vai estar em Búzios?", whenFrom:"Chegada", whenTo:"Saída", whenClear:"Limpar", periodMax:"O período pode ter no máximo 15 dias.", rangeOne:"em {d}", rangeTwo:"entre {de} e {ate}",
     whenFree:"{n} lanchas com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenFree1:"1 lancha com horário livre {range}{people}. Escolha a lancha e veja os dias e horários.", whenWa:"Olá! Vi no site Búzios Lanchas e vou estar em Búzios {range}. Gostaria de saber quais lanchas estão disponíveis{people}.", fitNone:"Nenhuma lancha para {people}. Fale com a gente no WhatsApp que encontramos uma opção.", whenNone:"Nenhuma lancha livre {range}{people}. Mude as datas ou fale com a gente no WhatsApp.",
-    askDate:"Consultar data no WhatsApp", askAvail:"Consultar disponibilidade no WhatsApp", copy:"Copiar", copied:"Copiado",
+    askDate:"Consultar data no WhatsApp", askAvail:"Consultar disponibilidade no WhatsApp", leadT:"Quase lá! Quem vai consultar?", leadSub:"Deixe seus dados para a gente te atender mais rápido. Depois é só mandar a mensagem no WhatsApp.", leadName:"Nome", leadWa:"WhatsApp", leadEmail:"E-mail", leadGo:"Chamar no WhatsApp", leadPriv:"Usamos seus dados só para responder a sua consulta. A lancha não fica reservada até a confirmação do sinal.", leadBadName:"Digite o seu nome.", leadBadWa:"Confira o número do WhatsApp.", leadBadEmail:"Confira o e-mail.", leadMe:"Meu nome é {n}.", leadClose:"Fechar", copy:"Copiar", copied:"Copiado",
     operNote:"A Búzios Lanchas reúne as lanchas e conecta você ao dono de cada uma. O passeio é feito pelo dono da embarcação, que responde pela lancha, pela tripulação e pela segurança a bordo.", legalNote:"A Búzios Lanchas é uma plataforma que intermedeia a reserva entre clientes e donos de lanchas. Cada passeio é operado e de responsabilidade do dono da embarcação.", fine:"Valores por lancha e não por pessoa, conforme a data e o horário. Consulte condições especiais para dias de semana. Sinal garante a data. Remarcação sem custo em caso de mar inseguro.",
     slot_dia:"10h às 17h", slot_manha:"10h às 14h", slot_tarde:"14h às 18h", slot_noite:"Réveillon noturno",
     waNight:"Olá! Vi no site Búzios Lanchas e gostaria de consultar a disponibilidade da lancha {name} para o passeio noturno de Réveillon em {date} (7 horas), para {people}.",
@@ -982,7 +992,7 @@ const UI = {
     checking:"Checking availability…", busy:"<strong>Unavailable</strong> on {date} ({slot}). Pick another time or date.", unavail:"Unavailable",
     whenTitle:"When will you be in Búzios?", whenFrom:"Arrival", whenTo:"Departure", whenClear:"Clear", periodMax:"The period can be at most 15 days.", rangeOne:"on {d}", rangeTwo:"between {de} and {ate}",
     whenFree:"{n} boats with free times {range}{people}. Pick a boat to see the days and times.", whenFree1:"1 boat with free times {range}{people}. Pick the boat to see the days and times.", whenWa:"Hi! I saw the Búzios Lanchas website and I'll be in Búzios {range}. I'd like to know which boats are available{people}.", fitNone:"No boat for {people}. Message us on WhatsApp and we'll find an option.", whenNone:"No boats available {range}{people}. Change the dates or message us on WhatsApp.",
-    askDate:"Ask about dates on WhatsApp", askAvail:"Check availability on WhatsApp", copy:"Copy", copied:"Copied",
+    askDate:"Ask about dates on WhatsApp", askAvail:"Check availability on WhatsApp", leadT:"Almost there! Who is asking?", leadSub:"Leave your details so we can help you faster. Then just send the message on WhatsApp.", leadName:"Name", leadWa:"WhatsApp", leadEmail:"Email", leadGo:"Message us on WhatsApp", leadPriv:"We only use your details to answer your request. The boat is not booked until the deposit is confirmed.", leadBadName:"Enter your name.", leadBadWa:"Check the WhatsApp number.", leadBadEmail:"Check the email.", leadMe:"My name is {n}.", leadClose:"Close", copy:"Copy", copied:"Copied",
     operNote:"Búzios Lanchas brings the boats together and connects you with each owner. The tour is run by the boat owner, who is responsible for the boat, the crew and safety on board.", legalNote:"Búzios Lanchas is a platform that arranges bookings between customers and boat owners. Each tour is run by, and is the responsibility of, the boat owner.", fine:"Prices are per boat, not per person, based on the date and time. Ask about special weekday rates. A deposit secures your date. Free rescheduling if the sea is unsafe.",
     slot_dia:"10am to 5pm", slot_manha:"10am to 2pm", slot_tarde:"2pm to 6pm", slot_noite:"New Year's Eve night",
     waNight:"Hi! I saw the Búzios Lanchas website and would like to check the availability of the boat {name} for the New Year's Eve night tour on {date} (7 hours), for {people}.",
@@ -1037,7 +1047,7 @@ const UI = {
     checking:"Verificando la agenda…", busy:"<strong>No disponible</strong> el {date} ({slot}). Elige otro horario u otra fecha.", unavail:"No disponible",
     whenTitle:"¿En qué fechas vas a estar en Búzios?", whenFrom:"Llegada", whenTo:"Salida", whenClear:"Borrar", periodMax:"El período puede tener como máximo 15 días.", rangeOne:"el {d}", rangeTwo:"entre el {de} y el {ate}",
     whenFree:"{n} lanchas con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenFree1:"1 lancha con horarios libres {range}{people}. Elige la lancha y mira los días y horarios.", whenWa:"¡Hola! Vi el sitio de Búzios Lanchas y voy a estar en Búzios {range}. Quisiera saber qué lanchas están disponibles{people}.", fitNone:"Ninguna lancha para {people}. Escríbenos por WhatsApp y encontramos una opción.", whenNone:"Ninguna lancha libre {range}{people}. Cambia las fechas o escríbenos por WhatsApp.",
-    askDate:"Consultar fecha por WhatsApp", askAvail:"Consultar disponibilidad por WhatsApp", copy:"Copiar", copied:"Copiado",
+    askDate:"Consultar fecha por WhatsApp", askAvail:"Consultar disponibilidad por WhatsApp", leadT:"¡Casi listo! ¿Quién consulta?", leadSub:"Deja tus datos para atenderte más rápido. Después solo envía el mensaje por WhatsApp.", leadName:"Nombre", leadWa:"WhatsApp", leadEmail:"Correo electrónico", leadGo:"Escribir por WhatsApp", leadPriv:"Usamos tus datos solo para responder tu consulta. La lancha no queda reservada hasta confirmar la seña.", leadBadName:"Escribe tu nombre.", leadBadWa:"Revisa el número de WhatsApp.", leadBadEmail:"Revisa el correo electrónico.", leadMe:"Me llamo {n}.", leadClose:"Cerrar", copy:"Copiar", copied:"Copiado",
     operNote:"Búzios Lanchas reúne las lanchas y te conecta con el dueño de cada una. El paseo lo hace el dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo.", legalNote:"Búzios Lanchas es una plataforma que intermedia la reserva entre clientes y dueños de lanchas. Cada paseo es operado por el dueño de la embarcación y es de su responsabilidad.", fine:"Precios por lancha y no por persona, según la fecha y el horario. Consulta condiciones especiales para días de semana. La seña asegura la fecha. Reprogramación sin costo si el mar no está seguro.",
     slot_dia:"10 h a 17 h", slot_manha:"10 h a 14 h", slot_tarde:"14 h a 18 h", slot_noite:"Nochevieja nocturno",
     waNight:"¡Hola! Vi el sitio de Búzios Lanchas y quisiera consultar la disponibilidad de la lancha {name} para el paseo nocturno de Nochevieja el {date} (7 horas), para {people}.",
@@ -1580,6 +1590,50 @@ function loadVend(){
   if(lsGet("dono-ses")?.refresh_token) jobs.push(clientToken().then(tok=>vRpc("meu_vendedor",{},tok)).then(r=>{ if(r[0]) ME=r[0]; }).catch(()=>{}));
   if(jobs.length) Promise.all(jobs).then(()=>{ applyStatic(); if(VEND||ME){ const y=scrollY; render(false); scrollTo(0,y); } });
 }
+/* consulta rápida (Rodrigo 2026-10-23): a janelinha pede nome, WhatsApp e e-mail, guarda uma pré-reserva que não bloqueia a lancha
+   (o administrador aprova ou recusa no app) e abre o WhatsApp com a mensagem pronta */
+const LEAD_DDI = [["BR","55"],["AR","54"],["CL","56"],["UY","598"],["PY","595"],["PT","351"],["US","1"]];
+function openLead(b){
+  let dl=document.getElementById("lead-dlg");
+  if(dl) dl.remove(); /* uma janelinha nova por consulta (cada uma com a sua chave) */
+  { dl=document.createElement("dialog"); dl.id="lead-dlg"; dl.className="stop-dlg lead-dlg"; dl.setAttribute("aria-labelledby","lead-t"); document.body.appendChild(dl); }
+  const meta=isClient() ? (lsGet("dono-ses")?.user||{}) : {}, sv={...(lsGet("consulta-dados")||{})};
+  const nome=sv.nome || meta.user_metadata?.nome || "", email=sv.email || (/@sem-email\./.test(meta.email||"") ? "" : meta.email||"");
+  const reg=detectReg(), ddi=sv.ddi || (LEAD_DDI.find(x=>x[0]===reg)||LEAD_DDI[0])[1];
+  const flag=r=>r.replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
+  dl.innerHTML=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button><h3 id="lead-t">${t("leadT")}</h3><p>${t("leadSub")}</p>
+    <label>${t("leadName")}<input id="ld-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(nome)}"></label>
+    <label>${t("leadWa")}<span class="lphone"><select id="ld-c" aria-label="DDI">${LEAD_DDI.map(([r,c])=>`<option value="${c}"${c===ddi?" selected":""}>${flag(r)} +${c}</option>`).join("")}</select><input id="ld-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(sv.tel||"")}" placeholder="${ddi==="55"?"(22) 99999-9999":""}"></span></label>
+    <label>${t("leadEmail")}<input id="ld-e" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(email)}"></label>
+    <p class="lerr" id="ld-err" aria-live="polite"></p>
+    <a class="btn" id="ld-go" href="#" target="_blank" rel="noopener">${t("leadGo")}</a>
+    <small>${t("leadPriv")}</small>`;
+  const $=id=>dl.querySelector("#"+id), go=$("ld-go");
+  const read=()=>({nome:$("ld-n").value.trim().replace(/\s+/g," "), ddi:$("ld-c").value, tel:$("ld-w").value.trim(), email:$("ld-e").value.trim().toLowerCase()});
+  const bad=v=>{ const d=v.tel.replace(/\D/g,""); return v.nome.length<2 ? ["ld-n","leadBadName"] : (v.ddi==="55" ? !/^\d{10,11}$/.test(d) : d.length<6||d.length>13) ? ["ld-w","leadBadWa"] : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email) ? ["ld-e","leadBadEmail"] : null; };
+  /* o link já fica pronto a cada letra: o toque abre o WhatsApp direto (sem bloqueio de pop-up) */
+  const upd=()=>{ const v=read(); go.href = bad(v) ? "#" : waBook(b,pick.date,pick.slot,pick.people,pick.board).replace(/(\?text=)(.*)$/, (m,a,x)=>a+x+encodeURIComponent("\n\n"+t("leadMe",{n:v.nome}))); };
+  /* a consulta é salva assim que os dados ficam certos (3 s sem digitar), mesmo sem tocar no botão:
+     se em 60 segundos ele não chamar no WhatsApp, o administrador recebe um aviso para chamar ele (Rodrigo 2026-10-23) */
+  const k=(crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
+  let timer=0, avisou=false;
+  const save=(v,chamou)=>fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
+      body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang})})
+    .then(r=>{ if(r.ok && !chamou && !avisou){ avisou=true; fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{}); } }).catch(()=>{});
+  const later=()=>{ clearTimeout(timer); timer=setTimeout(()=>{ const v=read(); if(!bad(v)) save(v,false); },3000); };
+  dl.querySelectorAll("input,select").forEach(x=>x.oninput=x.onchange=()=>{ $("ld-err").textContent=""; upd(); later(); });
+  dl.addEventListener("close",()=>{ clearTimeout(timer); const v=read(); if(!bad(v) && !dl.dataset.go) save(v,false); },{once:true}); /* fechou a janelinha com os dados certos: também vale */
+  upd(); if(!bad(read())) later();
+  go.onclick=e=>{ const v=read(), w=bad(v);
+    if(w){ e.preventDefault(); $("ld-err").textContent=t(w[1]); $(w[0]).focus(); return; }
+    try{ localStorage.setItem("consulta-dados",JSON.stringify(v)); }catch(err){}
+    track("reserva_whatsapp",b); clearTimeout(timer); dl.dataset.go="1"; save(v,true);
+    setTimeout(()=>dl.close(),300); };
+  dl.querySelector(".lx").onclick=()=>dl.close();
+  dl.onclick=e=>{ if(e.target===dl) dl.close(); };
+  if(!dl.open) dl.showModal();
+  if(!nome) $("ld-n").focus();
+}
 async function showBoatStatus(b){
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
@@ -1601,6 +1655,7 @@ async function showBoatStatus(b){
     document.getElementById("pk-people").classList.toggle("pk-missing",!pick.people);
     out.innerHTML=`<p class="pk-res busy need">${t("needAll")}</p>`; };
   btn.onclick = e => { if(btn.dataset.ready){
+      if(!FOREIGN && !isTeam() && !viaVend(b) && !ME){ e.preventDefault(); return openLead(b); } /* consulta rápida: nome, WhatsApp e e-mail antes (Rodrigo 2026-10-23) */
       track("reserva_whatsapp",b); /* consultar é só uma conversa no WhatsApp: pedido só pelo Reservar online (Rodrigo 2026-10-23) */
       return; }
     e.preventDefault(); missing(); };
