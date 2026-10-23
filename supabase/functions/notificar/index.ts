@@ -52,9 +52,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Pedido nuevo desde el sitio", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas` }),
   },
   fim: {
-    pt: p => ({ title: "Passeio terminou: confirme", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirme que foi concluído e que não há saldo pendente para o cliente poder avaliar." : "Confirme que aconteceu para o cliente poder avaliar."}` }),
-    en: p => ({ title: "Trip ended: please confirm", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}` }),
-    es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para que el cliente pueda evaluar." : "Confirma que ocurrió para que el cliente pueda evaluar."}` }),
+    pt: p => ({ title: "Passeio terminou: confirme", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirme que foi concluído e que não há saldo pendente para o cliente poder avaliar." : "Confirme que aconteceu para o cliente poder avaliar."}${p.com ? ` 💼 Comissão de ${p.com.nome}: ${COMV(p)}.` : ""}` }),
+    en: p => ({ title: "Trip ended: please confirm", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}${p.com ? ` 💼 Commission for ${p.com.nome}: ${COMV(p)}.` : ""}` }),
+    es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para que el cliente pueda evaluar." : "Confirma que ocurrió para que el cliente pueda evaluar."}${p.com ? ` 💼 Comisión de ${p.com.nome}: ${COMV(p)}.` : ""}` }),
   },
   marinheiro: {
     pt: p => ({ title: "Você vai pilotar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Toque para ver o passeio.` }),
@@ -77,9 +77,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Nuevo lugar de embarque", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}: el embarque ahora es en ${p.embarque}.` }),
   },
   avaliar: {
-    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Você ganhou um cupom de ${p.cup.valor} para usar em qualquer lancha do site até ${p.cup.ate}.` : ""}` }),
-    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 You earned a ${p.cup.valor} coupon for any boat on the website, valid until ${p.cup.ate}.` : ""}` }),
-    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Ganaste un cupón de ${p.cup.valor} para cualquier lancha del sitio, válido hasta ${p.cup.ate}.` : ""}` }),
+    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie e ganhe um cupom de ${p.cup.valor} para o seu próximo passeio.` : ""}` }),
+    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate it and get a ${p.cup.valor} coupon for your next tour.` : ""}` }),
+    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica y gana un cupón de ${p.cup.valor} para tu próximo paseo.` : ""}` }),
   },
   inicio: {
     pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
@@ -122,24 +122,23 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
 
 // cupom de fidelidade do passeio: vai junto do pedido de avaliação, no celular e no e-mail (Rodrigo 2026-10-23)
 const CUP_TXT: Record<string, (c: any) => string> = {
-  pt: c => `🎁 Você ganhou um cupom de ${c.valor} para usar em qualquer lancha do site da Búzios Lanchas, válido por 6 meses (até ${c.ate}).`,
-  en: c => `🎁 You earned a ${c.valor} coupon to use on any boat on the Búzios Lanchas website, valid for 6 months (until ${c.ate}).`,
-  es: c => `🎁 Ganaste un cupón de ${c.valor} para usar en cualquier lancha del sitio de Búzios Lanchas, válido por 6 meses (hasta ${c.ate}).`,
+  pt: c => `🎁 Avalie e ganhe um cupom de ${c.valor} para o seu próximo passeio em qualquer lancha do site, válido por 6 meses.`,
+  en: c => `🎁 Rate your tour and get a ${c.valor} coupon for your next tour on any boat on the website, valid for 6 months.`,
+  es: c => `🎁 Califica y gana un cupón de ${c.valor} para tu próximo paseo en cualquier lancha del sitio, válido por 6 meses.`,
 };
 const CUP_USO: Record<string, string> = {
-  pt: "Para usar o cupom, entre no site com a sua conta e, na hora de reservar, toque em Usar meu cupom.",
-  en: "To use the coupon, sign in on the website and, when booking, tap Use my coupon.",
-  es: "Para usar el cupón, entra al sitio con tu cuenta y, al reservar, toca Usar mi cupón.",
+  pt: "O cupom aparece na sua conta assim que você avaliar. Para usar, na hora de reservar toque em Usar meu cupom.",
+  en: "The coupon shows up in your account as soon as you rate. To use it, tap Use my coupon when booking.",
+  es: "El cupón aparece en tu cuenta en cuanto califiques. Para usarlo, al reservar toca Usar mi cupón.",
 };
 async function cupomDo(bid: number, cli: string) {
-  const { error } = await db.rpc("gerar_cupons", { uid: cli }); // o cupom nasce no fim do passeio; garante que já existe
-  if (error) console.error("cupom", error.message);
-  const { data: ps } = await db.from("pedidos").select("id").eq("bloqueio_id", bid).eq("cliente", cli);
-  if (!ps?.length) return null;
-  const { data: c } = await db.from("cupons").select("id, valor, expira_em").in("origem_pedido", ps.map(p => p.id)).is("pedido", null).limit(1).maybeSingle();
-  if (!c) return null;
-  await db.from("cupons").update({ avisado_em: new Date().toISOString() }).eq("id", c.id);
-  return { valor: `R$ ${Math.round(+c.valor)}`, ate: dataBR(c.expira_em) };
+  // cupom só nasce depois que o cliente avalia (Rodrigo 2026-10-23): aqui só promete o valor
+  const { data: p } = await db.from("pedidos").select("id, lancha, vendedor").eq("bloqueio_id", bid).eq("cliente", cli).eq("status", "aprovado").limit(1).maybeSingle();
+  if (!p) return null;
+  const { data: b } = await db.from("bloqueios").select("data").eq("id", bid).maybeSingle();
+  if (!b || b.data < "2026-10-22") return null;
+  if ((await db.from("avaliacoes").select("pedido_id").eq("pedido_id", p.id).maybeSingle()).data) return null; // já avaliou
+  return { valor: `R$ ${p.lancha === "miss-bardot" && !p.vendedor ? 100 : 50}` };
 }
 
 // e-mail pelo Supabase (modelo "Magic Link", SMTP da Brevo): com user_metadata.msg preenchido o modelo mostra esta mensagem,
@@ -202,9 +201,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${p.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cup ? [CUP_TXT.es(p.cup)] : [])], nota: `${p.cup ? CUP_USO.es + " " : ""}La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir. Puedes cambiarla hasta 7 días.`, botao: "Evaluar el paseo" }),
   },
   fim: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Terminou um passeio na ${p.lancha}. ${p.fora ? "Confirme que ele foi concluído e que não há saldo pendente para liberar a avaliação do cliente." : "Confirme se ele aconteceu para liberar a avaliação do cliente."}`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abra o app na aba Passeios: o passeio está no topo, em \"Passeios pendentes de confirmação\".", botao: "Confirmar o passeio" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : [])], nota: "Open the app on the Tours tab: the tour is at the top, under \"Tours waiting for confirmation\".", botao: "Confirm the tour" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para liberar la evaluación del cliente." : "Confirma si ocurrió para liberar la evaluación del cliente."}`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Abre la app en la pestaña Paseos: el paseo está arriba, en \"Paseos pendientes de confirmación\".", botao: "Confirmar el paseo" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Terminou um passeio na ${p.lancha}. ${p.fora ? "Confirme que ele foi concluído e que não há saldo pendente para liberar a avaliação do cliente." : "Confirme se ele aconteceu para liberar a avaliação do cliente."}`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.com ? [`💼 Comissão do vendedor ${p.com.nome}: ${COMV(p)}. Lembre de pagar depois de confirmar (Reservas › Histórico › Marcar comissão paga).`] : [])], nota: "Abra o app na aba Passeios: o passeio está no topo, em \"Passeios pendentes de confirmação\".", botao: "Confirmar o passeio" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...(p.com ? [`💼 Seller commission for ${p.com.nome}: ${COMV(p)}. Remember to pay it after confirming (Bookings › History › Mark commission paid).`] : [])], nota: "Open the app on the Tours tab: the tour is at the top, under \"Tours waiting for confirmation\".", botao: "Confirm the tour" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para liberar la evaluación del cliente." : "Confirma si ocurrió para liberar la evaluación del cliente."}`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.com ? [`💼 Comisión del vendedor ${p.com.nome}: ${COMV(p)}. Recuerda pagarla después de confirmar (Reservas › Historial › Marcar comisión pagada).`] : [])], nota: "Abre la app en la pestaña Paseos: el paseo está arriba, en \"Paseos pendientes de confirmación\".", botao: "Confirmar el paseo" }),
   },
   inicio: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Seu passeio na ${p.lancha} começa em breve!`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "pt")] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), ...(p.buzios ? ["Búzios Lanchas: WhatsApp (21) 99927-2550"] : [])], nota: "Chegue ao local de embarque uns 10 minutos antes. Qualquer imprevisto, fale com o dono da lancha. Bom passeio!", botao: "Ver minha reserva" }),
@@ -253,6 +252,16 @@ async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" |
   return true;
 }
 
+// comissão do vendedor no aviso de fim (Rodrigo 2026-10-23: lembrar de pagar o vendedor)
+const COMV = (p: any) => `R$ ${Number(p.com.valor).toLocaleString("pt-BR")}`;
+async function comissaoDe(bid: number) {
+  const { data: pd } = await db.from("pedidos").select("vendedor, vendedor_cod, preco_base, preco_cliente, comissao_paga").eq("bloqueio_id", bid).maybeSingle();
+  const valor = pd && pd.vendedor && !pd.comissao_paga ? Number(pd.preco_cliente || 0) - Number(pd.preco_base || 0) : 0;
+  if (!(valor > 0)) return null;
+  const nome = (await db.from("perfis").select("nome").eq("user_id", pd.vendedor).maybeSingle()).data?.nome
+    || (await db.from("clientes").select("nome").eq("user_id", pd.vendedor).maybeSingle()).data?.nome || pd.vendedor_cod || "vendedor";
+  return { nome: String(nome).trim().split(" ")[0], valor };
+}
 // fim do passeio no horário de Búzios (UTC-3): hora_fim combinada, senão o fim do horário padrão; a noite só conta no dia seguinte
 const FIM: Record<string, number> = { manha: 14, tarde: 18, dia: 17, noite: 99 };
 const FORA_DESDE = "2026-10-21"; // passeios de fora: o dono confirma a partir desta data (os antigos não entram)
@@ -286,9 +295,10 @@ async function fins() {
   const nomesPs = Object.fromEntries((ps || []).map(x => [x.user_id, x.nome]));
   for (const b of prontos.filter(b => ok.has(b.id))) {
     const a = um(b.anotacoes), fora = a?.origem !== "buzios", alvo = fora ? donos.get(b.lancha) || [] : adms;
-    n += await enviar(alvo, "fim", { id: b.id, lancha: nomes.get(b.lancha), data: b.data, horario: b.horario, cliente: a?.cliente || "", fora }, "/login/");
+    const com = fora ? null : await comissaoDe(b.id).catch(e => (console.error("comissao", e), null)); // só o administrador paga comissão
+    n += await enviar(alvo, "fim", { id: b.id, lancha: nomes.get(b.lancha), data: b.data, horario: b.horario, cliente: a?.cliente || "", fora, com }, "/login/");
     // também por e-mail, para confirmar o quanto antes mesmo sem o aviso no celular
-    for (const ad of alvo) await mandarEmail(ad, "fim", { b, a, lancha: nomes.get(b.lancha), data: dataBR(b.data), cliente: a?.cliente || "", fora, nomes: nomesPs }).catch(e => console.error(e));
+    for (const ad of alvo) await mandarEmail(ad, "fim", { b, a, lancha: nomes.get(b.lancha), data: dataBR(b.data), cliente: a?.cliente || "", fora, com, nomes: nomesPs }).catch(e => console.error(e));
   }
   return n;
 }
