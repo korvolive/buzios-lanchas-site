@@ -119,7 +119,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .mnp small{flex-basis:100%;color:var(--muted);font-size:12px}
 .apct{display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center;margin:8px 0 2px}
 .apct input{width:84px}.ocup span{flex:1;min-width:200px}.ocup .btn{flex:none;margin:0;padding:6px 12px;font-size:13px;min-height:0;width:auto}.ocup .chpx{flex:none;border:0;background:none;font-size:15px;cursor:pointer;color:inherit;padding:2px 6px}.pnudge{display:flex;align-items:center;gap:8px;margin:0 0 14px}.pnudge span{flex:1;min-width:0}.pnudge .btn{flex:none;margin:0;padding:6px 12px;font-size:13px;min-height:0;width:auto}.pnudge .chpx{flex:none;border:0;background:none;font-size:15px;cursor:pointer;color:inherit;padding:2px 6px}.chhead small{display:block;color:var(--muted)}.espl{list-style:none;padding:0;margin:0 0 12px}.espl li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line,#e3e8ec)}.espl li span{flex:1}
-.espl li .espb{flex:none;display:flex;gap:14px}.espl small{display:block;color:var(--muted)}.espf .espn{grid-column:1/-1}.espc .btn+.btn{margin-top:8px}.espf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.espf label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.espf .in{width:100%;min-width:0;box-sizing:border-box}@media(max-width:560px){.chhead{flex-wrap:wrap}.chhead>div{flex:1;min-width:0;margin-right:52px}.chhead .chact{margin:0;width:100%;justify-content:flex-end}}
+.espl li .espb{flex:none;display:flex;gap:14px}.espl small{display:block;color:var(--muted)}.espf .espn{grid-column:1/-1}.espc .btn+.btn{margin-top:8px}.espin{margin-top:22px;padding-top:18px;border-top:1px solid rgba(127,127,127,.3)}.espf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.espf label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.espf .in{width:100%;min-width:0;box-sizing:border-box}@media(max-width:560px){.chhead{flex-wrap:wrap}.chhead>div{flex:1;min-width:0;margin-right:52px}.chhead .chact{margin:0;width:100%;justify-content:flex-end}}
 .chlist{display:flex;flex-direction:column;gap:6px;height:min(52vh,460px);overflow:auto;padding:6px 2px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .chm{max-width:86%;align-self:flex-start;background:var(--chip);border-radius:14px 14px 14px 4px;padding:8px 10px;font-size:15px}
 .chm.me{align-self:flex-end;background:color-mix(in srgb,var(--full) 18%,var(--surface));border-radius:14px 14px 4px 14px}
@@ -1780,7 +1780,7 @@ function pricesHTML(){
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
       ${pc ? pairHTML("ds", k, dsGet(S.prices.desc_semana)) : ""}</div>`).join("")}
     ${pc ? ["reveillon","pico"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
-    <button class="btn" id="prsave">${t("pricesSave")}</button>`);
+    <button class="btn" id="prsave">${t("pricesSave")}</button>${espHTML()}`);
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
 const prBrOf = c => { const x=app.querySelector(`[data-br="${c}"]`); return x ? (x.value.trim()===""?0:+x.value) : S.neto?.[c]?.comissao || 0; };
@@ -1878,7 +1878,7 @@ const espList = () => (Array.isArray(S.prices?.especiais) ? S.prices.especiais :
 function espHTML(){
   if(!S.admin || !ESP_BOATS.includes(S.cur) || !S.prices || !("especiais" in S.prices)) return "";
   const L=espList(), d=x=>x.split("-").reverse().join("/"), E=S.espEdit ? L.find(e=>e.de+"|"+e.ate===S.espEdit) : null, v=x=>x==null?"":esc(String(x));
-  return `<div class="card espc"><h2>⭐ ${t("espT")}</h2><p class="muted" style="margin-top:0">${t("espSub")}</p>
+  return `<div class="espc espin"><h2>⭐ ${t("espT")}</h2><p class="muted" style="margin-top:0">${t("espSub")}</p>
     ${L.length ? `<ul class="espl">${L.map((e,i)=>`<li><span><b>${esc(e.nome||t("espTag"))}</b><small>${d(e.de)}${e.ate!==e.de?" – "+d(e.ate):""}</small><small>${e.v4>0?"4h "+brl(e.v4):""}${e.v4>0&&e.v7>0?" · ":""}${e.v7>0?"7h "+brl(e.v7):""}</small></span><span class="espb"><button type="button" class="link" data-espedit="${e.de}|${e.ate}">${t("espEdit")}</button><button type="button" class="link" data-espdel="${e.de}|${e.ate}">${t("espDel")}</button></span></li>`).join("")}</ul>` : `<p class="muted">${t("espNone")}</p>`}
     ${S.espOpen || S.espEdit || !L.length ? `<div class="espf"><label class="espn">${t("espNome")}<input type="text" class="in" id="espnome" maxlength="40" placeholder="${t("espNomePh")}" value="${v(E?.nome)}"></label><label>${t("espDe")}<input type="date" class="in" id="espde" min="${E && E.de<todayISO() ? E.de : todayISO()}" value="${v(E?.de)}"></label><label>${t("espAte")}<input type="date" class="in" id="espate" min="${todayISO()}" value="${v(E?.ate)}"></label>
     <label>${t("espV4")}<input type="number" class="in" id="espv4" inputmode="numeric" min="0" max="9999" step="50" placeholder="R$" value="${v(E?.v4)}"></label><label>${t("espV7")}<input type="number" class="in" id="espv7" inputmode="numeric" min="0" max="9999" step="50" placeholder="R$" value="${v(E?.v7)}"></label></div>
@@ -3300,7 +3300,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? boatInfoHTML() + pricesHTML() + espHTML() + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   bindMain();
 }
