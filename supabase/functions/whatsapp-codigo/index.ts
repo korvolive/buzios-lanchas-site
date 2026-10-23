@@ -5,13 +5,15 @@
 // POST { acao: "status" }              -> { configurado }
 // POST { acao: "enviar", lang }        -> { ok } | { erro: "espere" | "limite" | "sem_whatsapp" | "ja_confirmado" | "nao_configurado" | "envio" }
 // POST { acao: "confirmar", codigo }   -> { ok } | { erro: "codigo" | "expirou" | "tentativas" }
-// Segredos (Supabase > Edge Functions > Secrets, colados pelo Rodrigo): WA_TOKEN, WA_PHONE_ID; opcional WA_TEMPLATE (padrão codigo_verificacao).
+// Segredos (Supabase > Edge Functions > Secrets, colados pelo Rodrigo): WA_TOKEN, WA_PHONE_ID; WA_ATIVO=1 (liga para os clientes); opcional WA_TEMPLATE (padrão codigo_verificacao).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, apikey, content-type, x-client-info", "access-control-allow-methods": "POST, OPTIONS" };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const TOKEN = Deno.env.get("WA_TOKEN") || "", PHONE = Deno.env.get("WA_PHONE_ID") || "", TEMPLATE = Deno.env.get("WA_TEMPLATE") || "codigo_verificacao";
+/* WA_ATIVO=1 liga a confirmação para os clientes: só depois que a Meta aprovar o modelo (até lá o quadro fica escondido) */
+const ATIVO = Deno.env.get("WA_ATIVO") === "1";
 const LANG: Record<string, string> = { pt: "pt_BR", en: "en", es: "es" };
 const dig = (s: string) => String(s || "").replace(/\D/g, "");
 const ESPERA_S = 60, VALIDO_MIN = 10, MAX_TENT = 5; /* limites por dia: no banco (wa_reservar) */
@@ -29,7 +31,7 @@ Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
     const body = await req.json().catch(() => ({}));
-    if (body.acao === "status") return json({ configurado: !!(TOKEN && PHONE) });
+    if (body.acao === "status") return json({ configurado: !!(TOKEN && PHONE && ATIVO) });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     const uid = (await db.auth.getUser(token)).data?.user?.id;
     if (!uid) return json({ erro: "login" }, 401);
@@ -40,7 +42,7 @@ Deno.serve(async req => {
     const { data: w } = await db.from("wa_codigos").select("*").eq("user_id", uid).maybeSingle();
 
     if (body.acao === "enviar") {
-      if (!TOKEN || !PHONE) return json({ erro: "nao_configurado" }, 503);
+      if (!TOKEN || !PHONE || !ATIVO) return json({ erro: "nao_configurado" }, 503);
       /* reserva o envio no banco de uma vez só (60 s, 5 por dia por conta e por número, 200 por dia no total): pedidos ao mesmo tempo não passam juntos */
       const { data: res } = await db.rpc("wa_reservar", { u: uid, t: tel }).maybeSingle();
       if (!res) return json({ erro: w && Date.now() - new Date(w.ultimo_envio).getTime() < ESPERA_S * 1000 ? "espere" : "limite" }, 429);
