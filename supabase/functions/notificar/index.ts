@@ -217,7 +217,7 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
 async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "avaliar" | "fim" | "inicio" | "avisarCli", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
-  if (!u?.email || !u.email_confirmed_at) return false;
+  if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
   const meta = { ...(u.user_metadata || {}) };
   const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : "pt";
   const nome = p.nomes?.[userId] || meta.nome || meta.full_name || "";

@@ -1,7 +1,7 @@
 // Búzios Lanchas: entrar com o celular (WhatsApp) e a senha.
-// Toda conta tem e-mail (confirmado por código no cadastro); aqui o celular só serve para achar a conta.
+// Toda conta tem e-mail no Supabase; quem se cadastrou só com o WhatsApp tem um e-mail que não existe (@sem-email...), que nunca recebe nada.
 // POST { tel, senha }        -> a sessão (igual ao login por e-mail), { erro: "sem_conta" }, { erro: "senha" } ou { erro: "confirmar", email }
-// POST { tel, recuperar: 1 } -> manda o e-mail de nova senha para a conta desse celular (devolve o e-mail só mascarado)
+// POST { tel, recuperar: 1 } -> manda o e-mail de nova senha para a conta desse celular (devolve o e-mail só mascarado), ou { erro: "sem_email" } (troca pelo WhatsApp)
 // O e-mail da conta nunca volta para quem só sabe o celular.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -12,6 +12,7 @@ const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: 
 const dig = (x: unknown) => String(x || "").replace(/\D/g, "");
 // e-mail só com o começo e o domínio (ro•••@gmail.com), para a pessoa saber onde procurar o link
 const mascara = (e: string) => { const [u, d] = e.split("@"); return `${u.slice(0, 2)}•••@${d}`; };
+const SEM = "@sem-email.lanchaembuzios.com.br";
 
 // contas com esse celular: clientes (WhatsApp do cadastro) e equipe (perfis)
 async function contas(d: string) {
@@ -23,7 +24,17 @@ async function contas(d: string) {
   const emails: string[] = [];
   for (const id of [...ids].slice(0, 3)) {
     const { data } = await db.auth.admin.getUserById(id);
-    if (data?.user?.email) emails.push(data.user.email);
+    const u = data?.user; if (!u?.email) continue;
+    // conta só com WhatsApp que começou a pôr um e-mail e não confirmou: volta para sem e-mail, para conseguir entrar
+    if (u.user_metadata?.email_pendente && !u.email_confirmed_at) {
+      const { data: c } = await db.from("clientes").select("whatsapp, whatsapp_ok_em").eq("user_id", id).maybeSingle();
+      if (c?.whatsapp_ok_em) {
+        const email = `wa${dig(c.whatsapp)}${SEM}`;
+        await db.auth.admin.updateUserById(id, { email, email_confirm: true, user_metadata: { email_pendente: null } });
+        emails.push(email); continue;
+      }
+    }
+    emails.push(u.email);
   }
   return emails;
 }
@@ -37,9 +48,11 @@ Deno.serve(async req => {
     const emails = await contas(d);
     if (!emails.length) return json({ erro: "sem_conta" });
     if (recuperar) {
+      const reais = emails.filter(e => !e.endsWith(SEM));
+      if (!reais.length) return json({ erro: "sem_email" });
       const to = typeof volta === "string" && volta.startsWith("https://www.lanchaembuzios.com.br/") ? volta : "https://www.lanchaembuzios.com.br/login/";
-      for (const email of emails) await fetch(`${URL_SB}/auth/v1/recover?redirect_to=${encodeURIComponent(to)}`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ email }) });
-      return json({ ok: true, para: emails.map(mascara).join(", ") });
+      for (const email of reais) await fetch(`${URL_SB}/auth/v1/recover?redirect_to=${encodeURIComponent(to)}`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ email }) });
+      return json({ ok: true, para: reais.map(mascara).join(", ") });
     }
     if (typeof senha !== "string" || !senha) return json({ erro: "senha" });
     const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();

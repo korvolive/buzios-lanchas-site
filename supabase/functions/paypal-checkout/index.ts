@@ -74,7 +74,7 @@ const MAIL_PIX: Record<string, (l: string, d: string) => string> = {
 async function email(uid: string, url: string, lancha: string, dia: string, valor: string, pix = false) {
   const { data } = await db.auth.admin.getUserById(uid);
   const u = data?.user;
-  if (!u?.email) return false;
+  if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: o link vai pelo WhatsApp
   const meta = { ...(u.user_metadata || {}) };
   const l = lang(meta.lang);
   const primeiro = String(meta.nome || meta.full_name || "").trim().split(" ")[0];
