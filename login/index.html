@@ -96,9 +96,9 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .prhd h2{margin:0}.prchev{flex:none;width:40px;height:40px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;transition:transform .2s}.prchev svg{width:22px;height:22px}
 .prhd[aria-expanded=true] .prchev{transform:rotate(180deg)}.prc .prsub{margin:6px 0 0}.prc .prbody{margin-top:12px}
 .mnc input{padding-top:8px;padding-bottom:8px}
-.mnt{display:grid;grid-template-columns:24px 76px 110px;justify-content:start;gap:5px 6px;align-items:center}.mnt>b{font-size:11px;line-height:1.2;color:var(--muted);font-weight:600}.mnt>b{text-align:center}.mnfp{text-align:center;font-weight:700;font-size:14px}.mnd1{display:flex;align-items:center;justify-content:flex-start;gap:10px;margin:0 0 8px;font-size:13px;font-weight:600}.mnd1 .mnpi input.in{width:64px;height:34px;min-height:0;padding:4px}.prc input[type=number],.espc input[type=number]{text-align:center}.mnt .pl{font-size:12px;font-weight:700}.mnt input.in{width:100%;box-sizing:border-box;padding:6px 6px;min-height:0;height:34px;font-size:14px}.mnt .mnpi input.in{width:50px}.mnr{display:block;color:var(--muted);font-size:11.5px;margin-top:5px}
+.mnt{display:grid;grid-template-columns:24px 76px 110px;justify-content:start;gap:5px 6px;align-items:center}.mnt>b{font-size:11px;line-height:1.2;color:var(--muted);font-weight:600}.mnt>b{text-align:center}.mnfp{text-align:center;font-weight:700;font-size:14px}.mnd1{display:flex;align-items:center;justify-content:flex-start;gap:10px;margin:10px 0 0;font-size:13px;font-weight:600}.mnd1 .mnpi input.in{width:64px;height:34px;min-height:0;padding:4px}.prc input[type=number],.espc input[type=number]{text-align:center}.mnt .pl{font-size:12px;font-weight:700}.mnt input.in{width:100%;box-sizing:border-box;padding:6px 6px;min-height:0;height:34px;font-size:14px}.mnt .mnpi input.in{width:50px}.mnr{display:block;color:var(--muted);font-size:11.5px;margin-top:5px}
 .prc .ferchips{display:grid;grid-template-columns:1fr 1fr;gap:5px}.prc .ferc{padding:5px 8px}.prc input[type=number]{padding:6px 6px;font-size:14px}
-.dsr{display:flex;flex-wrap:wrap;gap:6px 10px}.dsi{display:inline-flex;align-items:center;gap:4px}.dsi .pl{font-size:12px;font-weight:700;width:18px}.dsi .mnpi{gap:2px}.dsi .mnpi input.in{width:46px;padding:4px}.dsi input.in[data-xv]{width:60px;padding:4px}.dsi input.in{min-height:0;height:32px;border-radius:8px}.dsl small{font-weight:500}
+.dsr{display:flex;flex-direction:column;align-items:flex-start;gap:6px}.ppg{display:block;margin-top:6px}.ppg>b{display:block}.ppl{display:block;padding-left:10px}.dsi{display:inline-flex;align-items:center;gap:4px}.dsi .pl{font-size:12px;font-weight:700;width:18px}.dsi .mnpi{gap:2px}.dsi .mnpi input.in{width:46px;padding:4px}.dsi input.in[data-xv]{width:60px;padding:4px}.dsi input.in{min-height:0;height:32px;border-radius:8px}.dsl small{font-weight:500}
 .prc .apct input.in,.prc .mnp .mnpi input.in{width:56px}.prc .ferc b{font-size:12.5px}.prc .ferc small{font-size:10.5px;line-height:1.25}.prc .mnet>p.muted small,.prc .prbody>p.muted small{font-size:12px;line-height:1.4}
 .mnc{display:flex;flex-direction:column;gap:4px;min-width:0}
 .mnc>span{font-weight:700;font-size:13px}
@@ -497,7 +497,7 @@ const T = {
     slot_manha:"Manhã", slot_tarde:"Tarde", slot_dia:"Dia todo", slot_noite:"Réveillon noturno", hours_noite:"passeio noturno de 7 horas", c_noite:"Noite",
     hours_manha:"10h às 14h", hours_tarde:"14h às 18h", hours_dia:"10h às 17h",
     sheetSub:"Toque no horário que já está alugado. Toque de novo para liberar.",
-    rented:"Alugada", inDay:"já incluída no dia todo", close:"Pronto", dpPick:"Escolher data", dpToday:"Hoje", dpClear:"Limpar",
+    rented:"Alugada", inDay:"já incluída no dia todo", close:"Pronto", pctMaxT:"O máximo aqui é {n}%", dpPick:"Escolher data", dpToday:"Hoje", dpClear:"Limpar",
     saved:"Salvo! O site já mostra como indisponível.", freed:"Liberado! O site já mostra como disponível.", saveErr:"Não foi possível salvar. Confira a internet e tente de novo.",
     upcoming:"Próximos aluguéis", noneUp:"Nenhum dia alugado marcado ainda.",
     addNote:"+ Anotar dados do cliente", client:"Cliente", phone:"WhatsApp do cliente", country:"País", maxPeople:"até {n}", people:"Pessoas", value:"Valor do passeio (R$)", deposit:"Sinal já pago (R$)", obs:"Observações",
@@ -532,7 +532,7 @@ const T = {
     slot_manha:"Morning", slot_tarde:"Afternoon", slot_dia:"Full day", slot_noite:"New Year's Eve night", hours_noite:"7-hour night tour", c_noite:"Night",
     hours_manha:"10am to 2pm", hours_tarde:"2pm to 6pm", hours_dia:"10am to 5pm",
     sheetSub:"Tap the slot that is already rented. Tap again to free it.",
-    rented:"Rented", inDay:"already part of the full day", close:"Done", dpPick:"Choose a date", dpToday:"Today", dpClear:"Clear",
+    rented:"Rented", inDay:"already part of the full day", close:"Done", pctMaxT:"The maximum here is {n}%", dpPick:"Choose a date", dpToday:"Today", dpClear:"Clear",
     saved:"Saved! The website now shows it as unavailable.", freed:"Freed! The website now shows it as available.", saveErr:"Couldn't save. Check your internet and try again.",
     upcoming:"Upcoming rentals", noneUp:"No rented days marked yet.",
     addNote:"+ Add client details", client:"Client", phone:"Client's WhatsApp", country:"Country", maxPeople:"up to {n}", people:"People", value:"Tour price (R$)", deposit:"Deposit paid (R$)", obs:"Notes",
@@ -567,7 +567,7 @@ const T = {
     slot_manha:"Mañana", slot_tarde:"Tarde", slot_dia:"Día completo", slot_noite:"Nochevieja nocturno", hours_noite:"paseo nocturno de 7 horas", c_noite:"Noche",
     hours_manha:"10h a 14h", hours_tarde:"14h a 18h", hours_dia:"10h a 17h",
     sheetSub:"Toca el horario que ya está alquilado. Toca de nuevo para liberarlo.",
-    rented:"Alquilada", inDay:"ya incluida en el día completo", close:"Listo", dpPick:"Elegir fecha", dpToday:"Hoy", dpClear:"Borrar",
+    rented:"Alquilada", inDay:"ya incluida en el día completo", close:"Listo", pctMaxT:"El máximo aquí es {n}%", dpPick:"Elegir fecha", dpToday:"Hoy", dpClear:"Borrar",
     saved:"¡Guardado! El sitio ya lo muestra como no disponible.", freed:"¡Liberado! El sitio ya lo muestra como disponible.", saveErr:"No se pudo guardar. Revisa internet e inténtalo de nuevo.",
     upcoming:"Próximos alquileres", noneUp:"Todavía no hay días alquilados marcados.",
     addNote:"+ Anotar datos del cliente", client:"Cliente", phone:"WhatsApp del cliente", country:"País", maxPeople:"hasta {n}", people:"Personas", value:"Valor del paseo (R$)", deposit:"Seña ya pagada (R$)", obs:"Observaciones",
@@ -1905,9 +1905,9 @@ function ppPaint(e){
   const own=!!app.querySelector(".mnet"), box=own ? app.querySelector(".mnet") : app.querySelector("#prsave")?.closest(".card"); if(!box) return;
   const val = c => own ? +(box.querySelector(`[data-mn="${c}"]`)?.value) || 0 : +prTotVal(c) || 0;
   const pcOf = () => +(box.querySelector(own ? "[data-mpf]" : '[data-apc="pct_feriado"]')?.value) || 0;
-  const r = (v, p) => v>0 ? brl(Math.round(v*(1+p/100)/10)*10) : "—", h = (k, p) => `4h <b>${r(val(k),p)}</b>${val(k+"7")>0?` · 7h <b>${r(val(k+"7"),p)}</b>`:""}`;
+  const r = (v, p) => v>0 ? brl(Math.round(v*(1+p/100)/10)*10) : "—", h = (k, p) => `<span class="ppl">4h <b>${r(val(k),p)}</b></span>${val(k+"7")>0?`<span class="ppl">7h <b>${r(val(k+"7"),p)}</b></span>`:""}`;
   box.querySelectorAll("[data-pp]").forEach(x=>{ const pp=x.dataset.pp, p=pcOf(pp);
-    x.innerHTML = `${t("ppPf")}<br>${SEASON3.map(k=>`${t("pr_"+k).split(" · ")[0]}: ${h(k,p)}`).join("<br>")}`; });
+    x.innerHTML = `${t("ppPf")}<br>${SEASON3.map(k=>`<span class="ppg"><b>${t("pr_"+k).split(" · ")[0]}</b>${h(k,p)}</span>`).join("")}`; });
   /* desconto: quem digitou o valor final muda o %; o resto mostra o valor que o % dá */
   box.querySelectorAll("[data-xv]").forEach(x=>{ const [kind,c]=x.dataset.xv.split(":"), sg=PAIR[kind].sign, b=val(c), P=box.querySelector(`[data-xp="${kind}:${c}"]`);
     if(e?.target===x){ if(b>0 && x.value.trim()!=="") P.value=pctTxt(sg*(+x.value/b - 1)*100); return; }
@@ -1922,8 +1922,11 @@ const PAIR = {ds:{max:30, sign:-1, lab:"mnDs", pct:"dsPct"}, rv:{max:100, sign:1
 const pairHTML = (kind, k, get, dis="", dr={}) => `<div class="dsb"><span class="dsl">${t(PAIR[kind].lab)}${kind==="ds" ? "" : ` <small>(${t(PAIR[kind].pct)} % · ${t("dsVal")})</small>`}</span><div class="dsr">
   ${[k,k+"7"].map(c=>`<span class="dsi"><span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR[kind].max}" step="any" data-xp="${kind}:${c}" data-k="${kind}_${c}" value="${dr[kind+"_"+c] ?? pctTxt(get(c))}" aria-label="${t(PAIR[kind].lab)} ${t(c.endsWith("7")?"pr7s":"pr4s")} %"${dis}><i>%</i></span><input type="number" class="in" inputmode="numeric" min="0" max="${VMAX}" step="10" data-xv="${kind}:${c}" aria-label="${t("dsVal")} ${t(c.endsWith("7")?"pr7s":"pr4s")}"${dis}></span>`).join("")}</div></div>`;
 const dsGet = ds => c => ds?.[c] ?? ds?.[c.replace("7","")] ?? 0, rvGet = (pr, pr7) => c => c.endsWith("7") ? (pr7 ?? pr ?? 0) : (pr ?? 0);
+/* % nunca abaixo de 0 nem acima do máximo do campo (Rodrigo 2026-10-23): corrige enquanto digita */
+document.addEventListener("input", e => { const x=e.target; if(!x.matches?.('input[type="number"][data-xp],input[type="number"][data-mpf],input[type="number"][data-apc],input[type="number"][data-bp]') || x.value.trim()==="") return;
+  const n=+x.value, mx=+x.max; if(n<0) x.value=0; else if(x.max!=="" && n>mx){ x.value=mx; toast(t("pctMaxT",{n:mx})); } }, true);
 const VMAX = 9999; /* nenhum valor de passeio passa de R$ 9.999 (Rodrigo 2026-10-22; o banco também barra) */
-const PCT_MAX = {pf:50, pr:100, ds:30}; /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
+const PCT_MAX = {pf:30, pr:100, ds:30}; /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
 function ownPricesHTML(){
   if(S.admin || !(S.own||[]).includes(S.cur) || !S.mn) return "";
   const it=Object.fromEntries((S.mn.itens||[]).map(x=>[x.chave,x])), lock=!!S.mn.prox && new Date(S.mn.prox)>new Date();
@@ -1934,11 +1937,10 @@ function ownPricesHTML(){
   const pct = (k, attr, v, mx, lab) => `<label class="mnp"><span>${lab}</span><span class="mnpi"><input type="number" class="in" inputmode="numeric" step="5" min="0" max="${mx}" ${attr} data-k="${k}" value="${dr[k] ?? v ?? 0}"${dis}><i>%</i></span><small>${t("mnPctMax",{n:mx})}</small></label>`;
   /* época numa tabela só: valor de 4h e 7h e quanto fica de segunda a quinta. O dono tem UM % de desconto para 4h e 7h; só o administrador separa (Rodrigo 2026-10-23) */
   const dsv = dsGet(ds), h = c => t(c.endsWith("7")?"pr7s":"pr4s");
-  const mnRow = k => `<label class="mnd1"><span>${t("mnDs")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR.ds.max}" step="any" data-xp="ds:${k}" data-both="1" data-k="ds_${k}" value="${dr["ds_"+k] ?? pctTxt(dsv(k))}"${dis}><i>%</i></span></label>
-    <div class="mnt"><span></span><b>${t("mnYour")}</b><b>${t("mnFp")}</b>
+  const mnRow = k => `<div class="mnt"><span></span><b>${t("mnYour")}</b><b>${t("mnFp")}</b>
     ${[k,k+"7"].map(c=>{ const x=it[c], [lo,hi]=mnRange(x.ref); return `<span class="pl">${h(c)}</span><input type="number" class="in" inputmode="numeric" step="50" min="${lo}" max="${hi}" data-mn="${c}" data-k="${c}" value="${dr[c] ?? x.neto ?? x.ref}" aria-label="${t("mnYour")} ${h(c)}"${dis}>
       <output class="mnfp" data-fp="${c}"></output>`; }).join("")}</div>
-    <small class="mnr">${[k,k+"7"].map(c=>{ const [lo,hi]=mnRange(it[c].ref); return `${h(c)} ${t("mnRange",{a:brl(lo), b:brl(hi)})}`; }).join(" · ")}</small>`;
+    <label class="mnd1"><span>${t("mnDs")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR.ds.max}" step="any" data-xp="ds:${k}" data-both="1" data-k="ds_${k}" value="${dr["ds_"+k] ?? pctTxt(dsv(k))}"${dis}><i>%</i></span></label>`;
   const season = k => `<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>`;
   return prWrap("mnet", t("mnT"), t("mnSub"), `
     ${lock?`<p class="msg">${t("mnLock",{d:dm(S.mn.prox)})}</p>`:""}
