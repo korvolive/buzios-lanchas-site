@@ -481,6 +481,15 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .eqrole.r-admin,.eqrole.r-moderador{background:#0e3a4a;color:#fff}
 .eqhist{list-style:none;padding:0;margin:6px 0 12px;font-size:14px}.eqhist li{padding:6px 0;border-bottom:1px solid var(--line,#ddd)}
 .eqdur{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.eqdur button[aria-pressed=true]{background:var(--brass,#d4a12a);color:#000}
+.chm.alerta{max-width:100%;align-self:stretch;background:#fde4df;border:2px solid #c0392b;color:#5a140b;border-radius:14px}
+.chm.alerta.ok{background:var(--chip);border-color:#2f8f5b;color:inherit}
+.chm.alerta .alh{font-weight:800;font-size:16px;margin:0 0 4px}
+.chm.alerta .alact{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.chm.alerta .alact a,.chm.alerta .alact button{font:inherit;font-size:14px;font-weight:700;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.chm.flag{outline:2px solid #e0a800}
+#altx{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:1px solid var(--line,#ccc);background:var(--surface);color:inherit;margin-top:4px}
+.btn.alrt{background:#c0392b;color:#fff;padding:8px 12px;font-size:14px}
+.alcats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 12px}.alcats button{padding:12px 8px;border-radius:12px;border:2px solid var(--line,#ddd);background:var(--surface);font:inherit;font-weight:600;cursor:pointer;color:inherit}
+.alcats button[aria-pressed=true]{border-color:#c0392b;background:#fde4df;color:#5a140b}
 </style></head><body>
 <header class="top" id="top" hidden></header>
 <main id="app"><p class="loading">…</p></main>
@@ -1498,7 +1507,7 @@ function clientView(){
     try{ await db("rpc/cancelar_pedido",{method:"POST",body:{pid:+x.dataset.gu}}); toast(t("gaveUp")); await loadMyReq(); clientView(); }catch(e){ toast(t("saveErr")); } });
 }
 /* ao sair, volta para o site; quem quiser entrar de novo usa o botão Entrar do site */
-const logout = () => { const tok=ses?.access_token; pushForget(tok); saveSes(null); store.set("conta-tipo",null); app.innerHTML=""; top_.hidden=true;
+const logout = () => { const tok=ses?.access_token; pushForget(tok); try{ navigator.clearAppBadge?.().catch(()=>{}); navigator.serviceWorker?.controller?.postMessage({tipo:"badge", n:0}); }catch(e){} badgeN=-1; saveSes(null); store.set("conta-tipo",null); app.innerHTML=""; top_.hidden=true;
   Promise.race([authCall("logout?scope=local",null,"POST",tok) /* scope=local: sai só deste aparelho; o padrão (global) derrubava o login nos outros aparelhos da pessoa */.catch(()=>{}), new Promise(r=>setTimeout(r,1500))]).then(()=>location.replace("/")); };
 
 function headerHTML(){
@@ -2221,6 +2230,10 @@ Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicac
 Object.assign(T.pt, {eqT:"Chat da equipe", eqSub:"Donos, marinheiros e vendedores da Búzios Lanchas", eqNew1:"1 mensagem nova", eqNewN:"{n} mensagens novas", eqOpen:"Abrir", eqNote:"Grupo da equipe. Seja educado: os moderadores podem apagar mensagens, advertir e bloquear quem desrespeitar.", eqEmpty:"Nenhuma mensagem ainda. Comece a conversa!", eqR_admin:"Búzios Lanchas", eqR_moderador:"Moderador", eqR_dono:"Dono", eqR_marinheiro:"Marinheiro", eqR_vendedor:"Vendedor", eqWarnT:"⚠️ Você recebeu uma advertência de um moderador", eqBlockT:"🚫 Você foi bloqueado no chat da equipe", eqWhy:"Motivo: {m}", eqOk:"Entendi", eqBlocked:"Você está bloqueado e não pode mandar mensagens {ate}.", eqUntil:"até {d}", eqForever:"até um moderador liberar", eqModT:"Moderação", eqWarns:"Advertências: {n}", eqIsBlocked:"Bloqueado {ate}", eqNotBlocked:"Não está bloqueado", eqWarn:"⚠️ Dar advertência", eqBlock:"🚫 Bloquear", eqUnblock:"Desbloquear", eqBack:"‹ Voltar ao chat", eqWhyQ:"Motivo (a pessoa vai ver):", eqHow:"Por quanto tempo?", eqD1:"1 dia", eqD7:"7 dias", eqD30:"30 dias", eqD0:"Até desbloquear", eqWarnOk:"Advertência enviada.", eqBlockOk:"Pessoa bloqueada.", eqUnblockOk:"Pessoa desbloqueada.", eqHist:"Histórico", eqH_advertencia:"Advertência", eqH_bloqueio:"Bloqueio", eqBy:"por {n}", eqRevoked:"desfeito", eqNoHist:"Nada ainda.", eqDelQ:"Apagar esta mensagem para todos?", eqMakeMod:"🛡️ Tornar moderador do chat", eqUnMod:"🛡️ Tirar de moderador", eqModOn:"Agora é moderador do chat da equipe.", eqModOff:"Não é mais moderador.", eqModTag:"Moderador do chat da equipe", eqCantMod:"Esta pessoa não pode ser punida.", eqSql:"Falta rodar o SQL do chat da equipe no Supabase."});
 Object.assign(T.en, {eqT:"Team chat", eqSub:"Búzios Lanchas owners, skippers and sellers", eqNew1:"1 new message", eqNewN:"{n} new messages", eqOpen:"Open", eqNote:"Team group. Be polite: moderators can delete messages, warn and block anyone who is disrespectful.", eqEmpty:"No messages yet. Start the conversation!", eqR_admin:"Búzios Lanchas", eqR_moderador:"Moderator", eqR_dono:"Owner", eqR_marinheiro:"Skipper", eqR_vendedor:"Seller", eqWarnT:"⚠️ You got a warning from a moderator", eqBlockT:"🚫 You were blocked from the team chat", eqWhy:"Reason: {m}", eqOk:"Got it", eqBlocked:"You are blocked and cannot send messages {ate}.", eqUntil:"until {d}", eqForever:"until a moderator unblocks you", eqModT:"Moderation", eqWarns:"Warnings: {n}", eqIsBlocked:"Blocked {ate}", eqNotBlocked:"Not blocked", eqWarn:"⚠️ Give a warning", eqBlock:"🚫 Block", eqUnblock:"Unblock", eqBack:"‹ Back to chat", eqWhyQ:"Reason (the person will see it):", eqHow:"For how long?", eqD1:"1 day", eqD7:"7 days", eqD30:"30 days", eqD0:"Until unblocked", eqWarnOk:"Warning sent.", eqBlockOk:"Person blocked.", eqUnblockOk:"Person unblocked.", eqHist:"History", eqH_advertencia:"Warning", eqH_bloqueio:"Block", eqBy:"by {n}", eqRevoked:"undone", eqNoHist:"Nothing yet.", eqDelQ:"Delete this message for everyone?", eqMakeMod:"🛡️ Make team chat moderator", eqUnMod:"🛡️ Remove as moderator", eqModOn:"Now a team chat moderator.", eqModOff:"No longer a moderator.", eqModTag:"Team chat moderator", eqCantMod:"This person cannot be punished.", eqSql:"The team chat SQL still needs to be run in Supabase."});
 Object.assign(T.es, {eqT:"Chat del equipo", eqSub:"Dueños, marineros y vendedores de Búzios Lanchas", eqNew1:"1 mensaje nuevo", eqNewN:"{n} mensajes nuevos", eqOpen:"Abrir", eqNote:"Grupo del equipo. Sé respetuoso: los moderadores pueden borrar mensajes, advertir y bloquear a quien falte el respeto.", eqEmpty:"Todavía no hay mensajes. ¡Empieza la conversación!", eqR_admin:"Búzios Lanchas", eqR_moderador:"Moderador", eqR_dono:"Dueño", eqR_marinheiro:"Marinero", eqR_vendedor:"Vendedor", eqWarnT:"⚠️ Recibiste una advertencia de un moderador", eqBlockT:"🚫 Fuiste bloqueado en el chat del equipo", eqWhy:"Motivo: {m}", eqOk:"Entendido", eqBlocked:"Estás bloqueado y no puedes enviar mensajes {ate}.", eqUntil:"hasta el {d}", eqForever:"hasta que un moderador te desbloquee", eqModT:"Moderación", eqWarns:"Advertencias: {n}", eqIsBlocked:"Bloqueado {ate}", eqNotBlocked:"No está bloqueado", eqWarn:"⚠️ Dar advertencia", eqBlock:"🚫 Bloquear", eqUnblock:"Desbloquear", eqBack:"‹ Volver al chat", eqWhyQ:"Motivo (la persona lo verá):", eqHow:"¿Por cuánto tiempo?", eqD1:"1 día", eqD7:"7 días", eqD30:"30 días", eqD0:"Hasta desbloquear", eqWarnOk:"Advertencia enviada.", eqBlockOk:"Persona bloqueada.", eqUnblockOk:"Persona desbloqueada.", eqHist:"Historial", eqH_advertencia:"Advertencia", eqH_bloqueio:"Bloqueo", eqBy:"por {n}", eqRevoked:"deshecho", eqNoHist:"Nada todavía.", eqDelQ:"¿Borrar este mensaje para todos?", eqMakeMod:"🛡️ Hacer moderador del chat", eqUnMod:"🛡️ Quitar de moderador", eqModOn:"Ahora es moderador del chat del equipo.", eqModOff:"Ya no es moderador.", eqModTag:"Moderador del chat del equipo", eqCantMod:"Esta persona no puede ser sancionada.", eqSql:"Falta ejecutar el SQL del chat del equipo en Supabase."});
+/* alerta e denúncia no chat da equipe (Rodrigo 2026-10-23) */
+Object.assign(T.pt, {alBtn:"🚨 Alerta", alT:"🚨 Disparar alerta para a equipe", alSub:"Use só em caso real: lancha quebrada no mar, emergência, mau tempo perigoso. Todos da equipe recebem no celular. Alerta falso ou sem motivo leva punição.", alCat:"O que aconteceu?", alC_pane:"Pane / lancha com problema", alC_emergencia:"Emergência", alC_tempo:"Mau tempo", alC_outro:"Outro", alWhat:"Explique o que está acontecendo (lancha, onde, o que precisa)", alLoc:"📍 Mandar minha localização", alLocOk:"Localização pronta", alLocErr:"Não deu para pegar a localização. O alerta vai sem ela.", alGo:"Disparar alerta", alQ:"Confirma o alerta? Toda a equipe vai receber no celular agora.", alSent:"Alerta enviado para a equipe.", alNeedCat:"Escolha o que aconteceu.", alShort:"Explique melhor o motivo (pelo menos 15 letras).", alRecent:"Você já mandou um alerta há pouco. Espere 30 minutos ou escreva no chat.", alMap:"📍 Ver no mapa", alDone:"✓ Marcar como resolvido", alResolved:"✓ Resolvido", alDoneQ:"Marcar este alerta como resolvido?", alActive:"Alerta em aberto", eqSlow:"Calma: espere uns segundos entre uma mensagem e outra.", eqRepeat:"Você já mandou essa mesma mensagem.", eqRep:"Denunciar", eqRepQ:"Denunciar esta mensagem para os moderadores?", eqRepOk:"Denúncia enviada aos moderadores.", eqRepd:"denunciada", eqReps:"🚩 {n}"});
+Object.assign(T.en, {alBtn:"🚨 Alert", alT:"🚨 Send an alert to the team", alSub:"Only for real cases: boat broken down at sea, emergency, dangerous weather. Everyone on the team gets it on their phone. A false or pointless alert will be punished.", alCat:"What happened?", alC_pane:"Breakdown / boat in trouble", alC_emergencia:"Emergency", alC_tempo:"Bad weather", alC_outro:"Other", alWhat:"Explain what is happening (boat, where, what you need)", alLoc:"📍 Send my location", alLocOk:"Location ready", alLocErr:"Could not get your location. The alert goes without it.", alGo:"Send alert", alQ:"Send the alert? The whole team will get it on their phones now.", alSent:"Alert sent to the team.", alNeedCat:"Choose what happened.", alShort:"Explain the reason better (at least 15 letters).", alRecent:"You sent an alert a short while ago. Wait 30 minutes or write in the chat.", alMap:"📍 See on map", alDone:"✓ Mark as resolved", alResolved:"✓ Resolved", alDoneQ:"Mark this alert as resolved?", alActive:"Open alert", eqSlow:"Easy: wait a few seconds between messages.", eqRepeat:"You already sent this same message.", eqRep:"Report", eqRepQ:"Report this message to the moderators?", eqRepOk:"Report sent to the moderators.", eqRepd:"reported", eqReps:"🚩 {n}"});
+Object.assign(T.es, {alBtn:"🚨 Alerta", alT:"🚨 Enviar alerta al equipo", alSub:"Solo en casos reales: lancha averiada en el mar, emergencia, mal tiempo peligroso. Todo el equipo lo recibe en el celular. Una alerta falsa o sin motivo será sancionada.", alCat:"¿Qué pasó?", alC_pane:"Avería / lancha con problemas", alC_emergencia:"Emergencia", alC_tempo:"Mal tiempo", alC_outro:"Otro", alWhat:"Explica qué está pasando (lancha, dónde, qué necesitas)", alLoc:"📍 Enviar mi ubicación", alLocOk:"Ubicación lista", alLocErr:"No se pudo obtener la ubicación. La alerta va sin ella.", alGo:"Enviar alerta", alQ:"¿Enviar la alerta? Todo el equipo la recibirá ahora en el celular.", alSent:"Alerta enviada al equipo.", alNeedCat:"Elige qué pasó.", alShort:"Explica mejor el motivo (al menos 15 letras).", alRecent:"Enviaste una alerta hace poco. Espera 30 minutos o escribe en el chat.", alMap:"📍 Ver en el mapa", alDone:"✓ Marcar como resuelto", alResolved:"✓ Resuelto", alDoneQ:"¿Marcar esta alerta como resuelta?", alActive:"Alerta abierta", eqSlow:"Tranquilo: espera unos segundos entre un mensaje y otro.", eqRepeat:"Ya enviaste este mismo mensaje.", eqRep:"Denunciar", eqRepQ:"¿Denunciar este mensaje a los moderadores?", eqRepOk:"Denuncia enviada a los moderadores.", eqRepd:"denunciado", eqReps:"🚩 {n}"});
 /* consulta rápida do site (Rodrigo 2026-10-23) */
 Object.assign(T.pt, {csT:"📩 Consultas pelo site", csSub:"Quem preencheu a janelinha do Consultar disponibilidade. A lancha não fica bloqueada. Aprove depois do sinal (o cliente recebe o convite para confirmar o e-mail) ou recuse (os dados dele são apagados).", csNoCall:"não chamou no WhatsApp", csCalled:"chamou no WhatsApp", csAt:"consultou {d}", csOk:"✓ Aprovar", csNo:"Recusar", csNoQ:"Recusar a consulta de {name}? Todos os dados dele são apagados.", csNoOk:"Consulta recusada e dados apagados.", csPast:"a data já passou", csSql:"Falta rodar o SQL das consultas no Supabase.", csWaNoCall:"Olá, {name}! Aqui é da Búzios Lanchas 😊\nVi que você se interessou pela lancha {boat} para {date} ({slot}){people}. Quer que eu te passe os detalhes e te ajude a garantir esse passeio?", csWaCall:"Olá, {name}! Aqui é da Búzios Lanchas 😊 Sobre a sua consulta da lancha {boat} para {date} ({slot}){people}:", csPeople:", para {n} pessoas"});
 Object.assign(T.en, {csT:"📩 Website inquiries", csSub:"People who filled in the Check availability box. The boat is not blocked. Approve after the deposit (the client gets the invite to confirm the email) or decline (their data is deleted).", csNoCall:"didn't message on WhatsApp", csCalled:"messaged on WhatsApp", csAt:"asked {d}", csOk:"✓ Approve", csNo:"Decline", csNoQ:"Decline {name}'s inquiry? All their data is deleted.", csNoOk:"Inquiry declined and data deleted.", csPast:"the date has passed", csSql:"The inquiries SQL still needs to be run in Supabase.", csWaNoCall:"Hi, {name}! This is Búzios Lanchas 😊\nI saw you were interested in the boat {boat} on {date} ({slot}){people}. Would you like me to send you the details and help you book this tour?", csWaCall:"Hi, {name}! This is Búzios Lanchas 😊 About your inquiry for the boat {boat} on {date} ({slot}){people}:", csPeople:", for {n} people"});
@@ -3004,18 +3017,35 @@ function chMsgHTML(m){
 const refHTML = (l, d) => `<div class="chref">⛵ ${t("chAbout")} <b>${esc(boatName(l))} · ${fmtLong(d)}</b></div>`;
 /* ===== chat da equipe (Rodrigo 2026-10-23): um grupo só, para donos, marinheiros, vendedores, moderadores e administradores.
    Moderadores (o administrador escolhe em Usuários) apagam mensagens, dão advertência e bloqueiam. Sem notificação no celular: o card mostra as novas */
+/* número no ícone do app (Rodrigo 2026-10-23): conversas e chat da equipe sem ler (+ reservas pendentes para o administrador).
+   Funciona com o app instalado no celular (iPhone com iOS 16.4+ e avisos ligados; Android/computador no Chrome/Edge) */
+let badgeN=-1;
+function setBadge(){
+  if(!ses) return; const n=(+S.chatUnread||0) + (+S.eq?.nao_lidas||0) + (S.admin ? +S.reqCount||0 : 0);
+  if(n===badgeN) return; badgeN=n;
+  try{ if(navigator.setAppBadge) (n>0 ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(()=>{}); }catch(e){}
+  navigator.serviceWorker?.controller?.postMessage({tipo:"badge", n}); /* os avisos que chegarem depois somam a partir daqui */
+}
+setInterval(setBadge, 3000);
 let eqOn=false, eqRows=[], eqLast=0, eqTimer=null, eqTick=0;
 async function loadEq(){ try{ const r=await RPC("equipe_estado",{}); S.eq=r[0]||null; }catch(e){ S.eq = e.status===404 ? false : S.eq||null; } return S.eq; }
 const eqCardHTML = () => S.eq?.membro ? `<button type="button" class="card eqcard" data-eqgo><span class="eqi" aria-hidden="true">👥</span><span class="eqt"><b>${t("eqT")}</b><small>${S.eq.nao_lidas ? t(S.eq.nao_lidas===1?"eqNew1":"eqNewN",{n:S.eq.nao_lidas}) : t("eqSub")}</small></span>${S.eq.nao_lidas?`<b class="cnt ch">${S.eq.nao_lidas}</b>`:""}<span aria-hidden="true">›</span></button>` : "";
 document.addEventListener("click", e=>{ if(e.target.closest("[data-eqgo]")) openEq(); });
 const eqAte = d => !d ? "" : /^infinity$/i.test(d) || new Date(d).getFullYear()>9000 ? t("eqForever") : t("eqUntil",{d:new Date(d).toLocaleString(t("locale"),{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})});
 function eqMsgHTML(m){
+  if(m.tipo==="alerta" && !m.apagada){ const me=m.autor===ses.user.id, can=!m.resolvido && (me || S.eq?.moderador), hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
+    return `<div class="chm alerta${m.resolvido?" ok":""}" data-mid="${m.id}"><p class="alh">🚨 ${t("alC_"+(m.categoria||"outro"))}${m.resolvido?` · ${t("alResolved")}`:""}</p>
+      <div class="cha">${face(m.autor,m.nome,"face")}${S.eq?.moderador && !me && m.papel!=="admin" ? `<button type="button" class="eqwho" data-equ="${m.autor}">${esc(m.nome||"—")}</button>` : `<b>${esc(m.nome||"—")}</b>`}<span class="eqrole r-${m.papel}">${t("eqR_"+m.papel)}</span></div>
+      <div class="cht">${esc(m.texto)}</div>
+      <div class="alact">${m.local?`<a href="${esc(m.local)}" target="_blank" rel="noopener">${t("alMap")}</a>`:""}${can?`<button type="button" data-alok="${m.id}">${t("alDone")}</button>`:""}${S.eq?.moderador?`<button type="button" data-eqdel="${m.id}">${t("chDel")}</button>`:""}</div>
+      <div class="chx"><span>${hora}</span></div></div>`; }
   const me=m.autor===ses.user.id, mod=S.eq?.moderador, hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
   const canDel=!m.apagada && (me || mod), who=esc(m.nome||"—"), role=m.papel?`<span class="eqrole r-${m.papel}">${t("eqR_"+m.papel)}</span>`:"";
-  return `<div class="chm${me?" me":""}${m.papel==="admin"?" sup":""}${m.apagada?" del":""}" data-mid="${m.id}">
+  const canRep=!m.apagada && !me && !mod && m.papel!=="admin";
+  return `<div class="chm${me?" me":""}${m.papel==="admin"?" sup":""}${m.apagada?" del":""}${mod && +m.denuncias && !m.apagada?" flag":""}" data-mid="${m.id}">
     ${me?"":`<div class="cha">${face(m.autor,m.nome,"face")}${mod && m.autor && m.papel!=="admin" ? `<button type="button" class="eqwho" data-equ="${m.autor}">${who}</button>` : `<b>${who}</b>`}${role}</div>`}
     <div class="cht">${m.apagada?t("chDeleted"):esc(m.texto)}</div>
-    <div class="chx"><span>${hora}</span>${canDel?`<button type="button" data-eqdel="${m.id}">${t("chDel")}</button>`:""}</div></div>`;
+    <div class="chx"><span>${hora}</span>${mod && +m.denuncias && !m.apagada?`<span>${t("eqReps",{n:m.denuncias})}</span>`:""}${canDel?`<button type="button" data-eqdel="${m.id}">${t("chDel")}</button>`:""}${canRep?(m.denunciei?`<span>${t("eqRepd")}</span>`:`<button type="button" data-eqrep="${m.id}">${t("eqRep")}</button>`):""}</div></div>`;
 }
 function eqRender(){
   const l=document.getElementById("chlist"); if(!l) return; const atEnd = !l.dataset.n || l.scrollHeight - l.scrollTop - l.clientHeight < 80; let day="";
@@ -3023,10 +3053,38 @@ function eqRender(){
   l.dataset.n=eqRows.length; if(atEnd) l.scrollTop=l.scrollHeight;
   l.querySelectorAll("[data-eqdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("eqDelQ"))) return; try{ await RPC("equipe_apagar",{mid:+x.dataset.eqdel}); const m=eqRows.find(r=>r.id===+x.dataset.eqdel); if(m){ m.apagada=true; m.texto=null; } eqRender(); }catch(e){ toast(errMsg(e)); } });
   l.querySelectorAll("[data-equ]").forEach(x=>x.onclick=()=>eqFicha(x.dataset.equ));
+  l.querySelectorAll("[data-eqrep]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("eqRepQ"))) return; try{ await RPC("equipe_denunciar",{mid:+x.dataset.eqrep}); const m=eqRows.find(r=>r.id===+x.dataset.eqrep); if(m) m.denunciei=true; toast(t("eqRepOk")); eqRender(); }catch(e){ toast(errMsg(e)); } });
+  l.querySelectorAll("[data-alok]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("alDoneQ"))) return; try{ await RPC("equipe_resolver",{mid:+x.dataset.alok}); const m=eqRows.find(r=>r.id===+x.dataset.alok); if(m) m.resolvido=true; eqRender(); }catch(e){ toast(errMsg(e)); } });
+}
+/* v2: alertas e denúncias; banco antigo cai no v1 */
+const eqFetch = b => RPC("equipe_mensagens_v2", b).catch(e=>e.status===404 ? RPC("equipe_mensagens", b) : Promise.reject(e));
+const eqErr = e => e.code==="P0001" ? ({DEVAGAR:t("eqSlow"), REPETIDA:t("eqRepeat"), MOTIVO:t("alShort"), ALERTA_RECENTE:t("alRecent"), CATEGORIA:t("alNeedCat")}[e.message] || chErr(e)) : chErr(e);
+/* botão de alerta: tipo e motivo obrigatórios, localização opcional; avisa toda a equipe no celular */
+function eqAlerta(){
+  eqOn=false; clearInterval(eqTimer); eqTimer=null; let cat="", loc=null;
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button>
+    <button type="button" class="link" id="eqback" style="margin:0 0 8px">${t("eqBack")}</button>
+    <h2 style="margin:0 0 6px">${t("alT")}</h2><p class="muted" style="margin:0 0 12px">${t("alSub")}</p>
+    <p style="margin:0;font-weight:700">${t("alCat")}</p>
+    <div class="alcats">${["pane","emergencia","tempo","outro"].map(c=>`<button type="button" data-alc="${c}" aria-pressed="false">${t("alC_"+c)}</button>`).join("")}</div>
+    <label class="f"><span>${t("alWhat")}</span><textarea class="in" id="altx" rows="3" maxlength="600"></textarea></label>
+    <button type="button" class="btn sec" id="alloc" style="margin:0 0 12px">${t("alLoc")}</button>
+    <button type="button" class="btn alrt" id="algo" style="width:100%;justify-content:center;padding:14px">${t("alGo")}</button>`;
+  document.getElementById("eqback").onclick=openEq;
+  sheet.querySelectorAll("[data-alc]").forEach(b=>b.onclick=()=>{ cat=b.dataset.alc; sheet.querySelectorAll("[data-alc]").forEach(x=>x.setAttribute("aria-pressed", x===b)); });
+  const lb=document.getElementById("alloc");
+  lb.onclick=()=>{ if(!navigator.geolocation) return toast(t("alLocErr")); lb.disabled=true;
+    navigator.geolocation.getCurrentPosition(p=>{ loc=`https://www.google.com/maps?q=${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`; lb.textContent="✓ "+t("alLocOk"); },
+      ()=>{ lb.disabled=false; toast(t("alLocErr")); }, {enableHighAccuracy:true, timeout:15000}); };
+  document.getElementById("algo").onclick=async()=>{ const tx=document.getElementById("altx").value.trim();
+    if(!cat) return toast(t("alNeedCat")); if(tx.length<15) return toast(t("alShort")); if(!confirm(t("alQ"))) return;
+    const b=document.getElementById("algo"); b.disabled=true;
+    try{ const id=await RPC("equipe_alerta",{categoria:cat, texto:tx, local:loc}); await fnPost("alerta-equipe",{id}); toast(t("alSent")); openEq(); }
+    catch(e){ b.disabled=false; toast(eqErr(e)); } };
 }
 async function eqPoll(full){
   if(!eqOn) return;
-  try{ const all = full || (++eqTick % 6)===0, rows=await RPC("equipe_mensagens", all ? {} : {depois:eqLast}); if(!eqOn) return;
+  try{ const all = full || (++eqTick % 6)===0, rows=await eqFetch(all ? {} : {depois:eqLast}); if(!eqOn) return;
     rows.forEach(m=>{ if(m.foto!=null) S.avV[m.autor]=+m.foto; }); rows.sort((a,b)=>a.id-b.id);
     const novas=rows.filter(r=>!eqRows.some(x=>x.id===r.id));
     if(all){ const keep=eqRows.filter(x=>!rows.some(r=>r.id===x.id) && x.id<(rows[0]?.id||0)); eqRows=[...keep, ...rows]; } else eqRows.push(...novas);
@@ -3045,19 +3103,19 @@ function eqWarnHTML(){
 async function openEq(){
   closeDay(); eqOn=true; eqRows=[]; eqLast=0; eqTick=0;
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button>
-    <div class="chhead"><span class="face lg ini" aria-hidden="true">👥</span><div><strong>${t("eqT")}</strong><small>${t("eqSub")}</small></div></div>
+    <div class="chhead"><span class="face lg ini" aria-hidden="true">👥</span><div><strong>${t("eqT")}</strong><small>${t("eqSub")}</small></div><span class="chact"><button type="button" class="btn alrt" id="eqal">${t("alBtn")}</button></span></div>
     <p class="chnote muted">${t("eqNote")}</p><div id="eqwbox">${eqWarnHTML()}</div>
     <div class="chlist" id="chlist"><p class="muted" style="text-align:center">…</p></div>
     <form class="chform" id="chform" novalidate><textarea id="chtx" rows="1" maxlength="1000" placeholder="${t("chPh")}" aria-label="${t("chPh")}"></textarea><button class="btn" id="chsend" aria-label="${t("chSend")}">➤</button></form>
     <p class="eqblk" id="eqblk" hidden></p>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   const bindWarn=()=>{ const ok=document.getElementById("eqok"); if(ok) ok.onclick=async()=>{ ok.disabled=true; await RPC("equipe_ciente",{}).catch(()=>{}); if(S.eq) S.eq.avisos=[]; document.getElementById("eqwbox").innerHTML=""; }; };
-  bindWarn(); eqFormState();
+  bindWarn(); eqFormState(); document.getElementById("eqal").onclick=()=>{ if(S.eq?.bloqueado_ate) return toast(t("eqBlocked",{ate:eqAte(S.eq.bloqueado_ate)})); eqAlerta(); };
   const tx=document.getElementById("chtx"); tx.oninput=()=>{ tx.style.height="auto"; tx.style.height=Math.min(tx.scrollHeight,120)+"px"; };
   tx.onkeydown=e=>{ if(e.key==="Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches){ e.preventDefault(); document.getElementById("chform").requestSubmit(); } };
   document.getElementById("chform").onsubmit=async e=>{ e.preventDefault(); const txt=tx.value.trim(); if(!txt) return; const b=document.getElementById("chsend"); b.disabled=true;
     try{ await RPC("equipe_enviar",{texto:txt}); tx.value=""; tx.style.height="auto"; await eqPoll(); }
-    catch(err){ if(err.message==="BLOQUEADO"){ await loadEq(); eqFormState(); document.getElementById("eqwbox").innerHTML=eqWarnHTML(); bindWarn(); } else toast(chErr(err)); } finally{ b.disabled=false; tx.focus(); } };
+    catch(err){ if(err.message==="BLOQUEADO"){ await loadEq(); eqFormState(); document.getElementById("eqwbox").innerHTML=eqWarnHTML(); bindWarn(); } else toast(eqErr(err)); } finally{ b.disabled=false; tx.focus(); } };
   await eqPoll(true);
   eqTimer=setInterval(()=>{ if(document.visibilityState==="visible") eqPoll(); }, 4000);
   loadEq().then(()=>{ if(!eqOn) return; eqFormState(); const w=document.getElementById("eqwbox"); if(w && !w.innerHTML.trim()){ w.innerHTML=eqWarnHTML(); bindWarn(); } });
@@ -3249,7 +3307,7 @@ function avisoPing(d){
   if(S.isClient) loadMyReq().then(()=>{ if(idle() && S.me) clientView(); }).catch(()=>{});
   else if(S.admin) loadReqs().then(()=>{ if(idle()) mainView(); }).catch(()=>{});
 }
-if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e=>{ const d=e.data||{}; if(d.tipo==="chat") chatPing(+String(d.tag||"").replace("chat-",""), d.title, d.body); else if(d.tipo==="aviso") avisoPing(d); else if(d.tipo==="som") chatSound(); });
+if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e=>{ const d=e.data||{}; if(d.tipo==="chat") chatPing(+String(d.tag||"").replace("chat-",""), d.title, d.body); else if(d.tipo==="aviso" || d.tipo==="alerta") avisoPing(d); else if(d.tipo==="som") chatSound(); });
 function chatClosed(){ if(!chatCid) return; clearInterval(chatTimer); chatTimer=null; chatCid=null;
   loadConvs().then(convsChanged); }
 /* aba 💬 Conversas do administrador (Rodrigo, 2026-10-22): todas as conversas, com filtro, busca e atualização a cada 5 s */
@@ -4574,6 +4632,7 @@ async function boot(){
     if(S.admin && new URLSearchParams(location.search).get("consulta")){ S.tab="pedidos"; S.reqF="pendente"; history.replaceState(null,"",location.pathname); } /* aviso "não chamou no WhatsApp" */
     S.vend = (await db("rpc/meu_vendedor",{method:"POST",body:{}}).catch(()=>[]))[0] || null; await loadVendIds();
     await loadEq(); /* chat da equipe: quem é da equipe vê o card */
+    if(S.eq?.membro && new URLSearchParams(location.search).get("equipe")){ history.replaceState(null,"",location.pathname); setTimeout(openEq, 600); } /* toque no aviso de alerta */
     setInterval(()=>{ if(document.visibilityState==="visible" && !eqOn && S.eq?.membro) loadEq().then(eqRefresh); }, 30000);
     /* chat do pedido: conversas de quem está logado; ?chat=ID (toque na notificação) abre a conversa */
     loadConvs().then(()=>{ if(view==="main" && !sheetDay && !tripRow && !chatCid) S.isClient ? (S.me && clientView()) : mainView();
