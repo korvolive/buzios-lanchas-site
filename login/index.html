@@ -1740,7 +1740,7 @@ const pascoa = y => { const a=y%19, b=Math.floor(y/100), c=y%100, d=Math.floor(b
 const ferData = (k, y) => { const p=pascoa(y);
   return {semana_santa:p-2*DIA, tiradentes:Date.UTC(y,3,21), sao_jorge:Date.UTC(y,3,23), trabalho:Date.UTC(y,4,1), corpus:p+60*DIA, ferias_julho:Date.UTC(y,6,15), independencia:Date.UTC(y,8,7), aparecida:Date.UTC(y,9,12), finados:Date.UTC(y,10,2), republica:Date.UTC(y,10,15), consciencia:Date.UTC(y,10,20)}[k]; };
 /* dias do feriadão, sem o dia da volta: seg → sex a dom; ter → sex a seg; qui → qui a sáb; sex, sáb ou dom → sex a dom; Semana Santa → qui a sáb; outros → só o dia */
-const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r = k==="ferias_julho" ? [...Array(17).keys()] /* férias de julho: 15 a 31 (Rodrigo 2026-10-22) */ : k==="semana_santa" ? [-1,0,1] : ({1:[-3,-2,-1], 2:[-4,-3,-2,-1], 4:[0,1,2], 5:[0,1,2], 6:[], 0:[]})[w] || [0]; /* sexta: sexta a domingo; caiu no sábado ou domingo: não conta (Rodrigo 2026-10-23) */
+const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r = k==="ferias_julho" ? [...Array(17).keys()] /* férias de julho: 15 a 31 (Rodrigo 2026-10-22) */ : k==="semana_santa" ? [-1,0,1] : ({1:[-3,-2,-1], 2:[-4,-3,-2,-1], 4:[0,1,2], 5:[0,1,2], 3:[], 6:[], 0:[]})[w] || []; /* só feriado que emenda: seg, ter, qui ou sex. Quarta, sábado ou domingo: não conta (Rodrigo 2026-10-23) */
   return r.map(o=>new Date(t+o*DIA).toISOString().slice(0,10)); };
 const ferOf = (iso, off=[]) => { const y=+iso.slice(0,4); return FERIADOS.find(k=>!off.includes(k) && ferDias(k,y).includes(iso)) || null; };
 const seasonBase = iso => { const y=+iso.slice(0,4), m=+iso.slice(5,7), md=iso.slice(5), t=Date.UTC(y,m-1,+iso.slice(8,10)), p=pascoa(y);
@@ -1848,7 +1848,7 @@ const mnRange = ref => [Math.ceil(ref*0.7/50)*50, Math.min(Math.floor(ref*1.3/50
 const dm = x => new Date(x).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"});
 const ws = d => cap(dateOf(d).toLocaleDateString(t("locale"),{weekday:"short",day:"2-digit",month:"2-digit"})).replace(/\./g,"");
 /* próxima data de cada feriado (dentro de 12 meses) e os dias do feriadão */
-const ferProx = k => { const hoje=todayISO(), y=+hoje.slice(0,4); for(const yy of [y,y+1]){ const d=ferDias(k,yy), f=new Date(ferData(k,yy)).toISOString().slice(0,10); if((d.at(-1)||f)>=hoje) return d; } return []; }; /* próximo feriado; vazio se ele cai no sábado ou domingo */
+const ferProx = k => { const hoje=todayISO(), y=+hoje.slice(0,4); for(const yy of [y,y+1]){ const d=ferDias(k,yy), f=new Date(ferData(k,yy)).toISOString().slice(0,10); if((d.at(-1)||f)>=hoje) return d; } return []; }; /* próximo feriado; vazio se ele não emenda (quarta, sábado ou domingo) */
 /* guarda o que já foi digitado antes de redesenhar o card (ao tirar um feriado) */
 /* edições não salvas nos quadros de valores: ao sair (aba, lancha, site, sair da conta ou fechar), pergunta "Salvar" ou "Sair sem salvar" (Rodrigo 2026-10-22) */
 const prKeyOf = () => "dono-prdraft:"+S.cur;
@@ -1871,7 +1871,7 @@ document.addEventListener("click", e => { if(lvBypass || !prDirty()) return; con
 addEventListener("beforeunload", e => { if(prDirty()){ e.preventDefault(); e.returnValue=""; } });
 const mnKeep = () => { S.mnDraft = {...(S.mnDraft||{})}; app.querySelectorAll(".mnet [data-k]").forEach(i=>{ S.mnDraft[i.dataset.k]=i.value; }); };
 /* feriados que valem (toque para tirar): usado no card do dono e no do administrador */
-const ferChips = (off, attr, dis) => `<p class="mnh">${t("mnFerHow")}</p><div class="ferchips">${FERIADOS.filter(k=>ferProx(k).length) /* feriado no fim de semana nem aparece (Rodrigo 2026-10-23) */.map(k=>{ const d=ferProx(k), on=!off.includes(k);
+const ferChips = (off, attr, dis) => `<p class="mnh">${t("mnFerHow")}</p><div class="ferchips">${FERIADOS.filter(k=>ferProx(k).length) /* feriado que não emenda nem aparece (Rodrigo 2026-10-23) */.map(k=>{ const d=ferProx(k), on=!off.includes(k);
   return `<button type="button" class="ferc" ${attr}="${k}" aria-pressed="${on}"${dis}><b>${on?"✓":"✕"} ${t("fer_"+k)}</b><small>${d.length>1?t("ferDays",{a:ws(d[0]), b:ws(d.at(-1))}):d.length?ws(d[0]):""}</small></button>`; }).join("")}</div>`;
 /* embaixo de cada %: quanto fica o 4h e o 7h (Rodrigo 2026-10-22). Administrador: valor do cliente; dono: o neto dele */
 function ppPaint(e){
