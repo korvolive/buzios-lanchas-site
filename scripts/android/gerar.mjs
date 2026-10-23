@@ -15,6 +15,7 @@ Object.assign(m, {
   name: "Búzios Lanchas",
   launcherName: "Búzios Lanchas",
   enableNotifications: true,
+  minSdkVersion: 24, // androidbrowserhelper 2.7 exige Android 7+
   appVersionCode: code,
   appVersionName: `1.0.${code}`,
   signingKey: { path: "upload.jks", alias: "upload" },
