@@ -1882,7 +1882,9 @@ const ferProx = k => { const hoje=todayISO(), y=+hoje.slice(0,4); for(const yy o
 /* guarda o que já foi digitado antes de redesenhar o card (ao tirar um feriado) */
 /* edições não salvas nos quadros de valores: ao sair (aba, lancha, site, sair da conta ou fechar), pergunta "Salvar" ou "Sair sem salvar" (Rodrigo 2026-10-22) */
 const prKeyOf = () => "dono-prdraft:"+S.cur;
-const prDirty = () => view==="main" && S.tab==="lancha" && (!!S.mnDirty && !!app.querySelector("#mnsave") || !!app.querySelector("#prsave") && !!store.get(prKeyOf()));
+/* "Sair do app?" só quando algum valor da lancha foi mudado de verdade (Rodrigo 2026-10-23) */
+const mnChanged = () => !!S.mnDirty && (S.mnOff!=null || [...app.querySelectorAll(".mnet input")].some(x=>x.type==="checkbox"||x.type==="radio" ? x.checked!==x.defaultChecked : x.value!==x.defaultValue));
+const prDirty = () => view==="main" && S.tab==="lancha" && (mnChanged() && !!app.querySelector("#mnsave") || !!app.querySelector("#prsave") && !!store.get(prKeyOf()));
 const prDrop = () => { store.set(prKeyOf(),null); S.mnDirty=false; S.mnDraft=null; S.mnOff=null; };
 const lvq = document.createElement("div"); lvq.id="lvq"; lvq.hidden=true; lvq.setAttribute("role","dialog"); lvq.setAttribute("aria-modal","true"); document.body.append(lvq);
 let lvGo = null, lvBypass = false;
@@ -3718,7 +3720,7 @@ function bindMain(){
     catch(e){ mns.disabled=false; toast(e.code==="P0001"?e.message:t("saveErr")); } };
   /* "Salvar" no aviso de sair: salva os quadros com mudança; se algo não passar na conferência, abre o quadro e fica na tela */
   S.prSave = async () => { if(prs && store.get(prKey)) await prs.onclick(); if(!prDirty()) return true;
-    if(S.mnDirty && mns && !store.get(prKey)) await mns.onclick(); const ok=!prDirty();
+    if(mnChanged() && mns && !store.get(prKey)) await mns.onclick(); const ok=!prDirty();
     if(!ok && !S.prOpen) app.querySelector("[data-prt]")?.click(); return ok; };
   app.querySelectorAll("[data-phu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("nhUndoQ"))) return; x.disabled=true;
     try{ await RPC("desfazer_netos",{hid:+x.dataset.phu}); toast(t("nhUndoOk")); S.avPr=null; S.vavPr=null; loadBlocks(); }catch(e){ x.disabled=false; toast(e.code==="P0001"?e.message:t("saveErr")); } });
