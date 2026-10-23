@@ -69,7 +69,7 @@ h1,h2{font-family:var(--display);line-height:1.15;margin:0 0 6px}
 h1{font-size:26px} h2{font-size:20px}
 .muted{color:var(--muted)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin:0 0 16px}
-label.f{display:block;margin:0 0 14px}
+label.f{display:block;margin:0 0 14px}label.f[hidden]{display:none}
 label.f span{display:block;font-weight:600;margin:0 0 6px}
 input[type=email],input[type=password],input[type=text],input[type=tel],input[type=number],input[type=date],input[type=search],select.in{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:17px;color:var(--ink,inherit);min-height:52px;-webkit-appearance:none;appearance:none}
 input:focus,select.in:focus{outline:none;border-color:var(--sea)}
@@ -981,6 +981,8 @@ async function sendVerify(force){
   await authCall("otp?redirect_to="+encodeURIComponent(location.origin+"/login/"),{email:codeEmail, create_user:false});
   store.set(k, Date.now());
 }
+/* aparelho em português do Brasil: brasileiro que mora fora (número de outro país) também pode informar o CPF (Rodrigo 2026-10-23) */
+const PT_DEV = /^pt(-BR)?$/i.test(navigator.language||"");
 function codeView(){
   const vf = codeMode==="verify";
   loginShell(t(vf?"vfT":"codeT"), t(vf?"vfSub":"codeSub",{email:`<b>${esc(codeEmail)}</b>`}), `<form class="card" id="kf" novalidate>${codeMsg?`<p class="msg ${codeErr?"err":"ok"}">${codeMsg}</p>`:""}
@@ -1053,7 +1055,7 @@ function cpfOk(c){
 const fmtCPF = v => { const d=String(v||"").replace(/\D/g,"").slice(0,11); return d.replace(/^(\d{3})(\d)/,"$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3").replace(/\.(\d{3})(\d{1,2})$/,".$1-$2"); };
 const profileFields = (v={}) => { const ph=splitPhone(v.whatsapp);
   return `<label class="f"><span>${t("fullName")}${REQ}</span><input type="text" id="c-nome" autocomplete="name" autocapitalize="words" placeholder="${t("ph_fullName")}" value="${esc(v.nome||"")}"></label>
-    <label class="f" id="cpfbox"${ph.cc==="55"?"":" hidden"}><span>${t("cpf")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span><input type="text" id="c-cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" value="${esc(fmtCPF(v.cpf))}"></label>
+    <label class="f" id="cpfbox"${ph.cc==="55"||PT_DEV?"":" hidden"}><span>${t("cpf")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span><input type="text" id="c-cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" value="${esc(fmtCPF(v.cpf))}"></label>
     <div class="f"><label for="c-tel"><span>${t("whats")}${REQ}</span></label><div class="phone"><select class="in" id="c-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="c-tel" inputmode="tel" autocomplete="tel-national" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
     ${nascField(v.nascimento)}`; };
 /* data de nascimento do cliente (Rodrigo: para chamar a pessoa para comemorar o aniversário na lancha) */
@@ -1064,7 +1066,7 @@ const fmtNasc = d => dateOf(d).toLocaleDateString(t("locale"),{day:"numeric",mon
 function bindProfile(){
   const cpf=document.getElementById("c-cpf"), ddi=document.getElementById("c-ddi"), tel=document.getElementById("c-tel");
   cpf.oninput=()=>{ const end=cpf.selectionStart===cpf.value.length; cpf.value=fmtCPF(cpf.value); if(end) cpf.selectionStart=cpf.selectionEnd=cpf.value.length; };
-  ddi.onchange=()=>{ document.getElementById("cpfbox").hidden = ddi.value!=="55"; /* CPF só para brasileiros, e opcional */ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
+  ddi.onchange=()=>{ document.getElementById("cpfbox").hidden = ddi.value!=="55" && !PT_DEV; /* CPF só para brasileiros, e opcional */ tel.placeholder = ddi.value==="55" ? t("ph_phone") : ""; tel.value = ddi.value==="55" ? fmtBR(tel.value) : tel.value; };
   tel.oninput=()=>{ if(ddi.value==="55"){ const end=tel.selectionStart===tel.value.length; tel.value=fmtBR(tel.value); if(end) tel.selectionStart=tel.selectionEnd=tel.value.length; } };
   app.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",()=>x.classList.remove("miss")));
 }
@@ -1073,11 +1075,11 @@ function readProfile(){
   const v=id=>document.getElementById(id).value.trim(), miss=[], msgs=[];
   const nome=v("c-nome").replace(/\s+/g," "), cpf=v("c-cpf").replace(/\D/g,""), cc=v("c-ddi"), tel=v("c-tel"), d=tel.replace(/\D/g,"");
   if(nome.length<5 || !nome.includes(" ")){ miss.push("c-nome"); msgs.push(t("nameBad")); }
-  if(cc==="55" && cpf && !cpfOk(cpf)){ miss.push("c-cpf"); msgs.push(t("cpfBad")); } /* CPF opcional; estrangeiro não informa */
+  if((cc==="55"||PT_DEV) && cpf && !cpfOk(cpf)){ miss.push("c-cpf"); msgs.push(t("cpfBad")); } /* CPF opcional; estrangeiro não informa */
   if(!okPhone(cc,d)){ miss.push("c-tel"); msgs.push(t("myPhoneBad")); }
   const nascimento=v("c-nasc"); if(!nascOk(nascimento)){ miss.push("c-nasc"); msgs.push(t("nascBad")); }
   miss.forEach(id=>document.getElementById(id).classList.add("miss"));
-  return {miss, msg:msgs.join("<br>"), data:{nome, cpf:cc==="55" && cpf ? cpf : null, whatsapp:`+${cc} ${tel}`, nascimento}};
+  return {miss, msg:msgs.join("<br>"), data:{nome, cpf:(cc==="55"||PT_DEV) && cpf ? cpf : null, whatsapp:`+${cc} ${tel}`, nascimento}};
 }
 async function saveProfile(data){
   try{ await db("clientes",{method:"POST", body:data, prefer:"return=minimal"}); S.me=data; store.set("cli-draft",null); return ""; }
