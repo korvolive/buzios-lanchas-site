@@ -1221,7 +1221,7 @@ const pascoa = y => { const a=y%19, b=Math.floor(y/100), c=y%100, d=Math.floor(b
 const ferData = (k, y) => { const p=pascoa(y);
   return {semana_santa:p-2*DIA, tiradentes:Date.UTC(y,3,21), sao_jorge:Date.UTC(y,3,23), trabalho:Date.UTC(y,4,1), corpus:p+60*DIA, ferias_julho:Date.UTC(y,6,15), independencia:Date.UTC(y,8,7), aparecida:Date.UTC(y,9,12), finados:Date.UTC(y,10,2), republica:Date.UTC(y,10,15), consciencia:Date.UTC(y,10,20)}[k]; };
 /* dias do feriadão, sem o dia da volta: seg → sex a dom; ter → sex a seg; qui → qui a sáb; sex, sáb ou dom → sex a dom; Semana Santa → qui a sáb; outros → só o dia */
-const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r = k==="ferias_julho" ? [...Array(17).keys()] /* férias de julho: 15 a 31 (Rodrigo 2026-10-22) */ : k==="semana_santa" ? [-1,0,1] : ({1:[-3,-2,-1], 2:[-4,-3,-2,-1], 4:[0,1,2], 5:[0,1,2], 3:[], 6:[], 0:[]})[w] || []; /* só feriado que emenda: seg, ter, qui ou sex. Quarta, sábado ou domingo: não conta (Rodrigo 2026-10-23) */
+const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r = k==="ferias_julho" ? [...Array(17).keys()] /* férias de julho: 15 a 31 (Rodrigo 2026-10-22) */ : k==="semana_santa" ? [-1,0,1] : ({1:[-3,-2,-1], 2:[-4,-3,-2,-1], 4:[0,1,2], 5:[0,1], 3:[], 6:[], 0:[]})[w] || []; /* só feriado que emenda: seg, ter, qui ou sex; o último dia do feriadão (volta) não conta. Quarta, sábado ou domingo: não conta (Rodrigo 2026-10-23) */
   return r.map(o=>new Date(t+o*DIA).toISOString().slice(0,10)); };
 const ferOf = (iso, off=[]) => { const y=+iso.slice(0,4); return FERIADOS.find(k=>!off.includes(k) && ferDias(k,y).includes(iso)) || null; };
 const seasonBase = iso => { const y=+iso.slice(0,4), m=+iso.slice(5,7), md=iso.slice(5), t=Date.UTC(y,m-1,+iso.slice(8,10)), p=pascoa(y);
@@ -1451,7 +1451,7 @@ async function markSlots(b){
 /* empilhamento de tudo o que vem no passeio, antes do valor (pedido do Rodrigo): lancha exclusiva, roteiro, tripulação, itens a bordo e garantias */
 const STACK_SKIP = ["Marinheiro","Marinheiro experiente","Serviço de churrasqueiro"];
 /* destaque dourado (pedido do Rodrigo): esses itens vêm primeiro na lista */
-const STACK_GOLD = ["Wi-Fi Starlink","Ar-condicionado","Som na proa","Piscina inflável","Gelo filtrado"];
+const STACK_GOLD = ["Wi-Fi Starlink","Ar-condicionado","Som na proa","Piscina inflável","Gelo filtrado","Televisão"]; /* igual a GOLD_ITEMS no app */
 const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...STACK_GOLD.filter(i=>l.includes(i)),...l.filter(i=>!STACK_GOLD.includes(i))].map(itemChip).join(""); };
 /* card da página inicial: itens básicos de todas (azul) e depois os destaques que a lancha tem (dourado) */
 const CARD_BASIC = ["Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Cooler","Som Bluetooth"];
