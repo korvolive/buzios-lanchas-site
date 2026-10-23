@@ -1,5 +1,5 @@
 /* Agenda (donos, marinheiros e equipe): guarda a tela do app para abrir rápido; a agenda vem sempre da internet */
-const CACHE = "agenda-acesso-v4";
+const CACHE = "agenda-acesso-v5";
 const SHELL = ["/login/", "/login/manifest.webmanifest", "/login/icon-192.png"];
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); });
 self.addEventListener("activate", e => e.waitUntil(
@@ -14,17 +14,24 @@ self.addEventListener("fetch", e => {
   }).catch(() => caches.match(e.request.mode === "navigate" ? "/login/" : e.request)));
 });
 
+/* número no ícone do app (Rodrigo 2026-10-23): o app grava o total certo ao abrir; cada aviso que chega soma 1 */
+const BADGE = "/login/__badge";
+const badgeGet = () => caches.open(CACHE).then(c => c.match(BADGE)).then(r => r ? r.text() : "0").then(x => +x || 0).catch(() => 0);
+const badgeSet = n => caches.open(CACHE).then(c => c.put(BADGE, new Response(String(n)))).then(() => {
+  if (!self.navigator.setAppBadge) return; return n > 0 ? self.navigator.setAppBadge(n) : self.navigator.clearAppBadge(); }).catch(() => {});
+self.addEventListener("message", e => { if (e.data && e.data.tipo === "badge") e.waitUntil(badgeSet(+e.data.n || 0)); });
 /* notificação no celular (passeio aprovado para o dono, pedido novo para a Búzios Lanchas) */
 self.addEventListener("push", e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: e.data && e.data.text() }; }
   const show = () => self.registration.showNotification(d.title || "Búzios Lanchas", {
-    body: d.body || "", tag: d.tag, renotify: !!d.tag, icon: "/login/icon-192.png", badge: "/login/icon-192.png", data: { url: d.url || "/login/" } });
+    body: d.body || "", tag: d.tag, renotify: !!d.tag, icon: "/login/icon-192.png", badge: "/login/icon-192.png", data: { url: d.url || "/login/" },
+    ...(/^alerta-/.test(d.tag || "") ? { requireInteraction: true, vibrate: [400, 150, 400, 150, 800] } : {}) }); /* alerta da equipe: fica na tela até tocar */
   /* app aberto na frente: avisa a página (som + aviso dentro do app) em vez da notificação do sistema.
      Site aberto na frente: toca o mesmo som e mostra a notificação normal (Rodrigo, 2026-10-22: todo aviso com som) */
-  e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(ws => {
+  e.waitUntil(badgeGet().then(n => badgeSet(n + 1)).then(() => clients.matchAll({ type: "window", includeUncontrolled: true })).then(ws => {
     const vis = ws.filter(x => x.visibilityState === "visible" && x.focused), app = vis.find(x => new URL(x.url).pathname.startsWith("/login/"));
-    if (app) { app.postMessage({ tipo: /^chat-/.test(d.tag || "") ? "chat" : "aviso", ...d }); return; }
+    if (app) { app.postMessage({ tipo: /^chat-/.test(d.tag || "") ? "chat" : /^alerta-/.test(d.tag || "") ? "alerta" : "aviso", ...d }); return; }
     vis.forEach(x => x.postMessage({ tipo: "som" }));
     return show();
   }));
