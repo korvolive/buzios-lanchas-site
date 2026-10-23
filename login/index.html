@@ -471,6 +471,16 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .dpf{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
 .dpf button{border:0;background:none;color:var(--sea);font:600 15px/1 inherit;padding:10px 8px;cursor:pointer}
 .dpf button:disabled{opacity:.3}
+.eqcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.eqcard .eqi{font-size:26px;line-height:1}.eqcard span.eqt{flex:1;min-width:0}.eqcard b{display:block}.eqcard small{color:var(--muted)}
+.eqcard .cnt{position:static;margin-left:auto}
+.eqwarn{background:#fff3d6;color:#6b4a00;border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:14px}.eqwarn p{margin:2px 0}
+.eqblk{background:#fde4df;color:#8a2416;border-radius:12px;padding:10px 12px;margin:8px 0 0;font-size:14px;text-align:center}
+.cha button.eqwho{all:unset;cursor:pointer;font-weight:700;text-decoration:underline dotted}
+.eqrole{font-size:11px;padding:1px 6px;border-radius:99px;background:var(--half,#eee);margin-left:4px}
+.eqrole.r-admin,.eqrole.r-moderador{background:#0e3a4a;color:#fff}
+.eqhist{list-style:none;padding:0;margin:6px 0 12px;font-size:14px}.eqhist li{padding:6px 0;border-bottom:1px solid var(--line,#ddd)}
+.eqdur{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.eqdur button[aria-pressed=true]{background:var(--brass,#d4a12a);color:#000}
 </style></head><body>
 <header class="top" id="top" hidden></header>
 <main id="app"><p class="loading">…</p></main>
@@ -1467,7 +1477,7 @@ function clientView(){
   const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p)), pend=rows.filter(rvPending).sort(cmpRows);
   app.innerHTML = `<h1 class="hello">${t("cliHello",{name:esc(S.me.nome.split(" ")[0])})}${S.vend?vtag():""}</h1>
     ${pend.length ? `<div class="card rvpend"><h2>${t("rvPendT")}</h2><p class="muted" style="margin:0">${t("rvPendSub")}</p>${pend.filter(p=>p.data>="2026-10-22" && !(S.cups||[]).some(c=>c.origem_pedido===p.id)).map(p=>`<p class="cupgift">🎁 ${t("cupGift",{v:brl(p.lancha==="miss-bardot"&&!p.vendedor?100:50)})}</p>`).join("")/* cupom só depois de avaliar (Rodrigo 2026-10-23) */}${pend.map(p=>`<div class="trow"><span class="who">${avatar(p.lancha,"bav")}<span><strong>${esc(boatName(p.lancha))}</strong><br><small class="muted">${fmtLong(p.data)} · ${t("slot_"+p.horario)}</small></span></span><button type="button" class="btn" data-rv="${p.id}">${t("rvPendBtn")}</button></div>`).join("")}</div>` : ""}
-    ${cupHTML()}
+    ${S.vend ? eqCardHTML() : ""}${cupHTML()}
     ${waVerHTML()}
     ${emAddHTML()}
     ${pushNudgeHTML()}
@@ -2207,6 +2217,10 @@ Object.assign(T.es, {valMax:"El valor máximo es R$ 9.999.", prTap:"Toca para ab
 Object.assign(T.pt, {notifyCli:"Mande a confirmação para o cliente, com a localização do embarque:", waConfirm:"Olá, {name}! Seu passeio na {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} pessoas\n{emb}{resto}Qualquer dúvida, é só chamar. Bom passeio! Búzios Lanchas"});
 Object.assign(T.en, {notifyCli:"Send the confirmation to the customer, with the boarding location:", waConfirm:"Hi, {name}! Your tour on {boat} is confirmed ✅\n📅 {date}\n🕙 {slot}\n👥 {people} people\n{emb}{resto}Any questions, just message us. Enjoy your tour! Búzios Lanchas"});
 Object.assign(T.es, {notifyCli:"Manda la confirmación al cliente, con la ubicación del embarque:", waConfirm:"¡Hola, {name}! Tu paseo en {boat} está confirmado ✅\n📅 {date}\n🕙 {slot}\n👥 {people} personas\n{emb}{resto}Cualquier duda, escríbenos. ¡Buen paseo! Búzios Lanchas"});
+/* chat da equipe (Rodrigo 2026-10-23) */
+Object.assign(T.pt, {eqT:"Chat da equipe", eqSub:"Donos, marinheiros e vendedores da Búzios Lanchas", eqNew1:"1 mensagem nova", eqNewN:"{n} mensagens novas", eqOpen:"Abrir", eqNote:"Grupo da equipe. Seja educado: os moderadores podem apagar mensagens, advertir e bloquear quem desrespeitar.", eqEmpty:"Nenhuma mensagem ainda. Comece a conversa!", eqR_admin:"Búzios Lanchas", eqR_moderador:"Moderador", eqR_dono:"Dono", eqR_marinheiro:"Marinheiro", eqR_vendedor:"Vendedor", eqWarnT:"⚠️ Você recebeu uma advertência de um moderador", eqBlockT:"🚫 Você foi bloqueado no chat da equipe", eqWhy:"Motivo: {m}", eqOk:"Entendi", eqBlocked:"Você está bloqueado e não pode mandar mensagens {ate}.", eqUntil:"até {d}", eqForever:"até um moderador liberar", eqModT:"Moderação", eqWarns:"Advertências: {n}", eqIsBlocked:"Bloqueado {ate}", eqNotBlocked:"Não está bloqueado", eqWarn:"⚠️ Dar advertência", eqBlock:"🚫 Bloquear", eqUnblock:"Desbloquear", eqBack:"‹ Voltar ao chat", eqWhyQ:"Motivo (a pessoa vai ver):", eqHow:"Por quanto tempo?", eqD1:"1 dia", eqD7:"7 dias", eqD30:"30 dias", eqD0:"Até desbloquear", eqWarnOk:"Advertência enviada.", eqBlockOk:"Pessoa bloqueada.", eqUnblockOk:"Pessoa desbloqueada.", eqHist:"Histórico", eqH_advertencia:"Advertência", eqH_bloqueio:"Bloqueio", eqBy:"por {n}", eqRevoked:"desfeito", eqNoHist:"Nada ainda.", eqDelQ:"Apagar esta mensagem para todos?", eqMakeMod:"🛡️ Tornar moderador do chat", eqUnMod:"🛡️ Tirar de moderador", eqModOn:"Agora é moderador do chat da equipe.", eqModOff:"Não é mais moderador.", eqModTag:"Moderador do chat da equipe", eqCantMod:"Esta pessoa não pode ser punida.", eqSql:"Falta rodar o SQL do chat da equipe no Supabase."});
+Object.assign(T.en, {eqT:"Team chat", eqSub:"Búzios Lanchas owners, skippers and sellers", eqNew1:"1 new message", eqNewN:"{n} new messages", eqOpen:"Open", eqNote:"Team group. Be polite: moderators can delete messages, warn and block anyone who is disrespectful.", eqEmpty:"No messages yet. Start the conversation!", eqR_admin:"Búzios Lanchas", eqR_moderador:"Moderator", eqR_dono:"Owner", eqR_marinheiro:"Skipper", eqR_vendedor:"Seller", eqWarnT:"⚠️ You got a warning from a moderator", eqBlockT:"🚫 You were blocked from the team chat", eqWhy:"Reason: {m}", eqOk:"Got it", eqBlocked:"You are blocked and cannot send messages {ate}.", eqUntil:"until {d}", eqForever:"until a moderator unblocks you", eqModT:"Moderation", eqWarns:"Warnings: {n}", eqIsBlocked:"Blocked {ate}", eqNotBlocked:"Not blocked", eqWarn:"⚠️ Give a warning", eqBlock:"🚫 Block", eqUnblock:"Unblock", eqBack:"‹ Back to chat", eqWhyQ:"Reason (the person will see it):", eqHow:"For how long?", eqD1:"1 day", eqD7:"7 days", eqD30:"30 days", eqD0:"Until unblocked", eqWarnOk:"Warning sent.", eqBlockOk:"Person blocked.", eqUnblockOk:"Person unblocked.", eqHist:"History", eqH_advertencia:"Warning", eqH_bloqueio:"Block", eqBy:"by {n}", eqRevoked:"undone", eqNoHist:"Nothing yet.", eqDelQ:"Delete this message for everyone?", eqMakeMod:"🛡️ Make team chat moderator", eqUnMod:"🛡️ Remove as moderator", eqModOn:"Now a team chat moderator.", eqModOff:"No longer a moderator.", eqModTag:"Team chat moderator", eqCantMod:"This person cannot be punished.", eqSql:"The team chat SQL still needs to be run in Supabase."});
+Object.assign(T.es, {eqT:"Chat del equipo", eqSub:"Dueños, marineros y vendedores de Búzios Lanchas", eqNew1:"1 mensaje nuevo", eqNewN:"{n} mensajes nuevos", eqOpen:"Abrir", eqNote:"Grupo del equipo. Sé respetuoso: los moderadores pueden borrar mensajes, advertir y bloquear a quien falte el respeto.", eqEmpty:"Todavía no hay mensajes. ¡Empieza la conversación!", eqR_admin:"Búzios Lanchas", eqR_moderador:"Moderador", eqR_dono:"Dueño", eqR_marinheiro:"Marinero", eqR_vendedor:"Vendedor", eqWarnT:"⚠️ Recibiste una advertencia de un moderador", eqBlockT:"🚫 Fuiste bloqueado en el chat del equipo", eqWhy:"Motivo: {m}", eqOk:"Entendido", eqBlocked:"Estás bloqueado y no puedes enviar mensajes {ate}.", eqUntil:"hasta el {d}", eqForever:"hasta que un moderador te desbloquee", eqModT:"Moderación", eqWarns:"Advertencias: {n}", eqIsBlocked:"Bloqueado {ate}", eqNotBlocked:"No está bloqueado", eqWarn:"⚠️ Dar advertencia", eqBlock:"🚫 Bloquear", eqUnblock:"Desbloquear", eqBack:"‹ Volver al chat", eqWhyQ:"Motivo (la persona lo verá):", eqHow:"¿Por cuánto tiempo?", eqD1:"1 día", eqD7:"7 días", eqD30:"30 días", eqD0:"Hasta desbloquear", eqWarnOk:"Advertencia enviada.", eqBlockOk:"Persona bloqueada.", eqUnblockOk:"Persona desbloqueada.", eqHist:"Historial", eqH_advertencia:"Advertencia", eqH_bloqueio:"Bloqueo", eqBy:"por {n}", eqRevoked:"deshecho", eqNoHist:"Nada todavía.", eqDelQ:"¿Borrar este mensaje para todos?", eqMakeMod:"🛡️ Hacer moderador del chat", eqUnMod:"🛡️ Quitar de moderador", eqModOn:"Ahora es moderador del chat del equipo.", eqModOff:"Ya no es moderador.", eqModTag:"Moderador del chat del equipo", eqCantMod:"Esta persona no puede ser sancionada.", eqSql:"Falta ejecutar el SQL del chat del equipo en Supabase."});
 /* consulta rápida do site (Rodrigo 2026-10-23) */
 Object.assign(T.pt, {csT:"📩 Consultas pelo site", csSub:"Quem preencheu a janelinha do Consultar disponibilidade. A lancha não fica bloqueada. Aprove depois do sinal (o cliente recebe o convite para confirmar o e-mail) ou recuse (os dados dele são apagados).", csNoCall:"não chamou no WhatsApp", csCalled:"chamou no WhatsApp", csAt:"consultou {d}", csOk:"✓ Aprovar", csNo:"Recusar", csNoQ:"Recusar a consulta de {name}? Todos os dados dele são apagados.", csNoOk:"Consulta recusada e dados apagados.", csPast:"a data já passou", csSql:"Falta rodar o SQL das consultas no Supabase.", csWaNoCall:"Olá, {name}! Aqui é da Búzios Lanchas 😊\nVi que você se interessou pela lancha {boat} para {date} ({slot}){people}. Quer que eu te passe os detalhes e te ajude a garantir esse passeio?", csWaCall:"Olá, {name}! Aqui é da Búzios Lanchas 😊 Sobre a sua consulta da lancha {boat} para {date} ({slot}){people}:", csPeople:", para {n} pessoas"});
 Object.assign(T.en, {csT:"📩 Website inquiries", csSub:"People who filled in the Check availability box. The boat is not blocked. Approve after the deposit (the client gets the invite to confirm the email) or decline (their data is deleted).", csNoCall:"didn't message on WhatsApp", csCalled:"messaged on WhatsApp", csAt:"asked {d}", csOk:"✓ Approve", csNo:"Decline", csNoQ:"Decline {name}'s inquiry? All their data is deleted.", csNoOk:"Inquiry declined and data deleted.", csPast:"the date has passed", csSql:"The inquiries SQL still needs to be run in Supabase.", csWaNoCall:"Hi, {name}! This is Búzios Lanchas 😊\nI saw you were interested in the boat {boat} on {date} ({slot}){people}. Would you like me to send you the details and help you book this tour?", csWaCall:"Hi, {name}! This is Búzios Lanchas 😊 About your inquiry for the boat {boat} on {date} ({slot}){people}:", csPeople:", for {n} people"});
@@ -2988,6 +3002,92 @@ function chMsgHTML(m){
     <div class="chx"><span>${hora}</span>${canDel?`<button type="button" data-mdel="${m.id}">${t("chDel")}</button>`:""}${canRep?`<button type="button" data-mrep="${m.id}">${t("chRep")}</button>`:""}</div></div>`;
 }
 const refHTML = (l, d) => `<div class="chref">⛵ ${t("chAbout")} <b>${esc(boatName(l))} · ${fmtLong(d)}</b></div>`;
+/* ===== chat da equipe (Rodrigo 2026-10-23): um grupo só, para donos, marinheiros, vendedores, moderadores e administradores.
+   Moderadores (o administrador escolhe em Usuários) apagam mensagens, dão advertência e bloqueiam. Sem notificação no celular: o card mostra as novas */
+let eqOn=false, eqRows=[], eqLast=0, eqTimer=null, eqTick=0;
+async function loadEq(){ try{ const r=await RPC("equipe_estado",{}); S.eq=r[0]||null; }catch(e){ S.eq = e.status===404 ? false : S.eq||null; } return S.eq; }
+const eqCardHTML = () => S.eq?.membro ? `<button type="button" class="card eqcard" data-eqgo><span class="eqi" aria-hidden="true">👥</span><span class="eqt"><b>${t("eqT")}</b><small>${S.eq.nao_lidas ? t(S.eq.nao_lidas===1?"eqNew1":"eqNewN",{n:S.eq.nao_lidas}) : t("eqSub")}</small></span>${S.eq.nao_lidas?`<b class="cnt ch">${S.eq.nao_lidas}</b>`:""}<span aria-hidden="true">›</span></button>` : "";
+document.addEventListener("click", e=>{ if(e.target.closest("[data-eqgo]")) openEq(); });
+const eqAte = d => !d ? "" : /^infinity$/i.test(d) || new Date(d).getFullYear()>9000 ? t("eqForever") : t("eqUntil",{d:new Date(d).toLocaleString(t("locale"),{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})});
+function eqMsgHTML(m){
+  const me=m.autor===ses.user.id, mod=S.eq?.moderador, hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
+  const canDel=!m.apagada && (me || mod), who=esc(m.nome||"—"), role=m.papel?`<span class="eqrole r-${m.papel}">${t("eqR_"+m.papel)}</span>`:"";
+  return `<div class="chm${me?" me":""}${m.papel==="admin"?" sup":""}${m.apagada?" del":""}" data-mid="${m.id}">
+    ${me?"":`<div class="cha">${face(m.autor,m.nome,"face")}${mod && m.autor && m.papel!=="admin" ? `<button type="button" class="eqwho" data-equ="${m.autor}">${who}</button>` : `<b>${who}</b>`}${role}</div>`}
+    <div class="cht">${m.apagada?t("chDeleted"):esc(m.texto)}</div>
+    <div class="chx"><span>${hora}</span>${canDel?`<button type="button" data-eqdel="${m.id}">${t("chDel")}</button>`:""}</div></div>`;
+}
+function eqRender(){
+  const l=document.getElementById("chlist"); if(!l) return; const atEnd = !l.dataset.n || l.scrollHeight - l.scrollTop - l.clientHeight < 80; let day="";
+  l.innerHTML = eqRows.length ? eqRows.map(m=>{ const d=new Date(m.criado_em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"}); const sep=d!==day?`<div class="chday muted">${d}</div>`:""; day=d; return sep+eqMsgHTML(m); }).join("") : `<p class="muted" style="text-align:center;margin:auto">${t("eqEmpty")}</p>`;
+  l.dataset.n=eqRows.length; if(atEnd) l.scrollTop=l.scrollHeight;
+  l.querySelectorAll("[data-eqdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("eqDelQ"))) return; try{ await RPC("equipe_apagar",{mid:+x.dataset.eqdel}); const m=eqRows.find(r=>r.id===+x.dataset.eqdel); if(m){ m.apagada=true; m.texto=null; } eqRender(); }catch(e){ toast(errMsg(e)); } });
+  l.querySelectorAll("[data-equ]").forEach(x=>x.onclick=()=>eqFicha(x.dataset.equ));
+}
+async function eqPoll(full){
+  if(!eqOn) return;
+  try{ const all = full || (++eqTick % 6)===0, rows=await RPC("equipe_mensagens", all ? {} : {depois:eqLast}); if(!eqOn) return;
+    rows.forEach(m=>{ if(m.foto!=null) S.avV[m.autor]=+m.foto; }); rows.sort((a,b)=>a.id-b.id);
+    const novas=rows.filter(r=>!eqRows.some(x=>x.id===r.id));
+    if(all){ const keep=eqRows.filter(x=>!rows.some(r=>r.id===x.id) && x.id<(rows[0]?.id||0)); eqRows=[...keep, ...rows]; } else eqRows.push(...novas);
+    if(eqRows.length){ eqLast=eqRows[eqRows.length-1].id; RPC("equipe_lida",{ate_id:eqLast}).catch(()=>{}); if(S.eq) S.eq.nao_lidas=0; }
+    if(novas.length || all) eqRender(); }catch(e){ if(full){ const l=document.getElementById("chlist"); if(l) l.innerHTML=`<p class="msg err">${e.status===404?t("eqSql"):t("loadErr")}</p>`; } }
+}
+function eqFormState(){
+  const f=document.getElementById("chform"), b=document.getElementById("eqblk"); if(!f) return;
+  const blk=S.eq?.bloqueado_ate; f.style.display = blk ? "none" : "";
+  if(b){ b.hidden=!blk; b.textContent = blk ? t("eqBlocked",{ate:eqAte(blk)}) : ""; }
+}
+function eqWarnHTML(){
+  const L=S.eq?.avisos||[]; if(!L.length) return "";
+  return `<div class="eqwarn" id="eqwarn">${L.map(a=>`<p><b>${t(a.tipo==="bloqueio"?"eqBlockT":"eqWarnT")}</b>${a.tipo==="bloqueio"&&a.ate?" · "+eqAte(a.ate):""}</p>${a.motivo?`<p>${t("eqWhy",{m:esc(a.motivo)})}</p>`:""}`).join("")}<button type="button" class="btn sec" id="eqok" style="margin-top:6px">${t("eqOk")}</button></div>`;
+}
+async function openEq(){
+  closeDay(); eqOn=true; eqRows=[]; eqLast=0; eqTick=0;
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button>
+    <div class="chhead"><span class="face lg ini" aria-hidden="true">👥</span><div><strong>${t("eqT")}</strong><small>${t("eqSub")}</small></div></div>
+    <p class="chnote muted">${t("eqNote")}</p><div id="eqwbox">${eqWarnHTML()}</div>
+    <div class="chlist" id="chlist"><p class="muted" style="text-align:center">…</p></div>
+    <form class="chform" id="chform" novalidate><textarea id="chtx" rows="1" maxlength="1000" placeholder="${t("chPh")}" aria-label="${t("chPh")}"></textarea><button class="btn" id="chsend" aria-label="${t("chSend")}">➤</button></form>
+    <p class="eqblk" id="eqblk" hidden></p>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  const bindWarn=()=>{ const ok=document.getElementById("eqok"); if(ok) ok.onclick=async()=>{ ok.disabled=true; await RPC("equipe_ciente",{}).catch(()=>{}); if(S.eq) S.eq.avisos=[]; document.getElementById("eqwbox").innerHTML=""; }; };
+  bindWarn(); eqFormState();
+  const tx=document.getElementById("chtx"); tx.oninput=()=>{ tx.style.height="auto"; tx.style.height=Math.min(tx.scrollHeight,120)+"px"; };
+  tx.onkeydown=e=>{ if(e.key==="Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches){ e.preventDefault(); document.getElementById("chform").requestSubmit(); } };
+  document.getElementById("chform").onsubmit=async e=>{ e.preventDefault(); const txt=tx.value.trim(); if(!txt) return; const b=document.getElementById("chsend"); b.disabled=true;
+    try{ await RPC("equipe_enviar",{texto:txt}); tx.value=""; tx.style.height="auto"; await eqPoll(); }
+    catch(err){ if(err.message==="BLOQUEADO"){ await loadEq(); eqFormState(); document.getElementById("eqwbox").innerHTML=eqWarnHTML(); bindWarn(); } else toast(chErr(err)); } finally{ b.disabled=false; tx.focus(); } };
+  await eqPoll(true);
+  eqTimer=setInterval(()=>{ if(document.visibilityState==="visible") eqPoll(); }, 4000);
+  loadEq().then(()=>{ if(!eqOn) return; eqFormState(); const w=document.getElementById("eqwbox"); if(w && !w.innerHTML.trim()){ w.innerHTML=eqWarnHTML(); bindWarn(); } });
+}
+function eqClosed(){ if(!eqOn) return; eqOn=false; clearInterval(eqTimer); eqTimer=null; loadEq().then(eqRefresh); }
+/* atualiza o card na tela (novas mensagens) sem redesenhar tudo */
+function eqRefresh(){ document.querySelectorAll("[data-eqgo]").forEach(c=>{ const h=eqCardHTML(); if(h) c.outerHTML=h; else c.remove(); }); }
+/* ficha da pessoa para o moderador: advertência, bloqueio e histórico */
+async function eqFicha(uid){
+  eqOn=false; clearInterval(eqTimer); eqTimer=null;
+  let f; try{ f=(await RPC("equipe_ficha",{uid}))[0]; }catch(e){ toast(errMsg(e)); return openEq(); }
+  let dias=1;
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button>
+    <button type="button" class="link" id="eqback" style="margin:0 0 8px">${t("eqBack")}</button>
+    <div class="chhead">${face(uid,f.nome,"face lg")}<div><strong>${esc(f.nome)}</strong><small>${f.papel?t("eqR_"+f.papel):""}</small></div></div>
+    <h3 class="uh">${t("eqModT")}</h3>
+    <p style="margin:4px 0">${t("eqWarns",{n:f.advertencias})} · ${f.bloqueado_ate ? t("eqIsBlocked",{ate:eqAte(f.bloqueado_ate)}) : t("eqNotBlocked")}</p>
+    <button type="button" class="btn sec" id="eqw" style="margin:8px 0">${t("eqWarn")}</button>
+    ${f.bloqueado_ate ? `<button type="button" class="btn" id="equb" style="margin:0 0 8px">${t("eqUnblock")}</button>` : `<p style="margin:8px 0 0">${t("eqHow")}</p><div class="eqdur">${[[1,"eqD1"],[7,"eqD7"],[30,"eqD30"],[0,"eqD0"]].map(([d,k])=>`<button type="button" class="btn sec" data-eqd="${d}" aria-pressed="${d===1}">${t(k)}</button>`).join("")}</div><button type="button" class="btn danger" id="eqb">${t("eqBlock")}</button>`}
+    <h3 class="uh">${t("eqHist")}</h3>
+    <ul class="eqhist">${(f.historico||[]).length ? f.historico.map(h=>`<li><b>${t("eqH_"+h.tipo)}</b> · ${new Date(h.em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"})} · ${t("eqBy",{n:esc(String(h.por||"").split(" ")[0])})}${h.tipo==="bloqueio"?` · ${h.revogada?t("eqRevoked"):eqAte(h.ate)}`:""}${h.motivo?`<br><span class="muted">${esc(h.motivo)}</span>`:""}</li>`).join("") : `<li class="muted">${t("eqNoHist")}</li>`}</ul>`;
+  document.getElementById("eqback").onclick=openEq;
+  sheet.querySelectorAll("[data-eqd]").forEach(b=>b.onclick=()=>{ dias=+b.dataset.eqd; sheet.querySelectorAll("[data-eqd]").forEach(x=>x.setAttribute("aria-pressed", x===b)); });
+  const punir=async(tipo)=>{ const m=prompt(t("eqWhyQ")); if(m===null) return;
+    try{ await RPC("equipe_punir",{uid, tipo, motivo:m, dias: tipo==="bloqueio" && dias ? dias : null}); toast(t(tipo==="bloqueio"?"eqBlockOk":"eqWarnOk")); eqFicha(uid); }
+    catch(e){ toast(/punir/.test(e.message||"") ? t("eqCantMod") : errMsg(e)); } };
+  document.getElementById("eqw").onclick=()=>punir("advertencia");
+  const bb=document.getElementById("eqb"); if(bb) bb.onclick=()=>punir("bloqueio");
+  const ub=document.getElementById("equb"); if(ub) ub.onclick=async()=>{ try{ await RPC("equipe_desbloquear",{uid}); toast(t("eqUnblockOk")); eqFicha(uid); }catch(e){ toast(errMsg(e)); } };
+}
 function renderChat(more){
   const l=document.getElementById("chlist"); if(!l) return; const first=!l.dataset.n, atEnd = first || l.scrollHeight - l.scrollTop - l.clientHeight < 80;
   const dono=(S.convs||[]).find(x=>x.id===chatCid)?.tipo==="dono"; let day="", ref=null;
@@ -3303,6 +3403,7 @@ function openUser(uid, msg=""){
     ${u.cliente && !me ? `<div id="uvinc"></div>` : ""}
     ${u.vendedor && !me ? `<div id="uvcli"></div>` : ""}
     ${me || u.admin || u.vendedor ? "" : `<button type="button" class="btn sec" id="uvend" style="margin:0 0 10px">💼 ${t("userVendOn")}</button>`}
+    ${me || u.admin ? "" : `<div id="umodb"></div>`}
     ${me ? "" : `<form id="uadd" class="uadd" novalidate><select class="in" id="uat" aria-label="${t("userWhat")}">${roleOpts(u.freelancer)}</select><select class="in" id="ual" aria-label="${t("boat")}">${boatOpts()}</select><button class="btn sec" id="uago">+ ${t("userGive")}</button></form>`}
     <h3 class="uh">${t("userData")}</h3>
     <form id="uef" class="nform" novalidate>
@@ -3362,6 +3463,11 @@ function openUser(uid, msg=""){
         try{ await RPC("trocar_vendedor_cliente",{uid:b.dataset.vcx, vend:null}); busy(false); toast(t("vcliOk",{n:b.dataset.n})); load(); }
         catch(e){ busy(false); toast(/passeio_em_andamento/.test(e.message||"") ? t("vincLock") : errMsg(e)); } }); }, ()=>{});
     load(); }
+  /* moderador do chat da equipe (Rodrigo 2026-10-23) */
+  const mb=document.getElementById("umodb");
+  if(mb) RPC("moderadores_ids",{}).then(ids=>{ if(!document.body.contains(mb)) return; const on=(ids||[]).map(x=>typeof x==="string"?x:x.moderadores_ids||Object.values(x)[0]).includes(uid);
+    mb.innerHTML=`${on?`<p class="muted" style="margin:0 0 6px;font-size:14px">🛡️ ${t("eqModTag")}</p>`:""}<button type="button" class="btn sec" id="umod" style="margin:0 0 10px">${t(on?"eqUnMod":"eqMakeMod")}</button>`;
+    document.getElementById("umod").onclick=async()=>{ busy(true); try{ await RPC("definir_moderador",{uid, sim:!on}); toast(t(on?"eqModOff":"eqModOn")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } }; }, ()=>{});
   const uv=document.getElementById("uvend"); if(uv) uv.onclick = async () => { busy(true);
     try{ await RPC("cadastrar_vendedor",{uid, teto:20}); toast(t("userSaved")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } };
   const ua=document.getElementById("uadd");
@@ -3506,7 +3612,7 @@ function mainView(){
   document.getElementById("out").onclick = logout;
   if(S.needProf) return profView();
   if(!S.boats.length && (S.sailorOf.length || S.isFree)){
-    app.innerHTML = installHTML() + pushHTML() + (S.vend ? vendHTML() : "") + sailorHTML() + vendAskHTML() + PW_LINK();
+    app.innerHTML = installHTML() + pushHTML() + eqCardHTML() + (S.vend ? vendHTML() : "") + sailorHTML() + vendAskHTML() + PW_LINK();
     return bindMain();
   }
   if(!S.boats.length){
@@ -3519,6 +3625,7 @@ function mainView(){
   if(S.tab==="vendas" && !S.vend) S.tab="lista";
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
   app.innerHTML = (S.tab==="lista" ? avHTML() : "") /* "Lancha livre em" no topo, antes da escolha da lancha */ + fotoPendHTML() + installHTML() + pushHTML()
+    + (S.tab==="lista" ? eqCardHTML() : "") /* chat da equipe no topo de Passeios */
     + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 ? boatPicker(chips) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + `${tabsHTML()}`
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
@@ -4033,7 +4140,7 @@ async function loadBlocks(){
 const sheet=document.getElementById("sheet"), sheetBg=document.getElementById("sheet-bg");
 let sheetDay = null;
 function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheetBg.classList.add("on"); }
-function closeDay(){ sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; pedidoFor=null; consultaFor=null; chatClosed(); }
+function closeDay(){ sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; pedidoFor=null; consultaFor=null; chatClosed(); eqClosed(); }
 sheetBg.onclick = closeDay;
 sheet.addEventListener("click", e => { if(e.target.closest(".shx")) closeDay(); }); /* X no canto: fecha sem salvar */
 /* trocar a própria senha (dono ou funcionário): confere a atual entrando de novo e só então grava a nova */
@@ -4466,6 +4573,8 @@ async function boot(){
     S.admin = admin===true; S.all = all;
     if(S.admin && new URLSearchParams(location.search).get("consulta")){ S.tab="pedidos"; S.reqF="pendente"; history.replaceState(null,"",location.pathname); } /* aviso "não chamou no WhatsApp" */
     S.vend = (await db("rpc/meu_vendedor",{method:"POST",body:{}}).catch(()=>[]))[0] || null; await loadVendIds();
+    await loadEq(); /* chat da equipe: quem é da equipe vê o card */
+    setInterval(()=>{ if(document.visibilityState==="visible" && !eqOn && S.eq?.membro) loadEq().then(eqRefresh); }, 30000);
     /* chat do pedido: conversas de quem está logado; ?chat=ID (toque na notificação) abre a conversa */
     loadConvs().then(()=>{ if(view==="main" && !sheetDay && !tripRow && !chatCid) S.isClient ? (S.me && clientView()) : mainView();
       const chq=+new URLSearchParams(location.search).get("chat"); if(chq){ history.replaceState(null,"",location.pathname); openChat(chq); } });
