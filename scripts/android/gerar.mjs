@@ -9,7 +9,7 @@ const out = process.argv[2] || "build-android", code = +(process.argv[3] || 1);
 const web = JSON.parse(fs.readFileSync(new URL("../../manifest.webmanifest", import.meta.url), "utf8"));
 const m = TwaManifest.fromWebManifestJson(new URL(`https://${HOST}/manifest.webmanifest`), web);
 const base = process.env.ICON_BASE;
-if (base) { for (const k of ["iconUrl", "maskableIconUrl", "monochromeIconUrl"]) if (m[k]) m[k] = m[k].replace(`https://${HOST}`, base); }
+if (base) { for (const k of ["iconUrl", "maskableIconUrl", "monochromeIconUrl"]) if (m[k]) m[k] = m[k].replace(`https://${HOST}`, base); m.webManifestUrl = new URL(`${base}/manifest.webmanifest`); }
 Object.assign(m, {
   packageId: "br.com.lanchaembuzios.app",
   name: "Búzios Lanchas",

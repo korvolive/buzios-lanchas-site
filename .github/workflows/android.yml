@@ -25,7 +25,7 @@ jobs:
           node-version: 20
       - name: Gerar o projeto Android a partir do manifest do site
         run: |
-          npm install --no-save --no-package-lock @bubblewrap/core@1.24.1
+          npm install --no-save --no-package-lock @bubblewrap/core@1.27.0 # alvo Android 16 (API 36), exigido pela Play Store para apps novos desde 31/08/2026
           node scripts/android/gerar.mjs build-android ${{ github.run_number }}
       - name: Compilar (AAB para a Play Store e APK para testar no celular)
         working-directory: build-android
