@@ -1918,7 +1918,7 @@ function ppPaint(e){
 /* desconto de segunda a quinta da época: um para o 4h e outro para o 7h; digita o % ou o valor final, um preenche o outro (Rodrigo 2026-10-22) */
 const pctTxt = n => String(Math.round((+n||0)*100)/100);
 /* par de campos por 4h e 7h: % ou valor final, um preenche o outro. ds = desconto de segunda a quinta (tira), rv = Réveillon e Carnaval sobre a alta (soma) */
-const PAIR = {ds:{max:30, sign:-1, lab:"mnDs", pct:"dsPct"}, rv:{max:100, sign:1, lab:"mnPr", pct:"rvPct"}};
+const PAIR = {ds:{max:30, sign:-1, lab:"mnDs", pct:"dsPct"}, rv:{max:60, sign:1, lab:"mnPr", pct:"rvPct"}};
 const pairHTML = (kind, k, get, dis="", dr={}) => `<div class="dsb"><span class="dsl">${t(PAIR[kind].lab)}${kind==="ds" ? "" : ` <small>(${t(PAIR[kind].pct)} % · ${t("dsVal")})</small>`}</span><div class="dsr">
   ${[k,k+"7"].map(c=>`<span class="dsi"><span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR[kind].max}" step="any" data-xp="${kind}:${c}" data-k="${kind}_${c}" value="${dr[kind+"_"+c] ?? pctTxt(get(c))}" aria-label="${t(PAIR[kind].lab)} ${t(c.endsWith("7")?"pr7s":"pr4s")} %"${dis}><i>%</i></span><input type="number" class="in" inputmode="numeric" min="0" max="${VMAX}" step="10" data-xv="${kind}:${c}" aria-label="${t("dsVal")} ${t(c.endsWith("7")?"pr7s":"pr4s")}"${dis}></span>`).join("")}</div></div>`;
 const dsGet = ds => c => ds?.[c] ?? ds?.[c.replace("7","")] ?? 0, rvGet = (pr, pr7) => c => c.endsWith("7") ? (pr7 ?? pr ?? 0) : (pr ?? 0);
@@ -1926,7 +1926,7 @@ const dsGet = ds => c => ds?.[c] ?? ds?.[c.replace("7","")] ?? 0, rvGet = (pr, p
 document.addEventListener("input", e => { const x=e.target; if(!x.matches?.('input[type="number"][data-xp],input[type="number"][data-mpf],input[type="number"][data-apc],input[type="number"][data-bp]') || x.value.trim()==="") return;
   const n=+x.value, mx=+x.max; if(n<0) x.value=0; else if(x.max!=="" && n>mx){ x.value=mx; toast(t("pctMaxT",{n:mx})); } }, true);
 const VMAX = 9999; /* nenhum valor de passeio passa de R$ 9.999 (Rodrigo 2026-10-22; o banco também barra) */
-const PCT_MAX = {pf:30, pr:100, ds:30}; /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
+const PCT_MAX = {pf:30, pr:60, ds:30}; /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
 function ownPricesHTML(){
   if(S.admin || !(S.own||[]).includes(S.cur) || !S.mn) return "";
   const it=Object.fromEntries((S.mn.itens||[]).map(x=>[x.chave,x])), lock=!!S.mn.prox && new Date(S.mn.prox)>new Date();
