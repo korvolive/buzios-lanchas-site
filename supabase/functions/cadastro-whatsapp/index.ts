@@ -7,6 +7,9 @@
 // POST { acao: "trocar", tel, codigo, senha }               -> a sessão | { erro: "codigo" | "tentativas" | "sem_conta" | "dados" }
 // POST { acao: "email", novo } (logado, conta sem e-mail)   -> { ok } (manda o código de confirmação para o e-mail novo) | { erro: "email" | "usado" | "tem_email" }
 // POST { acao: "email_cancelar" } (logado)                  -> { ok } (volta a conta para sem e-mail, se o novo não foi confirmado)
+// POST { acao: "juntar_enviar", tel, lang } (logado, conta sem cadastro de cliente) -> { ok } manda o código para o WhatsApp de outra conta
+// POST { acao: "juntar", tel, codigo }   (logado) -> a sessão da conta do WhatsApp, agora com o e-mail desta (a conta vazia é apagada)
+//                                            | { erro: "tem_email", email } (a outra conta já tem um e-mail de verdade)
 // Segredos: WA_TOKEN, WA_PHONE_ID, WA_ATIVO=1 (os mesmos da whatsapp-codigo).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -34,6 +37,22 @@ const sessao = async (email: string, password: string) => {
   const r = await fetch(`${URL_SB}/auth/v1/token?grant_type=password`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
   return r.json().catch(() => ({}));
 };
+async function mandaCodigo(t: string, para: string, lang: string) {
+  const { data: res } = await db.rpc("wa_reservar_tel", { t }).maybeSingle();
+  if (!res) {
+    const { data: w } = await db.from("wa_cadastro").select("ultimo_envio").eq("tel_dig", t).maybeSingle();
+    return json({ erro: w && Date.now() - new Date(w.ultimo_envio).getTime() < 60000 ? "espere" : "limite" }, 429);
+  }
+  const cod = codigo6();
+  const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
+    method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
+    body: JSON.stringify({ messaging_product: "whatsapp", to: t, type: "template", template: { name: TEMPLATE, language: { code: LANG[lang] || "pt_BR" },
+      components: [{ type: "body", parameters: [{ type: "text", text: cod }] }, { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: cod }] }] } }),
+  });
+  if (!r.ok) { console.error("whatsapp", r.status, (await r.text()).slice(0, 400)); return json({ erro: "envio" }, 502); }
+  await db.from("wa_cadastro").update({ hash: await sha(`${t}:${cod}:${para}`), expira_em: new Date(Date.now() + VALIDO_MIN * 60000).toISOString(), tentativas: 0 }).eq("tel_dig", t);
+  return json({ ok: true });
+}
 // confere o código (no máximo 5 tentativas, contadas no banco antes de conferir)
 async function confere(t: string, codigo: unknown, para: string) {
   const { data: w } = await db.rpc("wa_tentativa_tel", { t }).maybeSingle();
@@ -80,20 +99,37 @@ Deno.serve(async req => {
       const para = b.para === "senha" ? "senha" : "cadastro", acc = await contas(t);
       if (para === "cadastro" && acc.length) return json({ erro: "ja_tem" });
       if (para === "senha" && !acc.some(a => a.cliente && a.wa_ok)) return json({ erro: "sem_conta" });
-      const { data: res } = await db.rpc("wa_reservar_tel", { t }).maybeSingle();
-      if (!res) {
-        const { data: w } = await db.from("wa_cadastro").select("ultimo_envio").eq("tel_dig", t).maybeSingle();
-        return json({ erro: w && Date.now() - new Date(w.ultimo_envio).getTime() < 60000 ? "espere" : "limite" }, 429);
-      }
-      const cod = codigo6();
-      const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
-        method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
-        body: JSON.stringify({ messaging_product: "whatsapp", to: t, type: "template", template: { name: TEMPLATE, language: { code: LANG[b.lang] || "pt_BR" },
-          components: [{ type: "body", parameters: [{ type: "text", text: cod }] }, { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: cod }] }] } }),
-      });
-      if (!r.ok) { console.error("whatsapp", r.status, (await r.text()).slice(0, 400)); return json({ erro: "envio" }, 502); }
-      await db.from("wa_cadastro").update({ hash: await sha(`${t}:${cod}:${para}`), expira_em: new Date(Date.now() + VALIDO_MIN * 60000).toISOString(), tentativas: 0 }).eq("tel_dig", t);
-      return json({ ok: true });
+      return await mandaCodigo(t, para, b.lang);
+    }
+
+    // ----- entrou pelo Google (ou outro e-mail) com o WhatsApp de uma conta que já existe: junta as duas (Rodrigo 2026-10-23)
+    if (b.acao === "juntar_enviar" || b.acao === "juntar") {
+      const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      const g = (await db.auth.getUser(token)).data?.user;
+      if (!g) return json({ erro: "login" }, 401);
+      const gEmail = (g.email || "").toLowerCase();
+      if (!g.email_confirmed_at || !gEmail || gEmail.endsWith(SEM)) return json({ erro: "dados" }, 400);
+      if ((await db.from("clientes").select("user_id").eq("user_id", g.id).maybeSingle()).data) return json({ erro: "dados" }, 400); // só conta vazia
+      for (const tb of ["admins", "donos", "perfis", "vendedores", "marinheiros", "freelancers"]) // conta de equipe nunca é apagada aqui
+        if ((await db.from(tb).select("user_id").eq("user_id", g.id).limit(1).maybeSingle()).data) return json({ erro: "dados" }, 400);
+      const o = (await contas(t)).find(a => a.cliente && a.user_id !== g.id);
+      if (!o) return json({ erro: "sem_conta" });
+      if (b.acao === "juntar_enviar") return await mandaCodigo(t, "juntar", b.lang);
+      const e = await confere(t, b.codigo, "juntar"); if (e) return json({ erro: e }, e === "tentativas" ? 429 : 400);
+      const ou = (await db.auth.admin.getUserById(o.user_id)).data.user;
+      if (!ou) return json({ erro: "sem_conta" });
+      const oEmail = (ou.email || "").toLowerCase();
+      if (ou.email_confirmed_at && !oEmail.endsWith(SEM) && oEmail !== gEmail) // já tem e-mail de verdade: entra com ele
+        return json({ erro: "tem_email", email: oEmail.replace(/^(.{2})[^@]*/, "$1***") });
+      const { error: de } = await db.auth.admin.deleteUser(g.id); // libera o e-mail; o Google passa a cair na conta antiga
+      if (de) { console.error("juntar delete", de.message); return json({ erro: "falhou" }, 500); }
+      const { error: ue } = await db.auth.admin.updateUserById(ou.id, { email: gEmail, email_confirm: true, user_metadata: { ...(ou.user_metadata || {}), email_pendente: null, sem_email: null } });
+      if (ue) { console.error("juntar update", ue.message); return json({ erro: "falhou" }, 500); }
+      await db.from("clientes").update({ whatsapp_ok_em: new Date().toISOString() }).eq("user_id", ou.id); // o código confirmou o WhatsApp
+      const { data: lk, error: le } = await db.auth.admin.generateLink({ type: "magiclink", email: gEmail });
+      if (le || !lk?.properties?.hashed_token) { console.error("juntar link", le?.message); return json({ erro: "falhou" }, 500); }
+      const r = await fetch(`${URL_SB}/auth/v1/verify`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ type: "magiclink", token_hash: lk.properties.hashed_token }) });
+      return json(await r.json().catch(() => ({ erro: "falhou" })));
     }
 
     if (b.acao === "criar") {
