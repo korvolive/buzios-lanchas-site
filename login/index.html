@@ -3700,7 +3700,7 @@ function bindMain(){
   app.querySelectorAll("[data-afer]").forEach(x=>x.onclick=()=>{ const on=x.getAttribute("aria-pressed")!=="true"; x.setAttribute("aria-pressed", on); x.querySelector("b").textContent=`${on?"✓":"✕"} ${t("fer_"+x.dataset.afer)}`; });
     app.querySelectorAll("[data-mfer]").forEach(x=>x.onclick=()=>{ const k=x.dataset.mfer, off=[...(S.mnOff ?? (S.mn.sem_feriados||[]))]; S.mnOff = off.includes(k) ? off.filter(f=>f!==k) : [...off, k]; S.mnDirty=true; mnKeep(); mainView(); });
   const mns=document.getElementById("mnsave"); if(mns) mns.onclick=async()=>{ const lancha=S.cur, v={}, ds={};
-    for(const x of app.querySelectorAll("[data-mn]")){ const n=+x.value, lo=+x.min, hi=+x.max;
+    for(const x of app.querySelectorAll("input[data-mn]")){ const n=+x.value, lo=+x.min, hi=+x.max; /* só os campos de valor: os botões Remover dos marinheiros também têm data-mn (nome) */
       if(!x.value.trim() || !(n>=lo && n<=hi)){ x.focus(); return toast(t("mnBad",{a:brl(lo), b:brl(hi)})); }
       if(n%50){ x.focus(); return toast(t("mnStep")); }
       v[x.dataset.mn]=n; }
