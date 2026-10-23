@@ -1147,8 +1147,8 @@ function detectCur(){
 }
 const CUR_AUTO = IS_BOT ? "BRL" : detectCur();
 /* estrangeiro (Rodrigo 2026-10-23): vê o valor direto, na moeda dele, sem precisar de conta.
-   Brasil, América Latina, Espanha e Portugal continuam vendo "sob consulta" (negociam mais pelo WhatsApp). País desconhecido conta como Brasil */
-const VALOR_ESCONDIDO = new Set("BR PT ES AR UY CL PY BO PE CO VE EC MX CR PA GT HN SV NI DO CU PR".split(" "));
+   Brasil, América Latina e Portugal continuam (Espanha vê, Rodrigo 2026-10-23) vendo "sob consulta" (negociam mais pelo WhatsApp). País desconhecido conta como Brasil */
+const VALOR_ESCONDIDO = new Set("BR PT AR UY CL PY BO PE CO VE EC MX CR PA GT HN SV NI DO CU PR".split(" "));
 const FOREIGN = (()=>{ if(IS_BOT) return false; const r=detectReg(); return !!r && !VALOR_ESCONDIDO.has(r); })();
 let cur = CUR_AUTO, fxRate = null;
 try{ const c=localStorage.getItem("moeda"); if(c && !IS_BOT) cur=c; }catch(e){}
