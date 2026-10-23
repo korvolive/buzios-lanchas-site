@@ -93,7 +93,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .mnet .psh{flex-wrap:wrap}
 .mng{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .prhd{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.prhd h2{margin:0}.prchev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .2s}
+.prhd h2{margin:0}.prchev{flex:none;width:40px;height:40px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;transition:transform .2s}.prchev svg{width:22px;height:22px}
 .prhd[aria-expanded=true] .prchev{transform:rotate(180deg)}.prc .prsub{margin:6px 0 0}.prc .prbody{margin-top:12px}
 .mnc input{padding-top:8px;padding-bottom:8px}
 .mnt{display:grid;grid-template-columns:24px 76px 110px;justify-content:start;gap:5px 6px;align-items:center}.mnt>b{font-size:11px;line-height:1.2;color:var(--muted);font-weight:600}.mnt>b{text-align:center}.mnfp{text-align:center;font-weight:700;font-size:14px}.mnd1{display:flex;align-items:center;justify-content:flex-start;gap:10px;margin:0 0 8px;font-size:13px;font-weight:600}.mnd1 .mnpi input.in{width:64px;height:34px;min-height:0;padding:4px}.prc input[type=number],.espc input[type=number]{text-align:center}.mnt .pl{font-size:12px;font-weight:700}.mnt input.in{width:100%;box-sizing:border-box;padding:6px 6px;min-height:0;height:34px;font-size:14px}.mnt .mnpi input.in{width:50px}.mnr{display:block;color:var(--muted);font-size:11.5px;margin-top:5px}
@@ -349,6 +349,9 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .items button[aria-pressed=true]{background:var(--sea);border-color:var(--sea);color:#fff}
 .items button[aria-pressed=true]::before{content:"✓ "}
 .items span{opacity:.7}.items span::before{content:"🔒 ";font-size:12px}
+/* card "O que a lancha oferece" compacto (Rodrigo 2026-10-23) */
+.itc .items{gap:6px;margin:6px 0 2px}.itc .items button,.itc .items span{border-width:1px;padding:5px 10px;font-size:13px}.itc .items span::before{font-size:10px}
+.itc h3{font-size:13px!important;margin:12px 0 0!important}.itc .muted{font-size:14px;margin-bottom:0}
 .nslots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .nslots button{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:9px 4px;font-size:14px;font-weight:700;line-height:1.2;display:flex;flex-direction:column;align-items:center}
 .nslots button small{font-weight:400;font-size:11px;color:var(--muted)}
@@ -1761,7 +1764,7 @@ function listHTML(){
 const SEASON3 = ["baixa","media","alta"]; /* épocas com valor próprio; feriado e Réveillon são % (Rodrigo 2026-10-22) */
 const PRICE_KEYS = ["baixa","media","alta","pico","reveillon"]; /* cada temporada tem o valor de 4 horas (k) e o de 7 horas (k+"7") */
 /* cards de valores começam fechados; um toque no título abre ou fecha (Rodrigo 2026-10-22: ocupavam a tela toda) */
-const prWrap = (cls, title, sub, body) => `<div class="card prc ${cls}"><button type="button" class="prhd" data-prt aria-expanded="${!!S.prOpen}"><h2>${title}</h2><span class="prchev" aria-hidden="true">▾</span></button>
+const prWrap = (cls, title, sub, body) => `<div class="card prc ${cls}"><button type="button" class="prhd" data-prt aria-expanded="${!!S.prOpen}"><h2>${title}</h2><span class="prchev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
   <p class="muted prsub">${S.prOpen ? sub : t("prTap")}</p><div class="prbody"${S.prOpen?"":" hidden"} data-sub="${esc(sub)}">${body}</div></div>`;
 function pricesHTML(){
   if(!S.admin) return "";
@@ -1960,7 +1963,7 @@ const itemName = it => it[{pt:0,en:1,es:2}[lang]];
 function itemsHTML(){
   if(S.items===false) return `<div class="card"><p class="msg err" style="margin:0">${S.admin?t("needSqlItens"):t("loadErr")}</p></div>`;
   const on = S.items||[];
-  return `<div class="card"><h2>${t("itemsT")}</h2><p class="muted" style="margin-top:0">${t("itemsSub")}</p>
+  return `<div class="card itc"><h2>${t("itemsT")}</h2><p class="muted" style="margin-top:0">${t("itemsSub")}</p>
     <h3 style="font-size:15px;margin:14px 0 0">${t("itemsBasic")}</h3><div class="items">${BASIC_ITEMS.map(it=>`<span>${itemName(it)}</span>`).join("")}</div>
     <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items">${ITEMS.map(it=>`<button type="button" data-it="${esc(it[0])}" aria-pressed="${on.includes(it[0])}">${itemName(it)}</button>`).join("")}</div></div>`;
 }
@@ -3353,7 +3356,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? mntAllHTML() + boatInfoHTML() + mntHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? mntAllHTML() + boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + marHTML() + mntHTML() /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   bindMain();
 }
