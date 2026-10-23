@@ -14,7 +14,7 @@ const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: 
 const TOKEN = Deno.env.get("WA_TOKEN") || "", PHONE = Deno.env.get("WA_PHONE_ID") || "", TEMPLATE = Deno.env.get("WA_TEMPLATE") || "codigo_verificacao";
 const LANG: Record<string, string> = { pt: "pt_BR", en: "en", es: "es" };
 const dig = (s: string) => String(s || "").replace(/\D/g, "");
-const MAX_DIA = 5, ESPERA_S = 60, VALIDO_MIN = 10, MAX_TENT = 5;
+const ESPERA_S = 60, VALIDO_MIN = 10, MAX_TENT = 5; /* limites por dia: no banco (wa_reservar) */
 
 async function sha(s: string) {
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -41,9 +41,9 @@ Deno.serve(async req => {
 
     if (body.acao === "enviar") {
       if (!TOKEN || !PHONE) return json({ erro: "nao_configurado" }, 503);
-      const hoje = new Date().toISOString().slice(0, 10), mesmoDia = w?.dia === hoje;
-      if (w && Date.now() - new Date(w.ultimo_envio).getTime() < ESPERA_S * 1000) return json({ erro: "espere" }, 429);
-      if (w && mesmoDia && w.envios_dia >= MAX_DIA) return json({ erro: "limite" }, 429);
+      /* reserva o envio no banco de uma vez só (60 s, 5 por dia por conta e por número, 200 por dia no total): pedidos ao mesmo tempo não passam juntos */
+      const { data: res } = await db.rpc("wa_reservar", { u: uid, t: tel }).maybeSingle();
+      if (!res) return json({ erro: w && Date.now() - new Date(w.ultimo_envio).getTime() < ESPERA_S * 1000 ? "espere" : "limite" }, 429);
       const cod = codigo6();
       const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
         method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
@@ -51,20 +51,20 @@ Deno.serve(async req => {
           components: [{ type: "body", parameters: [{ type: "text", text: cod }] }, { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: cod }] }] } }),
       });
       if (!r.ok) { console.error("whatsapp", r.status, (await r.text()).slice(0, 400)); return json({ erro: "envio" }, 502); }
-      await db.from("wa_codigos").upsert({ user_id: uid, tel_dig: tel, hash: await sha(uid + ":" + cod), expira_em: new Date(Date.now() + VALIDO_MIN * 60000).toISOString(),
-        tentativas: 0, ultimo_envio: new Date().toISOString(), envios_dia: mesmoDia ? w.envios_dia + 1 : 1, dia: hoje });
+      await db.from("wa_codigos").update({ hash: await sha(uid + ":" + cod), expira_em: new Date(Date.now() + VALIDO_MIN * 60000).toISOString(), tentativas: 0 }).eq("user_id", uid);
       return json({ ok: true });
     }
 
     if (body.acao === "confirmar") {
       if (!w || w.tel_dig !== tel) return json({ erro: "codigo" }, 400);
       if (new Date(w.expira_em).getTime() < Date.now()) return json({ erro: "expirou" }, 400);
-      if (w.tentativas >= MAX_TENT) return json({ erro: "tentativas" }, 429);
-      if ((await sha(uid + ":" + dig(body.codigo))) !== w.hash) {
-        await db.from("wa_codigos").update({ tentativas: w.tentativas + 1 }).eq("user_id", uid);
-        return json({ erro: "codigo" }, 400);
-      }
-      await db.from("clientes").update({ whatsapp_ok_em: new Date().toISOString() }).eq("user_id", uid);
+      /* conta a tentativa no banco antes de conferir (atômico): no máximo 5, mesmo com pedidos ao mesmo tempo */
+      const { data: w2 } = await db.rpc("wa_tentativa", { u: uid }).maybeSingle();
+      if (!w2) return json({ erro: "tentativas" }, 429);
+      if (!w2.hash || w2.tel_dig !== tel || (await sha(uid + ":" + dig(body.codigo))) !== w2.hash) return json({ erro: "codigo" }, 400);
+      /* só marca se o WhatsApp da conta ainda é o mesmo que recebeu o código */
+      const { data: okRow } = await db.from("clientes").update({ whatsapp_ok_em: new Date().toISOString() }).eq("user_id", uid).eq("whatsapp", c.whatsapp).select("user_id").maybeSingle();
+      if (!okRow) return json({ erro: "codigo" }, 400);
       await db.from("wa_codigos").update({ expira_em: new Date().toISOString(), tentativas: MAX_TENT }).eq("user_id", uid);
       return json({ ok: true });
     }
