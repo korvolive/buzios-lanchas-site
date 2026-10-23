@@ -1309,10 +1309,15 @@ async function sendPedido(b){
   return true;
 }
 /* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
+/* lancha em manutenção (tabela manutencoes, o dono marca no app): todos os horários desses dias ficam ocupados, então ela some das buscas */
 function loadAgenda(){
-  return agenda ||= fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}&revenda=is.null`, {headers:{apikey:AGENDA_KEY}})
-    .then(r=>r.ok ? r.json() : Promise.reject(r.status))
-    .then(rows=>{ const m=new Map(); rows.forEach(r=>{ const k=r.lancha+"|"+r.data; if(!m.has(k)) m.set(k,new Set()); m.get(k).add(r.horario); }); return m; })
+  const mnt = fetch(`${AGENDA_URL.replace("bloqueios","manutencoes")}?select=lancha,de,ate&ate=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
+  return agenda ||= Promise.all([fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}&revenda=is.null`, {headers:{apikey:AGENDA_KEY}})
+    .then(r=>r.ok ? r.json() : Promise.reject(r.status)), mnt])
+    .then(([rows, mn])=>{ const m=new Map(), add=(k,h)=>{ if(!m.has(k)) m.set(k,new Set()); m.get(k).add(h); };
+      rows.forEach(r=>add(r.lancha+"|"+r.data, r.horario));
+      const td=todayISO(); mn.forEach(x=>{ for(let d=new Date((x.de>td?x.de:td)+"T12:00:00Z"); ; d.setUTCDate(d.getUTCDate()+1)){ const k=d.toISOString().slice(0,10); if(k>x.ate) break; add(x.lancha+"|"+k,"dia"); add(x.lancha+"|"+k,"noite"); } });
+      return m; })
     .catch(()=>{ agenda=null; return null; });
 }
 /* Itens de cada lancha: o dono marca no app /login/ (tabela itens). Os básicos ficam sempre; os opcionais
