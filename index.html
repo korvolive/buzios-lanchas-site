@@ -1588,8 +1588,7 @@ async function showBoatStatus(b){
     document.getElementById("pk-people").classList.toggle("pk-missing",!pick.people);
     out.innerHTML=`<p class="pk-res busy need">${t("needAll")}</p>`; };
   btn.onclick = e => { if(btn.dataset.ready){
-      track("reserva_whatsapp",b);
-      if(isClient()) sendPedido(b).then(ok=>{ if(ok) out.innerHTML=`<p class="pk-res ok">${t("reqSaved")}</p>`; }, ()=>{});
+      track("reserva_whatsapp",b); /* consultar é só uma conversa no WhatsApp: pedido só pelo Reservar online (Rodrigo 2026-10-23) */
       return; }
     e.preventDefault(); missing(); };
   /* reservar online: com conta, o pedido vai direto para a Búzios Lanchas; sem conta, cria a conta e volta para cá */
