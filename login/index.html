@@ -4156,6 +4156,7 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   }
   const qs=new URLSearchParams(location.search);
   if(/^[0-9a-f-]{36}$/i.test(qs.get("c")||"")) store.set("conv-c", qs.get("c")); /* convite pelo WhatsApp: o passeio entra na conta de quem abriu o link */
+  if(qs.has("c")){ const q2=new URLSearchParams(location.search); q2.delete("c"); history.replaceState(null,"",location.pathname+(q2.toString()?"?"+q2:"")+location.hash); } /* o código secreto não fica no endereço (histórico, print, compartilhar) */
   if(!ses && qs.get("criar")==="1"){ view="signup"; /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
     if(qs.get("email")) typedEmail=qs.get("email");
     if((qs.get("nome")||qs.get("tel")) && !store.get("cli-draft")) store.set("cli-draft",{nome:qs.get("nome")||"", whatsapp:qs.get("tel")||""}); }
