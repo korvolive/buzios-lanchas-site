@@ -49,6 +49,10 @@ Deno.serve(async req => {
   try {
     const { k } = await req.json().catch(() => ({}));
     if (typeof k !== "string" || !UUID.test(k)) return json({ ok: false }, 400);
+    // trava contra abuso: no máximo 20 avisos por hora para os administradores
+    const hora = new Date(Date.now() - 3600e3).toISOString();
+    const { count } = await db.from("consultas").select("id", { count: "exact", head: true }).gte("agendado_em", hora);
+    if ((count ?? 0) >= 20) return json({ ok: true, agendado: false });
     // marca uma vez só: chamadas repetidas não geram outro aviso
     const { data: c } = await db.from("consultas").update({ agendado_em: new Date().toISOString() }).eq("chave", k).eq("chamou", false).is("agendado_em", null).select("id").maybeSingle();
     if (!c) return json({ ok: true, agendado: false });
