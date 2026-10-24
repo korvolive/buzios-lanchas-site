@@ -1955,7 +1955,7 @@ function pricesHTML(){
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
       ${pc ? pairHTML("ds", k, dsGet(S.prices.desc_semana)) : ""}</div>`).join("")}
     ${pc ? ["reveillon","pico"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
-    <button class="btn" id="prsave">${t("pricesSave")}</button>${espHTML()}`);
+    <button class="btn" id="prsave" hidden>${t("pricesSave")}</button><p class="mnst" id="prst" aria-live="polite">${t("mnAuto")}</p>${espHTML()}`); /* salva sozinho, como o do dono (Rodrigo 2026-10-24) */
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
 const prBrOf = c => { const x=app.querySelector(`[data-br="${c}"]`); return x ? (x.value.trim()===""?0:+x.value) : S.neto?.[c]?.comissao || 0; };
@@ -4117,11 +4117,14 @@ function bindMain(){
         for(const x of app.querySelectorAll("[data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(x.value.trim()==="" || !(n>=0 && n<=mx)){ x.focus(); return toast(t("pairBad",{n:mx})); }
           const v=Math.round(n*100)/100; if(kind==="ds") dsw[c]=v; else body[c.endsWith("7")?"pct_reveillon7":"pct_reveillon"]=v; }
         body.desc_semana=dsw; body.sem_feriados=[...app.querySelectorAll("[data-afer]")].filter(x=>x.getAttribute("aria-pressed")==="false").map(x=>x.dataset.afer); }
-      prs.disabled=true;
+      const st=document.getElementById("prst"), prSt=(k,c)=>{ if(st){ st.textContent=t(k); st.className="mnst"+(c?" "+c:""); } };
+      prs.disabled=true; prSt("mnSaving");
       try{ await db("precos_neto",{method:"POST", body:rows, prefer:"resolution=merge-duplicates,return=minimal"});
         await db("precos",{method:"POST", body, prefer:"resolution=merge-duplicates,return=minimal"});
-        S.prices={...S.prices, ...body}; S.neto={...S.neto, ...Object.fromEntries(rows.map(r=>[r.chave,r]))}; prDone(); toast(t("pricesSaved")); }
-      catch(e){ toast(t("saveErr")); } finally{ prs.disabled=false; } };
+        S.prices={...S.prices, ...body}; S.neto={...S.neto, ...Object.fromEntries(rows.map(r=>[r.chave,r]))}; prDone(); prSt("mnSavedAuto","ok"); }
+      catch(e){ prSt("mnAuto"); toast(t("saveErr")); } finally{ prs.disabled=false; } };
+    let prT=null; const prAuto=()=>{ clearTimeout(prT); prT=setTimeout(()=>{ if(document.body.contains(prs)) prs.onclick(); }, 700); };
+    app.querySelectorAll(".pnet input").forEach(x=>x.addEventListener("change", prAuto)); app.querySelectorAll("[data-afer]").forEach(x=>x.addEventListener("click", prAuto));
   } else if(prs) prs.onclick=async()=>{ const lancha=S.cur, body={lancha, atualizado_em:new Date().toISOString()};
     for(const x of app.querySelectorAll("[data-pr]")){ const v=x.value.trim(); if(v && !(+v>0)){ x.focus(); return toast(t("prBad")); } if(+v>VMAX){ x.focus(); return toast(t("valMax")); } body[x.dataset.pr]= v ? Math.round(+v) : null; }
     prs.disabled=true;
