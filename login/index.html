@@ -1935,7 +1935,7 @@ const SEASON3 = ["baixa","media","alta"]; /* épocas com valor próprio; feriado
 const PRICE_KEYS = ["baixa","media","alta","pico","reveillon"]; /* cada temporada tem o valor de 4 horas (k) e o de 7 horas (k+"7") */
 /* cards de valores começam fechados; um toque no título abre ou fecha (Rodrigo 2026-10-22: ocupavam a tela toda) */
 const prWrap = (cls, title, sub, body) => `<div class="card prc ${cls}"><button type="button" class="prhd" data-prt aria-expanded="${!!S.prOpen}"><h2>${title}</h2><span class="prchev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
-  <p class="muted prsub">${S.prOpen ? sub : t("prTap")}</p><div class="prbody"${S.prOpen?"":" hidden"} data-sub="${esc(sub)}">${body}</div></div>`;
+  <p class="muted prsub"${S.prOpen?"":" hidden"}>${sub}</p><div class="prbody"${S.prOpen?"":" hidden"} data-sub="${esc(sub)}">${body}</div></div>`;
 function pricesHTML(){
   if(!S.admin) return "";
   if(S.prices===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlPrecos")}</p></div>`;
@@ -2276,6 +2276,7 @@ Object.assign(T.pt, {rvPendT:"⭐ Avaliação pendente", rvPendSub:"Conte como f
 Object.assign(T.en, {rvPendT:"⭐ Review pending", rvPendSub:"Tell us how your tour went: rate the boat and the skipper. It takes less than a minute.", rvPendBtn:"Rate now", rvGone:"Review removed by Búzios Lanchas", rvEditUntil:"You can change it until {d}.", rvAdmT:"Client review", rvMarL:"Skipper", rvDel:"Delete review", rvDelQ:"Delete this review? It leaves the website and the client won't be able to rate this tour again.", rvDeleted:"Review deleted.", rvExc:"Review deleted by you", rvNeedSql:"The database update to delete reviews still needs to run."});
 Object.assign(T.es, {rvPendT:"⭐ Evaluación pendiente", rvPendSub:"Cuéntanos cómo fue tu paseo: califica la lancha y al marinero. Lleva menos de 1 minuto.", rvPendBtn:"Evaluar ahora", rvGone:"Evaluación eliminada por Búzios Lanchas", rvEditUntil:"Puedes cambiarla hasta el {d}.", rvAdmT:"Evaluación del cliente", rvMarL:"Marinero", rvDel:"Eliminar evaluación", rvDelQ:"¿Eliminar esta evaluación? Sale del sitio y el cliente no podrá evaluar este paseo de nuevo.", rvDeleted:"Evaluación eliminada.", rvExc:"Evaluación eliminada por ti", rvNeedSql:"Falta ejecutar la actualización de la base de datos para eliminar evaluaciones."});
 Object.assign(T.pt, {mapOpen:"Abrir no mapa"}); Object.assign(T.pt, {embFee:"Por ser um píer privativo, o {place} cobra uma pequena taxa de embarque de R$ {v} por pessoa, paga direto no local."}); Object.assign(T.en, {embFee:"Because it is a private pier, {place} charges a small boarding fee of R$ {v} per person, paid directly there."}); Object.assign(T.es, {embFee:"Por ser un muelle privado, {place} cobra una pequeña tasa de embarque de R$ {v} por persona, que se paga directamente allí."}); Object.assign(T.pt, {embNotT:"Avise o cliente", embNotSub:"O local de embarque mudou. Se {name} tiver conta no app, já recebeu o aviso por e-mail. Mande também pelo WhatsApp:", waEmb:"Olá, {name}! Mudou o local de embarque do seu passeio na {boat} ({date}, {slot}).\n📍 Novo local: {emb}\n{map}Qualquer dúvida, é só chamar. Búzios Lanchas"}); Object.assign(T.en, {embNotT:"Let the client know", embNotSub:"The boarding place changed. If {name} has an account in the app, they already got an email. Send it on WhatsApp too:", waEmb:"Hi, {name}! The boarding place for your tour on {boat} ({date}, {slot}) has changed.\n📍 New place: {emb}\n{map}Any questions, just message us. Búzios Lanchas"}); Object.assign(T.es, {embNotT:"Avisa al cliente", embNotSub:"El lugar de embarque cambió. Si {name} tiene cuenta en la app, ya recibió el aviso por correo. Mándalo también por WhatsApp:", waEmb:"¡Hola, {name}! Cambió el lugar de embarque de tu paseo en {boat} ({date}, {slot}).\n📍 Nuevo lugar: {emb}\n{map}Cualquier duda, escríbenos. Búzios Lanchas"}); Object.assign(T.pt, {embMarSub:"Se o local mudar, troque aqui. O dono e o cliente veem o local novo no app.", embMarSave:"Salvar local de embarque", embMarSaved:"Local de embarque salvo!", embMarNeed:"Escolha ou escreva o local de embarque."}); Object.assign(T.en, {embMarSub:"If the place changes, update it here. The owner and the client see the new place in the app.", embMarSave:"Save boarding place", embMarSaved:"Boarding place saved!", embMarNeed:"Choose or type the boarding place."}); Object.assign(T.es, {embMarSub:"Si el lugar cambia, cámbialo aquí. El dueño y el cliente ven el lugar nuevo en la app.", embMarSave:"Guardar lugar de embarque", embMarSaved:"¡Lugar de embarque guardado!", embMarNeed:"Elige o escribe el lugar de embarque."}); Object.assign(T.en, {mapOpen:"Open in maps"}); Object.assign(T.es, {mapOpen:"Abrir en el mapa"});
+Object.assign(T.pt, {eqDelBy:"Mensagem apagada pelo moderador {n}"}); Object.assign(T.en, {eqDelBy:"Message deleted by moderator {n}"}); Object.assign(T.es, {eqDelBy:"Mensaje borrado por el moderador {n}"});
 Object.assign(T.pt, {valMax:"O valor máximo é R$ 9.999.", prTap:"Toque para abrir e mudar os valores.", mnYour:"Seu valor", mnFp:"De segunda a quinta fica", lvT:"Salvar as mudanças nos valores?", lvSub:"Você mudou valores e ainda não salvou.", lvSave:"Salvar", lvDrop:"Sair sem salvar", lvStay:"Continuar editando"});
 Object.assign(T.en, {valMax:"The maximum value is R$ 9,999.", prTap:"Tap to open and change the prices.", mnYour:"Your price", mnFp:"Monday to Thursday price", lvT:"Save the price changes?", lvSub:"You changed prices and haven't saved yet.", lvSave:"Save", lvDrop:"Leave without saving", lvStay:"Keep editing"});
 Object.assign(T.es, {valMax:"El valor máximo es R$ 9.999.", prTap:"Toca para abrir y cambiar los valores.", mnYour:"Tu valor", mnFp:"De lunes a jueves queda", lvT:"¿Guardar los cambios en los valores?", lvSub:"Cambiaste valores y aún no guardaste.", lvSave:"Guardar", lvDrop:"Salir sin guardar", lvStay:"Seguir editando"});
@@ -3137,7 +3138,7 @@ function chBotHTML(m){
   else if(k==="ok") body = esc(t("chBotOk",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""})) + (+a ? "\n"+esc(t("chBotResto",{v:brl(+a)})) : "");
   else if(k==="pedido") body = esc(t("chBotPed",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):"", slot:t("slot_"+a)+(a==="noite"?"":" · "+t("hours_"+a)), n:b}));
   else { const v=+a||0; body = `${esc(t("chBotSinal",{v:brl(v)}))}<span class="paybox chpay"><span class="pkey"><span>Pix (CNPJ) <strong>${fmtCNPJ}</strong><small>Búzios Lanchas</small></span><button type="button" class="btn sec" data-copy="${PIX_CNPJ}">${t("cpCopy")}</button></span>${v?`<button type="button" class="btn sec" data-copy="${esc(pixPayload(PIX_CNPJ, v, "PED"+(m.pedido||"")))}">${t("cpCopyPaste")}</button>`:""}</span>${esc(t("chBotAnexo"))}`; }
-  return `<div class="chm sup bot" data-mid="${m.id}"><div class="cha"><span class="face ini" aria-hidden="true">BL</span><b>Búzios Lanchas</b></div><div class="cht">${body}</div><div class="chx"><span>${hora}</span></div></div>`;
+  return `<div class="chm sup bot" data-mid="${m.id}"><div class="cha"><span class="face ini" aria-hidden="true">BL</span><b>Búzios Lanchas</b></div><div class="cht">${body}</div><div class="chx"><span>${hora}</span>${S.admin?`<button type="button" data-mdel="${m.id}">${t("chDel")}</button>`:""}</div></div>`;
 }
 /* tradução automática do chat (Rodrigo, 2026-10-22): mensagens das outras pessoas aparecem no idioma de quem lê, com "ver original";
    começa ligada e cada pessoa desliga no botão 🌐 do chat (guardado neste aparelho) */
@@ -3155,6 +3156,7 @@ async function chTrad(){
 }
 const trOf = m => { if(!trOn() || !m.texto || m.autor===ses.user.id) return null; const x=chTr.get(trKey(m.id)); return x && x.de!==lang && x.t && x.t.trim()!==m.texto.trim() ? x : null; };
 function chMsgHTML(m){
+  if(m.apagada && String(m.papel||"").startsWith("sistema:")) return ""; /* mensagem automática apagada pelo administrador some (Rodrigo 2026-10-24) */
   if(/^sistema:(pedido|sinal|ok|pago):/.test(m.papel||"")) return chBotHTML(m);
   if(String(m.papel||"").startsWith("sistema:")) return `<div class="chsys" data-mid="${m.id}">${t({"sistema:inativo":S.admin?"chSysInAdm":"chSysIn", "sistema:encerrado":"chSysEnc", "sistema:reaberto":"chSysReab"}[m.papel]||"chSysIn")}</div>`;
   const me=m.autor===ses.user.id, canDel = !m.apagada && S.admin; /* só o administrador apaga (Rodrigo, 2026-10-22) */
@@ -3227,7 +3229,7 @@ function eqMsgHTML(m){
   const canRep=!m.apagada && !me && !mod && m.papel!=="admin";
   return `<div class="chm${me?" me":""}${m.papel==="admin"?" sup":""}${m.apagada?" del":""}${mod && +m.denuncias && !m.apagada?" flag":""}" data-mid="${m.id}">
     ${me?"":`<div class="cha">${face(m.autor,m.nome,"face")}${mod && m.autor && m.papel!=="admin" ? `<button type="button" class="eqwho" data-equ="${m.autor}">${who}</button>` : `<b>${who}</b>`}${role}</div>`}
-    <div class="cht">${m.apagada?t("chDeleted"):esc(m.texto)}</div>
+    <div class="cht">${m.apagada?(m.apagou?t("eqDelBy",{n:esc(m.apagou)}):t("chDeleted")):esc(m.texto)}</div>
     <div class="chx">${eqLikeHTML(m)}<span>${hora}</span>${mod && +m.denuncias && !m.apagada?`<span>${t("eqReps",{n:m.denuncias})}</span>`:""}${eqPinBtn(m)}${canDel?`<button type="button" data-eqdel="${m.id}">${t("chDel")}</button>`:""}${canRep?(m.denunciei?`<span>${t("eqRepd")}</span>`:`<button type="button" data-eqrep="${m.id}">${t("eqRep")}</button>`):""}</div></div>`;
 }
 function eqRender(){
@@ -3236,7 +3238,7 @@ function eqRender(){
   l.innerHTML = vis.length ? vis.map(m=>{ const d=new Date(m.criado_em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"}); const sep=d!==day?`<div class="chday muted">${d}</div>`:""; day=d; return sep+eqMsgHTML(m); }).join("") : `<p class="muted" style="text-align:center;margin:auto">${t("eqEmpty")}</p>`;
   l.dataset.n=eqRows.length; if(atEnd) l.scrollTop=l.scrollHeight;
   eqPinBind(l);
-  l.querySelectorAll("[data-eqdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("eqDelQ"))) return; try{ await RPC("equipe_apagar",{mid:+x.dataset.eqdel}); const m=eqRows.find(r=>r.id===+x.dataset.eqdel); if(m){ m.apagada=true; m.texto=null; } if(eqPin?.id===+x.dataset.eqdel){ eqPin=null; eqPinRender(); } eqRender(); }catch(e){ toast(errMsg(e)); } });
+  l.querySelectorAll("[data-eqdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("eqDelQ"))) return; try{ await RPC("equipe_apagar",{mid:+x.dataset.eqdel}); const m=eqRows.find(r=>r.id===+x.dataset.eqdel); if(m){ m.apagada=true; m.texto=null; if(m.autor!==ses.user.id) m.apagou=myName(); } if(S.admin && m?.autor!==ses.user.id) eqRows=eqRows.filter(r=>r!==m); /* o administrador apaga e some; o moderador fica registrado (Rodrigo 2026-10-24) */ if(eqPin?.id===+x.dataset.eqdel){ eqPin=null; eqPinRender(); } eqRender(); }catch(e){ toast(errMsg(e)); } });
   l.querySelectorAll("[data-equ]").forEach(x=>x.onclick=()=>eqFicha(x.dataset.equ));
   l.querySelectorAll("[data-eqlk]").forEach(x=>x.onclick=async()=>{ const m=eqRows.find(r=>r.id===+x.dataset.eqlk); if(!m) return; x.disabled=true;
     try{ const on=await RPC("equipe_curtir",{mid:m.id}); m.curti=!!on; m.curtidas=Math.max(0,(+m.curtidas||0)+(on?1:-1)); eqRender(); }catch(e){ x.disabled=false; toast(errMsg(e)); } });
@@ -3244,7 +3246,7 @@ function eqRender(){
   l.querySelectorAll("[data-alok]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("alDoneQ"))) return; try{ await RPC("equipe_resolver",{mid:+x.dataset.alok}); const m=eqRows.find(r=>r.id===+x.dataset.alok); if(m) m.resolvido=true; eqRender(); }catch(e){ toast(errMsg(e)); } });
 }
 /* v2: alertas e denúncias; banco antigo cai no v1 */
-const eqFetch = b => RPC("equipe_mensagens_v3", b).catch(e=>e.status===404 ? RPC("equipe_mensagens_v2", b) : Promise.reject(e)).catch(e=>e.status===404 ? RPC("equipe_mensagens", b) : Promise.reject(e));
+const eqFetch = b => RPC("equipe_mensagens_v4", b).catch(e=>e.status===404 ? RPC("equipe_mensagens_v3", b) : Promise.reject(e)).catch(e=>e.status===404 ? RPC("equipe_mensagens_v2", b) : Promise.reject(e)).catch(e=>e.status===404 ? RPC("equipe_mensagens", b) : Promise.reject(e));
 const eqErr = e => e.code==="P0001" ? ({DEVAGAR:t("eqSlow"), REPETIDA:t("eqRepeat"), MOTIVO:t("alShort"), ALERTA_RECENTE:t("alRecent"), CATEGORIA:t("alNeedCat")}[e.message] || chErr(e)) : chErr(e);
 /* botão de alerta: tipo e motivo obrigatórios, localização opcional; avisa toda a equipe no celular */
 function eqAlerta(){
@@ -4083,7 +4085,7 @@ function bindMain(){
     try{ await db("itens",{method:"POST", body:{lancha, opcionais:ITEMS.map(i=>i[0]).filter(i=>next.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}); toast(t("itemsSaved")); }
     catch(e){ if(S.cur===lancha){ S.items = was ? [...next,k] : next.filter(i=>i!==k); x.setAttribute("aria-pressed", was); } toast(t("saveErr")); } });
   app.querySelectorAll("[data-prt]").forEach(b=>b.onclick=()=>{ S.prOpen=!S.prOpen; const c=b.closest(".prc"), body=c.querySelector(".prbody");
-    body.hidden=!S.prOpen; b.setAttribute("aria-expanded",S.prOpen); c.querySelector(".prsub").textContent=S.prOpen?body.dataset.sub:t("prTap"); });
+    body.hidden=!S.prOpen; b.setAttribute("aria-expanded",S.prOpen); c.querySelector(".prsub").hidden=!S.prOpen; /* fechado não mostra frase (Rodrigo 2026-10-24) */ });
   const prs=document.getElementById("prsave");
   /* rascunho dos valores: tudo o que é digitado fica guardado no aparelho até salvar (sair da tela ou do app não apaga) */
   const PRF="[data-nt],[data-bp],[data-br],[data-pr]", prKey="dono-prdraft:"+S.cur, prCard=prs?.closest(".card");
