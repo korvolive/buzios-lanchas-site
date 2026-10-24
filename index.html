@@ -1061,7 +1061,7 @@ Object.assign(UI.pt, {cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale at�
 Object.assign(UI.en, {cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
 Object.assign(UI.es, {cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
 const LANGS = ["pt","en","es"];
-const SITE = "https://lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
+const SITE = "https://www.lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
 /* endereços: / e /lancha/miss-bardot/ em português; /en/... e /es/... nas outras línguas */
 const pathFor = (l,slug) => (l==="pt"?"/":`/${l}/`) + (slug?`lancha/${slug}/`:"");
 const route = (()=>{
@@ -1757,7 +1757,8 @@ function seo(b){
   const biz = {"@type":"LocalBusiness","@id":SITE+"/#empresa","name":"Búzios Lanchas","url":SITE+"/","telephone":"+55-21-99927-2550",
     "image":absImg(BOATS[0].photos[0]),"description":t("seoDesc"),
     "address":{"@type":"PostalAddress","addressLocality":"Armação dos Búzios","addressRegion":"RJ","addressCountry":"BR"},
-    "areaServed":"Armação dos Búzios","sameAs":["https://www.instagram.com/missbardotbuzios/"],
+    "geo":{"@type":"GeoCoordinates","latitude":-22.7469,"longitude":-41.8817},
+    "areaServed":{"@type":"City","name":"Armação dos Búzios"},"sameAs":["https://www.instagram.com/missbardotbuzios/"],
     ...(all.length&&PRECOS_PUBLICOS?{"priceRange":`R$ ${Math.min(...all)} - R$ ${Math.max(...all)}`}:{})};
   const graph = [biz];
   if(!b) graph.push({"@type":"FAQPage","mainEntity":UI[lang].faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))});
