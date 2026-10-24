@@ -1098,16 +1098,22 @@ function setupGetApp(){
   const ios = /iphone|ipad|ipod/i.test(ua), android = /android/i.test(ua);
   const pill = document.getElementById("gapill"), modal = document.getElementById("gamodal");
   document.querySelectorAll("footer .get-app").forEach(a => a.closest("div").hidden = app);
+  /* quem já tem o app não vê o "Baixar o app" (Rodrigo 2026-10-24). No Android o app e o Chrome dividem a memória:
+     abrir o app uma vez já marca. O Chrome também conta se o app da Play Store está instalado. No iPhone o Safari não tem como saber */
+  const marca = () => { pill.hidden = true; try{ localStorage.setItem("ga-off","1"); }catch(e){} };
+  if(app) try{ localStorage.setItem("ga-off","1"); }catch(e){}
   let off = false; try{ off = !!localStorage.getItem("ga-off"); }catch(e){}
   pill.hidden = app || IS_BOT || off || !(ios || android);
   if(setupGetApp.done) return; setupGetApp.done = true;
+  addEventListener("appinstalled", marca);
+  if(!pill.hidden && navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then(l => { if(l?.length) marca(); }).catch(()=>{});
   const open = async e => { e.preventDefault();
-    if(gaPrompt){ gaPrompt.prompt(); const c = await gaPrompt.userChoice.catch(()=>null); gaPrompt = null; if(c?.outcome==="accepted"){ pill.hidden = true; return; } }
+    if(gaPrompt){ gaPrompt.prompt(); const c = await gaPrompt.userChoice.catch(()=>null); gaPrompt = null; if(c?.outcome==="accepted"){ marca(); return; } }
     const safari = ios && !/crios|fxios|edgios|instagram|fban|fbav|line\/|gsa\//i.test(ua);
     document.getElementById("gahow").innerHTML = ios ? t(safari ? "getAppIOS" : "getAppIOSOther") : android ? t("getAppAndroid") : t("getAppDesk");
     document.getElementById("gainst").hidden = true; modal.hidden = false; };
   document.querySelectorAll(".get-app").forEach(b => b.addEventListener("click", open));
-  document.getElementById("gax").onclick = () => { pill.hidden = true; try{ localStorage.setItem("ga-off","1"); }catch(e){} };
+  document.getElementById("gax").onclick = marca;
   document.getElementById("gaclose").onclick = () => modal.hidden = true;
   modal.onclick = e => { if(e.target === modal) modal.hidden = true; };
 }
