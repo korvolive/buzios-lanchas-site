@@ -10,6 +10,7 @@
 // Cada aviso entra UMA vez (tabela clima_avisos) como mensagem da própria Búzios Lanchas (autor vazio, tipo 'auto'):
 // texto = resumo em português (apps antigos mostram só isso), local = JSON com título/texto em PT/EN/ES e a validade.
 // Toda a equipe recebe no celular. Sem login (a chamada só lê fontes públicas e não repete aviso).
+// Teste: ?teste=<clima_config.teste> grava um alerta marcado TESTE e avisa a equipe toda (token de uso único).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -127,6 +128,8 @@ Deno.serve(async req => {
   try {
     const avisos: Aviso[] = [], erros: string[] = [];
     for (const f of [marinha, inmet]) { try { avisos.push(...await f()); } catch (e) { erros.push(String(e)); console.error(String(e)); } }
+    const tk = new URL(req.url).searchParams.get("teste");
+    if (tk) return json(await teste(tk));
     if (new URL(req.url).searchParams.has("ver")) return json({ lidos, avisos, erros }); // só olhar, sem gravar nem avisar
     if (!avisos.length) return json({ novos: 0 });
     const { data: novos } = await db.from("clima_avisos").upsert(avisos.map(a => ({ chave: a.chave })), { onConflict: "chave", ignoreDuplicates: true }).select("chave");
@@ -148,6 +151,20 @@ Deno.serve(async req => {
     return json({ erro: "falhou" }, 500);
   }
 });
+
+async function teste(tk: string) {
+  const { data: c } = await db.from("clima_config").select("teste").eq("id", 1).maybeSingle();
+  if (!c?.teste || c.teste !== tk) return { erro: "teste" };
+  const tit = { pt: "TESTE · Aviso de vento muito forte", en: "TEST · Gale warning", es: "PRUEBA · Aviso de viento muy fuerte" };
+  const txt = { pt: "Isto é só um teste do alerta automático. Exemplo: área costeira entre Arraial do Cabo/RJ e Caravelas/BA. Vento SW força 8 com rajadas força 9.",
+    en: "This is only a test of the automatic alert. Example: coastal area between Arraial do Cabo/RJ and Caravelas/BA. Wind SW force 8 gusting 9.",
+    es: "Esto es solo una prueba de la alerta automática. Ejemplo: área costera entre Arraial do Cabo/RJ y Caravelas/BA. Viento SW fuerza 8 con ráfagas fuerza 9." };
+  const dados = { fonte: "marinha", tit, txt, ini: new Date().toISOString(), fim: new Date(Date.now() + 6 * 3600e3).toISOString(), url: MARINHA };
+  const { data: m, error } = await db.from("equipe_msgs").insert({ autor: null, tipo: "auto", categoria: "marinha", texto: `⚠️ ${tit.pt}. ${txt.pt}`, local: JSON.stringify(dados), avisado_em: new Date().toISOString() }).select("id").single();
+  if (error) return { erro: error.message };
+  await db.from("clima_config").update({ teste: null }).eq("id", 1); // token de uso único
+  return { msg: m.id, enviados: await avisar(m.id, "marinha", tit, txt) };
+}
 
 async function avisar(id: number, fonte: string, tit: Record<string, string>, txt: Record<string, string>) {
   const { data: ids } = await db.rpc("_eq_membros");
