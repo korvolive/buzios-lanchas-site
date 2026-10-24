@@ -1247,8 +1247,8 @@ document.addEventListener("click", e=>{ const b=e.target.closest("[data-cur]"); 
 const PRECOS_PUBLICOS = false;
 let VEND = null, ME = null; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
-/* comissão do vendedor: só baixa, média e alta (1% a 15%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
-const VEND_TETO = 15, VEND_PADRAO = 5;
+/* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
+const VEND_TETO = 10, VEND_PADRAO = 5;
 const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? (iso ? seasonBase(iso) : "alta") : key;
 const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[pctKey(key)] ?? VEND_PADRAO), 1), Math.min(+v?.teto || VEND_TETO, VEND_TETO));
 const ownBoat = (v, b) => !!b && (v?.proprias||[]).includes(b.slug); /* dono que também vende: sem comissão nas próprias lanchas */
