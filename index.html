@@ -157,6 +157,16 @@ html.is-app #hdr-login{display:none}
 
 /* Cartões */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px}
+/* celular: lanchas lado a lado, arrastando ou pelas setas (Rodrigo 2026-10-24) */
+.fleet-car{position:relative}.car-btn,.car-count{display:none}
+@media (max-width:700px){
+  .fleet-car .grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -16px;padding:4px 16px 14px;scroll-padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .fleet-car .grid::-webkit-scrollbar{display:none}
+  .fleet-car .card{flex:0 0 86%;scroll-snap-align:start}
+  .car-btn:not([hidden]){display:grid;place-items:center;position:absolute;top:118px;z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(6,30,45,.72);color:#fff;font:600 28px/1 var(--body);padding:0 0 3px;box-shadow:0 2px 10px rgba(0,0,0,.3);cursor:pointer}
+  .car-btn.prev{left:-6px}.car-btn.next{right:-6px}
+  .car-count{display:block;text-align:center;margin:2px 0 0;color:var(--muted);font:500 13px/1.4 var(--mono)}
+}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:transform .2s,border-color .2s}
 .card:hover{transform:translateY(-3px);border-color:var(--sea)}
 .card .ph{aspect-ratio:4/3}
@@ -926,7 +936,7 @@ const UI = {
     heroMeet:"Conhecer a Miss Bardot", heroAll:"Ver as lanchas disponíveis", heroRev:"+100 avaliações 5 estrelas no Google",
     fleetEyebrow:"Nossas lanchas", fleetTitle:"Escolha pelo tamanho do grupo",
     fitWa:"Olá! Vi no site Búzios Lanchas e gostaria de uma lancha para {people}.", fitN:"{n} lanchas para {people}", fit1:"1 lancha para {people}", forPeople:", para {people}",
-    boatPhoto:"Foto da lancha", featured:"Destaque", waCtaP:"Ficou com dúvida ou quer ajuda para escolher a lancha? Respondemos na hora.", waCtaB:"Fale conosco no WhatsApp", seeMoreStops:"Ver todas as {n} paradas", seeMoreFaq:"Ver mais perguntas", seeLess:"Ver menos", example:"Exemplo", from4h:"Passeio de 4h · a partir de", onRequest:"Sob consulta", seeBoat:"Ver lancha →",
+    boatPhoto:"Foto da lancha", featured:"Destaque", waCtaP:"Ficou com dúvida ou quer ajuda para escolher a lancha? Respondemos na hora.", waCtaB:"Fale conosco no WhatsApp", carPrev:"Lancha anterior", carNext:"Próxima lancha", carCount:"{i} de {n} lanchas · arraste para o lado", seeMoreStops:"Ver todas as {n} paradas", seeMoreFaq:"Ver mais perguntas", seeLess:"Ver menos", example:"Exemplo", from4h:"Passeio de 4h · a partir de", onRequest:"Sob consulta", seeBoat:"Ver lancha →",
     feet:"pés", people:"pessoas", upTo:"até",
     boardingTitle:"Local de embarque", boardingTbd:"A combinar pelo WhatsApp.", boardingPickSlot:"Escolha o horário para ver o local de embarque.", boardFee:"Taxa do píer: R$ {v} por pessoa, paga no local.", waBoard:" Embarque: {p}.", routeEyebrow:"Roteiro", stops:["Na orla central de Búzios, pertinho da Rua das Pedras e da estátua da Brigitte Bardot.", "Uma das praias mais antigas da cidade, com barquinhos coloridos e casario histórico.", "Águas calmas e transparentes, cercada de verde. Só se chega por trilha ou pelo mar.", "Pequena e tranquila, vizinha da Azeda, ótima para um mergulho.", "Água clara e calma, uma das melhores para snorkel em Búzios.", "Menor e mais reservada, colada na João Fernandes.", "Ilhota de pedras claras, com água azul e cristalina ao redor.", "Ilha em mar aberto, famosa pela água transparente e pelo mergulho.", "Águas verdes e calmas, com peixinhos perto da areia. Uma das mais famosas de Búzios.", "Pequena enseada entre pedras, pertinho da Tartaruga.", "Prainha escondida entre as pedras, quase só se chega de barco.", "No centro, ao lado da Armação, com barcos ancorados e vista da orla."], stopTap:"Toque numa parada para ver como é.", zoomIn:"Aproximar", zoomOut:"Afastar", zoomHint:"Use + e − ou dois dedos para dar zoom e arraste para explorar o mapa.", photoBy:"Foto", stopPrev:"Parada anterior", stopNext:"Próxima parada", stopClose:"Fechar", routeTitle:"Passeio de lancha em Búzios: o roteiro", routeText:"Este é o roteiro padrão de todas as lanchas, pelas praias e ilhas mais bonitas de Búzios, passando pela Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia e Tartaruga.", routeFlex:"Você escolhe como aproveitar: fazer o roteiro completo, passar o dia inteiro na sua praia preferida ou fazer um roteiro mais rápido e ficar em uma praia o resto do passeio. É só combinar com a gente.", routeNote:"Mapa ilustrativo, fora de escala. As paradas podem variar conforme o mar e o vento.", routeMapAria:"Mapa do roteiro do passeio de lancha em Búzios",
     faqEyebrow:"Dúvidas", faqTitle:"Perguntas frequentes",
@@ -981,7 +991,7 @@ const UI = {
     heroMeet:"Meet Miss Bardot", heroAll:"See available boats", heroRev:"100+ five-star reviews on Google",
     fleetEyebrow:"Our boats", fleetTitle:"Choose by group size",
     fitWa:"Hi! I saw the Búzios Lanchas website and I'm looking for a boat for {people}.", fitN:"{n} boats for {people}", fit1:"1 boat for {people}", forPeople:", for {people}",
-    boatPhoto:"Boat photo", featured:"Featured", waCtaP:"Questions, or need help choosing a boat? We reply right away.", waCtaB:"Chat with us on WhatsApp", seeMoreStops:"See all {n} stops", seeMoreFaq:"See more questions", seeLess:"See less", example:"Example", from4h:"4-hour tour · from", onRequest:"On request", seeBoat:"See boat →",
+    boatPhoto:"Boat photo", featured:"Featured", waCtaP:"Questions, or need help choosing a boat? We reply right away.", waCtaB:"Chat with us on WhatsApp", carPrev:"Previous boat", carNext:"Next boat", carCount:"{i} of {n} boats · swipe sideways", seeMoreStops:"See all {n} stops", seeMoreFaq:"See more questions", seeLess:"See less", example:"Example", from4h:"4-hour tour · from", onRequest:"On request", seeBoat:"See boat →",
     feet:"ft", people:"people", upTo:"up to",
     boardingTitle:"Boarding point", boardingTbd:"To be arranged on WhatsApp.", boardingPickSlot:"Choose a time to see the boarding point.", boardFee:"Pier fee: R$ {v} per person, paid at the pier.", waBoard:" Boarding: {p}.", routeEyebrow:"Route", stops:["On Búzios' central waterfront, close to Rua das Pedras and the Brigitte Bardot statue.", "One of the town's oldest beaches, with colorful boats and historic houses.", "Calm, clear water surrounded by green. Reachable only by trail or by sea.", "Small and quiet, next to Azeda, great for a swim.", "Clear, calm water, one of the best snorkeling spots in Búzios.", "Smaller and more secluded, right next to João Fernandes.", "A small island of pale rocks surrounded by clear blue water.", "An island in open sea, famous for its transparent water and diving.", "Calm green water with small fish near the sand. One of Búzios' most famous beaches.", "A small cove between rocks, close to Tartaruga.", "A tiny beach hidden between rocks, reachable almost only by boat.", "Downtown, next to Armação, with anchored boats and a view of the waterfront."], stopTap:"Tap a stop to see what it's like.", zoomIn:"Zoom in", zoomOut:"Zoom out", zoomHint:"Use + and − or two fingers to zoom, and drag to explore the map.", photoBy:"Photo", stopPrev:"Previous stop", stopNext:"Next stop", stopClose:"Close", routeTitle:"Boat tour in Búzios: the route", routeText:"This is the standard route for every boat, along the most beautiful beaches and islands of Búzios, passing Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia and Tartaruga.", routeFlex:"You choose how to enjoy it: do the full route, spend the whole day at your favorite beach, or take a shorter route and stay at one beach for the rest of the tour. Just let us know.", routeNote:"Illustrative map, not to scale. Stops may vary with the sea and wind.", routeMapAria:"Map of the Búzios boat tour route",
     faqEyebrow:"Questions", faqTitle:"Frequently asked questions",
@@ -1036,7 +1046,7 @@ const UI = {
     heroMeet:"Conocer la Miss Bardot", heroAll:"Ver lanchas disponibles", heroRev:"+100 reseñas de 5 estrellas en Google",
     fleetEyebrow:"Nuestras lanchas", fleetTitle:"Elige según el tamaño del grupo",
     fitWa:"¡Hola! Vi el sitio de Búzios Lanchas y busco una lancha para {people}.", fitN:"{n} lanchas para {people}", fit1:"1 lancha para {people}", forPeople:", para {people}",
-    boatPhoto:"Foto de la lancha", featured:"Destacada", waCtaP:"¿Tienes dudas o quieres ayuda para elegir la lancha? Respondemos al instante.", waCtaB:"Habla con nosotros por WhatsApp", seeMoreStops:"Ver las {n} paradas", seeMoreFaq:"Ver más preguntas", seeLess:"Ver menos", example:"Ejemplo", from4h:"Paseo de 4 h · desde", onRequest:"A consultar", seeBoat:"Ver lancha →",
+    boatPhoto:"Foto de la lancha", featured:"Destacada", waCtaP:"¿Tienes dudas o quieres ayuda para elegir la lancha? Respondemos al instante.", waCtaB:"Habla con nosotros por WhatsApp", carPrev:"Lancha anterior", carNext:"Siguiente lancha", carCount:"{i} de {n} lanchas · desliza al costado", seeMoreStops:"Ver las {n} paradas", seeMoreFaq:"Ver más preguntas", seeLess:"Ver menos", example:"Ejemplo", from4h:"Paseo de 4 h · desde", onRequest:"A consultar", seeBoat:"Ver lancha →",
     feet:"pies", people:"personas", upTo:"hasta",
     boardingTitle:"Lugar de embarque", boardingTbd:"A combinar por WhatsApp.", boardingPickSlot:"Elige el horario para ver el lugar de embarque.", boardFee:"Tasa del muelle: R$ {v} por persona, se paga en el lugar.", waBoard:" Embarque: {p}.", routeEyebrow:"Recorrido", stops:["En la costanera central de Búzios, cerca de la Rua das Pedras y de la estatua de Brigitte Bardot.", "Una de las playas más antiguas de la ciudad, con botes de colores y casas históricas.", "Aguas calmas y transparentes, rodeada de verde. Solo se llega por sendero o por mar.", "Pequeña y tranquila, vecina de Azeda, ideal para un chapuzón.", "Agua clara y calma, uno de los mejores lugares para snorkel en Búzios.", "Más pequeña y reservada, al lado de João Fernandes.", "Islote de rocas claras rodeado de agua azul y cristalina.", "Isla en mar abierto, famosa por su agua transparente y el buceo.", "Aguas verdes y calmas, con peces cerca de la arena. Una de las más famosas de Búzios.", "Pequeña ensenada entre rocas, cerca de Tartaruga.", "Playita escondida entre las rocas, casi solo se llega en barco.", "En el centro, al lado de Armação, con barcos anclados y vista de la costanera."], stopTap:"Toca una parada para ver cómo es.", zoomIn:"Acercar", zoomOut:"Alejar", zoomHint:"Usa + y − o dos dedos para hacer zoom y arrastra para explorar el mapa.", photoBy:"Foto", stopPrev:"Parada anterior", stopNext:"Próxima parada", stopClose:"Cerrar", routeTitle:"Paseo en lancha en Búzios: el recorrido", routeText:"Este es el recorrido estándar de todas las lanchas, por las playas e islas más lindas de Búzios, pasando por Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia y Tartaruga.", routeFlex:"Tú eliges cómo disfrutarlo: hacer el recorrido completo, pasar el día entero en tu playa favorita o hacer un recorrido más corto y quedarte en una playa el resto del paseo. Solo avísanos.", routeNote:"Mapa ilustrativo, fuera de escala. Las paradas pueden variar según el mar y el viento.", routeMapAria:"Mapa del recorrido del paseo en lancha en Búzios",
     faqEyebrow:"Dudas", faqTitle:"Preguntas frecuentes",
@@ -1919,7 +1929,7 @@ function home(){
       <span class="coords">${t("coords")}</span>
       <h1>${t("heroTitle")}</h1>
       <a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>
-      <div class="ctas">${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
+      <div class="ctas"><a class="btn wa-btn" href="${topWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
     </div>
     <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
@@ -1942,7 +1952,7 @@ function home(){
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
     ${vendCard(null)}
-    <div class="grid">
+    <div class="fleet-car"><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" hidden>‹</button><div class="grid">
       ${list.map(b=>`
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
@@ -1954,7 +1964,8 @@ function home(){
             <div class="price-from">${showPrice()?`<div><span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t("seeBoat")}</span></div>
           </div>
         </a>`).join("")}
-    </div>
+    </div><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}" hidden>›</button></div>
+    <p class="car-count" aria-live="polite"></p>
     ${waCta()}
   </div></section>
   ${routeSection()}
@@ -2073,14 +2084,32 @@ function render(toTop=true){
   if(b) loadSiteRevs(b);
   loadFx();
   if(!b) cardRatings();
+  if(!b) carSync();
+  /* na home o WhatsApp verde fica no topo; o dourado do cabeçalho só aparece nas páginas das lanchas (Rodrigo 2026-10-24) */
+  document.getElementById("hdr-wa").style.display = b ? "" : "none";
   if(!b && !itens && app.querySelector("[data-items]")) loadItens().then(m=>{ if(m) app.querySelectorAll("[data-items]").forEach(u=>{ const x=BOATS.find(y=>y.slug===u.dataset.items); if(x) u.innerHTML=cardItems(x); }); });
   if(b && !itens) loadItens().then(m=>{ const ul=document.getElementById("inc-list"); if(m && ul && route.slug===b.slug) ul.innerHTML=incItems(b); const si=document.getElementById("stack-items"); if(m && si && route.slug===b.slug) si.innerHTML=stackItems(b); });
 }
+/* carrossel da vitrine no celular: setas e "1 de N" acompanham o arraste */
+function carSync(reset){
+  const g=app.querySelector(".fleet-car .grid"); if(!g) return;
+  if(reset) g.scrollLeft=0;
+  const cs=[...g.querySelectorAll(".card")].filter(c=>!c.hidden), n=cs.length, w=cs[0]?cs[0].offsetWidth+14:1;
+  const i=Math.min(n,Math.round(g.scrollLeft/w)+1), on=g.scrollWidth>g.clientWidth+4;
+  const pv=app.querySelector(".car-btn.prev"), nx=app.querySelector(".car-btn.next"), ct=app.querySelector(".car-count");
+  pv.hidden=!on||g.scrollLeft<8; nx.hidden=!on||g.scrollLeft>g.scrollWidth-g.clientWidth-8;
+  ct.textContent=on&&n>1?t("carCount",{i,n}):"";
+}
+document.addEventListener("scroll",e=>{ if(e.target.classList&&e.target.matches(".fleet-car .grid")) carSync(); },true);
+addEventListener("resize",()=>carSync());
+document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if(!bt) return;
+  const g=app.querySelector(".fleet-car .grid"), c=g.querySelector(".card:not([hidden])");
+  g.scrollBy({left:+bt.dataset.car*(c?c.offsetWidth+14:300),behavior:"smooth"}); });
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
 async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
   const cards=[...app.querySelectorAll(".card[data-boat]")], d=when.de, np=+when.people, key=when.de+when.ate+when.people;
-  if(!d && !np){ cards.forEach(c=>c.hidden=false); res.textContent=""; return; }
+  if(!d && !np){ cards.forEach(c=>c.hidden=false); res.textContent=""; carSync(true); return; }
   if(d) res.textContent=t("checking");
   const busy = d ? await loadAgenda() : null; if(key!==when.de+when.ate+when.people) return;
   let n=0; cards.forEach(c=>{ const b=BOATS.find(x=>x.slug===c.dataset.boat);
@@ -2088,6 +2117,7 @@ async function applyWhen(){
     c.hidden = !!((np && b.capacity<np) || (d && !free)); if(!c.hidden) n++;
     /* o link leva ao primeiro dia livre do período; lá a pessoa escolhe o dia e o horário exatos */
     if(free){ const u=new URL(c.href); u.searchParams.set("data",free); c.href=u.pathname+u.search; } });
+  carSync(true);
   const people = np ? peopleLabel(np) : "";
   const ate=when.ate||d, range = !d ? "" : ate===d ? t("rangeOne",{d:fmtShort(d)}) : t("rangeTwo",{de:fmtShort(d),ate:fmtShort(ate)});
   const v={n, people, range, ...(d?{people: np?t("forPeople",{people}):""}:{})};
