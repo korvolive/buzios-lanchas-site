@@ -79,7 +79,7 @@ fs.writeFileSync(path.join(ROOT, "sitemap.xml"),
   pages.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${today}</lastmod>\n${alt(p.slug)}\n  </url>`).join("\n") +
   `\n</urlset>\n`);
 /* marca do que foi publicado: a cada 10 minutos o GitHub compara com o banco e publica de novo se mudou (scripts/db-mudou.mjs) */
-const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&order=slug", { headers: { apikey: KEY } })
+const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&dados->>exemplo=is.null&order=slug", { headers: { apikey: KEY } })
   .then(r => (r.ok ? r.text() : null)).catch(() => null);
 const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
 const ok = rows && ativas === [...dbSlugs].sort().join();
