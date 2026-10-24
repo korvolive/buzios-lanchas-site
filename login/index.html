@@ -275,7 +275,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:18px 2px 8px}
 .rqboat{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:10px 0;padding:0 12px}
 .rqboat > summary{list-style:none;cursor:pointer;align-items:center;margin:0;padding:12px 0}.rqboat > summary::-webkit-details-marker{display:none}
-.rqboat .chev{display:inline-block;font-style:normal;margin-left:10px;font-size:20px;line-height:1;transition:transform .15s}.rqboat[open] .chev{transform:rotate(90deg)}
+.rqboat .chev,.fold .chev{display:inline-block;font-style:normal;margin-left:10px;font-size:20px;line-height:1;transition:transform .15s}.rqboat[open] .chev{transform:rotate(90deg)}.fold>summary.foldh{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;list-style:none}.fold>summary.foldh::-webkit-details-marker{display:none}.fold>summary.foldh h2{margin:0}.fold[open]>summary.foldh{margin-bottom:8px}.fold[open]>summary .chev{transform:rotate(90deg)}
 .rqboat[open] > .trips{padding-bottom:12px}
 .mhead h3{margin:0;font:800 18px/1.2 var(--display)}.mhead span{font-size:14px;color:var(--muted);font-weight:600}
 .trips{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
@@ -1819,11 +1819,27 @@ async function loadToConfirm(){
 }
 const WA_AVAL_DESDE = "2026-10-24"; /* lembrete do WhatsApp só para os confirmados a partir daqui */
 const FORA_DESDE = "2026-10-21"; /* passeios de fora: o dono confirma a partir desta data (os antigos não entram) */
+/* blocos de Reservas que abrem e fecham (Rodrigo 2026-10-24): o administrador fecha um bloco para chegar nos de baixo; fica guardado no aparelho */
+const foldGet = () => { try{ return JSON.parse(localStorage.getItem("dobra")||"{}")||{}; }catch(e){ return {}; } };
+const foldOpen = (k, def=true) => foldGet()[k] ?? def;
+document.addEventListener("toggle", e=>{ const d=e.target; if(!d.matches?.("details.fold")) return;
+  try{ const L=foldGet(); L[d.dataset.fold]=d.open; localStorage.setItem("dobra", JSON.stringify(L)); }catch(x){} }, true);
+const foldSum = h => `<summary class="foldh"><h2>${h}</h2><i class="chev" aria-hidden="true">›</i></summary>`;
+/* aba Lancha (Rodrigo 2026-10-24): cada cartão abre e fecha pelo título; Fotos e "O que a lancha oferece" começam fechados */
+const LANCHA_FECHADOS = ["ph","it"];
+const foldCard = (k, html) => html.replace(/^(\s*<div class="card(?![^"]*\bprc\b)[^"]*")/, `$1 data-fold="${k}"`);
+function foldCards(root){
+  root.querySelectorAll(":scope > div.card[data-fold]").forEach(c=>{ const h=c.querySelector(":scope > h2"); if(!h) return;
+    const d=document.createElement("details"); d.className=c.className+" fold"; d.dataset.fold=c.dataset.fold; if(c.id) d.id=c.id;
+    d.open=foldOpen(c.dataset.fold, !LANCHA_FECHADOS.includes(c.dataset.fold));
+    const sm=document.createElement("summary"); sm.className="foldh"; sm.innerHTML=`<i class="chev" aria-hidden="true">›</i>`; sm.prepend(h);
+    d.append(sm, ...c.childNodes); c.replaceWith(d); });
+}
 function waAvHTML(){
   if(!S.toAskWa?.length) return "";
-  return `<div class="card cfm rvpend"><h2>${t("waAvT",{n:S.toAskWa.length})}</h2><p class="muted" style="margin-top:0">${t("waAvSub")}</p><ul class="owners">${S.toAskWa.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
+  return `<details class="card cfm rvpend fold" data-fold="waav"${foldOpen("waav")?" open":""}>${foldSum(t("waAvT",{n:S.toAskWa.length}))}<p class="muted" style="margin-top:0">${t("waAvSub")}</p><ul class="owners">${S.toAskWa.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
     return `<li><span class="who">${avatar(b.lancha,"bav")}<span><strong>${esc(boatName(b.lancha))}</strong><br><small class="muted">${fmtLong(b.data)} · ${t("slot_"+b.horario)}${n?.cliente?" · "+esc(n.cliente):""}</small></span></span>
-      <span class="cfb"><button type="button" class="btn wa" data-wav="${b.id}">${WA_ICON} ${t("waAvGo")}</button><button type="button" class="link" data-wavx="${b.id}">${t("waAvDone")}</button></span></li>`; }).join("")}</ul></div>`;
+      <span class="cfb"><button type="button" class="btn wa" data-wav="${b.id}">${WA_ICON} ${t("waAvGo")}</button><button type="button" class="link" data-wavx="${b.id}">${t("waAvDone")}</button></span></li>`; }).join("")}</ul></details>`;
 }
 async function markWa(id){
   S.toAskWa=(S.toAskWa||[]).filter(b=>b.id!==id);
@@ -1834,9 +1850,9 @@ function confirmHTML(){
   if(!S.admin && !(S.own||[]).length) return "";
   if(S.toConfirm===false) return S.admin ? `<p class="msg err">${t("needSqlAv")}</p>` : "";
   if(!S.toConfirm?.length) return "";
-  return `<div class="card cfm rvpend"><h2>${t("cfT",{n:S.toConfirm.length})}</h2><p class="muted" style="margin-top:0">${t(S.toConfirm.some(b=>b.fora)?"cfSubFora":"cfSub")}</p><ul class="owners">${S.toConfirm.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
+  return `<details class="card cfm rvpend fold" data-fold="cf"${foldOpen("cf")?" open":""}>${foldSum(t("cfT",{n:S.toConfirm.length}))}<p class="muted" style="margin-top:0">${t(S.toConfirm.some(b=>b.fora)?"cfSubFora":"cfSub")}</p><ul class="owners">${S.toConfirm.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
     return `<li><span class="who">${avatar(b.lancha,"bav")}<span><strong>${esc(boatName(b.lancha))}</strong><br><small class="muted">${fmtLong(b.data)} · ${t("slot_"+b.horario)}${n?.cliente?" · "+esc(n.cliente):""}${b.fora && +n?.valor>(+n?.sinal||0) ? `<br>${t("cfSaldo",{v:brl(+n.valor-(+n.sinal||0))})}` : ""}</small></span></span>
-      <span class="cfb"><button type="button" class="btn" data-cf="${b.id}" data-ok="1">${t(b.fora?"cfYesFora":"cfYes")}</button><button type="button" class="btn sec" data-cf="${b.id}" data-ok="0">${t("cfNo")}</button><button type="button" class="link" data-cfo="${b.id}">${t("cfOpen")}</button></span></li>`; }).join("")}</ul></div>`;
+      <span class="cfb"><button type="button" class="btn" data-cf="${b.id}" data-ok="1">${t(b.fora?"cfYesFora":"cfYes")}</button><button type="button" class="btn sec" data-cf="${b.id}" data-ok="0">${t("cfNo")}</button><button type="button" class="link" data-cfo="${b.id}">${t("cfOpen")}</button></span></li>`; }).join("")}</ul></details>`;
 }
 /* temporadas, mesma regra do site (Rodrigo 2026-10-22): alta dezembro, janeiro e fevereiro; média março, abril e novembro; baixa maio a outubro.
    Réveillon (26/dez a 5/jan) e Carnaval (sábado a terça) = alta + % do dono (precos.pct_reveillon).
@@ -2874,7 +2890,7 @@ function consHTML(){
   if(S.cons===false) return `<div class="card"><p class="msg err" style="margin:0">${t("csSql")}</p></div>`;
   if(!S.cons?.length) return "";
   const today=todayISO();
-  return `<h2 style="margin:6px 0 4px">${t("csT")} (${S.cons.length})</h2><p class="how muted" style="margin-top:0">${t("csSub")}</p><div class="trips" style="margin-bottom:18px">${S.cons.map(c=>{
+  return `<details class="fold" data-fold="cons"${foldOpen("cons")?" open":""} style="margin:6px 0 18px">${foldSum(`${t("csT")} (${S.cons.length})`)}<p class="how muted" style="margin-top:0">${t("csSub")}</p><div class="trips">${S.cons.map(c=>{
     const d=dateOf(c.data), ph=splitPhone(c.telefone), wa=ph.cc+ph.num.replace(/\D/g,""), L=["pt","en","es"].includes(c.lang)?c.lang:"pt";
     const tt=(k,o)=>(T[L][k]||T.pt[k]).replace(/\{(\w+)\}/g,(m,x)=>o[x]??m);
     const when=dateOf(c.data).toLocaleDateString(T[L].locale||"pt-BR",{day:"numeric",month:"long"}), slot=(T[L]["slot_"+c.horario]||t("slot_"+c.horario)).toLowerCase();
@@ -2887,7 +2903,7 @@ function consHTML(){
       <span class="tmeta"><i>✉ ${esc(c.email)}</i><i>${t("csAt",{d:new Date(c.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</i></span>
       ${(k=>k.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(k.tot)}</b>${k.net?` · ${t("sinNet")} ${brl(k.net)}`:""}${k.com!=null?` · ${t("sinCom")} ${brl(k.com)}`:""}</small>`:"")(pedCalc(c))}
       <span class="reqbtns">${c.data>=today?`<button type="button" class="btn" data-csok="${c.id}">${t("csOk")}</button>`:""}<button type="button" class="btn sec" data-csno="${c.id}">${t("csNo")}</button>${c.data>=today?`<button type="button" class="btn sec" data-csed="${c.id}">✏️ ${t("edBtn")}</button>`:""}</span></span>
-    <span class="tside">${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`; }).join("")}</div>`;
+    <span class="tside">${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`; }).join("")}</div></details>`;
 }
 let consultaFor = null;
 function openCons(c){
@@ -3864,8 +3880,9 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="vendas" ? vendHTML() : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? mntAllHTML() + boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + priceHistHTML() + ownPricesHTML() + photosHTML() + itemsHTML() + ownersHTML() + asContaHTML() + marHTML() + mntHTML() /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="vendas" ? vendHTML() : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + foldCard("hist",priceHistHTML()) + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
+  if(S.tab==="lancha") foldCards(app);
   bindMain();
 }
 /* abas do painel: as de todos com o nome; as que só o administrador vê (Reservas, Usuários, Conversas) só com o ícone (Rodrigo, 2026-10-22) */
