@@ -1247,7 +1247,10 @@ document.addEventListener("click", e=>{ const b=e.target.closest("[data-cur]"); 
 const PRECOS_PUBLICOS = false;
 let VEND = null, ME = null; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
-const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[key] ?? 10), 1), +v?.teto || 20); /* comissão do vendedor no período (padrão 10%) */
+/* comissão do vendedor: só baixa, média e alta (1% a 15%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
+const VEND_TETO = 15, VEND_PADRAO = 5;
+const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? (iso ? seasonBase(iso) : "alta") : key;
+const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[pctKey(key)] ?? VEND_PADRAO), 1), Math.min(+v?.teto || VEND_TETO, VEND_TETO));
 const ownBoat = (v, b) => !!b && (v?.proprias||[]).includes(b.slug); /* dono que também vende: sem comissão nas próprias lanchas */
 const cliPrice = (base, key, v=VEND, b=null) => base && v && !ownBoat(v,b) ? Math.round(base*(1+vPct(v,key)/100)/10)*10 : base; /* valor cheio, redondo de 10 em 10 */
 const minCli = b => { const all=Object.entries(b.prices||{}).filter(([,v])=>v!=null).map(([k,v])=>ME&&!VEND?v:cliPrice(v,k,VEND,b)); return all.length?Math.min(...all):null; };
@@ -1324,7 +1327,7 @@ const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 /* taxa cobrada pelo píer particular, paga pelo cliente no local (mesmos valores de TAXA no app e nos e-mails) */
 const boardFee = x => /porto veleiro/i.test(x||"") ? 10 : /golfinho/i.test(x||"") ? 5 : 0;
 const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
-const waBook = (b,iso,slot,n,bd) => { const v=VEND && cliPrice(priceFor(b,iso,slot), seasonOf(iso,b).key, VEND, b);
+const waBook = (b,iso,slot,n,bd) => { const v=VEND && cliPrice(priceFor(b,iso,slot), pctKey(seasonOf(iso,b).key,iso), VEND, b);
   return wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (v?t("waPrice",{p:brl(v)}):"") + (VEND?` (ref. ${VEND.codigo})`:"")); };
 
 /* Agenda das lanchas: os donos marcam no app /login/ os horários já alugados (banco Supabase).
@@ -1372,7 +1375,7 @@ async function showCup(out){
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, base=priceFor(b,pick.date,pick.slot);
   if(pick.cup) body.cupom=pick.cup;
-  if(VEND){ body.vendedor_cod=VEND.codigo; if(base){ body.preco_base=base; body.preco_cliente=cliPrice(base,seasonOf(pick.date,b).key,VEND,b); } } /* o banco confere o vendedor e o teto */
+  if(VEND){ body.vendedor_cod=VEND.codigo; if(base){ body.preco_base=base; body.preco_cliente=cliPrice(base,pctKey(seasonOf(pick.date,b).key,pick.date),VEND,b); } } /* o banco confere o vendedor e o teto */
   const key=JSON.stringify(body);
   if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
   const tok=await clientToken();
@@ -1580,7 +1583,7 @@ function showPrices(b){
   if(!pick.date || !sl){ box.innerHTML=`<p class="pr-wait">${t("priceWait")}</p>`; return; }
   const np=+pick.people;
   const v7 = sl.hours===7 && !sl.night ? price7(b,pick.date) : null;
-  const key=seasonOf(pick.date,b).key;
+  const key=pctKey(seasonOf(pick.date,b).key,pick.date);
   if(v7){ const c=cliPrice(v7,key,VEND,b); box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from7hDate",{d:fmtDate(pick.date)})} <strong>${money(c)}</strong>${np>1?`<em>${t("perPerson",{p:money(Math.ceil(c/np)),n:np})}</em>`:""}</p>${prExtra(b)}<p class="cur-sw">${curSwitch()}</p>`; return; }
   if(sl.hours===7){ box.innerHTML=`<div class="long"><span class="long-tag">${t("fullDay")}</span>
     <div class="long-head"><strong>${sl.night?slotLabel(pick.slot):t("tour7h")}</strong><span>${t("priceOnRequest")}</span></div>
@@ -1594,10 +1597,10 @@ const prExtra = b => `<p class="pr-incl">${t("prIncl")}</p><p class="pr-incl">${
 /* vendedor logado, na página da lancha: valor neto, a comissão dele no período (em % ou R$, de 1% ao teto) e o link para o cliente */
 function sellerBox(b, box, sl){
   if(!pick.date || !sl){ box.innerHTML=`<p class="pr-wait">${t("vendWait")}</p>`; return; }
-  const key=seasonOf(pick.date,b).key, base = sl.hours===7 ? (sl.night ? null : price7(b,pick.date)) : price4(b,pick.date);
+  const key=pctKey(seasonOf(pick.date,b).key,pick.date), base = sl.hours===7 ? (sl.night ? null : price7(b,pick.date)) : price4(b,pick.date);
   if(!base){ box.innerHTML=`<p class="pr-wait">${t("vendNoPrice")}</p>`; return; }
   if(ownBoat(ME,b)){ box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p><p class="vnote">${t("vendOwn")}</p></div>`; return; }
-  const teto=+ME.teto||20, pct=vPct(ME,key), cli=cliPrice(base,key,ME);
+  const teto=Math.min(+ME.teto||VEND_TETO,VEND_TETO), pct=vPct(ME,key), cli=cliPrice(base,key,ME);
   const q=new URLSearchParams({v:ME.codigo, data:pick.date, horario:pick.slot, ...(pick.people?{pessoas:pick.people}:{})});
   const link=SITE+pathFor(lang,b.slug)+"?"+q;
   box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p>
@@ -1624,7 +1627,7 @@ async function saveMine(){
 const viaVend = b => !!VEND && !ME && !isTeam() && !ownBoat(VEND,b);
 const vendWaHref = (b, msg) => "https://wa.me/"+String(VEND?.telefone||"").replace(/\D/g,"")+"?text="+encodeURIComponent(msg || t(b?"waVendBoat":"waVend",{n:VEND.nome, boat:b?.name||""}));
 /* mensagem ao vendedor com a lancha, a data, o horário, as pessoas e o valor que o cliente vê */
-const vendPickMsg = b => { const base=priceFor(b,pick.date,pick.slot), v=base?cliPrice(base,seasonOf(pick.date,b).key,VEND,b):0;
+const vendPickMsg = b => { const base=priceFor(b,pick.date,pick.slot), v=base?cliPrice(base,pctKey(seasonOf(pick.date,b).key,pick.date),VEND,b):0;
   return t("waVendPick",{n:VEND.nome, boat:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}) + (v ? t("waPrice",{p:brl(v)}) : ""); };
 const vendCard = b => { const w=String(VEND?.telefone||"").replace(/\D/g,""); if(!VEND || ME || w.length<10) return "";
   return `<div class="vcont">${t("vendBy",{n:esc(VEND.nome)})}<a id="vend-wa" href="${vendWaHref(b)}" target="_blank" rel="noopener">${b&&viaVend(b)?t("vendWaN",{n:esc(VEND.nome.split(" ")[0])}):t("vendWa")}</a></div>`; };
