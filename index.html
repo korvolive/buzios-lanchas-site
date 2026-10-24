@@ -1591,6 +1591,7 @@ function loadVend(){
   const pub = k => vRpc("vendedor_publico",{cod:k}).then(r=>{ if(r[0]) VEND=r[0]; else dropV(); });
   /* cliente com conta: fica ligado para sempre ao vendedor; o link de outro vendedor troca só se o atual não tiver passeio em aberto com ele. O banco diz qual vale */
   if(isClient()) jobs.push(clientToken().then(tok=>vRpc("vincular_vendedor",{cod:cod||null, novo},tok)).then(k=>{ if(typeof k==="string" && k){ try{ localStorage.setItem("vend",JSON.stringify({cod:k, t:saved?.cod===k?saved.t:Date.now()})); }catch(e){} return pub(k); } dropV(); }, ()=>cod?pub(cod):null).catch(()=>{}));
+  else if(lsGet("dono-ses")?.refresh_token) dropV(); /* equipe (dono, marinheiro, vendedor, administrador) nunca fica com vendedor nem vê preço de vendedor (Rodrigo 2026-10-24) */
   else if(cod) jobs.push(pub(cod).catch(()=>{}));
   if(lsGet("dono-ses")?.refresh_token) jobs.push(clientToken().then(tok=>vRpc("meu_vendedor",{},tok)).then(r=>{ if(r[0]) ME=r[0]; }).catch(()=>{}));
   if(jobs.length) Promise.all(jobs).then(()=>{ applyStatic(); if(VEND||ME){ const y=scrollY; render(false); scrollTo(0,y); } });
