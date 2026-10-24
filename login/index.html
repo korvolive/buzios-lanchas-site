@@ -3487,7 +3487,7 @@ function usuariosHTML(){
     ${(S.userF==="mar" ? [["mar_fixo",u=>u.fixo.length>0],["mar_free",u=>u.freelancer]] : [[null,()=>true]]).map(([g,gf])=>`<div class="ugrp">${g?`<h3 class="ugt">${t("ug_"+g)}</h3>`:""}<div class="ulist">${L.filter(gf).map(u=>{ const R=roleList(u);
       const wa=waOf(u.telefone);
       return `<div class="uline" data-q="${esc(fold([u.nome,u.email,u.telefone].join(" ")))}" data-lid="${u.user_id}"><button type="button" class="urow" data-uid="${u.user_id}">${face(u.user_id,u.nome||u.email,"face lg")}
-        <span class="ubody"><strong>${u.nome?esc(u.nome):`<em class="muted">${t("noName")}</em>`}${S.verIds?.has(u.user_id)?" "+vbadge(t("verUser")):""}${u.user_id===ses.user.id?` <small class="muted">(${t("you")})</small>`:""}${u.vendedor?vtag():""}</strong>
+        <span class="ubody"><strong>${u.nome?esc(u.nome):`<em class="muted">${t("noName")}</em>`}${S.verIds?.has(u.user_id)?" "+vbadge(t("verUser")):""}${u.user_id===ses.user.id?` <small class="muted">(${t("you")})</small>`:""}</strong>
         <small class="muted">${esc(realEm(u.email)||u.telefone||"")}</small>
         <span class="rtags">${R.length ? R.map(roleTag).join("") : `<span class="rtag r-sem">${t("role_sem")}</span>`}</span></span><span class="car" aria-hidden="true">›</span></button>${wa?`<a class="uwa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("userWa",{name:esc(u.nome||u.email)})}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${WA_PATH}"/></svg></a>`:""}</div>`; }).join("")}</div></div>`).join("")}
     <p class="muted uq0" hidden>${t("usersQNone")}</p>`;
