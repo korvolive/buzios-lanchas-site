@@ -9,6 +9,8 @@
   "background_color": "#06394a",
   "theme_color": "#06394a",
   "lang": "pt-BR",
+  "related_applications": [{"platform": "play", "id": "br.com.lanchaembuzios.app"}, {"platform": "webapp", "url": "https://www.lanchaembuzios.com.br/manifest.webmanifest"}],
+  "prefer_related_applications": false,
   "icons": [
     {"src": "/login/icon-192.png", "sizes": "192x192", "type": "image/png"},
     {"src": "/login/icon-512.png", "sizes": "512x512", "type": "image/png"},
