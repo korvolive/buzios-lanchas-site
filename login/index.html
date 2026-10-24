@@ -2827,6 +2827,7 @@ function consHTML(){
       <span>${fmtLong(c.data)} · ${t("slot_"+c.horario)}${c.horario==="noite"?"":" · "+t("hours_"+c.horario)}</span>
       <span class="tmeta"><i class="stb ${c.chamou?"st-aprovado":"st-pendente"}">${c.chamou?"✓ "+t("csCalled"):"⚠ "+t("csNoCall")}</i><i>${esc(boatName(c.lancha))}</i>${c.pessoas?`<i>${c.pessoas} ${t("people").toLowerCase()}</i>`:""}${c.embarque?`<i>⚓ ${esc(c.embarque)}</i>`:""}${c.data<today?`<i>${t("csPast")}</i>`:""}</span>
       <span class="tmeta"><i>✉ ${esc(c.email)}</i><i>${t("csAt",{d:new Date(c.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</i></span>
+      ${(k=>k.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(k.tot)}</b>${k.net?` · ${t("sinNet")} ${brl(k.net)}`:""}${k.com!=null?` · ${t("sinCom")} ${brl(k.com)}`:""}</small>`:"")(pedCalc(c))}
       <span class="reqbtns">${c.data>=today?`<button type="button" class="btn" data-csok="${c.id}">${t("csOk")}</button>`:""}<button type="button" class="btn sec" data-csno="${c.id}">${t("csNo")}</button></span></span>
     <span class="tside">${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span></a>`:""}</span></div>`; }).join("")}</div>`;
 }
