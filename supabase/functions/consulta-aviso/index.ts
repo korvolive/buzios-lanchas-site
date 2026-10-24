@@ -1,6 +1,7 @@
 // Búzios Lanchas: consulta rápida que não virou conversa (Rodrigo 2026-10-23).
-// O site chama logo depois de salvar os dados da janelinha. Se em 60 segundos o cliente não tocar em
-// "Chamar no WhatsApp", os administradores recebem no celular um aviso para chamar ele.
+// O site chama logo depois de salvar os dados da janelinha. Os administradores recebem na hora o aviso de
+// consulta nova (Rodrigo 2026-10-24). Se em 60 segundos o cliente não tocar em "Chamar no WhatsApp",
+// recebem outro aviso para chamar ele.
 // POST { k: <chave da consulta> }  (sem login: só age numa consulta existente, uma vez por consulta)
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -19,13 +20,14 @@ const TXT: Record<string, (c: any) => { title: string; body: string }> = {
   en: c => ({ title: "Interested client didn't message on WhatsApp", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.en[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} people` : ""}. Tap to reach out.` }),
   es: c => ({ title: "Cliente interesado no escribió por WhatsApp", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.es[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} personas` : ""}. Toca para contactarlo.` }),
 };
+const NOVA: Record<string, (c: any) => { title: string; body: string }> = {
+  pt: c => ({ title: "📩 Consulta nova de disponibilidade", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.pt[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} pessoas` : ""}` }),
+  en: c => ({ title: "📩 New availability request", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.en[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} people` : ""}` }),
+  es: c => ({ title: "📩 Nueva consulta de disponibilidad", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.es[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} personas` : ""}` }),
+};
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-async function avisar(id: number) {
-  await new Promise(r => setTimeout(r, 60_000));
-  // ainda não chamou? marca como avisada (uma vez só) e manda o aviso
-  const { data: c } = await db.from("consultas").update({ avisado_em: new Date().toISOString() }).eq("id", id).eq("chamou", false).is("avisado_em", null).select("id, nome, lancha, data, horario, pessoas").maybeSingle();
-  if (!c) return;
+async function push(c: any, txt: typeof TXT, tag: string) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
@@ -33,15 +35,24 @@ async function avisar(id: number) {
   const { data: ads } = await db.from("admins").select("user_id");
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", (ads || []).map(a => a.user_id));
   await Promise.all((subs || []).map(async s => {
-    const m = (TXT[s.lang] || TXT.pt)({ ...c, lancha });
+    const m = (txt[s.lang] || txt.pt)({ ...c, lancha });
     try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url: "/login/?consulta=" + c.id, tag: `consulta-${c.id}` }), { TTL: 86400, urgency: "high" });
-      console.log("push ok consulta", c.id);
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url: "/login/?consulta=" + c.id, tag: `${tag}-${c.id}` }), { TTL: 86400, urgency: "high" });
+      console.log("push ok", tag, c.id);
     } catch (e: any) {
       console.error("push falhou", e?.statusCode, e?.body || String(e));
       if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint);
     }
   }));
+}
+
+async function avisar(c: any) {
+  await push(c, NOVA, "consulta-nova").catch(e => console.error(e));
+  if (c.chamou) return;
+  await new Promise(r => setTimeout(r, 60_000));
+  // ainda não chamou? marca como avisada (uma vez só) e manda o aviso
+  const { data: x } = await db.from("consultas").update({ avisado_em: new Date().toISOString() }).eq("id", c.id).eq("chamou", false).is("avisado_em", null).select("id, nome, lancha, data, horario, pessoas").maybeSingle();
+  if (x) await push(x, TXT, "consulta");
 }
 
 Deno.serve(async req => {
@@ -54,10 +65,10 @@ Deno.serve(async req => {
     const { count } = await db.from("consultas").select("id", { count: "exact", head: true }).gte("agendado_em", hora);
     if ((count ?? 0) >= 20) return json({ ok: true, agendado: false });
     // marca uma vez só: chamadas repetidas não geram outro aviso
-    const { data: c } = await db.from("consultas").update({ agendado_em: new Date().toISOString() }).eq("chave", k).eq("chamou", false).is("agendado_em", null).select("id").maybeSingle();
+    const { data: c } = await db.from("consultas").update({ agendado_em: new Date().toISOString() }).eq("chave", k).is("agendado_em", null).select("id, nome, lancha, data, horario, pessoas, chamou").maybeSingle();
     if (!c) return json({ ok: true, agendado: false });
     // @ts-ignore EdgeRuntime existe no Supabase
-    EdgeRuntime.waitUntil(avisar(c.id).catch(e => console.error(e)));
+    EdgeRuntime.waitUntil(avisar(c).catch(e => console.error(e)));
     return json({ ok: true, agendado: true });
   } catch (e) {
     console.error(e);

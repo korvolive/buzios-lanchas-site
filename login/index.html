@@ -641,7 +641,7 @@ Object.assign(T.pt, {
   tabReq:"Reservas", reqPend:"Pendentes", reqOk:"Aprovados", reqHist:"Histórico", reqCanc:"Cancelados", reqNone:"Nenhuma reserva aqui.",
   reqSub:"Todas as reservas das lanchas: as lançadas na agenda e os pedidos do site. Só você vê. Só entram passeios com pelo menos o sinal pago. Pedidos do site: 1º confira a lancha e toque em Liberar pagamento (o cliente recebe o Pix no chat); 2º quando o sinal chegar, toque em Aprovar e o passeio entra na agenda já preenchido.",
   approve:"Aprovar", refuseReq:"Recusar", delReq:"Excluir de vez", delReqQ:"Excluir de vez o pedido de {name}? Some do site, do app e do perfil do cliente. Não dá para desfazer.", delReqOk:"Pedido excluído.", delReqLive:"Esse passeio ainda está na agenda. Apague primeiro o passeio na agenda da lancha.", needSqlDel:"Falta rodar no Supabase o arquivo 2026-10-23_supabase-excluir-pedido.sql.", refuseQ:"Recusar o pedido de {name}?", approveT:"Aprovar pedido", approveSub:"Confira e ajuste lancha, data e horário se o cliente mudou. Ao salvar, o passeio entra na agenda da lancha.",
-  approved:"Pedido aprovado! O passeio já está na agenda da {boat}.", refusedReq:"Pedido recusado.", openTripB:"Abrir o passeio", reqAt:"pedido em {d}",
+  reqNewPing:"📩 Chegou pedido de reserva novo · toque para ver", approved:"Pedido aprovado! O passeio já está na agenda da {boat}.", refusedReq:"Pedido recusado.", openTripB:"Abrir o passeio", reqAt:"pedido em {d}",
   needSqlCli:"Falta criar a parte de clientes no Supabase (arquivo 2026-10-19_supabase-clientes-pedidos.sql).",
   siteClient:"Cliente verificado", verUser:"Usuário verificado", cliCard:"Ver cadastro do cliente", cliSince:"Cliente desde", cliTrips:"Passeios confirmados", moved:"Passeio alterado.", moveHint:"Mude lancha, data ou horário aqui: a agenda e o calendário da lancha mudam juntos."
 });
@@ -661,7 +661,7 @@ Object.assign(T.en, {
   tabReq:"Bookings", reqPend:"Pending", reqOk:"Approved", reqHist:"History", reqCanc:"Cancelled", reqNone:"No bookings here.",
   reqSub:"All boat bookings: the ones entered in the calendar and the website requests. Only you see them. Only tours with at least the deposit paid are listed. Website requests: 1st check the boat and tap Release payment (the client gets the Pix in the chat); 2nd when the deposit arrives, tap Approve and the tour goes into the calendar already filled in.",
   approve:"Approve", refuseReq:"Decline", delReq:"Delete for good", delReqQ:"Delete {name}'s request for good? It disappears from the site, the app and the client's profile. This cannot be undone.", delReqOk:"Request deleted.", delReqLive:"This tour is still in the calendar. Delete the tour in the boat's calendar first.", needSqlDel:"The file 2026-10-23_supabase-excluir-pedido.sql still has to be run in Supabase.", refuseQ:"Decline {name}'s request?", approveT:"Approve request", approveSub:"Check and adjust boat, date and time if the customer changed them. When you save, the tour goes into the boat's calendar.",
-  approved:"Request approved! The tour is now in {boat}'s calendar.", refusedReq:"Request declined.", openTripB:"Open the tour", reqAt:"requested on {d}",
+  reqNewPing:"📩 New booking request · tap to see", approved:"Request approved! The tour is now in {boat}'s calendar.", refusedReq:"Request declined.", openTripB:"Open the tour", reqAt:"requested on {d}",
   needSqlCli:"The customers part is missing in Supabase (file 2026-10-19_supabase-clientes-pedidos.sql).",
   siteClient:"Verified customer", verUser:"Verified user", cliCard:"See customer details", cliSince:"Customer since", cliTrips:"Confirmed tours", moved:"Tour changed.", moveHint:"Change boat, date or time here: the boat's list and calendar change too."
 });
@@ -681,7 +681,7 @@ Object.assign(T.es, {
   tabReq:"Reservas", reqPend:"Pendientes", reqOk:"Aprobados", reqHist:"Historial", reqCanc:"Cancelados", reqNone:"Ninguna reserva aquí.",
   reqSub:"Todas las reservas de las lanchas: las cargadas en la agenda y los pedidos del sitio. Solo tú las ves. Solo entran los paseos con al menos la seña pagada. Pedidos del sitio: 1º revisa la lancha y toca Liberar pago (el cliente recibe el Pix en el chat); 2º cuando llegue la seña, toca Aprobar y el paseo entra en la agenda ya completo.",
   approve:"Aprobar", refuseReq:"Rechazar", delReq:"Eliminar del todo", delReqQ:"¿Eliminar del todo el pedido de {name}? Desaparece del sitio, de la app y del perfil del cliente. No se puede deshacer.", delReqOk:"Pedido eliminado.", delReqLive:"Ese paseo todavía está en la agenda. Borra primero el paseo en la agenda de la lancha.", needSqlDel:"Falta ejecutar en Supabase el archivo 2026-10-23_supabase-excluir-pedido.sql.", refuseQ:"¿Rechazar el pedido de {name}?", approveT:"Aprobar pedido", approveSub:"Revisa y ajusta lancha, fecha y horario si el cliente cambió. Al guardar, el paseo entra en la agenda de la lancha.",
-  approved:"¡Pedido aprobado! El paseo ya está en la agenda de {boat}.", refusedReq:"Pedido rechazado.", openTripB:"Abrir el paseo", reqAt:"pedido el {d}",
+  reqNewPing:"📩 Llegó un pedido de reserva nuevo · toca para verlo", approved:"¡Pedido aprobado! El paseo ya está en la agenda de {boat}.", refusedReq:"Pedido rechazado.", openTripB:"Abrir el paseo", reqAt:"pedido el {d}",
   needSqlCli:"Falta crear la parte de clientes en Supabase (archivo 2026-10-19_supabase-clientes-pedidos.sql).",
   siteClient:"Cliente verificado", verUser:"Usuario verificado", cliCard:"Ver datos del cliente", cliSince:"Cliente desde", cliTrips:"Paseos confirmados", moved:"Paseo cambiado.", moveHint:"Cambia lancha, fecha u horario aquí: la lista y el calendario de la lancha cambian juntos."
 });
@@ -4750,6 +4750,17 @@ async function boot(){
     if(S.admin) loadFotoPend().then(()=>{ if(view==="main" && !sheetDay && !tripRow) mainView(); if(new URLSearchParams(location.search).get("fotos")){ history.replaceState(null,"",location.pathname); openFotoPend(); } });
     db("fotos?select=lancha,lista").then(rows=>{ rows.forEach(r=>setCover(r.lancha,r.lista)); if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{}); /* capa de cada lancha (avatares) */
     if(S.admin) Promise.all([db("pedidos?select=id&status=eq.pendente"), db("consultas?select=id").catch(()=>[])]).then(([r,c])=>{ S.reqCount=r.length+c.length; if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{});
+    /* pedido ou consulta nova com o app aberto: aparece sozinha, com som e aviso, sem precisar atualizar a página (Rodrigo 2026-10-24) */
+    if(S.admin){ const reqPoll=()=>{ if(document.visibilityState!=="visible") return;
+        Promise.all([db("pedidos?select=id&status=eq.pendente"), db("consultas?select=id").catch(()=>[])]).then(([r,c])=>{
+          const ids=r.map(x=>"p"+x.id).concat(c.map(x=>"c"+x.id)), novo=reqPoll.seen && ids.some(x=>!reqPoll.seen.has(x)); reqPoll.seen=new Set(ids);
+          if(!novo && ids.length===S.reqCount) return; S.reqCount=ids.length;
+          const idle=()=>view==="main" && !sheetDay && !tripRow && !chatCid;
+          if(novo){ if(navigator.vibrate) try{ navigator.vibrate([80,40,80]); }catch(e){} chatSound(); toast(t("reqNewPing"));
+            const el=document.getElementById("toast"); el.style.cursor="pointer"; clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove("on"),8000);
+            el.onclick=()=>{ el.classList.remove("on"); el.onclick=null; if(!idle()) return; S.tab="pedidos"; store.set("dono-tab","pedidos"); S.reqF="pendente"; loadBlocks(); }; }
+          (S.tab==="pedidos" ? loadReqs() : Promise.resolve()).then(()=>{ if(idle()) mainView(); }).catch(()=>{}); }, ()=>{}); };
+      reqPoll(); if(!window.reqPollOn){ window.reqPollOn=1; setInterval(reqPoll, 15000); document.addEventListener("visibilitychange", reqPoll); } }
     if(S.isClient){
       const me = await db(`clientes?select=nome,cpf,whatsapp,nascimento,whatsapp_ok_em&user_id=eq.${ses.user.id}`).catch(()=>db(`clientes?select=nome,cpf,whatsapp,nascimento&user_id=eq.${ses.user.id}`)).catch(e=>e.status===404||e.status===400 ? false : null);
       if(me===false){ S.isClient=false; } /* banco ainda sem a parte de clientes: segue como antes */
