@@ -3,8 +3,8 @@
 // e do INMET (avisos meteorológicos) e só passa os que pegam Armação dos Búzios:
 //  - Marinha: área costeira cujo trecho inclui Búzios (de Arraial do Cabo/Cabo Frio a Rio das Ostras), área oceânica
 //    que contém Búzios, ou texto que cita Búzios / Cabo Frio / Arraial do Cabo.
-//  - INMET: município 3300233 (Armação dos Búzios) e nível "Perigo" ou "Grande Perigo" ("Perigo Potencial" sai quase
-//    todo dia para meio estado; fica de fora). Calor, frio, geada e umidade baixa também ficam de fora.
+//  - INMET: município 3300233 (Armação dos Búzios) e só nível "Grande Perigo". Rodrigo: só avisar o que impede de sair
+//    com a lancha ("Perigo" e "Perigo Potencial" ficam de fora). Calor, frio, geada e umidade baixa também ficam de fora.
 // Cada aviso entra UMA vez (tabela clima_avisos) como mensagem da própria Búzios Lanchas (autor vazio, tipo 'auto'):
 // texto = resumo em português (apps antigos mostram só isso), local = JSON com título/texto em PT/EN/ES e a validade.
 // Toda a equipe recebe no celular. Sem login (a chamada só lê fontes públicas e não repete aviso).
@@ -101,7 +101,7 @@ async function inmet(): Promise<Aviso[]> {
   for (const a of [...(j.hoje || []), ...(j.futuro || [])]) {
     if (!String(a.geocodes || "").split(",").map((s: string) => s.trim()).includes(BUZIOS.ibge)) continue;
     const sev = String(a.severidade || "");
-    if (!/^(Perigo|Grande Perigo)$/.test(sev) || FORA.test(sem(String(a.descricao || ""))) || a.encerrado) continue;
+    if (sev !== "Grande Perigo" || FORA.test(sem(String(a.descricao || ""))) || a.encerrado) continue;
     const br = (s: string) => s ? new Date(s.replace(" ", "T") + ":00-03:00").toISOString() : undefined;
     const fim = br(a.fim);
     if (fim && new Date(fim).getTime() < Date.now()) continue;
