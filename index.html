@@ -1628,12 +1628,12 @@ function openLead(b){
   /* o link já fica pronto a cada letra: o toque abre o WhatsApp direto (sem bloqueio de pop-up) */
   const upd=()=>{ const v=read(); go.href = bad(v) ? "#" : waBook(b,pick.date,pick.slot,pick.people,pick.board).replace(/(\?text=)(.*)$/, (m,a,x)=>a+x+encodeURIComponent("\n\n"+t("leadMe",{n:v.nome}))); };
   /* a consulta é salva assim que os dados ficam certos (3 s sem digitar), mesmo sem tocar no botão:
-     se em 60 segundos ele não chamar no WhatsApp, o administrador recebe um aviso para chamar ele (Rodrigo 2026-10-23) */
+     o administrador recebe na hora o aviso de consulta nova (Rodrigo 2026-10-24) e, se em 60 segundos ele não chamar no WhatsApp, outro aviso para chamar ele (Rodrigo 2026-10-23) */
   const k=(crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
   let timer=0, avisou=false;
   const save=(v,chamou)=>fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
       body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang})})
-    .then(r=>{ if(r.ok && !chamou && !avisou){ avisou=true; fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{}); } }).catch(()=>{});
+    .then(r=>{ if(r.ok && !avisou){ avisou=true; fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{}); } }).catch(()=>{});
   const later=()=>{ clearTimeout(timer); timer=setTimeout(()=>{ const v=read(); if(!bad(v)) save(v,false); },3000); };
   dl.querySelectorAll("input,select").forEach(x=>x.oninput=x.onchange=()=>{ $("ld-err").textContent=""; upd(); later(); });
   dl.addEventListener("close",()=>{ if(dl.dataset.login) setTimeout(()=>render(false),0); clearTimeout(timer); const v=read(); if(!bad(v) && !dl.dataset.go) save(v,false); },{once:true}); /* fechou a janelinha com os dados certos: também vale */
