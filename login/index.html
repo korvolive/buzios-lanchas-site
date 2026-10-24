@@ -3794,7 +3794,6 @@ const vPc = k => Math.min(Math.max(+(S.vend.pcts?.[k] ?? VEND_PADRAO),1),vTeto()
 function vendHTML(){
   const v=S.vend, teto=vTeto(), pc=vPc;
   if(S.vendas===undefined){ S.vendas=null; db("rpc/minhas_vendas_v2",{method:"POST",body:{}}).catch(()=>db("rpc/minhas_vendas",{method:"POST",body:{}})).then(r=>{ S.vendas=r; }, ()=>{ S.vendas=[]; }).then(()=>{ const x=document.getElementById("vsales"); if(x){ x.innerHTML=vSalesHTML(); bindVsales(); } }); }
-  if(S.vcli===undefined){ S.vcli=null; db("rpc/meus_clientes",{method:"POST",body:{}}).then(r=>{ S.vcli=r.map(x=>({...x, email:realEm(x.email)})); }, ()=>{ S.vcli=false; }).then(()=>{ const x=document.getElementById("vclis"); if(x) x.outerHTML=vCliHTML(); }); }
   if(S.mypix===undefined){ S.mypix=null; db(`vendedores?select=pix_tipo,pix_chave&user_id=eq.${ses.user.id}`).then(r=>{ S.mypix=r[0]||{}; }, ()=>{ S.mypix=false; }).then(()=>{ const x=document.getElementById("vpix"); if(x){ x.outerHTML=vPixHTML(); bindVpix(); } }); }
   return `<div class="card vcard"><h2>💼 ${t("vdT")}</h2>${vPixHTML()}<p class="muted" style="margin-top:0">${t("vdHow")}</p>
     <p class="vpay">${t("vdPay")}</p>
@@ -3804,7 +3803,7 @@ function vendHTML(){
     ${vAvHTML()}
     <details class="vdet" id="vpdet"><summary>${t("vdPcts",{n:teto})}</summary><div class="vpcts">${VEND_KEYS.map(k=>`<label><span>${t("pr_"+k).split(" · ")[0]}<small>${t("prm_"+k)}</small></span><span class="vpi"><input type="number" inputmode="decimal" min="1" max="${teto}" step="0.5" data-vp="${k}" value="${pc(k)}"><i>%</i></span></label>`).join("")}</div><p class="muted" style="margin:0 0 8px;font-size:13px">${t("vdPctNote")}</p>
       <button type="button" class="btn sec" id="vpsave">${t("save")}</button></details>
-    ${vCliHTML()}
+    ${"" /* sem lista de clientes no painel do vendedor: ele só é avisado de cada reserva (Rodrigo 2026-10-24) */}
     <details class="vdet" open><summary>${t("vdSales")}</summary><div id="vsales">${vSalesHTML()}</div></details>
     ${(S.convs||[]).some(c=>c.vendedor===ses.user.id && +c.total) ? `<details class="vdet" open><summary>💬 ${t("chT")}${S.convs.some(c=>c.vendedor===ses.user.id&&+c.nao_lidas)?` <span class="unr">${S.convs.filter(c=>c.vendedor===ses.user.id).reduce((a,c)=>a+(+c.nao_lidas||0),0)}</span>`:""}</summary><p class="muted chnote">${t("chVendSub")}</p>${convListHTML(S.convs.filter(c=>c.vendedor===ses.user.id && +c.total))}</details>` : ""}</div>`;
 }
