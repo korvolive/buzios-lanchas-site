@@ -2104,7 +2104,7 @@ document.addEventListener("click",e=>{ const x=document.querySelector(".selo[ope
 const PUB = document.documentElement.dataset.pub;
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
-const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
+const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
   .then(r=>r.ok ? r.json() : Promise.reject(r.status))
   .then(rows=>rows.forEach(r=>{ const d=r.dados||{};
     if(BOATS.some(b=>b.slug===r.slug) || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;

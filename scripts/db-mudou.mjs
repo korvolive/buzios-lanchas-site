@@ -9,7 +9,7 @@ const SITE = SOURCE.match(/const SITE = "([^"]+)"/)[1];
 const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOURCE.match(/const AGENDA_KEY = "([^"]+)"/)[1];
 
 let mudou = false;
-const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&order=slug", { headers: { apikey: KEY } })
+const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&dados->>exemplo=is.null&order=slug", { headers: { apikey: KEY } })
   .then(r => (r.ok ? r.text() : null)).catch(() => null);
 if (rows) {
   const h = crypto.createHash("sha256").update(rows).digest("hex");
