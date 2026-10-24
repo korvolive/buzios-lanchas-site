@@ -478,7 +478,7 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .eqblk{background:#fde4df;color:#8a2416;border-radius:12px;padding:10px 12px;margin:8px 0 0;font-size:14px;text-align:center}
 .cha button.eqwho{all:unset;cursor:pointer;font-weight:700;text-decoration:underline dotted}
 .eqrole{font-size:11px;padding:1px 6px;border-radius:99px;background:var(--half,#eee);margin-left:4px;white-space:nowrap}
-.chm .chx .eqlk{text-decoration:none;border:1px solid var(--line,#ccc);background:transparent;color:inherit;border-radius:99px;padding:1px 8px;font-size:12px;cursor:pointer;margin-right:auto}.chm .chx .eqlk.on{background:#e8b84a33;border-color:#e8b84a}.eqlk b{font-weight:700}
+.chm .chx .eqlk.mine{cursor:default}.chm .chx .eqlk{text-decoration:none;border:1px solid var(--line,#ccc);background:transparent;color:inherit;border-radius:99px;padding:1px 8px;font-size:12px;cursor:pointer;margin-right:auto}.chm .chx .eqlk.on{background:#e8b84a33;border-color:#e8b84a}.eqlk b{font-weight:700}
 .eqrole.r-admin,.eqrole.r-moderador{background:#0e3a4a;color:#fff}
 .eqhist{list-style:none;padding:0;margin:6px 0 12px;font-size:14px}.eqhist li{padding:6px 0;border-bottom:1px solid var(--line,#ddd)}
 .eqdur{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.eqdur button[aria-pressed=true]{background:var(--brass,#d4a12a);color:#000}
@@ -3047,7 +3047,7 @@ const eqAte = d => !d ? "" : /^infinity$/i.test(d) || new Date(d).getFullYear()>
 /* etiqueta: papel + lancha (ex.: "Dono Midas", "Marinheiro Bubbles") */
 const eqRole = m => m.papel ? `<span class="eqrole r-${m.papel}">${t("eqR_"+m.papel)}${m.lancha?" "+esc(m.lancha):""}</span>` : "";
 /* 👍 curtir: concordar sem mandar outra mensagem */
-const eqLikeHTML = m => m.apagada || m.curtidas==null ? "" : `<button type="button" class="eqlk${m.curti?" on":""}" data-eqlk="${m.id}" aria-pressed="${!!m.curti}" aria-label="${t("eqLike")}"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍${+m.curtidas?` <b>${m.curtidas}</b>`:""}</button>`;
+const eqLikeHTML = m => m.apagada || m.curtidas==null ? "" : m.autor===ses.user.id ? (+m.curtidas ? `<span class="eqlk mine"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍 <b>${m.curtidas}</b></span>` : "") : `<button type="button" class="eqlk${m.curti?" on":""}" data-eqlk="${m.id}" aria-pressed="${!!m.curti}" aria-label="${t("eqLike")}"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍${+m.curtidas?` <b>${m.curtidas}</b>`:""}</button>`;
 function eqMsgHTML(m){
   if(m.tipo==="alerta" && !m.apagada){ const me=m.autor===ses.user.id, can=!m.resolvido && (me || S.eq?.moderador), hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
     return `<div class="chm alerta${m.resolvido?" ok":""}" data-mid="${m.id}"><p class="alh">🚨 ${t("alC_"+(m.categoria||"outro"))}${m.resolvido?` · ${t("alResolved")}`:""}</p>
