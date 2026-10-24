@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Falar com a equipe · Búzios Lanchas</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/login/icon-192.png">
+<!-- botão "Falar com a equipe" da mensagem automática do WhatsApp (modelo consulta_recebida, Rodrigo 2026-10-24):
+     a Meta não aceita link wa.me no botão, então ele aponta para cá e esta página abre o WhatsApp da Búzios Lanchas -->
+<style>
+:root{--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--wa:#1f8f4e}
+@media (prefers-color-scheme:dark){:root{--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f}}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center;padding:0 16px}
+img{width:72px;height:72px;border-radius:18px}
+h1{font-size:20px;margin:14px 0 6px}
+p{color:var(--muted);margin:0 0 18px}
+a.b{display:inline-block;background:var(--wa);color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:999px}
+</style>
+</head>
+<body>
+<main><img src="/login/icon-192.png" alt=""><h1 id="t">Abrindo o WhatsApp…</h1><p id="s">Se não abrir sozinho, toque no botão.</p><a class="b" id="go" href="https://wa.me/5521999272550">WhatsApp</a></main>
+<script>
+const L={pt:["Abrindo o WhatsApp…","Se não abrir sozinho, toque no botão.","Olá! Recebi a mensagem da Búzios Lanchas sobre a minha consulta no site e quero continuar o atendimento."],
+ en:["Opening WhatsApp…","If it doesn't open, tap the button.","Hi! I got the Búzios Lanchas message about my request on the website and I'd like to continue."],
+ es:["Abriendo WhatsApp…","Si no se abre solo, toca el botón.","¡Hola! Recibí el mensaje de Búzios Lanchas sobre mi consulta en el sitio y quiero seguir con la atención."]};
+const q=new URLSearchParams(location.search).get("l"), n=(navigator.language||"pt").slice(0,2).toLowerCase();
+const l=L[q]?q:L[n]?n:"pt", x=L[l];
+document.documentElement.lang=l==="pt"?"pt-BR":l;
+document.getElementById("t").textContent=x[0]; document.getElementById("s").textContent=x[1];
+const u="https://wa.me/5521999272550?text="+encodeURIComponent(x[2]);
+document.getElementById("go").href=u; location.replace(u);
+</script>
+</body>
+</html>
