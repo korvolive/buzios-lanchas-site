@@ -3087,7 +3087,8 @@ function eqMsgHTML(m){
 }
 function eqRender(){
   const l=document.getElementById("chlist"); if(!l) return; const atEnd = !l.dataset.n || l.scrollHeight - l.scrollTop - l.clientHeight < 80; let day="";
-  l.innerHTML = eqRows.length ? eqRows.map(m=>{ const d=new Date(m.criado_em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"}); const sep=d!==day?`<div class="chday muted">${d}</div>`:""; day=d; return sep+eqMsgHTML(m); }).join("") : `<p class="muted" style="text-align:center;margin:auto">${t("eqEmpty")}</p>`;
+  const vis=eqRows.filter(m=>!m.apagada); // apagada some na hora, para todos (Rodrigo 2026-10-24)
+  l.innerHTML = vis.length ? vis.map(m=>{ const d=new Date(m.criado_em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"}); const sep=d!==day?`<div class="chday muted">${d}</div>`:""; day=d; return sep+eqMsgHTML(m); }).join("") : `<p class="muted" style="text-align:center;margin:auto">${t("eqEmpty")}</p>`;
   l.dataset.n=eqRows.length; if(atEnd) l.scrollTop=l.scrollHeight;
   l.querySelectorAll("[data-eqdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("eqDelQ"))) return; try{ await RPC("equipe_apagar",{mid:+x.dataset.eqdel}); const m=eqRows.find(r=>r.id===+x.dataset.eqdel); if(m){ m.apagada=true; m.texto=null; } eqRender(); }catch(e){ toast(errMsg(e)); } });
   l.querySelectorAll("[data-equ]").forEach(x=>x.onclick=()=>eqFicha(x.dataset.equ));
@@ -3124,7 +3125,7 @@ function eqAlerta(){
 }
 async function eqPoll(full){
   if(!eqOn) return;
-  try{ const all = full || (++eqTick % 6)===0, rows=await eqFetch(all ? {} : {depois:eqLast}); if(!eqOn) return;
+  try{ const all = full || (++eqTick % 3)===0, rows=await eqFetch(all ? {} : {depois:eqLast}); if(!eqOn) return;
     rows.forEach(m=>{ if(m.foto!=null) S.avV[m.autor]=+m.foto; }); rows.sort((a,b)=>a.id-b.id);
     const novas=rows.filter(r=>!eqRows.some(x=>x.id===r.id));
     if(all){ const keep=eqRows.filter(x=>!rows.some(r=>r.id===x.id) && x.id<(rows[0]?.id||0)); eqRows=[...keep, ...rows]; } else eqRows.push(...novas);
