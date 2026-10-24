@@ -1134,7 +1134,7 @@ function openGRev(){
   dl.innerHTML=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button><h3 id="grev-t">${t("reviewsTitle")}</h3>
     <p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("heroRev")}</p><p class="grev-from">${t("gRevFrom")}</p>
     <ul class="reviews">${revs.map(([n,d,q])=>`<li><span class="stars" aria-label="${t("stars5")}">★★★★★</span><q>${q}</q><small>${n} · ${new Date(d+"-15").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul>
-    <a class="btn" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener">${t("gRevAll")}</a>`;
+    ${document.documentElement.classList.contains("is-app") ? "" /* no app instalado o link sairia do app (Rodrigo 2026-10-24) */ : `<a class="btn" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener">${t("gRevAll")}</a>`}`;
   dl.showModal();
 }
 document.addEventListener("click", e => { const a=e.target.closest(".hero-rev,.pr-grev"); if(!a) return; e.preventDefault(); openGRev(); });
