@@ -1362,11 +1362,11 @@ function track(ev,b){
 /* depois do pedido: o chat com a Búzios Lanchas, onde já chegou a mensagem do pedido e depois chega o Pix (Rodrigo, 2026-10-22) */
 async function chatId(){ try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/abrir_chat",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({com:"suporte"})}); return r.ok ? +(await r.json())||0 : 0; }catch(e){ return 0; } }
 /* cupons do cliente logado: aparecem só se ele tem cupom; ele toca para usar (um por passeio) */
-let CUPS=null;
+let CUPS=null, RECORRENTE=false; /* RECORRENTE: já ganhou algum cupom (tem passeio concluído), mesmo usado ou vencido */
 async function loadCups(){ if(CUPS) return CUPS; if(!isClient()) return [];
   try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/meus_cupons",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"});
     const d=new Date(), today=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-    CUPS = r.ok ? (await r.json()).filter(c=>!c.pedido && c.expira_em>=today) : []; }catch(e){ CUPS=[]; } return CUPS; }
+    const all = r.ok ? await r.json() : []; RECORRENTE = all.length>0; CUPS = all.filter(c=>!c.pedido && c.expira_em>=today); }catch(e){ CUPS=[]; } return CUPS; }
 async function showCup(out){
   const L=await loadCups(); if(!L.length || !out.isConnected || out.querySelector(".pk-cup")) return;
   if(!L.some(c=>c.id===pick.cup)) pick.cup=null;
@@ -1807,6 +1807,7 @@ async function showBoatStatus(b){
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b); showPrices(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
+  const bkOn=document.getElementById("bk-on"); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; if(btn.dataset.ready) showCup(out); } });
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
   const boards=boardsFor(b,pick.slot), bx=document.getElementById("pk-board");
@@ -2128,8 +2129,9 @@ function boatPage(b){
         <div class="online vonly"><button type="button" class="btn" id="book-online">${t("bookOnline")}</button>
           <p class="acct">${isClient() ? t("acctOn") : t("onlineHowF")}</p></div>` /* estrangeiro: só a reserva online; o WhatsApp fica no topo do site (Rodrigo 2026-10-23) */
         : `<a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
-        ${AS_TESTE && !isTeam() ? `<div class="online"><button type="button" class="btn sec" id="book-online">${t("bookOnline")}</button>
-          <p class="acct">${isClient() ? t("acctOn") : t("onlineHowF")}</p></div>` : "" /* teste do Asaas (?asaas=1): brasileiro também vê a reserva online, para gerar o pedido com link de pagamento */}
+        ${(AS_TESTE || isClient()) && !isTeam() ? `<div class="online" id="bk-on"${AS_TESTE?"":" hidden"}><button type="button" class="btn sec" id="book-online">${t("bookOnline")}</button>
+          <p class="acct">${isClient() ? t("acctOn") : t("onlineHowF")}</p></div>` : ""
+          /* brasileiro vê a reserva online no teste do Asaas (?asaas=1) ou quando é cliente recorrente: logado e já ganhou cupom, de um passeio concluído (Rodrigo 2026-10-24) */}
         ${vendCard(b)}`}
         <p class="fine">${t("fine")}</p>
         <p class="fine">${t("operNote")}</p>
