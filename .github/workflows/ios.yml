@@ -1,0 +1,81 @@
+name: App iOS (App Store)
+
+# Gera o app iOS (Capacitor) que abre www.lanchaembuzios.com.br, num Mac do GitHub.
+# Sem os segredos da Apple, só compila para o simulador, para conferir que funciona.
+# Com os segredos (APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID e ASC_KEY_P8, a chave .p8 da API do App Store Connect),
+# rodando à mão (Run workflow), assina e envia a versão para o TestFlight.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/ios/**
+      - .github/workflows/ios.yml
+      - manifest.webmanifest
+
+jobs:
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Usar o Xcode 26 (a Apple exige o SDK do iOS 26 para enviar apps)
+        run: |
+          XC=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XC" ]; then echo "Xcode 26 não encontrado nesta máquina"; ls -d /Applications/Xcode*; exit 1; fi
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
+      - name: Gerar o projeto iOS
+        run: |
+          node scripts/ios/gerar.mjs build-ios
+          cd build-ios
+          npm install --no-audit --no-fund
+          npx cap add ios
+          P=ios/App/App/Info.plist
+          B=/usr/libexec/PlistBuddy
+          $B -c "Add :ITSAppUsesNonExemptEncryption bool false" $P
+          $B -c "Add :NSCameraUsageDescription string 'Para tirar a sua foto de perfil e enviar comprovantes.'" $P
+          $B -c "Add :NSPhotoLibraryUsageDescription string 'Para escolher a sua foto de perfil e enviar comprovantes e fotos das lanchas.'" $P
+          $B -c "Add :CFBundleDevelopmentRegion string pt-BR" $P 2>/dev/null || $B -c "Set :CFBundleDevelopmentRegion pt-BR" $P
+          $B -c "Add :CFBundleLocalizations array" -c "Add :CFBundleLocalizations:0 string pt-BR" -c "Add :CFBundleLocalizations:1 string en" -c "Add :CFBundleLocalizations:2 string es" $P
+          ICON=$(ls ios/App/App/Assets.xcassets/AppIcon.appiconset/*.png | head -1)
+          cp ../scripts/ios/icone-1024.png "$ICON"
+          npx cap sync ios
+      - name: Compilar para o simulador (teste, sem assinatura)
+        working-directory: build-ios/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build | tail -20
+      - name: Assinar e enviar para o TestFlight
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: build-ios/ios/App
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          if [ -z "$KEY_P8" ] || [ -z "$TEAM" ]; then echo "Sem os segredos da Apple: só o teste no simulador."; exit 0; fi
+          KEY="$RUNNER_TEMP/AuthKey_$KEY_ID.p8"
+          printf '%s\n' "$KEY_P8" > "$KEY"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER")
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" "${AUTH[@]}" \
+            DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="1.0.${{ github.run_number }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            archive | tail -20
+          cat > "$RUNNER_TEMP/export.plist" <<PL
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          PL
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/saida" "${AUTH[@]}"
+          rm -f "$KEY"
+          echo "Versão 1.0.${{ github.run_number }} enviada. Aparece no TestFlight depois que a Apple processar (uns 15 a 30 minutos)."
