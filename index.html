@@ -1691,6 +1691,21 @@ function openVendLead(){
 /* consulta rápida (Rodrigo 2026-10-23): a janelinha pede nome, WhatsApp e e-mail, guarda uma pré-reserva que não bloqueia a lancha
    (o administrador aprova ou recusa no app) e abre o WhatsApp com a mensagem pronta */
 const LEAD_DDI = [["BR","55"],["AR","54"],["CL","56"],["UY","598"],["PY","595"],["PT","351"],["US","1"]];
+const novaChave = () => crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+const consultaSave = (b,k,v,chamou) => fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
+    body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang})})
+  .then(r=>r.ok, ()=>false);
+const consultaAviso = k => fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{});
+/* cliente já logado (Rodrigo 2026-10-24): não pede os dados de novo; usa o cadastro dele (nome, WhatsApp e e-mail) e vai direto para o WhatsApp */
+let CLI = null;
+function loadCli(){
+  if(!isClient()) return;
+  clientToken().then(tok=>fetch(SB_URL+"/rest/v1/clientes?select=nome,whatsapp&user_id=eq."+lsGet("dono-ses").user.id,{headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok}})).then(r=>r.ok?r.json():[]).then(c=>{
+    const u=lsGet("dono-ses")?.user||{}, m=String(c[0]?.whatsapp||"").match(/^\+?(\d{1,3})\s*(.+)$/), em=/@sem-email\./.test(u.email||"") ? "" : (u.email||"");
+    const nome=String(c[0]?.nome||"").trim().replace(/\s+/g," "), tel=m ? m[2].replace(/\D/g,"") : "";
+    if(nome.length>=2 && m && tel.length>=8) CLI={nome, ddi:m[1], tel, email:em};
+  }).catch(()=>{});
+}
 function openLead(b){
   let dl=document.getElementById("lead-dlg");
   if(dl) dl.remove(); /* uma janelinha nova por consulta (cada uma com a sua chave) */
@@ -1724,14 +1739,12 @@ function openLead(b){
   const upd=()=>{ const v=read(); go.href = bad(v) ? "#" : waBook(b,pick.date,pick.slot,pick.people,pick.board).replace(/(\?text=)(.*)$/, (m,a,x)=>a+x+encodeURIComponent("\n\n"+t("leadMe",{n:v.nome}))); };
   /* a consulta é salva assim que os dados ficam certos (3 s sem digitar), mesmo sem tocar no botão:
      o administrador recebe na hora o aviso de consulta nova (Rodrigo 2026-10-24) e, se em 60 segundos ele não chamar no WhatsApp, outro aviso para chamar ele (Rodrigo 2026-10-23) */
-  const k=(crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
+  const k=novaChave();
   let timer=0, avisou=false;
-  const save=(v,chamou)=>fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
-      body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang})})
-    .then(r=>{ if(r.ok && !avisou){ avisou=true; fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{}); } }).catch(()=>{});
+  const save=(v,chamou)=>consultaSave(b,k,v,chamou).then(ok=>{ if(ok && !avisou){ avisou=true; consultaAviso(k); } });
   const later=()=>{ clearTimeout(timer); timer=setTimeout(()=>{ const v=read(); if(!bad(v)) save(v,false); },3000); };
   dl.querySelectorAll("input,select").forEach(x=>x.oninput=x.onchange=()=>{ $("ld-err").textContent=""; upd(); later(); });
-  dl.addEventListener("close",()=>{ if(dl.dataset.login) setTimeout(()=>render(false),0); clearTimeout(timer); const v=read(); if(!bad(v) && !dl.dataset.go) save(v,false); },{once:true}); /* fechou a janelinha com os dados certos: também vale */
+  dl.addEventListener("close",()=>{ if(dl.dataset.login){ loadCli(); setTimeout(()=>render(false),0); } clearTimeout(timer); const v=read(); if(!bad(v) && !dl.dataset.go) save(v,false); },{once:true}); /* fechou a janelinha com os dados certos: também vale */
   upd(); if(!bad(read())) later();
   go.onclick=e=>{ const v=read(), w=bad(v);
     if(w){ e.preventDefault(); $("ld-err").textContent=t(w[1]); $(w[0]).focus(); return; }
@@ -1809,6 +1822,9 @@ async function showBoatStatus(b){
     document.getElementById("pk-people").classList.toggle("pk-missing",!pick.people);
     out.innerHTML=`<p class="pk-res busy need">${t("needAll")}</p>`; };
   btn.onclick = e => { if(btn.dataset.ready){
+      if(!FOREIGN && !isTeam() && !viaVend(b) && !ME && isClient() && CLI){ /* cliente logado: sem janelinha, a consulta é salva com o cadastro dele */
+        const k=novaChave(); btn.href=waBook(b,pick.date,pick.slot,pick.people,pick.board).replace(/(\?text=)(.*)$/, (m,a,x)=>a+x+encodeURIComponent("\n\n"+t("leadMe",{n:CLI.nome})));
+        consultaSave(b,k,CLI,true).then(ok=>{ if(ok) consultaAviso(k); }); track("reserva_whatsapp",b); return; }
       if(!FOREIGN && !isTeam() && !viaVend(b) && !ME){ e.preventDefault(); return openLead(b); } /* consulta rápida: nome, WhatsApp e e-mail antes (Rodrigo 2026-10-23) */
       track("reserva_whatsapp",b); /* consultar é só uma conversa no WhatsApp: pedido só pelo Reservar online (Rodrigo 2026-10-23) */
       return; }
@@ -2252,6 +2268,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
 applyStatic();
 render();
 loadVend();
+loadCli();
 /* valores editados pelo administrador no app (tabela precos); se o banco não responder, ficam os do código */
 const precosURL = c => AGENDA_URL.replace("bloqueios","precos")+"?select=lancha,baixa,media,alta,pico,reveillon"+c;
 Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados,pct_feriado,pct_reveillon,pct_reveillon7,desc_semana,especiais"), {headers:{apikey:AGENDA_KEY}})
