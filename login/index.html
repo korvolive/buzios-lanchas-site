@@ -430,7 +430,7 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .ubody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ubody strong{font-size:16px}.ubody>small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .rtag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--chip);color:var(--ink);white-space:nowrap}
-.rtag.r-admin{background:var(--sea-deep);color:#fff}.rtag.r-dono{background:var(--brass);color:var(--brass-ink)}.rtag.r-fixo,.rtag.r-free{background:var(--sea);color:#fff}.rtag.r-vend{background:#2f8f5b;color:#fff}.rtag.r-sem{background:none;border:1px dashed var(--muted);color:var(--muted)}
+.rtag.r-admin{background:var(--sea-deep);color:#fff}.rtag.r-dono{background:var(--brass);color:var(--brass-ink)}.rtag.r-fixo,.rtag.r-free{background:var(--sea);color:#fff}.rtag.r-vend{background:#2f8f5b;color:#fff}.rtag.r-mod{background:#6b4fa0;color:#fff}.rtag.r-sem{background:none;border:1px dashed var(--muted);color:var(--muted)}
 .uav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}.uav .btn{width:auto;margin:0;padding:10px 16px;font-size:15px}
 .uh{margin:18px 0 4px;font-size:16px}.uroles li{align-items:center}
 .uadd{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}.uadd select{flex:1 1 140px;min-width:0}.uadd .btn{width:100%;margin:0}
@@ -3604,8 +3604,11 @@ function openUser(uid, msg=""){
   /* moderador do chat da equipe (Rodrigo 2026-10-23) */
   const mb=document.getElementById("umodb");
   if(mb) RPC("moderadores_ids",{}).then(ids=>{ if(!document.body.contains(mb)) return; const on=(ids||[]).map(x=>typeof x==="string"?x:x.moderadores_ids||Object.values(x)[0]).includes(uid);
-    mb.innerHTML=`${on?`<p class="muted" style="margin:0 0 6px;font-size:14px">🛡️ ${t("eqModTag")}</p>`:""}<button type="button" class="btn sec" id="umod" style="margin:0 0 10px">${t(on?"eqUnMod":"eqMakeMod")}</button>`;
-    document.getElementById("umod").onclick=async()=>{ busy(true); try{ await RPC("definir_moderador",{uid, sim:!on}); toast(t(on?"eqModOff":"eqModOn")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } }; }, ()=>{});
+    /* moderador: mesma lista de papéis, com Remover do lado, igual ao Vendedor (Rodrigo 2026-10-24) */
+    const ul=sheet.querySelector(".uroles");
+    if(on && ul){ ul.querySelector("li.muted")?.remove(); ul.insertAdjacentHTML("beforeend",`<li><span><span class="rtag r-mod">🛡️ ${t("eqModTag")}</span></span><button type="button" class="rm" id="umod">${t("remove")}</button></li>`); mb.innerHTML=""; }
+    else mb.innerHTML=`<button type="button" class="btn sec" id="umod" style="margin:0 0 10px">${t("eqMakeMod")}</button>`;
+    document.getElementById("umod").onclick=async()=>{ if(on && !confirm(t("eqUnMod")+"?")) return; busy(true); try{ await RPC("definir_moderador",{uid, sim:!on}); toast(t(on?"eqModOff":"eqModOn")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } }; }, ()=>{});
   const uv=document.getElementById("uvend"); if(uv) uv.onclick = async () => { busy(true);
     try{ await RPC("cadastrar_vendedor",{uid, teto:20}); toast(t("userSaved")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } };
   const ua=document.getElementById("uadd");
