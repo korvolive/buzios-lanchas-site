@@ -1955,7 +1955,7 @@ function pricesHTML(){
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
       ${pc ? pairHTML("ds", k, dsGet(S.prices.desc_semana)) : ""}</div>`).join("")}
     ${pc ? ["reveillon","pico"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
-    <button class="btn" id="prsave" hidden>${t("pricesSave")}</button><p class="mnst" id="prst" aria-live="polite">${t("mnAuto")}</p>${espHTML()}`); /* salva sozinho, como o do dono (Rodrigo 2026-10-24) */
+    <button class="btn" id="prsave" hidden style="display:none">${t("pricesSave")}</button><p class="mnst" id="prst" aria-live="polite">${t("mnAuto")}</p>${espHTML()}`); /* salva sozinho, como o do dono (Rodrigo 2026-10-24) */
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
 const prBrOf = c => { const x=app.querySelector(`[data-br="${c}"]`); return x ? (x.value.trim()===""?0:+x.value) : S.neto?.[c]?.comissao || 0; };
