@@ -89,7 +89,7 @@ const T={
 const q=new URLSearchParams(location.search), P=q.get("p"), K=q.get("k");
 let lg=(()=>{ try{ const s=localStorage.getItem("pagar-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[q.get("l")]?q.get("l"):T[n]?n:"pt"; })();
 let D=null, state="wait", sdk=null, A=null, AX={};
-const AS = q.get("asaas")==="1";
+const AS = (()=>{ try{ if(q.get("asaas")==="1") localStorage.setItem("asaas-teste","1"); return localStorage.getItem("asaas-teste")==="1"; }catch(e){ return q.get("asaas")==="1"; } })(); /* mesmo aparelho que abriu o site ou o app com ?asaas=1 */
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const box=document.getElementById("box");
 const tf=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>o[k]??m);
