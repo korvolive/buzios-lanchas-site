@@ -2,7 +2,9 @@
 // A cada 20 min (pg_cron "clima-alertas") lê os avisos oficiais da Marinha (avisos de mau tempo para navegação)
 // e do INMET (avisos meteorológicos) e só passa os que pegam Armação dos Búzios:
 //  - Marinha: área costeira cujo trecho inclui Búzios (de Arraial do Cabo/Cabo Frio a Rio das Ostras), área oceânica
-//    que contém Búzios, ou texto que cita Búzios / Cabo Frio / Arraial do Cabo.
+//    que contém Búzios, ou texto que cita Búzios / Cabo Frio / Arraial do Cabo. E só os FORTES (Rodrigo 2026-10-24):
+//    vento força 8+ (muito forte, duro, tempestuoso...), mar muito grosso ou pior, e ressaca. "Vento forte" (força 7)
+//    e "mar grosso" ficam de fora: o aviso cobre até 300 milhas e nas enseadas de Búzios muitas vezes ainda dá para sair.
 //  - INMET: município 3300233 (Armação dos Búzios) e só nível "Grande Perigo". Rodrigo: só avisar o que impede de sair
 //    com a lancha ("Perigo" e "Perigo Potencial" ficam de fora). Calor, frio, geada e umidade baixa também ficam de fora.
 // Cada aviso entra UMA vez (tabela clima_avisos) como mensagem da própria Búzios Lanchas (autor vazio, tipo 'auto'):
@@ -69,6 +71,7 @@ async function traduz(q: string, to: string) {
 const lidos = { marinha: 0, inmet: 0 }; // quantos avisos cada fonte tem ao todo (para conferir com ?ver)
 type Aviso = { chave: string; fonte: "marinha" | "inmet"; tit: string; txt: string; tit_en?: string; txt_en?: string; ini?: string; fim?: string; nivel?: string };
 
+const FORTE = /MUITO|DURO|TEMPESTUOS|FURAC|VIOLENT|RESSACA/; // tipo do aviso da Marinha que impede sair
 async function marinha(): Promise<Aviso[]> {
   const r = await fetch(MARINHA, { headers: { "user-agent": "Mozilla/5.0 (BuziosLanchas alertas)" } });
   if (!r.ok) throw new Error("marinha " + r.status);
@@ -80,6 +83,8 @@ async function marinha(): Promise<Aviso[]> {
   lidos.marinha = Object.keys(por).length;
   for (const [num, [pt, en]] of Object.entries(por)) {
     if (!pt || !pegaBuzios(pt)) continue;
+    const tp = sem(pt.match(/AVISO DE (.+?) EMITIDO/)?.[1] || "");
+    if (!FORTE.test(tp)) continue;
     const fim = datas[num][1];
     if (fim && new Date(fim).getTime() < Date.now()) continue;
     const tipo = pt.match(/(AVISO DE .+?) EMITIDO/)?.[1] || "AVISO DE MAU TEMPO";
