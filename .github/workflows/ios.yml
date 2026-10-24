@@ -31,7 +31,7 @@ jobs:
           node scripts/ios/gerar.mjs build-ios
           cd build-ios
           npm install --no-audit --no-fund
-          npx cap add ios --packagemanager SPM
+          npx cap add ios
           P=ios/App/App/Info.plist
           B=/usr/libexec/PlistBuddy
           $B -c "Add :ITSAppUsesNonExemptEncryption bool false" $P
@@ -45,7 +45,7 @@ jobs:
       - name: Compilar para o simulador (teste, sem assinatura)
         working-directory: build-ios/ios/App
         run: |
-          xcodebuild -project App.xcodeproj -scheme App -configuration Release -sdk iphonesimulator \
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build | tail -20
       - name: Assinar e enviar para o TestFlight
         if: github.event_name == 'workflow_dispatch'
@@ -60,7 +60,7 @@ jobs:
           KEY="$RUNNER_TEMP/AuthKey_$KEY_ID.p8"
           printf '%s\n' "$KEY_P8" > "$KEY"
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER")
-          xcodebuild -project App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' \
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" "${AUTH[@]}" \
             DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
             MARKETING_VERSION="1.0.${{ github.run_number }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
