@@ -1245,6 +1245,8 @@ document.addEventListener("click", e=>{ const b=e.target.closest("[data-cur]"); 
    Só veem valores: quem chega pelo link de um vendedor (?v=CODIGO), já com a comissão do vendedor somada num valor cheio,
    e o próprio vendedor logado, que vê o valor neto (lancha + Búzios Lanchas, sem a divisão) e monta o link. */
 const PRECOS_PUBLICOS = false;
+/* teste do Asaas (Rodrigo 2026-10-24): abrir o site com ?asaas=1 liga neste aparelho; ?asaas=0 desliga */
+const AS_TESTE = (()=>{ try{ const q=new URLSearchParams(location.search).get("asaas"); if(q==="1") localStorage.setItem("asaas-teste","1"); if(q==="0") localStorage.removeItem("asaas-teste"); return localStorage.getItem("asaas-teste")==="1"; }catch(e){ return false; } })();
 let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
@@ -2126,6 +2128,8 @@ function boatPage(b){
         <div class="online vonly"><button type="button" class="btn" id="book-online">${t("bookOnline")}</button>
           <p class="acct">${isClient() ? t("acctOn") : t("onlineHowF")}</p></div>` /* estrangeiro: só a reserva online; o WhatsApp fica no topo do site (Rodrigo 2026-10-23) */
         : `<a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
+        ${AS_TESTE && !isTeam() ? `<div class="online"><button type="button" class="btn sec" id="book-online">${t("bookOnline")}</button>
+          <p class="acct">${isClient() ? t("acctOn") : t("onlineHowF")}</p></div>` : "" /* teste do Asaas (?asaas=1): brasileiro também vê a reserva online, para gerar o pedido com link de pagamento */}
         ${vendCard(b)}`}
         <p class="fine">${t("fine")}</p>
         <p class="fine">${t("operNote")}</p>
