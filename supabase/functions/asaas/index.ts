@@ -36,9 +36,11 @@ async function asaas(path: string, body?: unknown, method = body === undefined ?
   if (!KEY()) throw new Error("sem_chaves");
   const r = await fetch(API() + path, { method, headers: { access_token: KEY(), "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
   const t = await r.text(); let j: any = {}; try { j = JSON.parse(t); } catch (_) { /* vazio */ }
-  if (!r.ok) { console.error("asaas", method, path, r.status, t.slice(0, 800)); const e: any = new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); e.asaas = true; throw e; }
+  if (!r.ok) { console.error("asaas", method, path, r.status, t.slice(0, 800)); const e: any = new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); e.asaas = true; e.status = r.status; throw e; }
   return j;
 }
+// cancela a cobrança no Asaas; só apaga o registro se o Asaas confirmou (ou ela já não existe), senão um Pix pago em cima da hora se perderia
+const cancelar = (id: string) => asaas(`/payments/${id}`, undefined, "DELETE").then(() => true, (e: any) => { console.error("apagar", id, e?.message); return e?.status === 404; });
 
 function cpfOk(c: string) {
   if (!/^\d{11}$/.test(c) || /^(\d)\1{10}$/.test(c)) return false;
@@ -245,7 +247,7 @@ Deno.serve(async req => {
       for (const r of velhas || []) {
         try {
           if (await conferir(r.asaas_id)) continue; // pagou em cima da hora
-          await asaas(`/payments/${r.asaas_id}`, undefined, "DELETE").catch(e => console.error("apagar", r.asaas_id, e?.message));
+          if (!await cancelar(r.asaas_id)) continue; // tenta de novo na próxima rodada
           await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null); n++;
           await avisarExpirou(r.pedido).catch(e => console.error("avisar", e));
         } catch (e) { console.error("expirar", r.asaas_id, e); }
@@ -284,7 +286,7 @@ Deno.serve(async req => {
       if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
-      if (velha) { await asaas(`/payments/${velha.asaas_id}`, undefined, "DELETE").catch(e => console.error("apagar", e)); await db.from("pagamentos_asaas").delete().eq("id", velha.id); }
+      if (velha) { if (!await cancelar(velha.asaas_id)) return json({ erro: "asaas" }, 502); await db.from("pagamentos_asaas").delete().eq("id", velha.id); }
       const cus = await cliente(p.cliente, dig(b.cpf));
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
