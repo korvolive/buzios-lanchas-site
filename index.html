@@ -1819,12 +1819,14 @@ function bindLeadLogin(dl,$,upd,later){
     upd(); later();
   };
 }
+/* cliente com conta que já vê "Reservar online": some o "Consultar no WhatsApp" e o online vira o botão principal (Rodrigo 2026-10-24) */
+const soOnline = btn => { if(!isClient()) return; btn.hidden=true; document.getElementById("book-online")?.classList.remove("sec"); };
 async function showBoatStatus(b){
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b); showPrices(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
-  const bkOn=document.getElementById("bk-on"); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; if(btn.dataset.ready) showCup(out); } });
+  const bkOn=document.getElementById("bk-on"); if(bkOn && !bkOn.hidden) soOnline(btn); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; soOnline(btn); if(btn.dataset.ready) showCup(out); } });
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
   const boards=boardsFor(b,pick.slot), bx=document.getElementById("pk-board");
