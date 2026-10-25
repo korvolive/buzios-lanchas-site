@@ -1351,15 +1351,20 @@ let agenda = null;
 const SB_URL = AGENDA_URL.replace("/rest/v1/bloqueios","");
 const lsGet = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
 const isClient = () => lsGet("conta-tipo")==="cliente" && !!lsGet("dono-ses")?.refresh_token;
+/* renova o login um de cada vez com o app (mesma trava "dono-ses-renova"): dois renovando juntos com o mesmo token derrubavam o login */
 async function clientToken(){
-  let s=lsGet("dono-ses");
-  if(s.expires_at - Date.now()/1000 < 60){
-    const r=await fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({refresh_token:s.refresh_token})});
-    if(!r.ok) throw r.status; const j=await r.json();
-    s={access_token:j.access_token, refresh_token:j.refresh_token, expires_at:j.expires_at||Math.floor(Date.now()/1000)+(+j.expires_in||3600), user:j.user||s.user};
-    try{ localStorage.setItem("dono-ses",JSON.stringify(s)); }catch(e){}
-  }
-  return s.access_token;
+  const renova = async()=>{
+    let s=lsGet("dono-ses");
+    if(s.expires_at - Date.now()/1000 < 60){
+      const r=await fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({refresh_token:s.refresh_token})});
+      if(!r.ok){ const g=lsGet("dono-ses"); if(g?.refresh_token && g.refresh_token!==s.refresh_token) return g.access_token; throw r.status; }
+      const j=await r.json();
+      s={access_token:j.access_token, refresh_token:j.refresh_token, expires_at:j.expires_at||Math.floor(Date.now()/1000)+(+j.expires_in||3600), user:j.user||s.user};
+      try{ localStorage.setItem("dono-ses",JSON.stringify(s)); }catch(e){}
+    }
+    return s.access_token;
+  };
+  return navigator.locks?.request ? navigator.locks.request("dono-ses-renova", renova) : renova();
 }
 const isTeam = () => !!lsGet("dono-ses")?.refresh_token && !isClient(); /* donos e marinheiros não reservam pelo site */
 let lastReq = "";
