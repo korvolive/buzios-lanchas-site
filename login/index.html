@@ -2259,7 +2259,7 @@ function siteVisHTML(){
 document.addEventListener("change", async e=>{ const x=e.target; if(x.id!=="vis-on") return; const o=!x.checked, l=S.cur; x.disabled=true;
   try{ await db("rpc/ocultar_lancha",{method:"POST",body:{l,o}}); const b=boatRow(l); if(b) b.oculta=o; toast(t(o?"visOffOk":"visOnOk")); mainView(); }
   catch(err){ x.checked=!o; x.disabled=false; toast(t("saveErr")); } });
-/* "Cadastrar lancha nova" fica acima do card "No site" (Rodrigo 2026-10-25) */
+/* "Cadastrar lancha nova" fica no topo da aba Lancha, acima do seletor da lancha (Rodrigo 2026-10-25) */
 const nbNewHTML = () => S.admin ? `<button type="button" class="btn sec" id="nbnew" style="margin:0 0 14px">${t("nbNew")}</button>` : "";
 function boatInfoHTML(){
   if(!S.admin) return "";
@@ -4146,11 +4146,12 @@ function mainView(){
     + (S.tab==="lista" ? avHTML() + (isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`) : "") /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
     + fotoPendHTML() + installHTML() + pushHTML()
     + (S.tab==="lista" ? asAvisoHTML() : "")
+    + (S.tab==="lancha" ? nbNewHTML() : "") /* "Cadastrar lancha nova" acima do seletor da lancha (Rodrigo 2026-10-25) */
     + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 ? boatPicker(chips) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="vendas" ? vendHTML() + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + nbNewHTML() + foldCard("nosite",siteVisHTML()) + boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + foldCard("hist",priceHistHTML()) + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="vendas" ? vendHTML() + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + foldCard("nosite",siteVisHTML()) + boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + foldCard("hist",priceHistHTML()) + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   if(S.tab==="lancha") foldCards(app);
   bindMain();
