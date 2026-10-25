@@ -2785,6 +2785,8 @@ function asAvisoHTML(){
 }
 function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão (aba Vendas, Rodrigo 2026-10-25) */
   if(vend && !S.vend) return "";
+  /* vendedor só cria conta no Asaas depois da homologação: até lá são só 10 contas, que ficam para os donos (Rodrigo 2026-10-25); quem já tem conta continua vendo */
+  if(vend && !AS_TESTE){ asLoad(); if(!S.asConta) return ""; }
   const own=vend || (S.own||[]).includes(S.cur) && !SEM_REPASSE.includes(S.cur);
   if(!own && !S.admin) return "";
   if(own) asLoad();
