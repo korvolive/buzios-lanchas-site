@@ -90,6 +90,9 @@ Deno.serve(async req => {
     const alvo = (outros || []).filter(o => choca(o.horario, p.horario));
     if (!alvo.length) return json({ confirmado, cancelados: 0 });
     await db.from("pedidos").update({ status: "recusado", motivo: "ocupado", atualizado_em: new Date().toISOString() }).in("id", alvo.map(o => o.id));
+    // cobrança do Asaas que esses clientes já tinham gerado: cancela, para ninguém pagar por uma data que não existe mais
+    await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas", { method: "POST", headers: { authorization: "Bearer " + srk, apikey: srk, "content-type": "application/json" }, body: JSON.stringify({ acao: "cancelar", pids: alvo.map(o => o.id) }) })
+      .then(async r => { if (!r.ok) console.error("asaas cancelar", r.status, (await r.text()).slice(0, 200)); }).catch(e => console.error("asaas cancelar", e));
     let pushes = 0, mails = 0;
     for (const o of alvo) {
       if (!o.cliente) continue;
