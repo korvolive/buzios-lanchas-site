@@ -1,5 +1,6 @@
 // Búzios Lanchas: avisa o vendedor (celular e e-mail) quando um cliente pede um passeio pelo link dele.
 // POST { id: <pedido> }  (o próprio cliente, logo depois de pedir; uma vez por pedido: pedidos.vendedor_avisado_em)
+// POST { tipo: "pago", id }  (administrador, depois de pagar a comissão, manual ou pelo Asaas): o vendedor fica sabendo que recebeu
 // O vendedor recebe só o primeiro nome do cliente, sem telefone. Celular: chaves e inscrições do notificar (push_config, push_subs).
 // E-mail: mesmo jeito do notificar (modelo "Magic Link" com user_metadata.msg).
 import webpush from "npm:web-push@3.6.7";
@@ -25,7 +26,20 @@ const MAIL: Record<string, (p: any) => any> = {
   es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Un cliente pidió un paseo por tu link: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${dataBR(p.data)}`, `Horario: ${SLOT.es[p.horario] || p.horario}`, `Personas: ${p.pessoas}`, ...(p.comissao ? [`Tu comisión: ${p.comissao}`] : [])], nota: "Búzios Lanchas confirma el paseo con el cliente. Recibes tu comisión solo después de que el paseo sucede y termina bien. Si se cancela, no hay comisión. Síguelo en Mis ventas, en la app.", botao: "Abrir la app" }),
 };
 
-async function push(uid: string, p: any) {
+const PUSH_PAGO: Record<string, (p: any) => { title: string; body: string }> = {
+  pt: p => ({ title: "Comissão paga 💰", body: `${p.comissao} · ${p.lancha} · ${dataBR(p.data)}. Veja o comprovante em Minhas vendas.` }),
+  en: p => ({ title: "Commission paid 💰", body: `${p.comissao} · ${p.lancha} · ${dataBR(p.data)}. See the receipt in My sales.` }),
+  es: p => ({ title: "Comisión pagada 💰", body: `${p.comissao} · ${p.lancha} · ${dataBR(p.data)}. Mira el comprobante en Mis ventas.` }),
+};
+const MAIL_PAGO: Record<string, (p: any) => any> = {
+  pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A Búzios Lanchas pagou a sua comissão do passeio na ${p.lancha}.`, linhas: [`Valor: ${p.comissao}`, `Passeio: ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}`, `Forma: ${p.forma === "asaas" ? "transferência para a sua conta Asaas" : "Pix"}`], nota: "O comprovante fica em Minhas vendas, no app, junto do passeio.", botao: "Abrir o app" }),
+  en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Búzios Lanchas paid your commission for the tour on ${p.lancha}.`, linhas: [`Amount: ${p.comissao}`, `Tour: ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}`, `Method: ${p.forma === "asaas" ? "transfer to your Asaas account" : "Pix"}`], nota: "The receipt is in My sales, in the app, next to the tour.", botao: "Open the app" }),
+  es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Búzios Lanchas pagó tu comisión del paseo en ${p.lancha}.`, linhas: [`Valor: ${p.comissao}`, `Paseo: ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}`, `Forma: ${p.forma === "asaas" ? "transferencia a tu cuenta Asaas" : "Pix"}`], nota: "El comprobante está en Mis ventas, en la app, junto al paseo.", botao: "Abrir la app" }),
+};
+const ASSUNTO = (p: any) => ({ pt: `Pedido pelo seu link: ${p.lancha} · ${dataBR(p.data)}`, en: `Booking through your link: ${p.lancha} · ${dataBR(p.data)}`, es: `Pedido por tu enlace: ${p.lancha} · ${dataBR(p.data)}` }); // assunto com o motivo (Rodrigo 2026-10-22)
+const ASSUNTO_PAGO = (p: any) => ({ pt: `Comissão paga: ${p.comissao} · ${p.lancha}`, en: `Commission paid: ${p.comissao} · ${p.lancha}`, es: `Comisión pagada: ${p.comissao} · ${p.lancha}` });
+
+async function push(uid: string, p: any, txt = PUSH, tag = `venda-${p.id}`) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return 0;
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
@@ -33,7 +47,7 @@ async function push(uid: string, p: any) {
   let n = 0;
   await Promise.all((subs || []).map(async s => {
     try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...(PUSH[s.lang] || PUSH.pt)(p), url: "/login/", tag: `venda-${p.id}` }), { TTL: 86400, urgency: "high" });
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...(txt[s.lang] || txt.pt)(p), url: "/login/", tag }), { TTL: 86400, urgency: "high" });
       n++;
     } catch (e: any) {
       console.error("push falhou", e?.statusCode);
@@ -43,15 +57,15 @@ async function push(uid: string, p: any) {
   return n;
 }
 
-async function email(uid: string, p: any) {
+async function email(uid: string, p: any, txt = MAIL, assuntos = ASSUNTO) {
   const { data } = await db.auth.admin.getUserById(uid);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
   const meta = { ...(u.user_metadata || {}) };
   const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : "pt";
-  const msg = { lang, ...MAIL[lang]({ ...p, primeiro: String(p.nomeVend || meta.nome || meta.full_name || "").trim().split(" ")[0] || "" }) };
+  const msg = { lang, ...txt[lang]({ ...p, primeiro: String(p.nomeVend || meta.nome || meta.full_name || "").trim().split(" ")[0] || "" }) };
   msg.oi = msg.oi.replace(/, !$/, "!");
-  const assunto = { pt: `Pedido pelo seu link: ${p.lancha} · ${dataBR(p.data)}`, en: `Booking through your link: ${p.lancha} · ${dataBR(p.data)}`, es: `Pedido por tu enlace: ${p.lancha} · ${dataBR(p.data)}` }[lang]; // assunto com o motivo (Rodrigo 2026-10-22)
+  const assunto = (assuntos(p) as Record<string, string>)[lang];
   await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: "https://www.lanchaembuzios.com.br/login/" } });
   await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
@@ -66,7 +80,18 @@ Deno.serve(async req => {
     const { data: u } = await db.auth.getUser(token);
     const uid = u?.user?.id;
     if (!uid) return json({ erro: "login" }, 401);
-    const { id } = await req.json().catch(() => ({}));
+    const { id, tipo } = await req.json().catch(() => ({}));
+    if (tipo === "pago") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const { data: p } = await db.from("pedidos").select("id, lancha, data, horario, vendedor, preco_base, preco_cliente, comissao_paga, comissao_comprovante").eq("id", id).maybeSingle();
+      if (!p?.vendedor || !p.comissao_paga) return json({ enviados: 0 });
+      const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+      const com = Math.max((p.preco_cliente || 0) - (p.preco_base || 0), 0);
+      const dados = { ...p, lancha, comissao: "R$ " + com.toLocaleString("pt-BR", { minimumFractionDigits: com % 1 ? 2 : 0 }), forma: /^asaas:/.test(p.comissao_comprovante || "") ? "asaas" : "pix" };
+      const enviados = await push(p.vendedor, dados, PUSH_PAGO, `pago-${p.id}`);
+      const mail = await email(p.vendedor, dados, MAIL_PAGO, ASSUNTO_PAGO).catch(e => (console.error(e), false));
+      return json({ enviados, email: mail });
+    }
     const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, criado_em, vendedor, preco_base, preco_cliente, vendedor_avisado_em").eq("id", id).maybeSingle();
     if (!p || p.cliente !== uid) return json({ erro: "pedido não encontrado" }, 404);
     if (!p.vendedor || p.vendedor_avisado_em || Date.now() - Date.parse(p.criado_em) > 10 * 60 * 1000) return json({ enviados: 0 });

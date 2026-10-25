@@ -7,7 +7,9 @@
 // POST {acao:"conferir", p, k}                a página: confere no Asaas se já foi pago
 // POST {acao:"conta", ...dados} (login)      dono: cria a subconta Asaas dele (o Asaas manda o e-mail para ele ativar e mandar os documentos)
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
-// POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas
+// POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas (+ vendedores com conta)
+// POST {acao:"comissao", pid} (login admin)  depois do passeio: transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
+// POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
@@ -32,6 +34,11 @@ const SEGURA_MS = 2 * 36e5; // a data fica segurada por 2 horas depois de gerar 
 // pagamento só até 1 hora antes do início do passeio (Rodrigo, 2026-10-25): manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3)
 const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
 const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - 36e5 <= Date.now();
+// fim do passeio (Brasília): manhã 14h, dia 17h, tarde 18h, noite no dia seguinte
+const FIM: Record<string, number> = { manha: 14, dia: 17, tarde: 18, noite: 24 };
+// hora_fim do passeio na agenda ('HH:MM'), quando o dono anotou, vale no lugar do fim do horário
+const acabou = (d: string, h: string, fim?: string | null) => { const [fh, fm] = String(fim || "").split(":").map(Number);
+  return Date.parse(`${d}T00:00:00-03:00`) + (fim && !isNaN(fh) ? fh + (fm || 0) / 60 : FIM[h] ?? 24) * 36e5 <= Date.now(); };
 const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
 
 async function asaas(path: string, body?: unknown, method = body === undefined ? "GET" : "POST") {
@@ -375,12 +382,14 @@ Deno.serve(async req => {
       const tem = new Set((cs || []).map((c: any) => c.user_id)), com = new Set((ds || []).filter((d: any) => tem.has(d.user_id)).map((d: any) => d.lancha));
       const sem = [...new Set((ds || []).map((d: any) => d.lancha))].filter(l => !com.has(l) && !SEM_REPASSE.includes(l));
       const { data: ls } = sem.length ? await db.from("lanchas").select("slug, nome").in("slug", sem) : { data: [] };
-      return json({ lanchas: sem.map(l => (ls || []).find((x: any) => x.slug === l)?.nome || l).sort() });
+      const { data: vs } = await db.from("vendedores").select("user_id");
+      return json({ lanchas: sem.map(l => (ls || []).find((x: any) => x.slug === l)?.nome || l).sort(), vend_conta: (vs || []).map((v: any) => v.user_id).filter((id: string) => tem.has(id)) });
     }
 
     if (b.acao === "conta") {
       const { data: ds } = await db.from("donos").select("lancha").eq("user_id", u.id);
-      if (!ds?.length) return json({ erro: "dono" }, 403);
+      const { data: vd } = await db.from("vendedores").select("user_id").eq("user_id", u.id).eq("ativo", true).maybeSingle();
+      if (!ds?.length && !vd) return json({ erro: "dono" }, 403); // dono de lancha ou vendedor (comissão)
       if ((await db.from("asaas_contas").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "ja" }, 409);
       const doc = dig(b.cpfCnpj), pf = doc.length === 11;
       if (pf ? !cpfOk(doc) : !cnpjOk(doc)) return json({ erro: "doc" }, 400);
@@ -404,6 +413,55 @@ Deno.serve(async req => {
       } catch (e: any) { if (e.asaas) return json({ erro: "asaas", detalhe: String(e.message).slice(0, 300) }, 400); throw e; }
       await db.from("asaas_contas").insert({ user_id: u.id, conta_id: a.id, wallet_id: a.walletId, nome, cpf_cnpj: doc, email });
       return json({ ok: true });
+    }
+
+    // comissão do vendedor pelo Asaas, depois do passeio, com um toque do administrador (Rodrigo 2026-10-25)
+    if (b.acao === "comissao") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const pid = Number(b.pid);
+      const { data: p } = await db.from("pedidos").select("id, vendedor, status, data, horario, bloqueio_id, preco_cliente, preco_base, comissao_paga").eq("id", pid).maybeSingle();
+      if (!p?.vendedor || p.status !== "aprovado") return json({ erro: "pedido" }, 409);
+      if (p.comissao_paga) return json({ erro: "ja" }, 409);
+      const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
+      if (!acabou(p.data, p.horario, fim)) return json({ erro: "depois_do_passeio" }, 409);
+      if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) return json({ erro: "nao_aconteceu" }, 409);
+      const com = Math.round((+p.preco_cliente - +p.preco_base) * 100) / 100;
+      if (!(com > 0)) return json({ erro: "valor" }, 409);
+      const { data: ct } = await db.from("asaas_contas").select("wallet_id").eq("user_id", p.vendedor).maybeSingle();
+      if (!ct?.wallet_id) return json({ erro: "sem_conta" }, 409);
+      // trava: dois toques não transferem duas vezes
+      const { data: trava } = await db.from("pedidos").update({ comissao_comprovante: "asaas:enviando" }).eq("id", pid).is("comissao_comprovante", null).is("comissao_paga", null).select("id");
+      if (!trava?.length) return json({ erro: "comprovante" }, 409);
+      let tr: any;
+      try { tr = await asaas("/transfers", { value: com, walletId: ct.wallet_id }); }
+      catch (e: any) {
+        await db.from("pedidos").update({ comissao_comprovante: null }).eq("id", pid).eq("comissao_comprovante", "asaas:enviando");
+        return json({ erro: "asaas", detalhe: String(e?.message || e).slice(0, 300) }, 400);
+      }
+      await db.from("pedidos").update({ comissao_comprovante: "asaas:" + tr.id }).eq("id", pid);
+      // marca paga com o login do administrador (o banco só deixa o administrador marcar)
+      const comAdm = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false }, global: { headers: { Authorization: req.headers.get("authorization") || "" } } });
+      const { error: em } = await comAdm.rpc("pagar_comissao", { pid, sim: true });
+      if (em) console.error("pagar_comissao", em.message);
+      else await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/aviso-vendedor", { method: "POST", headers: { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" }, body: JSON.stringify({ tipo: "pago", id: pid }) }).catch(e => console.error("aviso-vendedor", e));
+      return json({ ok: true, valor: com, status: tr.status || null });
+    }
+
+    // comprovante da comissão: o vendedor vê que recebeu (Rodrigo 2026-10-25)
+    if (b.acao === "comprovante") {
+      const pid = Number(b.pid);
+      const { data: p } = await db.from("pedidos").select("id, vendedor, comissao_paga, comissao_comprovante").eq("id", pid).maybeSingle();
+      if (!p) return json({ erro: "pedido" }, 404);
+      if (p.vendedor !== u.id && !(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const c = String(p.comissao_comprovante || "");
+      if (!c) return json({ erro: "sem" }, 404);
+      if (c === "asaas:enviando" || c === "asaas:") return json({ erro: "pendente" }, 409);
+      if (c.startsWith("asaas:")) {
+        const tr = await asaas("/transfers/" + encodeURIComponent(c.slice(6)));
+        return tr?.transactionReceiptUrl ? json({ url: tr.transactionReceiptUrl, status: tr.status || null }) : json({ erro: "pendente", status: tr?.status || null }, 409);
+      }
+      const { data: sg, error } = await db.storage.from("comprovantes").createSignedUrl(c, 600);
+      return sg?.signedUrl ? json({ url: sg.signedUrl }) : json({ erro: "sem", detalhe: error?.message }, 404);
     }
 
     if (b.acao === "webhook") {
