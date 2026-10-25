@@ -3,7 +3,7 @@
 // O cliente paga Pix ou cartão com todas as taxas por conta dele (o valor sobe para a Búzios receber o sinal inteiro).
 // Split: a parte do dono (pedidos.repasse_dono) vai direto para a subconta Asaas do dono; o resto (comissão da Búzios + vendedor) fica na conta da Búzios.
 // GET  ?p&k                                  valores de Pix e cartão para a página
-// POST {acao:"pagar", p, k, metodo, cpf?}    a página: cria (ou reaproveita) a cobrança e devolve o Pix ou o link do cartão
+// POST {acao:"pagar", p, k, metodo, n?, cpf?} a página: cria (ou reaproveita) a cobrança e devolve o Pix ou o link do cartão (n = 1 a 6 parcelas)
 // POST {acao:"conferir", p, k}                a página: confere no Asaas se já foi pago
 // POST {acao:"conta", ...dados} (login)      dono: cria a subconta Asaas dele (o Asaas manda o e-mail para ele ativar e mandar os documentos)
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
@@ -59,8 +59,12 @@ async function cancelarAbertas(pid: number, menos?: number) {
   }
   return n;
 }
-// cancela a cobrança no Asaas; só apaga o registro se o Asaas confirmou (ou ela já não existe), senão um Pix pago em cima da hora se perderia
-const cancelar = (id: string) => asaas(`/payments/${id}`, undefined, "DELETE").then(() => true, (e: any) => { console.error("apagar", id, e?.message); return e?.status === 404; });
+// cancela a cobrança no Asaas; só apaga o registro se o Asaas confirmou (ou ela já não existe), senão um Pix pago em cima da hora se perderia.
+// Cartão parcelado: apaga o parcelamento inteiro (todas as parcelas), não só a primeira.
+const cancelar = async (id: string) => {
+  const inst = await asaas(`/payments/${id}`).then((pg: any) => pg?.installment || null, () => null);
+  return asaas(inst ? `/installments/${inst}` : `/payments/${id}`, undefined, "DELETE").then(() => true, (e: any) => { console.error("apagar", id, e?.message); return e?.status === 404; });
+};
 
 function cpfOk(c: string) {
   if (!/^\d{11}$/.test(c) || /^(\d)\1{10}$/.test(c)) return false;
@@ -76,11 +80,19 @@ function cnpjOk(c: string) {
 // taxas que o cliente paga (Rodrigo: o dono recebe 100% do neto, a Búzios e o vendedor também; as taxas ficam com o cliente)
 async function taxas() {
   const { data } = await db.from("asaas_config").select("*").eq("id", 1).maybeSingle();
-  return { pix: +(data?.pix_fixo ?? 1.99), pct: +(data?.cartao_pct ?? 2.99), fixo: +(data?.cartao_fixo ?? 0.49), ant: +(data?.antecipacao_pct ?? 1.7) };
+  return { pix: +(data?.pix_fixo ?? 1.99), pct: +(data?.cartao_pct ?? 2.99), pct6: +(data?.cartao_pct_2a6 ?? 3.49), fixo: +(data?.cartao_fixo ?? 0.49), ant: +(data?.antecipacao_pct ?? 1.7) };
 }
+// cartão em até 6x (Rodrigo 2026-10-25): cada opção já com a taxa do cartão e a antecipação (ao mês, em média (n+1)/2 meses por parcela),
+// para o dinheiro cair na hora e cada um receber cheio; o cliente vê a taxa e escolhe. Parcelas iguais: total = parcela × n.
+const PARCELAS = 6;
 async function totais(sinal: number) {
   const x = await taxas();
-  return { pix: up2(sinal + x.pix), cartao: up2((sinal + x.fixo) / (1 - (x.pct + x.ant) / 100)) };
+  const parcelas = Array.from({ length: PARCELAS }, (_, i) => {
+    const n = i + 1, pct = (n === 1 ? x.pct : x.pct6) + x.ant * (n + 1) / 2;
+    const parcela = up2((sinal + x.fixo) / (1 - pct / 100) / n);
+    return { n, parcela, total: Math.round(parcela * n * 100) / 100 };
+  });
+  return { pix: up2(sinal + x.pix), cartao: parcelas[0].total, parcelas };
 }
 
 // pedido + link da central (/pagar/?p=&k=), com o mesmo token da cobrança
@@ -226,8 +238,10 @@ async function conferir(asaasId: string) {
   if (row.pago_em) return true;
   const pg = await asaas(`/payments/${encodeURIComponent(asaasId)}`);
   await db.from("pagamentos_asaas").update({ status: pg.status }).eq("id", row.id);
-  if (!["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(pg.status) || Math.abs(+pg.value - +row.valor) > 0.005 || pg.externalReference !== `PED${row.pedido}`) return false;
-  const agora = new Date().toISOString(), texto = `${brl(+row.valor)} (${row.metodo === "pix" ? "Pix" : "cartão"} · Asaas)`;
+  // parcelado: o registro guarda o total (parcela × n), e a primeira parcela vale total / n
+  const n = pg.installment ? Math.round(+row.valor / +pg.value) : 1;
+  if (!["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(pg.status) || n < 1 || n > PARCELAS || Math.abs(+pg.value * n - +row.valor) > 0.005 || pg.externalReference !== `PED${row.pedido}`) return false;
+  const agora = new Date().toISOString(), texto = `${brl(+row.valor)} (${row.metodo === "pix" ? "Pix" : n > 1 ? `cartão em ${n}x` : "cartão"} · Asaas)`;
   const { data: marcou } = await db.from("pagamentos_asaas").update({ pago_em: agora }).eq("id", row.id).is("pago_em", null).select("id");
   if (!marcou?.length) return true; // outro aviso já marcou
   const { data: dobro } = await db.from("pagamentos_asaas").select("id").eq("pedido", row.pedido).neq("id", row.id).not("pago_em", "is", null);
@@ -328,7 +342,8 @@ Deno.serve(async req => {
       const rep = wallet ? +(p.repasse_dono ?? -1) : 0;
       if (wallet && rep < 0) return json({ erro: "repasse" }, 409); // o administrador ainda não definiu a parte do dono
       if (rep > sinal) return json({ erro: "repasse" }, 409);
-      const tot = (await totais(sinal))[metodo];
+      const tt = await totais(sinal), np = metodo === "cartao" ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
+      const op = tt.parcelas[np - 1], tot = metodo === "cartao" ? op.total : tt.pix;
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
       if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
@@ -344,9 +359,10 @@ Deno.serve(async req => {
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const venc = new Date(Date.now() + 2 * 864e5 - 3 * 36e5).toISOString().slice(0, 10);
       const pg = await asaas("/payments", {
-        customer: cus, billingType: metodo === "pix" ? "PIX" : "CREDIT_CARD", value: tot, dueDate: venc,
-        description: `Sinal da reserva · ${lancha} · ${dataBR(p.data)}`.slice(0, 500), externalReference: `PED${p.id}`,
-        ...(wallet && rep > 0 ? { split: [{ walletId: wallet, fixedValue: rep }] } : {}),
+        customer: cus, billingType: metodo === "pix" ? "PIX" : "CREDIT_CARD", dueDate: venc,
+        ...(np > 1 ? { installmentCount: np, installmentValue: op.parcela } : { value: tot }),
+        description: `Sinal da reserva · ${lancha} · ${dataBR(p.data)}${np > 1 ? ` · ${np}x` : ""}`.slice(0, 500), externalReference: `PED${p.id}`,
+        ...(wallet && rep > 0 ? { split: [{ walletId: wallet, ...(np > 1 ? { totalFixedValue: rep } : { fixedValue: rep }) }] } : {}),
       });
       let payload = null, img = null;
       try {
