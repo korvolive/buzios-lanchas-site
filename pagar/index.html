@@ -190,7 +190,7 @@ function asHTML(){
   const cpf = A.cpf ? "" : `<label class="muted" style="display:block;margin:0 0 6px">${L.asCpf}<input id="as-cpf" inputmode="numeric" autocomplete="off" style="display:block;width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;margin-top:4px;background:var(--surface);color:var(--ink)"></label>`;
   return `${cpf}<div class="pay" data-m="as-pix"><h3>${L.asPix}</h3><div class="amt" style="font-size:24px">${brl(A.pix)}</div><div class="muted">${fee(A.pix)}</div>
     ${px&&px.pix_payload ? `${px.pix_img?`<img class="qr" style="display:block;width:100%" alt="QR code Pix" src="data:image/png;base64,${esc(px.pix_img)}">`:`<div class="qr">${qrSvg(px.pix_payload)}</div>`}<button type="button" class="btn sec" data-copy="${esc(px.pix_payload)}">${L.copyCC}</button><p class="muted" style="margin:10px 0 0">${L.asAuto}</p>` : `<button type="button" class="btn" data-as="pix">${L.asGen}</button>`}</div>
-    <div class="pay" data-m="as-card"><h3>${L.asCard}</h3>${cardOpts(L)}<button type="button" class="btn" data-as="cartao">💳 ${L.asCardBtn}</button></div>
+    ${A.cartao_ok===false?"":`<div class="pay" data-m="as-card"><h3>${L.asCard}</h3>${cardOpts(L)}<button type="button" class="btn" data-as="cartao">💳 ${L.asCardBtn}</button></div>`}
     <p class="muted" style="margin:10px 0 0">⏱ ${L.asHold}</p><div id="asmsg"></div>`;
 }
 /* cartão em até 6x (Rodrigo 2026-10-25): cada opção mostra a parcela, o total e a taxa; o cliente escolhe */
@@ -211,6 +211,7 @@ document.addEventListener("click", async e=>{ const b=e.target.closest("[data-as
     if(j.erro==="ocupada"){ D.indisponivel=true; render(); return; }
     if(j.erro==="pagando"||j.erro==="passou"){ msg.innerHTML=`<p class="msg err">${j.erro==="passou"?L.late:L.busy}</p>`; b.disabled=false; return; }
     if(j.erro==="cpf"){ A.cpf=false; render(); document.getElementById("asmsg").innerHTML=`<p class="msg err">${L.asCpfBad}</p>`; return; }
+    if(j.erro==="cartao_prazo"){ A.cartao_ok=false; render(); return; }
     if(j.erro==="repasse"){ msg.innerHTML=`<p class="msg err">${L.asRep}</p>`; b.disabled=false; return; }
     if(!r.ok) throw 0;
     A.cpf=true;
