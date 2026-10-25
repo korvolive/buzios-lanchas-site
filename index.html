@@ -1115,6 +1115,7 @@ const IS_IOS_TAB = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.s
   const q = new URLSearchParams(location.search).get("lang"); /* links antigos com ?lang=en */
   const old = location.hash.match(/^#lancha-([a-z0-9-]+)$/);  /* links antigos com #lancha-nome */
   let l = LANGS.includes(q) ? q : route.lang;
+  if(LANGS.includes(q) && !IS_BOT) try{ localStorage.setItem("lang", q); }catch(e){} /* ?lang= vale como escolha do idioma (link de reserva do app), senão a próxima carga voltaria para a língua do navegador */
   if(!LANGS.includes(q) && route.lang==="pt" && !IS_BOT){
     let s=null; try{ s=localStorage.getItem("lang"); }catch(e){}
     const n = (navigator.language||"pt").slice(0,2).toLowerCase();
