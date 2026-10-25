@@ -2657,11 +2657,10 @@ async function asFn(body){ const tok=await fresh(); const r=await fetch(SB+"/fun
 const asLoad = () => { if(S.asConta===undefined && S.own?.length){ S.asConta=0; asFn({acao:"minha"}).then(j=>{ S.asConta=j.conta; S.asAtivo=j.ativo; S.asSem=!j.conta; }, ()=>{ S.asConta=null; }).then(()=>{ if(S.tab==="lancha" || S.tab==="lista") bgView(); }); } };
 /* dono sem conta no Asaas: aviso no topo de Passeios até ele se cadastrar (Rodrigo 2026-10-25: sem conta, a parte dele cai na Búzios e é repassada por fora) */
 function asAvisoHTML(){
-  if(!AS_TESTE || !S.own?.length) return ""; asLoad();
+  if(!S.own?.length) return ""; asLoad(); /* cadastro aberto para os donos antes do Asaas ir ao ar no site (Rodrigo 2026-10-25) */
   return S.asSem && !S.asConta ? `<div class="card asav"><h2>💳 ${t("asAvT")}</h2><p class="muted" style="margin-top:0">${t("asAvSub")}</p><button type="button" class="btn" id="as-go">${t("asAvGo")}</button></div>` : "";
 }
 function asContaHTML(){
-  if(!AS_TESTE) return "";
   const own=(S.own||[]).includes(S.cur);
   if(!own && !S.admin) return "";
   if(own) asLoad();
