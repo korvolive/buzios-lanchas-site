@@ -9,6 +9,9 @@
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
+// POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site)
+// Pagou: a reserva se confirma sozinha (rpc confirmar_pago), sem o administrador aprovar (Rodrigo, 2026-10-25).
+// Gerou o Pix ou o cartão: a data fica segurada por 2 horas para esse cliente (pp_vaga e datas_seguradas).
 // Chave (Edge Functions > Secrets, colada pelo Rodrigo): ASAAS_API_KEY. A chave da subconta do dono não é guardada.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -23,6 +26,11 @@ const brl = (v: number) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDi
 const up2 = (v: number) => Math.ceil(Math.round(v * 10000) / 100) / 100; // arredonda para cima, no centavo
 const dataBR = (d: string) => d.split("-").reverse().join("/");
 const dig = (s: unknown) => String(s ?? "").replace(/\D/g, "");
+const SEGURA_MS = 2 * 36e5; // a data fica segurada por 2 horas depois de gerar o pagamento (Rodrigo, 2026-10-25)
+// pagamento só até 1 hora antes do início do passeio (Rodrigo, 2026-10-25): manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3)
+const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
+const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - 36e5 <= Date.now();
+const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
 
 async function asaas(path: string, body?: unknown, method = body === undefined ? "GET" : "POST") {
   if (!KEY()) throw new Error("sem_chaves");
@@ -91,12 +99,78 @@ async function cliente(uid: string, cpfNovo: string) {
   return c.id as string;
 }
 
-const PUSH: Record<string, (n: string, v: string, l: string, d: string) => { title: string; body: string }> = {
-  pt: (n, v, l, d) => ({ title: "Sinal pago pelo Asaas ✅", body: `${n} pagou ${v} (${l}, ${d}). Toque para aprovar a reserva.` }),
-  en: (n, v, l, d) => ({ title: "Deposit paid via Asaas ✅", body: `${n} paid ${v} (${l}, ${d}). Tap to approve the booking.` }),
-  es: (n, v, l, d) => ({ title: "Seña pagada por Asaas ✅", body: `${n} pagó ${v} (${l}, ${d}). Toca para aprobar la reserva.` }),
+// ok: a reserva já entrou na agenda sozinha; senão (data ocupada nesse meio tempo) o administrador resolve
+const PUSH: Record<string, (n: string, v: string, l: string, d: string, ok: boolean) => { title: string; body: string }> = {
+  pt: (n, v, l, d, ok) => ok ? { title: "Passeio reservado ✅", body: `${n} pagou ${v} pelo site. ${l}, ${d}: a reserva já está confirmada na agenda.` } : { title: "Sinal pago, mas a data está ocupada ⚠️", body: `${n} pagou ${v} (${l}, ${d}), mas a lancha já tinha outro passeio. Toque para resolver.` },
+  en: (n, v, l, d, ok) => ok ? { title: "Tour booked ✅", body: `${n} paid ${v} on the site. ${l}, ${d}: the booking is already confirmed in the calendar.` } : { title: "Deposit paid, but the date is taken ⚠️", body: `${n} paid ${v} (${l}, ${d}), but the boat already had another tour. Tap to sort it out.` },
+  es: (n, v, l, d, ok) => ok ? { title: "Paseo reservado ✅", body: `${n} pagó ${v} en el sitio. ${l}, ${d}: la reserva ya está confirmada en la agenda.` } : { title: "Seña pagada, pero la fecha está ocupada ⚠️", body: `${n} pagó ${v} (${l}, ${d}), pero la lancha ya tenía otro paseo. Toca para resolverlo.` },
 };
-async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number) {
+// confirma a reserva sozinha e manda os mesmos avisos do botão Aprovar (dono, cliente, chat, outros pedidos do horário)
+async function confirmarSozinho(pid: number) {
+  const { data, error } = await db.rpc("confirmar_pago", { pid });
+  if (error) { console.error("confirmar_pago", error.message); return false; }
+  if (!data?.ok) { if (!data?.ja) console.error("confirmar_pago", JSON.stringify(data)); return !!data?.ja; }
+  const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, base = Deno.env.get("SUPABASE_URL") + "/functions/v1/";
+  const chama = (fn: string, b: unknown) => fetch(base + fn, { method: "POST", headers: { authorization: "Bearer " + srk, apikey: srk, "content-type": "application/json" }, body: JSON.stringify(b) })
+    .then(async r => { if (!r.ok) console.error(fn, r.status, (await r.text()).slice(0, 300)); }).catch(e => console.error(fn, e));
+  await chama("notificar", { tipo: "aprovado", id: data.bloqueio });
+  await chama("pedido-indisponivel", { pid });
+  return true;
+}
+// prazo de 2 horas acabou sem pagamento: a data volta para o site e o cliente é avisado no chat e no celular
+const EXP: Record<string, (l: string, d: string) => { title: string; body: string }> = {
+  pt: (l, d) => ({ title: "O prazo para pagar acabou", body: `A ${l} em ${d} foi liberada. Se ainda estiver livre, gere o pagamento de novo pelo mesmo link.` }),
+  en: (l, d) => ({ title: "The time to pay has ended", body: `${l} on ${d} has been released. If it is still free, create the payment again with the same link.` }),
+  es: (l, d) => ({ title: "Se acabó el plazo para pagar", body: `La ${l} el ${d} fue liberada. Si sigue libre, genera el pago de nuevo con el mismo link.` }),
+};
+async function avisarExpirou(pid: number) {
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, status").eq("id", pid).maybeSingle();
+  if (!p || p.status !== "pendente" || !p.cliente) return;
+  const { data: ainda } = await db.from("pagamentos_asaas").select("id").eq("pedido", pid).limit(1);
+  if (ainda?.length) return; // ainda tem outra cobrança valendo (Pix ou cartão)
+  const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+  const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
+  if (cv) {
+    const tx = `O prazo de 2 horas para pagar o sinal acabou e a ${lancha} em ${dataBR(p.data)} foi liberada. Se ainda estiver livre, você pode gerar o pagamento de novo pelo mesmo link.`;
+    const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "expirou:", pedido: p.id }).select("id").maybeSingle();
+    if (m) await db.from("conversas").update({ ultima_em: new Date().toISOString(), ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
+  }
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", p.cliente);
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...EXP[l](lancha, dataBR(p.data)), url: "/login/", tag: `exp-${p.id}` }), { TTL: 86400, urgency: "high" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+// pedido que venceu sem pagamento (1 hora antes do início): cancelado, e o cliente recebe uma mensagem gentil no chat e no celular (Rodrigo 2026-10-25)
+const PASSOU: Record<string, (l: string, d: string) => { title: string; body: string }> = {
+  pt: (l, d) => ({ title: "Que tal outra data? ⛵", body: `O seu pedido da ${l} em ${d} foi encerrado. Quando quiser, escolha outra data no site: vai ser um prazer levar você para passear!` }),
+  en: (l, d) => ({ title: "How about another date? ⛵", body: `Your request for ${l} on ${d} has been closed. Whenever you like, pick another date on the website: we'd love to take you out on the water!` }),
+  es: (l, d) => ({ title: "¿Qué tal otra fecha? ⛵", body: `Tu pedido de la ${l} el ${d} se cerró. Cuando quieras, elige otra fecha en el sitio: ¡será un placer llevarte a pasear!` }),
+};
+async function avisarPassou(p: { id: number; cliente: string; lancha: string; data: string }) {
+  if (!p.cliente) return;
+  const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+  const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
+  if (cv) {
+    const tx = `A data do seu pedido da ${lancha} em ${dataBR(p.data)} chegou sem a reserva ser concluída, então encerramos o pedido. Ficamos muito felizes com o seu interesse! Quando quiser, escolha outra data no site ou chame a gente aqui: vai ser um prazer levar você para passear em Búzios. ⛵`;
+    const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "passou:", pedido: p.id }).select("id").maybeSingle();
+    if (m) await db.from("conversas").update({ ultima_em: new Date().toISOString(), ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
+  }
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", p.cliente);
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PASSOU[l](lancha, dataBR(p.data)), url: "/", tag: `passou-${p.id}` }), { TTL: 86400, urgency: "normal" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
@@ -104,12 +178,12 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", (adm || []).map((a: any) => a.user_id));
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
-    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PUSH[l](nome || "—", valor, lancha, dataBR(dia)), url: "/login/", tag: `as-${pid}` }), { TTL: 86400, urgency: "high" }); }
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PUSH[l](nome || "—", valor, lancha, dataBR(dia), ok), url: "/login/", tag: `as-${pid}` }), { TTL: 86400, urgency: "high" }); }
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
 
-// confere a cobrança direto no Asaas e, se paga, marca o pedido como pago (igual ao PayPal: o administrador ainda aprova)
+// confere a cobrança direto no Asaas e, se paga, marca o pedido como pago e confirma a reserva sozinha
 async function conferir(asaasId: string) {
   const { data: row } = await db.from("pagamentos_asaas").select("*").eq("asaas_id", asaasId).maybeSingle();
   if (!row) return false;
@@ -125,13 +199,15 @@ async function conferir(asaasId: string) {
   if (!p) return true;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
-  const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
+  const ok = await confirmarSozinho(p.id);
+  // confirmada: o chat já recebe "reserva confirmada" pelo notificar; só fala do pagamento se a data deu problema
+  const cv = ok ? null : (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data;
   if (cv) {
     const tx = `Pagamento do sinal recebido: ${texto}. Agora a Búzios Lanchas confirma a sua reserva.`;
     const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "pago:" + brl(+row.valor), pedido: p.id }).select("id").maybeSingle();
     if (m) await db.from("conversas").update({ ultima_em: agora, ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
   }
-  await avisarAdmins(nome, brl(+row.valor), lancha, p.data, p.id).catch(e => console.error(e));
+  await avisarAdmins(nome, brl(+row.valor), lancha, p.data, p.id, ok).catch(e => console.error(e));
   return true;
 }
 
@@ -150,9 +226,9 @@ Deno.serve(async req => {
       const s = +x.p.sinal_valor || 0;
       const { data: cl } = await db.from("clientes").select("cpf").eq("user_id", x.p.cliente).maybeSingle();
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).maybeSingle();
-      const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em").eq("pedido", x.p.id);
+      const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
-        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s) || null, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
+        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c)) || null, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -160,6 +236,25 @@ Deno.serve(async req => {
     if (b?.event && b?.payment?.id) {
       if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id)).catch(e => console.error("webhook", e));
       return json({ ok: true });
+    }
+
+    if (b.acao === "expirar") {
+      const lim = new Date(Date.now() - SEGURA_MS).toISOString();
+      const { data: velhas } = await db.from("pagamentos_asaas").select("*").is("pago_em", null).lt("criado_em", lim).limit(50);
+      let n = 0;
+      for (const r of velhas || []) {
+        try {
+          if (await conferir(r.asaas_id)) continue; // pagou em cima da hora
+          await asaas(`/payments/${r.asaas_id}`, undefined, "DELETE").catch(e => console.error("apagar", r.asaas_id, e?.message));
+          await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null); n++;
+          await avisarExpirou(r.pedido).catch(e => console.error("avisar", e));
+        } catch (e) { console.error("expirar", r.asaas_id, e); }
+      }
+      // pedidos que venceram (1 hora antes do início) sem pagamento: cancela e avisa o cliente
+      const { data: venc, error: ev } = await db.rpc("pedidos_vencidos");
+      if (ev) console.error("pedidos_vencidos", ev.message);
+      for (const p of venc || []) await avisarPassou(p).catch(e => console.error("passou", p.id, e));
+      return json({ expiradas: n, vencidos: (venc || []).length });
     }
 
     if (b.acao === "pagar" || b.acao === "conferir") {
@@ -174,7 +269,10 @@ Deno.serve(async req => {
       }
       if (c.pago_em || (cobs || []).some((r: any) => r.pago_em)) return json({ pago: true });
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
-      if ((await vaga(p.id)) === "ocupada") return json({ erro: "ocupada" }, 409);
+      if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
+      const vg = await vaga(p.id);
+      if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
+      if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
       const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = +p.sinal_valor || 0;
       if (!(sinal > 0)) return json({ erro: "valor" }, 400);
       const wallet = await carteira(p.lancha);
@@ -183,7 +281,7 @@ Deno.serve(async req => {
       if (rep > sinal) return json({ erro: "repasse" }, 409);
       const tot = (await totais(sinal))[metodo];
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
-      if (velha && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
+      if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
       if (velha) { await asaas(`/payments/${velha.asaas_id}`, undefined, "DELETE").catch(e => console.error("apagar", e)); await db.from("pagamentos_asaas").delete().eq("id", velha.id); }

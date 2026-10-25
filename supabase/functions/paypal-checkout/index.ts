@@ -25,11 +25,27 @@ const MAIL: Record<string, any> = {
   en: { oi: (n: string) => `Hi${n ? " " + n : ""}!`, texto: (l: string, d: string) => `The boat ${l} is available on ${d}. To confirm your booking, pay the deposit with PayPal (PayPal account or credit card):`, nota: "The balance is paid at boarding, directly to the boat's crew.", botao: "Pay the deposit" },
   es: { oi: (n: string) => `¡Hola${n ? " " + n : ""}!`, texto: (l: string, d: string) => `La lancha ${l} está disponible el ${d}. Para confirmar tu reserva, paga la seña con PayPal (cuenta PayPal o tarjeta de crédito):`, nota: "El resto se paga al embarcar, directamente al responsable de la lancha.", botao: "Pagar la seña" },
 };
-const PUSH: Record<string, (n: string, v: string, l: string, d: string) => { title: string; body: string }> = {
-  pt: (n, v, l, d) => ({ title: "Sinal pago pelo PayPal 💳", body: `${n} pagou ${v} (${l}, ${d}). Toque para aprovar a reserva.` }),
-  en: (n, v, l, d) => ({ title: "Deposit paid with PayPal 💳", body: `${n} paid ${v} (${l}, ${d}). Tap to approve the booking.` }),
-  es: (n, v, l, d) => ({ title: "Seña pagada con PayPal 💳", body: `${n} pagó ${v} (${l}, ${d}). Toca para aprobar la reserva.` }),
+// pagamento automático confirma a reserva sozinho (Rodrigo, 2026-10-25); ok=false: a data ficou ocupada nesse meio tempo e o administrador resolve
+const PUSH: Record<string, (n: string, v: string, l: string, d: string, ok: boolean) => { title: string; body: string }> = {
+  pt: (n, v, l, d, ok) => ok ? { title: "Passeio reservado ✅", body: `${n} pagou ${v} pelo PayPal. ${l}, ${d}: a reserva já está confirmada na agenda.` } : { title: "Sinal pago, mas a data está ocupada ⚠️", body: `${n} pagou ${v} pelo PayPal (${l}, ${d}), mas a lancha já tinha outro passeio. Toque para resolver.` },
+  en: (n, v, l, d, ok) => ok ? { title: "Tour booked ✅", body: `${n} paid ${v} with PayPal. ${l}, ${d}: the booking is already confirmed in the calendar.` } : { title: "Deposit paid, but the date is taken ⚠️", body: `${n} paid ${v} with PayPal (${l}, ${d}), but the boat already had another tour. Tap to sort it out.` },
+  es: (n, v, l, d, ok) => ok ? { title: "Paseo reservado ✅", body: `${n} pagó ${v} con PayPal. ${l}, ${d}: la reserva ya está confirmada en la agenda.` } : { title: "Seña pagada, pero la fecha está ocupada ⚠️", body: `${n} pagó ${v} con PayPal (${l}, ${d}), pero la lancha ya tenía otro paseo. Toca para resolverlo.` },
 };
+// pagamento só até 1 hora antes do início do passeio (Rodrigo, 2026-10-25): manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3)
+const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
+const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - 36e5 <= Date.now();
+// mesma confirmação da função asaas: passeio na agenda + os avisos do botão Aprovar
+async function confirmarSozinho(pid: number) {
+  const { data, error } = await db.rpc("confirmar_pago", { pid });
+  if (error) { console.error("confirmar_pago", error.message); return false; }
+  if (!data?.ok) { if (!data?.ja) console.error("confirmar_pago", JSON.stringify(data)); return !!data?.ja; }
+  const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, base = Deno.env.get("SUPABASE_URL") + "/functions/v1/";
+  const chama = (fn: string, b: unknown) => fetch(base + fn, { method: "POST", headers: { authorization: "Bearer " + srk, apikey: srk, "content-type": "application/json" }, body: JSON.stringify(b) })
+    .then(async r => { if (!r.ok) console.error(fn, r.status, (await r.text()).slice(0, 300)); }).catch(e => console.error(fn, e));
+  await chama("notificar", { tipo: "aprovado", id: data.bloqueio });
+  await chama("pedido-indisponivel", { pid });
+  return true;
+}
 
 async function token() {
   const id = Deno.env.get("PAYPAL_CLIENT_ID"), sec = Deno.env.get("PAYPAL_SECRET");
@@ -88,7 +104,7 @@ async function email(uid: string, url: string, lancha: string, dia: string, valo
   return true;
 }
 
-async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number) {
+async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return 0;
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
@@ -97,7 +113,7 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
   let n = 0;
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
-    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PUSH[l](nome || "—", valor, lancha, dataBR(dia)), url: "/login/", tag: `pp-${pid}` }), { TTL: 86400, urgency: "high" }); n++; }
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PUSH[l](nome || "—", valor, lancha, dataBR(dia), ok), url: "/login/", tag: `pp-${pid}` }), { TTL: 86400, urgency: "high" }); n++; }
     catch (e: any) { console.error("push falhou", e?.statusCode); if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
   return n;
@@ -156,6 +172,7 @@ Deno.serve(async req => {
 
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
     if (b.acao === "criar") {
+      if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
       const v = await vaga(p.id, true);
       if (v !== "livre") return json({ erro: v }, 409);
       const o = await pp("/v2/checkout/orders", {
@@ -184,14 +201,15 @@ Deno.serve(async req => {
       if (!okVal) { console.error("captura não confere", JSON.stringify(o).slice(0, 800)); return json({ erro: "captura", status: cap?.status || o?.status }, 402); }
       const texto = fmt(c.moeda, +c.valor), agora = new Date().toISOString();
       await db.from("pagamentos_pp").update({ captura: cap.id, pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", p.id);
-      // no chat de atendimento: a Búzios Lanchas registra o pagamento
-      const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
+      const ok = await confirmarSozinho(p.id);
+      // no chat de atendimento: confirmada, o notificar já escreve "reserva confirmada"; senão registra o pagamento
+      const cv = ok ? null : (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data;
       if (cv) {
         const tx = `Pagamento do sinal recebido pelo PayPal: ${texto}. Agora a Búzios Lanchas confirma a sua reserva.`;
         const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "pago:" + texto, pedido: p.id }).select("id").maybeSingle();
         if (m) await db.from("conversas").update({ ultima_em: agora, ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
       }
-      await avisarAdmins(nome, texto, lancha, p.data, p.id).catch(e => console.error(e));
+      await avisarAdmins(nome, texto, lancha, p.data, p.id, ok).catch(e => console.error(e));
       return json({ pago: true });
     }
     return json({ erro: "acao" }, 400);

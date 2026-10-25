@@ -2,7 +2,7 @@
 // data e horário (que se sobrepõe) viram "Não fechado" com motivo 'ocupado', e cada cliente é avisado no idioma dele
 // (celular e e-mail) de que a data não está mais disponível, com o link das lanchas livres naquele dia (Rodrigo, 2026-10-22).
 // Também avisa no celular o cliente do pedido aprovado (o e-mail de confirmação sai pelo notificar).
-// POST { pid: <pedido aprovado> }  (só o administrador)
+// POST { pid: <pedido aprovado> }  (só o administrador, ou o servidor com a chave service_role)
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -73,10 +73,14 @@ Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-    const { data: me } = await db.auth.getUser(token);
-    const uid = me?.user?.id;
-    if (!uid) return json({ erro: "login" }, 401);
-    if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "só o administrador" }, 403);
+    // o próprio servidor também chama (pagamento automático confirmou a reserva sozinho, Rodrigo 2026-10-25)
+    const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!srk || token !== srk) {
+      const { data: me } = await db.auth.getUser(token);
+      const uid = me?.user?.id;
+      if (!uid) return json({ erro: "login" }, 401);
+      if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "só o administrador" }, 403);
+    }
     const { pid } = await req.json().catch(() => ({}));
     const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, status").eq("id", pid).maybeSingle();
     if (!p || p.status !== "aprovado") return json({ erro: "pedido aprovado não encontrado" }, 404);
