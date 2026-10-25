@@ -4201,7 +4201,7 @@ function bindMain(){
     try{ await db("rpc/remover_dono",{method:"POST",body:{email_dono:email, l}}); S.owners = await db("rpc/lista_donos",{method:"POST",body:{}}); toast(t("removed")); mainView(); }
     catch(e){ x.disabled=false; toast(t("rmErr")); } });
   const reloadStaff = async () => { S.staff = await db("rpc/lista_visualizadores",{method:"POST",body:{}}); mainView(); };
-  app.querySelectorAll("[data-sv]").forEach(x=>x.onclick=async()=>{ if(x.getAttribute("aria-checked")==="true") return;
+  app.querySelectorAll("button[data-sv]").forEach(x=>x.onclick=async()=>{ if(x.getAttribute("aria-checked")==="true") return; /* só os botões Sim/Não dos funcionários: o campo do sinal também tem data-sv */
     const bs=x.parentElement.querySelectorAll("button"); bs.forEach(y=>y.disabled=true);
     try{ await db("rpc/cadastrar_visualizador",{method:"POST",body:{email_func:x.dataset.sv, l:S.cur, valores:x.dataset.v==="true"}}); toast(t("saved")); await reloadStaff(); }
     catch(e){ bs.forEach(y=>y.disabled=false); toast(t("saveErr")); } });
