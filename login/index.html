@@ -4158,7 +4158,7 @@ function vAvHTML(){
   if(S.vavD && S.vavRows==null) list=`<small class="muted">${t("avLoading")}</small>`;
   else if(S.vavD && S.vavRows==="err") list=`<small class="muted">${t("netErr")}</small>`;
   else if(S.vavD){ const k=seasonBase(S.vavD), own=S.own||[], teto=vTeto(), pcOf=c=>vPc(pctKey(c,S.vavD)), pc=pcOf(k);
-    const rows=S.all.filter(b=>b.ativa!==false && !b.oculta && (!S.vavN || capOf(b)>=S.vavN)).filter(b=>!(S.vavMnt||[]).some(x=>x.lancha===b.slug)) /* em manutenção: não aparece para o vendedor */.map(b=>{ const s=new Set(S.vavRows.filter(r=>r.lancha===b.slug && !r.revenda).map(r=>r.horario)), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
+    const rows=S.all.filter(b=>b.ativa!==false && !b.oculta && !b.dados?.exemplo /* lancha de exemplo do cadastro: não se vende */ && (!S.vavN || capOf(b)>=S.vavN)).filter(b=>!(S.vavMnt||[]).some(x=>x.lancha===b.slug)) /* em manutenção: não aparece para o vendedor */.map(b=>{ const s=new Set(S.vavRows.filter(r=>r.lancha===b.slug && !r.revenda).map(r=>r.horario)), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
       return {b, st: full?2:m||tt?1:0, lab: full ? t("avBusy") : m||tt ? t(m?"avOnlyT":"avOnlyM",{h:t("hours_"+(m?"tarde":"manha"))}) : t("avFree")}; }).sort((x,y)=>x.st-y.st || x.b.nome.localeCompare(y.b.nome));
     const val=(b,h7)=>{ const r=(S.vavPr||[]).find(x=>x.lancha===b.slug), kb=kOf(S.vavPr,b.slug,S.vavD), base=valorNaData(r,S.vavD,h7,valOpts(r)), h=h7?"7h":"4h"; if(!base) return `${h} ${t("prOnReq")}`;
       const cli=own.includes(b.slug) ? base : Math.round(base*(1+pcOf(kb)/100)/10)*10; /* na própria lancha o dono-vendedor não soma comissão */
