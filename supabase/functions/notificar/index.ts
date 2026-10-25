@@ -77,9 +77,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Nuevo lugar de embarque", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}: el embarque ahora es en ${p.embarque}.` }),
   },
   avaliar: {
-    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie e ganhe um cupom de ${p.cup.valor} para o seu próximo passeio.` : ""}` }),
-    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate it and get a ${p.cup.valor} coupon for your next tour.` : ""}` }),
-    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica y gana un cupón de ${p.cup.valor} para tu próximo paseo.` : ""}` }),
+    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie e ganhe um cupom de ${p.cup.valor} para o seu próximo passeio nesta mesma lancha.` : ""}` }),
+    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate it and get a ${p.cup.valor} coupon for your next tour on this same boat.` : ""}` }),
+    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica y gana un cupón de ${p.cup.valor} para tu próximo paseo en esta misma lancha.` : ""}` }),
   },
   inicio: {
     pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
@@ -122,9 +122,9 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
 
 // cupom de fidelidade do passeio: vai junto do pedido de avaliação, no celular e no e-mail (Rodrigo 2026-10-23)
 const CUP_TXT: Record<string, (c: any) => string> = {
-  pt: c => `🎁 Avalie e ganhe um cupom de ${c.valor} para o seu próximo passeio em qualquer lancha do site, válido por 6 meses.`,
-  en: c => `🎁 Rate your tour and get a ${c.valor} coupon for your next tour on any boat on the website, valid for 6 months.`,
-  es: c => `🎁 Califica y gana un cupón de ${c.valor} para tu próximo paseo en cualquier lancha del sitio, válido por 6 meses.`,
+  pt: c => `🎁 Avalie e ganhe um cupom de ${c.valor} para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`,
+  en: c => `🎁 Rate your tour and get a ${c.valor} coupon for your next tour on this same boat, valid for 6 months.`,
+  es: c => `🎁 Califica y gana un cupón de ${c.valor} para tu próximo paseo en esta misma lancha, válido por 6 meses.`,
 };
 const CUP_USO: Record<string, string> = {
   pt: "O cupom aparece na sua conta assim que você avaliar. Para usar, na hora de reservar toque em Usar meu cupom.",
@@ -132,13 +132,16 @@ const CUP_USO: Record<string, string> = {
   es: "El cupón aparece en tu cuenta en cuanto califiques. Para usarlo, al reservar toca Usar mi cupón.",
 };
 async function cupomDo(bid: number, cli: string) {
-  // cupom só nasce depois que o cliente avalia (Rodrigo 2026-10-23): aqui só promete o valor
+  // cupom só nasce depois que o cliente avalia (Rodrigo 2026-10-23): aqui só promete o valor do cupom do dono da lancha
   const { data: p } = await db.from("pedidos").select("id, lancha, vendedor").eq("bloqueio_id", bid).eq("cliente", cli).eq("status", "aprovado").limit(1).maybeSingle();
   if (!p) return null;
   const { data: b } = await db.from("bloqueios").select("data").eq("id", bid).maybeSingle();
   if (!b || b.data < "2026-10-22") return null;
   if ((await db.from("avaliacoes").select("pedido_id").eq("pedido_id", p.id).maybeSingle()).data) return null; // já avaliou
-  return { valor: `R$ ${p.lancha === "miss-bardot" && !p.vendedor ? 100 : 50}` };
+  // só o cupom do dono, que vale na mesma lancha (Rodrigo 2026-10-25: a Búzios não dá mais cupom da comissão)
+  const { data: cd, error } = await db.from("cupom_dono").select("valor").eq("lancha", p.lancha).maybeSingle();
+  if (error || !cd) return null;
+  return { valor: `R$ ${cd.valor}` };
 }
 
 // e-mail pelo Supabase (modelo "Magic Link", SMTP da Brevo): com user_metadata.msg preenchido o modelo mostra esta mensagem,

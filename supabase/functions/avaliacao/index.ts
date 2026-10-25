@@ -13,18 +13,21 @@ const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "5
 
 // cupom de fidelidade do passeio: com cupom, o e-mail usa a mensagem montada aqui (modelo com user_metadata.msg) e conta do cupom (Rodrigo 2026-10-23)
 const CUP_MSG: Record<string, (a: any, c: any) => any> = {
-  pt: (a, c) => ({ oi: `Olá, ${a.primeiro}!`, texto: `Obrigado por passear com a gente na ${a.lancha}! Conte como foi: dê a nota da lancha e do marinheiro.`, linhas: [`Data: ${a.data}`, `🎁 Avalie e ganhe um cupom de ${c.valor} para o seu próximo passeio em qualquer lancha do site, válido por 6 meses.`], nota: "O cupom aparece na sua conta assim que você avaliar. A avaliação leva menos de 1 minuto e ajuda outros clientes a escolher.", botao: "Avaliar o passeio" }),
-  en: (a, c) => ({ oi: `Hi, ${a.primeiro}!`, texto: `Thank you for touring with us on ${a.lancha}! Tell us how it went: rate the boat and the skipper.`, linhas: [`Date: ${a.data}`, `🎁 Rate your tour and get a ${c.valor} coupon for your next tour on any boat on the website, valid for 6 months.`], nota: "The coupon shows up in your account as soon as you rate. The review takes less than a minute and helps other guests choose.", botao: "Rate the tour" }),
-  es: (a, c) => ({ oi: `¡Hola, ${a.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${a.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${a.data}`, `🎁 Califica y gana un cupón de ${c.valor} para tu próximo paseo en cualquier lancha del sitio, válido por 6 meses.`], nota: "El cupón aparece en tu cuenta en cuanto califiques. La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir.", botao: "Evaluar el paseo" }),
+  pt: (a, c) => ({ oi: `Olá, ${a.primeiro}!`, texto: `Obrigado por passear com a gente na ${a.lancha}! Conte como foi: dê a nota da lancha e do marinheiro.`, linhas: [`Data: ${a.data}`, `🎁 Avalie e ganhe um cupom de ${c.valor} para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`], nota: "O cupom aparece na sua conta assim que você avaliar. A avaliação leva menos de 1 minuto e ajuda outros clientes a escolher.", botao: "Avaliar o passeio" }),
+  en: (a, c) => ({ oi: `Hi, ${a.primeiro}!`, texto: `Thank you for touring with us on ${a.lancha}! Tell us how it went: rate the boat and the skipper.`, linhas: [`Date: ${a.data}`, `🎁 Rate your tour and get a ${c.valor} coupon for your next tour on this same boat, valid for 6 months.`], nota: "The coupon shows up in your account as soon as you rate. The review takes less than a minute and helps other guests choose.", botao: "Rate the tour" }),
+  es: (a, c) => ({ oi: `¡Hola, ${a.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${a.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${a.data}`, `🎁 Califica y gana un cupón de ${c.valor} para tu próximo paseo en esta misma lancha, válido por 6 meses.`], nota: "El cupón aparece en tu cuenta en cuanto califiques. La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir.", botao: "Evaluar el paseo" }),
 };
 async function cupomDo(bid: number, cli: string) {
-  // cupom só nasce depois que o cliente avalia (Rodrigo 2026-10-23): aqui só promete o valor
+  // cupom só nasce depois que o cliente avalia (Rodrigo 2026-10-23): aqui só promete o valor do cupom do dono da lancha
   const { data: p } = await db.from("pedidos").select("id, lancha, vendedor").eq("bloqueio_id", bid).eq("cliente", cli).eq("status", "aprovado").limit(1).maybeSingle();
   if (!p) return null;
   const { data: b } = await db.from("bloqueios").select("data").eq("id", bid).maybeSingle();
   if (!b || b.data < "2026-10-22") return null;
   if ((await db.from("avaliacoes").select("pedido_id").eq("pedido_id", p.id).maybeSingle()).data) return null; // já avaliou
-  return { valor: `R$ ${p.lancha === "miss-bardot" && !p.vendedor ? 100 : 50}` };
+  // só o cupom do dono, que vale na mesma lancha (Rodrigo 2026-10-25: a Búzios não dá mais cupom da comissão)
+  const { data: cd, error } = await db.from("cupom_dono").select("valor").eq("lancha", p.lancha).maybeSingle();
+  if (error || !cd) return null;
+  return { valor: `R$ ${cd.valor}` };
 }
 
 async function userByEmail(email: string) {
