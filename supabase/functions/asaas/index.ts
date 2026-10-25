@@ -80,15 +80,16 @@ function cnpjOk(c: string) {
 // taxas que o cliente paga (Rodrigo: o dono recebe 100% do neto, a Búzios e o vendedor também; as taxas ficam com o cliente)
 async function taxas() {
   const { data } = await db.from("asaas_config").select("*").eq("id", 1).maybeSingle();
-  return { pix: +(data?.pix_fixo ?? 1.99), pct: +(data?.cartao_pct ?? 2.99), pct6: +(data?.cartao_pct_2a6 ?? 3.49), fixo: +(data?.cartao_fixo ?? 0.49), ant: +(data?.antecipacao_pct ?? 1.7) };
+  return { pix: +(data?.pix_fixo ?? 1.99), pct: +(data?.cartao_pct ?? 2.99), pct6: +(data?.cartao_pct_2a6 ?? 2.49), fixo: +(data?.cartao_fixo ?? 0.49), ant: +(data?.antecipacao_pct ?? 1.15), antP: +(data?.antecipacao_parc_pct ?? 1.6) };
 }
 // cartão em até 6x (Rodrigo 2026-10-25): cada opção já com a taxa do cartão e a antecipação (ao mês, em média (n+1)/2 meses por parcela),
 // para o dinheiro cair na hora e cada um receber cheio; o cliente vê a taxa e escolhe. Parcelas iguais: total = parcela × n.
+// Taxas da conta do Rodrigo (promocionais até 22/01/2027): 1x 1,99%, 2-6x 2,49% + R$ 0,49; antecipação à vista 1,15%/mês, parcelada 1,6%/mês.
 const PARCELAS = 6;
 async function totais(sinal: number) {
   const x = await taxas();
   const parcelas = Array.from({ length: PARCELAS }, (_, i) => {
-    const n = i + 1, pct = (n === 1 ? x.pct : x.pct6) + x.ant * (n + 1) / 2;
+    const n = i + 1, pct = (n === 1 ? x.pct + x.ant : x.pct6 + x.antP * (n + 1) / 2);
     const parcela = up2((sinal + x.fixo) / (1 - pct / 100) / n);
     return { n, parcela, total: Math.round(parcela * n * 100) / 100 };
   });
