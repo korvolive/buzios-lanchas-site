@@ -104,7 +104,7 @@ async function totais(sinal: number) {
 // pedido + link da central (/pagar/?p=&k=), com o mesmo token da cobrança
 async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
-  const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em").eq("pedido", pid).eq("token", k).maybeSingle();
+  const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
   const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono").eq("id", pid).maybeSingle();
   return p ? { c, p } : null;
@@ -270,15 +270,18 @@ async function conferir(asaasId: string) {
   const agora = new Date().toISOString(), texto = `${brl(+row.valor)} (${row.metodo === "pix" ? "Pix" : n > 1 ? `cartão em ${n}x` : "cartão"} · Asaas)`;
   const { data: marcou } = await db.from("pagamentos_asaas").update({ pago_em: agora }).eq("id", row.id).is("pago_em", null).select("id");
   if (!marcou?.length) return true; // outro aviso já marcou
-  const { data: dobro } = await db.from("pagamentos_asaas").select("id").eq("pedido", row.pedido).neq("id", row.id).not("pago_em", "is", null);
-  if (dobro?.length) await pushAdmins({ title: "Pagamento em dobro ⚠️", body: `O pedido ${row.pedido} foi pago duas vezes pelo Asaas. Estorne um dos pagamentos no painel do Asaas.` }, `dobro-${row.pedido}`).catch(e => console.error(e));
-  await cancelarAbertas(row.pedido, row.id).catch(e => console.error("abertas", e));
-  await db.from("pagamentos_pp").update({ pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", row.pedido).is("pago_em", null);
+  // primeiro registra e confirma a reserva (o robô de 1 hora antes não cancela pedido com pagamento); depois cancela as outras cobranças
+  const { data: ppMarcou } = await db.from("pagamentos_pp").update({ pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", row.pedido).is("pago_em", null).select("pedido");
   const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data").eq("id", row.pedido).maybeSingle();
+  const ok = p ? await confirmarSozinho(p.id) : false;
+  const { data: dobro } = await db.from("pagamentos_asaas").select("id").eq("pedido", row.pedido).neq("id", row.id).not("pago_em", "is", null);
+  // pago também pelo PayPal (a central já estava paga): avisa para estornar um dos dois
+  const { data: ppJa } = ppMarcou?.length ? { data: null } : await db.from("pagamentos_pp").select("captura").eq("pedido", row.pedido).maybeSingle();
+  if (dobro?.length || ppJa?.captura) await pushAdmins({ title: "Pagamento em dobro ⚠️", body: `O pedido ${row.pedido} foi pago duas vezes (${ppJa?.captura ? "PayPal e Asaas" : "Asaas"}). Estorne um dos pagamentos.` }, `dobro-${row.pedido}`).catch(e => console.error(e));
+  await cancelarAbertas(row.pedido, row.id).catch(e => console.error("abertas", e));
   if (!p) return true;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
-  const ok = await confirmarSozinho(p.id);
   // confirmada: o chat já recebe "reserva confirmada" pelo notificar; só fala do pagamento se a data deu problema
   const cv = ok ? null : (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data;
   if (cv) {
@@ -318,6 +321,10 @@ Deno.serve(async req => {
     }
 
     if (b.acao === "expirar") {
+      // só o robô (chave interna do resgate_config) ou a chave de serviço
+      const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!((cfg?.chave && ch === cfg.chave) || (srk && tok === srk))) return json({ erro: "chave" }, 403);
       const lim = new Date(Date.now() - SEGURA_MS).toISOString();
       const { data: velhas } = await db.from("pagamentos_asaas").select("*").is("pago_em", null).lt("criado_em", lim).limit(50);
       let n = 0;
@@ -343,7 +350,11 @@ Deno.serve(async req => {
         const ruim = !p || p.status !== "pendente" || (abertas || []).some((r: any) => r.pedido === pid && +r.sinal !== +p.sinal_valor);
         if (ruim) fora += await cancelarAbertas(pid).catch(e => (console.error("fora", pid, e), 0));
       }
-      return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora });
+      // PayPal em análise: confere se o PayPal já liberou (ou recusou)
+      const srk2 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const ppr = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/paypal-checkout", { method: "POST", headers: { authorization: "Bearer " + srk2, apikey: srk2, "content-type": "application/json" }, body: JSON.stringify({ acao: "pendentes" }) })
+        .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
+      return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora, paypal: ppr });
     }
 
     if (b.acao === "pagar" || b.acao === "conferir") {
@@ -357,6 +368,8 @@ Deno.serve(async req => {
         return json({ pago });
       }
       if (c.pago_em || (cobs || []).some((r: any) => r.pago_em)) return json({ pago: true });
+      if (c.captura) return json({ erro: "pendente" }, 409); // PayPal em análise: não cobra de novo
+      if (String(c.moeda || "BRL") !== "BRL") return json({ erro: "moeda" }, 409); // central em dólar/euro: só PayPal
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
       if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
@@ -375,7 +388,11 @@ Deno.serve(async req => {
       if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
-      if (velha) { if (!await cancelar(velha.asaas_id)) return json({ erro: "asaas" }, 502); await db.from("pagamentos_asaas").delete().eq("id", velha.id); }
+      if (velha) {
+        if (await conferir(velha.asaas_id).catch(() => false)) return json({ pago: true }); // pagou em cima da hora
+        if (!await cancelar(velha.asaas_id)) return json({ erro: "asaas" }, 502);
+        await db.from("pagamentos_asaas").delete().eq("id", velha.id).is("pago_em", null);
+      }
       // trocou de Pix para cartão (ou o contrário): a outra cobrança é cancelada, para o cliente não pagar duas vezes
       for (const r of (cobs || []).filter((r: any) => r.metodo !== metodo && !r.pago_em)) {
         if (await conferir(r.asaas_id).catch(() => false)) return json({ pago: true });
@@ -478,7 +495,9 @@ Deno.serve(async req => {
       let tr: any;
       try { tr = await asaas("/transfers", { value: com, walletId: ct.wallet_id }); }
       catch (e: any) {
-        await db.from("pedidos").update({ comissao_comprovante: null }).eq("id", pid).eq("comissao_comprovante", "asaas:enviando");
+        // recusa clara do Asaas (4xx): libera para tentar de novo. Sem resposta clara, a transferência pode ter saído: fica travada para conferir no Asaas
+        if (e?.status >= 400 && e?.status < 500) await db.from("pedidos").update({ comissao_comprovante: null }).eq("id", pid).eq("comissao_comprovante", "asaas:enviando");
+        else return json({ erro: "asaas", detalhe: "Sem resposta do Asaas. Confira no extrato do Asaas se a transferência saiu antes de tentar de novo." }, 502);
         return json({ erro: "asaas", detalhe: String(e?.message || e).slice(0, 300) }, 400);
       }
       await db.from("pedidos").update({ comissao_comprovante: "asaas:" + tr.id }).eq("id", pid);
@@ -501,7 +520,9 @@ Deno.serve(async req => {
       const { data: ps } = await db.from("pedidos").select("id, lancha, data, repasse_dono, bloqueio_id").in("id", ids).eq("status", "aprovado").gt("repasse_dono", 0).order("data").order("id");
       const { data: feitos } = await db.from("repasses_pp").select("pedido, enviado_em, comprovante").in("pedido", ids);
       const ja = new Set((feitos || []).filter((r: any) => r.enviado_em || r.comprovante).map((r: any) => +r.pedido));
-      const fila = (ps || []).filter((p: any) => !SEM_REPASSE.includes(p.lancha) && !ja.has(+p.id));
+      const { data: asPg } = await db.from("pagamentos_asaas").select("pedido").in("pedido", ids).not("pago_em", "is", null);
+      const viaAs = new Set((asPg || []).map((r: any) => +r.pedido)); // pago também pelo Asaas: a parte do dono já foi no split
+      const fila = (ps || []).filter((p: any) => !SEM_REPASSE.includes(p.lancha) && !ja.has(+p.id) && !viaAs.has(+p.id));
       let saldo = +(await asaas("/finance/balance")).balance || 0;
       const enviados: any[] = [], sem: number[] = [], falta: number[] = [], vai: any[] = [];
       for (const p of fila) { const w = await carteira(p.lancha); if (w) vai.push({ ...p, wallet: w }); else sem.push(p.id); }
@@ -515,7 +536,12 @@ Deno.serve(async req => {
         if (et) continue;
         let tr: any;
         try { tr = await asaas("/transfers", { value: v, walletId: wallet }); }
-        catch (e: any) { await db.from("repasses_pp").delete().eq("pedido", p.id).eq("comprovante", "asaas:enviando"); console.error("repasse", p.id, e?.message); falta.push(p.id); continue; }
+        catch (e: any) {
+          console.error("repasse", p.id, e?.status, e?.message);
+          // recusa clara do Asaas (4xx): libera para tentar de novo; sem resposta clara fica travado ("enviando…") para conferir no Asaas, nunca manda duas vezes
+          if (e?.status >= 400 && e?.status < 500) await db.from("repasses_pp").delete().eq("pedido", p.id).eq("comprovante", "asaas:enviando");
+          falta.push(p.id); continue;
+        }
         await db.from("repasses_pp").update({ comprovante: "asaas:" + tr.id, enviado_em: new Date().toISOString() }).eq("pedido", p.id);
         saldo -= v; enviados.push({ pid: p.id, valor: v });
         await avisarDono(p).catch(e => console.error("avisarDono", e));
