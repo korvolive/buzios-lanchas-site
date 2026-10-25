@@ -11,6 +11,7 @@
 // POST {acao:"comissao", pid} (login admin)  depois do passeio: transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
 // POST {acao:"repasses", pids?} (login admin) "O PayPal caiu": manda do saldo do Asaas a parte de cada dono dos sinais pagos pelo PayPal (Rodrigo 2026-10-25)
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
+// POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
@@ -432,6 +433,14 @@ Deno.serve(async req => {
     if (b.acao === "minha") {
       const { data } = await db.from("asaas_contas").select("nome, cpf_cnpj, email, criado_em").eq("user_id", u.id).maybeSingle();
       return json({ conta: data || null, ativo: !!KEY() });
+    }
+
+    // administrador: transferências que o Asaas segura até o Rodrigo aprovar (token do app ou SMS), para o app mostrar o botão de aprovar
+    if (b.acao === "aprovar") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const l = (await asaas("/transfers?limit=100")).data || [];
+      const pend = l.filter((x: any) => x.status === "PENDING" && x.authorized === false);
+      return json({ n: pend.length, valor: Math.round(pend.reduce((a: number, x: any) => a + +x.value, 0) * 100) / 100 });
     }
 
     // administrador: lanchas cujos donos ainda não têm conta Asaas (a parte deles cai na Búzios e é repassada por fora)
