@@ -1587,11 +1587,13 @@ const myName = () => S.me?.nome || meta().full_name || meta().name || realEm(ses
 /* foto: version (meta.foto) > 0 tem foto; 0 = tirou a foto; sem valor = tenta a do banco e depois a do Google */
 function face(uid, name, cls="face"){
   const ini = esc(initials(name)), mine = uid && uid===ses?.user?.id, v = mine ? meta().foto : (S.avV?.[uid] ?? avHour);
-  if(!uid || v===0) return `<span class="${cls} ini" aria-hidden="true">${ini}</span>`;
+  if(!uid || v===0 || (avMiss.has(uid) && !mine)) return `<span class="${cls} ini" aria-hidden="true">${ini}</span>`;
   const alt = mine && !v ? gPic() : "";
   return `<span class="${cls}" data-ini="${ini}" aria-hidden="true"><img src="${AV_URL(uid)}?v=${v||avHour}" alt=""${alt?` data-alt="${esc(alt)}" referrerpolicy="no-referrer"`:""} onerror="avErr(this)"></span>`;
 }
-function avErr(img){ const a=img.dataset.alt; if(a){ img.removeAttribute("data-alt"); img.src=a; return; } const s=img.parentNode; s.classList.add("ini"); s.textContent=s.dataset.ini; }
+/* quem não tem foto: lembra nesta visita e não pede a imagem de novo a cada tela (eram dezenas de milhares de pedidos por dia) */
+const avMiss = new Set();
+function avErr(img){ const u=/avatares\/([^.]+)\.jpg/.exec(img.src)?.[1]; if(u) avMiss.add(u); const a=img.dataset.alt; if(a){ img.removeAttribute("data-alt"); img.src=a; return; } const s=img.parentNode; s.classList.add("ini"); s.textContent=s.dataset.ini; }
 const loadImg = src => new Promise((ok,no)=>{ const im=new Image(); im.crossOrigin="anonymous"; im.onload=()=>ok(im); im.onerror=no; im.src=src; });
 /* recorta o quadrado {x,y,s} (sem ele, o meio) e reduz para 320px (a foto do celular vira uns 30 KB) */
 async function squareJpeg(src, r){ const im=typeof src==="string" ? await loadImg(src) : src, w=im.naturalWidth, h=im.naturalHeight;
