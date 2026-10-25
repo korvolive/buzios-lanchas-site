@@ -64,7 +64,7 @@ h1 .vtag{font-size:12px;line-height:20px}
 main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
 body.has-help .login{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 body.has-help main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
-.help{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:700;font-size:15px;padding:11px 16px 11px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28)}.help svg{width:22px;height:22px;fill:#fff;flex:none}.help[hidden]{display:none}.fabs{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.fabs .help{position:static}.help.sup{background:var(--sea);border:0;cursor:pointer;font-family:inherit;position:relative}.sup .unr{position:absolute;top:-7px;right:-7px;background:#e5484d}.supm{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.supm[hidden]{display:none}.help.supch{background:var(--sea);border:0;cursor:pointer;font-family:inherit}.supch .unr{background:#e5484d;margin-left:2px}
+.help{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:700;font-size:15px;padding:11px 16px 11px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28)}.help svg{width:22px;height:22px;fill:#fff;flex:none}.help[hidden]{display:none}.fabs{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.fabs .help{position:static}.help.sup{background:#25d366;border:0;cursor:pointer;font-family:inherit;position:relative}.sup .unr{position:absolute;top:-7px;right:-7px;background:#e5484d}.supm{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.supm[hidden]{display:none}.help.supch{background:var(--sea);border:0;cursor:pointer;font-family:inherit}.supch .unr{background:#e5484d;margin-left:2px}
 h1,h2{font-family:var(--display);line-height:1.15;margin:0 0 6px}
 h1{font-size:26px} h2{font-size:20px}
 .muted{color:var(--muted)}
@@ -897,13 +897,30 @@ async function authCall(path, body, method="POST", token){
   return j;
 }
 let refreshing = null;
+/* o login fica guardado no aparelho e não pode cair sozinho (Rodrigo 2026-10-25). Cada renovação troca o refresh_token e invalida o
+   anterior; com o site, o app e o chat abertos juntos, um deles tentava renovar com um token já trocado pelo outro e o app saía da conta.
+   Agora: renova um de cada vez entre as abas (navigator.locks), relê o login guardado antes e depois de renovar, e só sai da conta quando
+   o servidor diz que o login acabou de verdade (saiu do aparelho, senha trocada, conta apagada). */
+const sesStored = () => store.get("dono-ses");
+const sesLock = fn => navigator.locks?.request ? navigator.locks.request("dono-ses-renova", fn) : fn();
+const SES_FIM = /refresh_token_not_found|session_not_found|session_expired|user_not_found|user_banned/i;
+window.addEventListener("storage", e=>{ if(e.key==="dono-ses" && ses){ const s=sesStored(); if(s?.refresh_token) ses=s; } });
 async function fresh(force){
   if(!ses) throw new Error("sem sessão");
   if(!force && ses.expires_at - Date.now()/1000 > 60) return ses.access_token;
-  refreshing ||= authCall("token?grant_type=refresh_token", {refresh_token:ses.refresh_token})
-    .then(s=>{ saveSes(s); return ses.access_token; })
-    .catch(e=>{ if(e.status>=400 && e.status<500){ saveSes(null); show(); } throw e; })
-    .finally(()=>refreshing=null);
+  const usado = ses.refresh_token;
+  refreshing ||= sesLock(async()=>{
+    const g = sesStored(); /* outra aba (site, chat) já renovou: usa o login novo em vez de gastar o antigo */
+    if(g?.refresh_token && g.refresh_token!==usado && g.expires_at - Date.now()/1000 > 60){ ses={...g, user:g.user||ses?.user}; return ses.access_token; }
+    if(!ses) throw new Error("sem sessão");
+    try{ saveSes(await authCall("token?grant_type=refresh_token", {refresh_token:(g?.refresh_token)||ses.refresh_token})); return ses.access_token; }
+    catch(e){
+      const g2 = sesStored(); /* renovado em outra aba enquanto este pedido ia: segue com ele */
+      if(g2?.refresh_token && g2.refresh_token!==usado && g2.refresh_token!==g?.refresh_token){ ses={...g2, user:g2.user||ses?.user}; return ses.access_token; }
+      if(e.status>=400 && e.status<500 && SES_FIM.test(e.code+" "+e.message)){ saveSes(null); show(); }
+      throw e;
+    }
+  }).finally(()=>refreshing=null);
   return refreshing;
 }
 /* chamada ao banco já com o login; se a sessão venceu, renova e tenta mais uma vez */
@@ -5104,7 +5121,7 @@ async function boot(){
   }catch(e){
     if(!ses) return show();
     /* login encerrado no servidor (saiu em outro aparelho, senha trocada, conta apagada): volta para a tela de entrar */
-    if((e.status===401 || e.status===403) && /session_not_found|user_not_found|bad_jwt|not_found|jwt/i.test(e.code+" "+e.message)){ saveSes(null); loginErr=false; loginMsg=t("sesEnded"); return show(); }
+    if((e.status===401 || e.status===403) && /session_not_found|user_not_found|bad_jwt|refresh_token_not_found/i.test(e.code+" "+e.message)){ saveSes(null); loginErr=false; loginMsg=t("sesEnded"); return show(); }
     app.innerHTML = `<div class="card"><p class="msg err">${t("loadErr")}</p><button class="btn" id="retry">${t("retry")}</button></div>`;
     document.getElementById("retry").onclick = boot;
   }
