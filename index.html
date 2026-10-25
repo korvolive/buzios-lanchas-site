@@ -1094,9 +1094,9 @@ const UI = {
   }
 };
 /* cupom de fidelidade (Rodrigo, 2026-10-22) */
-Object.assign(UI.pt, {cdTag:"🎁 Volte nesta lancha e ganhe desconto no próximo passeio"});
-Object.assign(UI.en, {cdTag:"🎁 Come back on this boat and get a discount on your next tour"});
-Object.assign(UI.es, {cdTag:"🎁 Vuelve en esta lancha y gana un descuento en tu próximo paseo"});
+Object.assign(UI.pt, {cdTag:"🎁 Volte nesta lancha e ganhe desconto no próximo passeio", cdTagV:"🎁 Volte nesta lancha e ganhe {v} de desconto no próximo passeio"});
+Object.assign(UI.en, {cdTag:"🎁 Come back on this boat and get a discount on your next tour", cdTagV:"🎁 Come back on this boat and get {v} off your next tour"});
+Object.assign(UI.es, {cdTag:"🎁 Vuelve en esta lancha y gana un descuento en tu próximo paseo", cdTagV:"🎁 Vuelve en esta lancha y gana {v} de descuento en tu próximo paseo"});
 Object.assign(UI.pt, {cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
 Object.assign(UI.en, {cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
 Object.assign(UI.es, {cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
@@ -1843,11 +1843,13 @@ function bindLeadLogin(dl,$,upd,later){
 }
 /* cliente com conta que já vê "Reservar online": some o "Consultar no WhatsApp" e o online vira o botão principal (Rodrigo 2026-10-24) */
 const soOnline = btn => { if(!isClient()) return; btn.hidden=true; document.getElementById("book-online")?.classList.remove("sec"); };
-/* lanchas cujo dono dá desconto para quem volta (só o selo, sem o valor) */
+/* lanchas cujo dono dá desconto para quem volta, com o valor (Rodrigo 2026-10-25); sem o v2 no banco, o selo sai sem o valor */
 let CD_SET=null;
-const loadCdSet = () => CD_SET ||= fetch(SB_URL+"/rest/v1/rpc/lanchas_cupom_dono",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:"{}"}).then(r=>r.ok?r.json():[]).then(a=>new Set(a.map(x=>typeof x==="string"?x:x.lanchas_cupom_dono)), ()=>new Set());
+const cdRpc = n => fetch(SB_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:"{}"});
+const loadCdSet = () => CD_SET ||= cdRpc("lanchas_cupom_dono_v2").then(r=>r.ok ? r.json().then(a=>new Map(a.map(x=>[x.lancha,x.valor])))
+  : cdRpc("lanchas_cupom_dono").then(r=>r.ok?r.json():[]).then(a=>new Map(a.map(x=>[typeof x==="string"?x:x.lanchas_cupom_dono,0])))).catch(()=>new Map());
 async function showBoatStatus(b){
-  if(!IS_BOT) loadCdSet().then(S=>{ const el=document.getElementById("cd-tag"); if(el && S.has(b.slug)) el.hidden=false; });
+  if(!IS_BOT) loadCdSet().then(M=>{ const el=document.getElementById("cd-tag"); if(!el || !M.has(b.slug)) return; const v=+M.get(b.slug); if(v) el.textContent=t("cdTagV").replace("{v}","R$ "+v.toLocaleString("pt-BR")); el.hidden=false; });
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b); showPrices(b);
