@@ -350,11 +350,14 @@ Deno.serve(async req => {
     const corpo = await req.clone().json().catch(() => ({}));
     if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)) });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-    const { data: u } = await db.auth.getUser(token);
-    const uid = u?.user?.id;
+    // o próprio servidor (pagamento automático confirmou a reserva, função asaas/paypal-checkout) entra como administrador
+    const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "", sistema = !!srk && token === srk;
+    const u = sistema ? null : (await db.auth.getUser(token)).data;
+    const uid = sistema ? "00000000-0000-0000-0000-000000000000" : u?.user?.id;
     if (!uid) return json({ erro: "login" }, 401);
     const { tipo, id } = await req.json().catch(() => ({}));
-    const admin = !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
+    if (sistema && tipo !== "aprovado") return json({ erro: "tipo" }, 403);
+    const admin = sistema || !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
     const nomeLancha = async (slug: string) => (await db.from("lanchas").select("nome").eq("slug", slug).maybeSingle()).data?.nome || slug;
 
     if (tipo === "teste") return json({ enviados: await enviar([uid], "teste", {}, "/login/", typeof corpo.ep === "string" ? corpo.ep : undefined) });

@@ -1411,10 +1411,12 @@ async function sendPedido(b){
 /* lancha em manutenção (tabela manutencoes, o dono marca no app): todos os horários desses dias ficam ocupados, então ela some das buscas */
 function loadAgenda(){
   const mnt = fetch(`${AGENDA_URL.replace("bloqueios","manutencoes")}?select=lancha,de,ate&ate=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
+  /* data segurada: outro cliente gerou o pagamento há menos de 2 horas, ou já pagou (Rodrigo 2026-10-25) */
+  const seg = fetch(SB_URL+"/rest/v1/rpc/datas_seguradas", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
   return agenda ||= Promise.all([fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}&revenda=is.null`, {headers:{apikey:AGENDA_KEY}})
-    .then(r=>r.ok ? r.json() : Promise.reject(r.status)), mnt])
-    .then(([rows, mn])=>{ const m=new Map(), add=(k,h)=>{ if(!m.has(k)) m.set(k,new Set()); m.get(k).add(h); };
-      rows.forEach(r=>add(r.lancha+"|"+r.data, r.horario));
+    .then(r=>r.ok ? r.json() : Promise.reject(r.status)), mnt, seg])
+    .then(([rows, mn, sg])=>{ const m=new Map(), add=(k,h)=>{ if(!m.has(k)) m.set(k,new Set()); m.get(k).add(h); };
+      rows.concat(sg).forEach(r=>add(r.lancha+"|"+r.data, r.horario));
       const td=todayISO(); mn.forEach(x=>{ for(let d=new Date((x.de>td?x.de:td)+"T12:00:00Z"); ; d.setUTCDate(d.getUTCDate()+1)){ const k=d.toISOString().slice(0,10); if(k>x.ate) break; add(x.lancha+"|"+k,"dia"); add(x.lancha+"|"+k,"noite"); } });
       return m; })
     .catch(()=>{ agenda=null; return null; });
@@ -1486,7 +1488,10 @@ function boatItems(b){
   if(gf>-1 && ge>-1){ l.splice(gf,1); l.splice(ge+1,0,"Gelo filtrado"); }
   return l;
 }
-const busyOn = (busy,b,iso) => busy && busy.get(b.slug+"|"+iso);
+/* reserva só até 1 hora antes do início (Rodrigo 2026-10-25): hoje, pelo horário de Brasília, manhã e dia inteiro fecham às 9h, tarde às 13h, noite às 19h */
+const lateSlots = iso => { const n=new Date(Date.now()-3*36e5); if(iso!==n.toISOString().slice(0,10)) return null;
+  const h=n.getUTCHours()+n.getUTCMinutes()/60, L=[]; if(h>=9) L.push("manha","dia"); if(h>=13) L.push("tarde"); if(h>=19) L.push("noite"); return L.length?L:null; };
+const busyOn = (busy,b,iso) => { const s=busy && busy.get(b.slug+"|"+iso), l=lateSlots(iso); return l ? new Set([...(s||[]), ...l]) : s; };
 /* dia todo ocupa tudo; manhã ou tarde ocupam o dia todo; sem horário escolhido, só conta se não sobrar nenhum */
 function isBusy(s,slot,iso){
   if(!s || !s.size) return false;
