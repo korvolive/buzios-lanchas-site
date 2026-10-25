@@ -2783,13 +2783,13 @@ async function asFn(body){ const tok=await fresh(); const r=await fetch(SB+"/fun
 const asLoad = () => { if(S.asConta===undefined && (S.own?.length || S.vend)){ S.asConta=0; asFn({acao:"minha"}).then(j=>{ S.asConta=j.conta; S.asAtivo=j.ativo; S.asSem=!j.conta; }, ()=>{ S.asConta=null; }).then(()=>{ if(S.tab==="lancha" || S.tab==="lista" || S.tab==="vendas") bgView(); }); } };
 /* dono sem conta no Asaas: aviso no topo de Passeios até ele se cadastrar (Rodrigo 2026-10-25: sem conta, a parte dele cai na Búzios e é repassada por fora) */
 function asAvisoHTML(){
-  if(!S.own?.some(l=>!SEM_REPASSE.includes(l))) return ""; asLoad(); /* cadastro aberto para os donos antes do Asaas ir ao ar no site (Rodrigo 2026-10-25) */
+  if(!S.own?.some(l=>!SEM_REPASSE.includes(l)) || !AS_TESTE) return ""; asLoad(); /* só depois da homologação do Asaas (Rodrigo 2026-10-25); antes, só no aparelho em teste (?asaas=1) */
   return S.asSem && !S.asConta ? `<div class="card asav"><h2>💳 ${t("asAvT")}</h2><p class="muted" style="margin-top:0">${t("asAvSub")}</p><button type="button" class="btn" id="as-go">${t("asAvGo")}</button></div>` : "";
 }
 function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão (aba Vendas, Rodrigo 2026-10-25) */
   if(vend && !S.vend) return "";
   /* vendedor só cria conta no Asaas depois da homologação: até lá são só 10 contas, que ficam para os donos (Rodrigo 2026-10-25); quem já tem conta continua vendo */
-  if(vend && !AS_TESTE){ asLoad(); if(!S.asConta) return ""; }
+  if(!AS_TESTE && !S.admin){ asLoad(); if(!S.asConta) return ""; } /* dono e vendedor: o cadastro só aparece depois da homologação; quem já tem conta continua vendo */
   const own=vend || (S.own||[]).includes(S.cur) && !SEM_REPASSE.includes(S.cur);
   if(!own && !S.admin) return "";
   if(own) asLoad();
