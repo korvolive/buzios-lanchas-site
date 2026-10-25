@@ -1873,7 +1873,7 @@ document.addEventListener("toggle", e=>{ const d=e.target; if(!d.matches?.("deta
   try{ const L=foldGet(); L[d.dataset.fold]=d.open; localStorage.setItem("dobra", JSON.stringify(L)); }catch(x){} }, true);
 const foldSum = h => `<summary class="foldh"><h2>${h}</h2><i class="chev" aria-hidden="true">›</i></summary>`;
 /* aba Lancha (Rodrigo 2026-10-24): cada cartão abre e fecha pelo título; Fotos e "O que a lancha oferece" começam fechados */
-const LANCHA_FECHADOS = ["ph","it","cd"]; /* cupom do dono: recolhido, abre ao tocar (Rodrigo 2026-10-25) */
+const LANCHA_FECHADOS = ["ph","it"];
 const foldCard = (k, html) => html.replace(/^(\s*<div class="card(?![^"]*\bprc\b)[^"]*")/, `$1 data-fold="${k}"`);
 function foldCards(root){
   root.querySelectorAll(":scope > div.card[data-fold]").forEach(c=>{ const h=c.querySelector(":scope > h2"); if(!h) return;
@@ -2201,13 +2201,13 @@ const GOLD_ITEMS = ["Wi-Fi Starlink","Ar-condicionado","Som na proa","Piscina in
 const itBtn = it => `<button type="button" data-it="${esc(it[0])}" aria-pressed="${(S.items||[]).includes(it[0])}">${itemName(it)}</button>`;
 /* cupom do dono (Rodrigo 2026-10-25): o dono escolhe de R$ 50 a R$ 300 (cupom separado do da Búzios, não somam) para quem volta na lancha dele; sai da parte dele */
 const CD_VALS=[50,100,150,200]; /* de R$ 50 a R$ 200 (Rodrigo 2026-10-25) */
-function cupDonoHTML(){
+function cupDonoHTML(){ /* fica dentro de "O que a lancha oferece" (Rodrigo 2026-10-25) */
   if(!(S.admin || S.own?.includes(S.cur)) || S.cupDono===undefined) return "";
-  if(S.cupDono===false) return S.admin ? `<div class="card"><h2>${t("cdT")}</h2><p class="msg err" style="margin:0">${t("cdSql")}</p></div>` : "";
+  if(S.cupDono===false) return S.admin ? `<h3 style="font-size:15px;margin:18px 0 0">${t("cdT")}</h3><p class="msg err" style="margin:0">${t("cdSql")}</p>` : "";
   const v=S.cupDono?.valor||0;
-  return `<div class="card"><h2>${t("cdT")}</h2><p class="muted" style="margin-top:0">${t("cdSub",{boat:esc(boatName(S.cur))})}</p>
+  return `<h3 id="cdbox" style="font-size:15px;margin:18px 0 0">${t("cdT")}</h3><p class="muted" style="margin:4px 0 0">${t("cdSub",{boat:esc(boatName(S.cur))})}</p>
     <div class="items" id="cdvals"><button type="button" data-cd="0" aria-pressed="${!v}">${t("cdOff")}</button>${CD_VALS.map(x=>`<button type="button" data-cd="${x}" aria-pressed="${v===x}">${brl(x)}</button>`).join("")}</div>
-    <p class="muted" style="margin:8px 0 0">${v?t("cdOn",{v:brl(v)}):t("cdOff")}</p></div>`;
+    <p class="muted" style="margin:8px 0 0">${v?t("cdOn",{v:brl(v)}):t("cdOff")}</p>`;
 }
 function itemsHTML(){
   if(S.items===false) return `<div class="card"><p class="msg err" style="margin:0">${S.admin?t("needSqlItens"):t("loadErr")}</p></div>`;
@@ -2215,7 +2215,7 @@ function itemsHTML(){
   return `<div class="card itc"><h2>${t("itemsT")}</h2><p class="muted" style="margin-top:0">${t("itemsSub")}</p>
     <h3 style="font-size:15px;margin:14px 0 0">${t("itemsBasic")}</h3><div class="items">${BASIC_ITEMS.map(it=>`<span>${itemName(it)}</span>`).join("")}</div>
     <h3 style="font-size:15px;margin:16px 0 0">⭐ ${t("itemsGold")}</h3><div class="items gold" id="items">${ITEMS.filter(it=>GOLD_ITEMS.includes(it[0])).sort((a,b)=>GOLD_ITEMS.indexOf(a[0])-GOLD_ITEMS.indexOf(b[0])).map(itBtn).join("")}</div>
-    <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items2">${ITEMS.filter(it=>!GOLD_ITEMS.includes(it[0])).map(itBtn).join("")}</div></div>`;
+    <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items2">${ITEMS.filter(it=>!GOLD_ITEMS.includes(it[0])).map(itBtn).join("")}</div>${cupDonoHTML()}</div>`;
 }
 /* ============ lancha nova (só administrador): cadastrada aqui, entra no site sozinha ============
    Os dados ficam em lanchas.dados (rpc salvar_lancha); valores, itens e fotos usam as tabelas de sempre.
@@ -4060,7 +4060,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="vendas" ? vendHTML() + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + foldCard("hist",priceHistHTML()) + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("cd",cupDonoHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="vendas" ? vendHTML() + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + foldCard("hist",priceHistHTML()) + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   if(S.tab==="lancha") foldCards(app);
   bindMain();
@@ -4589,7 +4589,7 @@ async function loadBlocks(){
       .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     S.neto=null; if(S.admin) db(`precos_neto?select=chave,neto,comissao,ref&lancha=eq.${encodeURIComponent(l)}`).catch(e=>{ if(e.status!==400) throw e; return db(`precos_neto?select=chave,neto,comissao&lancha=eq.${encodeURIComponent(l)}`); /* sem a coluna ref ainda */ }).then(r=>{ S.neto=Object.fromEntries(r.map(x=>[x.chave,x])); S.hasRef=r.some(x=>"ref" in x); }, e=>{ S.neto=false; /* tabela ainda não criada: editor antigo */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     S.photos=null; S.pend=[]; loadPhotos(l).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
-    S.cupDono=undefined; if(S.admin || S.own?.includes(l)) db(`cupom_dono?select=valor&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.cupDono=r[0]||null; }, e=>{ S.cupDono=(e.status===404||e.status===400) ? false : undefined; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
+    S.cupDono=undefined; if(S.admin || S.own?.includes(l)) db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(r=>{ S.cupDono=r.find(x=>x.lancha===l)||null; } /* a tabela não tem leitura direta: a rpc devolve todas */, e=>{ S.cupDono=(e.status===404||e.status===400) ? false : undefined; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
     try{ const r=await db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`); if(my!==loadSeq) return; S.items = r[0]?.opcionais || []; S.err=""; }
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
     return mainView(); }
