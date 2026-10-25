@@ -104,6 +104,17 @@ async function email(uid: string, url: string, lancha: string, dia: string, valo
   return true;
 }
 
+async function pushAdmins(msg: { title: string; body: string }, tag: string) {
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: adm } = await db.from("admins").select("user_id");
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth").in("user_id", (adm || []).map((a: any) => a.user_id));
+  for (const s of subs || []) {
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msg, url: "/login/", tag }), { TTL: 86400, urgency: "high" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
 async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return 0;
@@ -173,6 +184,11 @@ Deno.serve(async req => {
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
     if (b.acao === "criar") {
       if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
+      // a ordem anterior pode ter sido paga e a resposta se perdeu (página fechada): confere antes de criar outra
+      if (c.order_id) {
+        const ant = await pp(`/v2/checkout/orders/${c.order_id}`, undefined, "GET").catch(() => null);
+        if (ant?.status === "COMPLETED") return await fechar(ant, c, p, lancha, nome);
+      }
       const v = await vaga(p.id, true);
       if (v !== "livre") return json({ erro: v }, 409);
       const o = await pp("/v2/checkout/orders", {
@@ -196,21 +212,7 @@ Deno.serve(async req => {
         if (!String((e as Error).message).includes("ORDER_ALREADY_CAPTURED")) throw e;
         o = await pp(`/v2/checkout/orders/${oid}`, undefined, "GET");
       }
-      const cap = o?.purchase_units?.[0]?.payments?.captures?.[0];
-      const okVal = cap && cap.status === "COMPLETED" && cap.amount?.currency_code === c.moeda && Math.abs(Number(cap.amount?.value) - Number(c.valor)) < 0.005 && o?.purchase_units?.[0]?.custom_id === String(p.id);
-      if (!okVal) { console.error("captura não confere", JSON.stringify(o).slice(0, 800)); return json({ erro: "captura", status: cap?.status || o?.status }, 402); }
-      const texto = fmt(c.moeda, +c.valor), agora = new Date().toISOString();
-      await db.from("pagamentos_pp").update({ captura: cap.id, pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", p.id);
-      const ok = await confirmarSozinho(p.id);
-      // no chat de atendimento: confirmada, o notificar já escreve "reserva confirmada"; senão registra o pagamento
-      const cv = ok ? null : (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data;
-      if (cv) {
-        const tx = `Pagamento do sinal recebido pelo PayPal: ${texto}. Agora a Búzios Lanchas confirma a sua reserva.`;
-        const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "pago:" + texto, pedido: p.id }).select("id").maybeSingle();
-        if (m) await db.from("conversas").update({ ultima_em: agora, ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
-      }
-      await avisarAdmins(nome, texto, lancha, p.data, p.id, ok).catch(e => console.error(e));
-      return json({ pago: true });
+      return await fechar(o, c, p, lancha, nome);
     }
     return json({ erro: "acao" }, 400);
   } catch (e) {
@@ -219,3 +221,29 @@ Deno.serve(async req => {
     return json({ erro: m === "sem_chaves" ? "sem_chaves" : "falhou", detalhe: m.slice(0, 200) }, 500);
   }
 });
+
+// confere a ordem paga no PayPal e registra: valor, moeda e pedido têm de bater; PENDING (em análise no PayPal) avisa o administrador
+async function fechar(o: any, c: any, p: any, lancha: string, nome: string) {
+  const cap = o?.purchase_units?.[0]?.payments?.captures?.[0];
+  const bate = cap && cap.amount?.currency_code === c.moeda && Math.abs(Number(cap.amount?.value) - Number(c.valor)) < 0.005 && o?.purchase_units?.[0]?.custom_id === String(p.id);
+  if (bate && cap.status === "PENDING") {
+    console.error("captura pendente", p.id, cap.status_details?.reason);
+    await pushAdmins({ title: "Pagamento PayPal em análise ⏳", body: `${nome || "Cliente"} pagou o sinal da ${lancha} (${dataBR(p.data)}), mas o PayPal deixou em análise (${cap.status_details?.reason || "PENDING"}). Confira no PayPal e aprove a reserva quando liberar.` }, `pppend-${p.id}`).catch(e => console.error(e));
+    return json({ erro: "pendente" }, 202);
+  }
+  const okVal = bate && cap.status === "COMPLETED";
+  if (!okVal) { console.error("captura não confere", JSON.stringify(o).slice(0, 800)); return json({ erro: "captura", status: cap?.status || o?.status }, 402); }
+  const texto = fmt(c.moeda, +c.valor), agora = new Date().toISOString();
+  const { data: marcou } = await db.from("pagamentos_pp").update({ captura: cap.id, pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", p.id).is("pago_em", null).select("pedido");
+  if (!marcou?.length) return json({ pago: true }); // outra chamada já registrou (sem aviso em dobro)
+  const ok = await confirmarSozinho(p.id);
+  // no chat de atendimento: confirmada, o notificar já escreve "reserva confirmada"; senão registra o pagamento
+  const cv = ok ? null : (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data;
+  if (cv) {
+    const tx = `Pagamento do sinal recebido pelo PayPal: ${texto}. Agora a Búzios Lanchas confirma a sua reserva.`;
+    const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "pago:" + texto, pedido: p.id }).select("id").maybeSingle();
+    if (m) await db.from("conversas").update({ ultima_em: agora, ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
+  }
+  await avisarAdmins(nome, texto, lancha, p.data, p.id, ok).catch(e => console.error(e));
+  return json({ pago: true });
+}

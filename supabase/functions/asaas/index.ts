@@ -8,6 +8,7 @@
 // POST {acao:"conta", ...dados} (login)      dono: cria a subconta Asaas dele (o Asaas manda o e-mail para ele ativar e mandar os documentos)
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
 // POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas
+// POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
 // POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site)
@@ -39,6 +40,17 @@ async function asaas(path: string, body?: unknown, method = body === undefined ?
   const t = await r.text(); let j: any = {}; try { j = JSON.parse(t); } catch (_) { /* vazio */ }
   if (!r.ok) { console.error("asaas", method, path, r.status, t.slice(0, 800)); const e: any = new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); e.asaas = true; e.status = r.status; throw e; }
   return j;
+}
+// cancela no Asaas as cobranças ainda não pagas de um pedido (menos a que foi paga): pedido recusado, sinal trocado, ou o cliente já pagou pela outra forma
+async function cancelarAbertas(pid: number, menos?: number) {
+  const { data: rs } = await db.from("pagamentos_asaas").select("id, asaas_id").eq("pedido", pid).is("pago_em", null);
+  let n = 0;
+  for (const r of rs || []) {
+    if (r.id === menos) continue;
+    if (await conferir(r.asaas_id).catch(() => false)) continue; // pagou em cima da hora: fica registrado
+    if (await cancelar(r.asaas_id)) { await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null); n++; }
+  }
+  return n;
 }
 // cancela a cobrança no Asaas; só apaga o registro se o Asaas confirmou (ou ela já não existe), senão um Pix pago em cima da hora se perderia
 const cancelar = (id: string) => asaas(`/payments/${id}`, undefined, "DELETE").then(() => true, (e: any) => { console.error("apagar", id, e?.message); return e?.status === 404; });
@@ -73,8 +85,11 @@ async function carregar(pid: number, k: string) {
   return p ? { c, p } : null;
 }
 
-// conta Asaas do dono da lancha (a primeira criada, se o barco tiver mais de um dono)
+// lanchas da própria Búzios Lanchas: o dono cadastrado não recebe parte nenhuma, tudo fica na conta da Búzios (Rodrigo 2026-10-25)
+const SEM_REPASSE = ["miss-bardot"];
+// conta Asaas do dono da lancha (um dono por lancha)
 async function carteira(lancha: string) {
+  if (SEM_REPASSE.includes(lancha)) return null;
   const { data: ds } = await db.from("donos").select("user_id").eq("lancha", lancha);
   const ids = (ds || []).map((d: any) => d.user_id);
   if (!ids.length) return null;
@@ -82,8 +97,8 @@ async function carteira(lancha: string) {
   return data?.wallet_id || null;
 }
 
-async function vaga(pid: number) {
-  const { data, error } = await db.rpc("pp_vaga", { pid, segurar: false });
+async function vaga(pid: number, segurar = false) {
+  const { data, error } = await db.rpc("pp_vaga", { pid, segurar });
   if (error) { console.error("pp_vaga", error.message); return "livre"; }
   return String(data || "livre");
 }
@@ -173,6 +188,17 @@ async function avisarPassou(p: { id: number; cliente: string; lancha: string; da
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
+async function pushAdmins(msg: { title: string; body: string }, tag: string) {
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: adm } = await db.from("admins").select("user_id");
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth").in("user_id", (adm || []).map((a: any) => a.user_id));
+  for (const s of subs || []) {
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msg, url: "/login/", tag }), { TTL: 86400, urgency: "high" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
 async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
@@ -197,6 +223,9 @@ async function conferir(asaasId: string) {
   const agora = new Date().toISOString(), texto = `${brl(+row.valor)} (${row.metodo === "pix" ? "Pix" : "cartão"} · Asaas)`;
   const { data: marcou } = await db.from("pagamentos_asaas").update({ pago_em: agora }).eq("id", row.id).is("pago_em", null).select("id");
   if (!marcou?.length) return true; // outro aviso já marcou
+  const { data: dobro } = await db.from("pagamentos_asaas").select("id").eq("pedido", row.pedido).neq("id", row.id).not("pago_em", "is", null);
+  if (dobro?.length) await pushAdmins({ title: "Pagamento em dobro ⚠️", body: `O pedido ${row.pedido} foi pago duas vezes pelo Asaas. Estorne um dos pagamentos no painel do Asaas.` }, `dobro-${row.pedido}`).catch(e => console.error(e));
+  await cancelarAbertas(row.pedido, row.id).catch(e => console.error("abertas", e));
   await db.from("pagamentos_pp").update({ pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", row.pedido).is("pago_em", null);
   const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data").eq("id", row.pedido).maybeSingle();
   if (!p) return true;
@@ -257,7 +286,17 @@ Deno.serve(async req => {
       const { data: venc, error: ev } = await db.rpc("pedidos_vencidos");
       if (ev) console.error("pedidos_vencidos", ev.message);
       for (const p of venc || []) await avisarPassou(p).catch(e => console.error("passou", p.id, e));
-      return json({ expiradas: n, vencidos: (venc || []).length });
+      // cobrança aberta de pedido que não está mais pendente (recusado, cancelado, vencido) ou cujo sinal mudou: cancela para ninguém pagar à toa
+      const { data: abertas } = await db.from("pagamentos_asaas").select("pedido, sinal").is("pago_em", null).limit(200);
+      const ids = [...new Set((abertas || []).map((r: any) => r.pedido))];
+      const { data: ps } = ids.length ? await db.from("pedidos").select("id, status, sinal_valor").in("id", ids) : { data: [] };
+      let fora = 0;
+      for (const pid of ids) {
+        const p = (ps || []).find((x: any) => x.id === pid);
+        const ruim = !p || p.status !== "pendente" || (abertas || []).some((r: any) => r.pedido === pid && +r.sinal !== +p.sinal_valor);
+        if (ruim) fora += await cancelarAbertas(pid).catch(e => (console.error("fora", pid, e), 0));
+      }
+      return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora });
     }
 
     if (b.acao === "pagar" || b.acao === "conferir") {
@@ -273,7 +312,7 @@ Deno.serve(async req => {
       if (c.pago_em || (cobs || []).some((r: any) => r.pago_em)) return json({ pago: true });
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
       if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
-      const vg = await vaga(p.id);
+      const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
       const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = +p.sinal_valor || 0;
@@ -288,6 +327,11 @@ Deno.serve(async req => {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
       if (velha) { if (!await cancelar(velha.asaas_id)) return json({ erro: "asaas" }, 502); await db.from("pagamentos_asaas").delete().eq("id", velha.id); }
+      // trocou de Pix para cartão (ou o contrário): a outra cobrança é cancelada, para o cliente não pagar duas vezes
+      for (const r of (cobs || []).filter((r: any) => r.metodo !== metodo && !r.pago_em)) {
+        if (await conferir(r.asaas_id).catch(() => false)) return json({ pago: true });
+        if (await cancelar(r.asaas_id)) await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null);
+      }
       const cus = await cliente(p.cliente, dig(b.cpf));
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
@@ -298,9 +342,21 @@ Deno.serve(async req => {
         ...(wallet && rep > 0 ? { split: [{ walletId: wallet, fixedValue: rep }] } : {}),
       });
       let payload = null, img = null;
-      if (metodo === "pix") { const q = await asaas(`/payments/${pg.id}/pixQrCode`); payload = q.payload; img = q.encodedImage; }
-      await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: rep, wallet_id: wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
+      try {
+        if (metodo === "pix") { const q = await asaas(`/payments/${pg.id}/pixQrCode`); payload = q.payload; img = q.encodedImage; }
+        const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: rep, wallet_id: wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
+        if (ei) throw new Error(ei.message);
+      } catch (e) { await cancelar(pg.id); throw e; } // sem registro, a cobrança não pode ficar aberta no Asaas
       return json({ metodo, valor: tot, pix_payload: payload, pix_img: img, url: pg.invoiceUrl });
+    }
+
+    if (b.acao === "cancelar") {
+      const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      const eu = !!srk && tok === srk ? null : await quem(req);
+      if (!(!!srk && tok === srk) && !(eu && (await db.from("admins").select("user_id").eq("user_id", eu.id).maybeSingle()).data)) return json({ erro: "admin" }, 403);
+      let n = 0;
+      for (const pid of (Array.isArray(b.pids) ? b.pids : [b.pid]).map(Number).filter(Boolean).slice(0, 50)) n += await cancelarAbertas(pid);
+      return json({ canceladas: n });
     }
 
     const u = await quem(req);
@@ -317,7 +373,7 @@ Deno.serve(async req => {
       const { data: ds } = await db.from("donos").select("lancha, user_id");
       const { data: cs } = await db.from("asaas_contas").select("user_id");
       const tem = new Set((cs || []).map((c: any) => c.user_id)), com = new Set((ds || []).filter((d: any) => tem.has(d.user_id)).map((d: any) => d.lancha));
-      const sem = [...new Set((ds || []).map((d: any) => d.lancha))].filter(l => !com.has(l));
+      const sem = [...new Set((ds || []).map((d: any) => d.lancha))].filter(l => !com.has(l) && !SEM_REPASSE.includes(l));
       const { data: ls } = sem.length ? await db.from("lanchas").select("slug, nome").in("slug", sem) : { data: [] };
       return json({ lanchas: sem.map(l => (ls || []).find((x: any) => x.slug === l)?.nome || l).sort() });
     }
