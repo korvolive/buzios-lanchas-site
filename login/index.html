@@ -1985,6 +1985,9 @@ let avSeq=0;
 const SEM_RECEBER = ["finalizado","pago","revenda"];
 /* calendário dentro de Passeios, logo abaixo de "Valores a receber no embarque" (Rodrigo 2026-10-25) */
 const calFoldHTML = () => S.cur==="*" || !S.month ? "" : `<details class="fold calf" data-fold="cal"${foldOpen("cal",false)?" open":""} style="margin:6px 0 18px">${foldSum(`📅 ${t("tabCal")}`)}${isRO() ? "" : `<p class="how muted" style="margin-top:0">${t("how")}</p>`}${calendarHTML()}</details>`;
+/* repasse do PayPal (Rodrigo 2026-10-25, escondido até a homologação do Asaas): o dono vê a parte dele do sinal e se já foi enviada */
+function rcRep(bid){ const x=S.meuRep?.[bid]; if(!x) return t("rcBz");
+  return `${t("rcRepV",{v:brl(+x.valor)})}<br>${x.enviado_em ? t(x.por_fora?"rcRepFora":"rcRepOk",{d:new Date(x.enviado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})}) : t("rcRepPend")}`; }
 function receberHTML(){
   if(isRO()) return "";
   const rs=S.upcoming.filter(r=>{ const n=r.nota||{}; return +n.valor>(+n.sinal||0) && !SEM_RECEBER.includes(stOf(r)); }); if(!rs.length) return "";
@@ -1994,7 +1997,7 @@ function receberHTML(){
       /* o dono vê o valor total (dele), o sinal que já recebeu e quanto falta cobrar; em reserva da Búzios o valor do passeio tem comissão, então só mostra o que falta (Rodrigo 2026-10-25) */
       const due=+n.valor-(+n.sinal||0), bz=n.origem==="buzios" && !S.admin;
       return `<li data-trip="${r.id}" role="button" tabindex="0"><span class="rch"><b>${d.toLocaleDateString(t("locale"),{day:"numeric",month:"short"}).replace(".","")}</b> · ${t("slot_"+r.horario)}${many?" · "+esc(boatName(r.lancha)):""} · ${esc(n.cliente||t("noClientName"))}</span>
-        <span class="rcv3">${bz ? `<span class="rcbz">${t("rcBz")}</span>` : `<span><small>${t("rcTotal")}</small>${brl(+n.valor)}</span><span><small>${t("rcGot")}</small>${brl(+n.sinal||0)}</span>`}<span class="due"><small>${t("rcDue")}</small><strong>${brl(due)}</strong></span></span></li>`; }).join("")}</ul>
+        <span class="rcv3">${bz ? `<span class="rcbz">${rcRep(r.id)}</span>` : `<span><small>${t("rcTotal")}</small>${brl(+n.valor)}</span><span><small>${t("rcGot")}</small>${brl(+n.sinal||0)}</span>`}<span class="due"><small>${t("rcDue")}</small><strong>${brl(due)}</strong></span></span></li>`; }).join("")}</ul>
     ${rs.length>MX?`<p class="muted" style="margin:6px 0 0;font-size:13px">${t("rcMore",{n:rs.length-MX})}</p>`:""}<p class="rctot"><span>${t("rcTot")}</span><b>${brl(tot)}</b></p></details>`;
 }
 function listHTML(){
@@ -2406,6 +2409,9 @@ Object.assign(T.es, {repDonoAs:"La parte del dueño ({v}) ya fue directo a su cu
 Object.assign(T.pt, {restoCli:"No embarque, você paga o restante: <b>{v}</b>, direto ao responsável pela lancha.", restoCliPend:"Depois do sinal, o restante (<b>{v}</b>) é pago no embarque, direto ao responsável pela lancha."});
 Object.assign(T.en, {restoCli:"At boarding, you pay the balance: <b>{v}</b>, directly to the boat's crew.", restoCliPend:"After the deposit, the balance (<b>{v}</b>) is paid at boarding, directly to the boat's crew."});
 Object.assign(T.es, {restoCli:"Al embarcar, pagas el resto: <b>{v}</b>, directamente al responsable de la lancha.", restoCliPend:"Después de la seña, el resto (<b>{v}</b>) se paga al embarcar, directamente al responsable de la lancha."});
+Object.assign(T.pt, {"rcRepV": "Sua parte do sinal: {v}", "rcRepPend": "⏳ Em processamento (o cliente pagou pelo PayPal). Cai na sua conta Asaas em breve.", "rcRepOk": "✓ Enviada para a sua conta Asaas em {d}", "rcRepFora": "✓ Repassada em {d}", "rppT": "Repasses do PayPal ({n})", "rppSub": "Sinais pagos pelo PayPal. Saque o PayPal para a conta Asaas da Búzios. Quando o dinheiro cair, toque no botão: a parte de cada dono sai do Asaas direto para a conta Asaas dele.", "rppGo": "O PayPal caiu: enviar {v} aos donos", "rppQ": "Enviar {v} do saldo do Asaas para as contas Asaas dos donos?", "rppOk": "{n} repasse(s) enviado(s), total {v}.", "rppFalta": "O saldo do Asaas ({s}) não cobre {v}. O dinheiro do PayPal já caiu?", "rppSem": "dono sem conta Asaas", "rppEnv": "enviando…", "rppFora": "Já repassei por fora", "rppForaQ": "Marcar este repasse como já feito por fora (Pix do banco)?", "rppForaOk": "Marcado como repassado.", "rppErr": "Não consegui enviar. Tente de novo."});
+Object.assign(T.en, {"rcRepV": "Your share of the deposit: {v}", "rcRepPend": "⏳ Processing (the client paid with PayPal). It will reach your Asaas account soon.", "rcRepOk": "✓ Sent to your Asaas account on {d}", "rcRepFora": "✓ Paid on {d}", "rppT": "PayPal payouts ({n})", "rppSub": "Deposits paid with PayPal. Withdraw PayPal to the Búzios Asaas account. When the money arrives, tap the button: each owner's share goes from Asaas straight to their Asaas account.", "rppGo": "PayPal arrived: send {v} to owners", "rppQ": "Send {v} from the Asaas balance to the owners' Asaas accounts?", "rppOk": "{n} payout(s) sent, total {v}.", "rppFalta": "The Asaas balance ({s}) doesn't cover {v}. Has the PayPal money arrived?", "rppSem": "owner without Asaas account", "rppEnv": "sending…", "rppFora": "Already paid another way", "rppForaQ": "Mark this payout as already paid another way (bank Pix)?", "rppForaOk": "Marked as paid.", "rppErr": "Couldn't send. Try again."});
+Object.assign(T.es, {"rcRepV": "Tu parte de la seña: {v}", "rcRepPend": "⏳ En proceso (el cliente pagó con PayPal). Llega pronto a tu cuenta Asaas.", "rcRepOk": "✓ Enviada a tu cuenta Asaas el {d}", "rcRepFora": "✓ Pagada el {d}", "rppT": "Repasos de PayPal ({n})", "rppSub": "Señas pagadas con PayPal. Retira el PayPal a la cuenta Asaas de Búzios. Cuando el dinero llegue, toca el botón: la parte de cada dueño sale de Asaas directo a su cuenta Asaas.", "rppGo": "Llegó el PayPal: enviar {v} a los dueños", "rppQ": "¿Enviar {v} del saldo de Asaas a las cuentas Asaas de los dueños?", "rppOk": "{n} repaso(s) enviado(s), total {v}.", "rppFalta": "El saldo de Asaas ({s}) no cubre {v}. ¿Ya llegó el dinero de PayPal?", "rppSem": "dueño sin cuenta Asaas", "rppEnv": "enviando…", "rppFora": "Ya lo pagué por fuera", "rppForaQ": "¿Marcar este repaso como ya pagado por fuera (Pix del banco)?", "rppForaOk": "Marcado como pagado.", "rppErr": "No pude enviar. Inténtalo de nuevo."});
 Object.assign(T.pt, {rcCard:"receber {v} no embarque", rcT:"Valores a receber no embarque", rcTotal:"Valor total", rcGot:"Sinal recebido", rcDue:"Falta cobrar", rcBz:"Reserva da Búzios Lanchas: a sua parte do sinal vem da Búzios", rcSub:"Quanto cobrar de cada cliente na hora do embarque. O sinal já foi pago; o restante o cliente paga direto a você (ou ao marinheiro), antes de sair. Toque num passeio para ver os detalhes.", rcDep:"sinal pago {v}", rcTot:"Total a cobrar no embarque", rcMore:"e mais {n} passeios"});
 Object.assign(T.en, {rcCard:"collect {v} at boarding", rcT:"Amounts to collect at boarding", rcTotal:"Total", rcGot:"Deposit received", rcDue:"Still to collect", rcBz:"Búzios Lanchas booking: your share of the deposit comes from Búzios", rcSub:"How much to collect from each client at boarding. The deposit is already paid; the client pays the balance straight to you (or the skipper) before leaving. Tap a trip to see the details.", rcDep:"deposit paid {v}", rcTot:"Total to collect at boarding", rcMore:"and {n} more trips"});
 Object.assign(T.es, {rcCard:"cobrar {v} al embarcar", rcT:"Valores a cobrar al embarcar", rcTotal:"Valor total", rcGot:"Seña recibida", rcDue:"Falta cobrar", rcBz:"Reserva de Búzios Lanchas: tu parte de la seña viene de Búzios", rcSub:"Cuánto cobrar a cada cliente al embarcar. La seña ya está pagada; el resto el cliente te lo paga directo a ti (o al marinero) antes de salir. Toca un paseo para ver los detalles.", rcDep:"seña pagada {v}", rcTot:"Total a cobrar al embarcar", rcMore:"y {n} paseos más"});
@@ -3760,6 +3766,7 @@ function bindVreq(){
 }
 /* comissões a pagar (Rodrigo 2026-10-25): passeio já acabou e aconteceu, comissão ainda não paga. Aparece em Usuários, com o número na aba */
 async function loadComPend(){ if(!S.admin) return;
+  if(AS_TESTE) await RPC("repasses_pp_pendentes",{}).then(r=>{ S.rpp=r||[]; }, ()=>{ S.rpp=null; }); /* repasses do PayPal, escondido até a homologação */
   const r = await db(`pedidos?select=id,lancha,data,horario,bloqueio_id,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,comissao_comprovante,status&vendedor=not.is.null&status=eq.aprovado&comissao_paga=is.null&data=lte.${todayISO()}&order=data`).catch(()=>null);
   if(!r) return; const bids=r.map(p=>p.bloqueio_id).filter(Boolean);
   const feitos = bids.length ? Object.fromEntries((await db(`realizados?select=bloqueio_id,aconteceu&bloqueio_id=in.(${bids.join(",")})`).catch(()=>[])).map(x=>[x.bloqueio_id,x.aconteceu])) : {};
@@ -3777,6 +3784,7 @@ async function loadLeads(){ if(!S.admin) return;
   if(!S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null);
   const tem=new Set((S.users||[]).map(u=>String(u.telefone||"").replace(/\D/g,"").slice(-10)).filter(x=>x.length===10)); /* já tem conta: não é mais lead */
   S.leads = r.filter(l=>S.vcod?.[l.vendedor] && !tem.has(String(l.telefone).slice(-10))); }
+const rppN = () => AS_TESTE ? (S.rpp||[]).filter(r=>r.tem_conta && !r.enviando).length : 0;
 const leadSent = id => !!(store.get("lead-env")||{})[id];
 const leadsNew = () => (S.leads||[]).filter(l=>!leadSent(l.id)).length;
 function leadsHTML(){ const L=S.leads||[]; if(!L.length) return "";
@@ -3788,6 +3796,25 @@ function leadsHTML(){ const L=S.leads||[]; if(!L.length) return "";
     return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(null,l.nome,"face")}<span><strong>${esc(l.nome)}</strong><br><small class="muted">${esc(t("ldVia",{v:vend}))} · ${t("ldLeft",{h})}${leadSent(l.id)?` · ${t("ldSent")}`:""}</small></span></span>
       <span class="reqbtns" style="margin:0"><a class="btn${leadSent(l.id)?" sec":" wa"}" data-ld="${l.id}" href="https://wa.me/${esc(l.telefone)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a></span></div>`; }).join("")}</div></div>`; }
 function bindLeads(){ app.querySelectorAll("[data-ld]").forEach(a=>a.addEventListener("click",()=>{ const m=store.get("lead-env")||{}; m[a.dataset.ld]=Date.now(); store.set("lead-env",m); setTimeout(bgView,400); })); }
+/* repasses do PayPal (Rodrigo 2026-10-25): o saque do PayPal cai no Asaas somado; com um toque, a parte de cada dono sai do Asaas para a conta dele */
+function rppHTML(){ const L=S.rpp||[]; if(!AS_TESTE || !L.length) return "";
+  const ok=L.filter(r=>r.tem_conta && !r.enviando), tot=ok.reduce((a,r)=>a+(+r.valor),0);
+  return `<div class="card" id="rpp"><h2>💸 ${t("rppT",{n:L.length})}</h2><p class="muted" style="margin-top:0">${t("rppSub")}</p>
+    ${ok.length?`<button type="button" class="btn" id="rppgo" style="width:100%;margin-bottom:10px">💸 ${t("rppGo",{v:brl(tot)})}</button>`:""}<div class="ulist">${L.map(r=>`<div class="trow" style="flex-wrap:wrap;gap:6px"><span style="flex:1;min-width:0"><strong>${esc(boatName(r.lancha))} · ${brl(+r.valor)}</strong><br><small class="muted">${fmtLong(r.data)}${r.cliente?` · ${esc(r.cliente)}`:""}${r.enviando?` · ${t("rppEnv")}`:!r.tem_conta?` · ${t("rppSem")}`:""}</small></span>
+      ${r.enviando?"":`<span class="reqbtns" style="margin:0"><button type="button" class="btn sec" data-rpf="${r.pedido}">${t("rppFora")}</button></span>`}</div>`).join("")}</div></div>`; }
+function bindRpp(){
+  const g=document.getElementById("rppgo"); if(g) g.onclick=async()=>{ const ok=(S.rpp||[]).filter(r=>r.tem_conta && !r.enviando), tot=ok.reduce((a,r)=>a+(+r.valor),0);
+    if(!confirm(t("rppQ",{v:brl(tot)}))) return; g.disabled=true;
+    try{ const j=await asFn({acao:"repasses", pids:ok.map(r=>r.pedido)}), env=j.enviados||[];
+      if(env.length) toast(t("rppOk",{n:env.length, v:brl(env.reduce((a,x)=>a+x.valor,0))}));
+      if(j.falta) setTimeout(()=>toast(t("rppFalta",{s:brl(+j.saldo||0), v:brl(+j.precisa||0)})), env.length?2600:0);
+      else if(!env.length) toast(t("rppErr"));
+      await loadComPend(); mainView(); }
+    catch(e){ g.disabled=false; toast(e.message==="asaas" ? (e.det||t("rppErr")) : t("rppErr")); } };
+  app.querySelectorAll("[data-rpf]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("rppForaQ"))) return; x.disabled=true;
+    try{ await RPC("repasse_por_fora",{pid:+x.dataset.rpf}); S.rpp=(S.rpp||[]).filter(r=>r.pedido!==+x.dataset.rpf); toast(t("rppForaOk")); mainView(); }
+    catch(e){ x.disabled=false; toast(errMsg(e)); } });
+}
 function comPendHTML(){ const L=S.comPend||[]; if(!L.length) return "";
   return `<div class="card"><h2>💰 ${t("cmpT",{n:L.length})}</h2><p class="muted" style="margin-top:0">${t("cmpSub")}</p><div class="ulist">${L.map(p=>{ const v=S.vpix?.[p.vendedor], com=p.preco_cliente-p.preco_base;
     return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(p.vendedor,vendName(p),"face")}<span><strong>${esc(vendName(p))} · ${brl(com)}</strong><br><small class="muted">${esc(boatName(p.lancha))} · ${fmtLong(p.data)}${v?.pix_chave?` · 🔑 ${esc(pixShow(v.pix_tipo,v.pix_chave))}`:""}</small></span></span>
@@ -3796,7 +3823,7 @@ function usuariosHTML(){
   if(S.users===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlUsers")}</p></div>`;
   if(!S.users) return `<p class="loading">…</p>`;
   const L=sortPeople(S.users, store.get("ord-users")||"rec");
-  return `${vendReqHTML()}${comPendHTML()}${leadsHTML()}<div class="uhead"><input type="search" class="in" id="uq" placeholder="🔍 ${t("usersQ")}" aria-label="${t("usersQ")}" value="${esc(S.userQ)}" autocomplete="off"><button type="button" class="btn" id="unew">+ ${t("userNewShort")}</button></div>
+  return `${vendReqHTML()}${rppHTML()}${comPendHTML()}${leadsHTML()}<div class="uhead"><input type="search" class="in" id="uq" placeholder="🔍 ${t("usersQ")}" aria-label="${t("usersQ")}" value="${esc(S.userQ)}" autocomplete="off"><button type="button" class="btn" id="unew">+ ${t("userNewShort")}</button></div>
     <label class="ordsel"><span class="muted">${t("uf_lbl")}</span><select class="in" id="ufsel">${USER_F.map(([k,fn])=>{ const n=L.filter(fn).length; return (k==="sem"||k==="bloq") && !n && S.userF!==k ? "" : `<option value="${k}"${S.userF===k?" selected":""}>${t("uf_"+k)} (${n})</option>`; }).join("")}</select></label>
     ${ordSel("uord", store.get("ord-users")||"rec")}
     ${S.userF==="cli" ? clisCardHTML() : ""}
@@ -4116,7 +4143,7 @@ function mainView(){
 const ADM_TABS = {vendas:["💼","tabVend"], pedidos:["📖","tabReq"], usuarios:["👥","tabUsers"], conversas:["💬","chT"]};
 function tabsHTML(){
   const named=[["lista","tabList"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.vend && !S.admin?[["vendas","tabVend"]]:[]),...(S.eq?.membro?[["chat","eqT"]]:[])] /* área do vendedor numa aba própria (Rodrigo 2026-10-23); Calendário foi para dentro de Passeios e o Chat Náutico é a última aba (Rodrigo 2026-10-25) */, icons=S.admin ? [...(S.vend?["vendas"]:[]),"pedidos","usuarios",...(S.convs===false?[]:["conversas"])] : [];
-  const cnt=k=> k==="pedidos"&&S.reqCount ? `<b class="cnt">${S.reqCount}</b>` : k==="usuarios"&&((S.comPend?.length||0)+leadsNew()) ? `<b class="cnt">${(S.comPend?.length||0)+leadsNew()}</b>` : k==="conversas"&&S.chatUnread ? `<b class="cnt ch">${S.chatUnread}</b>` : "";
+  const cnt=k=> k==="pedidos"&&S.reqCount ? `<b class="cnt">${S.reqCount}</b>` : k==="usuarios"&&((S.comPend?.length||0)+leadsNew()+rppN()) ? `<b class="cnt">${(S.comPend?.length||0)+leadsNew()+rppN()}</b>` : k==="conversas"&&S.chatUnread ? `<b class="cnt ch">${S.chatUnread}</b>` : "";
   return `<div class="tabs${icons.length||named.length>3?" itabs":""}" role="tablist"${icons.length?` style="grid-template-columns:repeat(${named.length},auto) repeat(${icons.length},${icons.length>3?32:40}px)"`:""}>${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="chat"&&S.eq?.nao_lidas?` <b class="cnt ch">${S.eq.nao_lidas}</b>`:""}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span>${cnt(k)}</button>`).join("")}</div>`;
 }
 /* área do vendedor: o link dele, a comissão por período (1% ao teto) e as vendas. O valor neto e o link de cada passeio ficam no site, na página da lancha */
@@ -4256,7 +4283,7 @@ function bindMain(){
   app.querySelectorAll("[data-csed]").forEach(x=>x.onclick=()=>editReq(S.cons.find(c=>c.id===+x.dataset.csed), true));
   app.querySelectorAll("[data-csno]").forEach(x=>x.onclick=async()=>{ const c=S.cons.find(c=>c.id===+x.dataset.csno); if(!c || !confirm(t(x.dataset.past?"csRmQ":"csNoQ",{name:c.nome}))) return;
     try{ await RPC("apagar_consulta",{cid:c.id}); S.cons=S.cons.filter(q=>q.id!==c.id); S.reqCount=Math.max(0,(S.reqCount||1)-1); toast(t(x.dataset.past?"csRmOk":"csNoOk")); mainView(); }catch(e){ toast(e.status===404 ? t("csSql") : t("saveErr")); } });
-  bindComBtns(); bindLeads(); bindMainRest();
+  bindComBtns(); bindRpp(); bindLeads(); bindMainRest();
 }
 const comPed = id => (S.reqs||[]).find(r=>r.id===id) || (S.comPend||[]).find(r=>r.id===id);
 function bindComBtns(){
@@ -5122,6 +5149,7 @@ async function boot(){
       db(`freelancers?select=*&user_id=eq.${ses.user.id}`).catch(()=>[])]);
     S.sailors = sl; S.free = fr; S.myTrips = myT; S.sailorOf = sOf; S.isFree = meFree.length>0; S.myDiaria = meFree[0]?.diaria; S.drOk = !!meFree[0] && "diaria" in meFree[0];
     if(S.admin) S.owners = await db("rpc/lista_donos",{method:"POST",body:{}});
+    if(AS_TESTE && !S.admin && mine.length) RPC("meus_repasses_pp",{}).then(r=>{ S.meuRep=Object.fromEntries((r||[]).map(x=>[x.bloqueio_id,x])); if(view==="main" && !sheetDay && !tripRow) bgView(); }, ()=>{});
     if(S.admin) Promise.all([loadComPend(), loadLeads()]).then(()=>{ if((S.comPend?.length || leadsNew()) && view==="main" && !sheetDay && !tripRow) bgView(); }); /* número de comissões a pagar na aba Usuários */
     /* dono sem nome e WhatsApp: pede antes de abrir a agenda (sem a tabela perfis, segue normal) */
     S.needProf = false;

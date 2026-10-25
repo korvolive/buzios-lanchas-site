@@ -9,6 +9,7 @@
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
 // POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas (+ vendedores com conta)
 // POST {acao:"comissao", pid} (login admin)  depois do passeio: transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
+// POST {acao:"repasses", pids?} (login admin) "O PayPal caiu": manda do saldo do Asaas a parte de cada dono dos sinais pagos pelo PayPal (Rodrigo 2026-10-25)
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
@@ -220,6 +221,26 @@ async function pushAdmins(msg: { title: string; body: string }, tag: string) {
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth").in("user_id", (adm || []).map((a: any) => a.user_id));
   for (const s of subs || []) {
     try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msg, url: "/login/", tag }), { TTL: 86400, urgency: "high" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+// dono: a parte dele do sinal pago pelo PayPal chegou na conta Asaas dele
+const REP: Record<string, (v: string, l: string, d: string) => { title: string; body: string }> = {
+  pt: (v, l, d) => ({ title: "Sua parte chegou 💰", body: `${v} da reserva da ${l} em ${d} foram enviados para a sua conta Asaas.` }),
+  en: (v, l, d) => ({ title: "Your share arrived 💰", body: `${v} from the ${l} booking on ${d} was sent to your Asaas account.` }),
+  es: (v, l, d) => ({ title: "Tu parte llegó 💰", body: `${v} de la reserva de la ${l} el ${d} se enviaron a tu cuenta Asaas.` }),
+};
+async function avisarDono(p: { id: number; lancha: string; data: string; repasse_dono: number }) {
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: ds } = await db.from("donos").select("user_id").eq("lancha", p.lancha);
+  if (!ds?.length) return;
+  const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", ds.map((d: any) => d.user_id));
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...REP[l](brl(+p.repasse_dono), lancha, dataBR(p.data)), url: "/login/", tag: `rep-${p.id}` }), { TTL: 86400, urgency: "normal" }); }
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
@@ -467,6 +488,38 @@ Deno.serve(async req => {
       if (em) console.error("pagar_comissao", em.message);
       else await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/aviso-vendedor", { method: "POST", headers: { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" }, body: JSON.stringify({ tipo: "pago", id: pid }) }).catch(e => console.error("aviso-vendedor", e));
       return json({ ok: true, valor: com, status: tr.status || null });
+    }
+
+    // repasse do PayPal (Rodrigo 2026-10-25): o Rodrigo saca o PayPal para a conta Asaas (mesmo CNPJ) e toca em "O PayPal caiu".
+    // O saque chega somado, sem dizer de qual reserva é; por isso o envio é pelo toque, e só enquanto o saldo do Asaas cobre.
+    if (b.acao === "repasses") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const { data: gs } = await db.from("pagamentos_pp").select("pedido").not("pago_em", "is", null).not("captura", "is", null);
+      let ids = (gs || []).map((g: any) => +g.pedido);
+      if (Array.isArray(b.pids)) { const so = new Set(b.pids.map(Number)); ids = ids.filter(i => so.has(i)); }
+      if (!ids.length) return json({ enviados: [], sem_conta: 0 });
+      const { data: ps } = await db.from("pedidos").select("id, lancha, data, repasse_dono, bloqueio_id").in("id", ids).eq("status", "aprovado").gt("repasse_dono", 0).order("data").order("id");
+      const { data: feitos } = await db.from("repasses_pp").select("pedido, enviado_em, comprovante").in("pedido", ids);
+      const ja = new Set((feitos || []).filter((r: any) => r.enviado_em || r.comprovante).map((r: any) => +r.pedido));
+      const fila = (ps || []).filter((p: any) => !SEM_REPASSE.includes(p.lancha) && !ja.has(+p.id));
+      let saldo = +(await asaas("/finance/balance")).balance || 0;
+      const enviados: any[] = [], sem: number[] = [], falta: number[] = [];
+      for (const p of fila) {
+        const v = Math.round(+p.repasse_dono * 100) / 100, wallet = await carteira(p.lancha);
+        if (!wallet) { sem.push(p.id); continue; }
+        if (v > saldo) { falta.push(p.id); continue; }
+        // trava: dois toques não mandam duas vezes
+        const { error: et } = await db.from("repasses_pp").insert({ pedido: p.id, valor: v, comprovante: "asaas:enviando" });
+        if (et) continue;
+        let tr: any;
+        try { tr = await asaas("/transfers", { value: v, walletId: wallet }); }
+        catch (e: any) { await db.from("repasses_pp").delete().eq("pedido", p.id).eq("comprovante", "asaas:enviando"); console.error("repasse", p.id, e?.message); falta.push(p.id); continue; }
+        await db.from("repasses_pp").update({ comprovante: "asaas:" + tr.id, enviado_em: new Date().toISOString() }).eq("pedido", p.id);
+        saldo -= v; enviados.push({ pid: p.id, valor: v });
+        await avisarDono(p).catch(e => console.error("avisarDono", e));
+      }
+      const precisa = fila.filter((p: any) => falta.includes(p.id)).reduce((a: number, p: any) => a + +p.repasse_dono, 0);
+      return json({ enviados, sem_conta: sem.length, falta: falta.length, saldo: Math.round(saldo * 100) / 100, precisa: Math.round(precisa * 100) / 100 });
     }
 
     // comprovante da comissão: o vendedor vê que recebeu (Rodrigo 2026-10-25)
