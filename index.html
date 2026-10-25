@@ -425,6 +425,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pricebox .acct{font-size:14px;margin:8px 0 0;text-align:center}.pricebox .online{margin-top:14px}.pricebox .online.vonly{margin-top:4px}.pricebox .or{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:13px;opacity:.75}.pricebox .or::before,.pricebox .or::after{content:"";flex:1;border-top:1px solid currentColor;opacity:.35}#book-online{width:100%;justify-content:center}.pricebox .acct a{color:var(--sea);font-weight:700}
 .phone{font:500 14px/1 var(--mono);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
 .phone button{font:500 12px/1 var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer}
+.cd-tag{background:var(--chip);border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 14px;line-height:1.35}
 .example-banner{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--muted);margin-top:16px}
 
 /* Data e horário na página da lancha */
@@ -1093,6 +1094,9 @@ const UI = {
   }
 };
 /* cupom de fidelidade (Rodrigo, 2026-10-22) */
+Object.assign(UI.pt, {cdTag:"🎁 Volte nesta lancha e ganhe desconto no próximo passeio"});
+Object.assign(UI.en, {cdTag:"🎁 Come back on this boat and get a discount on your next tour"});
+Object.assign(UI.es, {cdTag:"🎁 Vuelve en esta lancha y gana un descuento en tu próximo paseo"});
 Object.assign(UI.pt, {cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
 Object.assign(UI.en, {cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
 Object.assign(UI.es, {cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
@@ -1364,15 +1368,19 @@ async function chatId(){ try{ const tok=await clientToken(); const r=await fetch
 /* cupons do cliente logado: aparecem só se ele tem cupom; ele toca para usar (um por passeio) */
 let CUPS=null, RECORRENTE=false; /* RECORRENTE: já ganhou algum cupom (tem passeio concluído), mesmo usado ou vencido */
 async function loadCups(){ if(CUPS) return CUPS; if(!isClient()) return [];
-  try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/meus_cupons",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"});
+  try{ const tok=await clientToken(); const rq=fn=>fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"});
+    let r=await rq("meus_cupons_v2"); if(!r.ok) r=await rq("meus_cupons"); /* v2 traz a parte do dono (cupom do dono, 2026-10-25) */
     const d=new Date(), today=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
     const all = r.ok ? await r.json() : []; RECORRENTE = all.length>0; CUPS = all.filter(c=>!c.pedido && c.expira_em>=today); }catch(e){ CUPS=[]; } return CUPS; }
-async function showCup(out){
+/* valor do cupom nesta lancha: a parte do dono só vale na lancha dele (cupom do dono, Rodrigo 2026-10-25) */
+const cupVal = (c,b) => +c.valor + (b && c.bonus_lancha===b.slug ? +c.bonus||0 : 0);
+async function showCup(out,b){
   const L=await loadCups(); if(!L.length || !out.isConnected || out.querySelector(".pk-cup")) return;
   if(!L.some(c=>c.id===pick.cup)) pick.cup=null;
-  const c=L[0], brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
-  out.insertAdjacentHTML("afterbegin", `<label class="pk-cup"><input type="checkbox" id="pk-cupcb"${pick.cup?" checked":""}><span><b>${t("cupUse",{v:brlS(c.valor)})}</b><small>${t("cupUntil",{d})}${pick.cup?" · "+t("cupOn",{v:brlS(c.valor)}):""}</small></span></label>`);
-  out.querySelector("#pk-cupcb").onchange=e=>{ pick.cup=e.target.checked?c.id:null; out.querySelector(".pk-cup").remove(); showCup(out); };
+  const c=[...L].sort((x,y)=>cupVal(y,b)-cupVal(x,b) || (x.expira_em<y.expira_em?-1:1))[0], v=cupVal(c,b), brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
+  if(pick.cup && pick.cup!==c.id) pick.cup=c.id;
+  out.insertAdjacentHTML("afterbegin", `<label class="pk-cup"><input type="checkbox" id="pk-cupcb"${pick.cup?" checked":""}><span><b>${t("cupUse",{v:brlS(v)})}</b><small>${t("cupUntil",{d})}${pick.cup?" · "+t("cupOn",{v:brlS(v)}):""}</small></span></label>`);
+  out.querySelector("#pk-cupcb").onchange=e=>{ pick.cup=e.target.checked?c.id:null; out.querySelector(".pk-cup").remove(); showCup(out,b); };
 }
 /* pedido enviado (Rodrigo 2026-10-24): uma janela clara no meio da tela, para o cliente ter certeza e não tocar de novo,
    com o WhatsApp da Búzios Lanchas em destaque para continuar a conversa (ou do vendedor, se veio pelo link dele) */
@@ -1836,12 +1844,16 @@ function bindLeadLogin(dl,$,upd,later){
 }
 /* cliente com conta que já vê "Reservar online": some o "Consultar no WhatsApp" e o online vira o botão principal (Rodrigo 2026-10-24) */
 const soOnline = btn => { if(!isClient()) return; btn.hidden=true; document.getElementById("book-online")?.classList.remove("sec"); };
+/* lanchas cujo dono dá desconto para quem volta (só o selo, sem o valor) */
+let CD_SET=null;
+const loadCdSet = () => CD_SET ||= fetch(SB_URL+"/rest/v1/rpc/lanchas_cupom_dono",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:"{}"}).then(r=>r.ok?r.json():[]).then(a=>new Set(a.map(x=>typeof x==="string"?x:x.lanchas_cupom_dono)), ()=>new Set());
 async function showBoatStatus(b){
+  if(!IS_BOT) loadCdSet().then(S=>{ const el=document.getElementById("cd-tag"); if(el && S.has(b.slug)) el.hidden=false; });
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b); showPrices(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
-  const bkOn=document.getElementById("bk-on"); if(bkOn && !bkOn.hidden) soOnline(btn); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; soOnline(btn); if(btn.dataset.ready) showCup(out); } });
+  const bkOn=document.getElementById("bk-on"); if(bkOn && !bkOn.hidden) soOnline(btn); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; soOnline(btn); if(btn.dataset.ready) showCup(out,b); } });
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
   const boards=boardsFor(b,pick.slot), bx=document.getElementById("pk-board");
@@ -1890,7 +1902,7 @@ async function showBoatStatus(b){
   if(autoBook){ out.innerHTML=`<div class="pk-res conf"><p>${t("confT")}</p><ul><li>📅 ${fmtDate(pick.date)}</li><li>🕙 ${slotLabel(pick.slot)}</li><li>👥 ${peopleLabel(pick.people)}</li>${pick.board?`<li>⚓ ${pick.board}</li>`:""}</ul><button type="button" class="btn" id="conf-go">${t("confBtn")}</button><small class="confnote">${t("confNote")}</small></div>`;
     document.getElementById("conf-go").onclick=()=>{ autoBook=false; document.getElementById("book-online")?.click(); };
     out.scrollIntoView({block:"center",behavior:"smooth"}); }
-  if(isClient() && document.getElementById("book-online")) showCup(out); /* cupom só onde tem reserva online */
+  if(isClient() && document.getElementById("book-online")) showCup(out,b); /* cupom só onde tem reserva online */
 }
 
 document.getElementById("ano").textContent = new Date().getFullYear();
@@ -2151,6 +2163,7 @@ function boatPage(b){
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
         ${b.reviews?`<a class="pr-grev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
+        <p class="cd-tag" id="cd-tag" hidden>${t("cdTag")}</p>
         <h2>${t("stackTitle")}</h2>
         ${stackHTML(b)}
         <h2 class="pk-h">${t("pickTitle")}</h2>
