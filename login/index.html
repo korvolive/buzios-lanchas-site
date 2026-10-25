@@ -945,7 +945,7 @@ async function db(path, {method="GET", body, prefer}={}, retry=true){
 
 /* ===== estado ===== */
 const app = document.getElementById("app"), top_ = document.getElementById("top");
-let S = { ccOk:true, admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: store.get("dono-tab")||"lista", past:[], /* Anteriores carrega junto, para mostrar a quantidade na aba */ items:null, ro:{}, staff:[], sailors:[], sailorOf:[], myTrips:null, free:[], isFree:false, marOk:true, embOk:true, ajOk:true, hrOk:true, mnOk:true, marNames:{} };
+let S = { ccOk:true, admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: (t=>t==="cal"||t==="chat"?"lista":t)(store.get("dono-tab"))||"lista", past:[], /* Anteriores carrega junto, para mostrar a quantidade na aba */ items:null, ro:{}, staff:[], sailors:[], sailorOf:[], myTrips:null, free:[], isFree:false, marOk:true, embOk:true, ajOk:true, hrOk:true, mnOk:true, marNames:{} };
 const now = new Date(); S.month = new Date(now.getFullYear(), now.getMonth(), 1);
 
 function toast(msg){ const el=document.getElementById("toast"); el.onclick=null; el.style.cursor=""; el.textContent=msg; el.classList.add("on"); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove("on"),2600); }
@@ -1983,6 +1983,8 @@ let avSeq=0;
 /* dono: quanto receber de cada cliente no embarque, nos próximos passeios (Rodrigo 2026-10-25: a galera não ficar perguntando) */
 /* passeio pago por completo, em revenda ou finalizado: não há o que cobrar no embarque */
 const SEM_RECEBER = ["finalizado","pago","revenda"];
+/* calendário dentro de Passeios, logo abaixo de "Valores a receber no embarque" (Rodrigo 2026-10-25) */
+const calFoldHTML = () => S.cur==="*" || !S.month ? "" : `<details class="fold calf" data-fold="cal"${foldOpen("cal",false)?" open":""} style="margin:6px 0 18px">${foldSum(`📅 ${t("tabCal")}`)}${isRO() ? "" : `<p class="how muted" style="margin-top:0">${t("how")}</p>`}${calendarHTML()}</details>`;
 function receberHTML(){
   if(isRO()) return "";
   const rs=S.upcoming.filter(r=>{ const n=r.nota||{}; return +n.valor>(+n.sinal||0) && !SEM_RECEBER.includes(stOf(r)); }); if(!rs.length) return "";
@@ -1995,7 +1997,7 @@ function receberHTML(){
 function listHTML(){
   const nw = unseenTrips(); S.unseen = new Set(nw.map(r=>r.id));
   const dconvs=(S.convs||[]).filter(c=>convDono(c) && +c.total);
-  return `${S.vend ? "" : vendAskHTML()}${dconvs.length ? convsCardHTML(dconvs) : ""}${confirmHTML()}${waAvHTML()}${receberHTML()}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
+  return `${S.vend ? "" : vendAskHTML()}${dconvs.length ? convsCardHTML(dconvs) : ""}${confirmHTML()}${waAvHTML()}${receberHTML()}${calFoldHTML()}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
     ${(()=>{ /* Próximos x Anteriores: o passeio finalizado (confirmado que aconteceu) sai de Próximos no mesmo dia */
       const done=r=>stOf(r)==="finalizado", up=S.upcoming.filter(r=>!done(r)), hoje=S.upcoming.filter(done), ant=S.lt==="ant";
       const seg=`<div class="tabs sub ltabs" role="tablist"><button type="button" role="tab" data-lt="prox" aria-selected="${!ant}">${t("ltNext")} <small>${up.length}</small></button><button type="button" role="tab" data-lt="ant" aria-selected="${ant}">${t("ltPast")}${S.pastOk ? ` <small>${hoje.length+S.past.length}</small>` : ""}</button></div>`;
@@ -3474,7 +3476,8 @@ async function openEq(){
 }
 function eqClosed(){ if(!eqOn) return; eqOn=false; clearInterval(eqTimer); eqTimer=null; loadEq().then(eqRefresh); }
 /* atualiza o card na tela (novas mensagens) sem redesenhar tudo */
-function eqRefresh(){ document.querySelectorAll("[data-eqgo]").forEach(c=>{ const h=eqCardHTML(); if(h) c.outerHTML=h; else c.remove(); }); }
+function eqRefresh(){ document.querySelectorAll("[data-eqgo]").forEach(c=>{ const h=eqCardHTML(); if(h) c.outerHTML=h; else c.remove(); });
+  const tb=document.querySelector('[data-tab="chat"]'); if(tb) tb.innerHTML = t("eqT") + (S.eq?.nao_lidas ? ` <b class="cnt ch">${S.eq.nao_lidas}</b>` : ""); }
 /* ficha da pessoa para o moderador: advertência, bloqueio e histórico */
 async function eqFicha(uid){
   eqOn=false; clearInterval(eqTimer); eqTimer=null;
@@ -4096,7 +4099,7 @@ function mainView(){
   app.innerHTML = `${tabsHTML()}`
     + (S.tab==="lista" ? avHTML() + (isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`) : "") /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
     + fotoPendHTML() + installHTML() + pushHTML()
-    + (S.tab==="lista" ? eqCardHTML() + asAvisoHTML() : "")
+    + (S.tab==="lista" ? asAvisoHTML() : "")
     + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 ? boatPicker(chips) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
@@ -4109,9 +4112,9 @@ function mainView(){
 /* abas do painel: as de todos com o nome; as que só o administrador vê (Reservas, Usuários, Conversas) só com o ícone (Rodrigo, 2026-10-22) */
 const ADM_TABS = {vendas:["💼","tabVend"], pedidos:["📖","tabReq"], usuarios:["👥","tabUsers"], conversas:["💬","chT"]};
 function tabsHTML(){
-  const named=[["lista","tabList"],["cal","tabCal"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.vend && !S.admin?[["vendas","tabVend"]]:[])] /* área do vendedor numa aba própria (Rodrigo 2026-10-23) */, icons=S.admin ? [...(S.vend?["vendas"]:[]),"pedidos","usuarios",...(S.convs===false?[]:["conversas"])] : [];
+  const named=[["lista","tabList"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.vend && !S.admin?[["vendas","tabVend"]]:[]),...(S.eq?.membro?[["chat","eqT"]]:[])] /* área do vendedor numa aba própria (Rodrigo 2026-10-23); Calendário foi para dentro de Passeios e o Chat Náutico é a última aba (Rodrigo 2026-10-25) */, icons=S.admin ? [...(S.vend?["vendas"]:[]),"pedidos","usuarios",...(S.convs===false?[]:["conversas"])] : [];
   const cnt=k=> k==="pedidos"&&S.reqCount ? `<b class="cnt">${S.reqCount}</b>` : k==="usuarios"&&((S.comPend?.length||0)+leadsNew()) ? `<b class="cnt">${(S.comPend?.length||0)+leadsNew()}</b>` : k==="conversas"&&S.chatUnread ? `<b class="cnt ch">${S.chatUnread}</b>` : "";
-  return `<div class="tabs${icons.length||named.length>3?" itabs":""}" role="tablist"${icons.length?` style="grid-template-columns:repeat(${named.length},auto) repeat(${icons.length},${icons.length>3?32:40}px)"`:""}>${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span>${cnt(k)}</button>`).join("")}</div>`;
+  return `<div class="tabs${icons.length||named.length>3?" itabs":""}" role="tablist"${icons.length?` style="grid-template-columns:repeat(${named.length},auto) repeat(${icons.length},${icons.length>3?32:40}px)"`:""}>${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="chat"&&S.eq?.nao_lidas?` <b class="cnt ch">${S.eq.nao_lidas}</b>`:""}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span>${cnt(k)}</button>`).join("")}</div>`;
 }
 /* área do vendedor: o link dele, a comissão por período (1% ao teto) e as vendas. O valor neto e o link de cada passeio ficam no site, na página da lancha */
 const vLink = () => location.origin+"/?v="+S.vend.codigo;
@@ -4304,7 +4307,7 @@ function bindMainRest(){
   app.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{ S.cur=x.dataset.b; S.boatOpen=false; store.set("dono-boat",S.cur); loadBlocks(); });
   const bsel=document.getElementById("bsel"); if(bsel) bsel.onclick=()=>{ S.boatOpen=!S.boatOpen; mainView(); if(S.boatOpen) document.getElementById("bq")?.focus(); };
   const bq=document.getElementById("bq"); if(bq) bq.oninput=()=>{ const q=fold(bq.value.trim()); app.querySelectorAll("#blist [data-b]").forEach(b=>b.hidden=!!q && !b.dataset.q.includes(q)); };
-  app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ S.tab=x.dataset.tab; store.set("dono-tab",S.tab); loadBlocks(); });
+  app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ if(x.dataset.tab==="chat") return openEq(); S.tab=x.dataset.tab; store.set("dono-tab",S.tab); loadBlocks(); });
   const asg=document.getElementById("as-go"); if(asg) asg.onclick=()=>{ try{ const L=foldGet(); L.as=true; localStorage.setItem("dobra", JSON.stringify(L)); }catch(e){}
     if(!S.own.includes(S.cur)){ S.cur=S.own[0]; store.set("dono-boat",S.cur); } S.tab="lancha"; store.set("dono-tab","lancha"); loadBlocks();
     setTimeout(()=>{ const c=app.querySelector('[data-fold="as"]'); if(!c) return; const f=c.querySelector("details.cob"); if(f) f.open=true; c.scrollIntoView({behavior:"smooth",block:"start"}); }, 400); };
@@ -4617,7 +4620,7 @@ async function fetchRows(q){
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){
   if(!S.cur || S.tab==="vendas") return mainView();
-  if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="cal")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="cal")) mainView(); }); }
+  if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) mainView(); }); }
   if((S.admin || S.own?.length) && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
   if(S.tab==="pedidos" && S.admin){ const my=++loadSeq; await loadReqs(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await Promise.all([loadUsers(), loadComPend(), loadLeads()]); if(my===loadSeq) mainView(); return; }
