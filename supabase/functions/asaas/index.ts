@@ -503,11 +503,13 @@ Deno.serve(async req => {
       const ja = new Set((feitos || []).filter((r: any) => r.enviado_em || r.comprovante).map((r: any) => +r.pedido));
       const fila = (ps || []).filter((p: any) => !SEM_REPASSE.includes(p.lancha) && !ja.has(+p.id));
       let saldo = +(await asaas("/finance/balance")).balance || 0;
-      const enviados: any[] = [], sem: number[] = [], falta: number[] = [];
-      for (const p of fila) {
-        const v = Math.round(+p.repasse_dono * 100) / 100, wallet = await carteira(p.lancha);
-        if (!wallet) { sem.push(p.id); continue; }
-        if (v > saldo) { falta.push(p.id); continue; }
+      const enviados: any[] = [], sem: number[] = [], falta: number[] = [], vai: any[] = [];
+      for (const p of fila) { const w = await carteira(p.lancha); if (w) vai.push({ ...p, wallet: w }); else sem.push(p.id); }
+      // saldo não cobre o total: não manda nada (Rodrigo 2026-10-25)
+      const total = Math.round(vai.reduce((a: number, p: any) => a + +p.repasse_dono, 0) * 100) / 100;
+      if (total > saldo) return json({ erro: "saldo", saldo: Math.round(saldo * 100) / 100, precisa: total }, 409);
+      for (const p of vai) {
+        const v = Math.round(+p.repasse_dono * 100) / 100, wallet = p.wallet;
         // trava: dois toques não mandam duas vezes
         const { error: et } = await db.from("repasses_pp").insert({ pedido: p.id, valor: v, comprovante: "asaas:enviando" });
         if (et) continue;
