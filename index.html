@@ -2317,13 +2317,20 @@ document.addEventListener("click",e=>{ const x=document.querySelector(".selo[ope
 /* lanchas cadastradas no app pelo administrador (tabela lanchas com "dados"): entram na vitrine junto com as do código.
    No site publicado só aparecem as que já têm página gerada (lista data-pub do <html>, escrita a cada publicação). */
 const PUB = document.documentElement.dataset.pub;
-/* lanchas ocultas pelo administrador no app (lanchas.oculta): saem da vitrine, das páginas e do sitemap.
-   A lista data-hide vem da última publicação; o banco confere de novo a cada visita. */
-const HIDDEN = new Set();
-const hideBoats = list => { let n=0; for(let i=BOATS.length-1;i>=0;i--) if(list.includes(BOATS[i].slug)){ HIDDEN.add(BOATS[i].slug); BOATS.splice(i,1); n++; } return n; };
+/* lanchas ocultas pelo administrador no app (lanchas.oculta): saem da vitrine e do sitemap.
+   A lista data-hide vem da última publicação; o banco confere de novo a cada visita.
+   A página da lancha oculta continua publicada: quando o administrador mostra de novo, ela volta na hora (Rodrigo 2026-10-25). */
+const HIDDEN = new Map(); /* slug → {b: lancha, i: posição na vitrine} */
+let HIDE_LIST = [];
+const KEEP = window.PRERENDER ? route.slug : null; /* na publicação, a página da própria lancha oculta também é gerada */
+const hideBoats = list => { HIDE_LIST = list; let n=0;
+  for(let i=BOATS.length-1;i>=0;i--) if(list.includes(BOATS[i].slug) && BOATS[i].slug!==KEEP){ HIDDEN.set(BOATS[i].slug,{b:BOATS[i], i}); BOATS.splice(i,1); n++; }
+  [...HIDDEN].filter(([s])=>!list.includes(s)).sort((a,b)=>a[1].i-b[1].i).forEach(([s,x])=>{ BOATS.splice(Math.min(x.i,BOATS.length),0,x.b); HIDDEN.delete(s); n++; });
+  return n; };
 hideBoats((document.documentElement.dataset.hide||"").split(",").filter(Boolean));
+/* sem resposta do banco, fica a lista da última publicação */
 const ocultas = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug&oculta=is.true", {headers:{apikey:AGENDA_KEY}})
-  .then(r=>r.ok ? r.json() : []).then(r=>r.map(x=>x.slug)).catch(()=>[]);
+  .then(r=>r.ok ? r.json() : null).then(r=>r && r.map(x=>x.slug)).catch(()=>null);
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
 const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
@@ -2338,7 +2345,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
       included:[...BASICS_NEW], prices:{}, price7h:null,
       boarding: e4.length||e7.length ? {4:e4.length?e4:e7, 7:e7.length?e7:e4} : null}); }))
   .catch(()=>{})
-  .then(()=>ocultas).then(list=>{ if(hideBoats(list)) dbAdded++; })
+  .then(()=>ocultas).then(list=>{ if(list && hideBoats(list)) dbAdded++; })
   .finally(()=>{ dbDone=true; window.dbBoatsDone=true; if(dbWait || (dbAdded && (!route.slug || HIDDEN.has(route.slug)))){ const y=scrollY; render(dbWait); if(!dbWait) scrollTo(0,y); } });
 applyStatic();
 render();
