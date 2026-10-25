@@ -3649,7 +3649,9 @@ async function loadComPend(){ if(!S.admin) return;
   if(!S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null); }
 /* cadastros pela metade (Rodrigo 2026-10-25): quem veio pelo link de um vendedor e não terminou; o administrador manda o convite do WhatsApp dele (de graça). Some em 24 h */
 async function loadLeads(){ if(!S.admin) return;
-  const r = await db(`vendedor_leads?select=id,vendedor,nome,telefone,lang,criado_em&concluido_em=is.null&criado_em=gte.${new Date(Date.now()-864e5).toISOString()}&order=criado_em.desc`).catch(()=>null);
+  const q=`vendedor_leads?select=id,vendedor,nome,telefone,lang,criado_em&concluido_em=is.null&criado_em=gte.${new Date(Date.now()-864e5).toISOString()}&order=criado_em.desc`;
+  /* só quem veio pelo link: o cliente que o dono cadastrou num passeio de fora já é dele (origem passeio) */
+  const r = await db(q+"&origem=eq.link").catch(e=>e.status===400?db(q).catch(()=>null):null);
   if(!r) return;
   if(!S.vcod) await db("vendedores?select=user_id,codigo,ativo").then(v=>{ S.vcod=Object.fromEntries(v.filter(x=>x.ativo).map(x=>[x.user_id,x.codigo])); }, ()=>{});
   if(!S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null);
