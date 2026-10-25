@@ -1372,12 +1372,11 @@ async function loadCups(){ if(CUPS) return CUPS; if(!isClient()) return [];
     let r=await rq("meus_cupons_v2"); if(!r.ok) r=await rq("meus_cupons"); /* v2 traz a parte do dono (cupom do dono, 2026-10-25) */
     const d=new Date(), today=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
     const all = r.ok ? await r.json() : []; RECORRENTE = all.length>0; CUPS = all.filter(c=>!c.pedido && c.expira_em>=today); }catch(e){ CUPS=[]; } return CUPS; }
-/* valor do cupom nesta lancha: a parte do dono só vale na lancha dele (cupom do dono, Rodrigo 2026-10-25) */
-const cupVal = (c,b) => +c.valor + (b && c.bonus_lancha===b.slug ? +c.bonus||0 : 0);
+/* cupom do dono (Rodrigo 2026-10-25): vale só na lancha dele; os cupons não somam, o site oferece o de maior valor que vale nesta lancha */
 async function showCup(out,b){
-  const L=await loadCups(); if(!L.length || !out.isConnected || out.querySelector(".pk-cup")) return;
+  const L=(await loadCups()).filter(c=>!c.lancha || (b && c.lancha===b.slug)); if(!L.length || !out.isConnected || out.querySelector(".pk-cup")) return;
   if(!L.some(c=>c.id===pick.cup)) pick.cup=null;
-  const c=[...L].sort((x,y)=>cupVal(y,b)-cupVal(x,b) || (x.expira_em<y.expira_em?-1:1))[0], v=cupVal(c,b), brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
+  const c=[...L].sort((x,y)=>(+y.valor)-(+x.valor) || (x.expira_em<y.expira_em?-1:1))[0], v=+c.valor, brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
   if(pick.cup && pick.cup!==c.id) pick.cup=c.id;
   out.insertAdjacentHTML("afterbegin", `<label class="pk-cup"><input type="checkbox" id="pk-cupcb"${pick.cup?" checked":""}><span><b>${t("cupUse",{v:brlS(v)})}</b><small>${t("cupUntil",{d})}${pick.cup?" · "+t("cupOn",{v:brlS(v)}):""}</small></span></label>`);
   out.querySelector("#pk-cupcb").onchange=e=>{ pick.cup=e.target.checked?c.id:null; out.querySelector(".pk-cup").remove(); showCup(out,b); };
