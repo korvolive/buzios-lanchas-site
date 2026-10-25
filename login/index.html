@@ -1989,7 +1989,7 @@ function receberHTML(){
   if(isRO()) return "";
   const rs=S.upcoming.filter(r=>{ const n=r.nota||{}; return +n.valor>(+n.sinal||0) && !SEM_RECEBER.includes(stOf(r)); }); if(!rs.length) return "";
   const tot=rs.reduce((a,r)=>a+(+r.nota.valor)-(+r.nota.sinal||0),0), many=S.cur==="*" || new Set(rs.map(r=>r.lancha)).size>1, MX=15;
-  return `<details class="fold rcv" data-fold="receber"${foldOpen("receber")?" open":""} style="margin:6px 0 18px">${foldSum(`💰 ${t("rcT")} (${rs.length})`)}<p class="how muted" style="margin-top:0">${t("rcSub")}</p>
+  return `<details class="fold rcv" data-fold="receber2"${foldOpen("receber2",false)?" open":""} style="margin:6px 0 18px">${foldSum(`💰 ${t("rcT")} (${rs.length})`)}<p class="how muted" style="margin-top:0">${t("rcSub")}</p>
     <p class="rchd"><span>${t("rcHd")}</span><span>${t("rcHdV")}</span></p><ul class="rcl">${rs.slice(0,MX).map(r=>{ const n=r.nota, d=dateOf(r.data);
       return `<li data-trip="${r.id}" role="button" tabindex="0"><span><b>${d.toLocaleDateString(t("locale"),{day:"numeric",month:"short"}).replace(".","")}</b> · ${t("slot_"+r.horario)}${many?" · "+esc(boatName(r.lancha)):""}<br><small>${esc(n.cliente||t("noClientName"))}${+n.sinal?` · ${t("rcDep",{v:brl(+n.sinal)})}`:""}</small></span><strong>${brl(+n.valor-(+n.sinal||0))}</strong></li>`; }).join("")}</ul>
     ${rs.length>MX?`<p class="muted" style="margin:6px 0 0;font-size:13px">${t("rcMore",{n:rs.length-MX})}</p>`:""}<p class="rctot"><span>${t("rcTot")}</span><b>${brl(tot)}</b></p></details>`;
