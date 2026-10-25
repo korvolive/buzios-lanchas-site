@@ -2807,7 +2807,7 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
   if(own) asLoad();
   if(S.admin && S.asFaltam===undefined){ S.asFaltam=0; asFn({acao:"faltam"}).then(j=>{ S.asFaltam=j.lanchas||[]; }, ()=>{ S.asFaltam=null; }).then(()=>{ if(S.tab==="lancha") bgView(); }); }
   const falt = S.admin && Array.isArray(S.asFaltam) ? `<p class="muted" style="margin:12px 0 0;font-size:14px">${S.asFaltam.length ? t("asFaltam",{l:S.asFaltam.map(esc).join(", ")}) : t("asFaltamNao")}</p>` : "";
-  const adm = S.admin && !vend ? `${falt}<p class="muted" style="margin:12px 0 0;font-size:14px">${t("asWhHow")}</p><button type="button" class="btn sec" id="as-wh">🔔 ${t("asWh")}</button>` : "";
+  const adm = S.admin && !vend ? falt : ""; /* o aviso de pagamento do Asaas já foi cadastrado (Rodrigo, 2026-10-25): o botão saiu; a função asaas ainda aceita acao "webhook" se um dia precisar refazer */
   const T_=vend?t("asVT"):t("asT");
   if(!own) return `<div class="card"><h2>💳 ${T_}</h2>${adm}</div>`;
   if(S.asConta===0) return `<div class="card"><h2>💳 ${T_}</h2><p class="muted">…</p></div>`;
@@ -2833,7 +2833,6 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
 document.addEventListener("input", e=>{ if(e.target.id==="as-doc"){ const pj=e.target.value.replace(/\D/g,"").length>11; document.getElementById("as-pj").hidden=!pj; document.getElementById("as-pf").hidden=pj; }
   if(e.target.id==="as-cep"){ const c=e.target.value.replace(/\D/g,""); if(c.length===8) fetch(`https://viacep.com.br/ws/${c}/json/`).then(r=>r.json()).then(j=>{ if(j.erro) return; const r=document.getElementById("as-rua"), b=document.getElementById("as-bairro"); if(r&&!r.value) r.value=j.logradouro||""; if(b&&!b.value) b.value=j.bairro||""; }).catch(()=>{}); } });
 document.addEventListener("click", async e=>{
-  if(e.target.closest("#as-wh")){ const b=e.target.closest("#as-wh"); b.disabled=true; try{ await asFn({acao:"webhook"}); toast(t("asWhOk")); }catch(x){ toast(x.message==="sem_chaves"?t("asNoKey"):t("saveErr")); } b.disabled=false; return; }
   const b=e.target.closest("#as-go"); if(!b || !b.closest("#as-f")) return; e.preventDefault();
   const v=id=>(document.getElementById(id)?.value||"").trim(), msg=document.getElementById("as-msg"), doc=v("as-doc").replace(/\D/g,"");
   const body={acao:"conta", cpfCnpj:doc, nascimento:v("as-nasc"), tipo:v("as-tipo"), nome:v("as-nome"), email:v("as-email"), celular:v("as-cel"), renda:+v("as-renda").replace(",","."), cep:v("as-cep"), rua:v("as-rua"), numero:v("as-num"), complemento:v("as-comp"), bairro:v("as-bairro")};
