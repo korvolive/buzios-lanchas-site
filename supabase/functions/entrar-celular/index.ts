@@ -62,6 +62,7 @@ Deno.serve(async req => {
       if (r.ok && j.access_token) return json(j);
       if (/confirm/i.test(`${j.error_code || ""} ${j.msg || j.message || j.error_description || ""}`)) return json({ erro: "confirmar", email });
       if (r.status === 429) return json({ erro: "muitas" }, 429);
+      if (j.error_code === "user_banned") return json({ erro: "bloqueado" }); // conta bloqueada pelo administrador (Rodrigo 2026-10-25)
     }
     await new Promise(r => setTimeout(r, 800)); // senha errada: segura um pouco para dificultar tentativas em sequência
     return json({ erro: "senha" });

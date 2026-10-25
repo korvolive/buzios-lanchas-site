@@ -421,6 +421,7 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .uhead{display:flex;gap:8px;margin:0 0 10px}.uhead .in{flex:1;min-width:0}.uhead .btn{width:auto;flex:none;margin:0;padding:0 16px;min-height:52px;white-space:nowrap}
 .ufil{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px;scrollbar-width:none}.ufil::-webkit-scrollbar{display:none}
 .ufil button{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;color:var(--muted)}
+.rtag.r-bloq{background:#fde4df;color:#8a1c0c}.ubtn{color:var(--bad,#c0392b)}
 .ufil button b{margin-left:2px}.ufil button[aria-selected=true]{background:var(--sea);border-color:var(--sea);color:#fff}
 .ugt{font-size:15px;margin:4px 4px 8px;color:var(--muted)}.ugrp[hidden]{display:none}
 .ulist{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:0 0 16px}
@@ -772,7 +773,7 @@ Object.assign(T.pt, {cobT:"Cobrar sinal", cobVal:"Valor a cobrar (R$)", cobCard:
 Object.assign(T.pt, {cpAttach:"Anexar comprovante", cpVal:"Sinal: {v}", cpCopy:"Copiar chave", cpCopyPaste:"Copiar Pix copia e cola", cpCopied:"Copiado!", cpSend:"Enviar comprovante do Pix", cpResend:"Trocar comprovante", cpSent:"Comprovante enviado em {d}. A Búzios Lanchas vai conferir e confirmar sua reserva.", cpSending:"Enviando comprovante…", cpOk:"Comprovante enviado!", cpErr:"Não deu para enviar. Tente de novo.", cpBig:"Arquivo muito grande (máximo 5 MB).", cpAdmVal:"Sinal que o cliente vê no app (R$)", cpValOk:"Valor do sinal salvo. O cliente já vê no app.", cpSee:"Ver comprovante ({d})", cpNone:"Cliente ainda não enviou comprovante."});
 Object.assign(T.pt, {tabUsers:"Usuários", usersQ:"Buscar por nome, e-mail ou WhatsApp", usersQNone:"Ninguém encontrado.", userNew:"Novo usuário", userNewShort:"Novo",
   needSqlUsers:"Falta criar a parte de usuários no Supabase (função lista_usuarios).", needSqlDel:"Falta liberar no Supabase a função de apagar contas (excluir_usuario).",
-  uf_todos:"Todos", uf_dono:"Donos", uf_mar:"Marinheiros", userWa:"Falar com {name} no WhatsApp", ug_mar_fixo:"Marinheiros fixos", ug_mar_free:"Marinheiros freelancers", uf_cli:"Clientes", uf_func:"Funcionários", uf_sem:"Cadastro incompleto",
+  uf_lbl:"Grupo", uf_bloq:"🚫 Bloqueados", ubTag:"🚫 Bloqueado", ubBlock:"🚫 Bloquear usuário", ubUnblock:"Desbloquear", ubQ:"Bloquear {name}? A pessoa não vai mais conseguir entrar, pedir passeio nem mandar ou ver mensagens. Os pedidos pendentes dela são cancelados.", ubWhy:"Motivo do bloqueio (só você vê; pode deixar em branco)", ubOk:"Usuário bloqueado.", ubOff:"Usuário desbloqueado.", ubSql:"Falta rodar o SQL do bloqueio de usuários no Supabase.", blockedMsg:"Sua conta foi bloqueada no site da Búzios Lanchas e não pode mais ser usada. Se achar que é um engano, fale com a gente pelo WhatsApp (21) 99927-2550.", uf_todos:"Todos", uf_dono:"Donos", uf_mar:"Marinheiros", userWa:"Falar com {name} no WhatsApp", ug_mar_fixo:"Marinheiros fixos", ug_mar_free:"Marinheiros freelancers", uf_cli:"Clientes", uf_func:"Funcionários", uf_sem:"Cadastro incompleto",
   role_admin:"Administrador", role_dono:"Dono", role_fixo:"Marinheiro fixo", role_free:"Marinheiro freelancer", role_func:"Funcionário", role_cli:"Cliente", role_sem:"Cliente sem cadastro completo", role_semLong:"Virou cliente, mas ainda não completou o cadastro (CPF e dados). Quando entrar no app, ele vai pedir o que falta.",
   userSince:"Conta desde {d}", userLast:"último acesso {d}", userPhoto:"Trocar foto", userPhotoRmQ:"Remover a foto de {name}?",
   userRoles:"O que essa pessoa é", userWhat:"Tipo de acesso", userGive:"Dar acesso", userData:"Dados", userPw:"Senha nova",
@@ -786,7 +787,7 @@ Object.assign(T.en, {cobT:"Request deposit", cobVal:"Amount to request (R$)", co
 Object.assign(T.en, {cpAttach:"Attach receipt", cpVal:"Deposit: {v}", cpCopy:"Copy key", cpCopyPaste:"Copy Pix code", cpCopied:"Copied!", cpSend:"Send Pix receipt", cpResend:"Replace receipt", cpSent:"Receipt sent on {d}. Búzios Lanchas will check it and confirm your booking.", cpSending:"Sending receipt…", cpOk:"Receipt sent!", cpErr:"Could not send it. Try again.", cpBig:"File too large (max 5 MB).", cpAdmVal:"Deposit the client sees in the app (R$)", cpValOk:"Deposit saved. The client already sees it in the app.", cpSee:"See receipt ({d})", cpNone:"The client has not sent a receipt yet."});
 Object.assign(T.en, {tabUsers:"Users", usersQ:"Search by name, email or WhatsApp", usersQNone:"Nobody found.", userNew:"New user", userNewShort:"New",
   needSqlUsers:"The users part is missing in Supabase (lista_usuarios function).", needSqlDel:"The delete-account function (excluir_usuario) still needs to be enabled in Supabase.",
-  uf_todos:"All", uf_dono:"Owners", uf_mar:"Skippers", userWa:"Message {name} on WhatsApp", ug_mar_fixo:"Regular skippers", ug_mar_free:"Freelance skippers", uf_cli:"Clients", uf_func:"Staff", uf_sem:"Incomplete signup",
+  uf_lbl:"Group", uf_bloq:"🚫 Blocked", ubTag:"🚫 Blocked", ubBlock:"🚫 Block user", ubUnblock:"Unblock", ubQ:"Block {name}? They will no longer be able to sign in, request tours or send or see messages. Their pending requests are cancelled.", ubWhy:"Reason for blocking (only you see it; can be left blank)", ubOk:"User blocked.", ubOff:"User unblocked.", ubSql:"The user blocking SQL still needs to be run in Supabase.", blockedMsg:"Your account has been blocked on the Búzios Lanchas website and can no longer be used. If you think this is a mistake, talk to us on WhatsApp +55 21 99927-2550.", uf_todos:"All", uf_dono:"Owners", uf_mar:"Skippers", userWa:"Message {name} on WhatsApp", ug_mar_fixo:"Regular skippers", ug_mar_free:"Freelance skippers", uf_cli:"Clients", uf_func:"Staff", uf_sem:"Incomplete signup",
   role_admin:"Administrator", role_dono:"Owner", role_fixo:"Fixed skipper", role_free:"Freelance skipper", role_func:"Staff", role_cli:"Client", role_sem:"Client, signup incomplete", role_semLong:"Now a client, but hasn't finished signing up (CPF and details). The app will ask for what's missing on next sign-in.",
   userSince:"Account since {d}", userLast:"last seen {d}", userPhoto:"Change photo", userPhotoRmQ:"Remove {name}'s photo?",
   userRoles:"What this person is", userWhat:"Access type", userGive:"Give access", userData:"Details", userPw:"New password",
@@ -825,7 +826,7 @@ Object.assign(T.es, {chBotPago:"Seña recibida: {v}. Ahora Búzios Lanchas confi
 Object.assign(T.es, {chBotPassou:"La fecha de tu pedido de la {boat} el {date} llegó sin que se completara la reserva, así que cerramos el pedido. ¡Nos alegró mucho tu interés! Cuando quieras, elige otra fecha en el sitio o escríbenos aquí: será un placer llevarte a pasear en Búzios. ⛵", chBotExp:"Se acabaron las 2 horas para pagar la seña y la {boat} el {date} fue liberada. Si sigue libre, puedes generar el pago de nuevo con el mismo link.", chBotOk:"Seña recibida: ¡tu reserva en {boat} el {date} está confirmada! ✅", chBotResto:"Al embarcar, pagas el resto ({v}) directamente al responsable de la lancha.", pixWa:"Enviar el Pix al WhatsApp del cliente", repT:"A dónde va el dinero", repSin:"Seña que recibes: {v}", repDono:"Le pasas al dueño: {v}", repDonoNeg:"El dueño te pasa: {v}", repVend:"Comisión del vendedor: {v}", repBz:"Queda para Búzios Lanchas: {v}", repResto:"Al embarcar, el cliente le paga al dueño: {v}"});
 Object.assign(T.es, {tabUsers:"Usuarios", usersQ:"Buscar por nombre, correo o WhatsApp", usersQNone:"No se encontró a nadie.", userNew:"Nuevo usuario", userNewShort:"Nuevo",
   needSqlUsers:"Falta crear la parte de usuarios en Supabase (función lista_usuarios).", needSqlDel:"Falta habilitar en Supabase la función para borrar cuentas (excluir_usuario).",
-  uf_todos:"Todos", uf_dono:"Dueños", uf_mar:"Marineros", userWa:"Hablar con {name} por WhatsApp", ug_mar_fixo:"Marineros fijos", ug_mar_free:"Marineros freelancers", uf_cli:"Clientes", uf_func:"Empleados", uf_sem:"Registro incompleto",
+  uf_lbl:"Grupo", uf_bloq:"🚫 Bloqueados", ubTag:"🚫 Bloqueado", ubBlock:"🚫 Bloquear usuario", ubUnblock:"Desbloquear", ubQ:"¿Bloquear a {name}? Ya no podrá entrar, pedir paseos ni mandar o ver mensajes. Sus pedidos pendientes se cancelan.", ubWhy:"Motivo del bloqueo (solo tú lo ves; puedes dejarlo en blanco)", ubOk:"Usuario bloqueado.", ubOff:"Usuario desbloqueado.", ubSql:"Falta ejecutar el SQL del bloqueo de usuarios en Supabase.", blockedMsg:"Tu cuenta fue bloqueada en el sitio de Búzios Lanchas y ya no se puede usar. Si crees que es un error, escríbenos por WhatsApp +55 21 99927-2550.", uf_todos:"Todos", uf_dono:"Dueños", uf_mar:"Marineros", userWa:"Hablar con {name} por WhatsApp", ug_mar_fixo:"Marineros fijos", ug_mar_free:"Marineros freelancers", uf_cli:"Clientes", uf_func:"Empleados", uf_sem:"Registro incompleto",
   role_admin:"Administrador", role_dono:"Dueño", role_fixo:"Marinero fijo", role_free:"Marinero freelancer", role_func:"Empleado", role_cli:"Cliente", role_sem:"Cliente sin registro completo", role_semLong:"Ahora es cliente, pero todavía no completó el registro (CPF y datos). Al entrar en la app, se le pedirá lo que falta.",
   userSince:"Cuenta desde {d}", userLast:"último acceso {d}", userPhoto:"Cambiar foto", userPhotoRmQ:"¿Quitar la foto de {name}?",
   userRoles:"Qué es esta persona", userWhat:"Tipo de acceso", userGive:"Dar acceso", userData:"Datos", userPw:"Contraseña nueva",
@@ -984,7 +985,7 @@ function loginView(){
         if(j.access_token){ saveSes(j); loginMsg=""; view="main"; return await boot(); }
         if(j.erro==="sem_conta"){ store.set("cli-draft", {...(store.get("cli-draft")||{}), whatsapp:ph.tel}); loginErr=false; loginMsg=t(waOn?"telNoAccWa":"telNoAcc"); view="signup"; return show(); }
         if(j.erro==="confirmar"){ codeEmail=j.email; codePw=pw.value; codeMsg=""; authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
-        loginErr=true; loginMsg = j.erro==="senha" ? t("badLoginTel") : j.erro==="muitas" ? t("tooMany") : t("netErr"); }
+        loginErr=true; loginMsg = j.erro==="bloqueado" ? t("blockedMsg") : j.erro==="senha" ? t("badLoginTel") : j.erro==="muitas" ? t("tooMany") : t("netErr"); }
       catch(err){ loginErr=true; loginMsg=t("netErr"); }
       return loginView(); }
     go.disabled=true; go.textContent=t("entering");
@@ -992,7 +993,7 @@ function loginView(){
       store.set("dono-email", em.value.trim()); saveSes(s); loginMsg=""; view="main"; await boot(); }
     catch(err){ if(err.status && /confirm/i.test(err.code+err.message)){ /* e-mail ainda não confirmado: manda o código e pede aqui */
         codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
-      loginErr=true; loginMsg = err.status ? t("badLogin") : t("netErr"); loginView(); }
+      loginErr=true; loginMsg = err.code==="user_banned" ? t("blockedMsg") : err.status ? t("badLogin") : t("netErr"); loginView(); }
   };
   document.getElementById("tosign").onclick = () => { loginMsg=""; view="signup"; show(); };
   document.getElementById("forgot").onclick = async () => {
@@ -3553,6 +3554,7 @@ async function loadVendIds(){ try{ S.vendIds = new Set((await RPC("vendedores_id
 const vbadge = tip => `<small class="csite vbadge" title="${tip}" aria-label="${tip}"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#1d9bf0" d="M22.5 12.5c0-1.58-.88-2.95-2.15-3.6.15-.44.23-.91.23-1.4 0-2.21-1.71-4-3.82-4-.47 0-.92.08-1.34.25C14.82 2.42 13.53 1.5 12 1.5s-2.81.92-3.42 2.25c-.42-.17-.87-.25-1.34-.25-2.11 0-3.82 1.79-3.82 4 0 .49.08.96.23 1.4C2.38 9.55 1.5 10.92 1.5 12.5c0 1.5.8 2.8 1.97 3.48-.03.17-.04.34-.04.52 0 2.21 1.71 4 3.82 4 .47 0 .92-.09 1.34-.25.6 1.33 1.9 2.25 3.41 2.25s2.81-.92 3.41-2.25c.42.16.87.25 1.34.25 2.11 0 3.82-1.79 3.82-4 0-.18-.01-.35-.04-.52 1.17-.68 1.97-1.98 1.97-3.48z"/><path fill="#fff" d="M10.54 16.2 6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36z"/></svg></small>`;
 async function loadUsers(){
   RPC("usuarios_verificados", {}).then(v=>{ S.verIds=new Set((v||[]).map(x=>typeof x==="string"?x:x.usuarios_verificados||x)); if(S.tab==="usuarios" && view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{ S.verIds=null; });
+  RPC("usuarios_bloqueados_lista", {}).then(b=>{ S.bloq=new Map((b||[]).map(x=>[x.user_id,x])); if(S.tab==="usuarios" && view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{ S.bloq=null; });
   try{ const L = await RPC("lista_usuarios", {}); await loadVendIds(); L.forEach(u=>{ if(u.vendedor===undefined) u.vendedor = !!S.vendIds?.has(u.user_id); }); S.users = L; L.forEach(u=>{ if(u.foto!=null) S.avV[u.user_id] = +u.foto; }); S.err=""; }
   catch(e){ if(e.status===404) S.users=false; else S.err="load"; }
 }
@@ -3567,7 +3569,7 @@ const avisarUser = (u, pw="", ask=false) => { const k=teamKind(u); if(k) avisoEq
 const roleList = u => { const R=[]; if(u.admin) R.push({k:"admin"}); u.donos.forEach(l=>R.push({k:"dono",l})); u.fixo.forEach(l=>R.push({k:"fixo",l}));
   if(u.freelancer) R.push({k:"free"}); /* funcionário não existe mais: o marinheiro fixo é quem vê a agenda da lancha */ if(u.cliente) R.push({k:"cli"}); if(u.vendedor) R.push({k:"vend"}); return R; };
 const roleTag = r => `<span class="rtag r-${r.k}">${t("role_"+r.k)}${r.l?` · ${esc(boatName(r.l))}`:""}</span>`;
-const USER_F = [["todos",()=>true],["dono",u=>u.donos.length>0],["mar",u=>(u.fixo.length>0||u.freelancer) && !u.donos.length] /* dono que também pilota aparece só em Donos */,["cli",u=>u.cliente],["vend",u=>u.vendedor],["sem",u=>!roleList(u).length]];
+const USER_F = [["todos",()=>true],["dono",u=>u.donos.length>0],["mar",u=>(u.fixo.length>0||u.freelancer) && !u.donos.length] /* dono que também pilota aparece só em Donos */,["cli",u=>u.cliente],["vend",u=>u.vendedor],["sem",u=>!roleList(u).length],["bloq",u=>!!S.bloq?.has(u.user_id)]];
 const fmtD = s => (/^\d{4}-\d{2}-\d{2}$/.test(s) ? dateOf(s) : new Date(s)).toLocaleDateString(t("locale"),{day:"numeric",month:"short",year:"numeric"}).replace(/\./g,"");
 /* marinheiro (fixo ou freelancer) pede para ser vendedor; o administrador aprova ou recusa (Rodrigo 2026-10-22). Donos e clientes só pelo administrador */
 const canAskVend = () => !S.admin && !S.vend && !(S.own||[]).length && ((S.sailorOf||[]).length>0 || S.isFree);
@@ -3602,7 +3604,7 @@ function usuariosHTML(){
   if(!S.users) return `<p class="loading">…</p>`;
   const L=sortPeople(S.users, store.get("ord-users")||"rec");
   return `${vendReqHTML()}<div class="uhead"><input type="search" class="in" id="uq" placeholder="🔍 ${t("usersQ")}" aria-label="${t("usersQ")}" value="${esc(S.userQ)}" autocomplete="off"><button type="button" class="btn" id="unew">+ ${t("userNewShort")}</button></div>
-    <div class="ufil" role="tablist">${USER_F.map(([k,fn])=>{ const n=L.filter(fn).length; return k==="sem" && !n ? "" : `<button type="button" role="tab" data-uf="${k}" aria-selected="${S.userF===k}">${t("uf_"+k)} <b>${n}</b></button>`; }).join("")}</div>
+    <label class="ordsel"><span class="muted">${t("uf_lbl")}</span><select class="in" id="ufsel">${USER_F.map(([k,fn])=>{ const n=L.filter(fn).length; return (k==="sem"||k==="bloq") && !n && S.userF!==k ? "" : `<option value="${k}"${S.userF===k?" selected":""}>${t("uf_"+k)} (${n})</option>`; }).join("")}</select></label>
     ${ordSel("uord", store.get("ord-users")||"rec")}
     ${S.userF==="cli" ? clisCardHTML() : ""}
     ${(S.userF==="mar" ? [["mar_fixo",u=>u.fixo.length>0],["mar_free",u=>u.freelancer]] : [[null,()=>true]]).map(([g,gf])=>`<div class="ugrp">${g?`<h3 class="ugt">${t("ug_"+g)}</h3>`:""}<div class="ulist">${L.filter(gf).map(u=>{ const R=roleList(u);
@@ -3610,7 +3612,7 @@ function usuariosHTML(){
       return `<div class="uline" data-q="${esc(fold([u.nome,u.email,u.telefone].join(" ")))}" data-lid="${u.user_id}"><button type="button" class="urow" data-uid="${u.user_id}">${face(u.user_id,u.nome||u.email,"face lg")}
         <span class="ubody"><strong>${u.nome?esc(u.nome):`<em class="muted">${t("noName")}</em>`}${S.verIds?.has(u.user_id)?" "+vbadge(t("verUser")):""}${u.user_id===ses.user.id?` <small class="muted">(${t("you")})</small>`:""}</strong>
         <small class="muted">${esc(realEm(u.email)||u.telefone||"")}</small>
-        <span class="rtags">${R.length ? R.map(roleTag).join("") : `<span class="rtag r-sem">${t("role_sem")}</span>`}</span></span><span class="car" aria-hidden="true">›</span></button>${wa?`<a class="uwa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("userWa",{name:esc(u.nome||u.email)})}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${WA_PATH}"/></svg></a>`:""}</div>`; }).join("")}</div></div>`).join("")}
+        <span class="rtags">${S.bloq?.has(u.user_id)?`<span class="rtag r-bloq">${t("ubTag")}</span>`:""}${R.length ? R.map(roleTag).join("") : `<span class="rtag r-sem">${t("role_sem")}</span>`}</span></span><span class="car" aria-hidden="true">›</span></button>${wa?`<a class="uwa" href="https://wa.me/${wa}" target="_blank" rel="noopener" aria-label="${t("userWa",{name:esc(u.nome||u.email)})}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${WA_PATH}"/></svg></a>`:""}</div>`; }).join("")}</div></div>`).join("")}
     <p class="muted uq0" hidden>${t("usersQNone")}</p>`;
 }
 function bindUsers(){
@@ -3620,7 +3622,7 @@ function bindUsers(){
     app.querySelectorAll(".ugrp").forEach(g=>g.hidden=!g.querySelector(".uline:not([hidden])"));
     const z=app.querySelector(".uq0"); if(z) z.hidden = n>0; };
   uq.oninput = apply; apply();
-  app.querySelectorAll("[data-uf]").forEach(x=>x.onclick=()=>{ S.userF=x.dataset.uf; mainView(); });
+  const uf=document.getElementById("ufsel"); if(uf) uf.onchange=()=>{ S.userF=uf.value; mainView(); }; /* grupos numa lista que abre (Rodrigo 2026-10-25: a fileira ficava comprida demais) */
   const uo=document.getElementById("uord"); if(uo) uo.onchange=()=>{ store.set("ord-users",uo.value); mainView(); };
   app.querySelectorAll("[data-uid]").forEach(x=>x.onclick=()=>openUser(x.dataset.uid));
   document.getElementById("unew").onclick = openNewUser;
@@ -3673,6 +3675,7 @@ function openUser(uid, msg=""){
     ${waOf(u.telefone).length>=8?`<a class="btn wa" style="margin-top:10px" href="https://wa.me/${waOf(u.telefone)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}
     ${!me && teamKind(u) ? `<button type="button" class="btn sec" id="uavis" style="margin-top:10px">📣 ${t("teamT",{name:esc((u.nome||u.email).split(" ")[0])})}</button>` : ""}
     <button type="button" class="btn sec" id="ux" style="margin-top:10px">${t("close")}</button>
+    ${me||u.admin ? "" : `<div id="ubloq"></div>`}
     ${me||u.admin ? "" : `<button type="button" class="link danger" id="udel">🗑 ${t("userDel")}</button>`}`;
   sheet.classList.add("on"); sheetBg.classList.add("on"); bindPhone("ue");
   const busy = on => sheet.querySelectorAll("button,input,select").forEach(b=>b.disabled=on);
@@ -3757,6 +3760,17 @@ function openUser(uid, msg=""){
       await afterUser(uid, m);
     }catch(x){ fail(errMsg(x)); } };
   /* apagar a conta */
+  /* bloquear usuário (Rodrigo 2026-10-25): não entra mais, não pede passeio, não manda mensagem; só o administrador vê a lista */
+  const ub=document.getElementById("ubloq");
+  if(ub){ const b=S.bloq?.get(uid);
+    ub.innerHTML = S.bloq===null ? `<p class="muted" style="font-size:14px">${t("ubSql")}</p>`
+      : b ? `<div class="msg err" style="margin:12px 0 0"><strong>${t("ubTag")}</strong> · ${fmtD(b.criado_em)}${b.motivo?`<br><small>${esc(b.motivo)}</small>`:""}</div><button type="button" class="btn sec" id="ubgo" style="margin-top:8px">${t("ubUnblock")}</button>`
+      : `<button type="button" class="btn sec ubtn" id="ubgo" style="margin-top:10px">${t("ubBlock")}</button>`;
+    const go=document.getElementById("ubgo"); if(go) go.onclick=async()=>{ const nome=u.nome||realEm(u.email)||"";
+      let motivo=null; if(!b){ if(!confirm(t("ubQ",{name:nome}))) return; motivo=prompt(t("ubWhy"),"")||null; }
+      busy(true);
+      try{ await RPC("bloquear_usuario",{uid, sim:!b, motivo}); toast(t(b?"ubOff":"ubOk")); const L=await RPC("usuarios_bloqueados_lista",{}).catch(()=>null); if(L) S.bloq=new Map(L.map(x=>[x.user_id,x])); await afterUser(uid); }
+      catch(e){ busy(false); toast(e.status===404 ? t("ubSql") : errMsg(e)); } }; }
   const del=document.getElementById("udel"); if(del) del.onclick = async () => { if(!confirm(t("userDelQ",{name:u.nome||u.email}))) return; busy(true);
     try{ const r=await RPC("excluir_usuario",{uid}); if(r!=="ok") throw new Error(r);
       await avStore({method:"DELETE"}, uid).catch(()=>{}); closeDay(); toast(t("userDeleted")); await reloadPeople(); mainView(); }
@@ -4932,7 +4946,7 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
 (function(){
   const h = new URLSearchParams(location.hash.slice(1));
   if(h.get("message") && !h.get("access_token")){ history.replaceState(null,"",location.pathname); setTimeout(()=>toast(t("emHalf")),600); }
-  if(h.get("error_description")){ loginErr=true; loginMsg=t("linkErr"); history.replaceState(null,"",location.pathname); return show(); }
+  if(h.get("error_description")){ loginErr=true; loginMsg=/banned/i.test(h.get("error_description")+h.get("error_code")) ? t("blockedMsg") : t("linkErr"); history.replaceState(null,"",location.pathname); return show(); }
   if(h.get("access_token")){
     ses = null; /* login de outra pessoa pelo link (ex.: convite aberto no celular do administrador): não herda o usuário anterior */
     saveSes({access_token:h.get("access_token"), refresh_token:h.get("refresh_token"), expires_at:+h.get("expires_at")||0, expires_in:h.get("expires_in"), user:null});
