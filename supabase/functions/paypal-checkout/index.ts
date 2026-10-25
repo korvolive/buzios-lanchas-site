@@ -152,7 +152,9 @@ Deno.serve(async req => {
       if (p.status === "aprovado" && p.bloqueio_id) {
         const { data: a } = await db.from("anotacoes").select("valor, sinal").eq("bloqueio_id", p.bloqueio_id).maybeSingle();
         if (+a?.valor > 0) resto = Math.max(0, +a.valor - (+a.sinal || 0));
-      } else {
+      }
+      // pedido recusado ou cancelado: não há restante; passeio sem valor anotado: usa o valor do pedido
+      if (resto === null && (p.status === "pendente" || p.status === "aprovado")) {
         const tot = (+p.preco_cliente || +p.preco_base || 0) - (+p.cupom_valor || 0);
         if (tot > 0 && +p.sinal_valor > 0 && tot >= +p.sinal_valor) resto = tot - +p.sinal_valor;
       }
