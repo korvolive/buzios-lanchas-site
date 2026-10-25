@@ -1207,7 +1207,7 @@ function signupView(){
 const googleDraft = () => { const d=store.get("cli-draft")||{}, m=meta(); return {...d, nome:d.nome||m.full_name||m.name||"", whatsapp:d.whatsapp||(ses?.user?.phone?"+"+ses.user.phone:"")}; };
 function completeView(msg=""){
   const mj = mergeTel && waOn; /* WhatsApp de outra conta: dá para juntar as duas com o código (Rodrigo 2026-10-23) */
-  app.innerHTML = `<div class="card"><h2>${t("completeT")}</h2><p class="muted" style="margin-top:0">${t("completeSub")}</p>
+  app.innerHTML = `<div class="card"><h2>📝 ${t("completeT")}</h2><p class="muted" style="margin-top:0">${t("completeSub")}</p>
     ${mj?`<div class="card" id="mjbox" style="border:2px solid var(--sea);margin:0 0 14px"><h3 style="margin:0 0 6px">🔗 ${t("mjT")}</h3><p class="muted" style="margin:0 0 10px">${t("mjSub",{tel:`<b>${esc(mergeTel.show)}</b>`})}</p><div id="mjmsg"></div>
       <div id="mjcode" hidden><label class="f"><span>${t("codeL")}</span><input type="text" id="mjc" inputmode="numeric" autocomplete="one-time-code" maxlength="6" style="font-size:22px;letter-spacing:5px;text-align:center"></label></div>
       <button type="button" class="btn" id="mjgo">${t("mjSend")}</button></div>`:""}
@@ -1556,7 +1556,7 @@ function clientView(){
     ${pushNudgeHTML()}
     ${ocupHTML()}
     ${S.vend ? vendHTML() : ""}
-    <div class="card"><h2>${t("myTripsT")}</h2><span class="reqbtns"><a class="btn" href="/">${t("seeBoats")}</a></span></div>
+    <div class="card"><h2>🚤 ${t("myTripsT")}</h2><span class="reqbtns"><a class="btn" href="/">${t("seeBoats")}</a></span></div>
     ${cliChatCard()}
     ${up.length ? `<h2 style="margin:22px 0 10px">${t("upT")}</h2><div class="trips">${up.map(p=>reqCard(p)).join("")}</div>` : past.length ? "" : `<div class="card"><p class="muted" style="margin:0">${t("cliNone")}</p></div>`}
     ${past.length ? `<h2 style="margin:22px 0 10px">${t("cliPast")}</h2><div class="trips">${past.map(p=>reqCard(p)).join("")}</div>` : ""}
@@ -2012,7 +2012,7 @@ function pricesHTML(){
   /* % do feriado, do Réveillon e Carnaval e desconto de segunda a quinta: cada um dentro da sua época (Rodrigo 2026-10-22) */
   const pc = "pct_feriado" in S.prices;
   const apc = (c, lab, mx, v, pp) => `<div class="apct"><span>${lab}</span><span class="mnpi"><input type="number" class="in" inputmode="numeric" min="0" max="${mx}" step="5" data-apc="${c}" value="${v ?? 0}"><i>%</i></span></div>${pp?`<small class="pprev" data-pp="${pp}"></small>`:""}`;
-  return prWrap("", t("pricesT"), t("pricesSub2"), `
+  return prWrap("", "💰 "+t("pricesT"), t("pricesSub2"), `
     <div class="pnet">${SEASON3.map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>
       <div class="pg"><span></span><b>${t("prNet")}</b><b>${t("prBl")} ${S.cur===SEM_TAXA?"0":TAXA_BUZIOS}%</b><b>${t("prTotal")}</b>
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
@@ -2110,7 +2110,7 @@ function ownPricesHTML(){
       <output class="mnfp" data-fp="${c}"></output>`; }).join("")}</div>
     <label class="mnd1"><span>${t("mnDs")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR.ds.max}" step="any" data-xp="ds:${k}" data-both="1" data-k="ds_${k}" value="${dr["ds_"+k] ?? pctTxt(dsv(k))}"${dis}><i>%</i></span></label>`;
   const season = k => `<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>`;
-  return prWrap("mnet", t("mnT"), t("mnSub"), `
+  return prWrap("mnet", "💰 "+t("mnT"), t("mnSub"), `
     ${lock?`<p class="msg">${t("mnLock",{d:dm(S.mn.prox)})}</p>`:""}
     ${["baixa","media","alta"].map(k=>`${season(k)}${it[k]?.ref>0 && it[k+"7"]?.ref>0 ? mnRow(k) : `<div class="mng">${cell(k)}${cell(k+"7")}</div>${pairHTML("ds", k, dsGet(ds), dis, dr)}`}</div>`).join("")}
     ${season("reveillon")}${pairHTML("rv", "alta", rvGet(S.mn.pct_reveillon, S.mn.pct_reveillon7), dis, dr)}</div>
@@ -2190,7 +2190,7 @@ async function espSave(list, okMsg){
 function priceHistHTML(){
   if(!S.admin || !S.ph?.length) return "";
   const lab = c => `${t("pr_"+c.replace("7","")).split(" · ")[0]} ${t(c.endsWith("7")?"pr7s":"pr4s")}`;
-  return `<div class="card"><h2>${t("nhT")}</h2><p class="muted" style="margin-top:0">${t("nhSub")}</p><ul class="owners phl">${S.ph.map(h=>{
+  return `<div class="card"><h2>🕘 ${t("nhT")}</h2><p class="muted" style="margin-top:0">${t("nhSub")}</p><ul class="owners phl">${S.ph.map(h=>{
     const who=(S.owners||[]).find(o=>o.user_id===h.por), nm=who?.nome||who?.email||t("nhOwner");
     const ds=Object.keys(h.depois).filter(c=>PRICE_KEYS.includes(c.replace("7","")) && h.antes[c]!==h.depois[c]).map(c=>`${lab(c)}: ${h.antes[c]?brl(h.antes[c]):"—"} → <b>${h.depois[c]?brl(h.depois[c]):"—"}</b>`);
     const pcs=[["pct_feriado","mnPf",""],["pct_reveillon","mnPr"," · "+t("pr4s")],["pct_reveillon7","mnPr"," · "+t("pr7s")]].filter(([k])=>k in h.depois && +(h.antes[k]??0)!==+(h.depois[k]??0)).map(([k,l,x])=>`${t(l)}${x}: ${pctTxt(h.antes[k])}% → <b>${pctTxt(h.depois[k])}%</b>`);
@@ -2218,7 +2218,7 @@ function cupDonoHTML(){ /* fica dentro de "O que a lancha oferece" (Rodrigo 2026
 function itemsHTML(){
   if(S.items===false) return `<div class="card"><p class="msg err" style="margin:0">${S.admin?t("needSqlItens"):t("loadErr")}</p></div>`;
   const on = S.items||[];
-  return `<div class="card itc"><h2>${t("itemsT")}</h2><p class="muted" style="margin-top:0">${t("itemsSub")}</p>
+  return `<div class="card itc"><h2>✨ ${t("itemsT")}</h2><p class="muted" style="margin-top:0">${t("itemsSub")}</p>
     <h3 style="font-size:15px;margin:14px 0 0">${t("itemsBasic")}</h3><div class="items">${BASIC_ITEMS.map(it=>`<span>${itemName(it)}</span>`).join("")}</div>
     <h3 style="font-size:15px;margin:16px 0 0">⭐ ${t("itemsGold")}</h3><div class="items gold" id="items">${ITEMS.filter(it=>GOLD_ITEMS.includes(it[0])).sort((a,b)=>GOLD_ITEMS.indexOf(a[0])-GOLD_ITEMS.indexOf(b[0])).map(itBtn).join("")}</div>
     <h3 style="font-size:15px;margin:16px 0 0">${t("itemsOpt")}</h3><div class="items" id="items2">${ITEMS.filter(it=>!GOLD_ITEMS.includes(it[0])).map(itBtn).join("")}</div>${cupDonoHTML()}</div>`;
@@ -2615,9 +2615,9 @@ function marHTML(){
 </div>` + freeCard;
 }
 function staffHTML(){
-  if(S.staff===null) return `<div class="card"><h2>${t("staffT")}</h2><p class="msg err" style="margin:0">${t("needSqlStaff")}</p></div>`;
+  if(S.staff===null) return `<div class="card"><h2>👥 ${t("staffT")}</h2><p class="msg err" style="margin:0">${t("needSqlStaff")}</p></div>`;
   const list=(S.staff||[]).filter(x=>x.lancha===S.cur), boat=boatName(S.cur);
-  return `<div class="card"><h2>${t("staffT")}</h2><p class="muted" style="margin-top:0">${t("staffSub",{boat:esc(boat)})}</p>
+  return `<div class="card"><h2>👥 ${t("staffT")}</h2><p class="muted" style="margin-top:0">${t("staffSub",{boat:esc(boat)})}</p>
     <ul class="owners staff">${list.length ? list.map(x=>`<li><span style="flex:1 1 100%">${esc(x.email)}</span><span class="vv">${t("staffValsQ")}<span class="yn" role="radiogroup">${[[true,"yes"],[false,"no"]].map(([v,k])=>`<button type="button" role="radio" data-sv="${esc(x.email)}" data-v="${v}" aria-checked="${!!x.ver_valores===v}">${t(k)}</button>`).join("")}</span></span><button type="button" class="rm" data-srm="${esc(x.email)}" style="margin-left:auto">${t("remove")}</button></li>`).join("") : `<li class="muted">${t("staffNone")}</li>`}</ul>
     <form id="sf" novalidate style="margin-top:16px"><div id="smsg"></div>
       <label class="f"><span>${t("staffEmail")}</span><input type="email" id="sem" autocapitalize="off" inputmode="email"></label>
@@ -2943,7 +2943,7 @@ function freeHTML(){
 }
 function adminHTML(){
   if(!S.admin) return "";
-  return freeHTML() + `<div class="card"><h2>${t("adminT")}</h2><p class="muted" style="margin-top:0">${t("adminSub")}</p>
+  return freeHTML() + `<div class="card"><h2>👤 ${t("adminT")}</h2><p class="muted" style="margin-top:0">${t("adminSub")}</p>
     <ol class="steps"><li>${t("adminStep1")}</li><li>${t("adminStep2")}</li><li>${t("adminStep3")}</li></ol>
     <form id="af" novalidate><div id="amsg"></div>
       <label class="f"><span>${t("ownerName")}</span><input type="text" id="anm" autocapitalize="words" autocomplete="off" placeholder="${t("ph_owner")}"></label>
