@@ -267,7 +267,7 @@ async function fechar(o: any, c: any, p: any, lancha: string, nome: string) {
     const { data: ja } = await db.from("pagamentos_pp").select("captura").eq("pedido", p.id).maybeSingle();
     if (ja?.captura === cap.id) return json({ erro: "pendente" }, 202); // já avisado
     await db.from("pagamentos_pp").update({ captura: cap.id, atualizado_em: new Date().toISOString() }).eq("pedido", p.id).is("pago_em", null);
-    await pushAdmins({ title: "Pagamento PayPal em análise ⏳", body: `${nome || "Cliente"} pagou o sinal da ${lancha} (${dataBR(p.data)}), mas o PayPal deixou em análise (${cap.status_details?.reason || "PENDING"}). Confira no PayPal e aprove a reserva quando liberar.` }, `pppend-${p.id}`).catch(e => console.error(e));
+    await pushAdmins({ title: "Pagamento PayPal em análise ⏳", body: `${nome || "Cliente"} pagou o sinal da ${lancha} (${dataBR(p.data)}), mas o PayPal deixou em análise (${cap.status_details?.reason || "PENDING"}). A data fica segurada e, quando o PayPal liberar, a reserva se confirma sozinha.` }, `pppend-${p.id}`).catch(e => console.error(e));
     return json({ erro: "pendente" }, 202);
   }
   const okVal = bate && cap.status === "COMPLETED";
