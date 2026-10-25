@@ -176,8 +176,8 @@ Deno.serve(async req => {
       const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, status, sinal_liberado_em, vendedor").eq("id", pid).maybeSingle();
       if (!p || p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "pedido" }, 400);
       if (p.vendedor && moeda !== "BRL") return json({ erro: "vendedor" }, 400); // com vendedor: só Pix, sem cobrança automática (Rodrigo, 2026-10-22)
-      const { data: old } = await db.from("pagamentos_pp").select("token, pago_em").eq("pedido", pid).maybeSingle();
-      if (old?.pago_em) return json({ erro: "pago" }, 409);
+      const { data: old } = await db.from("pagamentos_pp").select("token, pago_em, captura").eq("pedido", pid).maybeSingle();
+      if (old?.pago_em || old?.captura) return json({ erro: "pago" }, 409); // pago ou em análise no PayPal: o valor não muda mais
       const { data: c, error } = await db.from("pagamentos_pp").upsert({ pedido: pid, moeda, valor, order_id: null, atualizado_em: new Date().toISOString(), ...(old ? { token: old.token } : {}) }, { onConflict: "pedido" }).select("token").single();
       if (error) throw error;
       const url = `${SITE}/pagar/?p=${pid}&k=${c.token}`, texto = fmt(moeda, valor);
@@ -185,6 +185,29 @@ Deno.serve(async req => {
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const enviado = b.email === false ? false : await email(p.cliente, url, lancha, p.data, texto, moeda === "BRL").catch(e => (console.error(e), false));
       return json({ link: url, texto, email: enviado });
+    }
+
+    // robô (asaas expirar, com a chave de serviço): PayPal em análise que já foi liberado ou recusado
+    if (b.acao === "pendentes") {
+      const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      if (!srk || tok !== srk) return json({ erro: "chave" }, 403);
+      const { data: rs } = await db.from("pagamentos_pp").select("pedido, token, order_id, captura").not("captura", "is", null).is("pago_em", null).limit(20);
+      let pagos = 0, recusados = 0;
+      for (const r of rs || []) {
+        try {
+          const x = await carregar(+r.pedido, r.token);
+          if (!x || !r.order_id) continue;
+          const o = await pp(`/v2/checkout/orders/${r.order_id}`, undefined, "GET");
+          const cap = o?.purchase_units?.[0]?.payments?.captures?.find((k: any) => k.id === r.captura);
+          if (cap?.status === "COMPLETED") { await fechar({ ...o, purchase_units: [{ ...o.purchase_units[0], payments: { captures: [cap] } }] }, x.c, x.p, x.lancha, x.nome); pagos++; }
+          else if (cap && ["DECLINED", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED"].includes(cap.status)) {
+            await db.from("pagamentos_pp").update({ captura: null, atualizado_em: new Date().toISOString() }).eq("pedido", r.pedido).is("pago_em", null);
+            await pushAdmins({ title: "PayPal recusou o pagamento ❌", body: `O pagamento em análise do pedido ${r.pedido} (${x.lancha}, ${dataBR(x.p.data)}) não foi aprovado pelo PayPal (${cap.status}). A data está livre de novo.` }, `pprec-${r.pedido}`).catch(e => console.error(e));
+            recusados++;
+          }
+        } catch (e) { console.error("pendente", r.pedido, e); }
+      }
+      return json({ pagos, recusados });
     }
 
     const x = await carregar(Number(b.p), b.k);
@@ -240,6 +263,10 @@ async function fechar(o: any, c: any, p: any, lancha: string, nome: string) {
   const bate = cap && cap.amount?.currency_code === c.moeda && Math.abs(Number(cap.amount?.value) - Number(c.valor)) < 0.005 && o?.purchase_units?.[0]?.custom_id === String(p.id);
   if (bate && cap.status === "PENDING") {
     console.error("captura pendente", p.id, cap.status_details?.reason);
+    // registra a captura em análise: a data fica segurada e o robô de 10 em 10 minutos confere quando o PayPal liberar
+    const { data: ja } = await db.from("pagamentos_pp").select("captura").eq("pedido", p.id).maybeSingle();
+    if (ja?.captura === cap.id) return json({ erro: "pendente" }, 202); // já avisado
+    await db.from("pagamentos_pp").update({ captura: cap.id, atualizado_em: new Date().toISOString() }).eq("pedido", p.id).is("pago_em", null);
     await pushAdmins({ title: "Pagamento PayPal em análise ⏳", body: `${nome || "Cliente"} pagou o sinal da ${lancha} (${dataBR(p.data)}), mas o PayPal deixou em análise (${cap.status_details?.reason || "PENDING"}). Confira no PayPal e aprove a reserva quando liberar.` }, `pppend-${p.id}`).catch(e => console.error(e));
     return json({ erro: "pendente" }, 202);
   }
@@ -247,7 +274,11 @@ async function fechar(o: any, c: any, p: any, lancha: string, nome: string) {
   if (!okVal) { console.error("captura não confere", JSON.stringify(o).slice(0, 800)); return json({ erro: "captura", status: cap?.status || o?.status }, 402); }
   const texto = fmt(c.moeda, +c.valor), agora = new Date().toISOString();
   const { data: marcou } = await db.from("pagamentos_pp").update({ captura: cap.id, pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", p.id).is("pago_em", null).select("pedido");
-  if (!marcou?.length) return json({ pago: true }); // outra chamada já registrou (sem aviso em dobro)
+  if (!marcou?.length) { // outra chamada já registrou; se foi outro pagamento (Asaas ou outra captura), é pagamento em dobro
+    const { data: r } = await db.from("pagamentos_pp").select("captura").eq("pedido", p.id).maybeSingle();
+    if (r?.captura !== cap.id) await pushAdmins({ title: "Pagamento em dobro ⚠️", body: `O pedido ${p.id} (${lancha}, ${dataBR(p.data)}) já estava pago e recebeu também ${texto} pelo PayPal. Estorne um dos pagamentos.` }, `dobro-${p.id}`).catch(e => console.error(e));
+    return json({ pago: true });
+  }
   const ok = await confirmarSozinho(p.id);
   // no chat de atendimento: confirmada, o notificar já escreve "reserva confirmada"; senão registra o pagamento
   const cv = ok ? null : (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data;
