@@ -1972,7 +1972,7 @@ function avHTML(){
       return {b, rv, st:nf ? 1.5 : st, slot:nf ? "noite" : slot, lab, cls: st===2 ? (nt&&!s.has("noite")?"half":"no") : st===1 ? "half" : "ok"}; }).sort((x,y)=>x.st-y.st || x.b.nome.localeCompare(y.b.nome));
     list=`${S.admin&&S.avPr?.length?`<p class="avseason">${seasonLab(d)}</p>`:""}<ul class="avl">${rows.map(r=>`<li>${r.st>=2&&!r.rv?`<span class="avr">`:r.rv?`<button type="button" data-avr="${r.rv.id}">`:`<button type="button" data-avb="${esc(r.b.slug)}" data-avs="${r.slot}">`}<b>${esc(r.b.nome)}${capTag(r.b)}${S.admin?avPrice(r.b.slug):""}</b><span class="avs ${r.cls}">${r.lab}</span>${r.st>=2&&!r.rv?"</span>":"</button>"}${S.admin&&r.st<2&&!r.rv?`<button type="button" class="avlk" data-avlk="${esc(r.b.slug)}" data-avs="${r.slot}" aria-expanded="${S.rlB===r.b.slug}" aria-label="${t("rlBtnL")}: ${esc(r.b.nome)}">${t("rlBtn")}</button>`:""}${S.admin&&S.rlB===r.b.slug&&r.st<2&&!r.rv?rlPanel(r.b,r.slot,nt):""}</li>`).join("")}</ul><small class="muted">${t("avTap")}</small>`; }
   /* com data escolhida, o ✕ fecha a busca e volta ao normal (Rodrigo 2026-10-22: abria sem querer e não fechava) */
-  return `<div class="card avq"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="avd" min="${todayISO()}" value="${S.avD||""}"></label>${S.avD?paxSel("avn",S.avN):""}${S.avD?`<button type="button" class="avx" id="avx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
+  return `<div class="card avq"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="avd" min="${todayISO()}" max="${maxISO()}" value="${S.avD||""}"></label>${S.avD?paxSel("avn",S.avN):""}${S.avD?`<button type="button" class="avx" id="avx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
 async function loadAv(){ const d=S.avD, my=++avSeq; S.avRows=null; mainView();
   if(S.admin && !S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* neto = parte do dono */
@@ -2169,7 +2169,7 @@ function mntHTML(){
   const L=mntList(), td=todayISO();
   return `<div class="card espc mntc"><h2>${t("mntT")}</h2><p class="muted" style="margin-top:0">${t("mntSub")}</p>
     ${L.length ? `<ul class="espl">${L.map(m=>`<li><span><b>${dBR(m.de)}${m.ate!==m.de?" – "+dBR(m.ate):""}</b><small${m.de<=td?' class="now"':""}>${t(m.de<=td?"mntNow":"mntNext")}</small></span><span class="espb"><button type="button" class="link danger" data-mntdel="${m.id}" data-mntp="${dBR(m.de)}${m.ate!==m.de?" – "+dBR(m.ate):""}">${t("mntDel")}</button></span></li>`).join("")}</ul>` : ""}
-    ${L.length ? `<p class="muted" style="margin:0"><small>${t("mntOne")}</small></p>` : `<div class="espf"><label>${t("espDe")}<input type="date" class="in" id="mntde" min="${td}"></label><label>${t("espAte")}<input type="date" class="in" id="mntate" min="${td}"></label></div>
+    ${L.length ? `<p class="muted" style="margin:0"><small>${t("mntOne")}</small></p>` : `<div class="espf"><label>${t("espDe")}<input type="date" class="in" id="mntde" min="${td}" max="${maxISO()}"></label><label>${t("espAte")}<input type="date" class="in" id="mntate" min="${td}" max="${maxISO()}"></label></div>
     <button type="button" class="btn" id="mntadd">${t("mntAdd")}</button>`}</div>`;
 }
 function bindMnt(){
@@ -4219,7 +4219,7 @@ function vAvHTML(){
       return `${h} ${brl(base)} → <b>${brl(cli)}</b>`; };
     list=`<p class="avseason">${t("vavSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k), p:String(pc).replace(".",",")})}${ferOf(S.vavD)&&k!=="reveillon"?" "+t("ferNote",{f:t("fer_"+ferOf(S.vavD))}):""} ${S.vend?.parceiro?"":`<button type="button" class="link" id="vpgo">${t("vavAdj")}</button>`}</p>
       <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b)} · ${val(r.b,1)}</small>`:""}</span></li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
-  return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
+  return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" max="${maxISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
 let vavSeq=0;
 function paintVav(){ const x=app.querySelector(".vav"); if(!x) return; x.outerHTML=vAvHTML(); bindVav(); }
