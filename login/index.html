@@ -4147,7 +4147,7 @@ function mainView(){
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
   /* abas sempre no topo; em Passeios vêm "Lancha livre em", o chat da equipe e o aviso do Asaas; depois a escolha da lancha (Rodrigo 2026-10-25) */
   app.innerHTML = `${tabsHTML()}`
-    + (S.tab==="lista" ? avHTML() + (isRO() ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`) : "") /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
+    + (S.tab==="lista" ? (av=>av + (isRO() || av ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`))(avHTML()) : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (Rodrigo 2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
     + fotoPendHTML() + installHTML() + pushHTML()
     + (S.tab==="lista" ? asAvisoHTML() : "")
     + (S.tab==="lancha" ? nbNewHTML() : "") /* "Cadastrar lancha nova" acima do seletor da lancha (Rodrigo 2026-10-25) */
