@@ -1122,7 +1122,7 @@ const IS_IOS_TAB = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.s
   }
   const slug = old ? old[1] : route.slug;
   const to = pathFor(l,slug);
-  if(to!==location.pathname || q || old){ route.lang=l; route.slug=slug; location.replace(to + (old?"":location.hash)); }
+  if(to!==location.pathname || q || old){ route.lang=l; route.slug=slug; const keep=new URLSearchParams(location.search); keep.delete("lang"); location.replace(to + (keep.toString()?"?"+keep:"") + (old?"":location.hash)); } /* mantém ?v=, ?data= e ?reserva= ao trocar o idioma */
 })();
 let lang = route.lang;
 /* "Baixar o app": quem está no site (não no app instalado) vê um aviso no celular e um link no rodapé */
@@ -1251,6 +1251,11 @@ document.addEventListener("click", e=>{ const b=e.target.closest("[data-cur]"); 
 const PRECOS_PUBLICOS = false;
 /* teste do Asaas (Rodrigo 2026-10-24): abrir o site com ?asaas=1 liga neste aparelho; ?asaas=0 desliga */
 const AS_TESTE = (()=>{ try{ const q=new URLSearchParams(location.search).get("asaas"); if(q==="1") localStorage.setItem("asaas-teste","1"); if(q==="0") localStorage.removeItem("asaas-teste"); return localStorage.getItem("asaas-teste")==="1"; }catch(e){ return false; } })();
+/* link de reserva que a Búzios Lanchas manda no WhatsApp (?reserva=1, Rodrigo 2026-10-25): a página da lancha abre com a reserva online
+   no lugar do botão do WhatsApp (o cliente já está conversando). Vale 3 dias neste aparelho, para sobreviver ao cadastro */
+const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(location.search);
+  if(q.get("reserva")==="1"){ localStorage.setItem("reserva-link",String(Date.now())); q.delete("reserva"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
+  return Date.now()-(+localStorage.getItem("reserva-link")||0) < 3*864e5; }catch(e){ return false; } })();
 let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
@@ -2174,7 +2179,7 @@ function boatPage(b){
         ${viaVend(b) ? `<a class="btn" id="book-btn" href="#" hidden></a>
         <div class="online vonly"><button type="button" class="btn" id="book-online">${t("bookReq")}</button>
           <p class="acct">${isClient() ? t("vendReqOn") : t("vendReqHow")}</p></div>${vendCard(b)}` /* veio pelo link do vendedor: sem o WhatsApp da Búzios, o pedido vai marcado com o vendedor */
-        : FOREIGN && !isTeam() ? `<a class="btn" id="book-btn" href="#" hidden></a>
+        : (FOREIGN || RLINK) && !isTeam() ? `<a class="btn" id="book-btn" href="#" hidden></a>
         <div class="online vonly"><button type="button" class="btn" id="book-online">${t("bookOnline")}</button>
           <p class="acct">${isClient() ? t("acctOn") : t("onlineHowF")}</p></div>` /* estrangeiro: só a reserva online; o WhatsApp fica no topo do site (Rodrigo 2026-10-23) */
         : `<a class="btn" id="book-btn" href="#" target="_blank" rel="noopener">${t("askAvail")}</a>
