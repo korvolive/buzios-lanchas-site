@@ -3,14 +3,14 @@
    em $GITHUB_OUTPUT. Sem resposta do banco, não publica (tenta de novo na próxima vez). */
 import fs from "node:fs";
 import crypto from "node:crypto";
+import { lanchasDB } from "./lanchas-db.mjs";
 
 const SOURCE = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const SITE = SOURCE.match(/const SITE = "([^"]+)"/)[1];
 const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOURCE.match(/const AGENDA_KEY = "([^"]+)"/)[1];
 
 let mudou = false;
-const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&dados->>exemplo=is.null&order=slug", { headers: { apikey: KEY } })
-  .then(r => (r.ok ? r.text() : null)).catch(() => null);
+const rows = await lanchasDB(DB, KEY);
 if (rows) {
   const h = crypto.createHash("sha256").update(rows).digest("hex");
   const pub = await fetch(`${SITE}/lanchas-db.json?t=${Date.now()}`, { headers: { "cache-control": "no-cache" } })

@@ -7,6 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { lanchasDB } from "./lanchas-db.mjs";
 import { chromium } from "playwright";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -51,6 +52,7 @@ async function snap(l, slug) {
   const html = "<!doctype html>\n" + (await page.evaluate(() => {
     /* lanchas do banco que ganharam página nesta publicação: o site só mostra estas (as novas entram na próxima) */
     document.documentElement.dataset.pub = BOATS.filter(b => b.db).map(b => b.slug).join(",");
+    document.documentElement.dataset.hide = [...HIDDEN].join(","); /* ocultas pelo administrador */
     document.querySelectorAll('script[src*="googletagmanager.com"],script[src*="connect.facebook.net"]').forEach(s => s.remove());
     return document.documentElement.outerHTML;
   }));
@@ -79,9 +81,8 @@ fs.writeFileSync(path.join(ROOT, "sitemap.xml"),
   pages.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${today}</lastmod>\n${alt(p.slug)}\n  </url>`).join("\n") +
   `\n</urlset>\n`);
 /* marca do que foi publicado: a cada 10 minutos o GitHub compara com o banco e publica de novo se mudou (scripts/db-mudou.mjs) */
-const rows = await fetch(DB + "/lanchas?select=slug,nome,dados,ativa&dados=not.is.null&dados->>exemplo=is.null&order=slug", { headers: { apikey: KEY } })
-  .then(r => (r.ok ? r.text() : null)).catch(() => null);
-const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
+const rows = await lanchasDB(DB, KEY);
+const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && !r.oculta && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
 const ok = rows && ativas === [...dbSlugs].sort().join();
 fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
 console.log(`${pages.length} páginas e sitemap.xml gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);
