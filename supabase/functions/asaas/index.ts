@@ -7,6 +7,7 @@
 // POST {acao:"conferir", p, k}                a página: confere no Asaas se já foi pago
 // POST {acao:"conta", ...dados} (login)      dono: cria a subconta Asaas dele (o Asaas manda o e-mail para ele ativar e mandar os documentos)
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
+// POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
 // POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site)
@@ -308,6 +309,17 @@ Deno.serve(async req => {
     if (b.acao === "minha") {
       const { data } = await db.from("asaas_contas").select("nome, cpf_cnpj, email, criado_em").eq("user_id", u.id).maybeSingle();
       return json({ conta: data || null, ativo: !!KEY() });
+    }
+
+    // administrador: lanchas cujos donos ainda não têm conta Asaas (a parte deles cai na Búzios e é repassada por fora)
+    if (b.acao === "faltam") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const { data: ds } = await db.from("donos").select("lancha, user_id");
+      const { data: cs } = await db.from("asaas_contas").select("user_id");
+      const tem = new Set((cs || []).map((c: any) => c.user_id)), com = new Set((ds || []).filter((d: any) => tem.has(d.user_id)).map((d: any) => d.lancha));
+      const sem = [...new Set((ds || []).map((d: any) => d.lancha))].filter(l => !com.has(l));
+      const { data: ls } = sem.length ? await db.from("lanchas").select("slug, nome").in("slug", sem) : { data: [] };
+      return json({ lanchas: sem.map(l => (ls || []).find((x: any) => x.slug === l)?.nome || l).sort() });
     }
 
     if (b.acao === "conta") {
