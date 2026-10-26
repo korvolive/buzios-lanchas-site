@@ -352,7 +352,8 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .pseason{border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px}
 .psh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.psh small{color:var(--muted);font-size:12.5px}
 .pg{display:grid;grid-template-columns:20px 72px 64px auto;justify-content:start;gap:5px 5px;align-items:center}
-.pg > b{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}.pg > b:last-of-type{text-align:right}.pg input[type=number]{min-height:0;height:34px;padding:4px;font-size:14px;border-radius:8px}
+.pg > b{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}.pg > b:last-of-type{text-align:right}
+.rvbr{margin-top:12px}.pg input[type=number]{min-height:0;height:34px;padding:4px;font-size:14px;border-radius:8px}
 .pg .pl{font-size:12px;font-weight:600;color:var(--muted)}
 .pg input{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:6px 5px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:center}
 .pg output{font-weight:700;font-size:14px;text-align:right;white-space:nowrap}
@@ -2049,7 +2050,7 @@ function pricesHTML(){
       <div class="pg"><span></span><b>${t("prNet")}</b><b>${t("prBl")} ${S.cur===SEM_TAXA?"0":TAXA_BUZIOS}%</b><b>${t("prTotal")}</b>
       ${[k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
       ${pc ? dsHTML(k, dsGet(S.prices.desc_semana)) : ""}</div>`).join("")}
-    ${pc ? ["reveillon","pico"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7))}</div>`).join("") : ""}</div>
+    ${pc ? ["reveillon","pico"].map(k=>`<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7)) + `<div class="pg rvbr" data-rvbr></div>`}</div>`).join("") : ""}</div>
     <button class="btn" id="prsave" hidden style="display:none">${t("pricesSave")}</button><p class="mnst" id="prst" aria-live="polite">${t("mnAuto")}</p>${espHTML()}`); /* salva sozinho, como o do dono (Rodrigo 2026-10-24) */
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
@@ -2103,7 +2104,11 @@ function ppPaint(e){
   const own=!!app.querySelector(".mnet"), box=own ? app.querySelector(".mnet") : app.querySelector("#prsave")?.closest(".card"); if(!box) return;
   const val = c => own ? +(box.querySelector(`[data-mn="${c}"]`)?.value) || 0 : +prTotVal(c) || 0;
   const pcOf = () => +(box.querySelector(own ? "[data-mpf]" : '[data-apc="pct_feriado"]')?.value) || 0;
-  const r = (v, p) => v>0 ? brl(Math.round(v*(1+p/100)/10)*10) : "—", h = (k, p) => `<span class="ppl">4h <b>${r(val(k),p)}</b></span>${val(k+"7")>0?`<span class="ppl">7h <b>${r(val(k+"7"),p)}</b></span>`:""}`;
+  const r = (v, p) => v>0 ? brl(Math.round(v*(1+p/100)/10)*10) : "—", r10 = (v, p) => Math.round(v*(1+p/100)/10)*10;
+  /* parte da Búzios no feriado e no Réveillon: total com o % menos o neto com o mesmo % (só o administrador vê; Rodrigo 2026-10-26) */
+  const bz = (c, p) => { const n=own ? 0 : prNetOf(c), v=val(c); return n>0 && v>0 ? r10(v,p) - r10(n,p) : null; };
+  const bzT = (c, p) => { const b=bz(c,p); return b==null ? "" : ` <small class="muted">· ${t("prBl")} ${brl(b)}</small>`; };
+  const h = (k, p) => `<span class="ppl">4h <b>${r(val(k),p)}</b>${bzT(k,p)}</span>${val(k+"7")>0?`<span class="ppl">7h <b>${r(val(k+"7"),p)}</b>${bzT(k+"7",p)}</span>`:""}`;
   box.querySelectorAll("[data-pp]").forEach(x=>{ const pp=x.dataset.pp, p=pcOf(pp);
     x.innerHTML = `${t("ppPf")}<br>${SEASON3.map(k=>`<span class="ppg"><b>${t("pr_"+k).split(" · ")[0]}</b>${h(k,p)}</span>`).join("")}`; });
   /* desconto: quem digitou o valor final muda o %; o resto mostra o valor que o % dá */
@@ -2112,6 +2117,9 @@ function ppPaint(e){
     x.disabled = P.disabled || !(b>0); x.value = b>0 ? Math.round(b*(1 + sg*(+P.value||0)/100)/10)*10 : ""; });
   box.querySelectorAll("[data-fp]").forEach(x=>{ const c=x.dataset.fp, b=val(c), p=+(box.querySelector(`[data-xp="ds:${c.replace("7","")}"]`)?.value)||0;
     x.textContent = b>0 ? brl(Math.round(b*(1-p/100)/10)*10) : "—"; });
+  const rb=box.querySelector("[data-rvbr]"); if(rb){ const pv=c=>+(box.querySelector(`[data-xp="rv:${c}"]`)?.value)||0;
+    rb.innerHTML = `<span></span><b>${t("prNet")}</b><b>${t("prBl")} ${S.cur===SEM_TAXA?"0":TAXA_BUZIOS}%</b><b>${t("prTotal")}</b>` + ["alta", ...(val("alta7")>0?["alta7"]:[])].map(c=>{ const p=pv(c), n=prNetOf(c);
+      return `<span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><output class="ptx">${n>0?brl(r10(n,p)):"—"}</output><output class="ptx">${bz(c,p)!=null?brl(bz(c,p)):"—"}</output><output>${r(val(c),p)}</output>`; }).join(""); }
 }
 /* desconto de segunda a quinta da época: um para o 4h e outro para o 7h; digita o % ou o valor final, um preenche o outro (Rodrigo 2026-10-22) */
 const pctTxt = n => String(Math.round((+n||0)*100)/100);
