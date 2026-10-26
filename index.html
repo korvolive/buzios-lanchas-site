@@ -332,6 +332,7 @@ html.is-app #hdr-login{display:none}
 .lead-dlg p{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.45}
 .lead-dlg label{display:block;margin:0 0 10px;font-size:13px;font-weight:600}
 .lead-dlg input,.lead-dlg select{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--ink) 22%,transparent);border-radius:10px;background:var(--surface);color:var(--ink);font:400 16px/1.2 var(--body)}
+.vlogos{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 14px}.vlogos[hidden]{display:none}.vlogos .vlb,.vlogos img{width:68px;height:68px;border-radius:50%;box-sizing:border-box;border:2px solid #c99a2e;flex:none}.vlogos .vlb{display:grid;place-items:center;background:#0b5c73}.vlogos .vlb svg{width:46px;height:46px}.vlogos img{display:block;object-fit:contain;background:#0b5c73}.vlogos .vlx{color:#c99a2e;font-weight:600;font-size:20px}
 .lead-dlg .lphone{display:flex;gap:6px}.lead-dlg .lphone select{width:auto;flex:0 0 auto}.lead-dlg .lphone input{flex:1;min-width:0}
 .lead-dlg .btn{width:100%;justify-content:center;margin-top:6px}
 .lead-dlg .lerr{color:#b3412c;font-size:13px;margin:4px 0 0;min-height:1em}
@@ -1721,6 +1722,9 @@ function equipeDlg(){
 }
 /* cadastro rápido de quem chega pelo link ou QR Code do vendedor (Rodrigo 2026-10-24): nome, WhatsApp e e-mail (opcional) ficam guardados
    com o vendedor. Se depois a pessoa criar conta com o mesmo WhatsApp ou e-mail, de qualquer aparelho, fica ligada a ele (o banco faz isso) */
+/* logo do parceiro na janelinha (Rodrigo 2026-10-26), no padrão do flyer: marca branca sem fundo dentro do círculo azul com borda dourada. Só quando o parceiro tem empresa e existe img/parceiros/<código>.png; sem o arquivo, a janelinha fica como antes */
+const parcLogo = c => "/img/parceiros/"+encodeURIComponent(String(c||"").toLowerCase())+".png?v=1";
+const BZ_MARK = `<svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M6 20h22l-4 5H10z" fill="#fff"/><path d="M14 19V9l7 10z" fill="#e0b54d"/></svg>`;
 function dropVend(){ VEND=null; try{ localStorage.removeItem("vend"); sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} applyStatic(); const y=scrollY; render(false); scrollTo(0,y); }
 function vendLeadDue(force){ if(!VEND || ME || isClient() || isTeam() || VEND_LIGADO) return false;
   try{ if(!force && sessionStorage.getItem("vend-lead-skip")) return false; }catch(e){} return true; }
@@ -1729,7 +1733,8 @@ function openVendLead(force){
   const dl=document.createElement("dialog"); dl.className="stop-dlg lead-dlg"; dl.setAttribute("aria-labelledby","vl-t"); document.body.appendChild(dl);
   const reg=detectReg(), sv=lsGet("consulta-dados")||{}, ddi=sv.ddi || (LEAD_DDI.find(x=>x[0]===reg)||LEAD_DDI[0])[1];
   const flag=r=>r.replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
-  dl.innerHTML=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button><h3 id="vl-t">${t("vlT")}</h3>
+  const plogo = VEND.parceiro && VEND.empresa ? `<div class="vlogos" hidden><span class="vlb" aria-label="Búzios Lanchas">${BZ_MARK}</span><span class="vlx">×</span><img alt="${esc(VEND.empresa)}" src="${parcLogo(VEND.codigo)}"></div>` : "";
+  dl.innerHTML=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button>${plogo}<h3 id="vl-t">${t("vlT")}</h3>
     <p>${VEND.parceiro?t("vlSubP",{n:esc(VEND.empresa||VEND.nome)}):t("vlSubV")}</p>
     <label>${t("leadName")}<input id="vl-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(sv.nome||"")}"></label>
     <label>${t("leadWa")}<span class="lphone"><select id="vl-c" aria-label="DDI">${LEAD_DDI.map(([r,c])=>`<option value="${c}"${c===ddi?" selected":""}>${flag(r)} +${c}</option>`).join("")}</select><input id="vl-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(sv.tel||"")}" placeholder="${ddi==="55"?"(22) 99999-9999":""}"></span></label>
@@ -1738,7 +1743,8 @@ function openVendLead(force){
     <button type="button" class="btn" id="vl-go">${t("vlCode")}</button>
     <p class="lrow"><button type="button" class="lacc" id="vl-no">${t("vlNo")}</button><a href="/login/?v=${encodeURIComponent(VEND.codigo)}">${t("accHave")}</a></p>
     <small>${t("vlPriv")}</small>`;
-  const $=id=>dl.querySelector("#"+id), err=$("vl-err");
+  const $=id=>dl.querySelector("#"+id), err=$("vl-err"), lg=dl.querySelector(".vlogos img");
+  if(lg){ lg.onload=()=>{ lg.parentNode.hidden=false; }; lg.onerror=()=>lg.parentNode.remove(); if(lg.complete && lg.naturalWidth) lg.parentNode.hidden=false; }
   const skip=()=>{ try{ sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} dl.close(); };
   dl.addEventListener("close",()=>dl.remove(),{once:true});
   $("vl-no").onclick=skip; dl.querySelector(".lx").onclick=skip; dl.onclick=e=>{ if(e.target===dl) skip(); };
