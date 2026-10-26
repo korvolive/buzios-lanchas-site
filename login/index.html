@@ -1504,7 +1504,7 @@ function reqCard(p, adm){
   const d=dateOf(p.data), c=p.clientes||{}, ph=splitPhone(c.whatsapp), wa=ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
   return `<div class="trip rq st-${p.status}${p.horario==="dia"?" full":""}">
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
-    <span class="tbody">${adm?`<strong class="who">${face(p.cliente,c.nome,"face sm")}${esc(c.nome||"—")}</strong>`:`<strong class="who">${avatar(p.lancha,"bav")}${esc(boatName(p.lancha))}</strong>`}
+    <span class="tbody">${adm?`<strong class="who" title="${esc(c.nome||"")}">${face(p.cliente,c.nome,"face sm")}${esc(shortName(c.nome)||"—")}</strong>`:`<strong class="who">${avatar(p.lancha,"bav")}${esc(boatName(p.lancha))}</strong>`}
       <span>${fmtLong(p.data)}${!adm && dateOf(p.data).getFullYear()!==new Date().getFullYear()?" "+dateOf(p.data).getFullYear():""} · ${t("slot_"+p.horario)}${p.horario==="noite"?"":" · "+t("hours_"+p.horario)}</span>
       <span class="tmeta">${!adm && p.status==="aprovado" && reqEnded(p) && S.revOk ? "" : `<i class="stb st-${p.status}">${t("st_"+p.status)}</i>`}${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${t("people").toLowerCase()}</i>${p.embarque&&adm?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>${p.embarque&&!adm&&!reqEnded(p)?mapLink(p.embarque):""}${!adm?cliResto(p):""}
       ${adm?`<span class="tmeta">${c.cpf?`<i>CPF ${esc(fmtCPF(c.cpf))}</i>`:""}<i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
@@ -3069,7 +3069,7 @@ function consHTML(){
     /* compacto (Rodrigo 2026-10-25): nome; dia da semana, horário, lancha e pessoas numa linha; o resto em etiquetas pequenas */
     return `<div class="trip rq csc st-pendente${c.horario==="dia"?" full":""}">
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
-    <span class="tbody"><strong class="who">${avatar(c.lancha,"bav")}${esc(c.nome)}</strong>
+    <span class="tbody"><strong class="who" title="${esc(c.nome)}">${avatar(c.lancha,"bav")}${esc(shortName(c.nome))}</strong>
       <span class="csl">${cap(d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".",""))} · ${t("slot_"+c.horario)}${c.horario==="noite"?"":" "+t("hours_"+c.horario)} · <b>${esc(boatName(c.lancha))}</b>${c.pessoas?` · ${c.pessoas} ${t("people").toLowerCase()}`:""}</span>
       <span class="tmeta"><i class="stb ${c.chamou?"st-aprovado":"st-pendente"}">${c.chamou?"✓ "+t("csCalled"):"⚠ "+t("csNoCall")}</i>${c.embarque?`<i>⚓ ${esc(c.embarque)}</i>`:""}${c.data<today?`<i>${t("csPast")}</i>`:""}<i>✉ ${esc(c.email)}</i><i>${t("csAt",{d:new Date(c.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</i></span>
       ${(k=>k.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(k.tot)}</b>${k.net?` · ${t("sinNet")} ${brl(k.net)}`:""}${k.com!=null?` · ${t("sinCom")} ${brl(k.com)}`:""}</small>`:"")(pedCalc(c))}
