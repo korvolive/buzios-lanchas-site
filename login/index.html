@@ -2031,7 +2031,7 @@ function pricesHTML(){
   if(S.prices==null || S.neto==null) return `<div class="card"><p class="muted" style="margin:0">…</p></div>`;
   if(S.neto===false) return oldPricesHTML();
   /* valor de cada período = valor neto (do dono) + comissão Búzios Lanchas (0% a 20% sobre o neto, em % ou R$). O total é o "valor neto" que o vendedor vê */
-  /* taxa da Búzios fixa de 6% sobre o neto (era 8% até 2026-10-25) (Rodrigo 2026-10-25): o administrador só digita o neto; o banco grava a mesma taxa */
+  /* taxa da Búzios fixa de 7% sobre o neto (6% em 25/10, 8% antes) (Rodrigo 2026-10-26): o administrador só digita o neto; o banco grava a mesma taxa */
   const cols = c => { const n=S.neto[c]?.neto;
     return `<span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><input type="number" inputmode="numeric" min="0" max="${VMAX}" step="50" data-nt="${c}" value="${n??""}" aria-label="${t("prNet")}">
       <output class="ptx" data-br="${c}">${prBrTxt(c)}</output><output data-tt="${c}">${prTot(c)}</output>`; };
@@ -2047,7 +2047,7 @@ function pricesHTML(){
     <button class="btn" id="prsave" hidden style="display:none">${t("pricesSave")}</button><p class="mnst" id="prst" aria-live="polite">${t("mnAuto")}</p>${espHTML()}`); /* salva sozinho, como o do dono (Rodrigo 2026-10-24) */
 }
 const prNetOf = c => { const x=app.querySelector(`[data-nt="${c}"]`); return x ? (x.value.trim()===""?null:+x.value) : S.neto?.[c]?.neto ?? null; };
-const TAXA_BUZIOS = 6, SEM_TAXA = "miss-bardot"; /* igual à função taxa_buzios do banco: 6% do neto (Rodrigo 2026-10-25, era 8%), de R$ 10 em R$ 10; a Miss Bardot é do Rodrigo */
+const TAXA_BUZIOS = 7, SEM_TAXA = "miss-bardot"; /* igual à função taxa_buzios do banco: 7% do neto (Rodrigo 2026-10-26, era 6%), de R$ 10 em R$ 10; a Miss Bardot é do Rodrigo */
 const taxaB = (l, n) => !(n>0) || l===SEM_TAXA ? 0 : Math.round(n*TAXA_BUZIOS/100/10)*10;
 const prBrOf = c => taxaB(S.cur, prNetOf(c));
 const prBrTxt = c => prNetOf(c)>0 ? brl(prBrOf(c)) : "—";
