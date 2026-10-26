@@ -10,6 +10,9 @@
 // POST { acao: "juntar_enviar", tel, lang } (logado, conta sem cadastro de cliente) -> { ok } manda o código para o WhatsApp de outra conta
 // POST { acao: "juntar", tel, codigo }   (logado) -> a sessão da conta do WhatsApp, agora com o e-mail desta (a conta vazia é apagada)
 //                                            | { erro: "tem_email", email } (a outra conta já tem um e-mail de verdade)
+// POST { acao: "lead_enviar", tel, lang } -> { ok } | { ok, ja } | { erro: "ja_tem" | "sem_lead" | ... }  quem entrou pelo link de vendedor/parceiro
+//                                            (o site já gravou o contato com criar_lead_vendedor) pede o código para liberar os valores
+// POST { acao: "lead", tel, codigo }       -> { ok } marca vendedor_leads.wa_ok_em (WhatsApp confirmado: o contato fica 12 meses)
 // Segredos: WA_TOKEN, WA_PHONE_ID, WA_ATIVO=1 (os mesmos da whatsapp-codigo).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -100,6 +103,21 @@ Deno.serve(async req => {
       if (para === "cadastro" && acc.length) return json({ erro: "ja_tem" });
       if (para === "senha" && !acc.some(a => a.cliente && a.wa_ok)) return json({ erro: "sem_conta" });
       return await mandaCodigo(t, para, b.lang);
+    }
+
+    // ----- link de vendedor/parceiro: confirmar o WhatsApp para ver os valores com desconto (Rodrigo 2026-10-26).
+    // O código só sai quando o próprio cliente pede (os limites de wa_reservar_tel valem aqui também).
+    if (b.acao === "lead_enviar" || b.acao === "lead") {
+      const { data: l } = await db.from("vendedor_leads").select("*").eq("telefone", t).eq("origem", "link").maybeSingle(); // sem confirmar, o contato some em 24 h (cron leads-24h)
+      if (!l) return json({ erro: "sem_lead" }, 400);
+      if (b.acao === "lead_enviar") {
+        if ((await contas(t)).some(a => a.cliente)) return json({ erro: "ja_tem" });
+        if (l.wa_ok_em) return json({ ok: true, ja: true });
+        return await mandaCodigo(t, "lead", b.lang);
+      }
+      const e = await confere(t, b.codigo, "lead"); if (e) return json({ erro: e }, e === "tentativas" ? 429 : 400);
+      await db.from("vendedor_leads").update({ wa_ok_em: new Date().toISOString() }).eq("id", l.id);
+      return json({ ok: true });
     }
 
     // ----- entrou pelo Google (ou outro e-mail) com o WhatsApp de uma conta que já existe: junta as duas (Rodrigo 2026-10-23)
