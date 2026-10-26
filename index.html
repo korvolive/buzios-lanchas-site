@@ -1757,7 +1757,7 @@ function openVendLead(force){
 }
 /* passo 2 da janelinha: o código no WhatsApp (só sai porque o cliente tocou em "Receber código"). Confirmado, libera os valores
    neste aparelho e o contato fica ligado ao vendedor/parceiro (vendedor_leads.wa_ok_em). Se o envio não estiver disponível, libera sem código */
-const waLead = body => fetch(SB_URL+"/functions/v1/cadastro-whatsapp",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({...body, lang})}).then(r=>r.json()).catch(()=>({erro:"rede"}));
+const waLead = body => fetch(SB_URL+"/functions/v1/cadastro-whatsapp",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({...body, lang, cod:VEND?.codigo||""})}).then(r=>r.json()).catch(()=>({erro:"rede"}));
 function vlLibera(dl){ try{ localStorage.setItem("vend-ok",VEND.codigo); }catch(e){} VEND_LIGADO = true;
   dl.innerHTML=`<h3>${t("vcOkT")}</h3><p>${t(VEND.parceiro?"vcOkP":"vcOkV")}</p><button type="button" class="btn" id="vl-x">${t("vlSee")}</button>`;
   dl.querySelector("#vl-x").onclick=()=>dl.close(); const y=scrollY; render(false); scrollTo(0,y); }

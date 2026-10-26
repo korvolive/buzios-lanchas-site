@@ -12,7 +12,7 @@
 //                                            | { erro: "tem_email", email } (a outra conta já tem um e-mail de verdade)
 // POST { acao: "lead_enviar", tel, lang } -> { ok } | { ok, ja } | { erro: "ja_tem" | "sem_lead" | ... }  quem entrou pelo link de vendedor/parceiro
 //                                            (o site já gravou o contato com criar_lead_vendedor) pede o código para liberar os valores
-// POST { acao: "lead", tel, codigo }       -> { ok } marca vendedor_leads.wa_ok_em (WhatsApp confirmado: o contato fica 12 meses)
+// POST { acao: "lead", tel, codigo, cod } -> { ok } marca vendedor_leads.wa_ok_em (WhatsApp confirmado: o contato fica 12 meses com o vendedor do código cod)
 // Segredos: WA_TOKEN, WA_PHONE_ID, WA_ATIVO=1 (os mesmos da whatsapp-codigo).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -116,7 +116,13 @@ Deno.serve(async req => {
         return await mandaCodigo(t, "lead", b.lang);
       }
       const e = await confere(t, b.codigo, "lead"); if (e) return json({ erro: e }, e === "tentativas" ? 429 : 400);
-      await db.from("vendedor_leads").update({ wa_ok_em: new Date().toISOString() }).eq("id", l.id);
+      const upd: Record<string, unknown> = { wa_ok_em: new Date().toISOString() };
+      // contato ainda sem confirmar: fica com o vendedor do link onde o cliente confirmou (Rodrigo 2026-10-26)
+      if (!l.wa_ok_em && b.cod) {
+        const { data: v } = await db.from("vendedores").select("user_id").eq("codigo", String(b.cod).trim().toUpperCase()).eq("ativo", true).maybeSingle();
+        if (v && v.user_id !== l.vendedor) upd.vendedor = v.user_id;
+      }
+      await db.from("vendedor_leads").update(upd).eq("id", l.id);
       return json({ ok: true });
     }
 
