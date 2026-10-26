@@ -19,6 +19,8 @@ Deno.serve(async req => {
     const { data: me } = await db.auth.getUser(token);
     const uid = me?.user?.id;
     if (!uid) return json({ erro: "login" }, 401);
+    // desligado (Rodrigo 2026-10-26: os valores já têm limites; não precisa avisar quando o dono muda)
+    if (uid) return json({ enviados: 0, desligado: true });
     const { lancha } = await req.json().catch(() => ({}));
     const desde = new Date(Date.now() - 10 * 60e3).toISOString();
     const { data: h } = await db.from("precos_hist").select("id").eq("lancha", lancha).eq("por", uid).gte("em", desde).limit(1).maybeSingle();

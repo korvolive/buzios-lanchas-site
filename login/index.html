@@ -4155,7 +4155,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="vendas" ? vendHTML() + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + foldCard("nosite",siteVisHTML()) + boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ + foldCard("hist",priceHistHTML()) + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="vendas" ? vendHTML() + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("mnta",mntAllHTML()) + foldCard("nosite",siteVisHTML()) + boatInfoHTML() + pricesHTML() /* períodos especiais ficam dentro de "Valores da lancha" (Rodrigo 2026-10-23) */ /* "Mudanças feitas pelo dono" saiu (Rodrigo 2026-10-26: os valores já têm limites) */ + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + foldCard("as",asContaHTML()) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (Rodrigo 2026-10-23) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   if(S.tab==="lancha") foldCards(app);
   bindMain();
@@ -4475,8 +4475,7 @@ function bindMainRest(){
     const off=S.mnOff ?? (S.mn.sem_feriados||[]), fixa=()=>{ app.querySelectorAll(".mnet input").forEach(x=>{ x.defaultValue=x.value; }); S.mnDirty=false; S.mnDraft=null; };
     try{ const r=await RPC("salvar_netos_v2",{l:lancha, v, off, pf:+app.querySelector("[data-mpf]").value, pr:rv.alta, pr7:rv.alta7, ds});
       fixa(); mnSt("mnSavedAuto","ok");
-      if(r?.mudou){ const k="aviso-preco-"+lancha, last=+(store.get(k)||0); /* a Búzios Lanchas recebe um aviso por rodada de mudanças (no máximo 1 a cada 30 min) */
-        if(Date.now()-last > 30*60*1000){ store.set(k, Date.now()); fnPost("aviso-preco",{lancha}); }
+      if(r?.mudou){ /* sem aviso à Búzios Lanchas quando o dono muda valores (Rodrigo 2026-10-26) */
         S.mn=await RPC("meus_netos",{l:lancha}).catch(()=>S.mn); }
       S.mn.sem_feriados=off; S.mnOff=null; ppPaint(); }
     catch(e){ mnSt("mnAuto"); toast(e.code==="P0001"?e.message:t("saveErr")); } };
