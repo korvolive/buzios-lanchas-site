@@ -2133,6 +2133,9 @@ const pairHTML = (kind, k, get, dis="", dr={}) => `<div class="dsb"><span class=
 const DS_PAIR = ["miss-bardot"];
 const dsHTML = (k, get, dis="", dr={}) => DS_PAIR.includes(S.cur) ? pairHTML("ds", k, get, dis, dr) : `<label class="mnd1"><span>${t("mnDs")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR.ds.max}" step="any" data-xp="ds:${k}" data-both="1" data-k="ds_${k}" value="${dr["ds_"+k] ?? pctTxt(get(k))}"${dis}><i>%</i></span></label>`;
 const dsGet = ds => c => ds?.[c] ?? ds?.[c.replace("7","")] ?? 0, rvGet = (pr, pr7) => c => c.endsWith("7") ? (pr7 ?? pr ?? 0) : (pr ?? 0);
+/* De/Até: escolheu o "De", o "Até" não fica antes dele e, se estava vazio ou antes, vai para o dia seguinte (Rodrigo 2026-10-26: vale para todo De/Até do app) */
+document.addEventListener("change", e => { const x=e.target, a=x.dataset?.ate && document.getElementById(x.dataset.ate); if(!a || !x.value) return;
+  a.min = x.value; if(!a.value || a.value<=x.value){ const d=new Date(x.value+"T12:00:00"); d.setDate(d.getDate()+1); let v=iso(d); if(a.max && v>a.max) v=a.max; a.value=v; a.__dpb?.classList.remove("miss"); } }, true);
 /* % nunca abaixo de 0 nem acima do máximo do campo (Rodrigo 2026-10-23): confere enquanto digita */
 document.addEventListener("input", e => { const x=e.target; if(!x.matches?.('input[type="number"][data-xp],input[type="number"][data-mpf],input[type="number"][data-apc],input[type="number"][data-bp]') || x.value.trim()==="") return;
   const n=+x.value, mx=+x.max; /* passou do máximo: avisa e volta para o que estava (Rodrigo 2026-10-26) */
@@ -2195,7 +2198,7 @@ function mntHTML(){
   const L=mntList(), td=todayISO();
   return `<div class="card espc mntc"><h2>${t("mntT")}</h2><p class="muted" style="margin-top:0">${t("mntSub")}</p>
     ${L.length ? `<ul class="espl">${L.map(m=>`<li><span><b>${dBR(m.de)}${m.ate!==m.de?" – "+dBR(m.ate):""}</b><small${m.de<=td?' class="now"':""}>${t(m.de<=td?"mntNow":"mntNext")}</small></span><span class="espb"><button type="button" class="link danger" data-mntdel="${m.id}" data-mntp="${dBR(m.de)}${m.ate!==m.de?" – "+dBR(m.ate):""}">${t("mntDel")}</button></span></li>`).join("")}</ul>` : ""}
-    ${L.length ? `<p class="muted" style="margin:0"><small>${t("mntOne")}</small></p>` : `<div class="espf"><label>${t("espDe")}<input type="date" class="in" id="mntde" min="${td}" max="${maxISO()}"></label><label>${t("espAte")}<input type="date" class="in" id="mntate" min="${td}" max="${maxISO()}"></label></div>
+    ${L.length ? `<p class="muted" style="margin:0"><small>${t("mntOne")}</small></p>` : `<div class="espf"><label>${t("espDe")}<input type="date" class="in" id="mntde" data-ate="mntate" min="${td}" max="${maxISO()}"></label><label>${t("espAte")}<input type="date" class="in" id="mntate" min="${td}" max="${maxISO()}"></label></div>
     <button type="button" class="btn" id="mntadd">${t("mntAdd")}</button>`}</div>`;
 }
 function bindMnt(){
@@ -2224,7 +2227,7 @@ const espGroups = () => { const m=new Map(); for(const e of espList()){ const k=
 function espHTML(){
   if(!S.admin || !ESP_BOATS.includes(S.cur) || !S.prices || !("especiais" in S.prices)) return "";
   const G=espGroups(), d=x=>x.split("-").reverse().join("/"), E=S.espEdit ? G.find(e=>e.k===S.espEdit) : null, v=x=>x==null?"":esc(String(x)), rs=E?.rs||[], nr=Math.max(1,rs.length);
-  const row=i=>{ const r=rs[i]; return `<div class="esprow" data-er="${i}"${i<nr?"":" hidden"}><label>${t("espDe")}<input type="date" class="in" id="espde${i}" min="${r && r.de<todayISO() ? r.de : todayISO()}" value="${v(r?.de)}"></label><label>${t("espAte")}<input type="date" class="in" id="espate${i}" min="${todayISO()}" value="${v(r?.ate)}"></label>${i?`<button type="button" class="espx" data-erx="${i}" aria-label="${t("espRmDate")}">✕</button>`:""}</div>`; };
+  const row=i=>{ const r=rs[i]; return `<div class="esprow" data-er="${i}"${i<nr?"":" hidden"}><label>${t("espDe")}<input type="date" class="in" id="espde${i}" data-ate="espate${i}" min="${r && r.de<todayISO() ? r.de : todayISO()}" value="${v(r?.de)}"></label><label>${t("espAte")}<input type="date" class="in" id="espate${i}" min="${todayISO()}" value="${v(r?.ate)}"></label>${i?`<button type="button" class="espx" data-erx="${i}" aria-label="${t("espRmDate")}">✕</button>`:""}</div>`; };
   return `<div class="espc espin"><h2>⭐ ${t("espT")}</h2><p class="muted" style="margin-top:0">${t("espSub")}</p>
     ${G.length ? `<ul class="espl">${G.map(e=>`<li><span><b>${esc(e.nome||t("espTag"))}</b>${e.rs.map(r=>`<small>${d(r.de)}${r.ate!==r.de?" – "+d(r.ate):""}</small>`).join("")}<small>${e.v4>0?"4h "+brl(e.v4):""}${e.v4>0&&e.v7>0?" · ":""}${e.v7>0?"7h "+brl(e.v7):""}</small></span><span class="espb"><button type="button" class="link" data-espedit="${esc(e.k)}">${t("espEdit")}</button><button type="button" class="link" data-espdel="${esc(e.k)}">${t("espDel")}</button></span></li>`).join("")}</ul>` : `<p class="muted">${t("espNone")}</p>`}
     ${S.espOpen || S.espEdit || !G.length ? `<div class="espf"><label class="espn">${t("espNome")}<input type="text" class="in" id="espnome" maxlength="40" placeholder="${t("espNomePh")}" value="${v(E?.nome)}"></label>${[...Array(ESP_MAX).keys()].map(row).join("")}<button type="button" class="link espmore" id="espmore"${nr<ESP_MAX?"":" hidden"}>${t("espMoreDate")}</button>
