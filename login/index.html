@@ -799,7 +799,7 @@ Object.assign(T.pt, {tabUsers:"Usuários", usersQ:"Buscar por nome, e-mail ou Wh
   role_admin:"Administrador", role_dono:"Dono", role_fixo:"Marinheiro fixo", role_free:"Marinheiro freelancer", role_func:"Funcionário", role_cli:"Cliente", role_sem:"Cliente sem cadastro completo", role_semLong:"Virou cliente, mas ainda não completou o cadastro (CPF e dados). Quando entrar no app, ele vai pedir o que falta.",
   userSince:"Conta desde {d}", userLast:"último acesso {d}", userPhoto:"Trocar foto", userPhotoRmQ:"Remover a foto de {name}?",
   userRoles:"O que essa pessoa é", userWhat:"Tipo de acesso", userGive:"Dar acesso", userData:"Dados", userPw:"Senha nova",
-  userRoleRmQ:"Tirar o acesso de {role} de {name}?", userNeedName:"Primeiro salve o nome completo dessa pessoa.", userSaved:"Acesso dado!",
+  userRoleRmQ:"Tirar o acesso de {role} de {name}?", userNeedName:"Primeiro salve o nome completo dessa pessoa.", userSaved:"Acesso dado!", parcEmpOk:"Empresa salva!", parcChOk:"Alteração salva!",
   userPhoneBad:"Esse WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", userPwSaved:"Dados e senha nova salvos.",
   waUserPw:"Olá, {name}! Sua senha da Búzios Lanchas foi trocada.\nEndereço: {url}\nE-mail: {email}\nSenha nova: {pw}",
   userDel:"Apagar a conta", userDelQ:"Apagar a conta de {name}?\n\nO login e todos os acessos somem. Os passeios da agenda continuam, mas os pedidos e avaliações feitos por essa conta são apagados. Não dá para desfazer.", userDeleted:"Conta apagada.",
@@ -813,7 +813,7 @@ Object.assign(T.en, {tabUsers:"Users", usersQ:"Search by name, email or WhatsApp
   role_admin:"Administrator", role_dono:"Owner", role_fixo:"Fixed skipper", role_free:"Freelance skipper", role_func:"Staff", role_cli:"Client", role_sem:"Client, signup incomplete", role_semLong:"Now a client, but hasn't finished signing up (CPF and details). The app will ask for what's missing on next sign-in.",
   userSince:"Account since {d}", userLast:"last seen {d}", userPhoto:"Change photo", userPhotoRmQ:"Remove {name}'s photo?",
   userRoles:"What this person is", userWhat:"Access type", userGive:"Give access", userData:"Details", userPw:"New password",
-  userRoleRmQ:"Remove {role} access from {name}?", userNeedName:"First save this person's full name.", userSaved:"Access given!",
+  userRoleRmQ:"Remove {role} access from {name}?", userNeedName:"First save this person's full name.", userSaved:"Access given!", parcEmpOk:"Company saved!", parcChOk:"Change saved!",
   userPhoneBad:"That WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", userPwSaved:"Details and new password saved.",
   waUserPw:"Hi {name}! Your Búzios Lanchas password was changed.\nAddress: {url}\nEmail: {email}\nNew password: {pw}",
   userDel:"Delete account", userDelQ:"Delete {name}'s account?\n\nThe login and all access are removed. Calendar tours stay, but requests and reviews made by this account are deleted. This can't be undone.", userDeleted:"Account deleted.",
@@ -855,7 +855,7 @@ Object.assign(T.es, {tabUsers:"Usuarios", usersQ:"Buscar por nombre, correo o Wh
   role_admin:"Administrador", role_dono:"Dueño", role_fixo:"Marinero fijo", role_free:"Marinero freelancer", role_func:"Empleado", role_cli:"Cliente", role_sem:"Cliente sin registro completo", role_semLong:"Ahora es cliente, pero todavía no completó el registro (CPF y datos). Al entrar en la app, se le pedirá lo que falta.",
   userSince:"Cuenta desde {d}", userLast:"último acceso {d}", userPhoto:"Cambiar foto", userPhotoRmQ:"¿Quitar la foto de {name}?",
   userRoles:"Qué es esta persona", userWhat:"Tipo de acceso", userGive:"Dar acceso", userData:"Datos", userPw:"Contraseña nueva",
-  userRoleRmQ:"¿Quitar el acceso de {role} a {name}?", userNeedName:"Primero guarda el nombre completo de esta persona.", userSaved:"¡Acceso dado!",
+  userRoleRmQ:"¿Quitar el acceso de {role} a {name}?", userNeedName:"Primero guarda el nombre completo de esta persona.", userSaved:"¡Acceso dado!", parcEmpOk:"¡Empresa guardada!", parcChOk:"¡Cambio guardado!",
   userPhoneBad:"Ese WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", userPwSaved:"Datos y contraseña nueva guardados.",
   waUserPw:"¡Hola, {name}! Tu contraseña de Búzios Lanchas fue cambiada.\nDirección: {url}\nCorreo: {email}\nContraseña nueva: {pw}",
   userDel:"Borrar la cuenta", userDelQ:"¿Borrar la cuenta de {name}?\n\nEl acceso y todos los permisos desaparecen. Los paseos de la agenda siguen, pero los pedidos y evaluaciones de esta cuenta se borran. No se puede deshacer.", userDeleted:"Cuenta borrada.",
@@ -866,7 +866,7 @@ const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(
   set(k,v){ try{ v==null ? localStorage.removeItem(k) : localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
 let lang = store.get("dono-lang") || (/^en/i.test(navigator.language) ? "en" : /^es/i.test(navigator.language) ? "es" : "pt");
 if(!LANGS.includes(lang)) lang="pt";
-const t = (k,v={}) => (T[lang][k] ?? T.pt[k]).replace(/\{(\w+)\}/g,(m,x)=>v[x] ?? m);
+const t = (k,v={}) => String(T[lang][k] ?? T.pt[k] ?? "").replace(/\{(\w+)\}/g,(m,x)=>v[x] ?? m);
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 /* e-mail com domínio digitado errado (gamail.com, hotmal.com, gmail.con...): sugere o certo */
 const MAIL_OK = ["gmail.com","hotmail.com","hotmail.com.br","outlook.com","outlook.com.br","live.com","msn.com","yahoo.com","yahoo.com.br","ymail.com","icloud.com","me.com","mac.com","uol.com.br","uol.com","bol.com.br","terra.com.br","ig.com.br","globo.com","globomail.com","aol.com","gmx.com","mail.com","proton.me","protonmail.com","zoho.com"];
@@ -3973,9 +3973,9 @@ function openUser(uid, msg=""){
     else mb.innerHTML=`<button type="button" class="btn sec" id="umod" style="margin:0 0 10px">${t("eqMakeMod")}</button>`;
     document.getElementById("umod").onclick=async()=>{ if(on && !confirm(t("eqUnMod")+"?")) return; busy(true); try{ await RPC("definir_moderador",{uid, sim:!on}); toast(t(on?"eqModOff":"eqModOn")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } }; }, ()=>{});
   const ue=document.getElementById("uemp"); if(ue) ue.onsubmit=async e=>{ e.preventDefault(); const nome=document.getElementById("uempn").value.trim(); busy(true);
-    try{ await RPC("definir_empresa",{uid, nome}); S.parcEmp={...(S.parcEmp||{}), [uid]:nome}; toast(t("userSaved")); await afterUser(uid); }catch(e){ busy(false); toast(e.status===404?t("parcSql"):errMsg(e)); } };
+    try{ await RPC("definir_empresa",{uid, nome}); S.parcEmp={...(S.parcEmp||{}), [uid]:nome}; toast(t("parcEmpOk")); await afterUser(uid); }catch(e){ busy(false); toast(e.status===404?t("parcSql"):errMsg(e)); } };
   const up=document.getElementById("uparc"); if(up) up.onclick = async () => { const sim=!!up.dataset.sim; if(!confirm(t(sim?"parcQ":"parcVendQ"))) return; busy(true);
-    try{ await RPC("definir_parceiro",{uid, sim}); toast(t("userSaved")); await loadVendIds(); await afterUser(uid); }catch(e){ busy(false); toast(e.status===404?t("parcSql"):errMsg(e)); } };
+    try{ await RPC("definir_parceiro",{uid, sim}); toast(t("parcChOk")); await loadVendIds(); await afterUser(uid); }catch(e){ busy(false); toast(e.status===404?t("parcSql"):errMsg(e)); } };
   const uv=document.getElementById("uvend"); if(uv) uv.onclick = async () => { busy(true);
     try{ await RPC("cadastrar_vendedor",{uid, teto:10}); toast(t("userSaved")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } };
   const ua=document.getElementById("uadd");
@@ -4357,7 +4357,7 @@ function bindMainRest(){
   app.querySelectorAll("[data-svs]").forEach(x=>x.onclick=async()=>{ const id=+x.dataset.svs, el=app.querySelector(`[data-sv="${id}"]`), v=el.value===""?null:+String(el.value).replace(",",".");
     try{ await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{sinal_valor:v,atualizado_em:new Date().toISOString()}}); const p=S.reqs.find(p=>p.id===id); if(p){ p.sinal_valor=v; saveRep(p); } asFn({acao:"cancelar", pid:id}).catch(()=>{}); /* cobrança com o sinal antigo não vale mais */ toast(t("cpValOk")); if(p && v>0 && (S.ppPay||{})[p.id] && !(S.ppPay[p.id].pago_em)){ /* a central (Pix ou PayPal) passa a cobrar o sinal novo (revisão 2026-10-25) */
       try{ if(ppPix(p)) await ppLink(p, v, "BRL"); else { const c=cobCur(ppCC(p)), R=await fxRates(); await ppLink(p, niceUp(v*R[c.toLowerCase()]*FX_MARKUP), c); } }catch(e){ toast(t(e.message==="pago" ? "ppLocked" : "cobPpGenErr")); }
-      mainView(); } }catch(e){ toast(t("saveErr")); } });
+      } mainView(); }catch(e){ toast(t("saveErr")); } });
   app.querySelectorAll("[data-del]").forEach(x=>x.onclick=async()=>{ const p=S.reqs.find(p=>p.id===+x.dataset.del);
     if(!confirm(t("delReqQ",{name:p?.clientes?.nome||""}))) return;
     try{ await asFn({acao:"cancelar", pid:+x.dataset.del}).catch(()=>{}); await RPC("excluir_pedido",{pid:+x.dataset.del}); S.reqs=S.reqs.filter(q=>q.id!==+x.dataset.del); toast(t("delReqOk")); mainView(); }catch(e){ toast(e.code==="P0001" && /agenda/.test(e.message) ? t("delReqLive") : e.status===404 ? t("needSqlDel") : t("saveErr")); } });
@@ -4403,7 +4403,7 @@ function bindMainRest(){
   const PRF="[data-nt],[data-pr]", prKey="dono-prdraft:"+S.cur, prCard=prs?.closest(".card");
   const prDraft = () => { const d={}; prCard.querySelectorAll(PRF).forEach(x=>{ d[Object.keys(x.dataset)[0]+":"+Object.values(x.dataset)[0]]=x.value; }); return d; };
   if(prCard){ const d=store.get(prKey);
-    if(d){ prCard.querySelectorAll(PRF).forEach(x=>{ const k=Object.keys(x.dataset)[0]+":"+Object.values(x.dataset)[0]; if(k in d) x.value=d[k]; });
+    if(d){ prCard.querySelectorAll(PRF).forEach(x=>{ const k=Object.keys(x.dataset)[0]+":"+Object.values(x.dataset)[0]; if(k in d) x.value=x.defaultValue=d[k]; });
       prs.insertAdjacentHTML("beforebegin", `<p class="msg" id="prdn" style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 0">${t("prDraft")}<button type="button" class="link" id="prdx">${t("prDraftX")}</button></p>`);
       document.getElementById("prdx").onclick=()=>{ store.set(prKey,null); mainView(); }; }
     prCard.addEventListener("input", e=>{ if(e.target.matches(PRF)) store.set(prKey, prDraft()); }); }
@@ -4992,7 +4992,7 @@ function renderTrip(){
     tel.oninput=()=>{ if(ddi.value==="55"){ const end=tel.selectionStart===tel.value.length; tel.value=fmtBR(tel.value); if(end) tel.selectionStart=tel.selectionEnd=tel.value.length; } }; }
   /* cliente de vendedor/parceiro (Rodrigo 2026-10-26): no passeio lançado na mão, mostra de quem é e o valor do site (tabela + % dele);
      o valor da tabela fica em passeio_preco_base e o pedido ligado à conta do cliente leva a comissão, igual a um pedido do site */
-  const vdc=document.getElementById("vdc"); S.vdcBase=null;
+  const vdc=document.getElementById("vdc"); S.vdcBase=null; S.vdcChk=null;
   if(vdc && tel){ let tmr=0, seq=0;
     const chk=async()=>{ const my=++seq, d=(ddi?.value||"55")+(tel.value||"").replace(/\D/g,""); S.vdcBase=null; if(d.length<10){ vdc.hidden=true; return; }
       const v=(await RPC("vendedor_do_cliente",{tel:d}).catch(()=>[]))?.[0]; if(my!==seq) return; if(!v){ vdc.hidden=true; return; }
@@ -5002,6 +5002,7 @@ function renderTrip(){
       S.vdcBase = base || null;
       vdc.innerHTML = `💼 ${t(v.parceiro?"vdcP":"vdcV",{n:esc(v.parceiro?(v.empresa||v.nome):v.nome)})}<br><small>${cli ? t("vdcVal",{v:brl(cli),c:brl(cli-base)}) : t("vdcNoVal")}</small>${cli?` <button type="button" class="link" id="vdcuse">${t("vdcUse")}</button>`:""}`;
       vdc.hidden=false; const u=document.getElementById("vdcuse"); if(u) u.onclick=()=>{ const vi=document.getElementById("n-valor"); if(vi){ vi.value=cli; vi.dispatchEvent(new Event("input",{bubbles:true})); } }; };
+    S.vdcChk=()=>{ clearTimeout(tmr); return chk(); };
     const later=()=>{ clearTimeout(tmr); tmr=setTimeout(chk,600); };
     tel.addEventListener("input", later); ddi?.addEventListener("change", later);
     document.getElementById("nform")?.addEventListener("change", later); document.getElementById("nslots")?.addEventListener("click", ()=>setTimeout(later,0));
@@ -5114,6 +5115,7 @@ function renderTrip(){
       }
       if(pedidoFor) nota.cliente_conta = pedidoFor.cliente; else if(n.cliente_conta) nota.cliente_conta = n.cliente_conta; /* não perde o vínculo ao editar */
       if(S.notes && (hasNote || row.nota)) await db("anotacoes",{method:"POST", body:{bloqueio_id:row.id, ...nota}, prefer:"resolution=merge-duplicates,return=minimal"});
+      if(S.admin && tripNew && S.vdcChk) await S.vdcChk().catch(()=>{});
       if(S.admin && tripNew && S.vdcBase) await db("passeio_preco_base",{method:"POST", body:{bloqueio_id:row.id, preco_base:S.vdcBase}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{}); /* comissão do vendedor/parceiro (antes do convite, que cria o pedido) */
       if(consultaFor){ const cid=consultaFor.id; await RPC("apagar_consulta",{cid}).catch(()=>{}); S.cons=(S.cons||[]).filter(x=>x.id!==cid); S.reqCount=Math.max(0,(S.reqCount||1)-1); } /* aprovada: virou passeio, a consulta sai da lista */
       /* marinheiro escolhido (ou trocado) num passeio fechado: avisa ele no celular e por e-mail */
