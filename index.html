@@ -1455,6 +1455,7 @@ const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","
    Se o banco não responder, a seção simplesmente não aparece. */
 const siteRevs = new Map(), revsOk = new Map();
 /* nota dos clientes para o Google (aggregateRating + review no Product), só com avaliações feitas no app */
+var prodLD = null; /* var: seo() pode rodar antes desta linha */
 const ratingLD = b => { const r = revsOk.get(b.slug); if(!r?.nota?.total) return {};
   return {"aggregateRating":{"@type":"AggregateRating","ratingValue":Number(r.nota.media),"reviewCount":Number(r.nota.total),"bestRating":5,"worstRating":1},
     ...(r.list.length?{"review":r.list.slice(0,5).map(v=>({"@type":"Review","reviewRating":{"@type":"Rating","ratingValue":v.nota,"bestRating":5,"worstRating":1},"author":{"@type":"Person","name":v.nome||"Cliente"},"datePublished":v.data,...(v.comentario?{"reviewBody":v.comentario}:{})}))}:{})}; };
@@ -1465,7 +1466,7 @@ function loadSiteRevs(b){
   siteRevs.set(b.slug, p);
   p.then(r=>{ const box=document.getElementById("site-revs"); if(!r || route.slug!==b.slug || !r.nota?.total) return;
     revsOk.set(b.slug, r);
-    try { const ld=document.getElementById("ld-json"), j=JSON.parse(ld.textContent), pr=j["@graph"].find(x=>x["@type"]==="Product"&&x.name===b.name); if(pr){ Object.assign(pr, ratingLD(b)); ld.textContent=JSON.stringify(j); } } catch(e){}
+    try { const ld=document.getElementById("ld-json"), j=JSON.parse(ld.textContent), pr=j["@graph"].find(x=>x["@type"]==="Product"&&x.name===b.name); if(pr) Object.assign(pr, ratingLD(b)); else if(prodLD?.name===b.name) j["@graph"].push({...prodLD, ...ratingLD(b)}); ld.textContent=JSON.stringify(j); } catch(e){}
     if(!box) return; /* lancha sem o bloco na página (siteRevs:false): só a nota no JSON-LD */
     const st = k => "★".repeat(k)+"☆".repeat(5-k), media = String(r.nota.media).replace(".", lang==="en"?".":",");
     box.innerHTML = `<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">${st(Math.round(r.nota.media))}</span>${t(r.nota.total===1?"siteRevSub1":"siteRevSub",{m:media, n:r.nota.total})}</p>
@@ -2066,9 +2067,11 @@ function seo(b){
   if(!b) graph.push({"@type":"FAQPage","mainEntity":UI[lang].faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))});
   if(b){
     const ps = Object.values(b.prices||{}).filter(Number.isFinite);
-    graph.push({"@type":"Product","name":b.name,"description":bt(b,"description"),"url":url,
-      "image":(b.photos||[]).map(p=>absImg(p)),"brand":{"@id":SITE+"/#empresa"},...ratingLD(b),
-      ...(ps.length&&!b.example&&PRECOS_PUBLICOS?{"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":Math.min(...ps),"highPrice":Math.max(...ps),"offerCount":ps.length,"seller":{"@id":SITE+"/#empresa"}}}:{})});
+    /* Google exige offers, review ou aggregateRating no Product (Search Console 2026-10-26): sem preço público e sem avaliação, a lancha fica sem Product */
+    prodLD = {"@type":"Product","name":b.name,"description":bt(b,"description"),"url":url,"image":(b.photos||[]).map(p=>absImg(p)),"brand":{"@id":SITE+"/#empresa"}};
+    const pr = {...prodLD, ...ratingLD(b),
+      ...(ps.length&&!b.example&&PRECOS_PUBLICOS?{"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":Math.min(...ps),"highPrice":Math.max(...ps),"offerCount":ps.length,"seller":{"@id":SITE+"/#empresa"}}}:{})};
+    if(pr.aggregateRating || pr.offers) graph.push(pr);
     graph.push({"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"Búzios Lanchas","item":SITE+pathFor(lang)},
       {"@type":"ListItem","position":2,"name":b.name,"item":url}]});
