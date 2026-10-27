@@ -1315,7 +1315,7 @@ async function loadMyReq(){
   if(vs?.n && vs.cod && !(vs.t && Date.now()-vs.t>864e5)) /* só até 24 h depois de abrir o link: depois disso o cliente desistiu e o vendedor não ganha (Rodrigo 2026-10-25) */ await db("rpc/vincular_vendedor",{method:"POST",body:{cod:vs.cod, novo:true}}).then(k=>{ try{ localStorage.setItem("vend",JSON.stringify(typeof k==="string"&&k ? {cod:k, t:vs.t} : {})); }catch(e){} }).catch(()=>0); /* veio pelo convite do vendedor */ /* passeios que a Búzios Lanchas colocou para este e-mail */
   const sel="id,lancha,data,horario,pessoas,embarque,status,criado_em,bloqueio_id,vendedor,motivo";
   S.myReq = await db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em${S.ppCol===false?"":",paypal_link,paypal_valor,preco_base,preco_cliente,cupom_valor"}&order=data.desc&limit=100`).then(r=>(S.cpOk=true,r)).catch(()=>db(`pedidos?select=${sel},sinal_valor,sinal_liberado_em,comprovante,comprovante_em&order=data.desc&limit=100`).then(r=>(S.cpOk=true,S.ppCol=false,r))).catch(()=>(S.cpOk=false, db(`pedidos?select=${sel}&order=data.desc&limit=100`))).catch(()=>[]);
-  S.myReq.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; });
+  S.myReq.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); await pedHrs(S.myReq);
   S.ppPay = Object.fromEntries((await db("pagamentos_pp?select=pedido,moeda,valor,pago_em,pago_valor").catch(()=>[])).map(x=>[x.pedido,x]));
   /* lanchas com cupom do dono e o valor (v2); sem o v2 ainda, só quais lanchas têm */
   const cdP=db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(a=>a.map(x=>[x.lancha,x.valor]), e=>e.status===404 ? db("rpc/lanchas_cupom_dono",{method:"POST",body:{}}).then(a=>a.map(x=>[typeof x==="string"?x:x.lanchas_cupom_dono,0])) : Promise.reject(e))
@@ -1430,7 +1430,7 @@ function payBox(p){
 function pedCalc(p){
   const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=p.horario==="dia", nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
   /* preço vem da tabela; o que o site mandou só vale se bater com ela (revisão de segurança 2026-10-24: dá para mexer no navegador) */
-  const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && +p.preco_base && Math.abs(+p.preco_base-tab) > 1); /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
+  const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && +p.preco_base && !p.oferta && Math.abs(+p.preco_base-tab) > 1); /* valor combinado no link (ofertas): o banco já conferiu */ /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
   const net=valorNaData(nm,p.data,h7,{...o, esp:null}); /* o neto do dono não muda no período especial */
   /* comissão da Búzios desta reserva mudada no Editar (0 a 10%, Rodrigo 2026-10-26): total = neto + comissão (+ % do vendedor) */
   const ov = p.comissao_pct!=null && p.comissao_pct!=="" && net ? Math.round(net*(+p.comissao_pct)/100) : null; /* % com casas: guarda também um valor exato em R$ */
@@ -1559,7 +1559,7 @@ function reqCard(p, adm){
   return `<div class="trip rq st-${p.status}${p.horario==="dia"?" full":""}">
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
     <span class="tbody">${adm?`<strong class="who" title="${esc(c.nome||"")}">${face(p.cliente,c.nome,"face sm")}${esc(shortName(c.nome)||"—")}</strong>`:`<strong class="who">${avatar(p.lancha,"bav")}${esc(boatName(p.lancha))}</strong>`}
-      <span>${fmtLong(p.data)}${!adm && dateOf(p.data).getFullYear()!==new Date().getFullYear()?" "+dateOf(p.data).getFullYear():""} · ${adm && p.horario!=="noite" ? t("hours_"+p.horario) : t("slot_"+p.horario)+(p.horario==="noite"?"":" · "+t("hours_"+p.horario))}</span>
+      <span>${fmtLong(p.data)}${!adm && dateOf(p.data).getFullYear()!==new Date().getFullYear()?" "+dateOf(p.data).getFullYear():""} · ${p.hora_ini ? slotHours(p.horario,p) : adm && p.horario!=="noite" ? t("hours_"+p.horario) : t("slot_"+p.horario)+(p.horario==="noite"?"":" · "+t("hours_"+p.horario))}</span>
       <span class="tmeta">${!adm && p.status==="aprovado" && reqEnded(p) && S.revOk ? "" : `<i class="stb st-${p.status}">${t("st_"+p.status)}</i>`}${adm?`<i>${esc(boatName(p.lancha))}</i>`:""}<i>${p.pessoas} ${adm?"pax":t("people").toLowerCase()}</i>${p.embarque&&adm?`<i>⚓ ${esc(p.embarque)}</i>`:""}</span>${p.embarque&&!adm&&!reqEnded(p)?mapLink(p.embarque):""}${!adm?cliResto(p):""}
       ${adm?`<span class="tmeta">${c.cpf?`<i>CPF ${esc(fmtCPF(c.cpf))}</i>`:""}<i>${t("reqAt",{d:new Date(p.criado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</i></span>`:""}
       ${adm && p.vendedor ? vendLine(p) : ""}
@@ -2508,26 +2508,38 @@ Object.assign(T.en, {rcCard:"collect {v} at boarding", rcT:"Amounts to collect a
 Object.assign(T.es, {rcCard:"cobrar {v} al embarcar", rcT:"Valores a cobrar al embarcar", rcTotal:"Valor total", rcGot:"Seña recibida", rcDue:"Falta cobrar", rcBz:"Reserva de Búzios Lanchas: tu parte de la seña viene de Búzios", rcSub:"Cuánto cobrar a cada cliente al embarcar. La seña ya está pagada; el resto el cliente te lo paga directo a ti (o al marinero) antes de salir. Toca un paseo para ver los detalles.", rcDep:"seña pagada {v}", rcTot:"Total a cobrar al embarcar", rcMore:"y {n} paseos más"});
 /* link de reserva para o cliente que está no WhatsApp (Rodrigo 2026-10-25): a lancha abre com data, horário e pessoas e com a reserva online;
    o cliente cria a conta, o pedido cai em Pedidos e o Rodrigo libera o pagamento (Pix ou cartão) */
-Object.assign(T.pt, {rlBtn:"📲 Link", rlBtnL:"Mandar link de reserva", rlSub:"O cliente abre a lancha já com a data, o horário e as pessoas, cria a conta e manda o pedido. O pedido cai em Pedidos e você libera o pagamento.", rlSlot:"Horário", rlPax:"Pessoas", rlLang:"Idioma do cliente", rlName:"Nome do cliente (opcional)", rlPhone:"WhatsApp do cliente", rlNeedTel:"Escreva o WhatsApp do cliente (com DDD). Para mandar sem número, use Copiar mensagem.", rlSend:"Mandar no WhatsApp", rlCopy:"Copiar mensagem", rlCopied:"Mensagem copiada.", rlNeedPax:"Escolha quantas pessoas.", rlP1:"1 pessoa", rlPn:"{n} pessoas", rlMsg:"Olá{name}! Aqui é da Búzios Lanchas 😊\nA lancha {boat} está livre para {date}, {slot}, para {people}.\n\nPara reservar, é só abrir o link abaixo, criar sua conta (leva 1 minuto) e tocar em *Reservar online*. O pedido chega direto para nós e, em seguida, liberamos o pagamento do sinal de 50% por Pix ou cartão.\n\n{link}"});
-Object.assign(T.en, {rlBtn:"📲 Link", rlBtnL:"Send booking link", rlSub:"The client opens the boat with the date, time and guests already filled in, creates an account and sends the request. It lands in Requests and you release the payment.", rlSlot:"Time", rlPax:"Guests", rlLang:"Client's language", rlName:"Client's name (optional)", rlPhone:"Client's WhatsApp", rlNeedTel:"Type the client's WhatsApp (with area code). To send without a number, use Copy message.", rlSend:"Send on WhatsApp", rlCopy:"Copy message", rlCopied:"Message copied.", rlNeedPax:"Choose how many guests.", rlP1:"1 person", rlPn:"{n} people", rlMsg:"Hi{name}! This is Búzios Lanchas 😊\nThe boat {boat} is available on {date}, {slot}, for {people}.\n\nTo book it, just open the link below, create your account (takes 1 minute) and tap *Book online*. Your request comes straight to us, and then we send you the 50% deposit payment by Pix or card.\n\n{link}"});
-Object.assign(T.es, {rlBtn:"📲 Link", rlBtnL:"Enviar link de reserva", rlSub:"El cliente abre la lancha con la fecha, el horario y las personas ya puestos, crea la cuenta y envía el pedido. El pedido cae en Pedidos y tú liberas el pago.", rlSlot:"Horario", rlPax:"Personas", rlLang:"Idioma del cliente", rlName:"Nombre del cliente (opcional)", rlPhone:"WhatsApp del cliente", rlNeedTel:"Escribe el WhatsApp del cliente (con código de área). Para enviar sin número, usa Copiar mensaje.", rlSend:"Enviar por WhatsApp", rlCopy:"Copiar mensaje", rlCopied:"Mensaje copiado.", rlNeedPax:"Elige cuántas personas.", rlP1:"1 persona", rlPn:"{n} personas", rlMsg:"¡Hola{name}! Te escribe Búzios Lanchas 😊\nLa lancha {boat} está libre el {date}, {slot}, para {people}.\n\nPara reservar, solo abre el link de abajo, crea tu cuenta (lleva 1 minuto) y toca *Reservar online*. El pedido nos llega directo y enseguida te enviamos el pago de la seña del 50% por Pix o tarjeta.\n\n{link}"});
-const rlLink = (L, slug, data, horario, pessoas) => location.origin + (L==="pt"?"/":`/${L}/`) + `lancha/${slug}/?` + new URLSearchParams({data, horario, ...(pessoas?{pessoas:String(pessoas)}:{}), reserva:"1", ...(L==="pt"?{lang:"pt"}:{})});
+Object.assign(T.pt, {rlBtn:"📲 Link", rlBtnL:"Mandar link de reserva", rlSub:"O cliente abre a lancha já com a data, o horário e as pessoas, cria a conta e manda o pedido. O pedido cai em Pedidos e você libera o pagamento.", rlSlot:"Horário", rlPax:"Pessoas", rlLang:"Idioma do cliente", rlName:"Nome do cliente (opcional)", rlPhone:"WhatsApp do cliente", rlNeedTel:"Escreva o WhatsApp do cliente (com DDD). Para mandar sem número, use Copiar mensagem.", rlSend:"Mandar no WhatsApp", rlCopy:"Copiar mensagem", rlCopied:"Mensagem copiada.", rlNeedPax:"Escolha quantas pessoas.", rlP1:"1 pessoa", rlPn:"{n} pessoas", rlMsg:"Olá{name}! Aqui é da Búzios Lanchas 😊\nA lancha {boat} está livre para {date}, {slot}, para {people}.{val}\n\nPara reservar, é só abrir o link abaixo, criar sua conta (leva 1 minuto) e tocar em *Reservar online*. O pedido chega direto para nós e, em seguida, liberamos o pagamento do sinal de 50% por Pix ou cartão.\n\n{link}"});
+Object.assign(T.en, {rlBtn:"📲 Link", rlBtnL:"Send booking link", rlSub:"The client opens the boat with the date, time and guests already filled in, creates an account and sends the request. It lands in Requests and you release the payment.", rlSlot:"Time", rlPax:"Guests", rlLang:"Client's language", rlName:"Client's name (optional)", rlPhone:"Client's WhatsApp", rlNeedTel:"Type the client's WhatsApp (with area code). To send without a number, use Copy message.", rlSend:"Send on WhatsApp", rlCopy:"Copy message", rlCopied:"Message copied.", rlNeedPax:"Choose how many guests.", rlP1:"1 person", rlPn:"{n} people", rlMsg:"Hi{name}! This is Búzios Lanchas 😊\nThe boat {boat} is available on {date}, {slot}, for {people}.{val}\n\nTo book it, just open the link below, create your account (takes 1 minute) and tap *Book online*. Your request comes straight to us, and then we send you the 50% deposit payment by Pix or card.\n\n{link}"});
+Object.assign(T.es, {rlBtn:"📲 Link", rlBtnL:"Enviar link de reserva", rlSub:"El cliente abre la lancha con la fecha, el horario y las personas ya puestos, crea la cuenta y envía el pedido. El pedido cae en Pedidos y tú liberas el pago.", rlSlot:"Horario", rlPax:"Personas", rlLang:"Idioma del cliente", rlName:"Nombre del cliente (opcional)", rlPhone:"WhatsApp del cliente", rlNeedTel:"Escribe el WhatsApp del cliente (con código de área). Para enviar sin número, usa Copiar mensaje.", rlSend:"Enviar por WhatsApp", rlCopy:"Copiar mensaje", rlCopied:"Mensaje copiado.", rlNeedPax:"Elige cuántas personas.", rlP1:"1 persona", rlPn:"{n} personas", rlMsg:"¡Hola{name}! Te escribe Búzios Lanchas 😊\nLa lancha {boat} está libre el {date}, {slot}, para {people}.{val}\n\nPara reservar, solo abre el link de abajo, crea tu cuenta (lleva 1 minuto) y toca *Reservar online*. El pedido nos llega directo y enseguida te enviamos el pago de la seña del 50% por Pix o tarjeta.\n\n{link}"});
+Object.assign(T.pt, {rlOther:"Outro horário…", rlIn:"Entrada", rlOut:"Saída", rlVal:"Valor do passeio (opcional)", rlValH:"Vazio = valor normal da tabela. Preenchido, o cliente vê e o pedido chega com esse valor.", rlValLine:"\n💰 Valor do passeio: {v}.", rlNeedHrs:"Escolha a entrada e a saída (a saída depois da entrada).", rlBusy:"Esse horário pega um período que já está ocupado nessa lancha.", rlOfErr:"Não deu para salvar o horário e o valor do link. Confira a internet e tente de novo.", rlNeedSql:"Para escolher outro horário ou valor, falta rodar no Supabase o arquivo 2026-10-27_supabase-horario-valor-link.sql.", rlHrsNote:"No site fica bloqueado o período: {p}."});
+Object.assign(T.en, {rlOther:"Other time…", rlIn:"Start", rlOut:"End", rlVal:"Tour price (optional)", rlValH:"Empty = the normal price list. Filled in, the client sees it and the request arrives with this price.", rlValLine:"\n💰 Tour price: {v}.", rlNeedHrs:"Choose the start and the end (end after start).", rlBusy:"This time overlaps a period that is already booked on this boat.", rlOfErr:"Couldn't save the link's time and price. Check the connection and try again.", rlNeedSql:"To choose another time or price, run the file 2026-10-27_supabase-horario-valor-link.sql in Supabase.", rlHrsNote:"Blocked on the website: {p}."});
+Object.assign(T.es, {rlOther:"Otro horario…", rlIn:"Entrada", rlOut:"Salida", rlVal:"Valor del paseo (opcional)", rlValH:"Vacío = valor normal de la tabla. Completo, el cliente lo ve y el pedido llega con ese valor.", rlValLine:"\n💰 Valor del paseo: {v}.", rlNeedHrs:"Elige la entrada y la salida (la salida después de la entrada).", rlBusy:"Ese horario toma un período que ya está ocupado en esta lancha.", rlOfErr:"No se pudo guardar el horario y el valor del link. Revisa la conexión e inténtalo de nuevo.", rlNeedSql:"Para elegir otro horario o valor, falta correr en Supabase el archivo 2026-10-27_supabase-horario-valor-link.sql.", rlHrsNote:"En el sitio queda bloqueado: {p}."});
+/* horário e valor combinados no link (Rodrigo 2026-10-27): ficam na tabela ofertas e o link leva só o código (?o=), então o cliente não muda o valor.
+   O período bloqueado no site sai do horário: começa antes do meio-dia e termina até 14h30 = manhã; começa às 13h ou depois = tarde; senão, dia todo */
+const rlBase = (hi, hf) => hi<"12:00" && hf<="14:30" ? "manha" : hi>="13:00" ? "tarde" : "dia";
+const hmL = (L, x) => { const [h,m]=x.split(":").map(Number), mm=m?String(m).padStart(2,"0"):""; if(L==="en") return (h%12||12)+(m?":"+mm:"")+(h<12?"am":"pm"); return L==="es" ? h+(m?":"+mm:"")+" h" : h+"h"+mm; };
+const rlHrsOk = f => f.horario!=="outro" || (/^\d\d:\d\d$/.test(f.hi||"") && /^\d\d:\d\d$/.test(f.hf||"") && f.hf>f.hi);
+const rlCustom = f => f.horario==="outro" || +f.valor>0;
+const rlLink = (L, slug, data, horario, pessoas, of) => location.origin + (L==="pt"?"/":`/${L}/`) + `lancha/${slug}/?` + new URLSearchParams({data, horario, ...(pessoas?{pessoas:String(pessoas)}:{}), reserva:"1", ...(of?{o:of}:{}), ...(L==="pt"?{lang:"pt"}:{})});
 function rlMsg(L, o){ L=["pt","en","es"].includes(L)?L:"pt"; const tt=(k,x={})=>(T[L][k]||T.pt[k]).replace(/\{(\w+)\}/g,(m,y)=>x[y]??m);
   const date=dateOf(o.data).toLocaleDateString(T[L].locale||"pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  const slot=o.horario==="noite" ? T[L].hours_noite : `${(T[L]["slot_"+o.horario]||"").toLowerCase()} (${T[L]["hours_"+o.horario]||""})`;
-  const nm=(o.nome||"").trim().split(" ")[0];
-  return tt("rlMsg",{name:nm?", "+nm:"", boat:boatName(o.lancha), date, slot, people:+o.pessoas===1?tt("rlP1"):tt("rlPn",{n:o.pessoas}), link:rlLink(L,o.lancha,o.data,o.horario,o.pessoas)}); }
+  const hrs=o.horario==="outro" && o.hi && o.hf, h=hrs ? rlBase(o.hi,o.hf) : o.horario;
+  const slot=hrs ? `${hmL(L,o.hi)} ${{pt:"às",en:"to",es:"a"}[L]} ${hmL(L,o.hf)}` : o.horario==="noite" ? T[L].hours_noite : `${(T[L]["slot_"+o.horario]||"").toLowerCase()} (${T[L]["hours_"+o.horario]||""})`;
+  const nm=(o.nome||"").trim().split(" ")[0], v=+o.valor>0 ? tt("rlValLine",{v:brl(+o.valor)}) : "";
+  return tt("rlMsg",{name:nm?", "+nm:"", boat:boatName(o.lancha), date, slot, val:v, people:+o.pessoas===1?tt("rlP1"):tt("rlPn",{n:o.pessoas}), link:rlLink(L,o.lancha,o.data,h,o.pessoas,rlCustom(o)?o.of:null)}); }
 const rlNum = num => { let d=String(num||"").replace(/\D/g,""); if(!/^\s*\+/.test(num||"") && (d.length===10||d.length===11)) d="55"+d; return d.length>=10 && d.length<=15 ? d : ""; };
 const rlWa = (num, msg) => { let d=String(num||"").replace(/\D/g,""); if(!/^\s*\+/.test(num||"") && (d.length===10||d.length===11)) d="55"+d; /* sem +DDI: número do Brasil */ return "https://wa.me/"+(d.length>=10?d:"")+"?text="+encodeURIComponent(msg); };
 /* painel do link na busca "Lancha livre em" (só administrador) */
 function rlPanel(b, slot, nt){
   const f=S.rlF||{}, slots=slot ? [slot] : ["dia","manha","tarde", ...(nt?["noite"]:[])], cap=capOf(b)||16;
-  const hs=slots.includes(f.horario) ? f.horario : slots[0], px=f.pessoas && +f.pessoas<=cap ? f.pessoas : (S.avN && S.avN<=cap ? S.avN : "");
+  const hs=slots.includes(f.horario) || (f.horario==="outro" && S.ofOk) ? f.horario : slots[0], px=f.pessoas && +f.pessoas<=cap ? f.pessoas : (S.avN && S.avN<=cap ? S.avN : "");
   S.rlF={...f, horario:hs, pessoas:px, lancha:b.slug, data:S.avD};
   return `<div class="rlp"><p class="muted">${t("rlSub")}</p>
-    <label>${t("rlSlot")}<select class="in" id="rl-h">${slots.map(x=>`<option value="${x}"${x===hs?" selected":""}>${t("slot_"+x)}${x==="noite"?"":" · "+t("hours_"+x)}</option>`).join("")}</select></label>
+    <label>${t("rlSlot")}<select class="in" id="rl-h">${slots.map(x=>`<option value="${x}"${x===hs?" selected":""}>${t("slot_"+x)}${x==="noite"?"":" · "+t("hours_"+x)}</option>`).join("")}${S.ofOk?`<option value="outro"${hs==="outro"?" selected":""}>${t("rlOther")}</option>`:""}</select></label>
+    ${S.ofOk ? `<div class="row2" id="rl-hrs"${hs==="outro"?"":" hidden"}><label>${t("rlIn")}<input class="in" id="rl-hi" type="time" step="1800" value="${esc(f.hi||"09:00")}"></label><label>${t("rlOut")}<input class="in" id="rl-hf" type="time" step="1800" value="${esc(f.hf||"14:00")}"></label></div><p class="muted" id="rl-hn" style="margin:-4px 0 10px;font-size:13px"${hs==="outro"?"":" hidden"}></p>` : ""}
     <label>${t("rlPax")}<select class="in" id="rl-p"><option value="">—</option>${Array.from({length:cap},(_,i)=>i+1).map(n=>`<option value="${n}"${+px===n?" selected":""}>${n}</option>`).join("")}</select></label>
     <label>${t("rlLang")}<select class="in" id="rl-l">${["pt","en","es"].map(x=>`<option value="${x}"${(f.lang||"pt")===x?" selected":""}>${{pt:"Português",en:"English",es:"Español"}[x]}</option>`).join("")}</select></label>
+    ${S.ofOk ? `<label>${t("rlVal")}<input class="in" id="rl-v" type="number" inputmode="numeric" min="0" step="10" value="${esc(f.valor||"")}" placeholder="R$" autocomplete="off"><small class="muted" style="display:block;font-weight:400">${t("rlValH")}</small></label>` : S.ofOk===false ? `<p class="muted" style="font-size:13px">${t("rlNeedSql")}</p>` : ""}
     <label>${t("rlName")}<input class="in" id="rl-n" type="text" value="${esc(f.nome||"")}" autocomplete="off"></label>
     <label>${t("rlPhone")}${REQ}<input class="in" id="rl-w" type="tel" inputmode="tel" value="${esc(f.tel||"")}" placeholder="(22) 99999-9999" autocomplete="off"></label>
     <div class="reqbtns"><a class="btn" id="rl-send" target="_blank" rel="noopener" href="#">${t("rlSend")}</a><a class="btn sec" role="button" href="#" id="rl-copy">${t("rlCopy")}</a></div></div>`;
@@ -3124,6 +3136,8 @@ function loadClis(){ /* só o administrador vê */
   Promise.all([db("rpc/lista_clientes_v2",{method:"POST",body:{}}).catch(e=>{ if(e.status!==404) throw e; return db("rpc/lista_clientes",{method:"POST",body:{}}); }), db("convites?select=nome,telefone,email,criado_em&resgatado_em=is.null&order=criado_em.desc&limit=300").catch(()=>[])])
     .then(([c,v])=>{ S.clis=c.map(x=>({...x, email:realEm(x.email)})); S.invs=v; if(S.tab==="usuarios" && view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{ S.clis=null; });
 }
+/* horário e valor combinados no link (ofertas, Rodrigo 2026-10-27): à parte, para funcionar antes e depois do SQL */
+const pedHrs = L => !L?.length ? Promise.resolve() : db("pedidos?select=id,hora_ini,hora_fim,oferta&oferta=not.is.null&order=id.desc&limit=300").then(r=>{ const m=new Map(r.map(x=>[x.id,x])); L.forEach(p=>Object.assign(p, m.get(p.id)||{})); }, ()=>{});
 async function loadReqs(){
   try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp,pais)&order=criado_em.desc&limit=300`);
     S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct").then(r=>(S.cpOk=true,r))
@@ -3137,6 +3151,7 @@ async function loadReqs(){
     /* pago pelo Asaas com divisão: a parte do dono já foi direto para ele, não repassar de novo (revisão 2026-10-25) */
     if(S.admin && !S.asVend) asFn({acao:"faltam"}).then(j=>{ S.asVend=new Set(j.vend_conta||[]); if(S.tab==="pedidos") bgView(); }, ()=>{}); /* vendedores com conta Asaas: botão "Pagar pelo Asaas" */
     if(S.admin) await db("pagamentos_asaas?select=pedido,repasse,wallet_id&pago_em=not.is.null").then(r=>{ S.asPg=Object.fromEntries(r.map(a=>[a.pedido,a])); }, ()=>{ S.asPg=null; });
+    await pedHrs(S.reqs);
     if(S.admin) await db("vendedores?select=user_id,pix_tipo,pix_chave").then(r=>{ S.vpix=Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{ S.vpix=null; }); /* chave Pix de cada vendedor */
     S.ppPay = Object.fromEntries((await db("pagamentos_pp?select=pedido,moeda,valor,pago_em,pago_valor").catch(()=>[])).map(x=>[x.pedido,x])); /* cobranças do PayPal */
     if(!S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* sinal de 50% e neto do dia no pedido */
@@ -3193,7 +3208,7 @@ function openCons(c){
 }
 function openReq(p){
   pedidoFor=p; const c=p.clientes||{};
-  tripRow={lancha:p.lancha, data:p.data, horario:p.horario, nota:{origem:"buzios", cliente:c.nome||null, telefone:c.whatsapp||null, pessoas:p.pessoas, ...((k=>k.tot?{valor:k.tot}:{})(pedCalc(p))), ...(S.embOk ? {embarque:p.embarque||null} : {obs:p.embarque?`${t("boarding")}: ${p.embarque}`:null})}};
+  tripRow={lancha:p.lancha, data:p.data, horario:p.horario, nota:{origem:"buzios", cliente:c.nome||null, telefone:c.whatsapp||null, pessoas:p.pessoas, ...((k=>k.tot?{valor:k.tot}:{})(pedCalc(p))), ...(p.hora_ini && S.hrOk ? {hora_ini:p.hora_ini, hora_fim:p.hora_fim} : {}), ...(S.embOk ? {embarque:p.embarque||null} : {obs:p.embarque?`${t("boarding")}: ${p.embarque}`:null})}};
   tripNew=true; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on");
 }
 let pedidoFor = null;
@@ -3423,13 +3438,13 @@ const chErr = e => e.code==="P0001" ? ({FLOOD:t("chFlood"), PALAVRA:t("chWord"),
 const markRead = cid => RPC("marcar_lida",{cid}).then(()=>{ const c=(S.convs||[]).find(x=>x.id===cid); if(c && +c.nao_lidas){ S.chatUnread=Math.max(0,S.chatUnread-(+c.nao_lidas)); c.nao_lidas=0; } },()=>{});
 /* mensagens automáticas da Búzios Lanchas (Rodrigo, 2026-10-22): pedido recebido (sistema:pedido:<horário>:<pessoas>) e pagamento liberado (sistema:sinal:<valor>) com o Pix para copiar */
 function chBotHTML(m){
-  const [, k, a, b] = String(m.papel).split(":"), hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
+  const [, k, a, b, hx] = String(m.papel).split(":"), hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
   let body;
   if(k==="pago") body = esc(t("chBotPago",{v:String(m.papel).slice(13)}));
   else if(k==="expirou") body = esc(t("chBotExp",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""}));
   else if(k==="passou") body = esc(t("chBotPassou",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""}));
   else if(k==="ok") body = esc(t("chBotOk",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""})) + (+a ? "\n"+esc(t("chBotResto",{v:brl(+a)})) : "");
-  else if(k==="pedido") body = esc(t("chBotPed",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):"", slot:t("slot_"+a)+(a==="noite"?"":" · "+t("hours_"+a)), n:b}));
+  else if(k==="pedido") body = esc(t("chBotPed",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):"", slot:/^\d{4}-\d{4}$/.test(hx||"") ? slotHours(a,{hora_ini:hx.slice(0,2)+":"+hx.slice(2,4), hora_fim:hx.slice(5,7)+":"+hx.slice(7)}) : t("slot_"+a)+(a==="noite"?"":" · "+t("hours_"+a)), n:b}));
   else { const v=+a||0; body = `${esc(t("chBotSinal",{v:brl(v)}))}<span class="paybox chpay"><span class="pkey"><span>Pix (CNPJ) <strong>${fmtCNPJ}</strong><small>Búzios Lanchas</small></span><button type="button" class="btn sec" data-copy="${PIX_CNPJ}">${t("cpCopy")}</button></span>${v?`<button type="button" class="btn sec" data-copy="${esc(pixPayload(PIX_CNPJ, v, "PED"+(m.pedido||"")))}">${t("cpCopyPaste")}</button>`:""}</span>${esc(t("chBotAnexo"))}`; }
   return `<div class="chm sup bot" data-mid="${m.id}"><div class="cha"><span class="face ini" aria-hidden="true">BL</span><b>Búzios Lanchas</b></div><div class="cht">${body}</div><div class="chx"><span>${hora}</span>${S.admin?`<button type="button" data-mdel="${m.id}">${t("chDel")}</button>`:""}</div></div>`;
 }
@@ -4618,14 +4633,30 @@ function bindMainRest(){
   const avx=document.getElementById("avx"); if(avx) avx.onclick=()=>{ S.avD=null; S.avRows=null; S.avN=0; S.rlB=null; avSeq++; mainView(); };
   const avn=document.getElementById("avn"); if(avn) avn.onchange=()=>{ S.avN=+avn.value||0; mainView(); };
   app.querySelectorAll("[data-avr]").forEach(x=>x.onclick=async()=>{ try{ const [row]=await fetchRows(`id=eq.${x.dataset.avr}`); if(row){ pedidoFor=null; openTrip(row); } }catch(e){ toast(t("netErr")); } });
-  app.querySelectorAll("[data-avlk]").forEach(x=>x.onclick=()=>{ S.rlB = S.rlB===x.dataset.avlk ? null : x.dataset.avlk; if(S.rlF?.lancha!==S.rlB) S.rlF={lang:S.rlF?.lang, nome:S.rlF?.nome, tel:S.rlF?.tel}; mainView(); });
+  app.querySelectorAll("[data-avlk]").forEach(x=>x.onclick=()=>{ S.rlB = S.rlB===x.dataset.avlk ? null : x.dataset.avlk; if(S.rlF?.lancha!==S.rlB) S.rlF={lang:S.rlF?.lang, nome:S.rlF?.nome, tel:S.rlF?.tel}; mainView();
+    if(S.ofOk==null) db("ofertas?select=id&limit=1").then(()=>{ S.ofOk=true; }, e=>{ S.ofOk = e.status===404||e.status===400 ? false : null; }).then(()=>{ if(S.rlB && S.ofOk!=null) mainView(); }); });
   const rls=document.getElementById("rl-send");
-  if(rls){ const F=()=>S.rlF, upd=()=>{ const f=F(); f.horario=app.querySelector("#rl-h").value; f.pessoas=app.querySelector("#rl-p").value; f.lang=app.querySelector("#rl-l").value; f.nome=app.querySelector("#rl-n").value; f.tel=app.querySelector("#rl-w").value; f.data=S.avD;
-      rls.href = f.pessoas && rlNum(f.tel) ? rlWa(f.tel, rlMsg(f.lang, f)) : "#"; };
+  if(rls){ const F=()=>S.rlF, q=s=>app.querySelector(s), upd=()=>{ const f=F(); f.horario=q("#rl-h").value; f.pessoas=q("#rl-p").value; f.lang=q("#rl-l").value; f.nome=q("#rl-n").value; f.tel=q("#rl-w").value; f.data=S.avD;
+      if(q("#rl-v")){ f.valor=q("#rl-v").value; f.hi=q("#rl-hi").value; f.hf=q("#rl-hf").value; const o=f.horario==="outro";
+        q("#rl-hrs").hidden=!o; q("#rl-hn").hidden=!o || !rlHrsOk(f); if(o && rlHrsOk(f)) q("#rl-hn").textContent=t("rlHrsNote",{p:t("slot_"+rlBase(f.hi,f.hf))+" · "+t("hours_"+rlBase(f.hi,f.hf))});
+        /* cada combinação diferente ganha um código novo; ele é salvo no banco antes de o link sair */
+        const k=[f.lancha,f.data,f.horario,f.hi,f.hf,f.valor,f.pessoas].join("|"); if(rlCustom(f) && f.ofK!==k){ f.ofK=k; f.of=crypto.randomUUID(); f.ofSaved=null; } }
+      rls.href = f.pessoas && rlNum(f.tel) && rlHrsOk(f) ? rlWa(f.tel, rlMsg(f.lang, f)) : "#"; };
+    /* horário fora do padrão: o período que fica bloqueado precisa estar livre nessa lancha */
+    const okSlot = f => f.horario!=="outro" || [...q("#rl-h").options].some(o=>o.value===rlBase(f.hi,f.hf));
+    const saveOf = () => { const f=F(); if(!rlCustom(f) || f.ofSaved===f.of) return Promise.resolve(); const id=f.of;
+      return db("ofertas",{method:"POST",body:{id, lancha:f.lancha, data:f.data, horario:f.horario==="outro"?rlBase(f.hi,f.hf):f.horario, hora_ini:f.horario==="outro"?f.hi:null, hora_fim:f.horario==="outro"?f.hf:null, valor:+f.valor>0?+f.valor:null, pessoas:+f.pessoas||null}})
+        .then(()=>{ if(F().of===id) F().ofSaved=id; }, ()=>toast(t("rlOfErr"))); };
+    const check = () => { const f=F(); if(!f.pessoas){ toast(t("rlNeedPax")); q("#rl-p").focus(); return false; }
+      if(!rlHrsOk(f)){ toast(t("rlNeedHrs")); q("#rl-hf").focus(); return false; }
+      if(!okSlot(f)){ toast(t("rlBusy")); q("#rl-hi").focus(); return false; } return true; };
     app.querySelectorAll(".rlp select,.rlp input").forEach(e=>e.oninput=e.onchange=upd); upd();
-    rls.onclick=e=>{ upd(); if(!F().pessoas){ e.preventDefault(); toast(t("rlNeedPax")); app.querySelector("#rl-p").focus(); }
-      else if(!rlNum(F().tel)){ e.preventDefault(); toast(t("rlNeedTel")); app.querySelector("#rl-w").focus(); } }; /* WhatsApp do cliente obrigatório para mandar (Rodrigo 2026-10-25) */
-    document.getElementById("rl-copy").onclick=e=>{ e.preventDefault(); upd(); const f=F(); if(!f.pessoas){ toast(t("rlNeedPax")); return; } const m=rlMsg(f.lang,f);
+    let saveT; app.querySelectorAll("#rl-v,#rl-hi,#rl-hf,#rl-h,#rl-p").forEach(e=>e.addEventListener("change",()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ if(rlHrsOk(F()) && okSlot(F())) saveOf(); },400); }));
+    if(rlHrsOk(F()) && okSlot(F())) saveOf();
+    rls.onclick=e=>{ upd(); if(!check()) e.preventDefault();
+      else if(!rlNum(F().tel)){ e.preventDefault(); toast(t("rlNeedTel")); q("#rl-w").focus(); }
+      else saveOf(); }; /* WhatsApp do cliente obrigatório para mandar (Rodrigo 2026-10-25) */
+    document.getElementById("rl-copy").onclick=e=>{ e.preventDefault(); upd(); const f=F(); if(!check()) return; saveOf(); const m=rlMsg(f.lang,f);
       navigator.clipboard?.writeText(m).then(()=>toast(t("rlCopied")),()=>prompt("",m)) ?? prompt("",m); }; }
   app.querySelectorAll("[data-avb]").forEach(x=>x.onclick=()=>{ pedidoFor=null; tripRow={lancha:x.dataset.avb, data:S.avD, ...(x.dataset.avs?{horario:x.dataset.avs}:{})}; tripNew=true; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on"); });
   app.querySelectorAll("[data-lt]").forEach(x=>x.onclick=()=>{ S.lt=x.dataset.lt; if(S.lt==="ant" && !S.past){ S.past=[]; S.pastOk=false; mainView(); loadBlocks(); } else mainView(); });
