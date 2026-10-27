@@ -49,6 +49,7 @@ button{cursor:pointer}
 .newb .link{margin:0;padding:4px 0;white-space:nowrap}
 i.newt{color:#b25b00;font-weight:800;font-style:normal}
 .btn.wa{background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+.soclist{list-style:none;margin:6px 0 0;padding:0}.soclist li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
 .asmeus{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:14px;overflow-wrap:anywhere}.asmeus>span{flex:1;min-width:0}.asmeus .btn{flex:none;width:auto;margin:0;padding:8px 14px}.asgrid{display:grid;grid-template-columns:3fr 2fr;gap:8px}.asgrid>*{min-width:0}.asgrid .in{width:100%;box-sizing:border-box}
 .asselo{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:10px 0 0}.asselo img{height:36px;width:auto}.asselo small{color:var(--muted);font-size:12px}
 .btn.wa.sm{padding:8px 12px;font-size:14px;flex:1 1 auto}
@@ -739,6 +740,9 @@ const nomeOk = n => n.length>=5 && /\S\s+\S/.test(n) && !n.includes("@"); /* nom
 Object.assign(T.pt, {ctDono:"Dono · {n}", ctMar:"Marinheiro · {n}", ctHi:"Olá, {n}! Sou {me}, do passeio na {boat} em {date}."});
 Object.assign(T.en, {ctDono:"Owner · {n}", ctMar:"Skipper · {n}", ctHi:"Hi {n}! I'm {me}, from the tour on {boat} on {date}."});
 Object.assign(T.es, {ctDono:"Dueño · {n}", ctMar:"Marinero · {n}", ctHi:"¡Hola, {n}! Soy {me}, del paseo en {boat} el {date}."});
+Object.assign(T.pt, {socT:"Convidar sócio", socSub:"Convide alguém para vender com você. A comissão de cada venda dele é dividida meio a meio entre vocês dois. O preço para o cliente não muda.", socGo:"Convidar pelo WhatsApp", socNote:"Quem você convidar não pode convidar outras pessoas.", socMsg:"Oi! Te convidei para ser meu sócio na Búzios Lanchas: você indica passeios de lancha e a gente divide a comissão por igual. Crie sua conta:\n{url}", socList:"Seus sócios", socRow:"Comissão meio a meio", socEarn:"Sua parte nas vendas dos sócios", socRec:"A receber: {v}", socPaid:"Recebido: {v}", socNone:"Você ainda não convidou ninguém.", socSign:"{n} te convidou para ser sócio na Búzios Lanchas. Crie sua conta para começar a vender.", socSign0:"Você foi convidado para ser sócio na Búzios Lanchas. Crie sua conta para começar a vender.", socOk:"Pronto! Agora você também vende passeios. Veja o seu painel de vendas.", socJa:"Você já é vendedor, então o convite de sócio não vale para a sua conta.", socInv:"Esse convite de sócio não vale mais. Peça um novo para quem te convidou.", socErr:"Não deu para criar o convite. Tente de novo.", socSent:"Convite aberto no WhatsApp. Escolha a pessoa e envie.", vvMiss:"Para receber as suas comissões, confirme {o}. Você já pode vender normalmente.", vvEm:"o seu e-mail", vvWa:"o seu WhatsApp", vvBoth:"o seu WhatsApp e o seu e-mail", cmpFalta:"Falta confirmar {o}: a comissão fica liberada depois.", cmpFEm:"e-mail", cmpFWa:"WhatsApp", cmpFBoth:"WhatsApp e e-mail", cmpInd:"parte da venda de {m}", vlInd:"{n}: {v}", vlFalta:"Esse vendedor ainda não confirmou o WhatsApp e o e-mail."});
+Object.assign(T.en, {socT:"Invite a partner", socSub:"Invite someone to sell with you. The commission on each of their sales is split 50/50 between you. The client price doesn't change.", socGo:"Invite on WhatsApp", socNote:"People you invite can't invite others.", socMsg:"Hi! I invited you to be my partner at Búzios Lanchas: you recommend boat tours and we split the commission 50/50. Create your account:\n{url}", socList:"Your partners", socRow:"50/50 commission", socEarn:"Your share of your partners' sales", socRec:"To receive: {v}", socPaid:"Received: {v}", socNone:"You haven't invited anyone yet.", socSign:"{n} invited you to be a partner at Búzios Lanchas. Create your account to start selling.", socSign0:"You were invited to be a partner at Búzios Lanchas. Create your account to start selling.", socOk:"Done! You can now sell tours too. Check your sales panel.", socJa:"You're already a seller, so the partner invite doesn't apply to your account.", socInv:"This partner invite is no longer valid. Ask the person who invited you for a new one.", socErr:"Couldn't create the invite. Try again.", socSent:"Invite opened in WhatsApp. Pick the person and send it.", vvMiss:"To get your commissions, confirm {o}. You can already sell as usual.", vvEm:"your email", vvWa:"your WhatsApp", vvBoth:"your WhatsApp and your email", cmpFalta:"Still needs to confirm {o}: the commission is released after that.", cmpFEm:"email", cmpFWa:"WhatsApp", cmpFBoth:"WhatsApp and email", cmpInd:"share of {m}'s sale", vlInd:"{n}: {v}", vlFalta:"This seller hasn't confirmed WhatsApp and email yet."});
+Object.assign(T.es, {socT:"Invitar socio", socSub:"Invita a alguien a vender contigo. La comisión de cada venta suya se divide mitad y mitad entre ustedes dos. El precio para el cliente no cambia.", socGo:"Invitar por WhatsApp", socNote:"Quien invites no puede invitar a otras personas.", socMsg:"¡Hola! Te invité a ser mi socio en Búzios Lanchas: recomiendas paseos en lancha y dividimos la comisión mitad y mitad. Crea tu cuenta:\n{url}", socList:"Tus socios", socRow:"Comisión mitad y mitad", socEarn:"Tu parte en las ventas de tus socios", socRec:"Por recibir: {v}", socPaid:"Recibido: {v}", socNone:"Todavía no invitaste a nadie.", socSign:"{n} te invitó a ser socio en Búzios Lanchas. Crea tu cuenta para empezar a vender.", socSign0:"Te invitaron a ser socio en Búzios Lanchas. Crea tu cuenta para empezar a vender.", socOk:"¡Listo! Ahora tú también vendes paseos. Mira tu panel de ventas.", socJa:"Ya eres vendedor, así que la invitación de socio no vale para tu cuenta.", socInv:"Esta invitación de socio ya no es válida. Pide una nueva a quien te invitó.", socErr:"No se pudo crear la invitación. Inténtalo de nuevo.", socSent:"Invitación abierta en WhatsApp. Elige a la persona y envíala.", vvMiss:"Para recibir tus comisiones, confirma {o}. Ya puedes vender normalmente.", vvEm:"tu correo", vvWa:"tu WhatsApp", vvBoth:"tu WhatsApp y tu correo", cmpFalta:"Falta confirmar {o}: la comisión se libera después.", cmpFEm:"correo", cmpFWa:"WhatsApp", cmpFBoth:"WhatsApp y correo", cmpInd:"parte de la venta de {m}", vlInd:"{n}: {v}", vlFalta:"Este vendedor todavía no confirmó el WhatsApp y el correo."});
 Object.assign(T.pt, {asSeus:"Seus dados", asAlt:"Alterar", asEnd:"Endereço", asDocsGo:"Enviar documento e selfie", asDocsRej:"O Asaas pediu para enviar o documento de novo.", asDocsAnal:"Documentos enviados. O Asaas está conferindo.", asDocsOk:"Conta aprovada ✓"});
 Object.assign(T.en, {asSeus:"Your details", asAlt:"Change", asEnd:"Address", asDocsGo:"Send ID and selfie", asDocsRej:"Asaas asked you to send your ID again.", asDocsAnal:"Documents sent. Asaas is checking them.", asDocsOk:"Account approved ✓"});
 Object.assign(T.es, {asSeus:"Tus datos", asAlt:"Cambiar", asEnd:"Dirección", asDocsGo:"Enviar documento y selfie", asDocsRej:"Asaas pidió enviar el documento de nuevo.", asDocsAnal:"Documentos enviados. Asaas los está revisando.", asDocsOk:"Cuenta aprobada ✓"});
@@ -1227,10 +1231,12 @@ function waLinkLoad(){
     if(view==="signup" && !app.querySelector("input:focus")) show();
   });
 }
+let socNome=null; /* convite de sócio: primeiro nome de quem convidou, na tela de cadastro */
 function signupView(){
   waLinkLoad(); const wl=waLinkOk();
   loginShell(t("signupTitle"), pendRes() ? t("resSignupSub",{boat:esc(pendRes().nome)}) : t("signupSub"), `${googleOn?`<a class="gbtn" href="${googleHref()}">${GOOGLE_ICON}<span>${t("google")}</span></a>`:""}<button type="button" class="link" id="tologin" style="display:block;margin:0 auto 6px">${t("haveAcc")}</button><p class="or muted">${t("orNew")}</p><form class="card" id="sf" novalidate><div id="smsg">${loginMsg && !loginErr ? `<p class="msg ok">${loginMsg}</p>` : ""}</div>
       ${wl?`<p class="msg ok">✓ ${t("wlOk",{tel:esc(wl.tel)})}</p>`:""}
+      ${store.get("socio-c")?`<p class="msg ok">🤝 ${socNome?t("socSign",{n:esc(socNome)}):t("socSign0")}</p>`:""}
       ${profileFields(store.get("cli-draft")||{})}
       <label class="f"><span>${t("email")}${wl?` <small class="muted" style="font-weight:400">(${t("optional")})</small>`:REQ}</span>${wl?`<small class="wlem">${t("wlEm")}</small>`:""}<input type="email" id="em" autocomplete="email" inputmode="email" autocapitalize="off" value="${esc(typedEmail)}"></label>
       <label class="f"><span>${t("password")}${REQ} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>
@@ -1598,7 +1604,7 @@ function vendLine(p){
       <button type="button" class="link" data-pxk="${esc(px.pix_chave)}">${t("pxCopyKey")}</button>${com>0?` · <button type="button" class="link" data-pxc="${p.id}">${t("pxCopyCC")}</button>`:""}</span>` : `<span class="vpx muted">${t("pxNone")}</span>`;
   const pgAs = /^asaas:/.test(p.comissao_comprovante||""); /* paga pelo Asaas: o comprovante é a transferência */
   const rec = !ended || pgAs ? "" : `${p.comissao_comprovante?`<button type="button" class="link" data-cpv="${esc(p.comissao_comprovante)}">${t("cmSee")}</button> `:""}<label class="link cmup">${t("cmRec")}<input type="file" accept="image/*,application/pdf" data-cma="${p.id}" hidden></label>`;
-  return `<span class="vline">💼 <b>${esc(vendName(p))}</b>${p.preco_cliente?` · ${t("vlCli")} ${brl(p.preco_cliente)}`:""}${p.preco_base?` · ${t("vlBase")} ${brl(p.preco_base)}`:""}${com!=null?` · ${t("vlCom")} <b>${brl(com)}</b>`:""}
+  return `<span class="vline">💼 <b>${esc(vendName(p))}</b>${p.preco_cliente?` · ${t("vlCli")} ${brl(p.preco_cliente)}`:""}${p.preco_base?` · ${t("vlBase")} ${brl(p.preco_base)}`:""}${com!=null?` · ${t("vlCom")} <b>${brl(com-shareOf(p))}</b>`:""}${shareOf(p)>0?` · ${t("vlInd",{n:esc(vendName({vendedor:S.vpix[p.vendedor].indicado_por})), v:brl(shareOf(p))})}`:""}
     ${p.status==="aprovado" && !p.comissao_paga && S.feitos?.[p.bloqueio_id]===false ? "" : p.status==="aprovado" && !p.comissao_paga && !reqEnded(p) ? `<small class="muted">· ${t("vlAfter")}</small>` : p.status==="aprovado" && pgAs ? `<small class="vst ok">✓ ${t("vlPaidAs")}</small>` : p.status==="aprovado" ? `${!p.comissao_paga && com>0 && S.asVend?.has(p.vendedor) && !p.comissao_comprovante ? `<button type="button" class="link" data-cas="${p.id}">💳 ${t("vlPayAs")}</button> ` : ""}<button type="button" class="link" data-cpg="${p.id}" data-on="${p.comissao_paga?0:1}">${p.comissao_paga?"✓ "+t("vdPaid")+" · "+t("vlUndo"):t("vlPay")}</button>` : ""}${pgAs?"":pxL}${rec?`<span class="vpx">${rec}</span>`:""}</span>`;
 }
 async function cmUpload(pid, file){ /* comprovante do pagamento da comissão: pasta comissoes, só o administrador */
@@ -3032,7 +3038,7 @@ document.addEventListener("click", e => { const b=e.target.closest("[data-frpick
 const B62="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const u2s=u=>{ let n=BigInt("0x"+u.replace(/-/g,"")), s=""; while(n>0n){ s=B62[Number(n%62n)]+s; n/=62n; } return s.padStart(22,"0"); };
 const s2u=s=>{ s=String(s||""); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return s.toLowerCase(); if(!/^[0-9A-Za-z]{22}$/.test(s)) return ""; let n=0n; for(const ch of s) n=n*62n+BigInt(B62.indexOf(ch)); const h=n.toString(16).padStart(32,"0"); return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`; };
-const curto=url=>{ try{ const x=new URL(url, location.origin); for(const k of ["c","w","o","k"]){ const v=x.searchParams.get(k); if(s2u(v)) x.searchParams.set(k,u2s(s2u(v))); }
+const curto=url=>{ try{ const x=new URL(url, location.origin); for(const k of ["c","w","o","k","s"]){ const v=x.searchParams.get(k); if(s2u(v)) x.searchParams.set(k,u2s(s2u(v))); }
   if(x.pathname==="/login/" && x.searchParams.get("c")){ x.pathname="/"; x.searchParams.delete("criar"); }
   return x.host.replace(/^www\./,"")+(x.pathname==="/"&&!x.search?"":x.pathname)+x.search; }catch(e){ return url; } };
 async function convQ(bid, q){ try{ const c=await db("rpc/codigo_convite",{method:"POST",body:{bid}}); if(c) q.set("c",c); }catch(e){} return q; }
@@ -3950,12 +3956,16 @@ function bindVreq(){
 async function loadComPend(){ if(!S.admin) return;
   await RPC("repasses_pp_pendentes",{}).then(r=>{ S.rpp=r||[]; }, ()=>{ S.rpp=null; }); /* repasses do PayPal, escondido até a homologação */
   await loadAprov();
-  const r = await db(`pedidos?select=id,lancha,data,horario,bloqueio_id,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,comissao_comprovante,status&vendedor=not.is.null&status=eq.aprovado&comissao_paga=is.null&data=lte.${todayISO()}&order=data`).catch(()=>null);
+  /* parte de quem convidou o sócio (Rodrigo 2026-10-27): o pedido fica na lista até as duas partes serem pagas */
+  const sel="id,lancha,data,horario,bloqueio_id,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,comissao_comprovante,status";
+  const r = await db(`pedidos?select=${sel},indicacao_paga&vendedor=not.is.null&status=eq.aprovado&or=(comissao_paga.is.null,indicacao_paga.is.null)&data=lte.${todayISO()}&order=data`)
+    .catch(e=>e.status===400 ? db(`pedidos?select=${sel}&vendedor=not.is.null&status=eq.aprovado&comissao_paga=is.null&data=lte.${todayISO()}&order=data`) : null).catch(()=>null);
   if(!r) return; const bids=r.map(p=>p.bloqueio_id).filter(Boolean);
   const feitos = bids.length ? Object.fromEntries((await db(`realizados?select=bloqueio_id,aconteceu&bloqueio_id=in.(${bids.join(",")})`).catch(()=>[])).map(x=>[x.bloqueio_id,x.aconteceu])) : {};
-  S.comPend = r.filter(p=>p.preco_cliente-p.preco_base>0 && feitos[p.bloqueio_id]!==false && reqEnded(p));
   if(!S.asVend) await asFn({acao:"faltam"}).then(j=>{ S.asVend=new Set(j.vend_conta||[]); }, ()=>{});
-  if(!S.vpix) await db("vendedores?select=user_id,pix_tipo,pix_chave").then(r=>{ S.vpix=Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{});
+  if(!S.vpix) await db("vendedores?select=user_id,pix_tipo,pix_chave,indicado_por,indicacao_pct").catch(e=>e.status===400 ? db("vendedores?select=user_id,pix_tipo,pix_chave") : Promise.reject(e)).then(r=>{ S.vpix=Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{});
+  await RPC("verif_vendedores",{}).then(v=>{ S.vver=Object.fromEntries((v||[]).map(x=>[x.user_id,x])); }, ()=>{ S.vver=null; });
+  S.comPend = r.filter(p=>p.preco_cliente-p.preco_base>0 && feitos[p.bloqueio_id]!==false && reqEnded(p) && comAinda(p));
   if(!S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null); }
 /* cadastros pela metade (Rodrigo 2026-10-25): quem veio pelo link de um vendedor e não terminou; o administrador manda o convite do WhatsApp dele (de graça). Some em 24 h */
 async function loadLeads(){ if(!S.admin) return;
@@ -4002,10 +4012,16 @@ function bindRpp(){
     try{ await RPC("repasse_por_fora",{pid:+x.dataset.rpf}); S.rpp=(S.rpp||[]).filter(r=>r.pedido!==+x.dataset.rpf); toast(t("rppForaOk")); mainView(); }
     catch(e){ x.disabled=false; toast(errMsg(e)); } });
 }
-function comPendHTML(){ const L=S.comPend||[]; if(!L.length) return "";
-  return `<div class="card"><h2>💰 ${t("cmpT",{n:L.length})}</h2><p class="muted" style="margin-top:0">${t("cmpSub")}</p><div class="ulist">${L.map(p=>{ const v=S.vpix?.[p.vendedor], com=p.preco_cliente-p.preco_base;
-    return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(p.vendedor,vendName(p),"face")}<span><strong>${esc(vendName(p))} · ${brl(com)}</strong><br><small class="muted">${esc(boatName(p.lancha))} · ${fmtLong(p.data)}${v?.pix_chave?` · 🔑 ${esc(pixShow(v.pix_tipo,v.pix_chave))}`:""}</small></span></span>
-      <span class="reqbtns" style="margin:0">${S.asVend?.has(p.vendedor) && !p.comissao_comprovante ? `<button type="button" class="btn" data-cas="${p.id}">💳 ${t("vlPayAs")}</button>` : v?.pix_chave ? `<button type="button" class="btn sec" data-pxk="${esc(v.pix_chave)}">${t("pxCopyKey")}</button>` : ""}<button type="button" class="btn sec" data-cpg="${p.id}" data-on="1">${t("vlPay")}</button></span></div>`; }).join("")}</div></div>`; }
+/* parte de quem convidou o sócio, em reais (igual ao banco: centavos arredondados) */
+const shareOf = p => { const v=S.vpix?.[p.vendedor]; return v?.indicado_por && +v.indicacao_pct ? Math.round(Math.max((+p.preco_cliente||0)-(+p.preco_base||0),0)*v.indicacao_pct)/100 : 0; };
+const comAinda = p => !p.comissao_paga || (shareOf(p)>0 && !p.indicacao_paga);
+/* comissão só com WhatsApp e e-mail confirmados (Rodrigo 2026-10-27); sem o SQL ainda, não trava */
+const verFalta = uid => { const v=S.vver?.[uid]; return !v || (v.email_ok && v.wa_ok) ? "" : t(!v.email_ok&&!v.wa_ok?"cmpFBoth":!v.email_ok?"cmpFEm":"cmpFWa"); };
+function comPendHTML(){ const L0=S.comPend||[]; if(!L0.length) return "";
+  const rows=[]; L0.forEach(p=>{ const sh=shareOf(p); if(!p.comissao_paga) rows.push({p, uid:p.vendedor, v:p.preco_cliente-p.preco_base-sh}); if(sh>0 && !p.indicacao_paga) rows.push({p, uid:S.vpix[p.vendedor].indicado_por, v:sh, ind:1}); });
+  return `<div class="card"><h2>💰 ${t("cmpT",{n:rows.length})}</h2><p class="muted" style="margin-top:0">${t("cmpSub")}</p><div class="ulist">${rows.map(({p,uid,v:val,ind})=>{ const v=S.vpix?.[uid], nm=vendName({vendedor:uid}), fl=verFalta(uid);
+    return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(uid,nm,"face")}<span><strong>${esc(nm)} · ${brl(val)}</strong><br><small class="muted">${ind?esc(t("cmpInd",{m:vendName(p)}))+" · ":""}${esc(boatName(p.lancha))} · ${fmtLong(p.data)}${v?.pix_chave?` · 🔑 ${esc(pixShow(v.pix_tipo,v.pix_chave))}`:""}</small>${fl?`<br><small class="msg err" style="display:inline-block;margin:4px 0 0;padding:2px 8px">⚠️ ${t("cmpFalta",{o:fl})}</small>`:""}</span></span>
+      ${fl ? "" : `<span class="reqbtns" style="margin:0">${!ind && S.asVend?.has(uid) && !p.comissao_comprovante ? `<button type="button" class="btn" data-cas="${p.id}">💳 ${t("vlPayAs")}</button>` : v?.pix_chave ? `<button type="button" class="btn sec" data-pxk="${esc(v.pix_chave)}">${t("pxCopyKey")}</button>` : ""}<button type="button" class="btn sec" ${ind?"data-ipg":"data-cpg"}="${p.id}" data-on="1">${t("vlPay")}</button></span>`}</div>`; }).join("")}</div></div>`; }
 function usuariosHTML(){
   if(S.users===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlUsers")}</p></div>`;
   if(!S.users) return `<p class="loading">…</p>`;
@@ -4361,7 +4377,9 @@ function vendHTML(){
   if(S.vendas===undefined){ S.vendas=null; db("rpc/minhas_vendas_v2",{method:"POST",body:{}}).catch(()=>db("rpc/minhas_vendas",{method:"POST",body:{}})).then(r=>{ S.vendas=r; }, ()=>{ S.vendas=[]; }).then(()=>{ const x=document.getElementById("vsales"); if(x){ x.innerHTML=vSalesHTML(); bindVsales(); } }); }
   if(S.mypix===undefined){ S.mypix=null; db(`vendedores?select=pix_tipo,pix_chave&user_id=eq.${ses.user.id}`).then(r=>{ S.mypix=r[0]||{}; }, ()=>{ S.mypix=false; }).then(()=>{ const x=document.getElementById("vpix"); if(x){ x.outerHTML=vPixHTML(); bindVpix(); } }); }
   const pa=!!v.parceiro; /* parceiro: porcentagem fixa, sem ajuste (Rodrigo 2026-10-25) */
-  return `<div class="card vcard"><h2>${pa?"🤝":"💼"} ${t(pa?"pdT":"vdT")}</h2>${vPixHTML()}<p class="muted" style="margin-top:0">${t(pa?"pdHow":"vdHow")}</p>
+  if(S.vParte===undefined){ S.vParte=null; RPC("minha_parte",{}).then(r=>{ S.vParte=+r>0&&+r<=1 ? +r : 1; }, ()=>{ S.vParte=1; }).then(()=>{ const x=document.getElementById("vsoc"); if(x){ x.outerHTML=socHTML(); bindSoc(); } paintVav(); }); }
+  if(S.vVer===undefined){ S.vVer=null; RPC("verif_vendedores",{}).then(r=>{ S.vVer=(r||[]).find(x=>x.user_id===ses.user.id)||false; }, ()=>{ S.vVer=false; }).then(()=>{ const x=document.getElementById("vver"); if(x) x.outerHTML=vVerHTML(); }); }
+  return `<div class="card vcard"><h2>${pa?"🤝":"💼"} ${t(pa?"pdT":"vdT")}</h2>${vVerHTML()}${vPixHTML()}<p class="muted" style="margin-top:0">${t(pa?"pdHow":"vdHow")}</p>
     <p class="vpay">${t("vdPay")}</p>
     <div class="vlink"><code>${esc(vLink().replace(/^https?:\/\//,""))}</code><button type="button" class="btn sec" id="vcopy">${t("vdCopy")}</button><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(vLink())}">${WA_ICON}</a></div>
     <button type="button" class="btn sec" id="vnewcli" style="margin:0 0 10px">➕ ${t("vncT")}</button>
@@ -4371,6 +4389,7 @@ function vendHTML(){
       <button type="button" class="btn sec" id="vpsave">${t("save")}</button></details>`}
     ${"" /* sem lista de clientes no painel do vendedor: ele só é avisado de cada reserva (Rodrigo 2026-10-24) */}
     <details class="vdet" open><summary>${t("vdSales")}</summary><div id="vsales">${vSalesHTML()}</div></details>
+    ${socHTML()}
     ${(S.convs||[]).some(c=>c.vendedor===ses.user.id && +c.total) ? `<details class="vdet" open><summary>💬 ${t("chT")}${S.convs.some(c=>c.vendedor===ses.user.id&&+c.nao_lidas)?` <span class="unr">${S.convs.filter(c=>c.vendedor===ses.user.id).reduce((a,c)=>a+(+c.nao_lidas||0),0)}</span>`:""}</summary><p class="muted chnote">${t("chVendSub")}</p>${convListHTML(S.convs.filter(c=>c.vendedor===ses.user.id && +c.total))}</details>` : ""}</div>`;
 }
 /* vendedor: lanchas livres numa data, com o valor neto (lancha + Búzios Lanchas) e o preço dele para o cliente, com a % da temporada (Rodrigo, 2026-10-22) */
@@ -4402,7 +4421,8 @@ function vAvHTML(){
       return {b, st: full?2:m||tt?1:0, lab: full ? t("avBusy") : m||tt ? t(m?"avOnlyT":"avOnlyM",{h:t("hours_"+(m?"tarde":"manha"))}) : t("avFree")}; }).sort((x,y)=>x.st-y.st || x.b.nome.localeCompare(y.b.nome));
     const val=(b,h7)=>{ const r=(S.vavPr||[]).find(x=>x.lancha===b.slug), kb=kOf(S.vavPr,b.slug,S.vavD), base=valorNaData(r,S.vavD,h7,valOpts(r)), h=h7?"7h":"4h"; if(!base) return `${h} ${t("prOnReq")}`;
       const cli=own.includes(b.slug) ? base : Math.round(base*(1+pcOf(kb)/100)/10)*10; /* na própria lancha o dono-vendedor não soma comissão */
-      return `${h} ${brl(base)} → <b>${brl(cli)}</b>`; };
+      const bs = S.vParte>0 && S.vParte<1 ? Math.round(cli-(cli-base)*S.vParte) : base; /* sócio: a diferença é só a parte dele */
+      return `${h} ${brl(bs)} → <b>${brl(cli)}</b>`; };
     list=`<p class="avseason">${t("vavSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k), p:String(pc).replace(".",",")})}${ferOf(S.vavD)&&k!=="reveillon"?" "+t("ferNote",{f:t("fer_"+ferOf(S.vavD))}):""} ${S.vend?.parceiro?"":`<button type="button" class="link" id="vpgo">${t("vavAdj")}</button>`}</p>
       <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b)} · ${val(r.b,1)}</small>`:""}</span></li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
   return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" max="${maxISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
@@ -4436,6 +4456,26 @@ async function verComprovante(pid, b){ const w=window.open("","_blank"); if(b) b
   try{ const j=await asFn({acao:"comprovante", pid}); if(!j.url) throw new Error("sem"); if(w) w.location=j.url; else location.href=j.url; }
   catch(e){ if(w) w.close(); toast(e.message==="sem" ? t("vdRecNone") : e.message==="pendente" ? t("vdRecWait") : t("saveErr")); }
   if(b) b.disabled=false; }
+/* comissão só com WhatsApp e e-mail confirmados (Rodrigo 2026-10-27): o vendedor vende normalmente, o aviso mostra o que falta */
+function vVerHTML(){ const v=S.vVer; if(!v || (v.email_ok && v.wa_ok)) return `<div id="vver"></div>`;
+  return `<div id="vver"><p class="msg err" style="margin:0 0 12px">⚠️ ${t("vvMiss",{o:t(!v.email_ok&&!v.wa_ok?"vvBoth":!v.email_ok?"vvEm":"vvWa")})}</p></div>`; }
+/* convite de sócio (Rodrigo 2026-10-27): a comissão de cada venda do sócio é dividida meio a meio com quem convidou; um nível só */
+function socHTML(){
+  if(S.vParte==null || S.vParte<1) return `<div id="vsoc"></div>`; /* sócio não convida ninguém */
+  if(S.socs===undefined){ S.socs=null; Promise.all([RPC("meus_socios",{}), RPC("minhas_indicacoes",{})]).then(([a,b])=>{ S.socs=a||[]; S.socV=b||[]; }, ()=>{ S.socs=[]; S.socV=[]; }).then(()=>{ const x=document.getElementById("vsoc"); if(x){ x.outerHTML=socHTML(); bindSoc(); } }); }
+  const V=(S.socV||[]).filter(x=>x.status==="aprovado" && +x.valor>0), sum=L=>L.reduce((a,x)=>a+(+x.valor||0),0);
+  const rec=sum(V.filter(x=>!x.paga && x.data<todayISO())), pago=sum(V.filter(x=>x.paga));
+  return `<details class="vdet" id="vsoc"><summary>🤝 ${t("socT")}</summary><p class="muted" style="margin-top:0">${t("socSub")}</p>
+    <button type="button" class="btn wa" id="socgo">${WA_ICON} ${t("socGo")}</button><p class="muted" style="font-size:13px;margin:8px 0 0">${t("socNote")}</p>
+    ${S.socs==null ? `<p class="muted">…</p>` : S.socs.length ? `<h3 class="ugt" style="margin-top:16px">${t("socList")}</h3><ul class="soclist">${S.socs.map(s=>`<li>${face(s.user_id,s.nome,"face")}<span><b>${esc(s.nome||"—")}</b><br><small class="muted">${t("socRow")}</small></span></li>`).join("")}</ul>
+      ${V.length?`<h3 class="ugt" style="margin-top:12px">${t("socEarn")}</h3><p style="margin:0">${t("socRec",{v:brl(rec)})}${pago?` · <span class="muted">${t("socPaid",{v:brl(pago)})}</span>`:""}</p>`:""}` : `<p class="muted" style="margin:12px 0 0">${t("socNone")}</p>`}</details>`;
+}
+function bindSoc(){ const g=document.getElementById("socgo"); if(!g) return;
+  g.onclick=()=>{ const c=crypto.randomUUID();
+    /* o WhatsApp abre na hora (o celular bloqueia janela aberta depois de esperar a internet); o convite é gravado junto */
+    const url=curto(location.origin+"/?s="+c);
+    window.open("https://wa.me/?text="+encodeURIComponent(t("socMsg",{url})), "_blank", "noopener");
+    RPC("criar_convite_socio",{c}).then(()=>toast(t("socSent")), ()=>toast(t("socErr"))); }; }
 function vSalesHTML(){
   if(S.vendas==null) return `<p class="muted">…</p>`;
   if(!S.vendas.length) return `<p class="muted" style="margin:6px 0 0">${t("vdNone")}</p>`;
@@ -4500,14 +4540,18 @@ function bindMain(){
 const comPed = id => (S.reqs||[]).find(r=>r.id===id) || (S.comPend||[]).find(r=>r.id===id);
 function bindComBtns(){
   app.querySelectorAll("[data-cas]").forEach(x=>x.onclick=async()=>{ const p=comPed(+x.dataset.cas); if(!p) return;
-    if(!confirm(t("vlPayAsQ",{v:brl(p.preco_cliente-p.preco_base), n:vendName(p)}))) return; x.disabled=true;
-    try{ const j=await asFn({acao:"comissao", pid:p.id}); p.comissao_paga=new Date().toISOString(); p.comissao_comprovante="asaas:"; S.comPend=(S.comPend||[]).filter(r=>r.id!==p.id); (S.reqs||[]).forEach(r=>{ if(r.id===p.id){ r.comissao_paga=p.comissao_paga; r.comissao_comprovante="asaas:"; } }); toast(j.status && j.status!=="DONE" ? t("vlPayAsPend") : t("vlPayAsOk")); await loadAprov(); mainView(); }
-    catch(e){ x.disabled=false; toast(e.message==="depois_do_passeio" ? t("vlNotYet") : e.message==="asaas" ? (e.det||t("saveErr")) : t("vlPayAsErr")); } });
+    if(!confirm(t("vlPayAsQ",{v:brl(p.preco_cliente-p.preco_base-shareOf(p)), n:vendName(p)}))) return; x.disabled=true;
+    try{ const j=await asFn({acao:"comissao", pid:p.id}); p.comissao_paga=new Date().toISOString(); p.comissao_comprovante="asaas:"; S.comPend=(S.comPend||[]).filter(comAinda); (S.reqs||[]).forEach(r=>{ if(r.id===p.id){ r.comissao_paga=p.comissao_paga; r.comissao_comprovante="asaas:"; } }); toast(j.status && j.status!=="DONE" ? t("vlPayAsPend") : t("vlPayAsOk")); await loadAprov(); mainView(); }
+    catch(e){ x.disabled=false; toast(e.message==="depois_do_passeio" ? t("vlNotYet") : e.message==="falta_confirmar" ? t("vlFalta") : e.message==="asaas" ? (e.det||t("saveErr")) : t("vlPayAsErr")); } });
   app.querySelectorAll("[data-cpg]").forEach(x=>x.onclick=async()=>{ const on=x.dataset.on==="1"; x.disabled=true;
-    try{ const id=+x.dataset.cpg; await RPC("pagar_comissao",{pid:id, sim:on}); (S.reqs||[]).forEach(r=>{ if(r.id===id) r.comissao_paga=on?new Date().toISOString():null; });
-      if(on){ S.comPend=(S.comPend||[]).filter(r=>r.id!==id); fnPost("aviso-vendedor",{tipo:"pago", id}); /* o vendedor fica sabendo que recebeu */ } else loadComPend().then(bgView);
+    try{ const id=+x.dataset.cpg; await RPC("pagar_comissao",{pid:id, sim:on}); [...(S.reqs||[]), ...(S.comPend||[])].forEach(r=>{ if(r.id===id) r.comissao_paga=on?new Date().toISOString():null; });
+      if(on){ S.comPend=(S.comPend||[]).filter(comAinda); fnPost("aviso-vendedor",{tipo:"pago", id}); /* o vendedor fica sabendo que recebeu */ } else loadComPend().then(bgView);
       toast(t(on?"vlPaidOk":"vlUndone")); mainView(); }
-    catch(e){ x.disabled=false; toast(/depois_do_passeio/.test(e.message||"") ? t("vlNotYet") : errMsg(e)); } });
+    catch(e){ x.disabled=false; toast(/depois_do_passeio/.test(e.message||"") ? t("vlNotYet") : /falta_confirmar/.test(e.message||"") ? t("vlFalta") : errMsg(e)); } });
+  /* parte de quem convidou o sócio: paga por Pix e marcada aqui */
+  app.querySelectorAll("[data-ipg]").forEach(x=>x.onclick=async()=>{ x.disabled=true;
+    try{ const id=+x.dataset.ipg; await RPC("pagar_indicacao",{pid:id, sim:true}); (S.comPend||[]).forEach(r=>{ if(r.id===id) r.indicacao_paga=new Date().toISOString(); }); S.comPend=(S.comPend||[]).filter(comAinda); toast(t("vlPaidOk")); mainView(); }
+    catch(e){ x.disabled=false; toast(/depois_do_passeio/.test(e.message||"") ? t("vlNotYet") : /falta_confirmar/.test(e.message||"") ? t("vlFalta") : errMsg(e)); } });
   app.querySelectorAll("[data-pxk]").forEach(x=>x.onclick=()=>copyTxt(x.dataset.pxk));
 }
 function bindMainRest(){
@@ -5408,6 +5452,10 @@ async function toggle(d,k){
 }
 
 /* ===== início: confere o login, descobre as lanchas do dono e abre a agenda ===== */
+async function socioAceitar(){ const c=store.get("socio-c"); if(!c || !ses) return;
+  const r=await RPC("aceitar_convite_socio",{c}).catch(e=>e.status===404 ? null : "erro"); if(r===null || r==="erro") return; /* sem o SQL ainda ou sem rede: tenta no próximo acesso */
+  store.set("socio-c",null); S.vendas=undefined; S.vParte=undefined;
+  if(r==="ok") setTimeout(()=>toast(t("socOk")),1500); else if(r==="ja_vendedor") setTimeout(()=>toast(t("socJa")),1500); else if(r==="invalido") setTimeout(()=>toast(t("socInv")),1500); }
 async function boot(){
   app.innerHTML = `<p class="loading">…</p>`; S.notes = true;
   try{
@@ -5422,6 +5470,7 @@ async function boot(){
     const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome,dados,ativa,oculta&order=nome").catch(e=>e.status===400 ? db("lanchas?select=slug,nome,dados,ativa&order=nome").catch(x=>x.status===400 ? db("lanchas?select=slug,nome&order=nome") : Promise.reject(x)) : Promise.reject(e)), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
     if(S.admin && new URLSearchParams(location.search).get("consulta")){ S.tab="pedidos"; S.reqF="pendente"; history.replaceState(null,"",location.pathname); } /* aviso "não chamou no WhatsApp" */
+    await socioAceitar();
     S.vend = (await db("rpc/meu_vendedor",{method:"POST",body:{}}).catch(()=>[]))[0] || null; await loadVendIds();
     await loadEq(); /* chat da equipe: quem é da equipe vê o card */
     if(S.eq?.membro && new URLSearchParams(location.search).get("equipe")){ history.replaceState(null,"",location.pathname); setTimeout(openEq, 600); } /* toque no aviso de alerta */
@@ -5519,9 +5568,11 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
     if(h.get("type")==="recovery" || h.get("type")==="invite"){ view="newpw"; return show(); }
   }
   const qs=new URLSearchParams(location.search);
+  if(s2u(qs.get("s"))){ store.set("socio-c", s2u(qs.get("s"))); /* convite de sócio (Rodrigo 2026-10-27): quem abriu vira vendedor ligado a quem convidou, depois de entrar */
+    fetch(SB+"/rest/v1/rpc/convite_socio_info",{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+KEY, "content-type":"application/json"}, body:JSON.stringify({c:s2u(qs.get("s"))})}).then(r=>r.ok?r.json():[]).then(j=>{ socNome=j?.[0]?.nome||""; if(view==="signup") show(); }).catch(()=>{}); }
   if(s2u(qs.get("c"))) store.set("conv-c", s2u(qs.get("c"))); /* convite pelo WhatsApp: o passeio entra na conta de quem abriu o link */
   if(s2u(qs.get("w"))) store.set("wa-link",{w:s2u(qs.get("w"))}); /* link do aviso do passeio: só chegou naquele WhatsApp, então confirma o número (Rodrigo 2026-10-27) */
-  if(qs.has("c")||qs.has("w")){ const q2=new URLSearchParams(location.search); q2.delete("c"); q2.delete("w"); history.replaceState(null,"",location.pathname+(q2.toString()?"?"+q2:"")+location.hash); } /* o código secreto não fica no endereço (histórico, print, compartilhar) */
+  if(qs.has("c")||qs.has("w")||qs.has("s")){ const q2=new URLSearchParams(location.search); q2.delete("c"); q2.delete("w"); q2.delete("s"); history.replaceState(null,"",location.pathname+(q2.toString()?"?"+q2:"")+location.hash); } /* o código secreto não fica no endereço (histórico, print, compartilhar) */
   const vq=(qs.get("v")||"").trim().toUpperCase(); if(/^[A-Z0-9]{2,14}$/.test(vq)) try{ localStorage.setItem("vend",JSON.stringify({cod:vq, t:Date.now(), n:1})); }catch(e){} /* convite do vendedor: o cliente fica ligado a ele, como no link do site */
   if(!ses && qs.get("criar")==="1"){ view="signup"; /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
     if(qs.get("email")) typedEmail=qs.get("email");
