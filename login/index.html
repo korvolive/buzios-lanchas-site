@@ -2093,7 +2093,9 @@ document.addEventListener("click", e => { if(lvBypass || !prDirty()) return; con
   if(el.matches("a") && (el.target==="_blank" || el.getAttribute("href").startsWith("#") || !/^https?:/.test(el.href) || /wa\.me\//.test(el.href))) return;
   e.preventDefault(); e.stopPropagation();
   const sel = el.dataset.tab ? `[data-tab="${el.dataset.tab}"]` : el.dataset.b ? `[data-b="${el.dataset.b}"]` : el.id==="out" ? "#out" : null, href = el.matches("a") ? el.href : null;
-  askLeave(() => { if(href) return void (location.href=href); const x = el.isConnected ? el : sel && document.querySelector(sel); if(x){ lvBypass=true; try{ x.click(); } finally{ lvBypass=false; } } }); }, true);
+  const go = () => { if(href) return void (location.href=href); const x = el.isConnected ? el : sel && document.querySelector(sel); if(x){ lvBypass=true; try{ x.click(); } finally{ lvBypass=false; } } };
+  /* os valores salvam sozinhos: ao sair antes do salvamento automático terminar, salva na hora e segue; só pergunta se algum valor não passou na conferência (Rodrigo 2026-10-27) */
+  (async () => { let ok=false; try{ ok = await S.prSave?.(); }catch(e){} ok ? go() : askLeave(go); })(); }, true);
 addEventListener("beforeunload", e => { if(prDirty()){ e.preventDefault(); e.returnValue=""; } });
 const mnKeep = () => { S.mnDraft = {...(S.mnDraft||{})}; app.querySelectorAll(".mnet [data-k]").forEach(i=>{ S.mnDraft[i.dataset.k]=i.value; }); };
 /* feriados que valem (toque para tirar): usado no card do dono e no do administrador */
