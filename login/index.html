@@ -185,7 +185,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .day.half.ht{background:linear-gradient(135deg,var(--cfree) 50%,var(--cbusy) 50%)}
 .day.half b,.day.half small{text-shadow:0 0 3px var(--cfree),0 0 3px var(--cfree)}
 .day.today{outline:2.5px solid var(--brass);outline-offset:1px}
-.day.past{opacity:.5}
+.day.past{opacity:.28;filter:grayscale(.6)}
 .day.empty{visibility:hidden}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin:12px 0 0}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:5px;border:1.5px solid var(--line);background:var(--surface)}
@@ -1900,6 +1900,8 @@ const FORA_DESDE = "2026-10-21"; /* passeios de fora: o dono confirma a partir d
 const foldGet = () => { try{ return JSON.parse(localStorage.getItem("dobra")||"{}")||{}; }catch(e){ return {}; } };
 const foldOpen = (k, def=true) => foldGet()[k] ?? def;
 /* 2026-10-25: dono, marinheiro, freelancers e manutenção passaram a começar fechados; esquece o que ficou guardado deles uma vez */
+/* Consultas pelo site (Rodrigo 2026-10-27): abre sempre aberta quando entra no app; fechar vale só até sair */
+try{ const L=foldGet(); if("cons" in L){ delete L.cons; localStorage.setItem("dobra", JSON.stringify(L)); } }catch(e){}
 try{ if(!localStorage.getItem("dobra-v2")){ const L=foldGet(); ["mar","frl","mnt","dono"].forEach(k=>delete L[k]); localStorage.setItem("dobra", JSON.stringify(L)); localStorage.setItem("dobra-v2","1"); } }catch(e){}
 document.addEventListener("toggle", e=>{ const d=e.target; if(!d.matches?.("details.fold")) return;
   try{ const L=foldGet(); L[d.dataset.fold]=d.open; localStorage.setItem("dobra", JSON.stringify(L)); }catch(x){} }, true);
