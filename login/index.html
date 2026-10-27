@@ -18,17 +18,18 @@
   --bg:#f3f7f8; --surface:#ffffff; --ink:#0c2430; --muted:#55707b; --line:#d6e2e6;
   --sea:#0b5c73; --sea-deep:#06394a; --brass:#c99a2e; --brass-ink:#3d2c06; --chip:#e3eff2;
   --half:#f6e7bf; --half-ink:#5a4105; --full:#06394a; --full-ink:#ffffff; --bad:#b3261e;
+  --cfree:#e7f5ec; --cfree-line:#8fcaa4; --cfree-ink:#1d6b3b; --cbusy:#c0392b; --cbusy-ink:#ffffff;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#071a22; --surface:#0d2531; --ink:#e6f1f4; --muted:#93aeb8; --line:#1d3a47;
   --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241;
-  --half:#4a3a12; --half-ink:#f6e3ad; --full:#4fb3cc; --full-ink:#04202a; --bad:#ff8a80; color-scheme:dark}}
+  --half:#4a3a12; --half-ink:#f6e3ad; --full:#4fb3cc; --full-ink:#04202a; --bad:#ff8a80; --cfree:#123524; --cfree-line:#2f7a4f; --cfree-ink:#bff0d2; --cbusy:#c0392b; --cbusy-ink:#ffffff; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#071a22; --surface:#0d2531; --ink:#e6f1f4; --muted:#93aeb8; --line:#1d3a47;
   --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241;
-  --half:#4a3a12; --half-ink:#f6e3ad; --full:#4fb3cc; --full-ink:#04202a; --bad:#ff8a80; color-scheme:dark}
+  --half:#4a3a12; --half-ink:#f6e3ad; --full:#4fb3cc; --full-ink:#04202a; --bad:#ff8a80; --cfree:#123524; --cfree-line:#2f7a4f; --cfree-ink:#bff0d2; --cbusy:#c0392b; --cbusy-ink:#ffffff; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body);min-height:100vh;-webkit-tap-highlight-color:transparent}
@@ -176,14 +177,19 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .day{aspect-ratio:1/1.08;border:1.5px solid var(--line);background:var(--surface);border-radius:11px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-width:0}
 .day b{font-size:16px}
 .day small{font-size:10px;font-weight:700;line-height:1.1;text-align:center;white-space:nowrap;overflow:hidden;max-width:100%}
-.day.half{background:var(--half);border-color:var(--half);color:var(--half-ink)}
-.day.full{background:var(--full);border-color:var(--full);color:var(--full-ink)}
+/* calendário no padrão de hotel (Rodrigo 2026-10-27): verde livre, vermelho ocupado; meio período pinta só a metade (manhã em cima, tarde embaixo) */
+.day.free{background:var(--cfree);border-color:var(--cfree-line);color:var(--cfree-ink)}
+.day.full{background:var(--cbusy);border-color:var(--cbusy);color:var(--cbusy-ink)}
+.day.half{border-color:var(--cbusy);color:var(--ink);font-weight:700}
+.day.half.hm{background:linear-gradient(135deg,var(--cbusy) 50%,var(--cfree) 50%)}
+.day.half.ht{background:linear-gradient(135deg,var(--cfree) 50%,var(--cbusy) 50%)}
+.day.half b,.day.half small{text-shadow:0 0 3px var(--cfree),0 0 3px var(--cfree)}
 .day.today{outline:2.5px solid var(--brass);outline-offset:1px}
-.day.past{opacity:.38}
+.day.past{opacity:.5}
 .day.empty{visibility:hidden}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin:12px 0 0}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:5px;border:1.5px solid var(--line);background:var(--surface)}
-.legend i.half{background:var(--half);border-color:var(--half)} .legend i.full{background:var(--full);border-color:var(--full)}
+.legend i.free{background:var(--cfree);border-color:var(--cfree-line)} .legend i.half{background:linear-gradient(135deg,var(--cbusy) 50%,var(--cfree) 50%);border-color:var(--cbusy)} .legend i.full{background:var(--cbusy);border-color:var(--cbusy)}
 .up{list-style:none;margin:0;padding:0}
 .up li button{width:100%;display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:12px 2px}
 .up li:first-child button{border-top:0}
@@ -1812,7 +1818,7 @@ document.addEventListener("input", e => {
     else if(g._all.some(o=>o.value===keep) && !hit.some(o=>o.value===keep)) sel.value = ""; }
 });
 const daySize = s => s ? s.size - (s.has("noite")?1:0) : 0;
-function dayState(s){ if(!s || !s.size) return ""; return (s.has("dia") || (s.has("manha") && s.has("tarde"))) ? "full" : "half"; }
+function dayState(s){ if(!s || !s.size) return "free"; return (s.has("dia") || (s.has("manha") && s.has("tarde"))) ? "full" : s.has("manha") ? "half hm" : "half ht"; }
 const withNight = (s,txt,key) => s.has("noite") ? (txt ? txt+"+"+t(key==="c"?"c_noite":"slot_noite") : t(key==="c"?"c_noite":"slot_noite")) : txt;
 const cellLabel = s => !s||!s.size ? "" : withNight(s, !daySize(s) ? "" : s.has("dia") ? t("c_dia") : s.has("manha")&&s.has("tarde") ? t("c_manha")+"<br>"+t("c_tarde") : s.has("manha") ? t("c_manha") : t("c_tarde"), "c");
 const dayLabel = s => !s||!s.size ? "" : withNight(s, !daySize(s) ? "" : s.has("dia") ? t("full") : s.has("manha")&&s.has("tarde") ? t("m")+"+"+t("tA") : s.has("manha") ? t("m") : t("tA"), "l");
@@ -1825,12 +1831,12 @@ function calendarHTML(){
   for(let d=1; d<=days; d++){
     const k=`${y}-${pad(mo+1)}-${pad(d)}`, s=S.blocks.get(k), past=k<td;
     const mt=mntOn(k);
-    cells += `<button type="button" class="day ${dayState(s)}${mt?" mnt":""}${k===td?" today":""}${past?" past":""}" data-d="${k}"${past?" disabled":""} aria-label="${fmtLong(k)}${mt?": "+t("mntLeg"):""}${s&&s.size?": "+dayLabel(s):""}"><b>${d}</b><small>${mt&&!(s&&s.size)?"🔧":cellLabel(s)}</small></button>`;
+    cells += `<button type="button" class="day ${dayState(s)}${mt?" mnt":""}${k===td?" today":""}${past?" past":""}" data-d="${k}"${past?" disabled":""} aria-label="${fmtLong(k)}${mt?": "+t("mntLeg"):""}${s&&s.size?": "+dayLabel(s):""}"><b>${d}</b><small>${mt&&!(s&&s.size)?"🔧":(s&&s.size)?cellLabel(s):t("free")}</small></button>`;
   }
   return `<div class="card">
     <div class="cal-head"><button type="button" id="pm" aria-label="${t("prev")}"${m<=thisMonth?" disabled":""}>‹</button><h2>${cap(m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h2><button type="button" id="nm" aria-label="${t("next")}">›</button></div>
     <div class="cal">${wds.map(w=>`<span class="wd">${w}</span>`).join("")}${cells}</div>
-    <div class="legend"><span><i></i>${t("free")}</span><span><i class="half"></i>${t("half")}</span><span><i class="full"></i>${t("full")}</span>${mntList().some(m=>m.de.slice(0,7)<=`${y}-${pad(mo+1)}` && `${y}-${pad(mo+1)}`<=m.ate.slice(0,7))?`<span><i class="mntl"></i>${t("mntLeg")}</span>`:""}</div>
+    <div class="legend"><span><i class="free"></i>${t("free")}</span><span><i class="half"></i>${t("half")}</span><span><i class="full"></i>${t("full")}</span>${mntList().some(m=>m.de.slice(0,7)<=`${y}-${pad(mo+1)}` && `${y}-${pad(mo+1)}`<=m.ate.slice(0,7))?`<span><i class="mntl"></i>${t("mntLeg")}</span>`:""}</div>
     ${monthSummaryHTML()}
   </div>`;
 }
@@ -1998,7 +2004,7 @@ let avSeq=0;
 /* passeio pago por completo, em revenda ou finalizado: não há o que cobrar no embarque */
 const SEM_RECEBER = ["finalizado","pago","revenda"];
 /* calendário dentro de Passeios, logo abaixo de "Valores a receber no embarque" (Rodrigo 2026-10-25) */
-const calFoldHTML = () => S.cur==="*" || !S.month ? "" : `<details class="fold calf" data-fold="cal"${foldOpen("cal",false)?" open":""} style="margin:6px 0 18px">${foldSum(`📅 ${t("tabCal")}`)}${isRO() ? "" : `<p class="how muted" style="margin-top:0">${t("how")}</p>`}${calendarHTML()}</details>`;
+const calFoldHTML = () => S.cur==="*" || !S.month ? "" : `<details class="fold calf" data-fold="cal2"${foldOpen("cal2",true)?" open":""} style="margin:6px 0 18px">${foldSum(`📅 ${t("tabCal")}`)}${isRO() ? "" : `<p class="how muted" style="margin-top:0">${t("how")}</p>`}${calendarHTML()}</details>`;
 /* repasse do PayPal (Rodrigo 2026-10-25, escondido até a homologação do Asaas): o dono vê a parte dele do sinal e se já foi enviada */
 function rcRep(bid){ const x=S.meuRep?.[bid]; if(!x) return t("rcBz");
   return `${t("rcRepV",{v:brl(+x.valor)})}<br>${x.enviado_em ? t(x.por_fora?"rcRepFora":"rcRepOk",{d:new Date(x.enviado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})}) : t("rcRepPend")}`; }
