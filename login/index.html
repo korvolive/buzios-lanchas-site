@@ -4377,7 +4377,7 @@ function vendHTML(){
   if(S.vendas===undefined){ S.vendas=null; db("rpc/minhas_vendas_v2",{method:"POST",body:{}}).catch(()=>db("rpc/minhas_vendas",{method:"POST",body:{}})).then(r=>{ S.vendas=r; }, ()=>{ S.vendas=[]; }).then(()=>{ const x=document.getElementById("vsales"); if(x){ x.innerHTML=vSalesHTML(); bindVsales(); } }); }
   if(S.mypix===undefined){ S.mypix=null; db(`vendedores?select=pix_tipo,pix_chave&user_id=eq.${ses.user.id}`).then(r=>{ S.mypix=r[0]||{}; }, ()=>{ S.mypix=false; }).then(()=>{ const x=document.getElementById("vpix"); if(x){ x.outerHTML=vPixHTML(); bindVpix(); } }); }
   const pa=!!v.parceiro; /* parceiro: porcentagem fixa, sem ajuste (Rodrigo 2026-10-25) */
-  if(S.vParte===undefined){ S.vParte=null; RPC("minha_parte",{}).then(r=>{ S.vParte=+r>0&&+r<=1 ? +r : 1; }, ()=>{ S.vParte=1; }).then(()=>{ const x=document.getElementById("vsoc"); if(x){ x.outerHTML=socHTML(); bindSoc(); } paintVav(); }); }
+  if(S.vParte===undefined){ S.vParte=null; RPC("minha_parte",{}).then(r=>{ S.vParte=+r>0&&+r<=1 ? +r : 1; }, ()=>{ S.vParte=0; /* sem o SQL dos sócios ainda: o convite não aparece */ }).then(()=>{ const x=document.getElementById("vsoc"); if(x){ x.outerHTML=socHTML(); bindSoc(); } paintVav(); }); }
   if(S.vVer===undefined){ S.vVer=null; RPC("verif_vendedores",{}).then(r=>{ S.vVer=(r||[]).find(x=>x.user_id===ses.user.id)||false; }, ()=>{ S.vVer=false; }).then(()=>{ const x=document.getElementById("vver"); if(x) x.outerHTML=vVerHTML(); }); }
   return `<div class="card vcard"><h2>${pa?"🤝":"💼"} ${t(pa?"pdT":"vdT")}</h2>${vVerHTML()}${vPixHTML()}<p class="muted" style="margin-top:0">${t(pa?"pdHow":"vdHow")}</p>
     <p class="vpay">${t("vdPay")}</p>
