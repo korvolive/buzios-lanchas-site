@@ -1289,9 +1289,9 @@ const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? (iso ? 
 const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[pctKey(key)] ?? VEND_PADRAO), 1), Math.min(+v?.teto || VEND_TETO, VEND_TETO));
 const ownBoat = (v, b) => !!b && (v?.proprias||[]).includes(b.slug); /* dono que também vende: sem comissão nas próprias lanchas */
 const cliPrice = (base, key, v=VEND, b=null) => base && v && !ownBoat(v,b) ? Math.round(base*(1+vPct(v,key)/100)/10)*10 : base; /* valor cheio, redondo de 10 em 10 */
-/* parceiro (pousada, restaurante; Rodrigo 2026-10-25): 8% fixos sobre o preço, 3% viram desconto do cliente e 5% são do parceiro (Rodrigo 2026-10-27).
-   O cliente paga o preço + 5% (pcts do parceiro); o site mostra o preço + 8% riscado e o desconto */
-const PARC_CHEIO = 8;
+/* parceiro (pousada, restaurante; Rodrigo 2026-10-25): 6% fixos sobre o preço, 3% viram desconto do cliente e 3% são do parceiro (Rodrigo 2026-10-27).
+   O cliente paga o preço + 3% (pcts do parceiro); o site mostra o preço + 6% riscado e o desconto */
+const PARC_CHEIO = 6;
 const parcDe = (base, b=null) => VEND?.parceiro && base && !ownBoat(VEND,b) ? Math.round(base*(1+PARC_CHEIO/100)/10)*10 : 0;
 const parcBox = (base, c, b) => { const de=parcDe(base,b); return de>c ? `<p class="parc">🎁 ${t("parcDesc",{n:esc(VEND.empresa||VEND.nome), v:money(de-c)})}</p>` : ""; };
 const parcRisco = (base, c, b) => { const de=parcDe(base,b); return de>c ? `<s class="parc-de">${money(de)}</s> ` : ""; };
