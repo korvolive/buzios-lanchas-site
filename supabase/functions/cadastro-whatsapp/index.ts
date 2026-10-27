@@ -14,6 +14,10 @@
 //                                            (o site já gravou o contato com criar_lead_vendedor) pede o código para liberar os valores
 // POST { acao: "lead", tel, codigo, cod, nome, email } -> { ok } marca vendedor_leads.wa_ok_em (WhatsApp confirmado: o contato fica 12 meses com o vendedor do código cod,
 //                                            com o nome e o e-mail que o próprio cliente digitou)
+// POST { acao: "link_info", w } -> { ok, tel, nome, conta } quem abriu o link do aviso do passeio (w = wa_provas.token, só foi para aquele número)
+// POST { acao: "criar_link", w, senha, nome, cpf, whatsapp, nascimento, lang } -> a sessão (conta com o WhatsApp já confirmado, sem código;
+//                                            Rodrigo 2026-10-27) | { erro: "link" | "ja_tem" | "tel_ja" | "cpf_ja" | "cpf" | "dados" }
+//   "lead" também devolve { prova }: o cadastro feito depois no mesmo aparelho já nasce com o WhatsApp confirmado.
 // Segredos: WA_TOKEN, WA_PHONE_ID, WA_ATIVO=1 (os mesmos da whatsapp-codigo).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -95,6 +99,36 @@ Deno.serve(async req => {
       return json({ ok: true, email: novo });
     }
 
+    // ----- link que o número oficial mandou só para aquele WhatsApp (ou que o próprio cliente ganhou ao confirmar o código):
+    // abrir por ele já confirma o WhatsApp, sem código (Rodrigo 2026-10-27). Vale 30 dias e uma conta só.
+    if (b.acao === "link_info" || b.acao === "criar_link") {
+      const w = String(b.w || "");
+      if (!/^[0-9a-f-]{36}$/i.test(w)) return json({ erro: "link" }, 400);
+      const { data: p } = await db.from("wa_provas").select("tel_dig, usado_em, criado_em").eq("token", w).maybeSingle();
+      if (!p || p.usado_em || Date.now() - new Date(p.criado_em).getTime() > 30 * 864e5) return json({ erro: "link" }, 400);
+      const tl = p.tel_dig;
+      if (b.acao === "link_info") {
+        const { data: cv } = await db.from("convites").select("nome").eq("tel_dig", tl).order("criado_em", { ascending: false }).limit(1).maybeSingle();
+        return json({ ok: true, tel: tl, nome: cv?.nome || "", conta: (await contas(tl)).length > 0 });
+      }
+      const nome = String(b.nome || "").replace(/\s+/g, " ").trim(), senha = String(b.senha || ""), cpf = dig(b.cpf) || null, nasc = String(b.nascimento || "");
+      const whatsapp = String(b.whatsapp || "").trim();
+      if (nome.length < 5 || !nome.includes(" ") || senha.length < 6 || (nasc && !/^\d{4}-\d{2}-\d{2}$/.test(nasc))) return json({ erro: "dados" }, 400); // nascimento e CPF ficam para depois
+      if (dig(whatsapp) !== tl) return json({ erro: "link" }, 400); // outro número: segue o cadastro normal
+      if ((await contas(tl)).length) return json({ erro: "ja_tem" });
+      const { data: uso } = await db.from("wa_provas").update({ usado_em: new Date().toISOString() }).eq("token", w).is("usado_em", null).select("token").maybeSingle();
+      if (!uso) return json({ erro: "link" }, 400);
+      const email = `wa${tl}${SEM}`;
+      const { data: nu, error } = await db.auth.admin.createUser({ email, password: senha, email_confirm: true, user_metadata: { lang: b.lang || "pt", full_name: nome, sem_email: true } });
+      if (error || !nu?.user) { await db.from("wa_provas").update({ usado_em: null }).eq("token", w); return json({ erro: /already|registered|exists/i.test(error?.message || "") ? "ja_tem" : "falhou" }, 400); }
+      const { error: ce } = await db.from("clientes").insert({ user_id: nu.user.id, nome, cpf, whatsapp, nascimento: nasc || null, whatsapp_ok_em: new Date().toISOString() });
+      if (ce) {
+        await db.auth.admin.deleteUser(nu.user.id); await db.from("wa_provas").update({ usado_em: null }).eq("token", w);
+        return json({ erro: ce.code === "23505" ? (/whatsapp/i.test(ce.message) ? "tel_ja" : "cpf_ja") : /check|cpf/i.test(ce.message) ? "cpf" : "dados" }, 400);
+      }
+      return json(await sessao(email, senha));
+    }
+
     if (!ATIVO) return json({ erro: "nao_configurado" }, 503);
     const t = dig(b.tel);
     if (t.length < 10 || t.length > 15) return json({ erro: "tel" }, 400);
@@ -130,7 +164,8 @@ Deno.serve(async req => {
         if (em && em.length <= 200 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) upd.email = em;
       }
       await db.from("vendedor_leads").update(upd).eq("id", l.id);
-      return json({ ok: true });
+      const { data: pv } = await db.from("wa_provas").insert({ tel_dig: t, origem: "lead" }).select("token").single(); // o cadastro depois, no mesmo aparelho, já nasce com o WhatsApp confirmado
+      return json({ ok: true, prova: pv?.token || null });
     }
 
     // ----- entrou pelo Google (ou outro e-mail) com o WhatsApp de uma conta que já existe: junta as duas (Rodrigo 2026-10-23)
