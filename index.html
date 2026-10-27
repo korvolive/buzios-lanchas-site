@@ -92,6 +92,7 @@ html.is-app #hdr-login{display:none}
 /* Hero */
 .b-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px}.b-title h1{margin:0}.b-avatar{flex:none;width:128px;height:128px;margin-right:14%;position:relative;top:-14px;border-radius:50%;object-fit:cover;border:1.5px solid var(--brass);box-shadow:0 6px 20px rgba(0,0,0,.22)}@media (max-width:760px){.b-avatar{width:96px;height:96px;margin-right:11%;top:-10px}}
 .b-title.sel{justify-content:flex-start;flex-wrap:wrap;gap:8px 14px}
+.b-share{display:inline-flex;align-items:center;gap:6px;flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}.b-share:hover{border-color:var(--sea)}.b-title:not(.sel) .b-share{margin-right:auto}
 .selo{position:relative}
 .selo > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font:700 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--brass-ink);background:var(--brass);border-radius:999px;padding:7px 11px;box-shadow:0 2px 10px rgba(201,154,46,.35);animation:selo 2.6s ease-in-out 1s 2}
 .selo > summary::-webkit-details-marker{display:none}
@@ -539,7 +540,7 @@ h1,h2,h3{line-height:1.15}
   .boat .b-info{display:contents}
   .b-info > div:first-child{order:1}.boat .b-media{display:contents}.b-media > *{order:2}.boat .pricebox{order:3}.boat .b-more{display:contents}.b-more > *{order:4} /* vídeo, "O que trazer" e avaliações depois da reserva */
   .b-head{text-align:center}
-  .b-title{flex-direction:column-reverse;gap:10px}.b-avatar{margin:0;top:0;width:88px;height:88px}
+  .b-title{flex-direction:column-reverse;gap:10px}.b-title:not(.sel) .b-share{order:-1;margin:0 auto}.b-avatar{margin:0;top:0;width:88px;height:88px}
   .lead{font-size:16px;line-height:1.6}
   .spec-row{margin:18px 0 0}.spec-row div{text-align:center;padding:12px 8px}
   .pricebox{padding:20px 18px}.pricebox > h2{text-align:center}
@@ -1098,6 +1099,20 @@ const UI = {
   }
 };
 /* cupom de fidelidade (Rodrigo, 2026-10-22) */
+/* compartilhar a página da lancha (Rodrigo 2026-10-27): no app não aparece o endereço, então cada lancha tem o botão.
+   Quem é vendedor (donos e marinheiros também) compartilha com o código dele: o cliente que abrir fica ligado a quem mandou */
+const SHARE_ICO='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
+document.addEventListener("click", async e=>{ const btn=e.target.closest("[data-share]"); if(!btn) return; e.preventDefault();
+  const b={name:btn.closest(".b-title")?.querySelector("h1")?.textContent||""}, u=new URL(SITE+location.pathname);
+  if(ME?.codigo) u.searchParams.set("v", ME.codigo);
+  const url=u.toString(), title=b?.name ? `${b.name} · Búzios Lanchas` : document.title;
+  if(navigator.share){ try{ await navigator.share({title, text:t("shareTxt",{boat:b?.name||""}), url}); return; }catch(err){ if(err?.name==="AbortError") return; } }
+  const lb=btn.querySelector("span"), old=lb.textContent;
+  try{ await navigator.clipboard.writeText(url); lb.textContent=t("shareOk"); }catch(err){ prompt(t("shareL"), url); }
+  setTimeout(()=>{ lb.textContent=old; }, 2200); });
+Object.assign(UI.pt, {shareB:"Compartilhar", shareL:"Compartilhar o link desta lancha", shareOk:"Link copiado ✓", shareTxt:"Olha essa lancha em Búzios: {boat}"});
+Object.assign(UI.en, {shareB:"Share", shareL:"Share this boat's link", shareOk:"Link copied ✓", shareTxt:"Check out this boat in Búzios: {boat}"});
+Object.assign(UI.es, {shareB:"Compartir", shareL:"Compartir el enlace de esta lancha", shareOk:"Enlace copiado ✓", shareTxt:"Mira esta lancha en Búzios: {boat}"});
 Object.assign(UI.pt, {cdTag:"🎁 Passeou nesta lancha? Ganhe um cupom de desconto para o próximo passeio.", cdTagV:"🎁 Passeou nesta lancha? Ganhe {v} de desconto no próximo passeio."});
 Object.assign(UI.en, {cdTag:"🎁 Toured on this boat? Get a discount coupon for your next tour.", cdTagV:"🎁 Toured on this boat? Get {v} off your next tour."});
 Object.assign(UI.es, {cdTag:"🎁 ¿Paseaste en esta lancha? Gana un cupón de descuento para el próximo paseo.", cdTagV:"🎁 ¿Paseaste en esta lancha? Gana {v} de descuento en el próximo paseo."});
@@ -2223,7 +2238,7 @@ function boatPage(b){
       <div class="b-info">
         <div>
           <div class="b-head"><span class="eyebrow">${t("boat")}</span>
-          <div class="b-title${b.featured?" sel":""}"><h1>${b.name}</h1>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
+          <div class="b-title${b.featured?" sel":""}"><h1>${b.name}</h1><button type="button" class="b-share" data-share="${b.slug}" aria-label="${t("shareL")}">${SHARE_ICO}<span>${t("shareB")}</span></button>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
           </div>
           <div class="spec-row">
             <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
