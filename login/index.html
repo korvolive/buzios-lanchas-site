@@ -802,6 +802,9 @@ Object.assign(T.pt, {pastDate:"Escolha uma data entre hoje e daqui a 2 anos.", p
 Object.assign(T.en, {pastDate:"Choose a date between today and 2 years from now.", pushTest:"Test notification on this device", pushTestOk:"Test sent. If it doesn't show up in a few seconds, check that the app's notifications are allowed in the phone settings.", pushTestFail:"Couldn't send the test. Close and reopen the app and try again.", cliHowT:"How the tours work", cliHow:"Búzios Lanchas handles your booking and connects you with each boat owner. The tour is run by the boat owner, who is responsible for the boat, the crew and safety on board. Any questions, message us in the Chat or on WhatsApp.", payHint:"Your booking is only confirmed after the 50% deposit. Pay by Pix below and send the receipt here.", payBtn:"Send receipt on WhatsApp", waDeposit:"Hi! Here is the receipt for the 50% deposit of my booking: boat {boat}, {date}, {slot}.", resSignupSub:"Just create your account (takes 1 minute). Then we take you back to {boat}, where you check the details and confirm your booking request.", resLoginSub:"Sign in to your account. Then we take you back to {boat}, where you check the details and confirm your booking request.", avAdjT:"Adjust your photo", avFinding:"Looking for your face…", avAdjSub:"We centered your face. If you like, drag to move it and use the slider to zoom.", avZoom:"Zoom", avSave:"Save photo", avT:"Your photo", avSub:"Búzios Lanchas and the people you work with can see it.", avPick:"Choose a photo", avSelfie:"Take a selfie", avGoogle:"Use my Google photo", avRm:"Remove photo", avSaved:"Photo saved!", avRemoved:"Photo removed.", avErr:"Couldn't save the photo. Try another picture.", avNeedSql:"The photos folder is missing in Supabase (file 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Change photo", avSaving:"Saving the photo…"});
 Object.assign(T.es, {pastDate:"Elige una fecha entre hoy y dentro de 2 años.", pushTest:"Probar notificación en este dispositivo", pushTestOk:"Enviamos una prueba. Si no aparece en unos segundos, revisa que las notificaciones de la app estén permitidas en los ajustes del celular.", pushTestFail:"No se pudo enviar la prueba. Cierra y abre la app y vuelve a intentarlo.", cliHowT:"Cómo funcionan los paseos", cliHow:"Búzios Lanchas gestiona tu reserva y te conecta con el dueño de cada lancha. El paseo lo hace el propio dueño de la embarcación, que responde por la lancha, la tripulación y la seguridad a bordo. Cualquier duda, escríbenos por el Chat o por WhatsApp.", payHint:"Tu reserva solo se confirma después de la seña del 50%. Págala por Pix abajo y envía el comprobante aquí.", payBtn:"Enviar comprobante por WhatsApp", waDeposit:"¡Hola! Aquí está el comprobante de la seña del 50% de mi reserva: lancha {boat}, {date}, {slot}.", resSignupSub:"Solo falta crear tu cuenta (lleva 1 minuto). Después volvemos a {boat}, revisas los datos y confirmas el pedido de reserva.", resLoginSub:"Entra en tu cuenta. Después volvemos a {boat}, revisas los datos y confirmas el pedido de reserva.", avAdjT:"Ajusta tu foto", avFinding:"Buscando el rostro…", avAdjSub:"Ya dejamos el rostro en el centro. Si quieres, arrastra para moverla y usa la barra para acercar.", avZoom:"Acercar", avSave:"Guardar foto", avT:"Tu foto", avSub:"La ven Búzios Lanchas y quienes trabajan contigo.", avPick:"Elegir foto", avSelfie:"Sacar selfie", avGoogle:"Usar mi foto de Google", avRm:"Quitar foto", avSaved:"¡Foto guardada!", avRemoved:"Foto quitada.", avErr:"No se pudo guardar la foto. Prueba con otra imagen.", avNeedSql:"Falta crear la carpeta de fotos en Supabase (archivo 2026-10-19_supabase-fotos-perfil.sql).", avChange:"Cambiar foto", avSaving:"Guardando la foto…"});
 /* página Usuários (administrador) */
+Object.assign(T.pt, {wlOk:"Seu WhatsApp {tel} já está confirmado. O e-mail é opcional.", wlGone:"Esse link já foi usado ou venceu. Crie a conta com o seu e-mail.", optional:"opcional"});
+Object.assign(T.en, {wlOk:"Your WhatsApp {tel} is already confirmed. Email is optional.", wlGone:"This link was already used or expired. Create your account with your email.", optional:"optional"});
+Object.assign(T.es, {wlOk:"Tu WhatsApp {tel} ya está confirmado. El correo es opcional.", wlGone:"Este enlace ya se usó o venció. Crea la cuenta con tu correo.", optional:"opcional"});
 Object.assign(T.pt, {verT:"Verifique sua conta", verCount:"{n} de {tot} confirmados", verOk:"Confirmado", verPend:"Pendente", verEm:"E-mail", verEmWhy:"Receba a confirmação, o recibo e os avisos dos seus passeios por e-mail.", verEmPend:"Falta confirmar {email}.", verWaWhy:"Confirme o {tel} para receber os avisos e o local de embarque no WhatsApp.", verGo:"Confirmar", verFoot:"Seus dados ficam protegidos e só são usados para os seus passeios."});
 Object.assign(T.en, {verT:"Verify your account", verCount:"{n} of {tot} confirmed", verOk:"Confirmed", verPend:"Pending", verEm:"Email", verEmWhy:"Get your booking confirmation, receipt and trip updates by email.", verEmPend:"{email} still needs to be confirmed.", verWaWhy:"Confirm {tel} to get trip updates and the boarding location on WhatsApp.", verGo:"Confirm", verFoot:"Your data is protected and only used for your trips."});
 Object.assign(T.es, {verT:"Verifica tu cuenta", verCount:"{n} de {tot} confirmados", verOk:"Confirmado", verPend:"Pendiente", verEm:"Correo", verEmWhy:"Recibe la confirmación, el recibo y los avisos de tus paseos por correo.", verEmPend:"Falta confirmar {email}.", verWaWhy:"Confirma el {tel} para recibir los avisos y el lugar de embarque por WhatsApp.", verGo:"Confirmar", verFoot:"Tus datos están protegidos y solo se usan para tus paseos."});
@@ -1197,10 +1200,25 @@ function loginShell(title, sub, form){
 }
 /* reserva online começada no site por quem ainda não tinha conta: depois do cadastro ou do login, volta para a lancha e o pedido sai */
 const pendRes = () => { const r=store.get("reserva-pendente"); return r && !r.voltou && Date.now()-r.t<7200000 && /^\//.test(r.path||"") ? r : null; };
+/* link do aviso do passeio (ou o código já confirmado no site): o WhatsApp vem confirmado e o e-mail fica opcional (Rodrigo 2026-10-27) */
+const waLinkOk = () => { const l=store.get("wa-link"); return l?.w && l.tel ? l : null; };
+function waLinkLoad(){
+  const l=store.get("wa-link"); if(!l?.w || l.tel || l.chk) return;
+  store.set("wa-link",{...l, chk:1});
+  cwFn({acao:"link_info", w:l.w}).then(j=>{
+    if(!j.ok){ store.set("wa-link",null); return; }
+    const sp=splitPhone("+"+j.tel), tel=`+${sp.cc} ${sp.cc==="55"?fmtBR(sp.num):sp.num}`; store.set("wa-link",{w:l.w, tel});
+    if(j.conta){ loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",tel); loginErr=false; loginMsg=t("wcHasAcc"); if(view==="signup"){ view="login"; show(); } return; }
+    const d=store.get("cli-draft")||{}; store.set("cli-draft",{...d, nome:d.nome||j.nome||"", whatsapp:tel});
+    if(view==="signup" && !app.querySelector("input:focus")) show();
+  });
+}
 function signupView(){
+  waLinkLoad(); const wl=waLinkOk();
   loginShell(t("signupTitle"), pendRes() ? t("resSignupSub",{boat:esc(pendRes().nome)}) : t("signupSub"), `${googleOn?`<a class="gbtn" href="${googleHref()}">${GOOGLE_ICON}<span>${t("google")}</span></a>`:""}<button type="button" class="link" id="tologin" style="display:block;margin:0 auto 6px">${t("haveAcc")}</button><p class="or muted">${t("orNew")}</p><form class="card" id="sf" novalidate><div id="smsg">${loginMsg && !loginErr ? `<p class="msg ok">${loginMsg}</p>` : ""}</div>
+      ${wl?`<p class="msg ok">✓ ${t("wlOk",{tel:esc(wl.tel)})}</p>`:""}
       ${profileFields(store.get("cli-draft")||{})}
-      <label class="f"><span>${t("email")}${REQ}</span><input type="email" id="em" autocomplete="email" inputmode="email" autocapitalize="off" value="${esc(typedEmail)}"></label>
+      <label class="f"><span>${t("email")}${wl?` <small class="muted" style="font-weight:400">(${t("optional")})</small>`:REQ}</span><input type="email" id="em" autocomplete="email" inputmode="email" autocapitalize="off" value="${esc(typedEmail)}"></label>
       <label class="f"><span>${t("password")}${REQ} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>
       <label class="chk"><input type="checkbox" id="c-ok"><span>${t("consent")}</span></label>
       <button class="btn" id="go">${t("createAcc")}</button>
@@ -1213,13 +1231,23 @@ function signupView(){
   document.getElementById("sf").onsubmit = async e => { e.preventDefault();
     const out=document.getElementById("smsg"), go=document.getElementById("go"), p=readProfile(), msgs=p.msg?[p.msg]:[], email=em.value.trim();
     const soWa = false; /* e-mail obrigatório (Rodrigo 2026-10-23): assim quem entrar depois pelo Google cai na mesma conta */
+    const wl=waLinkOk(), viaLink = !!(wl && p.data.whatsapp && p.data.whatsapp.replace(/\D/g,"")===wl.tel.replace(/\D/g,"")); /* WhatsApp do link: e-mail opcional */
     if(soWa){}
+    else if(viaLink && !email){}
     else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ em.classList.add("miss"); msgs.push(t("emailBad")); }
     else if(mailFix(email)){ em.classList.add("miss"); msgs.push(t("mailTypo",{fix:mailFix(email)})); em.dispatchEvent(new Event("change",{bubbles:true})); }
     if(pw.value.length<6){ pw.classList.add("miss"); msgs.push(t("pwShort")); }
     if(!document.getElementById("c-ok").checked) msgs.push(t("consentNeed"));
     if(msgs.length){ out.innerHTML=`<p class="msg err">${msgs.join("<br>")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); return; }
     go.disabled=true; go.textContent=t("creating");
+    if(viaLink){ const j=await cwFn({acao:"criar_link", w:wl.w, senha:pw.value, lang, ...p.data});
+      if(j.access_token){ store.set("wa-link",null); store.set("cli-draft",null); saveSes(j);
+        if(email) fetch(CW,{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+j.access_token, "content-type":"application/json"}, body:JSON.stringify({acao:"email", novo:email})}).catch(()=>{}); /* e-mail digitado: chega o código para confirmar (cartão no perfil) */
+        view="main"; return boot(); }
+      go.disabled=false; go.textContent=t("createAcc");
+      if(j.erro==="ja_tem"){ loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",p.data.whatsapp); loginErr=false; loginMsg=t("wcHasAcc"); view="login"; return show(); }
+      if(j.erro==="link"){ store.set("wa-link",null); out.innerHTML=`<p class="msg err">${t("wlGone")}</p>`; return; }
+      out.innerHTML=`<p class="msg err">${wcErr(j.erro)}</p>`; return; }
     store.set("cli-draft", {...p.data, nascimento:null}); /* se o e-mail precisar de confirmação, o cadastro termina no primeiro login ("nascimento" marca o rascunho completo) */
     if(soWa){ const tel=p.data.whatsapp.replace(/\D/g,""), j=await cwFn({acao:"enviar", tel, lang, para:"cadastro"});
       go.disabled=false; go.textContent=t("createAcc");
@@ -4886,7 +4914,11 @@ function paisAuto(){ /* o site guarda o país que detectou; sem isso, a região 
   const a=lsRaw("pais-auto"); if(/^[A-Z]{2}$/.test(a)) return a;
   const tag=(navigator.languages||[navigator.language||""]).find(l=>/-[A-Za-z]{2}$/.test(l)); if(tag) return tag.slice(-2).toUpperCase();
   return COUNTRIES.find(x=>x[1]===splitPhone(S.me?.whatsapp).cc)?.[0] || "BR"; }
-function paisSync(){ if(!S.me || !("pais" in S.me)) return; /* banco ainda sem a coluna: nada muda */
+/* já logado e abriu o link do aviso (ou confirmou o código no site): o WhatsApp da conta fica confirmado se for o mesmo número */
+function waLinkSync(){ const l=store.get("wa-link"); if(!l?.w || !S.me) return; store.set("wa-link",null);
+  if(S.me.whatsapp_ok_em) return;
+  db("rpc/confirmar_wa_link",{method:"POST",body:{t:l.w}}).then(ok=>{ if(ok===true){ S.me.whatsapp_ok_em=new Date().toISOString(); toast(t("waVDone")); if(view==="main" && document.getElementById("vcard")) clientView(); } }).catch(()=>{}); }
+function paisSync(){ waLinkSync(); if(!S.me || !("pais" in S.me)) return; /* banco ainda sem a coluna: nada muda */
   if(!/^[A-Z]{2}$/.test(S.me.pais||"")){ S.me.pais=paisAuto(); db(`clientes?user_id=eq.${ses.user.id}`,{method:"PATCH", body:{pais:S.me.pais}, prefer:"return=minimal"}).catch(()=>{}); }
   try{ localStorage.setItem("pais", S.me.pais); }catch(e){} }
 function openPais(){
@@ -5401,7 +5433,8 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   }
   const qs=new URLSearchParams(location.search);
   if(/^[0-9a-f-]{36}$/i.test(qs.get("c")||"")) store.set("conv-c", qs.get("c")); /* convite pelo WhatsApp: o passeio entra na conta de quem abriu o link */
-  if(qs.has("c")){ const q2=new URLSearchParams(location.search); q2.delete("c"); history.replaceState(null,"",location.pathname+(q2.toString()?"?"+q2:"")+location.hash); } /* o código secreto não fica no endereço (histórico, print, compartilhar) */
+  if(/^[0-9a-f-]{36}$/i.test(qs.get("w")||"")) store.set("wa-link",{w:qs.get("w")}); /* link do aviso do passeio: só chegou naquele WhatsApp, então confirma o número (Rodrigo 2026-10-27) */
+  if(qs.has("c")||qs.has("w")){ const q2=new URLSearchParams(location.search); q2.delete("c"); q2.delete("w"); history.replaceState(null,"",location.pathname+(q2.toString()?"?"+q2:"")+location.hash); } /* o código secreto não fica no endereço (histórico, print, compartilhar) */
   const vq=(qs.get("v")||"").trim().toUpperCase(); if(/^[A-Z0-9]{2,14}$/.test(vq)) try{ localStorage.setItem("vend",JSON.stringify({cod:vq, t:Date.now(), n:1})); }catch(e){} /* convite do vendedor: o cliente fica ligado a ele, como no link do site */
   if(!ses && qs.get("criar")==="1"){ view="signup"; /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
     if(qs.get("email")) typedEmail=qs.get("email");

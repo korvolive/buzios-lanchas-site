@@ -1793,7 +1793,8 @@ function vlTela(dl, shown, tel, msg){
   inp.oninput=()=>{ err.textContent=""; inp.value=inp.value.replace(/\D/g,"").slice(0,6); if(inp.value.length===6) $("vc-go").click(); };
   $("vc-go").onclick=async()=>{ const c=inp.value.replace(/\D/g,""); if(c.length!==6){ err.textContent=t("vcBad"); return inp.focus(); }
     const b=$("vc-go"); b.disabled=true; let dd={}; try{ dd=JSON.parse(localStorage.getItem("consulta-dados")||"{}")||{}; }catch(e){} const r=await waLead({acao:"lead", tel, codigo:c, nome:dd.nome||"", email:dd.email||""});
-    if(r.ok) return vlLibera(dl);
+    if(r.ok){ if(/^[0-9a-f-]{36}$/i.test(r.prova||"")) try{ localStorage.setItem("wa-link",JSON.stringify({w:r.prova})); }catch(e){} /* o cadastro depois, neste aparelho, já nasce com o WhatsApp confirmado (Rodrigo 2026-10-27) */
+      return vlLibera(dl); }
     b.disabled=false; err.textContent=t(r.erro==="tentativas"?"vcMany":r.erro==="codigo"?"vcBad":"vcNet"); inp.select(); };
   inp.focus();
 }
