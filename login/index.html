@@ -4187,7 +4187,10 @@ function mainView(){
   if(S.tab!=="lista" && S.tab!=="pedidos" && S.tab!=="usuarios" && S.tab!=="conversas" && S.cur==="*") S.cur=S.boats[0].slug;
   if(S.tab==="lancha" && isRO()) S.tab="lista";
   if(S.tab==="vendas" && !S.vend) S.tab="lista";
-  const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats];
+  /* lancha de exemplo do cadastro não aparece na lista de Passeios (Rodrigo 2026-10-27); na aba Lancha continua, para editar */
+  const exOut = b => S.tab==="lista" && boatRow(b.slug)?.dados?.exemplo;
+  if(S.boats.some(b=>b.slug===S.cur && exOut(b))){ const f=S.boats.find(b=>!exOut(b)); S.cur = S.admin ? "*" : f?.slug || S.cur; }
+  const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats.filter(b=>!exOut(b))];
   /* abas sempre no topo; em Passeios vêm "Lancha livre em", o chat da equipe e o aviso do Asaas; depois a escolha da lancha (Rodrigo 2026-10-25) */
   app.innerHTML = `${tabsHTML()}`
     + (S.tab==="lista" ? (av=>av + (isRO() || av ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`))(avHTML()) : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (Rodrigo 2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
