@@ -1205,8 +1205,9 @@ const FX_MARKUP = 1.10;
 const CUR_BY_REGION = {US:"USD",CA:"CAD",GB:"GBP",AR:"ARS",CL:"CLP",UY:"UYU",PY:"PYG",CO:"COP",MX:"MXN",PE:"PEN",BO:"BOB",EC:"USD",PA:"USD",SV:"USD",CR:"CRC",DO:"DOP",GT:"GTQ",AU:"AUD",NZ:"NZD",CH:"CHF",JP:"JPY",CN:"CNY",HK:"HKD",IL:"ILS",ZA:"ZAR",SE:"SEK",NO:"NOK",DK:"DKK",PL:"PLN",CZ:"CZK",HU:"HUF",RO:"RON",TR:"TRY",IN:"INR",KR:"KRW",SG:"SGD",AE:"AED",AO:"AOA",MZ:"MZN",CV:"CVE",RU:"RUB",UA:"UAH"};
 const EURO = new Set("AT BE CY DE EE ES FI FR GR HR IE IT LT LU LV MT NL PT SI SK".split(" "));
 const TZ_REGION = [[/Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus|Cuiaba|Campo_Grande|Porto_Velho|Boa_Vista|Rio_Branco|Maceio|Araguaina|Santarem|Noronha|Eirunepe/,"BR"],[/Argentina|Buenos_Aires/,"AR"],[/Montevideo/,"UY"],[/Santiago/,"CL"],[/Asuncion/,"PY"],[/Bogota/,"CO"],[/Lima/,"PE"],[/La_Paz/,"BO"],[/Mexico|Cancun|Monterrey|Tijuana/,"MX"],[/London/,"GB"],[/Zurich/,"CH"],[/^Europe\/(Paris|Berlin|Madrid|Rome|Lisbon|Amsterdam|Brussels|Vienna|Dublin|Athens|Helsinki)/,"FR"],[/^America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit)|^Pacific\/Honolulu/,"US"],[/Toronto|Vancouver|Montreal/,"CA"]];
-/* país do visitante: pela região do idioma do aparelho (en-US, es-AR...); sem região, pelo fuso horário */
-function detectReg(){
+/* país do visitante: o que o cliente escolheu no perfil (localStorage "pais", Rodrigo 2026-10-27); senão, pela região do idioma do aparelho (en-US, es-AR...); sem região, pelo fuso horário */
+function detectReg(){ let own=""; try{ own=localStorage.getItem("pais")||""; }catch(e){} return /^[A-Z]{2}$/.test(own) ? own : detectAuto(); }
+function detectAuto(){
   const langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language||""];
   const tag = langs.find(l=>/-[A-Za-z]{2}$/.test(l)); let reg = tag ? tag.slice(-2).toUpperCase() : "";
   if(!reg){ let tz=""; try{ tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""; }catch(e){} const m=TZ_REGION.find(([re])=>re.test(tz)); if(m) reg=m[1]; }
@@ -1220,6 +1221,7 @@ function detectCur(){
   return CUR_BY_REGION[reg] || "USD";
 }
 const CUR_AUTO = IS_BOT ? "BRL" : detectCur();
+try{ if(!IS_BOT){ const a=detectAuto(); if(a) localStorage.setItem("pais-auto", a); } }catch(e){} /* o app usa para preencher a nacionalidade do cliente */
 /* estrangeiro (Rodrigo 2026-10-23): vê o valor direto, na moeda dele, sem precisar de conta.
    Só Brasil, Argentina e Chile continuam (Rodrigo 2026-10-23) vendo "sob consulta" (negociam mais pelo WhatsApp). País desconhecido conta como Brasil */
 const VALOR_ESCONDIDO = new Set("BR AR CL".split(" "));
@@ -1807,10 +1809,11 @@ const consultaAviso = k => fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"
 let CLI = null;
 function loadCli(){
   if(!isClient()) return;
-  clientToken().then(tok=>fetch(SB_URL+"/rest/v1/clientes?select=nome,whatsapp&user_id=eq."+lsGet("dono-ses").user.id,{headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok}})).then(r=>r.ok?r.json():[]).then(c=>{
+  clientToken().then(tok=>fetch(SB_URL+"/rest/v1/clientes?select=*&user_id=eq."+lsGet("dono-ses").user.id,{headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok}})).then(r=>r.ok?r.json():[]).then(c=>{
     const u=lsGet("dono-ses")?.user||{}, m=String(c[0]?.whatsapp||"").match(/^\+?(\d{1,3})\s*(.+)$/), em=/@sem-email\./.test(u.email||"") ? "" : (u.email||"");
     const nome=String(c[0]?.nome||"").trim().replace(/\s+/g," "), tel=m ? m[2].replace(/\D/g,"") : "";
     if(nome.length>=2 && m && tel.length>=8) CLI={nome, ddi:m[1], tel, email:em};
+    if(/^[A-Z]{2}$/.test(c[0]?.pais||"")) try{ localStorage.setItem("pais", c[0].pais); }catch(e){} /* nacionalidade do perfil vale em todo aparelho em que ele entrar */
   }).catch(()=>{});
 }
 function openLead(b){
