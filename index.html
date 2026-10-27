@@ -1790,7 +1790,7 @@ function vlTela(dl, shown, tel, msg){
   $("vc-back").onclick=()=>{ dl.close(); try{ localStorage.removeItem("vend-lead"); }catch(e){} setTimeout(()=>openVendLead(true), 50); };
   inp.oninput=()=>{ err.textContent=""; inp.value=inp.value.replace(/\D/g,"").slice(0,6); if(inp.value.length===6) $("vc-go").click(); };
   $("vc-go").onclick=async()=>{ const c=inp.value.replace(/\D/g,""); if(c.length!==6){ err.textContent=t("vcBad"); return inp.focus(); }
-    const b=$("vc-go"); b.disabled=true; const r=await waLead({acao:"lead", tel, codigo:c});
+    const b=$("vc-go"); b.disabled=true; let dd={}; try{ dd=JSON.parse(localStorage.getItem("consulta-dados")||"{}")||{}; }catch(e){} const r=await waLead({acao:"lead", tel, codigo:c, nome:dd.nome||"", email:dd.email||""});
     if(r.ok) return vlLibera(dl);
     b.disabled=false; err.textContent=t(r.erro==="tentativas"?"vcMany":r.erro==="codigo"?"vcBad":"vcNet"); inp.select(); };
   inp.focus();
