@@ -49,6 +49,7 @@ button{cursor:pointer}
 .newb .link{margin:0;padding:4px 0;white-space:nowrap}
 i.newt{color:#b25b00;font-weight:800;font-style:normal}
 .btn.wa{background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+.asselo{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:10px 0 0}.asselo img{height:36px;width:auto}.asselo small{color:var(--muted);font-size:12px}
 .btn.wa.sm{padding:8px 12px;font-size:14px;flex:1 1 auto}
 .who{display:inline-flex;align-items:center;gap:8px;min-width:0}i.who{gap:5px}
 .crop{position:relative;width:min(260px,70vw);aspect-ratio:1;margin:4px auto 12px;border-radius:50%;overflow:hidden;background:#0b2a3a;touch-action:none;cursor:grab;box-shadow:0 0 0 3px var(--brass,#c99a2e)}.crop img{position:absolute;left:0;top:0;max-width:none;user-select:none;-webkit-user-drag:none}.cropz input{width:100%}.avbig{display:flex;justify-content:center;margin:6px 0 10px}
@@ -2928,6 +2929,8 @@ function asAvisoHTML(){
   if(!S.own?.some(l=>!SEM_REPASSE.includes(l)) || !AS_TESTE) return ""; asLoad(); /* só depois da homologação do Asaas (Rodrigo 2026-10-25); antes, só no aparelho em teste (?asaas=1) */
   return S.asSem && !S.asConta ? `<div class="card asav"><h2>💳 ${t("asAvT")}</h2><p class="muted" style="margin-top:0">${t("asAvSub")}</p><button type="button" class="btn" id="as-go">${t("asAvGo")}</button></div>` : "";
 }
+/* selo "Serviços financeiros Asaas" + suporte do Asaas, exigidos pelo BaaS (tela de criação da conta de recebimento) */
+const AS_SELO = `<p class="asselo"><picture><source media="(prefers-color-scheme: dark)" srcset="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=10735ab0-2860-45c8-9b07-035091857369"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Positivo.svg?id=10735ab0-2860-45c8-9b07-035091857369" alt="Serviços financeiros Asaas" height="36"></picture><small>${"Suporte Asaas: 0800 009 0037 · contato@asaas.com.br"}</small></p>`;
 function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão (aba Vendas, Rodrigo 2026-10-25) */
   if(vend && !S.vend) return "";
   /* vendedor só cria conta no Asaas depois da homologação: até lá são só 10 contas, que ficam para os donos (Rodrigo 2026-10-25); quem já tem conta continua vendo */
@@ -2939,13 +2942,14 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
   const falt = S.admin && Array.isArray(S.asFaltam) ? `<p class="muted" style="margin:12px 0 0;font-size:14px">${S.asFaltam.length ? t("asFaltam",{l:S.asFaltam.map(esc).join(", ")}) : t("asFaltamNao")}</p>` : "";
   const adm = S.admin && !vend ? falt : ""; /* o aviso de pagamento do Asaas já foi cadastrado (Rodrigo, 2026-10-25): o botão saiu; a função asaas ainda aceita acao "webhook" se um dia precisar refazer */
   const T_=vend?t("asVT"):t("asT");
-  if(!own) return `<div class="card"><h2>💳 ${T_}</h2>${adm}</div>`;
-  if(S.asConta===0) return `<div class="card"><h2>💳 ${T_}</h2><p class="muted">…</p></div>`;
-  if(S.asConta) return `<div class="card"><h2>💳 ${T_}</h2><p class="msg ok" style="margin:0">✓ ${t("asOk",{n:esc(S.asConta.nome||""),e:esc(S.asConta.email||"")})}</p><p class="muted" style="margin:10px 0 0;font-size:14px">${t(vend?"asVOkHow":"asOkHow")}</p>${adm}</div>`;
+  const prev = !own && !vend && S.admin && AS_TESTE; /* prévia da tela de cadastro para o print do checklist do Asaas (Rodrigo 2026-10-27): não cria conta */
+  if(!own && !prev) return `<div class="card"><h2>💳 ${T_}</h2>${adm}</div>`;
+  if(S.asConta===0 && !prev) return `<div class="card"><h2>💳 ${T_}</h2><p class="muted">…</p></div>`;
+  if(S.asConta && !prev) return `<div class="card"><h2>💳 ${T_}</h2><p class="msg ok" style="margin:0">✓ ${t("asOk",{n:esc(S.asConta.nome||""),e:esc(S.asConta.email||"")})}</p><p class="muted" style="margin:10px 0 0;font-size:14px">${t(vend?"asVOkHow":"asOkHow")}</p>${AS_SELO}${adm}</div>`;
   const u=ses?.user||{}, md=u.user_metadata||{}, em=/@sem-email\./.test(u.email||"")?"":(u.email||"");
   const f=(id,lab,attrs="")=>`<label class="f"><span>${lab}</span><input class="in" id="${id}" ${attrs}></label>`;
-  return `<div class="card"><h2>💳 ${T_}</h2><p class="muted" style="margin-top:0">${t(vend?"asVSub":"asSub")}</p>
-    <details class="cob"><summary>＋ ${t("asOpen")}</summary><form id="as-f" novalidate style="margin-top:12px">
+  return `<div class="card"><h2>💳 ${T_}</h2><p class="muted" style="margin-top:0">${t(vend?"asVSub":"asSub")}</p>${AS_SELO}
+    <details class="cob"><summary>＋ ${t("asOpen")}</summary><form id="as-f" novalidate style="margin-top:12px"${prev?" data-asprev=\"1\"":""}>
     ${f("as-doc",t("asDoc"),'inputmode="numeric" autocomplete="off"')}
     <div id="as-pf">${f("as-nasc",t("asNasc"),'type="date"')}</div>
     <div id="as-pj" hidden><label class="f"><span>${t("asTipo")}</span><select class="in" id="as-tipo"><option value="MEI">MEI</option><option value="LIMITED">${t("asLtda")}</option><option value="INDIVIDUAL">${t("asInd")}</option><option value="ASSOCIATION">${t("asAssoc")}</option></select></label></div>
@@ -2963,7 +2967,7 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
 document.addEventListener("input", e=>{ if(e.target.id==="as-doc"){ const pj=e.target.value.replace(/\D/g,"").length>11; document.getElementById("as-pj").hidden=!pj; document.getElementById("as-pf").hidden=pj; }
   if(e.target.id==="as-cep"){ const c=e.target.value.replace(/\D/g,""); if(c.length===8) fetch(`https://viacep.com.br/ws/${c}/json/`).then(r=>r.json()).then(j=>{ if(j.erro) return; const r=document.getElementById("as-rua"), b=document.getElementById("as-bairro"); if(r&&!r.value) r.value=j.logradouro||""; if(b&&!b.value) b.value=j.bairro||""; }).catch(()=>{}); } });
 document.addEventListener("click", async e=>{
-  const b=e.target.closest("#as-go"); if(!b || !b.closest("#as-f")) return; e.preventDefault();
+  const b=e.target.closest("#as-go"); if(!b || !b.closest("#as-f")) return; e.preventDefault(); if(b.closest("[data-asprev]")) return toast("Prévia: aqui o dono cria a conta dele.");
   const v=id=>(document.getElementById(id)?.value||"").trim(), msg=document.getElementById("as-msg"), doc=v("as-doc").replace(/\D/g,"");
   const body={acao:"conta", cpfCnpj:doc, nascimento:v("as-nasc"), tipo:v("as-tipo"), nome:v("as-nome"), email:v("as-email"), celular:v("as-cel"), renda:+v("as-renda").replace(",","."), cep:v("as-cep"), rua:v("as-rua"), numero:v("as-num"), complemento:v("as-comp"), bairro:v("as-bairro")};
   const falta = !(doc.length===11||doc.length===14) ? "as-doc" : doc.length===11&&!body.nascimento ? "as-nasc" : body.nome.length<3 ? "as-nome" : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email) ? "as-email" : body.celular.replace(/\D/g,"").length<10 ? "as-cel" : !(body.renda>0) ? "as-renda" : body.cep.replace(/\D/g,"").length!==8 ? "as-cep" : !body.rua ? "as-rua" : !body.numero ? "as-num" : !body.bairro ? "as-bairro" : "";

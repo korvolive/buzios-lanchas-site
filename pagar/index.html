@@ -12,7 +12,7 @@
 :root{--sea-deep:#06394a;--sea:#0b6e86;--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--surface:#fff;--line:#dfe7ea;--brass:#c9992f;--ok:#1d7a3a;--bad:#b3261e;--chip:#e9f1f3}
 @media (prefers-color-scheme:dark){:root{--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f;--surface:#12252c;--line:#24404a;--sea:#5cc0d8;--ok:#5fd08a;--bad:#ff8a80;--chip:#18323b}}
 *{box-sizing:border-box}
-.selo{text-align:center;margin:8px 0 28px}.selo img{height:40px;width:auto}
+.selo{text-align:center;margin:8px 0 28px}.selo small{color:var(--muted);font-size:12px}.selo img{height:40px;width:auto}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 header{background:var(--sea-deep);color:#fff;padding:14px 16px}
 header .in{max-width:560px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -66,7 +66,7 @@ main{padding-bottom:96px}
 <header><div class="in"><a href="/">Búzios Lanchas</a><div class="langs" role="group" aria-label="Language">
   <button type="button" data-lg="pt">PT</button><button type="button" data-lg="en">EN</button><button type="button" data-lg="es">ES</button></div></div></header>
 <main id="box"><div class="card"><p class="muted">…</p></div></main>
-<p class="selo"><picture><source media="(prefers-color-scheme: dark)" srcset="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=10735ab0-2860-45c8-9b07-035091857369"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Positivo.svg?id=10735ab0-2860-45c8-9b07-035091857369" alt="Serviços financeiros Asaas" height="40"></picture></p> <!-- selo do Asaas (BaaS) -->
+<p class="selo"><picture><source media="(prefers-color-scheme: dark)" srcset="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=10735ab0-2860-45c8-9b07-035091857369"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Positivo.svg?id=10735ab0-2860-45c8-9b07-035091857369" alt="Serviços financeiros Asaas" height="40"></picture><br><small>Suporte Asaas: 0800 009 0037 · contato@asaas.com.br</small></p> <!-- selo do Asaas (BaaS) -->
 <div class="toast" id="toast" role="status"></div>
 <div class="chwin" id="chwin" role="dialog" aria-modal="true" hidden><button type="button" class="chx" id="chx" aria-label="Fechar">✕</button><iframe id="chif" title="Chat"></iframe></div>
 <div class="fabs" id="fabs" hidden><div class="supm" id="supm" hidden></div><button type="button" class="fab" id="sup" aria-expanded="false"></button></div>
