@@ -4461,7 +4461,7 @@ function vVerHTML(){ const v=S.vVer; if(!v || (v.email_ok && v.wa_ok)) return `<
   return `<div id="vver"><p class="msg err" style="margin:0 0 12px">⚠️ ${t("vvMiss",{o:t(!v.email_ok&&!v.wa_ok?"vvBoth":!v.email_ok?"vvEm":"vvWa")})}</p></div>`; }
 /* convite de sócio (Rodrigo 2026-10-27): a comissão de cada venda do sócio é dividida meio a meio com quem convidou; um nível só */
 function socHTML(){
-  if(S.vParte==null || S.vParte<1) return `<div id="vsoc"></div>`; /* sócio não convida ninguém */
+  if(S.vParte==null || S.vParte<1 || S.vend?.parceiro) return `<div id="vsoc"></div>`; /* sócio não convida ninguém; parceiro (hotel, pousada) também não (Rodrigo 2026-10-27) */
   if(S.socs===undefined){ S.socs=null; Promise.all([RPC("meus_socios",{}), RPC("minhas_indicacoes",{})]).then(([a,b])=>{ S.socs=a||[]; S.socV=b||[]; }, ()=>{ S.socs=[]; S.socV=[]; }).then(()=>{ const x=document.getElementById("vsoc"); if(x){ x.outerHTML=socHTML(); bindSoc(); } }); }
   const V=(S.socV||[]).filter(x=>x.status==="aprovado" && +x.valor>0), sum=L=>L.reduce((a,x)=>a+(+x.valor||0),0);
   const rec=sum(V.filter(x=>!x.paga && x.data<todayISO())), pago=sum(V.filter(x=>x.paga));
