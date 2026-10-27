@@ -6,6 +6,7 @@
 // POST {acao:"pagar", p, k, metodo, n?, cpf?} a página: cria (ou reaproveita) a cobrança e devolve o Pix ou o link do cartão (n = 1 a 6 parcelas; cartão só com 7+ dias até o passeio)
 // POST {acao:"conferir", p, k}                a página: confere no Asaas se já foi pago
 // POST {acao:"conta", ...dados} (login)      dono: cria a subconta Asaas dele (o Asaas manda o e-mail para ele ativar e mandar os documentos)
+// POST {acao:"documentos"} (login)          dono/vendedor: link do Asaas para enviar documento e selfie (BaaS), ou a situação da análise
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
 // POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas (+ vendedores com conta)
 // POST {acao:"comissao", pid} (login admin)  depois do passeio: transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
@@ -481,7 +482,23 @@ Deno.serve(async req => {
         });
       } catch (e: any) { if (e.asaas) return json({ erro: "asaas", detalhe: String(e.message).slice(0, 300) }, 400); throw e; }
       await db.from("asaas_contas").insert({ user_id: u.id, conta_id: a.id, wallet_id: a.walletId, nome, cpf_cnpj: doc, email });
+      // a chave da subconta só vem na criação: guardada numa tabela que só esta função lê, para buscar o link do documento e da selfie
+      if (a.apiKey) { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: a.apiKey }); if (error) console.error("asaas_chaves", error.message); }
       return json({ ok: true });
+    }
+
+    // BaaS: documento e selfie pelo link do Asaas, sem a pessoa entrar no Asaas (Rodrigo 2026-10-27)
+    if (b.acao === "documentos") {
+      const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", u.id).maybeSingle();
+      if (!k?.api_key) return json({ status: "sem" });
+      const r = await fetch(API() + "/myAccount/documents", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } });
+      const j: any = await r.json().catch(() => ({}));
+      if (!r.ok) { console.error("documentos", r.status, JSON.stringify(j).slice(0, 400)); return json({ status: "sem" }); }
+      const l: any[] = j.data || [];
+      const falta = l.find((d) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
+      if (falta) return json({ status: "pendente", url: falta.onboardingUrl, rejeitado: falta.status === "REJECTED" });
+      if (l.some((d) => d.status === "PENDING")) return json({ status: "analise" });
+      return json({ status: l.length ? "ok" : "sem" });
     }
 
     // comissão do vendedor pelo Asaas, depois do passeio, com um toque do administrador (Rodrigo 2026-10-25)
