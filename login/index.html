@@ -1459,7 +1459,7 @@ function repHTML(p, c, sin){
 function pixWa(p){
   const ph=splitPhone(p.clientes?.whatsapp), cc=String(ph.cc||"55").replace(/\D/g,""), tel=ph.num.replace(/\D/g,""); if(tel.length<8 || !(+p.sinal_valor>0)) return "";
   const lg = ppLang(p), M=COB_MSG[lg], c=pedCalc(p), v=+p.sinal_valor;
-  const txt=M.msg({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:SLOT_TXT[lg][p.horario]||"", v:brl(v), resto:c.tot>v?brl(c.tot-v):"", pix:pixPayload(PIX_CNPJ, v, "PED"+p.id)});
+  const txt=M.msg({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:slotTxt(lg,p.horario,p.hora_ini,p.hora_fim), v:brl(v), resto:c.tot>v?brl(c.tot-v):"", pix:pixPayload(PIX_CNPJ, v, "PED"+p.id)});
   return `<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("pixWa")}</a>`;
 }
 /* cliente estrangeiro (WhatsApp fora do +55): cobrança do PayPal dentro do site (/pagar/), na moeda dele, com o câmbio do dia + 10% (editável).
@@ -1486,7 +1486,7 @@ function ppAdm(p){
   const field = pix ? "" : `<label class="f"><span>💳 ${t("ppVal",{c:COB_SYM[c]})}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="1" step="any" data-ppv="${p.id}" data-cur="${c}" placeholder="${COB_SYM[c]}"${pg?` value="${+pg.valor}"`:""}><button type="button" class="btn${pg?" sec":""}" data-ppg="${p.id}">${t(pg?"save":"ppGen")}</button></span></label>`;
   if(!pg || !/\/pagar\//.test(p.paypal_link||"")) return `<span class="ppbox">${pix ? `${pixWa(p)}<button type="button" class="btn sec" data-ppc="${p.id}">${t("ctMake")}</button>` : field}</span>`;
   const ph=splitPhone(p.clientes?.whatsapp), tel=ph.num.replace(/\D/g,""), lg=ppLang(p), M=COB_MSG[lg], k=pedCalc(p), v=+p.sinal_valor;
-  const txt=CENTRAL_MSG[lg]({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:SLOT_TXT[lg][p.horario]||"", v:pix?brl(v):`${p.paypal_valor||""} (${brl(v)})`, link:p.paypal_link, resto:k.tot>v?brl(k.tot-v):""});
+  const txt=CENTRAL_MSG[lg]({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:slotTxt(lg,p.horario,p.hora_ini,p.hora_fim), v:pix?brl(v):`${p.paypal_valor||""} (${brl(v)})`, link:p.paypal_link, resto:k.tot>v?brl(k.tot-v):""});
   return `<span class="ppbox"><small class="cpok">🧾 ${t(pix?"ctMadePix":"ppMade",{v:esc(p.paypal_valor||"")})}</small>
     ${tel.length>=8?`<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("ctWa")}</a>`:""}
     <button type="button" class="btn sec" data-copy="${esc(p.paypal_link)}">${t("ctCopy")}</button>${field}</span>`;
@@ -5034,6 +5034,8 @@ const stAuto = (n, id) => { const v=+n.valor||0, dp=+n.sinal||0; return S.feitos
 const stOf = r => { const n=r.nota||{}; return r.stm || (S.feitos?.[r.id]===true ? "finalizado" : "") || (r.revenda ? "revenda" : "") || n.status || stAuto(n); };
 const stPill = r => r.nota ? `<small class="stp st-${stOf(r)}">${t("rs_"+stOf(r))}</small>` : "";
 const COB_ES = new Set(["54","56","598","595","57","51","52","591","593","58","34","506","503","502","504","505","507","53"]);
+/* horário da mensagem: o combinado (entrada e saída) passa por cima do período (Rodrigo 2026-10-27) */
+const slotTxt = (lg, h, hi, hf) => hi && hf && /^\d\d:\d\d/.test(hi) && /^\d\d:\d\d/.test(hf) ? `${hmL(lg,hi.slice(0,5))} ${{pt:"às",en:"to",es:"a"}[lg]||"às"} ${hmL(lg,hf.slice(0,5))}` : SLOT_TXT[lg][h]||"";
 const SLOT_TXT = {pt:{manha:"10h às 14h",tarde:"14h às 18h",dia:"10h às 17h",noite:"noite"}, en:{manha:"10 am to 2 pm",tarde:"2 pm to 6 pm",dia:"10 am to 5 pm",noite:"night"}, es:{manha:"10 a 14 h",tarde:"14 a 18 h",dia:"10 a 17 h",noite:"noche"}};
 const FX_MARKUP = 1.10; /* igual ao site: câmbio do dia + 10% */
 const COB_EUR = new Set(["49","33","39","351","31","32","43","353","30","358","352","356","357","386","421","372","371","370","385"]); /* DDIs da zona do euro (34, Espanha, está no COB_ES) */
@@ -5160,7 +5162,8 @@ function renderTrip(){
     const eo=document.getElementById("n-embo"); if(eo){ eo.hidden=!embOther; if(embOther) eo.focus(); } });
   const hrt=document.getElementById("hrtog");
   if(hrt) hrt.onclick=()=>{ const on=hrt.getAttribute("aria-expanded")!=="true"; hrt.setAttribute("aria-expanded",on); document.getElementById("hrf").hidden=!on; document.getElementById("hrnote").hidden=!on;
-    if(on) document.getElementById("n-hi").focus(); else { document.getElementById("n-hi").value=""; document.getElementById("n-hf").value=""; } };
+    if(on) document.getElementById("n-hi").focus(); else { document.getElementById("n-hi").value=""; document.getElementById("n-hf").value=""; } syncHrs(); };
+  ["n-hi","n-hf"].forEach(k=>document.getElementById(k)?.addEventListener("input",()=>syncHrs()));
   /* passeio da Búzios Lanchas: só o administrador define valor e sinal (o banco também trava) */
   const lockOrigin = !S.admin && n.origem==="buzios";
   const lockVals = () => { const on = !S.admin && origem==="buzios";
@@ -5169,8 +5172,11 @@ function renderTrip(){
   sheet.querySelectorAll("[data-o]").forEach(x=>{ if(lockOrigin) x.disabled=true; x.onclick=()=>{ if(!S.admin) return; origem = origem===x.dataset.o ? null : x.dataset.o;
     sheet.querySelectorAll("[data-o]").forEach(y=>y.setAttribute("aria-checked", y.dataset.o===origem)); lockVals(); }; });
   lockVals();
-  const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); const box=document.getElementById("marbox"); if(box){ const v=document.getElementById("n-mar")?.value; if(v) pick=v; box.innerHTML=marField(); } });
-  const paintSlots=()=>{ const box=document.getElementById("nslots"); if(!box) return; if(nslot && slotOff(nslot)) nslot=""; box.innerHTML=slotBtns(); bindSlots(); };
+  const bindSlots=()=>sheet.querySelectorAll("[data-ns]").forEach(x=>x.onclick=()=>{ nslot=x.dataset.ns; sheet.querySelectorAll("[data-ns]").forEach(y=>y.setAttribute("aria-checked",y.dataset.ns===nslot)); syncHrs(); const box=document.getElementById("marbox"); if(box){ const v=document.getElementById("n-mar")?.value; if(v) pick=v; box.innerHTML=marField(); } });
+  const paintSlots=()=>{ const box=document.getElementById("nslots"); if(!box) return; if(nslot && slotOff(nslot)) nslot=""; box.innerHTML=slotBtns(); bindSlots(); syncHrs(); };
+  /* entrada e saída preenchidas: o período escolhido mostra esse horário no lugar do padrão */
+  const syncHrs=()=>{ const hi=document.getElementById("n-hi")?.value, hf=document.getElementById("n-hf")?.value, ok=hi && hf && hf>hi;
+    sheet.querySelectorAll("[data-ns]").forEach(x=>{ const sm=x.querySelector("small"); if(sm && !x.disabled) sm.textContent = ok && x.dataset.ns===nslot ? t("hoursCustom",{a:hhmm(hi), b:hhmm(hf)}) : t("hours_"+x.dataset.ns); }); };
   const loadTaken=async()=>{ const d=nd, b=nboat; taken=[]; paintSlots(); if(!d || !b || !document.getElementById("nslots")) return;
     const rows=await db(`bloqueios?select=id,horario,revenda&data=eq.${d}&lancha=eq.${encodeURIComponent(b)}`).catch(()=>[]);
     if(d!==nd || b!==nboat) return; taken=rows.filter(x=>!x.revenda && x.id!==r?.id).map(x=>x.horario); paintSlots(); }; /* revenda: o horário está à venda de novo */
@@ -5216,7 +5222,7 @@ function renderTrip(){
       const lg = COB_ES.has(cc) ? "es" : "en", nome=(document.getElementById("n-cliente")?.value||"").trim();
       gen.disabled=true; toast(t("cobPpGenning"));
       try{ const r=await fetch(FN.replace(/notificar$/,"paypal-fatura"), {method:"POST", headers:{apikey:KEY, authorization:"Bearer "+await fresh(), "content-type":"application/json"},
-          body:JSON.stringify({valor:fx, moeda:c, lancha:boatName(nboat), data: nd ? dateOf(nd).toLocaleDateString(lg==="es"?"es":"en-US",{day:"numeric",month:"long",year:"numeric"}) : "", horario:nslot?SLOT_TXT[lg][nslot]:"", nome, email:document.getElementById("n-cemail")?.value||"", lang:lg})});
+          body:JSON.stringify({valor:fx, moeda:c, lancha:boatName(nboat), data: nd ? dateOf(nd).toLocaleDateString(lg==="es"?"es":"en-US",{day:"numeric",month:"long",year:"numeric"}) : "", horario:nslot?slotTxt(lg,nslot,document.getElementById("n-hi")?.value,document.getElementById("n-hf")?.value):"", nome, email:document.getElementById("n-cemail")?.value||"", lang:lg})});
         const j=await r.json().catch(()=>({}));
         if(r.ok && j.link){ pl.value=j.link; toast(t("cobPpGenOk")); }
         else { toast(t(j.erro==="sem_chaves"?"cobPpNoKeys":"cobPpGenErr")); pl.focus(); }
@@ -5231,7 +5237,7 @@ function renderTrip(){
       if(tel.length<8){ document.getElementById("n-telefone")?.focus(); toast(t("cobNoPhone")); return; }
       const lg = cc==="55" ? "pt" : COB_ES.has(cc) ? "es" : "en", M=COB_MSG[lg], nome=(document.getElementById("n-cliente")?.value||"").trim().split(/\s+/)[0];
       const data = nd ? dateOf(nd).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}) : "", total=num("valor");
-      const o={nome, lancha:boatName(nboat), data, horario:nslot?SLOT_TXT[lg][nslot]:"", v:brl(v), resto: total>v+num("sinal") ? brl(total-v-num("sinal")) : ""};
+      const o={nome, lancha:boatName(nboat), data, horario:nslot?slotTxt(lg,nslot,document.getElementById("n-hi")?.value,document.getElementById("n-hf")?.value):"", v:brl(v), resto: total>v+num("sinal") ? brl(total-v-num("sinal")) : ""};
       let txt;
       if(mode==="pp"){ const fx=+String(fxi.value).replace(",","."), c=cobCur(cc); if(!(fx>0)){ fxi.focus(); toast(t("cobNoVal")); return; }
         const pl=document.getElementById("cob-pl"), link=pl.value.trim(); if(!/^https:\/\/\S*paypal\.(com|me)\//i.test(link)){ pl.focus(); toast(t("cobPpNoLink")); return; }
