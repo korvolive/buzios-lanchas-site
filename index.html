@@ -1800,7 +1800,7 @@ function vlTela(dl, shown, tel, msg){
 const LEAD_DDI = [["BR","55"],["AR","54"],["CL","56"],["UY","598"],["PY","595"],["PT","351"],["US","1"]];
 const novaChave = () => crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
 const consultaSave = (b,k,v,chamou) => fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
-    body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang})})
+    body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang, p_pais:detectReg()||null})})
   .then(r=>r.ok, ()=>false);
 const consultaAviso = k => fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{});
 /* cliente já logado (Rodrigo 2026-10-24): não pede os dados de novo; usa o cadastro dele (nome, WhatsApp e e-mail) e vai direto para o WhatsApp */
