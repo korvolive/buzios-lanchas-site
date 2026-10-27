@@ -12,7 +12,8 @@
 //                                            | { erro: "tem_email", email } (a outra conta já tem um e-mail de verdade)
 // POST { acao: "lead_enviar", tel, lang } -> { ok } | { ok, ja } | { erro: "ja_tem" | "sem_lead" | ... }  quem entrou pelo link de vendedor/parceiro
 //                                            (o site já gravou o contato com criar_lead_vendedor) pede o código para liberar os valores
-// POST { acao: "lead", tel, codigo, cod } -> { ok } marca vendedor_leads.wa_ok_em (WhatsApp confirmado: o contato fica 12 meses com o vendedor do código cod)
+// POST { acao: "lead", tel, codigo, cod, nome, email } -> { ok } marca vendedor_leads.wa_ok_em (WhatsApp confirmado: o contato fica 12 meses com o vendedor do código cod,
+//                                            com o nome e o e-mail que o próprio cliente digitou)
 // Segredos: WA_TOKEN, WA_PHONE_ID, WA_ATIVO=1 (os mesmos da whatsapp-codigo).
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -121,6 +122,12 @@ Deno.serve(async req => {
       if (!l.wa_ok_em && b.cod) {
         const { data: v } = await db.from("vendedores").select("user_id").eq("codigo", String(b.cod).trim().toUpperCase()).eq("ativo", true).maybeSingle();
         if (v && v.user_id !== l.vendedor) upd.vendedor = v.user_id;
+      }
+      // quem confirmou o código é o dono do número: valem o nome e o e-mail que ele digitou, não os de quem criou o contato antes (Rodrigo 2026-10-27)
+      if (!l.wa_ok_em) {
+        const nome = String(b.nome ?? "").trim().replace(/\s+/g, " "), em = String(b.email ?? "").trim().toLowerCase();
+        if (nome.length >= 2 && nome.length <= 120) upd.nome = nome;
+        if (em && em.length <= 200 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) upd.email = em;
       }
       await db.from("vendedor_leads").update(upd).eq("id", l.id);
       return json({ ok: true });
