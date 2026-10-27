@@ -1356,11 +1356,22 @@ const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +(
 const seasonOf = (iso,b) => SEASONS.find(s=>s.key===seasonKey(iso, b?.semFer||[]));
 const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, ds:b.ds, esp:b.esp}); /* % de feriado e de Réveillon da lancha (tabela precos) */
 const slotOf = k => SLOTS.find(s=>s.key===k);
-const slotLabel = k => t("slot_"+k);
+/* horário e valor combinados que a Búzios Lanchas mandou no link (?o=código, Rodrigo 2026-10-27): o código vale 3 dias neste aparelho (sobrevive ao cadastro);
+   horário e valor vêm do banco (oferta_link), então ninguém muda o valor no link */
+let OFERTA = null;
+const ofHrs = o => { const f=x=>{ const [h,m]=x.split(":").map(Number), mm=m?String(m).padStart(2,"0"):""; return lang==="en" ? (h%12||12)+(m?":"+mm:"")+(h<12?"am":"pm") : lang==="es" ? h+(m?":"+mm:"")+" h" : h+"h"+mm; };
+  return `${f(o.hora_ini)} ${{pt:"às",en:"to",es:"a"}[lang]||"às"} ${f(o.hora_fim)}`; };
+const ofMatch = (slug, iso, slot) => !!OFERTA && OFERTA.lancha===slug && OFERTA.data===iso && OFERTA.horario===slot;
+setTimeout(()=>{ if(IS_BOT) return; let id=null; try{ const q=new URLSearchParams(location.search).get("o");
+    if(/^[0-9a-f-]{36}$/i.test(q||"")) localStorage.setItem("oferta-link",JSON.stringify({id:q,t:Date.now()}));
+    const s=JSON.parse(localStorage.getItem("oferta-link")||"null"); if(s && Date.now()-s.t<3*864e5) id=s.id; }catch(e){}
+  if(id) fetch(SB_URL+"/rest/v1/rpc/oferta_link",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({o:id})})
+    .then(r=>r.ok?r.json():[]).then(r=>{ if(r?.[0]){ OFERTA={...r[0], id}; if(route.slug===OFERTA.lancha) render(false); } }).catch(()=>{}); }); /* depois do script inteiro: usa SB_URL e render */
+const slotLabel = k => ofMatch(route.slug, pick.date, k) && OFERTA.hora_ini && OFERTA.hora_fim ? ofHrs(OFERTA) : t("slot_"+k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const price4 = (b,iso) => valorNaData(b.prices, iso, false, valOpts(b));
 const price7 = (b,iso) => valorNaData(b.prices7, iso, false, {...valOpts(b), h7:true}); /* 7 horas por temporada; vazio = sob consulta */
-const priceFor = (b,iso,slot) => slotOf(slot).hours===7 ? price7(b,iso) : price4(b,iso);
+const priceFor = (b,iso,slot) => ofMatch(b.slug,iso,slot) && +OFERTA.valor>0 ? +OFERTA.valor : slotOf(slot).hours===7 ? price7(b,iso) : price4(b,iso);
 const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 /* locais de embarque da lancha para o horário escolhido; [] = a combinar */
 /* taxa cobrada pelo píer particular, paga pelo cliente no local (mesmos valores de TAXA no app e nos e-mails) */
@@ -1439,6 +1450,7 @@ function sentDlg(b,cid){
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, base=priceFor(b,pick.date,pick.slot);
   if(pick.cup) body.cupom=pick.cup;
+  if(ofMatch(b.slug,pick.date,pick.slot)){ body.oferta=OFERTA.id; if(+OFERTA.valor>0) body.preco_base=+OFERTA.valor; } /* o banco confere a oferta e põe horário e valor */
   if(VEND){ body.vendedor_cod=VEND.codigo; if(base){ body.preco_base=base; body.preco_cliente=cliPrice(base,pctKey(seasonOf(pick.date,b).key,pick.date),VEND,b); } } /* o banco confere o vendedor e o teto */
   const key=JSON.stringify(body);
   if(key===lastReq) return false; /* mesmo pedido tocado duas vezes */
