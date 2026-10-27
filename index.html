@@ -1,4 +1,5 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<script>/* link curto do convite (?c= / ?w=) e do vendedor para criar conta (?criar=1): abre o cadastro */(function(){var q=location.search;if(location.pathname==="/"&&/[?&](c|w)=|[?&]criar=1/.test(q))location.replace("/login/"+(/[?&]criar=1/.test(q)?q:"?criar=1&"+q.slice(1)));})();</script>
 <!-- Google Tag Manager (mesmo contêiner do site antigo: Google Ads, conversão no clique do WhatsApp e Google Analytics) -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -1131,7 +1132,7 @@ const route = (()=>{
 const IS_BOT = /bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent);
 const IS_IOS_TAB = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !IS_BOT;
 (()=>{
-  const q = new URLSearchParams(location.search).get("lang"); /* links antigos com ?lang=en */
+  const ql = new URLSearchParams(location.search).get("lang"), q = ql || (new URLSearchParams(location.search).get("o") ? route.lang : null); /* links antigos com ?lang=en; o link curto da reserva (?o=) fica no idioma do endereço */
   const old = location.hash.match(/^#lancha-([a-z0-9-]+)$/);  /* links antigos com #lancha-nome */
   let l = LANGS.includes(q) ? q : route.lang;
   if(LANGS.includes(q) && !IS_BOT) try{ localStorage.setItem("lang", q); }catch(e){} /* ?lang= vale como escolha do idioma (link de reserva do app), senão a próxima carga voltaria para a língua do navegador */
@@ -1142,7 +1143,7 @@ const IS_IOS_TAB = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.s
   }
   const slug = old ? old[1] : route.slug;
   const to = pathFor(l,slug);
-  if(to!==location.pathname || q || old){ route.lang=l; route.slug=slug; const keep=new URLSearchParams(location.search); keep.delete("lang"); location.replace(to + (keep.toString()?"?"+keep:"") + (old?"":location.hash)); } /* mantém ?v=, ?data= e ?reserva= ao trocar o idioma */
+  if(to!==location.pathname || ql || old){ route.lang=l; route.slug=slug; const keep=new URLSearchParams(location.search); keep.delete("lang"); location.replace(to + (keep.toString()?"?"+keep:"") + (old?"":location.hash)); } /* mantém ?v=, ?data= e ?reserva= ao trocar o idioma */
 })();
 let lang = route.lang;
 /* "Baixar o app": quem está no site (não no app instalado) vê um aviso no celular e um link no rodapé */
@@ -1276,7 +1277,7 @@ const AS_TESTE = (()=>{ try{ const q=new URLSearchParams(location.search).get("a
 /* link de reserva que a Búzios Lanchas manda no WhatsApp (?reserva=1, Rodrigo 2026-10-25): a página da lancha abre com a reserva online
    no lugar do botão do WhatsApp (o cliente já está conversando). Vale 3 dias neste aparelho, para sobreviver ao cadastro */
 const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(location.search);
-  if(q.get("reserva")==="1"){ localStorage.setItem("reserva-link",String(Date.now())); q.delete("reserva"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
+  if(q.get("reserva")==="1" || q.get("o")){ localStorage.setItem("reserva-link",String(Date.now())); q.delete("reserva"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
   return Date.now()-(+localStorage.getItem("reserva-link")||0) < 3*864e5; }catch(e){ return false; } })();
 let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
@@ -1359,14 +1360,20 @@ const slotOf = k => SLOTS.find(s=>s.key===k);
 /* horário e valor combinados que a Búzios Lanchas mandou no link (?o=código, Rodrigo 2026-10-27): o código vale 3 dias neste aparelho (sobrevive ao cadastro);
    horário e valor vêm do banco (oferta_link), então ninguém muda o valor no link */
 let OFERTA = null;
+const B62="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const u2s=u=>{ let n=BigInt("0x"+u.replace(/-/g,"")), s=""; while(n>0n){ s=B62[Number(n%62n)]+s; n/=62n; } return s.padStart(22,"0"); };
+const s2u=s=>{ s=String(s||""); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return s.toLowerCase(); if(!/^[0-9A-Za-z]{22}$/.test(s)) return ""; let n=0n; for(const ch of s) n=n*62n+BigInt(B62.indexOf(ch)); const h=n.toString(16).padStart(32,"0"); return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`; };
 const ofHrs = o => { const f=x=>{ const [h,m]=x.split(":").map(Number), mm=m?String(m).padStart(2,"0"):""; return lang==="en" ? (h%12||12)+(m?":"+mm:"")+(h<12?"am":"pm") : lang==="es" ? h+(m?":"+mm:"")+" h" : h+"h"+mm; };
   return `${f(o.hora_ini)} ${{pt:"às",en:"to",es:"a"}[lang]||"às"} ${f(o.hora_fim)}`; };
 const ofMatch = (slug, iso, slot) => !!OFERTA && OFERTA.lancha===slug && OFERTA.data===iso && OFERTA.horario===slot;
 setTimeout(()=>{ if(IS_BOT) return; let id=null; try{ const q=new URLSearchParams(location.search).get("o");
-    if(/^[0-9a-f-]{36}$/i.test(q||"")) localStorage.setItem("oferta-link",JSON.stringify({id:q,t:Date.now()}));
+    if(s2u(q)) localStorage.setItem("oferta-link",JSON.stringify({id:s2u(q),t:Date.now(),nv:1}));
     const s=JSON.parse(localStorage.getItem("oferta-link")||"null"); if(s && Date.now()-s.t<3*864e5) id=s.id; }catch(e){}
   if(id) fetch(SB_URL+"/rest/v1/rpc/oferta_link",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({o:id})})
-    .then(r=>r.ok?r.json():[]).then(r=>{ if(r?.[0]){ OFERTA={...r[0], id}; if(route.slug===OFERTA.lancha) render(false); } }).catch(()=>{}); }); /* depois do script inteiro: usa SB_URL e render */
+    .then(r=>r.ok?r.json():[]).then(r=>{ if(r?.[0]){ OFERTA={...r[0], id};
+      /* link curto só com o código: a data, o horário e as pessoas vêm do combinado */
+      if(route.slug===OFERTA.lancha && new URLSearchParams(location.search).get("o")){ pick.date=OFERTA.data; pick.slot=OFERTA.horario; if(OFERTA.pessoas) pick.people=String(OFERTA.pessoas); }
+      if(route.slug===OFERTA.lancha) render(false); } }).catch(()=>{}); }); /* depois do script inteiro: usa SB_URL e render */
 const slotLabel = k => ofMatch(route.slug, pick.date, k) && OFERTA.hora_ini && OFERTA.hora_fim ? ofHrs(OFERTA) : t("slot_"+k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const price4 = (b,iso) => valorNaData(b.prices, iso, false, valOpts(b));
