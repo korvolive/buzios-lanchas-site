@@ -1420,14 +1420,18 @@ function repHTML(p, c, sin){
 /* depois de liberar: o mesmo Pix do chat, pronto para mandar no WhatsApp do cliente, no idioma dele */
 function pixWa(p){
   const ph=splitPhone(p.clientes?.whatsapp), cc=String(ph.cc||"55").replace(/\D/g,""), tel=ph.num.replace(/\D/g,""); if(tel.length<8 || !(+p.sinal_valor>0)) return "";
-  const lg = cc==="55" ? "pt" : COB_ES.has(cc) ? "es" : "en", M=COB_MSG[lg], c=pedCalc(p), v=+p.sinal_valor;
+  const lg = ppLang(p), M=COB_MSG[lg], c=pedCalc(p), v=+p.sinal_valor;
   const txt=M.msg({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:SLOT_TXT[lg][p.horario]||"", v:brl(v), resto:c.tot>v?brl(c.tot-v):"", pix:pixPayload(PIX_CNPJ, v, "PED"+p.id)});
   return `<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("pixWa")}</a>`;
 }
 /* cliente estrangeiro (WhatsApp fora do +55): cobrança do PayPal dentro do site (/pagar/), na moeda dele, com o câmbio do dia + 10% (editável).
    Criada sozinha ao liberar o pagamento; o cliente recebe o link por e-mail e o administrador manda no WhatsApp.
    O pagamento é conferido com o PayPal e o pedido mostra "Sinal pago pelo PayPal"; quem aprova continua sendo o administrador (Rodrigo, 2026-10-22) */
-const ppCC = p => String(splitPhone(p.clientes?.whatsapp).cc||"55").replace(/\D/g,"");
+/* a cobrança segue a nacionalidade do perfil do cliente; sem ela, o DDI do WhatsApp (Rodrigo 2026-10-27).
+   Cobrança já criada não muda sozinha; paga, nunca muda */
+const PAIS_DDI = {BR:"55",AR:"54",CL:"56",UY:"598",PY:"595",CO:"57",PE:"51",MX:"52",BO:"591",EC:"593",VE:"58",US:"1",CA:"1",PT:"351",ES:"34",FR:"33",IT:"39",DE:"49",GB:"44",IE:"353",NL:"31",BE:"32",CH:"41",AT:"43",SE:"46",NO:"47",DK:"45",FI:"358",PL:"48",IL:"972",AU:"61",NZ:"64",ZA:"27",JP:"81",CN:"86",KR:"82",IN:"91",AE:"971",CR:"506",PA:"507",DO:"1",GT:"502",CU:"53",PR:"1"};
+const ppLang = p => { const pa=p.clientes?.pais, cc=ppCC(p); return /^[A-Z]{2}$/.test(pa||"") ? langOfPais(pa) : cc==="55" ? "pt" : COB_ES.has(cc) ? "es" : "en"; };
+const ppCC = p => PAIS_DDI[p.clientes?.pais] || String(splitPhone(p.clientes?.whatsapp).cc||"55").replace(/\D/g,"");
 const ppPaid = p => (S.ppPay||{})[p.id]?.pago_em;
 /* central de pagamento (/pagar/) para todo pedido liberado (Rodrigo, 2026-10-22): brasileiro e pedido de vendedor só Pix (BRL);
    estrangeiro sem vendedor também PayPal, no câmbio do dia + 10% (editável). O WhatsApp e o e-mail mandam o link da central. */
@@ -1443,7 +1447,7 @@ function ppAdm(p){
   if(pg?.pago_em) return `<span class="ppbox"><b class="cpok">✓ ${t("ppPaid",{v:esc(pg.pago_valor||p.paypal_valor||""),d:dd(pg.pago_em)})}</b></span>`;
   const field = pix ? "" : `<label class="f"><span>💳 ${t("ppVal",{c:COB_SYM[c]})}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="1" step="any" data-ppv="${p.id}" data-cur="${c}" placeholder="${COB_SYM[c]}"${pg?` value="${+pg.valor}"`:""}><button type="button" class="btn${pg?" sec":""}" data-ppg="${p.id}">${t(pg?"save":"ppGen")}</button></span></label>`;
   if(!pg || !/\/pagar\//.test(p.paypal_link||"")) return `<span class="ppbox">${pix ? `${pixWa(p)}<button type="button" class="btn sec" data-ppc="${p.id}">${t("ctMake")}</button>` : field}</span>`;
-  const ph=splitPhone(p.clientes?.whatsapp), tel=ph.num.replace(/\D/g,""), lg=cc==="55"?"pt":COB_ES.has(cc)?"es":"en", M=COB_MSG[lg], k=pedCalc(p), v=+p.sinal_valor;
+  const ph=splitPhone(p.clientes?.whatsapp), tel=ph.num.replace(/\D/g,""), lg=ppLang(p), M=COB_MSG[lg], k=pedCalc(p), v=+p.sinal_valor;
   const txt=CENTRAL_MSG[lg]({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:SLOT_TXT[lg][p.horario]||"", v:pix?brl(v):`${p.paypal_valor||""} (${brl(v)})`, link:p.paypal_link, resto:k.tot>v?brl(k.tot-v):""});
   return `<span class="ppbox"><small class="cpok">🧾 ${t(pix?"ctMadePix":"ppMade",{v:esc(p.paypal_valor||"")})}</small>
     ${tel.length>=8?`<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("ctWa")}</a>`:""}
@@ -3068,7 +3072,7 @@ function loadClis(){ /* só o administrador vê */
     .then(([c,v])=>{ S.clis=c.map(x=>({...x, email:realEm(x.email)})); S.invs=v; if(S.tab==="usuarios" && view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{ S.clis=null; });
 }
 async function loadReqs(){
-  try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp)&order=criado_em.desc&limit=300`);
+  try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp,pais)&order=criado_em.desc&limit=300`);
     S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct").then(r=>(S.cpOk=true,r))
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem a comissão por reserva */
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem o cupom do dono */
