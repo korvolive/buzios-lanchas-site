@@ -510,6 +510,47 @@ Deno.serve(async req => {
     const u = await quem(req);
     if (!u) return json({ erro: "login" }, 401);
 
+    // saque (Rodrigo 2026-10-28): o dono/vendedor tira o dinheiro da conta de recebimento dele pelo nosso app, sem entrar no Asaas.
+    // Só para a chave Pix cadastrada por ele na área de vendas (lida aqui do banco, nunca do navegador); um saque por vez.
+    if (b.acao === "saque_info" || b.acao === "sacar") {
+      const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", u.id).maybeSingle();
+      const { data: ct } = await db.from("asaas_contas").select("aprovada_em").eq("user_id", u.id).maybeSingle();
+      if (!k?.api_key || !ct?.aprovada_em) return json({ erro: "sem_conta" }, 409);
+      const sub = async (path: string, body?: unknown) => {
+        const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k.api_key, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
+        const t = await r.text(); let j: any = {}; try { j = JSON.parse(t); } catch (_) { /* vazio */ }
+        if (!r.ok) { console.error("saque", path, r.status, t.slice(0, 600)); const e: any = new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); e.status = r.status; throw e; }
+        return j;
+      };
+      const disp = Math.floor((+(await sub("/finance/balance")).balance || 0) * 100) / 100;
+      const { data: hist } = await db.from("saques").select("id, valor, chave, tipo, status, asaas_id, criado_em").eq("user_id", u.id).order("criado_em", { ascending: false }).limit(5);
+      for (const h of hist || []) { // saque a caminho: confere se o Pix já caiu
+        if (h.status !== "processando" || !h.asaas_id) continue;
+        const st = String((await sub("/transfers/" + encodeURIComponent(h.asaas_id)).catch(() => ({})))?.status || "");
+        const novo = st === "DONE" ? "feito" : ["FAILED", "CANCELLED"].includes(st) ? "falhou" : "";
+        if (novo) { h.status = novo; await db.from("saques").update({ status: novo }).eq("id", h.id); }
+      }
+      if (b.acao === "saque_info") return json({ disponivel: disp, saques: hist || [] });
+      const valor = Math.round(+b.valor * 100) / 100;
+      if (!(valor >= 1) || valor > disp) return json({ erro: "valor", disponivel: disp }, 409);
+      const { data: px } = await db.from("vendedores").select("pix_tipo, pix_chave").eq("user_id", u.id).maybeSingle();
+      const TIPO: Record<string, string> = { cpf: "CPF", cnpj: "CNPJ", email: "EMAIL", telefone: "PHONE", aleatoria: "EVP" };
+      if (!px?.pix_chave || !TIPO[px.pix_tipo]) return json({ erro: "sem_pix" }, 409);
+      // trava: um saque por vez (índice único em saques com status "enviando")
+      const { data: sq, error: es } = await db.from("saques").insert({ user_id: u.id, valor, chave: px.pix_chave, tipo: px.pix_tipo, status: "enviando" }).select("id").single();
+      if (es || !sq) return json({ erro: "andamento" }, 409);
+      let tr: any;
+      try { tr = await sub("/transfers", { value: valor, operationType: "PIX", pixAddressKey: px.pix_chave, pixAddressKeyType: TIPO[px.pix_tipo], description: "Saque Búzios Lanchas" }); }
+      catch (e: any) {
+        // recusa clara: apaga e deixa tentar de novo; sem resposta clara fica "verificar" para conferir no Asaas, nunca manda duas vezes
+        if (e?.status >= 400 && e?.status < 500) { await db.from("saques").delete().eq("id", sq.id); return json({ erro: "asaas", detalhe: String(e?.message || e).slice(0, 300) }, 400); }
+        await db.from("saques").update({ status: "verificar" }).eq("id", sq.id);
+        return json({ erro: "asaas" }, 502);
+      }
+      await db.from("saques").update({ status: tr.status === "DONE" ? "feito" : "processando", asaas_id: tr.id }).eq("id", sq.id);
+      return json({ ok: true, status: tr.status || null });
+    }
+
     if (b.acao === "minha") {
       const { data } = await db.from("asaas_contas").select("nome, cpf_cnpj, email, criado_em").eq("user_id", u.id).maybeSingle();
       return json({ conta: data || null, ativo: !!KEY() });
