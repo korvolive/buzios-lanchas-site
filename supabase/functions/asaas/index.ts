@@ -516,8 +516,8 @@ Deno.serve(async req => {
       const parte = vv?.indicado_por && +vv.indicacao_pct ? Math.round(bruto * +vv.indicacao_pct) / 100 : 0; // parte de quem convidou o sócio (paga por Pix)
       const com = Math.round((bruto - parte) * 100) / 100;
       if (!(com > 0)) return json({ erro: "valor" }, 409);
-      const { data: ok } = await db.rpc("vendedor_ok", { uid: p.vendedor });
-      if (ok === false) return json({ erro: "falta_confirmar" }, 409); // WhatsApp e e-mail confirmados (Rodrigo 2026-10-27)
+      const { data: ok, error: okErr } = await db.rpc("vendedor_ok", { uid: p.vendedor });
+      if (okErr || ok !== true) return json({ erro: "falta_confirmar" }, 409); // na dúvida, não transfere // WhatsApp e e-mail confirmados (Rodrigo 2026-10-27)
       const { data: ct } = await db.from("asaas_contas").select("wallet_id").eq("user_id", p.vendedor).maybeSingle();
       if (!ct?.wallet_id) return json({ erro: "sem_conta" }, 409);
       // trava: dois toques não transferem duas vezes
