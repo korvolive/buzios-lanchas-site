@@ -2823,9 +2823,11 @@ async function pushAsk(){
   }catch(e){} finally{ pushAsking = false; }
   if(view==="main" && !sheetDay && !tripRow && !chatCid) S.isClient ? (S.me && clientView()) : mainView();
 }
+/* dentro do app instalado (Google Play, tela de início do iPhone, app da Apple): todo mundo que entrou recebe avisos, clientes e vendedores também (Rodrigo 2026-10-28) */
+const inApp = () => { try{ if(matchMedia("(display-mode: standalone)").matches || navigator.standalone || IOS_APP || sessionStorage.getItem("twa") || /^android-app:/.test(document.referrer)) return true; }catch(e){} return false; };
 /* sem botão: já liga sozinho; se o celular ainda não deu permissão, pergunta no primeiro toque na tela */
 function autoPush(){
-  if(!S.pushWho || !pushOk()) return;
+  if(!(S.pushWho || inApp()) || !pushOk()) return;
   if(Notification.permission==="granted") return void pushSubscribe().catch(()=>{});
   if(Notification.permission!=="default" || autoPush.armed) return;
   autoPush.armed = true;
@@ -5549,7 +5551,7 @@ async function boot(){
           else{ const pf=(await db(`perfis?select=nome,telefone&user_id=eq.${ses.user.id}`).catch(()=>[]))[0]; if(pf) store.set("cli-draft",{nome:pf.nome||"", whatsapp:pf.telefone||""}); } } /* ex-dono: o cadastro de cliente já vem com nome e WhatsApp */
         const draft=store.get("cli-draft"); let err="";
         if(!S.me && draft && "nascimento" in draft) err = await saveProfile(draft); /* conta criada com confirmação por e-mail: termina o cadastro agora (o rascunho do convite não tem nascimento: só preenche a tela) */
-        if(S.me) await loadMyReq();
+        if(S.me){ await loadMyReq(); autoPush(); }
         return S.me ? clientView() : (top_.hidden=false, top_.innerHTML=headerHTML(), bindLang(), document.getElementById("out").onclick=logout, completeView(err)); }
     }
     const saved = store.get("dono-boat");
