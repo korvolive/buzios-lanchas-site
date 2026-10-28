@@ -120,7 +120,8 @@ async function carteira(lancha: string) {
   const { data: ds } = await db.from("donos").select("user_id").eq("lancha", lancha);
   const ids = (ds || []).map((d: any) => d.user_id);
   if (!ids.length) return null;
-  const { data } = await db.from("asaas_contas").select("wallet_id").in("user_id", ids).order("criado_em").limit(1).maybeSingle();
+  // só conta aprovada (documento e selfie conferidos) recebe na hora; sem isso, a parte do dono fica no saldo dele (Rodrigo 2026-10-28)
+  const { data } = await db.from("asaas_contas").select("wallet_id").in("user_id", ids).not("aprovada_em", "is", null).order("criado_em").limit(1).maybeSingle();
   return data?.wallet_id || null;
 }
 
@@ -300,6 +301,83 @@ async function quem(req: Request) {
   return (await db.auth.getUser(auth)).data?.user || null;
 }
 
+// saldo a receber (Rodrigo 2026-10-28): a parte do dono (pago online sem divisão) e a comissão do vendedor/parceiro ficam na conta
+// da Búzios até a pessoa ter a conta de recebimento aprovada. Aprovou, este robô (cron asaas-expirar) envia sozinho.
+// Só com asaas_config.saldo_auto ligado; só enquanto o saldo do Asaas cobre; cada envio travado para nunca sair duas vezes.
+// O PayPal fica de fora: o dinheiro só chega ao Asaas quando o Rodrigo saca, e segue pelo toque "O PayPal caiu".
+async function enviarSaldos() {
+  const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
+  if (!cfg?.saldo_auto) return { ligado: false };
+  // contas esperando aprovação: confere no Asaas (com a chave da subconta)
+  const { data: esp } = await db.from("asaas_contas").select("user_id").is("aprovada_em", null).limit(20);
+  for (const c of esp || []) {
+    const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", c.user_id).maybeSingle();
+    if (!k?.api_key) continue;
+    const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+    if (st?.general === "APPROVED") await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", c.user_id).is("aprovada_em", null);
+  }
+  const { data: ok } = await db.from("asaas_contas").select("user_id, wallet_id").not("aprovada_em", "is", null);
+  if (!ok?.length) return { ligado: true, enviados: 0 };
+  let saldo = +(await asaas("/finance/balance")).balance || 0, n = 0;
+  // 1. parte do dono: pago pelo Asaas sem divisão (o dono ainda não tinha conta aprovada)
+  const { data: pg } = await db.from("pagamentos_asaas").select("pedido, wallet_id, repasse").not("pago_em", "is", null);
+  const semDiv = [...new Set((pg || []).filter((r: any) => !r.wallet_id || !(+r.repasse > 0)).map((r: any) => +r.pedido))]
+    .filter((id) => !(pg || []).some((r: any) => +r.pedido === id && r.wallet_id && +r.repasse > 0));
+  if (semDiv.length) {
+    const { data: ps } = await db.from("pedidos").select("id, lancha, data, repasse_dono").in("id", semDiv).eq("status", "aprovado").gt("repasse_dono", 0).order("data").limit(30);
+    const { data: feitos } = await db.from("repasses_pp").select("pedido").in("pedido", semDiv);
+    const ja = new Set((feitos || []).map((r: any) => +r.pedido));
+    for (const p of ps || []) {
+      if (SEM_REPASSE.includes(p.lancha) || ja.has(+p.id)) continue;
+      const w = await carteira(p.lancha); if (!w) continue; // dono ainda sem conta aprovada: fica no saldo dele
+      const v = Math.round(+p.repasse_dono * 100) / 100;
+      if (v > saldo) break;
+      const { error: et } = await db.from("repasses_pp").insert({ pedido: p.id, valor: v, comprovante: "asaas:enviando" });
+      if (et) continue;
+      let tr: any;
+      try { tr = await asaas("/transfers", { value: v, walletId: w }); }
+      catch (e: any) {
+        console.error("saldo dono", p.id, e?.status, e?.message);
+        if (e?.status >= 400 && e?.status < 500) await db.from("repasses_pp").delete().eq("pedido", p.id).eq("comprovante", "asaas:enviando");
+        continue; // sem resposta clara: fica travado para conferir no Asaas, nunca manda duas vezes
+      }
+      await db.from("repasses_pp").update({ comprovante: "asaas:" + tr.id, enviado_em: new Date().toISOString() }).eq("pedido", p.id);
+      saldo -= v; n++;
+      await avisarDono(p).catch((e) => console.error("avisarDono", e));
+    }
+  }
+  // 2. comissão do vendedor/parceiro: depois do passeio, se ele aconteceu
+  const vend = ok.map((c: any) => c.user_id);
+  const { data: cs } = await db.from("pedidos").select("id, vendedor, data, horario, bloqueio_id, preco_cliente, preco_base")
+    .in("vendedor", vend).eq("status", "aprovado").is("comissao_paga", null).is("comissao_comprovante", null).order("data").limit(30);
+  for (const p of cs || []) {
+    const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
+    if (!acabou(p.data, p.horario, fim)) continue;
+    if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) continue;
+    const { data: vv } = await db.from("vendedores").select("indicado_por, indicacao_pct").eq("user_id", p.vendedor).maybeSingle();
+    const bruto = Math.max(+p.preco_cliente - +p.preco_base, 0);
+    const parte = vv?.indicado_por && +vv.indicacao_pct ? Math.round(bruto * +vv.indicacao_pct) / 100 : 0;
+    const com = Math.round((bruto - parte) * 100) / 100;
+    if (!(com > 0) || com > saldo) continue;
+    const { data: vok } = await db.rpc("vendedor_ok", { uid: p.vendedor });
+    if (vok !== true) continue;
+    const w = ok.find((c: any) => c.user_id === p.vendedor)?.wallet_id; if (!w) continue;
+    const { data: trava } = await db.from("pedidos").update({ comissao_comprovante: "asaas:enviando" }).eq("id", p.id).is("comissao_comprovante", null).is("comissao_paga", null).select("id");
+    if (!trava?.length) continue;
+    let tr: any;
+    try { tr = await asaas("/transfers", { value: com, walletId: w }); }
+    catch (e: any) {
+      console.error("saldo comissao", p.id, e?.status, e?.message);
+      if (e?.status >= 400 && e?.status < 500) await db.from("pedidos").update({ comissao_comprovante: null }).eq("id", p.id).eq("comissao_comprovante", "asaas:enviando");
+      continue;
+    }
+    const { error: em } = await db.from("pedidos").update({ comissao_comprovante: "asaas:" + tr.id, comissao_paga: new Date().toISOString() }).eq("id", p.id);
+    if (em) console.error("comissao_paga", p.id, em.message);
+    saldo -= com; n++;
+  }
+  return { ligado: true, enviados: n };
+}
+
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
@@ -356,7 +434,8 @@ Deno.serve(async req => {
       const srk2 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const ppr = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/paypal-checkout", { method: "POST", headers: { authorization: "Bearer " + srk2, apikey: srk2, "content-type": "application/json" }, body: JSON.stringify({ acao: "pendentes" }) })
         .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
-      return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora, paypal: ppr });
+      const saldos = await enviarSaldos().catch(e => (console.error("saldos", e), null));
+      return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora, paypal: ppr, saldos });
     }
 
     if (b.acao === "pagar" || b.acao === "conferir") {
@@ -498,7 +577,12 @@ Deno.serve(async req => {
       const falta = l.find((d) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
       if (falta) return json({ status: "pendente", url: falta.onboardingUrl, rejeitado: falta.status === "REJECTED" });
       if (l.some((d) => d.status === "PENDING")) return json({ status: "analise" });
-      return json({ status: l.length ? "ok" : "sem" });
+      if (!l.length) return json({ status: "sem" });
+      // documentos conferidos não bastam: a conta só recebe quando o Asaas aprova tudo (status geral APPROVED)
+      const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+      if (st?.general !== "APPROVED") return json({ status: "analise" });
+      await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", u.id).is("aprovada_em", null); // a partir daqui, a parte dele cai na hora
+      return json({ status: "ok" });
     }
 
     // comissão do vendedor pelo Asaas, depois do passeio, com um toque do administrador (Rodrigo 2026-10-25)
@@ -518,8 +602,9 @@ Deno.serve(async req => {
       if (!(com > 0)) return json({ erro: "valor" }, 409);
       const { data: ok, error: okErr } = await db.rpc("vendedor_ok", { uid: p.vendedor });
       if (okErr || ok !== true) return json({ erro: "falta_confirmar" }, 409); // na dúvida, não transfere // WhatsApp e e-mail confirmados (Rodrigo 2026-10-27)
-      const { data: ct } = await db.from("asaas_contas").select("wallet_id").eq("user_id", p.vendedor).maybeSingle();
+      const { data: ct } = await db.from("asaas_contas").select("wallet_id, aprovada_em").eq("user_id", p.vendedor).maybeSingle();
       if (!ct?.wallet_id) return json({ erro: "sem_conta" }, 409);
+      if (!ct.aprovada_em) return json({ erro: "nao_aprovada" }, 409); // a comissão fica no saldo do vendedor até o cadastro ser aprovado
       // trava: dois toques não transferem duas vezes
       const { data: trava } = await db.from("pedidos").update({ comissao_comprovante: "asaas:enviando" }).eq("id", pid).is("comissao_comprovante", null).is("comissao_paga", null).select("id");
       if (!trava?.length) return json({ erro: "comprovante" }, 409);
