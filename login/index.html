@@ -465,7 +465,7 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .rtag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--chip);color:var(--ink);white-space:nowrap}
 .rtag.r-admin{background:var(--sea-deep);color:#fff}.rtag.r-dono{background:var(--brass);color:var(--brass-ink)}.rtag.r-fixo,.rtag.r-free{background:var(--sea);color:#fff}.rtag.r-vend,.rtag.r-parc{background:#2f8f5b;color:#fff}.rtag.r-mod{background:#6b4fa0;color:#fff}.rtag.r-sem{background:none;border:1px dashed var(--muted);color:var(--muted)}
 .uav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}.uav .btn{width:auto;margin:0;padding:10px 16px;font-size:15px}
-.uh{margin:18px 0 4px;font-size:16px}.uroles li{align-items:center}
+.uh{margin:18px 0 4px;font-size:16px}.uverif{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:4px 0 6px}.uverif span{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}.uverif .ok{background:#1d9bf01f;color:#1d9bf0}.uverif .no{background:#f5b9422b;color:#f5b942}.uroles li{align-items:center}
 .uadd{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}.uadd select{flex:1 1 140px;min-width:0}.uadd .btn{width:100%;margin:0}
 /* fotos da lancha: segurar e arrastar para mudar a ordem; a 1ª é a capa */
 .phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:12px 0}
@@ -835,7 +835,7 @@ Object.assign(T.pt, {tabUsers:"Usuários", usersQ:"Buscar por nome, e-mail ou Wh
   needSqlUsers:"Falta criar a parte de usuários no Supabase (função lista_usuarios).", needSqlDel:"Falta liberar no Supabase a função de apagar contas (excluir_usuario).",
   uf_lbl:"Grupo", uf_bloq:"🚫 Bloqueados", ubTag:"🚫 Bloqueado", ubBlock:"🚫 Bloquear usuário", ubUnblock:"Desbloquear", ubQ:"Bloquear {name}? A pessoa não vai mais conseguir entrar, pedir passeio nem mandar ou ver mensagens. Os pedidos pendentes dela são cancelados.", ubWhy:"Motivo do bloqueio (só você vê; pode deixar em branco)", ubOk:"Usuário bloqueado.", ubOff:"Usuário desbloqueado.", ubSql:"Falta rodar o SQL do bloqueio de usuários no Supabase.", blockedMsg:"Sua conta foi bloqueada no site da Búzios Lanchas e não pode mais ser usada. Se achar que é um engano, fale com a gente pelo WhatsApp (21) 99927-2550.", uf_todos:"Todos", uf_dono:"Donos", uf_mar:"Marinheiros", userWa:"Falar com {name} no WhatsApp", ug_mar_fixo:"Marinheiros fixos", ug_mar_free:"Marinheiros freelancers", uf_cli:"Clientes", uf_func:"Funcionários", uf_sem:"Cadastro incompleto",
   role_admin:"Administrador", role_dono:"Dono", role_fixo:"Marinheiro fixo", role_free:"Marinheiro freelancer", role_func:"Funcionário", role_cli:"Cliente", role_sem:"Cliente sem cadastro completo", role_semLong:"Virou cliente, mas ainda não completou o cadastro (CPF e dados). Quando entrar no app, ele vai pedir o que falta.",
-  userSince:"Conta desde {d}", userLast:"último acesso {d}", userPhoto:"Trocar foto", userPhotoRmQ:"Remover a foto de {name}?",
+  userSince:"Conta desde {d}", uvEmOk:"E-mail verificado", uvEmNo:"E-mail não verificado", uvWaOk:"WhatsApp verificado", uvWaNo:"WhatsApp não verificado", userLast:"último acesso {d}", userPhoto:"Trocar foto", userPhotoRmQ:"Remover a foto de {name}?",
   userRoles:"O que essa pessoa é", userWhat:"Tipo de acesso", userGive:"Dar acesso", userData:"Dados", userPw:"Senha nova",
   userRoleRmQ:"Tirar o acesso de {role} de {name}?", userNeedName:"Primeiro salve o nome completo dessa pessoa.", userSaved:"Acesso dado!", parcEmpOk:"Empresa salva!", parcChOk:"Alteração salva!",
   userPhoneBad:"Esse WhatsApp não é um número válido. No Brasil: DDD + número, ex.: (21) 98888-7777.", userPwSaved:"Dados e senha nova salvos.",
@@ -849,7 +849,7 @@ Object.assign(T.en, {tabUsers:"Users", usersQ:"Search by name, email or WhatsApp
   needSqlUsers:"The users part is missing in Supabase (lista_usuarios function).", needSqlDel:"The delete-account function (excluir_usuario) still needs to be enabled in Supabase.",
   uf_lbl:"Group", uf_bloq:"🚫 Blocked", ubTag:"🚫 Blocked", ubBlock:"🚫 Block user", ubUnblock:"Unblock", ubQ:"Block {name}? They will no longer be able to sign in, request tours or send or see messages. Their pending requests are cancelled.", ubWhy:"Reason for blocking (only you see it; can be left blank)", ubOk:"User blocked.", ubOff:"User unblocked.", ubSql:"The user blocking SQL still needs to be run in Supabase.", blockedMsg:"Your account has been blocked on the Búzios Lanchas website and can no longer be used. If you think this is a mistake, talk to us on WhatsApp +55 21 99927-2550.", uf_todos:"All", uf_dono:"Owners", uf_mar:"Skippers", userWa:"Message {name} on WhatsApp", ug_mar_fixo:"Regular skippers", ug_mar_free:"Freelance skippers", uf_cli:"Clients", uf_func:"Staff", uf_sem:"Incomplete signup",
   role_admin:"Administrator", role_dono:"Owner", role_fixo:"Fixed skipper", role_free:"Freelance skipper", role_func:"Staff", role_cli:"Client", role_sem:"Client, signup incomplete", role_semLong:"Now a client, but hasn't finished signing up (CPF and details). The app will ask for what's missing on next sign-in.",
-  userSince:"Account since {d}", userLast:"last seen {d}", userPhoto:"Change photo", userPhotoRmQ:"Remove {name}'s photo?",
+  userSince:"Account since {d}", uvEmOk:"Email verified", uvEmNo:"Email not verified", uvWaOk:"WhatsApp verified", uvWaNo:"WhatsApp not verified", userLast:"last seen {d}", userPhoto:"Change photo", userPhotoRmQ:"Remove {name}'s photo?",
   userRoles:"What this person is", userWhat:"Access type", userGive:"Give access", userData:"Details", userPw:"New password",
   userRoleRmQ:"Remove {role} access from {name}?", userNeedName:"First save this person's full name.", userSaved:"Access given!", parcEmpOk:"Company saved!", parcChOk:"Change saved!",
   userPhoneBad:"That WhatsApp is not a valid number. In Brazil: area code + number, e.g. (21) 98888-7777.", userPwSaved:"Details and new password saved.",
@@ -891,7 +891,7 @@ Object.assign(T.es, {tabUsers:"Usuarios", usersQ:"Buscar por nombre, correo o Wh
   needSqlUsers:"Falta crear la parte de usuarios en Supabase (función lista_usuarios).", needSqlDel:"Falta habilitar en Supabase la función para borrar cuentas (excluir_usuario).",
   uf_lbl:"Grupo", uf_bloq:"🚫 Bloqueados", ubTag:"🚫 Bloqueado", ubBlock:"🚫 Bloquear usuario", ubUnblock:"Desbloquear", ubQ:"¿Bloquear a {name}? Ya no podrá entrar, pedir paseos ni mandar o ver mensajes. Sus pedidos pendientes se cancelan.", ubWhy:"Motivo del bloqueo (solo tú lo ves; puedes dejarlo en blanco)", ubOk:"Usuario bloqueado.", ubOff:"Usuario desbloqueado.", ubSql:"Falta ejecutar el SQL del bloqueo de usuarios en Supabase.", blockedMsg:"Tu cuenta fue bloqueada en el sitio de Búzios Lanchas y ya no se puede usar. Si crees que es un error, escríbenos por WhatsApp +55 21 99927-2550.", uf_todos:"Todos", uf_dono:"Dueños", uf_mar:"Marineros", userWa:"Hablar con {name} por WhatsApp", ug_mar_fixo:"Marineros fijos", ug_mar_free:"Marineros freelancers", uf_cli:"Clientes", uf_func:"Empleados", uf_sem:"Registro incompleto",
   role_admin:"Administrador", role_dono:"Dueño", role_fixo:"Marinero fijo", role_free:"Marinero freelancer", role_func:"Empleado", role_cli:"Cliente", role_sem:"Cliente sin registro completo", role_semLong:"Ahora es cliente, pero todavía no completó el registro (CPF y datos). Al entrar en la app, se le pedirá lo que falta.",
-  userSince:"Cuenta desde {d}", userLast:"último acceso {d}", userPhoto:"Cambiar foto", userPhotoRmQ:"¿Quitar la foto de {name}?",
+  userSince:"Cuenta desde {d}", uvEmOk:"Correo verificado", uvEmNo:"Correo no verificado", uvWaOk:"WhatsApp verificado", uvWaNo:"WhatsApp no verificado", userLast:"último acceso {d}", userPhoto:"Cambiar foto", userPhotoRmQ:"¿Quitar la foto de {name}?",
   userRoles:"Qué es esta persona", userWhat:"Tipo de acceso", userGive:"Dar acceso", userData:"Datos", userPw:"Contraseña nueva",
   userRoleRmQ:"¿Quitar el acceso de {role} a {name}?", userNeedName:"Primero guarda el nombre completo de esta persona.", userSaved:"¡Acceso dado!", parcEmpOk:"¡Empresa guardada!", parcChOk:"¡Cambio guardado!",
   userPhoneBad:"Ese WhatsApp no es un número válido. En Brasil: código de área + número, ej.: (21) 98888-7777.", userPwSaved:"Datos y contraseña nueva guardados.",
@@ -4085,8 +4085,9 @@ function openUser(uid, msg=""){
   const me = uid===ses.user.id, R=roleList(u), canRm = k => ["dono","fixo","free","func","vend","parc"].includes(k);
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button>
     <div class="avbig">${face(uid,u.nome||u.email,"face xl")}</div>
-    <h2 style="text-align:center;margin-bottom:2px">${u.nome?esc(u.nome):`<em class="muted">${t("noName")}</em>`}${u.vendedor?vtag():""}</h2>
+    <h2 style="text-align:center;margin-bottom:2px">${u.nome?esc(u.nome):`<em class="muted">${t("noName")}</em>`}${S.verIds?.has(uid)?" "+vbadge(t("verUser")):""}${u.vendedor?vtag():""}</h2>
     <p class="muted" style="margin:0 0 4px;text-align:center;word-break:break-all">${esc(realEm(u.email)||u.telefone||"")}${u.google?" · Google":""}</p>
+    <p class="uverif" id="uverif" hidden></p>
     <p class="muted" style="margin:0 0 12px;text-align:center;font-size:13px">${t("userSince",{d:fmtD(u.criado_em)})}${u.ultimo_acesso?" · "+t("userLast",{d:fmtD(u.ultimo_acesso)}):""}${u.cliente?" · "+t(+u.passeios===1?"cliTrip1":"cliTripsN",{n:u.passeios}):""}</p>
     <div class="uav">${me ? `<button type="button" class="btn sec" id="umyf">📷 ${t("userPhoto")}</button>`
       : `<label class="btn sec">📷 ${t("userPhoto")}<input type="file" accept="image/*" id="uavf" hidden></label>${S.avV[uid]>0?`<button type="button" class="btn sec" id="uavrm">${t("avRm")}</button>`:""}`}</div>
@@ -4112,6 +4113,11 @@ function openUser(uid, msg=""){
     ${me||u.admin ? "" : `<div id="ubloq"></div>`}
     ${me||u.admin ? "" : `<button type="button" class="link danger" id="udel">🗑 ${t("userDel")}</button>`}`;
   sheet.classList.add("on"); sheetBg.classList.add("on"); bindPhone("ue");
+  /* e-mail e WhatsApp verificados, um por um, no perfil da pessoa (Rodrigo 2026-10-28). Sem a função no banco, a linha não aparece */
+  RPC("verif_usuario",{uid}).then(r=>{ const v=r?.[0], el=document.getElementById("uverif"); if(!v || !el) return;
+    const it=(ok,k)=>`<span class="${ok?"ok":"no"}">${ok?"✓":"✗"} ${t(k+(ok?"Ok":"No"))}</span>`;
+    const p=[...(v.sem_email?[]:[it(v.email_ok,"uvEm")]), ...(v.tem_wa||v.wa_ok?[it(v.wa_ok,"uvWa")]:[])];
+    if(p.length){ el.innerHTML=p.join(""); el.hidden=false; } }, ()=>{});
   const busy = on => sheet.querySelectorAll("button,input,select").forEach(b=>b.disabled=on);
   document.getElementById("ux").onclick = closeDay;
   const av=document.getElementById("uavis"); if(av) av.onclick = () => avisarUser(u, "", true);
