@@ -66,7 +66,7 @@ h1 .vtag{font-size:12px;line-height:20px}
 .top .back{flex:none;display:flex;flex-direction:column;align-items:center;color:#fff;text-decoration:none;font-size:11px;font-weight:700;line-height:1;margin-right:-4px}.top .back b{font-size:26px;line-height:.8;font-weight:400}
 .top select,.top .out{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 10px;font-size:14px}
 .top select option{color:#000}.top .bell{flex:none;position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;cursor:pointer;padding:0}.top .bell svg{width:20px;height:20px;fill:currentColor}.top .bell b{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#e5484d;color:#fff;font:700 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--sea-deep,#06394a)}.top .ttl{overflow:hidden}@media (max-width:380px){.top .bell{width:32px;height:32px}.top .bell svg{width:18px;height:18px}.top .ttl strong{font-size:14px}.top select,.top .out{padding:5px 8px;font-size:13px}}@media (max-width:350px){.top .ttl{visibility:hidden}}.bl-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}.bl-list button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid rgba(127,160,175,.3);background:rgba(127,160,175,.08);color:inherit;font:inherit;cursor:pointer}.bl-list .bli{font-size:22px;flex:none}.bl-list .blx{flex:1}.bl-list .bla{flex:none;opacity:.6;font-size:20px}
-main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+main:has(#plan){max-width:min(1500px,100%)}main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
 body.has-help .login{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 body.has-help main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .help{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:700;font-size:15px;padding:11px 16px 11px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28)}.help svg{width:22px;height:22px;fill:#fff;flex:none}.help[hidden]{display:none}.fabs{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.fabs .help{position:static}.help.sup{background:#25d366;border:0;cursor:pointer;font-family:inherit;position:relative}.sup .unr{position:absolute;top:-7px;right:-7px;background:#e5484d}.supm{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.supm[hidden]{display:none}.help.supch{background:var(--sea);border:0;cursor:pointer;font-family:inherit}.supch .unr{background:#e5484d;margin-left:2px}
@@ -465,7 +465,7 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .rtag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--chip);color:var(--ink);white-space:nowrap}
 .rtag.r-admin{background:var(--sea-deep);color:#fff}.rtag.r-dono{background:var(--brass);color:var(--brass-ink)}.rtag.r-fixo,.rtag.r-free{background:var(--sea);color:#fff}.rtag.r-vend,.rtag.r-parc{background:#2f8f5b;color:#fff}.rtag.r-mod{background:#6b4fa0;color:#fff}.rtag.r-sem{background:none;border:1px dashed var(--muted);color:var(--muted)}
 .uav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}.uav .btn{width:auto;margin:0;padding:10px 16px;font-size:15px}
-.uh{margin:18px 0 4px;font-size:16px}.uverif{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:4px 0 6px}.uverif span{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}.uverif .ok{background:#1d9bf01f;color:#1d9bf0}.uverif .no{background:#f5b9422b;color:#f5b942}.uroles li{align-items:center}
+.uh{margin:18px 0 4px;font-size:16px}.planbtn{margin-top:8px}#plan .plhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}#plan .plhead h2{margin:0;font-size:19px}#plan .plhead .btn{width:auto;margin:0;padding:6px 12px;min-height:0}.plhint{font-size:13px;margin:4px 0 10px}.plwrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid rgba(127,160,175,.3);border-radius:12px}.pltab{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}.pltab th{position:sticky;top:0;z-index:1;background:#0b3a4a;color:#fff;text-align:left;font-weight:600;padding:8px;white-space:nowrap}.pltab td{border-top:1px solid rgba(127,160,175,.22);padding:0;white-space:nowrap;vertical-align:middle}.pltab td.pd{padding:6px 8px}.pltab td:first-child{position:sticky;left:0;background:var(--bg,#071a22);z-index:0}.pltab input{font:inherit;color:inherit;background:transparent;border:0;padding:8px;width:100%;min-width:70px;border-radius:0}.pltab td.pe:has([data-pk=cliente]) input{min-width:150px}.pltab td.pe:has([data-pk=obs]) input{min-width:200px}.pltab td.pe:has([data-pk=telefone]) input{min-width:140px}.pltab td.pe:has([data-pk=pessoas]) input{min-width:52px;width:60px}.pltab input:focus{outline:2px solid #e0b54d;outline-offset:-2px;background:rgba(224,181,77,.08)}.pltab td.lk input{opacity:.55;cursor:not-allowed}.pltab select{font:inherit;color:inherit;background:transparent;border:0;padding:8px;min-width:110px;max-width:220px}.pltab select option{color:#000}.pltab td[data-ck=data] input{min-width:130px}.pltab td[data-ck=hora_ini] input,.pltab td[data-ck=hora_fim] input{min-width:90px}.pltab th,.pltab td{border-right:1px solid rgba(127,160,175,.16)}.pltab tbody tr:nth-child(even) td{background-color:rgba(127,160,175,.05)}.pltab tbody tr:hover td{background-color:rgba(224,181,77,.06)}.pltab .dpb{margin:4px;padding:6px 8px;min-height:0!important;font-size:13px!important;white-space:nowrap;width:auto;border-width:1px;border-radius:8px;gap:6px}.pltab .dpb svg{width:14px;height:14px}.pltab td[data-ck=data]{min-width:0}@media(max-width:600px){#plan .plhead h2{font-size:16px}.plhint{font-size:12px}.plwrap{max-height:calc(100vh - 170px);-webkit-overflow-scrolling:touch}.pltab{font-size:12px}.pltab th{padding:6px}.pltab input,.pltab select{padding:6px}.pltab td:first-child{position:static}.pltab .dpb{max-width:150px}.pltab .dpb svg{display:none}}.pltab tbody tr:nth-child(even) td:first-child{background-color:#0c222b}.pltab td.lk select,.pltab td.lk .dpb{opacity:.55;pointer-events:none}.pltab td.busy{background:rgba(224,181,77,.15)}.pltab td.ok{background:rgba(48,164,108,.18)}.pltab td.bad{background:rgba(229,72,77,.22)}.pltab tr.plpend td.pd:first-child::after{content:" ⏳"}.pltab tfoot td{position:sticky;bottom:0;background:#0b3a4a;color:#fff;font-weight:700;padding:8px}.pltab .link{background:none;border:0;color:#4fb3cc;font:inherit;font-weight:600;padding:6px 8px;cursor:pointer}.uverif{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:4px 0 6px}.uverif span{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}.uverif .ok{background:#1d9bf01f;color:#1d9bf0}.uverif .no{background:#f5b9422b;color:#f5b942}.uroles li{align-items:center}
 .uadd{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}.uadd select{flex:1 1 140px;min-width:0}.uadd .btn{width:100%;margin:0}
 /* fotos da lancha: segurar e arrastar para mudar a ordem; a 1ª é a capa */
 .phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:12px 0}
@@ -2488,6 +2488,9 @@ const BOARD_PV = ["miss-bardot","les-zuzu"];
 Object.assign(T.pt, {vfT:"Confirme o seu e-mail", vfSub:"Por segurança, todas as contas confirmam o e-mail uma única vez. Enviamos um código para {email}: digite aqui ou toque no botão do e-mail.", codeT:"Confirme o seu e-mail", codeSub:"Enviamos um código para {email}. Digite o código aqui para confirmar que o e-mail é seu.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar o código", codeSent:"Enviamos um novo código para {email}.", codeBad:"Código errado ou vencido. Confira o e-mail ou peça um novo código.", codeWait:"Espere um pouco antes de pedir outro código.", codeBack:"Voltar para o login", codeSpam:"Não chegou? Veja também a caixa de spam."});
 Object.assign(T.en, {vfT:"Confirm your email", vfSub:"For security, every account confirms its email once. We sent a code to {email}: type it here or tap the button in the email.", codeT:"Confirm your email", codeSub:"We sent a code to {email}. Type it here to confirm the email is yours.", codeL:"Code", codeGo:"Confirm", codeResend:"Send the code again", codeSent:"We sent a new code to {email}.", codeBad:"Wrong or expired code. Check the email or ask for a new code.", codeWait:"Please wait a bit before asking for another code.", codeBack:"Back to sign in", codeSpam:"Didn't get it? Check your spam folder too."});
 Object.assign(T.es, {vfT:"Confirma tu correo", vfSub:"Por seguridad, todas las cuentas confirman el correo una sola vez. Enviamos un código a {email}: escríbelo aquí o toca el botón del correo.", codeT:"Confirma tu correo", codeSub:"Enviamos un código a {email}. Escríbelo aquí para confirmar que el correo es tuyo.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar el código", codeSent:"Enviamos un código nuevo a {email}.", codeBad:"Código incorrecto o vencido. Revisa el correo o pide un código nuevo.", codeWait:"Espera un poco antes de pedir otro código.", codeBack:"Volver al inicio de sesión", codeSpam:"¿No llegó? Mira también la carpeta de spam."});
+Object.assign(T.pt, {plBtn:"Modo planilha", plT:"Planilha de passeios", plBack:"Voltar", plHint:"Toque numa célula para editar. Salva sozinho quando você sai dela (fica verde). Valem as mesmas regras e avisos do formulário do passeio. No celular, arraste a tabela para o lado para ver todas as colunas.", plData:"Data", plHora:"Horário", plBoat:"Lancha", plCli:"Cliente", plPes:"Pessoas", plVal:"Valor", plSin:"Sinal", plFalta:"Falta receber", plObs:"Observações", plOpen:"Abrir", plTot:"Total · {n} passeios", plNone:"Nenhum passeio marcado daqui para frente.", plLocked:"Você não pode mudar este campo neste passeio"});
+Object.assign(T.en, {plBtn:"Spreadsheet mode", plT:"Tours spreadsheet", plBack:"Back", plHint:"Tap a cell to edit. It saves by itself when you leave it (turns green). The same rules and alerts as the tour form apply. On a phone, swipe the table sideways to see every column.", plData:"Date", plHora:"Time", plBoat:"Boat", plCli:"Client", plPes:"People", plVal:"Price", plSin:"Deposit", plFalta:"Still to receive", plObs:"Notes", plOpen:"Open", plTot:"Total · {n} tours", plNone:"No tours booked from today on.", plLocked:"You can't change this field on this tour"});
+Object.assign(T.es, {plBtn:"Modo planilla", plT:"Planilla de paseos", plBack:"Volver", plHint:"Toca una celda para editar. Se guarda sola cuando sales de ella (queda verde). Valen las mismas reglas y avisos del formulario del paseo. En el celular, desliza la tabla hacia el lado para ver todas las columnas.", plData:"Fecha", plHora:"Horario", plBoat:"Lancha", plCli:"Cliente", plPes:"Personas", plVal:"Valor", plSin:"Seña", plFalta:"Falta cobrar", plObs:"Observaciones", plOpen:"Abrir", plTot:"Total · {n} paseos", plNone:"No hay paseos marcados de hoy en adelante.", plLocked:"No puedes cambiar este campo en este paseo"});
 Object.assign(T.pt, {blT:"Notificações", blNone:"Nenhuma notificação nova. Tudo em dia! ✅", blChat1:"1 mensagem nova no chat", blChat:"{n} mensagens novas no chat", blEq1:"1 mensagem nova no Chat Búzios Lanchas", blEq:"{n} mensagens novas no Chat Búzios Lanchas", blReq1:"1 reserva esperando você", blReq:"{n} reservas esperando você", blCf1:"1 passeio para confirmar se aconteceu", blCf:"{n} passeios para confirmar se aconteceram", blPay1:"Pague o sinal para confirmar sua reserva", blPay:"Pague o sinal para confirmar suas {n} reservas", blRv1:"Avalie o seu passeio", blRv:"Avalie os seus {n} passeios"});
 Object.assign(T.en, {blT:"Notifications", blNone:"No new notifications. All caught up! ✅", blChat1:"1 new chat message", blChat:"{n} new chat messages", blEq1:"1 new message in Chat Búzios Lanchas", blEq:"{n} new messages in Chat Búzios Lanchas", blReq1:"1 booking waiting for you", blReq:"{n} bookings waiting for you", blCf1:"1 tour to confirm it happened", blCf:"{n} tours to confirm they happened", blPay1:"Pay the deposit to confirm your booking", blPay:"Pay the deposit to confirm your {n} bookings", blRv1:"Rate your tour", blRv:"Rate your {n} tours"});
 Object.assign(T.es, {blT:"Notificaciones", blNone:"No hay notificaciones nuevas. ¡Todo al día! ✅", blChat1:"1 mensaje nuevo en el chat", blChat:"{n} mensajes nuevos en el chat", blEq1:"1 mensaje nuevo en el Chat Búzios Lanchas", blEq:"{n} mensajes nuevos en el Chat Búzios Lanchas", blReq1:"1 reserva esperándote", blReq:"{n} reservas esperándote", blCf1:"1 paseo para confirmar si ocurrió", blCf:"{n} paseos para confirmar si ocurrieron", blPay1:"Paga la seña para confirmar tu reserva", blPay:"Paga la seña para confirmar tus {n} reservas", blRv1:"Evalúa tu paseo", blRv:"Evalúa tus {n} paseos"});
@@ -4376,6 +4379,7 @@ const busyTyping=()=>[...app.querySelectorAll("input:not([type=file]):not([type=
 function bgView(){ if(busyTyping()){ S.needRender=true; return; } S.isClient ? (S.me && clientView()) : mainView(); }
 document.addEventListener("focusout", ()=>setTimeout(()=>{ if(S.needRender && view==="main" && !sheetDay && !tripRow && !chatCid && !app.contains(document.activeElement) && !busyTyping()) bgView(); }, 300));
 function mainView(){
+  if(view==="planilha"){ if(!document.activeElement?.closest?.("#plan")) planView(); return; } /* modo planilha aberto: não troca de tela por baixo */
   S.prFlush?.(); S.prFlush=null;
   S.needRender=false;
   if(S.isClient) return clientView();
@@ -4400,7 +4404,7 @@ function mainView(){
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats.filter(b=>!exOut(b))];
   /* abas sempre no topo; em Passeios vêm "Lancha livre em", o chat da equipe e o aviso do Asaas; depois a escolha da lancha (Rodrigo 2026-10-25) */
   app.innerHTML = `${tabsHTML()}`
-    + (S.tab==="lista" ? (av=>av + (isRO() || av ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`))(avHTML()) : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (Rodrigo 2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
+    + (S.tab==="lista" ? (av=>av + (isRO() || av ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`))(avHTML()) + (planOk() ? `<button type="button" class="btn sec planbtn" id="planbtn">📊 ${t("plBtn")}</button>` : "") : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (Rodrigo 2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (Rodrigo 2026-10-25) */
     + fotoPendHTML() + installHTML() + pushHTML()
     + (S.tab==="lista" ? asAvisoHTML() : "")
     + (S.tab==="lancha" ? nbNewHTML() : "") /* "Cadastrar lancha nova" acima do seletor da lancha (Rodrigo 2026-10-25) */
@@ -4777,6 +4781,7 @@ function bindMainRest(){
   app.querySelectorAll("[data-phu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("nhUndoQ"))) return; x.disabled=true;
     try{ await RPC("desfazer_netos",{hid:+x.dataset.phu}); toast(t("nhUndoOk")); S.avPr=null; S.vavPr=null; loadBlocks(); }catch(e){ x.disabled=false; toast(e.code==="P0001"?e.message:t("saveErr")); } });
   const nt=document.getElementById("newtrip"); if(nt) nt.onclick=()=>openTrip(null);
+  const pb=document.getElementById("planbtn"); if(pb) pb.onclick=()=>{ view="planilha"; planView(); scrollTo(0,0); };
   const avd=document.getElementById("avd"); if(avd) avd.onchange=()=>{ S.avD=avd.value||null; S.rlB=null; if(S.avD) loadAv(); else mainView(); };
   const avx=document.getElementById("avx"); if(avx) avx.onclick=()=>{ S.avD=null; S.avRows=null; S.avN=0; S.rlB=null; avSeq++; mainView(); };
   const avn=document.getElementById("avn"); if(avn) avn.onchange=()=>{ S.avN=+avn.value||0; mainView(); };
@@ -5024,6 +5029,101 @@ async function loadBlocks(){
     S.upcoming = up.sort((x,z)=>x.data<z.data?-1:x.data>z.data?1:SLOT_ORDER[x.horario]-SLOT_ORDER[z.horario]); S.err="";
   }catch(e){ if(my!==loadSeq || !ses) return; S.err="load"; }
   mainView();
+}
+
+/* ===== modo planilha (Rodrigo 2026-10-28): todos os próximos passeios, um por linha, e qualquer campo editável ali mesmo.
+   Cada célula salva sozinha ao sair dela, passando pelo MESMO formulário do passeio (aberto escondido): as mesmas regras,
+   conferências e avisos de sempre (horário ocupado, marinheiro ocupado, sinal mínimo, aviso ao cliente, convite etc.).
+   Por enquanto só o administrador vê (PLAN_TODOS libera para os donos) */
+const PLAN_TODOS = false;
+const planOk = () => !isRO() && S.notes && (S.admin || (PLAN_TODOS && (S.own||[]).length));
+const planMove = r => r.data>=todayISO() && (S.admin || r.nota?.origem!=="buzios"); /* igual ao formulário: o dono só muda data/lancha dos passeios que ele fechou */
+const planLock = (r, k) => { const n=r.nota||{};
+  if(["data","horario","lancha"].includes(k)) return !planMove(r);
+  if(k==="valor" || k==="sinal") return !S.admin && n.origem==="buzios"; /* valor da Búzios: só o administrador */
+  if(k==="origem") return !S.admin;
+  return false; };
+const wait = ms => new Promise(ok=>setTimeout(ok, ms));
+let planQ = Promise.resolve();
+function planView(){
+  top_.hidden=false; top_.innerHTML=headerHTML(); bindLang(); document.getElementById("out").onclick=logout;
+  const all=S.cur==="*", multi=S.boats.length>1, rows=(S.upcoming||[]).filter(r=>r.nota), sum=k=>rows.reduce((a,r)=>a+(+r.nota?.[k]||0),0);
+  const dis=(r,k)=>planLock(r,k)?` disabled title="${esc(t("plLocked"))}"`:"";
+  const td=(r,k,html)=>`<td class="pe${planLock(r,k)?" lk":""}" data-ck="${k}">${html}</td>`;
+  const inp=(r,k,type,extra="")=>{ const v=k==="data" ? r.data : k==="hora_ini"||k==="hora_fim" ? String(r.nota?.[k]||"").slice(0,5) : r.nota?.[k]??"";
+    return td(r,k,`<input type="${type}" data-pid="${r.id}" data-pk="${k}" value="${esc(String(v))}"${extra}${dis(r,k)}>`); };
+  const sel=(r,k,opts,cur)=>td(r,k,`<select data-pid="${r.id}" data-pk="${k}"${dis(r,k)}>${opts.map(([v,l])=>`<option value="${esc(v)}"${String(v)===String(cur??"")?" selected":""}>${esc(l)}</option>`).join("")}</select>`);
+  const slotOpts = r => [...SLOTS, ...(hasNight(r.data)||r.horario==="noite"?["noite"]:[])].map(k=>[k, t("slot_"+k)+" · "+t("hours_"+k)]);
+  const embOpts = r => { const c=r.nota?.embarque; return [["","—"], ...BOARD_OPTS.map(o=>[o,o]), ...(c && !BOARD_OPTS.includes(c) ? [[c,c]] : []), [OTHER, t("embOther")+"…"]]; };
+  const marOpts = r => { const L=[]; const add=m=>{ if(m?.user_id && !L.some(x=>x[0]===m.user_id)) L.push([m.user_id, m.nome||m.email||"?"]); };
+    sailorsOf(r.lancha).forEach(add); ownersOf(r.lancha).forEach(add); (S.free||[]).forEach(add);
+    const c=r.nota?.marinheiro; if(c && !L.some(x=>x[0]===c)) L.push([c, sailorName(r.lancha,c)||"?"]); return [["","—"], ...L]; };
+  const falta=r=>{ const n=r.nota||{}; return n.valor!=null && n.valor!=="" ? brl(Math.max(0,(+n.valor||0)-(+n.sinal||0))) : ""; };
+  const cols=[["data",t("plData")],["horario",t("plHora")],...(multi?[["lancha",t("plBoat")]]:[]),["cliente",t("plCli")],["telefone","WhatsApp"],["pessoas",t("plPes")],
+    ...(S.embOk!==false?[["embarque",t("embT")]]:[]),...(S.marOk!==false?[["marinheiro",t("sailor")]]:[]),...(S.ajOk?[["ajudante",t("ajT")]]:[]),
+    ["hora_ini",t("hrIn")],["hora_fim",t("hrOut")],["origem",t("closedBy")],["valor",t("plVal")],["sinal",t("plSin")],["falta",t("plFalta")],["obs",t("plObs")],["",""]];
+  const cellOf=(r,k)=>{ const n=r.nota||{};
+    switch(k){
+      case "data": return inp(r,k,"date",` min="${todayISO()}" max="${maxISO()}"`);
+      case "horario": return sel(r,k,slotOpts(r),r.horario);
+      case "lancha": return sel(r,k,S.boats.map(b=>[b.slug,b.nome]),r.lancha);
+      case "cliente": return inp(r,k,"text",' maxlength="80" autocapitalize="words"');
+      case "telefone": return inp(r,k,"tel",' maxlength="24"');
+      case "pessoas": return inp(r,k,"number",' inputmode="numeric" min="1" max="99"');
+      case "embarque": return sel(r,k,embOpts(r),n.embarque||"");
+      case "marinheiro": return sel(r,k,marOpts(r),n.marinheiro||"");
+      case "ajudante": return inp(r,k,"text",' maxlength="60"');
+      case "hora_ini": case "hora_fim": return inp(r,k,"time",' step="900"');
+      case "origem": return sel(r,k,[["",""],["buzios",t("o_buzios")],["fora",t("o_fora")]],n.origem||"");
+      case "valor": case "sinal": return inp(r,k,"number",' inputmode="decimal" min="0" max="9999" step="any"');
+      case "falta": return `<td class="pd pf">${falta(r)}</td>`;
+      case "obs": return inp(r,k,"text",' maxlength="300"');
+      default: return `<td><button type="button" class="link" data-popen="${r.id}">${t("plOpen")}</button></td>`; } };
+  const iv=cols.findIndex(c=>c[0]==="valor");
+  app.innerHTML = `<div id="plan"><div class="plhead"><button type="button" class="btn sec" id="plback">‹ ${t("plBack")}</button><h2>📊 ${t("plT")}${all?"":` · ${esc(boatName(S.cur))}`}</h2></div>
+    <p class="muted plhint">${t("plHint")}</p>
+    ${rows.length ? `<div class="plwrap"><table class="pltab"><thead><tr>${cols.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead><tbody>
+      ${rows.map(r=>`<tr data-prow="${r.id}"${isPending(r.nota)?' class="plpend"':""}>${cols.map(c=>cellOf(r,c[0])).join("")}</tr>`).join("")}
+      </tbody><tfoot><tr><td colspan="${iv}">${t("plTot",{n:rows.length})}</td><td>${brl(sum("valor"))}</td><td>${brl(sum("sinal"))}</td><td>${brl(Math.max(0,sum("valor")-sum("sinal")))}</td><td colspan="2"></td></tr></tfoot></table></div>`
+      : `<p class="muted">${t("plNone")}</p>`}</div>`;
+  document.getElementById("plback").onclick=()=>{ view="main"; mainView(); };
+  app.querySelectorAll("[data-popen]").forEach(b=>b.onclick=()=>{ const r=S.upcoming.find(x=>x.id===+b.dataset.popen); view="main"; mainView(); openTrip(r); });
+  app.querySelectorAll("[data-pk]").forEach(el=>{ el.dataset.old=el.value;
+    el.addEventListener("keydown", e=>{ if(e.key==="Enter" && el.tagName==="INPUT"){ e.preventDefault(); el.blur(); } if(e.key==="Escape"){ el.value=el.dataset.old; el.blur(); } });
+    el.addEventListener("change", ()=>{ if(el.dataset.pk==="embarque" && el.value===OTHER){ const o=prompt(t("embOtherPh"), ""); if(!o?.trim()){ el.value=el.dataset.old; return; } el.dataset.other=o.trim(); }
+      planQ = planQ.then(()=>planSave(el)); }); });
+}
+/* salva uma célula pelo formulário do passeio (escondido): mesmas regras e avisos do botão Salvar */
+async function planSave(el){
+  const id=+el.dataset.pid, k=el.dataset.pk, r=(S.upcoming||[]).find(x=>x.id===id), cell=el.closest("td");
+  if(!r || el.value===el.dataset.old) return;
+  const v=el.value.trim(), fail=m=>{ cell.classList.remove("ok","busy"); cell.classList.add("bad"); el.value=el.dataset.old; toast(m||t("saveErr")); setTimeout(()=>cell.classList.remove("bad"),3000); };
+  cell.classList.add("busy"); el.disabled=true;
+  tripRow=r; tripNew=false; sheetDay=null; noteFor=null; pedidoFor=null; consultaFor=null; renderTrip(); /* o formulário fica montado, mas a janela não abre */
+  await wait(700); /* horários e marinheiros ocupados carregam */
+  const $=q=>sheet.querySelector(q), fire=(x,ev="change")=>x.dispatchEvent(new Event(ev,{bubbles:true}));
+  try{
+    if(k==="data"){ const d=$("#n-date"); if(!d) throw t("plLocked"); d.value=v; fire(d); await wait(1200); const b=$(`[data-ns="${r.horario}"]`); if(!b || b.disabled) throw t("slotTaken"); b.click(); }
+    else if(k==="horario"){ const b=$(`[data-ns="${v}"]`); if(!b) throw t("plLocked"); if(b.disabled) throw t("slotTaken"); b.click(); }
+    else if(k==="lancha"){ const s=$("#n-boat"); if(!s) throw t("plLocked"); s.value=v; fire(s); await wait(1200); const b=$(`[data-ns="${r.horario}"]`); if(!b || b.disabled) throw t("slotTaken"); b.click(); }
+    else if(k==="origem"){ const b=$(`[data-o="${v}"]`); if(!b || b.disabled) throw t("plLocked"); if(b.getAttribute("aria-checked")!=="true") b.click(); }
+    else if(k==="embarque"){ if(!v) throw t("needAll"); const o=v===OTHER ? el.dataset.other : v, b=$(BOARD_OPTS.includes(o) ? `[data-emb="${CSS.escape(o)}"]` : `[data-emb="${OTHER}"]`); if(!b) throw t("plLocked"); b.click();
+      if(!BOARD_OPTS.includes(o)){ const x=$("#n-embo"); x.value=o; fire(x,"input"); } }
+    else if(k==="marinheiro"){ const s=$("#n-mar"); if(!s) throw t("plLocked"); if(v && ![...s.options].some(o=>o.value===v && !o.disabled)) throw t("busy"); s.value=v; fire(s); }
+    else if(k==="telefone"){ const d=v.replace(/\D/g,""); if(d.length<10 || d.length>15) throw t("phoneBad"); const ph=splitPhone(v.startsWith("+") ? v : "+55 "+v), dd=$("#n-ddi"), tl=$("#n-telefone");
+      dd.value=String(ph.cc||"55"); fire(dd); tl.value=ph.num; fire(tl,"input"); }
+    else if(k==="pessoas"){ const s=$("#n-pessoas"); if(![...s.options].some(o=>o.value===String(+v))) throw t("maxPeople",{n:s.options[s.options.length-1]?.value}); s.value=String(+v); }
+    else if(k==="hora_ini" || k==="hora_fim"){ const hrf=$("#hrf"); if(hrf) hrf.hidden=false; const x=$(k==="hora_ini"?"#n-hi":"#n-hf"); if(!x) throw t("plLocked"); x.value=v; fire(x,"input"); }
+    else { const x=$("#n-"+k); if(!x) throw t("plLocked"); if(x.disabled) throw t("plLocked"); x.value=v; fire(x,"input"); fire(x); }
+    const btn=$("#nsave"), out=$("#nmsg"); if(!btn) throw "";
+    out.innerHTML=""; btn.click();
+    for(let i=0; i<150; i++){ await wait(100);
+      if(tripRow!==r) break; /* salvou: o formulário fechou */
+      const er=out.querySelector(".msg.err"); if(er && !btn.disabled) throw er.textContent.trim(); }
+    if(tripRow===r) throw t("saveErr");
+    cell.classList.remove("busy"); cell.classList.add("ok"); el.dataset.old=el.value; setTimeout(()=>cell.classList.remove("ok"),1500);
+  }catch(e){ if(tripRow===r && !sheet.classList.contains("on")) closeDay(); fail(typeof e==="string" ? e : errMsg(e)); }
+  finally{ el.disabled=planLock(r,k); }
 }
 
 /* ===== janela do dia: um botão grande para cada horário ===== */
