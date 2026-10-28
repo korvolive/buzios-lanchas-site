@@ -1370,9 +1370,9 @@ const descSemana = (iso, k, ds, h7) => { const w=new Date(iso+"T12:00:00Z").getU
 /* período de preço especial (precos.especiais, criado pelo administrador no app; Rodrigo 2026-10-22): qualquer valor, e vale acima de tudo na data */
 const espOf = (iso, esp) => (Array.isArray(esp) ? esp : []).find(e=>e && e.de<=iso && iso<=e.ate) || null;
 const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
-  if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ return pc ? Math.round(v*(1+pc/100)/10)*10 : v; };
+  if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ const rx = k==="reveillon" ? +(s7 ? o.rx7 : o.rx)||0 : 0; /* Búzios a mais só no Réveillon e Carnaval (Rodrigo 2026-10-28) */ return (pc ? Math.round(v*(1+pc/100)/10)*10 : v) + rx; };
 const seasonOf = (iso,b) => SEASONS.find(s=>s.key===seasonKey(iso, b?.semFer||[]));
-const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, ds:b.ds, esp:b.esp}); /* % de feriado e de Réveillon da lancha (tabela precos) */
+const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, ds:b.ds, esp:b.esp, rx:b.rx, rx7:b.rx7}); /* % de feriado e de Réveillon da lancha (tabela precos) */
 const slotOf = k => SLOTS.find(s=>s.key===k);
 /* horário e valor combinados que a Búzios Lanchas mandou no link (?o=código, Rodrigo 2026-10-27): o código vale 3 dias neste aparelho (sobrevive ao cadastro);
    horário e valor vêm do banco (oferta_link), então ninguém muda o valor no link */
@@ -2495,6 +2495,9 @@ Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados
       const esp=Array.isArray(r.especiais)?r.especiais:[]; if(JSON.stringify(esp)!==JSON.stringify(b.esp||[])){ b.esp=esp; mudou=true; } /* períodos de preço especial */
       if(JSON.stringify(p)!==JSON.stringify(b.prices) || JSON.stringify(p7)!==JSON.stringify(b.prices7||{})){ b.prices=p; b.prices7=p7; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
+  .then(()=>fetch(precosURL(",bz_reveillon,bz_reveillon7"), {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).then(rows=>{ let mudou=false; /* Búzios a mais no Réveillon e Carnaval: busca à parte, para não derrubar os valores se a coluna ainda não existir */
+    rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return; const a=+r.bz_reveillon||0, c=+r.bz_reveillon7||0; if(a!==(b.rx||0) || c!==(b.rx7||0)){ b.rx=a; b.rx7=c; mudou=true; } });
+    if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } }))
   .catch(()=>{}).finally(()=>window.precosDone=true);
 /* fotos e ordem editadas no app (tabela fotos): a 1ª é a capa; se o banco não responder, ficam as do código */
 Promise.all([fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista", {headers:{apikey:AGENDA_KEY}})
