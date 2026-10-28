@@ -2996,7 +2996,7 @@ const asPerf = () => { if(S.asPerf!==undefined || !ses) return; S.asPerf=null; c
     S.asPerf={nome:x.nome||y.nome||"", telefone:x.telefone||y.whatsapp||"", cpf:y.cpf||"", nasc:y.nascimento||""}; bgView(); }); };
 /* documento e selfie no Asaas BaaS: link do próprio Asaas, aberto de dentro do app */
 const asDocs = () => { if(S.asDocs!==undefined) return; S.asDocs=null; asFn({acao:"documentos"}).then(j=>{ S.asDocs=j; if(j.status && j.status!=="sem") bgView(); }, ()=>{ S.asDocs={}; }); };
-const asLoad = () => { if(S.asConta===undefined && (S.own?.length || S.vend)){ S.asConta=0; asFn({acao:"minha"}).then(j=>{ S.asConta=j.conta; S.asAtivo=j.ativo; S.asSem=!j.conta; }, ()=>{ S.asConta=null; }).then(()=>{ if(S.tab==="lancha" || S.tab==="lista" || S.tab==="vendas") bgView(); }); } };
+const asLoad = () => { if(S.asConta===undefined && (S.own?.length || S.vend)){ S.asConta=0; /* sem resposta em 12 s: mostra o cadastro em vez de ficar em "…" */ Promise.race([asFn({acao:"minha"}), new Promise((_,no)=>setTimeout(()=>no(new Error("tempo")),12000))]).then(j=>{ S.asConta=j.conta; S.asAtivo=j.ativo; S.asSem=!j.conta; }, ()=>{ S.asConta=null; }).then(()=>{ if(S.tab==="lancha" || S.tab==="lista" || S.tab==="vendas") bgView(); }); } };
 /* dono sem conta no Asaas: aviso no topo de Passeios até ele se cadastrar (Rodrigo 2026-10-25: sem conta, a parte dele cai na Búzios e é repassada por fora) */
 /* saldo a receber (Rodrigo 2026-10-28): a parte do dono e a comissão ficam guardadas na Búzios; o app mostra o valor
    e deixa claro que só recebe quem termina o cadastro. Aprovou, cai sozinho. Escondido até o BaaS (AS_TESTE) */
