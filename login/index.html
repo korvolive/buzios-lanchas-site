@@ -65,7 +65,7 @@ label.btn{display:block;text-align:center;cursor:pointer}
 h1 .vtag{font-size:12px;line-height:20px}
 .top .back{flex:none;display:flex;flex-direction:column;align-items:center;color:#fff;text-decoration:none;font-size:11px;font-weight:700;line-height:1;margin-right:-4px}.top .back b{font-size:26px;line-height:.8;font-weight:400}
 .top select,.top .out{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:6px 10px;font-size:14px}
-.top select option{color:#000}
+.top select option{color:#000}.top .bell{flex:none;position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;cursor:pointer;padding:0}.top .bell svg{width:20px;height:20px;fill:currentColor}.top .bell b{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#e5484d;color:#fff;font:700 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--sea-deep,#06394a)}.top .ttl{overflow:hidden}@media (max-width:380px){.top .bell{width:32px;height:32px}.top .bell svg{width:18px;height:18px}.top .ttl strong{font-size:14px}.top select,.top .out{padding:5px 8px;font-size:13px}}@media (max-width:350px){.top .ttl{visibility:hidden}}.bl-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}.bl-list button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid rgba(127,160,175,.3);background:rgba(127,160,175,.08);color:inherit;font:inherit;cursor:pointer}.bl-list .bli{font-size:22px;flex:none}.bl-list .blx{flex:1}.bl-list .bla{flex:none;opacity:.6;font-size:20px}
 main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
 body.has-help .login{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 body.has-help main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
@@ -1667,7 +1667,7 @@ const logout = () => { const tok=ses?.access_token; pushForget(tok); try{ naviga
   Promise.race([authCall("logout?scope=local",null,"POST",tok) /* scope=local: sai só deste aparelho; o padrão (global) derrubava o login nos outros aparelhos da pessoa */.catch(()=>{}), new Promise(r=>setTimeout(r,1500))]).then(()=>location.replace("/")); };
 
 function headerHTML(){
-  return `<a class="back" href="/" aria-label="${t("backSite")}"><b aria-hidden="true">‹</b>${t("backShort")}</a><button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${S.vend?vtag():""}${esc(realEm(ses?.user?.email)||S.me?.whatsapp||"")}</span></div>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
+  return `<a class="back" href="/" aria-label="${t("backSite")}"><b aria-hidden="true">‹</b>${t("backShort")}</a><button type="button" class="me" id="me" aria-label="${t("avChange")}">${face(ses?.user?.id,myName(),"face")}<i>📷</i></button><div class="ttl"><strong>${t("appName")}</strong><span>${S.vend?vtag():""}${esc(realEm(ses?.user?.email)||S.me?.whatsapp||"")}</span></div><button type="button" class="bell" id="bell" aria-label="${t("blT")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg><b id="belln" hidden></b></button>${langSel()}<button class="out" id="out">${t("logout")}</button>`;
 }
 /* ===== foto de perfil: arquivo <id>.jpg na pasta pública "avatares". Sem foto, mostra as iniciais ===== */
 const AV_URL = uid => `${SB}/storage/v1/object/public/avatares/${uid}.jpg`;
@@ -2488,6 +2488,9 @@ const BOARD_PV = ["miss-bardot","les-zuzu"];
 Object.assign(T.pt, {vfT:"Confirme o seu e-mail", vfSub:"Por segurança, todas as contas confirmam o e-mail uma única vez. Enviamos um código para {email}: digite aqui ou toque no botão do e-mail.", codeT:"Confirme o seu e-mail", codeSub:"Enviamos um código para {email}. Digite o código aqui para confirmar que o e-mail é seu.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar o código", codeSent:"Enviamos um novo código para {email}.", codeBad:"Código errado ou vencido. Confira o e-mail ou peça um novo código.", codeWait:"Espere um pouco antes de pedir outro código.", codeBack:"Voltar para o login", codeSpam:"Não chegou? Veja também a caixa de spam."});
 Object.assign(T.en, {vfT:"Confirm your email", vfSub:"For security, every account confirms its email once. We sent a code to {email}: type it here or tap the button in the email.", codeT:"Confirm your email", codeSub:"We sent a code to {email}. Type it here to confirm the email is yours.", codeL:"Code", codeGo:"Confirm", codeResend:"Send the code again", codeSent:"We sent a new code to {email}.", codeBad:"Wrong or expired code. Check the email or ask for a new code.", codeWait:"Please wait a bit before asking for another code.", codeBack:"Back to sign in", codeSpam:"Didn't get it? Check your spam folder too."});
 Object.assign(T.es, {vfT:"Confirma tu correo", vfSub:"Por seguridad, todas las cuentas confirman el correo una sola vez. Enviamos un código a {email}: escríbelo aquí o toca el botón del correo.", codeT:"Confirma tu correo", codeSub:"Enviamos un código a {email}. Escríbelo aquí para confirmar que el correo es tuyo.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar el código", codeSent:"Enviamos un código nuevo a {email}.", codeBad:"Código incorrecto o vencido. Revisa el correo o pide un código nuevo.", codeWait:"Espera un poco antes de pedir otro código.", codeBack:"Volver al inicio de sesión", codeSpam:"¿No llegó? Mira también la carpeta de spam."});
+Object.assign(T.pt, {blT:"Notificações", blNone:"Nenhuma notificação nova. Tudo em dia! ✅", blChat1:"1 mensagem nova no chat", blChat:"{n} mensagens novas no chat", blEq1:"1 mensagem nova no Chat Búzios Lanchas", blEq:"{n} mensagens novas no Chat Búzios Lanchas", blReq1:"1 reserva esperando você", blReq:"{n} reservas esperando você", blCf1:"1 passeio para confirmar se aconteceu", blCf:"{n} passeios para confirmar se aconteceram", blPay1:"Pague o sinal para confirmar sua reserva", blPay:"Pague o sinal para confirmar suas {n} reservas", blRv1:"Avalie o seu passeio", blRv:"Avalie os seus {n} passeios"});
+Object.assign(T.en, {blT:"Notifications", blNone:"No new notifications. All caught up! ✅", blChat1:"1 new chat message", blChat:"{n} new chat messages", blEq1:"1 new message in Chat Búzios Lanchas", blEq:"{n} new messages in Chat Búzios Lanchas", blReq1:"1 booking waiting for you", blReq:"{n} bookings waiting for you", blCf1:"1 tour to confirm it happened", blCf:"{n} tours to confirm they happened", blPay1:"Pay the deposit to confirm your booking", blPay:"Pay the deposit to confirm your {n} bookings", blRv1:"Rate your tour", blRv:"Rate your {n} tours"});
+Object.assign(T.es, {blT:"Notificaciones", blNone:"No hay notificaciones nuevas. ¡Todo al día! ✅", blChat1:"1 mensaje nuevo en el chat", blChat:"{n} mensajes nuevos en el chat", blEq1:"1 mensaje nuevo en el Chat Búzios Lanchas", blEq:"{n} mensajes nuevos en el Chat Búzios Lanchas", blReq1:"1 reserva esperándote", blReq:"{n} reservas esperándote", blCf1:"1 paseo para confirmar si ocurrió", blCf:"{n} paseos para confirmar si ocurrieron", blPay1:"Paga la seña para confirmar tu reserva", blPay:"Paga la seña para confirmar tus {n} reservas", blRv1:"Evalúa tu paseo", blRv:"Evalúa tus {n} paseos"});
 Object.assign(T.pt, {rvPendT:"⭐ Avaliação pendente", rvPendSub:"Conte como foi o seu passeio: dê a nota da lancha e do marinheiro. Leva menos de 1 minuto.", rvPendBtn:"Avaliar agora", rvGone:"Avaliação removida pela Búzios Lanchas", rvEditUntil:"Você pode alterar até {d}.", rvAdmT:"Avaliação do cliente", rvMarL:"Marinheiro", rvDel:"Excluir avaliação", rvDelQ:"Excluir esta avaliação? Ela sai do site e o cliente não poderá avaliar este passeio de novo.", rvDeleted:"Avaliação excluída.", rvExc:"Avaliação excluída por você", rvNeedSql:"Falta rodar a atualização do banco para excluir avaliações."});
 Object.assign(T.en, {rvPendT:"⭐ Review pending", rvPendSub:"Tell us how your tour went: rate the boat and the skipper. It takes less than a minute.", rvPendBtn:"Rate now", rvGone:"Review removed by Búzios Lanchas", rvEditUntil:"You can change it until {d}.", rvAdmT:"Client review", rvMarL:"Skipper", rvDel:"Delete review", rvDelQ:"Delete this review? It leaves the website and the client won't be able to rate this tour again.", rvDeleted:"Review deleted.", rvExc:"Review deleted by you", rvNeedSql:"The database update to delete reviews still needs to run."});
 Object.assign(T.es, {rvPendT:"⭐ Evaluación pendiente", rvPendSub:"Cuéntanos cómo fue tu paseo: califica la lancha y al marinero. Lleva menos de 1 minuto.", rvPendBtn:"Evaluar ahora", rvGone:"Evaluación eliminada por Búzios Lanchas", rvEditUntil:"Puedes cambiarla hasta el {d}.", rvAdmT:"Evaluación del cliente", rvMarL:"Marinero", rvDel:"Eliminar evaluación", rvDelQ:"¿Eliminar esta evaluación? Sale del sitio y el cliente no podrá evaluar este paseo de nuevo.", rvDeleted:"Evaluación eliminada.", rvExc:"Evaluación eliminada por ti", rvNeedSql:"Falta ejecutar la actualización de la base de datos para eliminar evaluaciones."});
@@ -3549,6 +3552,41 @@ function setBadge(){
   navigator.serviceWorker?.controller?.postMessage({tipo:"badge", n}); /* os avisos que chegarem depois somam a partir daqui */
 }
 setInterval(setBadge, 3000);
+/* ===== sininho de notificações (Rodrigo 2026-10-28): no topo do app, mostra o que a pessoa ainda não viu ou precisa fazer.
+   Cada item some sozinho quando a pessoa lê ou resolve (mensagem lida, reserva respondida, passeio confirmado, avaliação feita, sinal pago) */
+function bellItems(){
+  const L=[], n1=(n,k)=>t(n===1?k+"1":k,{n});
+  const un=(S.convs||[]).filter(c=>+c.nao_lidas>0), nc=un.reduce((a,c)=>a+(+c.nao_lidas||0),0);
+  if(nc) L.push({i:"💬", n:nc, txt:n1(nc,"blChat"), go:()=>{ if(S.admin && un.length>1){ bellTab("conversas"); return; }
+    const u=un.sort((a,b)=>Date.parse(b.ultima_em||0)-Date.parse(a.ultima_em||0))[0]; openChat(u.id); }});
+  const ne=+S.eq?.nao_lidas||0; if(ne) L.push({i:"👥", n:ne, txt:n1(ne,"blEq"), go:()=>openEq()});
+  if(!S.isClient){
+    const nr=S.admin ? +S.reqCount||0 : 0; if(nr) L.push({i:"📖", n:nr, txt:n1(nr,"blReq"), go:()=>bellTab("pedidos")});
+    const nf=Array.isArray(S.toConfirm) && (S.admin || (S.own||[]).length) ? S.toConfirm.length : 0;
+    if(nf) L.push({i:"✅", n:nf, txt:n1(nf,"blCf"), go:()=>bellTab("lista", ".cfm")});
+  } else if(S.me){
+    const rows=(S.myReq||[]).filter(p=>p.status!=="cancelado" && p.status!=="recusado"), today=todayISO();
+    const pay=rows.filter(p=>p.status==="pendente" && p.data>=today && p.sinal_liberado_em && !p.comprovante && !p.comprovante_em).length;
+    if(pay) L.push({i:"💳", n:pay, txt:n1(pay,"blPay"), go:()=>bellCli(".payhint")});
+    const rv=rows.filter(rvPending).length; if(rv) L.push({i:"⭐", n:rv, txt:n1(rv,"blRv"), go:()=>bellCli(".rvpend")});
+  }
+  return L;
+}
+const bellGo = sel => setTimeout(()=>{ const el=sel && document.querySelector(sel); if(!el) return; if(el.tagName==="DETAILS") el.open=true; el.scrollIntoView({behavior:"smooth",block:"center"}); }, 700);
+function bellTab(k, sel){ view="main"; S.tab=k; store.set("dono-tab",k); loadBlocks(); bellGo(sel); }
+function bellCli(sel){ view="main"; clientView(); bellGo(sel); }
+function bellPaint(){ const b=document.getElementById("belln"); if(!b) return; const n=bellItems().reduce((a,x)=>a+x.n,0);
+  b.hidden=!n; b.textContent=n>99?"99+":String(n); document.getElementById("bell")?.setAttribute("aria-label", t("blT")+(n?` (${n})`:"")); }
+setInterval(bellPaint, 2000);
+function openBell(){
+  const L=bellItems();
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>🔔 ${t("blT")}</h2>`
+    + (L.length ? `<ul class="bl-list">${L.map((x,i)=>`<li><button type="button" data-bl="${i}"><span class="bli" aria-hidden="true">${x.i}</span><span class="blx">${x.txt}</span><span class="bla" aria-hidden="true">›</span></button></li>`).join("")}</ul>`
+      : `<p class="muted">${t("blNone")}</p>`);
+  sheet.querySelectorAll("[data-bl]").forEach(b=>b.onclick=()=>{ const x=L[+b.dataset.bl]; closeDay(); x.go(); });
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+}
+document.addEventListener("click", e=>{ if(e.target.closest?.("#bell")){ bellPaint(); openBell(); } });
 let eqOn=false, eqRows=[], eqLast=0, eqTimer=null, eqTick=0, eqPin=null;
 /* data e hora ao lado de cada mensagem (Rodrigo 2026-10-24) */
 const eqHora = m => new Date(m.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
