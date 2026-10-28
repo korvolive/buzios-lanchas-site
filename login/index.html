@@ -2229,7 +2229,7 @@ document.addEventListener("input", e => { const x=e.target; if(!x.matches?.('inp
   if(n<0 || (x.max!=="" && n>mx)){ x.value = x.__ok ?? x.defaultValue; if(n>mx) toast(t("pctMaxT",{n:mx})); } }, true);
 document.addEventListener("focusin", e => { const x=e.target; if(x.matches?.('input[type="number"][data-xp],input[type="number"][data-mpf],input[type="number"][data-apc],input[type="number"][data-bp]')) x.__ok=x.value; }, true);
 const VMAX = 9999; /* nenhum valor de passeio passa de R$ 9.999 (Rodrigo 2026-10-22; o banco também barra) */
-const PCT_MAX = {pf:15, ds:15}; /* Réveillon e Carnaval: revMax() */ /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
+const PCT_MAX = {get pf(){ return S.cur==="miss-bardot" ? 20 : 10; } /* feriados até 10%, a Miss Bardot até 20% (Rodrigo 2026-10-28, era 15%) */, ds:15}; /* Réveillon e Carnaval: revMax() */ /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
 function ownPricesHTML(){
   if(S.admin || !(S.own||[]).includes(S.cur) || !S.mn) return "";
   const it=Object.fromEntries((S.mn.itens||[]).map(x=>[x.chave,x])), lock=!!S.mn.prox && new Date(S.mn.prox)>new Date();
