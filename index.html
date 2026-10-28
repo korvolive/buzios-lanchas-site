@@ -1150,6 +1150,7 @@ const IS_IOS_TAB = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.s
 let lang = route.lang;
 /* "Baixar o app": quem está no site (não no app instalado) vê um aviso no celular e um link no rodapé */
 let gaPrompt = null;
+const PLAY_URL = "https://play.google.com/store/apps/details?id=br.com.lanchaembuzios.app"; /* app no ar na Google Play desde 2026-10-28 */
 addEventListener("beforeinstallprompt", e => { e.preventDefault(); gaPrompt = e; });
 function setupGetApp(){
   const app = document.documentElement.classList.contains("is-app"), ua = navigator.userAgent;
@@ -1166,6 +1167,7 @@ function setupGetApp(){
   addEventListener("appinstalled", marca);
   if(!pill.hidden && navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then(l => { if(l?.length) marca(); }).catch(()=>{});
   const open = async e => { e.preventDefault();
+    if(android){ location.href = PLAY_URL; return; } /* Android: o app da Play Store (Rodrigo 2026-10-24); iPhone continua com o atalho na tela */
     if(gaPrompt){ gaPrompt.prompt(); const c = await gaPrompt.userChoice.catch(()=>null); gaPrompt = null; if(c?.outcome==="accepted"){ marca(); return; } }
     const safari = ios && !/crios|fxios|edgios|instagram|fban|fbav|line\/|gsa\//i.test(ua);
     document.getElementById("gahow").innerHTML = ios ? t(safari ? "getAppIOS" : "getAppIOSOther") : android ? t("getAppAndroid") : t("getAppDesk");
