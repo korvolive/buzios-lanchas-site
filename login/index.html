@@ -5722,7 +5722,9 @@ function renderTrip(){
 }
 async function toggle(d,k){
   const s=S.blocks.get(d)||new Map(), r=s.get(k), on=!!r, l=encodeURIComponent(S.cur);
-  if(on && r.nota && noteLine(r.nota) && !confirm(t("confirmFree"))) return;
+  /* qualquer dado já preenchido (cliente, telefone, valor, obs, marinheiro...) pede confirmação antes de liberar; horário vazio libera direto (Rodrigo 2026-10-28) */
+  const temDado = n => !!n && Object.entries(n).some(([c,v])=>!["id","bloqueio","lancha","data","horario","origem","criado_em","atualizado_em"].includes(c) && v!=null && v!=="" && v!==0 && v!==false && !(Array.isArray(v) && !v.length) && !(typeof v==="object" && !Array.isArray(v) && !Object.keys(v).length));
+  if(on && (temDado(r.nota) || r.stm || r.revenda) && !confirm(t("confirmFree"))) return;
   if(!on && mntOn(d) && !(await mntFree(S.cur,d))) return;
   renderSheet(k);
   try{
