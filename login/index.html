@@ -2754,7 +2754,7 @@ async function openFotoPend(){
 function ownPixHTML(l){
   if(!S.admin || SEM_REPASSE.includes(l)) return "";
   const os=(S.owners||[]).filter(o=>o.lancha===l); if(!os.length || !Array.isArray(S.pixD)) return "";
-  return os.map(o=>{ const px=S.pixD.find(x=>x.user_id===o.user_id), nm=esc((o.nome||o.email||"").split(" ")[0]);
+  return os.map(o=>{ const pd=S.pixD.find(x=>x.user_id===o.user_id), px=pd?.pix_chave ? pd : (S.vpix?.[o.user_id] || pd) /* dono vendedor: chave da aba Vendedor */, nm=esc((o.nome||o.email||"").split(" ")[0]);
     return `<p class="opix">🔑 ${t("opixT",{n:nm})}: ${px?.pix_chave ? `<b>${t("px_"+px.pix_tipo)} ${esc(pixShow(px.pix_tipo,px.pix_chave))}</b> <button type="button" class="link" data-pxo="${esc(px.pix_chave)}">${t("pxCopyKey")}</button>` : `<span class="muted">${t("opixNone")}</span>`}</p>`; }).join(""); }
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-pxo]"); if(b) copyTxt(b.dataset.pxo); });
 /* no computador, o wa.me passa pelo api.whatsapp.com e o WhatsApp Web troca os emojis por "�" (Rodrigo 2026-10-28): abre direto o web.whatsapp.com */
@@ -4000,7 +4000,7 @@ async function loadUsers(){
 /* depois de mexer em alguém: atualiza a lista e as outras telas que mostram donos, marinheiros e funcionários */
 async function reloadPeople(){
   const keep = (f, k) => RPC(f, {}).then(v=>{ S[k]=v; }, ()=>{});
-  await Promise.all([loadUsers(), keep("lista_donos","owners"), db("pix_donos?select=user_id,pix_tipo,pix_chave").then(v=>{ S.pixD=v; }, ()=>{}), listFree().then(v=>{ S.free=v; }, ()=>{}), keep("lista_marinheiros","sailors"), keep("lista_visualizadores","staff")]);
+  await Promise.all([loadUsers(), keep("lista_donos","owners"), db("pix_donos?select=user_id,pix_tipo,pix_chave").then(v=>{ S.pixD=v; }, ()=>{}), S.vpix ? 0 : db("vendedores?select=user_id,pix_tipo,pix_chave").then(r=>{ S.vpix=S.vpix||Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{}), listFree().then(v=>{ S.free=v; }, ()=>{}), keep("lista_marinheiros","sailors"), keep("lista_visualizadores","staff")]);
 }
 /* marinheiro fixo ou freelancer: avisa a pessoa (WhatsApp e e-mail) com o acesso ao app */
 const teamKind = u => u.fixo.length ? {tipo:"fixo", lancha:u.fixo[0]} : u.freelancer ? {tipo:"freelancer"} : null;
@@ -4583,7 +4583,8 @@ function vSalesHTML(){
 }
 /* chave Pix do dono (Rodrigo 2026-10-25): para a Búzios mandar a parte dele por Pix quando precisar, mesmo sem conta Asaas */
 function donoPixHTML(){
-  if(isRO() || !(S.own||[]).includes(S.cur) || SEM_REPASSE.includes(S.cur)) return "";
+  /* dono que também é vendedor cadastra a chave só na aba Vendedor: salvar_pix grava nos dois lugares (Rodrigo 2026-10-28) */
+  if(isRO() || S.vend || !(S.own||[]).includes(S.cur) || SEM_REPASSE.includes(S.cur)) return "";
   if(S.mypix===undefined){ S.mypix=null; db(S.vend ? `vendedores?select=pix_tipo,pix_chave&user_id=eq.${ses.user.id}` : `pix_donos?select=pix_tipo,pix_chave&user_id=eq.${ses.user.id}`).then(r=>{ S.mypix=r[0]||{}; }, ()=>{ S.mypix=false; }).then(()=>{ const x=document.getElementById("vpix"); if(x){ x.outerHTML=vPixHTML(); bindVpix(); } }); }
   if(S.mypix===false) return "";
   return `<div class="card"><h2>🔑 ${t("pxDT")}</h2>${vPixHTML()}</div>`; }
