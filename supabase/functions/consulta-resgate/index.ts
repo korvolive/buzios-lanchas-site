@@ -29,6 +29,8 @@ const MES: Record<string, string[]> = {
   es: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
 };
 const dataLonga = (d: string, l: string) => { const [, m, dd] = d.split("-").map(Number); return l === "en" ? `${MES.en[m - 1]} ${dd}` : `${dd} de ${MES[l][m - 1]}`; };
+// primeiro nome digitado por outra pessoa: só letras (o número oficial não manda texto livre; revisão de segurança 2026-10-28)
+const nomeOk = (v: unknown) => { const n = String(v || "").trim().split(/\s+/)[0] || ""; return /^[\p{L}'-]{2,20}$/u.test(n) ? n : "-"; };
 const dataFmt = (d: string, l: string) => { const [y, m, dd] = d.split("-"); return l === "en" ? `${m}/${dd}/${y}` : `${dd}/${m}/${y}`; };
 
 // lead do link do vendedor sem cadastro: 1 lembrete entre 1 e 24 horas depois; quem já tem conta não recebe
@@ -60,7 +62,7 @@ async function lembrarLeads(modelo: string) {
       method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
         template: { name: modelo, language: { code: LANG[l] }, components: [
-          { type: "body", parameters: [{ type: "text", text: String(x.nome || "").trim().split(" ")[0].slice(0, 40) || "-" }] },
+          { type: "body", parameters: [{ type: "text", text: nomeOk(x.nome) }] },
           { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: v.codigo }] },
         ] } }),
     });
@@ -70,6 +72,7 @@ async function lembrarLeads(modelo: string) {
   return n;
 }
 
+const POR_LANCHA_DIA = 10; // avisos por lancha em 24 h
 // passeio cadastrado para cliente sem conta: 1 aviso por passeio, entre 10 min e 24 h depois de cadastrado, só passeio de hoje em diante
 async function avisarPasseios(modelo: string) {
   const agora = Date.now();
@@ -77,21 +80,27 @@ async function avisarPasseios(modelo: string) {
   let livre = 30 - (count ?? 0);
   if (livre <= 0) return 0;
   const hoje = new Date(agora - 3 * 3600e3).toISOString().slice(0, 10); // dia de hoje no Brasil
+  const ate = new Date(agora - 3 * 3600e3 + 60 * 864e5).toISOString().slice(0, 10); // só passeios até 60 dias para frente
   const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario")
     .lte("criado_em", new Date(agora - 10 * 60e3).toISOString()).gte("criado_em", new Date(agora - 24 * 3600e3).toISOString())
-    .gte("data", hoje).is("revenda", null).order("criado_em").limit(40);
+    .gte("data", hoje).lte("data", ate).is("revenda", null).order("criado_em").limit(40);
   if (error) { console.error("passeios", error.message); return 0; }
   if (!bs?.length) return 0;
   const { data: ns } = await db.from("anotacoes").select("bloqueio_id, cliente, telefone, cliente_conta, aviso_wa_em").in("bloqueio_id", bs.map(b => b.id));
   const { data: ls } = await db.from("lanchas").select("slug, nome");
   const nomeL = (s: string) => ls?.find(l => l.slug === s)?.nome || s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-  const { data: rec } = await db.from("anotacoes").select("telefone").gte("aviso_wa_em", new Date(agora - 864e5).toISOString());
+  const { data: rec } = await db.from("anotacoes").select("bloqueio_id, telefone").gte("aviso_wa_em", new Date(agora - 864e5).toISOString());
   const ja = new Set((rec || []).map(r => dig(r.telefone)));
+  // quantos avisos cada lancha já mandou em 24 h
+  const porL = new Map<string, number>();
+  const recIds = (rec || []).map(r => r.bloqueio_id);
+  if (recIds.length) { const { data: rb } = await db.from("bloqueios").select("lancha").in("id", recIds); (rb || []).forEach(x => porL.set(x.lancha, (porL.get(x.lancha) || 0) + 1)); }
   let n = 0;
   for (const b of bs) {
     if (livre <= 0) break;
     const x = ns?.find(a => a.bloqueio_id === b.id);
     if (!x || x.cliente_conta || x.aviso_wa_em || !x.telefone) continue;
+    if ((porL.get(b.lancha) || 0) >= POR_LANCHA_DIA) continue; // tenta de novo no próximo ciclo, dentro das 24 h
     const to = dig(x.telefone);
     if (to.length < 10 || to.length > 15) continue;
     // marca antes de mandar (uma vez só, mesmo se o cron rodar duas vezes)
@@ -111,8 +120,8 @@ async function avisarPasseios(modelo: string) {
     if (pe || !pv) { console.error("prova", pe?.message); continue; }
     const cc = (String(x.telefone).trim().match(/^\+(\d{1,3})\s/) || [])[1] || to.slice(0, 2);
     const l = cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en";
-    ja.add(to); livre--;
-    const p = [String(x.cliente || "").trim().split(" ")[0].slice(0, 40) || "-", nomeL(b.lancha), `${dataLonga(b.data, l)} (${SLOT[l][b.horario] || b.horario})`];
+    ja.add(to); livre--; porL.set(b.lancha, (porL.get(b.lancha) || 0) + 1);
+    const p = [nomeOk(x.cliente), nomeL(b.lancha), `${dataLonga(b.data, l)} (${SLOT[l][b.horario] || b.horario})`];
     const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
       method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
@@ -159,7 +168,7 @@ Deno.serve(async req => {
       if (to.length < 10 || to.length > 15 || ja.has(to)) continue; // fica marcada sem mandar: não tenta de novo
       ja.add(to); livre--;
       const l = SLOT[c.lang] ? c.lang : "pt";
-      const p = [c.nome.split(" ")[0].slice(0, 40), nomeL(c.lancha), `${dataFmt(c.data, l)}, ${SLOT[l][c.horario] || c.horario}`, String(c.pessoas || "-")];
+      const p = [nomeOk(c.nome), nomeL(c.lancha), `${dataFmt(c.data, l)}, ${SLOT[l][c.horario] || c.horario}`, String(c.pessoas || "-")];
       const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
         method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
         body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
