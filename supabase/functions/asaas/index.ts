@@ -87,11 +87,12 @@ function cnpjOk(c: string) {
 // taxas que o cliente paga (Rodrigo: o dono recebe 100% do neto, a Búzios e o vendedor também; as taxas ficam com o cliente)
 async function taxas() {
   const { data } = await db.from("asaas_config").select("*").eq("id", 1).maybeSingle();
-  return { pix: +(data?.pix_fixo ?? 1.99), pct: +(data?.cartao_pct ?? 2.99), pct6: +(data?.cartao_pct_2a6 ?? 2.49), fixo: +(data?.cartao_fixo ?? 0.49), ant: +(data?.antecipacao_pct ?? 1.15), antP: +(data?.antecipacao_parc_pct ?? 1.6) };
+  return { pix: +(data?.pix_fixo ?? 1.99), pct: +(data?.cartao_pct ?? 2.99), pct6: +(data?.cartao_pct_2a6 ?? 3.49), fixo: +(data?.cartao_fixo ?? 0.49), ant: +(data?.antecipacao_pct ?? 1.34), antP: +(data?.antecipacao_parc_pct ?? 1.78) };
 }
 // cartão em até 6x (Rodrigo 2026-10-25): cada opção já com a taxa do cartão e a antecipação (ao mês, em média (n+1)/2 meses por parcela),
 // para o dinheiro cair na hora e cada um receber cheio; o cliente vê a taxa e escolhe. Parcelas iguais: total = parcela × n.
-// Taxas da conta do Rodrigo (promocionais até 22/01/2027): 1x 1,99%, 2-6x 2,49% + R$ 0,49; antecipação à vista 1,15%/mês, parcelada 1,6%/mês.
+// Taxas da proposta assinada em 29/10/2026, sempre o valor mais alto (Rodrigo: o cliente paga a taxa, nunca a Búzios): Pix R$ 1,99; 1x 2,99%, 2-6x 3,49% + R$ 0,49;
+// antecipação 1,25%/mês (1x) e 1,70%/mês (2x+), com o cartão caindo em 32 dias: 1,34 e 1,78 (SQL 2026-10-29_supabase-asaas-taxas-proposta.sql).
 const PARCELAS = 6;
 async function totais(sinal: number) {
   const x = await taxas();
