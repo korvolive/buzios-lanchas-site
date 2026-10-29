@@ -708,6 +708,22 @@ Deno.serve(async req => {
     }
 
     // comprovante da comissão: o vendedor vê que recebeu (Rodrigo 2026-10-25)
+    // comprovante do repasse ao dono (Meus recebimentos, Rodrigo 2026-10-29): transferência do Asaas ou arquivo do Pix por fora
+    if (b.acao === "comprovante" && b.tipo === "repasse") {
+      const pid = Number(b.pid);
+      const { data: p } = await db.from("pedidos").select("id, lancha").eq("id", pid).maybeSingle();
+      if (!p) return json({ erro: "pedido" }, 404);
+      const dono = !!(await db.from("donos").select("user_id").eq("user_id", u.id).eq("lancha", p.lancha).maybeSingle()).data;
+      if (!dono && !(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const c = String((await db.from("repasses_pp").select("comprovante").eq("pedido", pid).maybeSingle()).data?.comprovante || "");
+      if (c.startsWith("asaas:") && c.length > 6 && c !== "asaas:enviando") {
+        const tr = await asaas("/transfers/" + encodeURIComponent(c.slice(6)));
+        return tr?.transactionReceiptUrl ? json({ url: tr.transactionReceiptUrl, status: tr.status || null }) : json({ erro: "pendente", status: tr?.status || null }, 409);
+      }
+      if (!c.startsWith("fora:repasses/")) return json({ erro: "sem" }, 404);
+      const { data: sg, error } = await db.storage.from("comprovantes").createSignedUrl(c.slice(5), 600);
+      return sg?.signedUrl ? json({ url: sg.signedUrl }) : json({ erro: "sem", detalhe: error?.message }, 404);
+    }
     if (b.acao === "comprovante") {
       const pid = Number(b.pid);
       const { data: p } = await db.from("pedidos").select("id, vendedor, comissao_paga, comissao_comprovante").eq("id", pid).maybeSingle();
