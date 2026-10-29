@@ -198,7 +198,17 @@ Deno.serve(async req => {
         const tot = (+p.preco_cliente || +p.preco_base || 0) - (+p.cupom_valor || 0);
         if (tot > 0 && +p.sinal_valor > 0 && tot >= +p.sinal_valor) resto = tot - +p.sinal_valor;
       }
-      return json({ cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      // recibo (Rodrigo 2026-10-29): só depois do pagamento conferido (PayPal/Asaas automático) ou da reserva confirmada pelo administrador (Pix com comprovante)
+      let recibo: Record<string, unknown> | null = null;
+      if ((p.status === "aprovado" && p.bloqueio_id) || (c.pago_em && p.status === "pendente")) { // recusado ou cancelado: sem recibo
+        const { data: pa } = await db.from("pagamentos_asaas").select("metodo, valor, pago_em").eq("pedido", p.id).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
+        const a = p.bloqueio_id ? (await db.from("anotacoes").select("sinal").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data : null;
+        const forma = pa ? (pa.metodo === "cartao" ? "cartao" : "pix") : c.pago_em && c.moeda !== "BRL" ? "paypal" : "pix";
+        recibo = { nome: String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().slice(0, 80), forma,
+          em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : (+a?.sinal || +p.sinal_valor || (c.moeda === "BRL" ? +c.valor : 0)) || null,
+          valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
+      }
+      return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor || null, resto_brl: resto, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
