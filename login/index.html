@@ -5638,7 +5638,7 @@ function renderTrip(){
     const keep = pick && !isBusy(pick) && [...own,...fr].some(m=>m.user_id===pick), fx=own.find(m=>m.fixo);
     const cur = keep ? pick : (!n.marinheiro_recusou && fx && !isBusy(fx.user_id) ? fx.user_id : "");
     const opt = m => `<option value="${m.user_id}" data-nm="${esc(m.nome||"")}"${m.user_id===cur?" selected":""}${isBusy(m.user_id)?" disabled":""}>${m.eu?esc(t("meOwner")):esc(m.nome)}${m.fixo?` (${t("fixo").toLowerCase()})`:m.dono&&!m.eu?` (${t("ownerTag")})`:""}${S.marRates?.[m.user_id]?` · ★ ${S.marRates[m.user_id].media}`:""}${!m.fixo && +m.diaria ? ` · ${t("drOpt",{v:brl(+m.diaria)})}` : ""}${isBusy(m.user_id)?` · ${t("busy")}`:""}</option>`;
-    return `<label class="f"><span>${t("sailorPick")}${S.admin?"":REQ}</span>${fr.length>1?`<input type="search" class="in" id="n-marq" placeholder="🔍 ${t("marQ")}" aria-label="${t("marQ")}" autocomplete="off" style="margin-bottom:8px">`:""}<select class="in" id="n-mar"><option value="">—</option>
+    return `<label class="f"><span>${t("sailorPick")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span>${fr.length>1?`<input type="search" class="in" id="n-marq" placeholder="🔍 ${t("marQ")}" aria-label="${t("marQ")}" autocomplete="off" style="margin-bottom:8px">`:""}<select class="in" id="n-mar"><option value="">—</option>
       ${own.length?`<optgroup label="${esc(boatName(nboat))}">${own.map(opt).join("")}</optgroup>`:""}${fr.length?`<optgroup id="frg" label="${t("freeGroup")}">${fr.map(m=>opt(m).replace("<option ",`<option data-q="${esc(fold(m.nome+" "+(m.email||"")))}" `)).join("")}</optgroup>`:""}</select></label><div id="marcard">${(()=>{ const m=[...own,...fr].find(x=>x.user_id===cur); return m ? marCardHTML({selectedOptions:[{value:m.user_id,dataset:{nm:m.nome||""}}]}) : ""; })()}</div>
       ${n.marinheiro_recusou&&!n.marinheiro?`<p class="msg err" style="margin:-4px 0 12px;font-size:14px">⚠ ${t("refused",{name:esc(n.marinheiro_recusou)})}</p>`:""}
       ${frAll.length?`<details class="frdet"${own.some(m=>m.fixo)?"":" open"}><summary>${t("freeCallBtn")}</summary><p class="muted" style="margin:6px 0;font-size:13px">${nd&&nslot?t("freeCallFree"):t("freeNeedWhen")}</p>${nd&&nslot?freeWaList(f=>frAll.includes(f)&&!isBusy(f.user_id), true):""}</details>`:""}`; };
@@ -5870,7 +5870,6 @@ function renderTrip(){
       const telOk = okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
       if(!nota.pessoas) miss.push(document.getElementById("n-pessoas"));
       const cemEl=document.getElementById("n-cemail"); if(cemEl?.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(cemEl.value.trim())) miss.push(cemEl);
-      if(marSel && !marSel.value && !S.admin) miss.push(marSel); /* o admin pode deixar sem marinheiro para remanejar */
       ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(!el.disabled && nota[k]==null) miss.push(el); });
       /* sinal mínimo: 10% do valor (sem valor, R$ 100). Só o administrador pode lançar sinal zero (pré-reserva) */
       const sEl=document.getElementById("n-sinal"); let sMin=0;
