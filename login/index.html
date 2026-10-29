@@ -1033,6 +1033,9 @@ let view = "login", loginMsg = "", loginErr = false, typedEmail = "", loginBy = 
 function show(){
   document.title = "Buzios Lanchas"; /* nome do app na tela de início: sem acento (pedido do Rodrigo) */ checkGoogle();
   checkWa();
+  if(!ses && !show.rp){ show.rp=1; const p=pendGet(), d=store.get("cli-draft"); /* voltou ao app depois de pedir o código */
+    if(p?.k==="email" && p.email && view==="login"){ codeEmail=p.email; codeMode="signup"; codeMsg=""; view="code"; }
+    else if(p?.k==="wa" && view==="login" && (p.mode==="senha" || d)){ waFlow={mode:p.mode, tel:p.tel, show:p.show, ...(p.mode==="cadastro"?{data:{...d, nascimento:p.nasc||d.nascimento||null}}:{})}; wcMsg=""; view="wacode"; } }
   if(!ses && view!=="newpw" && view!=="signup" && view!=="code" && view!=="wacode") view="login";
   if(view==="login") return loginView();
   if(view==="newpw") return newPwView();
@@ -1087,7 +1090,7 @@ function loginView(){
       try{ const j = await telFn({tel:ph.tel, senha:pw.value});
         if(j.access_token){ saveSes(j); loginMsg=""; view="main"; return await boot(); }
         if(j.erro==="sem_conta"){ store.set("cli-draft", {...(store.get("cli-draft")||{}), whatsapp:ph.tel}); loginErr=false; loginMsg=t(waOn?"telNoAccWa":"telNoAcc"); view="signup"; return show(); }
-        if(j.erro==="confirmar"){ codeEmail=j.email; codePw=pw.value; codeMsg=""; authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
+        if(j.erro==="confirmar"){ codeEmail=j.email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
         loginErr=true; loginMsg = j.erro==="bloqueado" ? t("blockedMsg") : j.erro==="senha" ? t("badLoginTel") : j.erro==="muitas" ? t("tooMany") : t("netErr"); }
       catch(err){ loginErr=true; loginMsg=t("netErr"); }
       return loginView(); }
@@ -1095,7 +1098,7 @@ function loginView(){
     try{ const s = await authCall("token?grant_type=password", {email:em.value.trim(), password:pw.value});
       store.set("dono-email", em.value.trim()); saveSes(s); loginMsg=""; view="main"; await boot(); }
     catch(err){ if(err.status && /confirm/i.test(err.code+err.message)){ /* e-mail ainda não confirmado: manda o código e pede aqui */
-        codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
+        codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
       loginErr=true; loginMsg = err.code==="user_banned" ? t("blockedMsg") : err.status ? t("badLogin") : t("netErr"); loginView(); }
   };
   document.getElementById("tosign").onclick = () => { loginMsg=""; view="signup"; show(); };
@@ -1103,7 +1106,7 @@ function loginView(){
     if(loginBy==="tel"){ const ph=readPhone("lg"); if(!ph.ok){ loginErr=true; loginMsg=t("telBad"); return loginView(); }
       if(waOn){ /* cliente com o WhatsApp confirmado: código no WhatsApp e senha nova aqui mesmo; os outros seguem pelo e-mail */
         const j = await cwFn({acao:"enviar", tel:ph.tel.replace(/\D/g,""), lang, para:"senha"});
-        if(j.ok){ waFlow={mode:"senha", tel:ph.tel.replace(/\D/g,""), show:ph.tel}; wcMsg=""; view="wacode"; return show(); }
+        if(j.ok){ waFlow={mode:"senha", tel:ph.tel.replace(/\D/g,""), show:ph.tel}; pendSet({k:"wa", mode:"senha", tel:waFlow.tel, show:waFlow.show}); wcMsg=""; view="wacode"; return show(); }
         if(j.erro!=="sem_conta"){ loginErr=true; loginMsg=wcErr(j.erro); return loginView(); } }
       try{ const j = await telFn({tel:ph.tel, recuperar:1, volta:location.origin+"/login/"}); loginErr=!j.ok; loginMsg = j.ok ? t("forgotSentTel",{email:esc(j.para||"")}) : j.erro==="sem_conta" ? t("telNoAcc2") : j.erro==="sem_email" ? t("noEmailAcc") : t("netErr"); }
       catch(err){ loginErr=true; loginMsg=t("netErr"); }
@@ -1114,6 +1117,11 @@ function loginView(){
     loginView();
   };
 }
+/* código pedido: a pessoa sai do app para ver o e-mail ou o WhatsApp e, se o app recarregar ao voltar, cai direto na tela do código
+   (Rodrigo 2026-10-29). Fica 30 minutos neste aparelho; a senha nunca é guardada (no cadastro pelo WhatsApp ela é pedida de novo) */
+const PEND_MS = 30*60e3;
+const pendSet = v => store.set("code-pend", v ? {...v, at:Date.now()} : null);
+const pendGet = () => { const p=store.get("code-pend"); return p && Date.now()-(+p.at||0) < PEND_MS ? p : null; };
 /* confirmação do e-mail no cadastro: o Supabase manda um código (modelo "Confirm signup" com {{ .Token }}) */
 let codeEmail="", codePw="", codeMsg="", codeErr=false, codeMode="signup"; /* "verify": conta antiga confirmando o e-mail uma vez (código do modelo "Magic Link") */
 /* manda o código de confirmação do e-mail para quem está logado; no máximo uma vez a cada 10 minutos, a não ser que peça de novo */
@@ -1136,7 +1144,7 @@ function codeView(){
     <button type="button" class="link" id="kb" style="display:block;margin:0 auto">${t(vf?"logout":"codeBack")}</button>`);
   const kc=document.getElementById("kc"); kc.focus();
   kc.oninput=()=>{ kc.value=kc.value.replace(/\D/g,""); };
-  document.getElementById("kb").onclick=()=>{ codeMsg=""; if(vf){ codeMode="signup"; return logout(); } view="login"; show(); };
+  document.getElementById("kb").onclick=()=>{ codeMsg=""; pendSet(null); if(vf){ codeMode="signup"; return logout(); } view="login"; show(); };
   document.getElementById("kr").onclick=async()=>{ try{ if(vf) await sendVerify(true); else await authCall("resend",{type:"signup", email:codeEmail}); codeErr=false; codeMsg=t("codeSent",{email:esc(codeEmail)}); }
     catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : err.status ? esc(err.message) : t("netErr"); } codeView(); };
   document.getElementById("kf").onsubmit=async e=>{ e.preventDefault(); const go=document.getElementById("go"), token=kc.value.trim();
@@ -1145,31 +1153,31 @@ function codeView(){
     try{ let s=await authCall("verify",{type:vf?"email":"signup", email:codeEmail, token});
       if(vf && s.access_token){ authCall("user",{data:{verificar:null}},"PUT",s.access_token).catch(()=>{}); codeMode="signup"; }
       if(!s.access_token && codePw) s=await authCall("token?grant_type=password",{email:codeEmail, password:codePw});
-      store.set("dono-email", codeEmail); codePw=""; codeMsg=""; saveSes(s); view="main"; await boot(); }
+      store.set("dono-email", codeEmail); codePw=""; codeMsg=""; pendSet(null); saveSes(s); view="main"; await boot(); }
     catch(err){ codeErr=true; codeMsg = err.status ? t("codeBad") : t("netErr"); codeView(); } };
 }
 /* código do WhatsApp: termina o cadastro sem e-mail ou cria uma senha nova */
 let waFlow=null, wcMsg="", wcBad=false;
 function waCodeView(){
-  const pw = waFlow.mode==="senha";
+  const pw = waFlow.mode==="senha", pw2 = !pw && !waFlow.senha; /* pw2: o app recarregou no meio do cadastro, a senha é digitada de novo */
   loginShell(t(pw?"wcPwT":"wcT"), t("wcSub",{tel:`<b>${esc(waFlow.show)}</b>`}), `<form class="card" id="wf" novalidate>${wcMsg?`<p class="msg ${wcBad?"err":"ok"}">${wcMsg}</p>`:""}
       <label class="f"><span>${t("codeL")}</span><input type="text" id="wc" inputmode="numeric" autocomplete="one-time-code" maxlength="6" style="font-size:24px;letter-spacing:6px;text-align:center"></label>
-      ${pw?`<label class="f"><span>${t("newPw")} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>`:""}
+      ${pw||pw2?`<label class="f"><span>${t(pw?"newPw":"password")} <small class="muted" style="font-weight:400">(${t("ownerPwHint")})</small></span><div class="pw"><input type="password" id="pw" autocomplete="new-password"><button type="button" id="eye">${t("show")}</button></div></label>`:""}
       <button class="btn" id="go">${t(pw?"savePw":"wcGo")}</button>
       <button type="button" class="link" id="wr">${t("codeResend")}</button></form>
     <button type="button" class="link" id="wb" style="display:block;margin:0 auto">${t("codeBack")}</button>`);
   const wc=document.getElementById("wc"), pwi=document.getElementById("pw"), eye=document.getElementById("eye"); wc.focus();
   wc.oninput=()=>{ wc.value=wc.value.replace(/\D/g,""); };
   if(eye) eye.onclick=()=>{ const h=pwi.type==="password"; pwi.type=h?"text":"password"; eye.textContent=h?t("hide"):t("show"); };
-  document.getElementById("wb").onclick=()=>{ wcMsg=""; view = pw ? "login" : "signup"; waFlow=null; show(); };
+  document.getElementById("wb").onclick=()=>{ wcMsg=""; view = pw ? "login" : "signup"; waFlow=null; pendSet(null); show(); };
   document.getElementById("wr").onclick=async()=>{ const j=await cwFn({acao:"enviar", tel:waFlow.tel, lang, para:waFlow.mode}); wcBad=!j.ok; wcMsg = j.ok ? t("wcSent") : wcErr(j.erro); waCodeView(); };
   document.getElementById("wf").onsubmit=async e=>{ e.preventDefault(); const go=document.getElementById("go"), c=wc.value;
     if(c.length!==6){ wcBad=true; wcMsg=t("waVErr_codigo"); return waCodeView(); }
-    if(pw && pwi.value.length<6){ wcBad=true; wcMsg=t("pwShort"); return waCodeView(); }
+    if((pw||pw2) && pwi.value.length<6){ wcBad=true; wcMsg=t("pwShort"); return waCodeView(); }
     go.disabled=true;
-    const j = await cwFn(pw ? {acao:"trocar", tel:waFlow.tel, codigo:c, senha:pwi.value} : {acao:"criar", tel:waFlow.tel, codigo:c, senha:waFlow.senha, ...waFlow.data, lang});
-    if(j.access_token){ saveSes(j); if(!pw) store.set("cli-draft",null); loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",waFlow.show); waFlow=null; wcMsg=""; view="main"; if(pw) toast(t("pwSaved")); return await boot(); }
-    if(j.erro==="ja_tem"){ loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",waFlow.show); waFlow=null; loginErr=false; loginMsg=t("wcHasAcc"); view="login"; return show(); }
+    const j = await cwFn(pw ? {acao:"trocar", tel:waFlow.tel, codigo:c, senha:pwi.value} : {acao:"criar", tel:waFlow.tel, codigo:c, senha:waFlow.senha||pwi.value, ...waFlow.data, lang});
+    if(j.access_token){ saveSes(j); pendSet(null); if(!pw) store.set("cli-draft",null); loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",waFlow.show); waFlow=null; wcMsg=""; view="main"; if(pw) toast(t("pwSaved")); return await boot(); }
+    if(j.erro==="ja_tem"){ pendSet(null); loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",waFlow.show); waFlow=null; loginErr=false; loginMsg=t("wcHasAcc"); view="login"; return show(); }
     wcBad=true; wcMsg=wcErr(j.erro); waCodeView(); };
 }
 function newPwView(){
@@ -1292,12 +1300,12 @@ function signupView(){
     store.set("cli-draft", {...p.data, nascimento:null}); /* se o e-mail precisar de confirmação, o cadastro termina no primeiro login ("nascimento" marca o rascunho completo) */
     if(soWa){ const tel=p.data.whatsapp.replace(/\D/g,""), j=await cwFn({acao:"enviar", tel, lang, para:"cadastro"});
       go.disabled=false; go.textContent=t("createAcc");
-      if(j.ok){ waFlow={mode:"cadastro", tel, show:p.data.whatsapp, senha:pw.value, data:p.data}; wcMsg=""; view="wacode"; return show(); }
+      if(j.ok){ waFlow={mode:"cadastro", tel, show:p.data.whatsapp, senha:pw.value, data:p.data}; pendSet({k:"wa", mode:"cadastro", tel, show:p.data.whatsapp, nasc:p.data.nascimento||null}); /* o resto dos dados já fica no rascunho (cli-draft) */ wcMsg=""; view="wacode"; return show(); }
       if(j.erro==="ja_tem"){ loginBy="tel"; store.set("dono-by","tel"); store.set("dono-tel",p.data.whatsapp); loginErr=false; loginMsg=t("wcHasAcc"); view="login"; return show(); }
       out.innerHTML=`<p class="msg err">${wcErr(j.erro)}</p>`; return; }
     try{ const s = await authCall("signup", {email, password:pw.value, data:{lang}});
       store.set("dono-email", email);
-      if(!s.access_token){ codeEmail=email; codePw=pw.value; codeMsg=""; view="code"; return show(); } /* confirmação do e-mail por código */
+      if(!s.access_token){ codeEmail=email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); view="code"; return show(); } /* confirmação do e-mail por código */
       saveSes(s); view="main"; await boot(); }
     catch(err){ go.disabled=false; go.textContent=t("createAcc");
       out.innerHTML=`<p class="msg err">${err.status===422 || /registered|exists/i.test(err.code+err.message) ? t("emailTaken") : err.status ? esc(err.message) : t("netErr")}</p>`; }
@@ -1894,13 +1902,15 @@ function openAddEmail(msg=""){
       <button class="btn" id="emgo">${t("emSendCode")}</button>`}</form>
     <button type="button" class="btn sec" id="emback" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
-  document.getElementById("emback").onclick = closeDay;
+  /* fechou de propósito: não reabre sozinho ao voltar ao app */
+  const fecha = () => store.set("em-open", null);
+  document.getElementById("emback").onclick = () => { fecha(); closeDay(); }; sheet.querySelector(".shx")?.addEventListener("click", fecha); sheetBg.addEventListener("click", fecha, {once:true});
   const out=document.getElementById("emmsg"), b=document.getElementById("emgo");
   const err = m => { out.innerHTML=`<p class="msg err">${m}</p>`; b.disabled=false; };
   const reload = async () => { ses.user = await authCall("user",null,"GET",await fresh()); saveSes(ses); };
-  const done = () => { closeDay(); S.isClient ? clientView() : (refreshTop(), mainView()); };
+  const done = () => { store.set("em-open", null); closeDay(); S.isClient ? clientView() : (refreshTop(), mainView()); };
   if(pend){
-    document.getElementById("emre").onclick = async () => { try{ await authCall("resend",{type:"signup", email:em}); out.innerHTML=`<p class="msg ok">${t("codeSent",{email:esc(em)})}</p>`; }catch(x){ err(x.status===429 ? t("codeWait") : t("netErr")); } };
+    document.getElementById("emre").onclick = async () => { try{ await authCall("resend",{type:"signup", email:em}); store.set("em-open", Date.now()); out.innerHTML=`<p class="msg ok">${t("codeSent",{email:esc(em)})}</p>`; }catch(x){ err(x.status===429 ? t("codeWait") : t("netErr")); } };
     document.getElementById("emno").onclick = async () => { await cwAuth({acao:"email_cancelar"}); await reload().catch(()=>{}); done(); };
   }
   document.getElementById("emf").onsubmit = async e => { e.preventDefault(); b.disabled=true;
@@ -1914,7 +1924,7 @@ function openAddEmail(msg=""){
     if(mailFix(novo)) return err(esc(t("mailTypo",{fix:mailFix(novo)})));
     const j=await cwAuth({acao:"email", novo});
     if(!j.ok) return err(j.erro==="usado" ? t("emTaken") : j.erro==="email" ? t("emailBad") : t("netErr"));
-    await reload().catch(()=>{}); openAddEmail();
+    await reload().catch(()=>{}); store.set("em-open", Date.now()); openAddEmail();
   };
 }
 /* quem entra pelo Google já fica com a foto do Google (copiada uma vez para a pasta, para os outros verem também) */
@@ -3006,6 +3016,8 @@ function emAddHTML(){
 }
 function bindEmAdd(){
   const go=document.getElementById("emaddgo"); if(go) go.onclick=()=>openEmail();
+  /* pediu o código e saiu para ver o e-mail: ao voltar (mesmo se o app recarregou), a janela do código abre de novo sozinha (Rodrigo 2026-10-29) */
+  if(go && emPend() && Date.now()-(+store.get("em-open")||0) < 30*60e3 && !sheet.classList.contains("on")) openAddEmail();
   const x=document.getElementById("emaddx"); if(x) x.onclick=()=>{ store.set("em-add-no", Date.now()); document.getElementById("emadd")?.remove(); };
 }
 function bindNudge(){
