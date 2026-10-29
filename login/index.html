@@ -4005,8 +4005,9 @@ function avisoPing(d){
   const u=d.url && new URL(d.url, location.origin); el.style.cursor = u ? "pointer" : "";
   el.onclick = u ? ()=>{ el.classList.remove("on"); el.onclick=null; if(u.pathname.startsWith("/login/")) location.href=u.href; else window.open(u.href,"_blank","noopener"); } : null;
   const idle=()=>view==="main" && !sheetDay && !tripRow && !chatCid;
-  if(S.isClient) loadMyReq().then(()=>{ if(idle() && S.me) clientView(); }).catch(()=>{});
-  else if(S.admin) loadReqs().then(()=>{ if(idle()) mainView(); }).catch(()=>{});
+  /* bgView: um aviso chegando não apaga o que a pessoa está digitando */
+  if(S.isClient) loadMyReq().then(()=>{ if(idle() && S.me) bgView(); }).catch(()=>{});
+  else if(S.admin) loadReqs().then(()=>{ if(idle()) bgView(); }).catch(()=>{});
 }
 if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e=>{ const d=e.data||{}; if(d.tipo==="chat") chatPing(+String(d.tag||"").replace("chat-",""), d.title, d.body); else if(d.tipo==="aviso" || d.tipo==="alerta") avisoPing(d); else if(d.tipo==="som") chatSound(); });
 function chatClosed(){ if(!chatCid) return; clearInterval(chatTimer); chatTimer=null; chatCid=null;
@@ -4665,7 +4666,7 @@ function bindVpix(){
   const tp=document.getElementById("pxtipo"); if(tp) tp.onchange=()=>{ S.pxTipo=tp.value; const x=document.getElementById("vpix"); x.outerHTML=vPixHTML(); bindVpix(); document.getElementById("pxkey").focus(); };
   const sv=document.getElementById("pxsave"); if(sv) sv.onclick=async()=>{ const tipo=document.getElementById("pxtipo").value, k=pixNorm(tipo, document.getElementById("pxkey").value);
     if(!k){ document.getElementById("pxkey").classList.add("miss"); return toast(t("pxBad")); }
-    sv.disabled=true; try{ await db("rpc/salvar_pix",{method:"POST",body:{tipo, chave:k}}); S.mypix={pix_tipo:tipo, pix_chave:k}; S.pxEdit=false; S.pxTipo=null; toast(t("pxSaved")); const x=document.getElementById("vpix"); x.outerHTML=vPixHTML(); bindVpix(); }
+    sv.disabled=true; try{ await db("rpc/salvar_pix",{method:"POST",body:{tipo, chave:k}}); S.mypix={pix_tipo:tipo, pix_chave:k}; S.pxEdit=false; S.pxTipo=null; toast(t("pxSaved")); const x=document.getElementById("vpix"); x.outerHTML=vPixHTML(); bindVpix(); if(S.saque) bgView(); /* o cartão do saldo passa a mostrar o Sacar */ }
     catch(e){ sv.disabled=false; toast(/pix_invalida/.test(e.message||"")?t("pxBad"):t("saveErr")); } };
 }
 function bindVsales(){ app.querySelectorAll("[data-vcp]").forEach(b=>b.onclick=()=>verComprovante(+b.dataset.vcp, b)); app.querySelectorAll("[data-vlt]").forEach(b=>b.onclick=()=>{ S.vlt=b.dataset.vlt; const x=document.getElementById("vsales"); if(x){ x.innerHTML=vSalesHTML(); bindVsales(); } }); }
@@ -4760,7 +4761,7 @@ function bindMainRest(){
     if(!(v>=1) || v>disp) return toast(t("sqVal",{v:brl2(disp)}));
     if(!confirm(t("sqConf",{v:brl2(v), k:`${t("px_"+m.pix_tipo)} ${pixShow(m.pix_tipo,m.pix_chave)}`}))) return;
     sqg.disabled=true; try{ await asFn({acao:"sacar", valor:v}); toast(t("sqOk")); }catch(e){ toast(e.message==="sem_pix"?t("sqSemPix"):e.message==="andamento"?t("sqAnd"):e.message==="valor"?t("sqVal",{v:brl2(disp)}):t("sqErr")); }
-    S.saque=undefined; bgView(); };
+    S.saque=undefined; mainView(); }; /* mainView: o valor digitado não pode travar a tela depois do saque */
   app.querySelectorAll("[data-sdgo]").forEach(b=>b.onclick=()=>{ if(b.dataset.sdgo==="d") return asGoLancha();
     const f=app.querySelector("#as-f"); if(!f) return; const dd=f.closest("details"); if(dd) dd.open=true; f.closest(".card").scrollIntoView({behavior:"smooth",block:"start"}); });
   const asg=document.getElementById("as-av-go"); if(asg) asg.onclick=asGoLancha;
