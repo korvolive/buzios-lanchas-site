@@ -2267,8 +2267,8 @@ function ppPaint(e){
   const h = (k, p) => `<span class="ppl">4h <b>${r(val(k),p)}</b>${bzT(k,p)}</span>${val(k+"7")>0?`<span class="ppl">7h <b>${r(val(k+"7"),p)}</b>${bzT(k+"7",p)}</span>`:""}`;
   box.querySelectorAll("[data-pp]").forEach(x=>{ const pp=x.dataset.pp, p=pcOf(pp);
     x.innerHTML = `${t("ppPf")}<br>${SEASON3.map(k=>`<span class="ppg"><b>${t("pr_"+k).split(" · ")[0]}</b>${h(k,p)}</span>`).join("")}`; });
-  /* desconto: quem digitou o valor final muda o %; o resto mostra o valor que o % dá */
-  box.querySelectorAll("[data-xv]").forEach(x=>{ const [kind,c]=x.dataset.xv.split(":"), sg=PAIR[kind].sign, b=val(c), P=box.querySelector(`[data-xp="${kind}:${c}"]`);
+  /* desconto: quem digitou o valor final muda o %; o resto mostra o valor que o % dá. No Réveillon, o administrador vê o "Fica por" do neto do dono, igual ao que o dono vê (Rodrigo 2026-10-29) */
+  box.querySelectorAll("[data-xv]").forEach(x=>{ const [kind,c]=x.dataset.xv.split(":"), sg=PAIR[kind].sign, b=!own && kind==="rv" ? prNetOf(c) || val(c) : val(c), P=box.querySelector(`[data-xp="${kind}:${c}"]`);
     if(e?.target===x){ if(b>0 && x.value.trim()!=="") P.value=pctTxt(sg*(+x.value/b - 1)*100); return; }
     x.disabled = P.disabled || !(b>0); x.value = b>0 ? Math.round(b*(1 + sg*(+P.value||0)/100)/10)*10 : ""; });
   box.querySelectorAll("[data-fp]").forEach(x=>{ const c=x.dataset.fp, b=val(c), p=+(box.querySelector(`[data-xp="ds:${c.replace("7","")}"]`)?.value)||0;
