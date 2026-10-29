@@ -2281,8 +2281,8 @@ function ppPaint(e){
 const pctTxt = n => String(Math.round((+n||0)*100)/100);
 /* par de campos por 4h e 7h: % ou valor final, um preenche o outro. ds = desconto de segunda a quinta (tira), rv = Réveillon e Carnaval sobre a alta (soma) */
 const PAIR = {ds:{max:15, sign:-1, lab:"mnDs", pct:"dsPct"}, rv:{get max(){ return revMax(S.cur); }, sign:1, lab:"mnPr", pct:"rvPct"}};
-/* Réveillon e Carnaval: até 20% acima da Alta (Rodrigo 2026-10-29; era 25%, antes 30%); só a Miss Bardot até 60% (Rodrigo 2026-10-25) */
-const revMax = l => l==="miss-bardot" ? 60 : 20;
+/* Réveillon e Carnaval: até 25% acima da Alta (Rodrigo 2026-10-29 à noite voltou de 20% para 25%; antes 30%); só a Miss Bardot até 60% (Rodrigo 2026-10-25) */
+const revMax = l => l==="miss-bardot" ? 60 : 25;
 const BZ_MAX = 20; /* teto de toda % da Búzios que o administrador digita, para não errar (Rodrigo 2026-10-28) */
 const pairHTML = (kind, k, get, dis="", dr={}) => `<div class="dsb"><span class="dsl">${t(PAIR[kind].lab)}${kind==="ds" ? "" : ` <small>(${t(PAIR[kind].pct)} % · ${t("dsVal")})</small>`}</span><div class="dsr">
   ${[k,k+"7"].map(c=>`<span class="dsi"><span class="pl">${t(c.endsWith("7")?"pr7s":"pr4s")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR[kind].max}" step="any" data-xp="${kind}:${c}" data-k="${kind}_${c}" value="${dr[kind+"_"+c] ?? pctTxt(get(c))}" aria-label="${t(PAIR[kind].lab)} ${t(c.endsWith("7")?"pr7s":"pr4s")} %"${dis}><i>%</i></span><input type="number" class="in" inputmode="numeric" min="0" max="${VMAX}" step="10" data-xv="${kind}:${c}" aria-label="${t("dsVal")} ${t(c.endsWith("7")?"pr7s":"pr4s")}"${dis}></span>`).join("")}</div></div>`;
