@@ -434,7 +434,10 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 /* Garantia Búzios Lanchas + empresa registrada perto do botão (Rodrigo 2026-10-29): o motivo de fechar com a empresa e não direto com o dono */
 .guar{margin:16px 0 0;padding:12px 14px;border:1px solid color-mix(in srgb,var(--brass) 45%,var(--line));border-radius:14px;background:color-mix(in srgb,var(--brass) 8%,transparent);font-size:14px;line-height:1.45}
 .guar b{display:block;font-size:15px;margin-bottom:2px}.guar p{margin:0}.guar ul{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px solid var(--line);display:grid;gap:4px;font-size:13.5px;color:var(--muted)}
-.trust .guar{margin:10px 0 0;color:#fff;background:rgba(224,181,77,.10);border-color:rgba(224,181,77,.35)}.trust .guar p{opacity:.85}
+/* na home a garantia fica embaixo dos botões do topo (Rodrigo 2026-10-29: no quadro de confiança deixava ele comprido demais) */
+.hero-text .guar{margin:0;max-width:520px;color:#fff;background:rgba(0,0,0,.28);border-color:rgba(224,181,77,.45)}.hero-text .guar p{opacity:.88}
+.trust .guar{display:none;margin:10px 0 0;color:#fff;background:rgba(224,181,77,.10);border-color:rgba(224,181,77,.35)}.trust .guar p{opacity:.85}
+@media (max-width:760px){.hero-text .guar{display:none}.trust .guar{display:block}} /* no celular continua dentro do quadro de confiança (Rodrigo 2026-10-29) */
 .pricebox .acct{font-size:14px;margin:8px 0 0;text-align:center}.pricebox .online{margin-top:14px}.pricebox .online.vonly{margin-top:4px}.pricebox .or{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:13px;opacity:.75}.pricebox .or::before,.pricebox .or::after{content:"";flex:1;border-top:1px solid currentColor;opacity:.35}#book-online{width:100%;justify-content:center}.pricebox .acct a{color:var(--sea);font-weight:700}
 .phone{font:500 14px/1 var(--mono);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
 .phone button{font:500 12px/1 var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer}
@@ -2162,7 +2165,7 @@ function seo(b){
 /* ícones do quadro "lanchas de confiança": leme, chave, boia, documento, calendário, conversa */
 /* link de compartilhar do perfil no Google (Rodrigo 2026-10-24): abre no navegador, em outra aba, só a Lancha Miss Bardot, sem anúncios de concorrentes como na busca */
 const GOOGLE_REVIEWS = "https://share.google/kUtKdkLJN0e9gmFWg";
-/* Garantia Búzios Lanchas (Rodrigo 2026-10-29): no painel da lancha com a empresa e o recibo; na home, só a garantia no quadro de confiança */
+/* Garantia Búzios Lanchas (Rodrigo 2026-10-29): no painel da lancha com a empresa e o recibo; na home, só a garantia, embaixo dos botões do topo */
 const guarHTML = full => `<div class="guar"><b>🛡️ ${t("guarT")}</b><p>${t("guarP")}</p>${full?`<ul><li>🏢 ${t("guarCo")}</li><li>🧾 ${t("guarRec")}</li></ul>`:""}</div>`;
 const HERO_MEET = false; // botão "Conhecer a Miss Bardot" escondido (Rodrigo 2026-10-24); true volta com ele
 const TRUST_ICONS = [
@@ -2199,6 +2202,7 @@ function home(){
       <h1>${t("heroTitle")}</h1>
       <a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>
       <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
+      ${guarHTML(false)}
     </div>
     <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
