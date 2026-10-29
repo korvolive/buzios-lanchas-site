@@ -1090,7 +1090,7 @@ function loginView(){
       try{ const j = await telFn({tel:ph.tel, senha:pw.value});
         if(j.access_token){ saveSes(j); loginMsg=""; view="main"; return await boot(); }
         if(j.erro==="sem_conta"){ store.set("cli-draft", {...(store.get("cli-draft")||{}), whatsapp:ph.tel}); loginErr=false; loginMsg=t(waOn?"telNoAccWa":"telNoAcc"); view="signup"; return show(); }
-        if(j.erro==="confirmar"){ codeEmail=j.email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
+        if(j.erro==="confirmar"){ codeEmail=j.email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); emSent(); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
         loginErr=true; loginMsg = j.erro==="bloqueado" ? t("blockedMsg") : j.erro==="senha" ? t("badLoginTel") : j.erro==="muitas" ? t("tooMany") : t("netErr"); }
       catch(err){ loginErr=true; loginMsg=t("netErr"); }
       return loginView(); }
@@ -1098,7 +1098,7 @@ function loginView(){
     try{ const s = await authCall("token?grant_type=password", {email:em.value.trim(), password:pw.value});
       store.set("dono-email", em.value.trim()); saveSes(s); loginMsg=""; view="main"; await boot(); }
     catch(err){ if(err.status && /confirm/i.test(err.code+err.message)){ /* e-mail ainda não confirmado: manda o código e pede aqui */
-        codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
+        codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); emSent(); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
       loginErr=true; loginMsg = err.code==="user_banned" ? t("blockedMsg") : err.status ? t("badLogin") : t("netErr"); loginView(); }
   };
   document.getElementById("tosign").onclick = () => { loginMsg=""; view="signup"; show(); };
@@ -1121,6 +1121,11 @@ function loginView(){
    (Rodrigo 2026-10-29). Fica 30 minutos neste aparelho; a senha nunca é guardada (no cadastro pelo WhatsApp ela é pedida de novo) */
 const PEND_MS = 30*60e3;
 const pendSet = v => store.set("code-pend", v ? {...v, at:Date.now()} : null);
+/* reenviar o código do e-mail: o Supabase cria um código novo a cada envio e o anterior deixa de valer (não dá para repetir o mesmo),
+   então o botão só libera 1 minuto depois do último envio, com a contagem (Rodrigo 2026-10-29) */
+const emSent = () => store.set("em-re", Date.now());
+function reCooldown(btn){ if(!btn) return; const tick=()=>{ if(!btn.isConnected) return; const n=Math.ceil((60e3-(Date.now()-(+store.get("em-re")||0)))/1e3);
+  if(n>0){ btn.disabled=true; btn.textContent=t("codeResendIn",{n}); setTimeout(tick,1000); } else { btn.disabled=false; btn.textContent=t("codeResend"); } }; tick(); }
 const pendGet = () => { const p=store.get("code-pend"); return p && Date.now()-(+p.at||0) < PEND_MS ? p : null; };
 /* confirmação do e-mail no cadastro: o Supabase manda um código (modelo "Confirm signup" com {{ .Token }}) */
 let codeEmail="", codePw="", codeMsg="", codeErr=false, codeMode="signup"; /* "verify": conta antiga confirmando o e-mail uma vez (código do modelo "Magic Link") */
@@ -1130,7 +1135,7 @@ async function sendVerify(force){
   if(!force && Date.now()-last < 10*60e3) return;
   await authCall("user",{data:{verificar:{lang}}},"PUT",await fresh()); /* o modelo do e-mail mostra o código quando tem "verificar" */
   await authCall("otp?redirect_to="+encodeURIComponent(location.origin+"/login/"),{email:codeEmail, create_user:false});
-  store.set(k, Date.now());
+  store.set(k, Date.now()); emSent();
 }
 /* aparelho em português do Brasil: brasileiro que mora fora (número de outro país) também pode informar o CPF (Rodrigo 2026-10-23) */
 const PT_DEV = /^pt(-BR)?$/i.test(navigator.language||"");
@@ -1140,12 +1145,12 @@ function codeView(){
       <label class="f"><span>${t("codeL")}</span><input type="text" id="kc" inputmode="numeric" autocomplete="one-time-code" maxlength="10" style="font-size:24px;letter-spacing:6px;text-align:center"></label>
       <button class="btn" id="go">${t("codeGo")}</button>
       <button type="button" class="link" id="kr">${t("codeResend")}</button>
-      <p class="muted" style="font-size:13px;margin:8px 0 0">${t("codeSpam")}</p></form>
+      <p class="muted" style="font-size:13px;margin:8px 0 0">${t("codeSpam")} ${t("codeLatest")}</p></form>
     <button type="button" class="link" id="kb" style="display:block;margin:0 auto">${t(vf?"logout":"codeBack")}</button>`);
-  const kc=document.getElementById("kc"); kc.focus();
+  const kc=document.getElementById("kc"); kc.focus(); reCooldown(document.getElementById("kr"));
   kc.oninput=()=>{ kc.value=kc.value.replace(/\D/g,""); };
   document.getElementById("kb").onclick=()=>{ codeMsg=""; pendSet(null); if(vf){ codeMode="signup"; return logout(); } view="login"; show(); };
-  document.getElementById("kr").onclick=async()=>{ try{ if(vf) await sendVerify(true); else await authCall("resend",{type:"signup", email:codeEmail}); codeErr=false; codeMsg=t("codeSent",{email:esc(codeEmail)}); }
+  document.getElementById("kr").onclick=async()=>{ try{ if(vf) await sendVerify(true); else { await authCall("resend",{type:"signup", email:codeEmail}); emSent(); } codeErr=false; codeMsg=t("codeSent",{email:esc(codeEmail)}); }
     catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : err.status ? esc(err.message) : t("netErr"); } codeView(); };
   document.getElementById("kf").onsubmit=async e=>{ e.preventDefault(); const go=document.getElementById("go"), token=kc.value.trim();
     if(token.length<6){ codeErr=true; codeMsg=t("codeBad"); return codeView(); }
@@ -1305,7 +1310,7 @@ function signupView(){
       out.innerHTML=`<p class="msg err">${wcErr(j.erro)}</p>`; return; }
     try{ const s = await authCall("signup", {email, password:pw.value, data:{lang}});
       store.set("dono-email", email);
-      if(!s.access_token){ codeEmail=email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); view="code"; return show(); } /* confirmação do e-mail por código */
+      if(!s.access_token){ codeEmail=email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); emSent(); view="code"; return show(); } /* confirmação do e-mail por código */
       saveSes(s); view="main"; await boot(); }
     catch(err){ go.disabled=false; go.textContent=t("createAcc");
       out.innerHTML=`<p class="msg err">${err.status===422 || /registered|exists/i.test(err.code+err.message) ? t("emailTaken") : err.status ? esc(err.message) : t("netErr")}</p>`; }
@@ -1897,7 +1902,7 @@ function openAddEmail(msg=""){
     <form id="emf" class="nform" novalidate><div id="emmsg">${msg}</div>
       ${pend ? `<label class="f"><span>${t("codeL")}</span><input type="text" id="em-code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" style="font-size:22px;letter-spacing:5px;text-align:center"></label>
       <button class="btn" id="emgo">${t("wcGo")}</button>
-      <p style="margin:10px 0 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><button type="button" class="link" id="emre">${t("codeResend")}</button><button type="button" class="link danger" id="emno">${t("emCancel")}</button></p>`
+      <p style="margin:10px 0 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><button type="button" class="link" id="emre">${t("codeResend")}</button><button type="button" class="link danger" id="emno">${t("emCancel")}</button></p><p class="muted" style="font-size:13px;margin:8px 0 0">${t("codeSpam")} ${t("codeLatest")}</p>`
       : `<label class="f"><span>${t("email")}</span><input type="email" id="em-new" inputmode="email" autocapitalize="off" autocomplete="email"></label>
       <button class="btn" id="emgo">${t("emSendCode")}</button>`}</form>
     <button type="button" class="btn sec" id="emback" style="margin-top:10px">${t("close")}</button>`;
@@ -1910,7 +1915,8 @@ function openAddEmail(msg=""){
   const reload = async () => { ses.user = await authCall("user",null,"GET",await fresh()); saveSes(ses); };
   const done = () => { store.set("em-open", null); closeDay(); S.isClient ? clientView() : (refreshTop(), mainView()); };
   if(pend){
-    document.getElementById("emre").onclick = async () => { try{ await authCall("resend",{type:"signup", email:em}); store.set("em-open", Date.now()); out.innerHTML=`<p class="msg ok">${t("codeSent",{email:esc(em)})}</p>`; }catch(x){ err(x.status===429 ? t("codeWait") : t("netErr")); } };
+    reCooldown(document.getElementById("emre"));
+    document.getElementById("emre").onclick = async () => { try{ await authCall("resend",{type:"signup", email:em}); emSent(); reCooldown(document.getElementById("emre")); store.set("em-open", Date.now()); out.innerHTML=`<p class="msg ok">${t("codeSent",{email:esc(em)})}</p>`; }catch(x){ err(x.status===429 ? t("codeWait") : t("netErr")); } };
     document.getElementById("emno").onclick = async () => { await cwAuth({acao:"email_cancelar"}); await reload().catch(()=>{}); done(); };
   }
   document.getElementById("emf").onsubmit = async e => { e.preventDefault(); b.disabled=true;
@@ -1924,7 +1930,7 @@ function openAddEmail(msg=""){
     if(mailFix(novo)) return err(esc(t("mailTypo",{fix:mailFix(novo)})));
     const j=await cwAuth({acao:"email", novo});
     if(!j.ok) return err(j.erro==="usado" ? t("emTaken") : j.erro==="email" ? t("emailBad") : t("netErr"));
-    await reload().catch(()=>{}); store.set("em-open", Date.now()); openAddEmail();
+    await reload().catch(()=>{}); emSent(); store.set("em-open", Date.now()); openAddEmail();
   };
 }
 /* quem entra pelo Google já fica com a foto do Google (copiada uma vez para a pasta, para os outros verem também) */
@@ -2561,9 +2567,9 @@ const sailorName = (l,uid) => uid ? ((S.sailors||[]).find(m=>m.lancha===l && m.u
 const choca = (a,b) => a===b || (a==="dia" && (b==="manha"||b==="tarde")) || (b==="dia" && (a==="manha"||a==="tarde"));
 /* ponto de embarque (o mesmo do site): Miss Bardot e Les Zuzu saem do Porto Veleiro no passeio de 4h; no dia todo o cliente escolhe */
 const BOARD_PV = ["miss-bardot","les-zuzu"];
-Object.assign(T.pt, {vfT:"Confirme o seu e-mail", vfSub:"Por segurança, todas as contas confirmam o e-mail uma única vez. Enviamos um código para {email}: digite aqui ou toque no botão do e-mail.", codeT:"Confirme o seu e-mail", codeSub:"Enviamos um código para {email}. Digite o código aqui para confirmar que o e-mail é seu.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar o código", codeSent:"Enviamos um novo código para {email}.", codeBad:"Código errado ou vencido. Confira o e-mail ou peça um novo código.", codeWait:"Espere um pouco antes de pedir outro código.", codeBack:"Voltar para o login", codeSpam:"Não chegou? Veja também a caixa de spam."});
-Object.assign(T.en, {vfT:"Confirm your email", vfSub:"For security, every account confirms its email once. We sent a code to {email}: type it here or tap the button in the email.", codeT:"Confirm your email", codeSub:"We sent a code to {email}. Type it here to confirm the email is yours.", codeL:"Code", codeGo:"Confirm", codeResend:"Send the code again", codeSent:"We sent a new code to {email}.", codeBad:"Wrong or expired code. Check the email or ask for a new code.", codeWait:"Please wait a bit before asking for another code.", codeBack:"Back to sign in", codeSpam:"Didn't get it? Check your spam folder too."});
-Object.assign(T.es, {vfT:"Confirma tu correo", vfSub:"Por seguridad, todas las cuentas confirman el correo una sola vez. Enviamos un código a {email}: escríbelo aquí o toca el botón del correo.", codeT:"Confirma tu correo", codeSub:"Enviamos un código a {email}. Escríbelo aquí para confirmar que el correo es tuyo.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar el código", codeSent:"Enviamos un código nuevo a {email}.", codeBad:"Código incorrecto o vencido. Revisa el correo o pide un código nuevo.", codeWait:"Espera un poco antes de pedir otro código.", codeBack:"Volver al inicio de sesión", codeSpam:"¿No llegó? Mira también la carpeta de spam."});
+Object.assign(T.pt, {vfT:"Confirme o seu e-mail", vfSub:"Por segurança, todas as contas confirmam o e-mail uma única vez. Enviamos um código para {email}: digite aqui ou toque no botão do e-mail.", codeT:"Confirme o seu e-mail", codeSub:"Enviamos um código para {email}. Digite o código aqui para confirmar que o e-mail é seu.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar o código", codeSent:"Enviamos um novo código para {email}.", codeBad:"Código errado ou vencido. Confira o e-mail ou peça um novo código.", codeWait:"Espere um pouco antes de pedir outro código.", codeBack:"Voltar para o login", codeSpam:"Não chegou? Veja também a caixa de spam.", codeLatest:"Se chegou mais de um e-mail, use o código do mais recente.", codeResendIn:"Reenviar em {n}s"});
+Object.assign(T.en, {vfT:"Confirm your email", vfSub:"For security, every account confirms its email once. We sent a code to {email}: type it here or tap the button in the email.", codeT:"Confirm your email", codeSub:"We sent a code to {email}. Type it here to confirm the email is yours.", codeL:"Code", codeGo:"Confirm", codeResend:"Send the code again", codeSent:"We sent a new code to {email}.", codeBad:"Wrong or expired code. Check the email or ask for a new code.", codeWait:"Please wait a bit before asking for another code.", codeBack:"Back to sign in", codeSpam:"Didn't get it? Check your spam folder too.", codeLatest:"If you got more than one email, use the code from the latest one.", codeResendIn:"Send again in {n}s"});
+Object.assign(T.es, {vfT:"Confirma tu correo", vfSub:"Por seguridad, todas las cuentas confirman el correo una sola vez. Enviamos un código a {email}: escríbelo aquí o toca el botón del correo.", codeT:"Confirma tu correo", codeSub:"Enviamos un código a {email}. Escríbelo aquí para confirmar que el correo es tuyo.", codeL:"Código", codeGo:"Confirmar", codeResend:"Reenviar el código", codeSent:"Enviamos un código nuevo a {email}.", codeBad:"Código incorrecto o vencido. Revisa el correo o pide un código nuevo.", codeWait:"Espera un poco antes de pedir otro código.", codeBack:"Volver al inicio de sesión", codeSpam:"¿No llegó? Mira también la carpeta de spam.", codeLatest:"Si te llegó más de un e-mail, usa el código del más reciente.", codeResendIn:"Reenviar en {n}s"});
 Object.assign(T.pt, {tvT:"Confirme seus dados", tvSub:"Para receber os pagamentos e as comissões pelo app, complete seus dados (nome e WhatsApp) e confirme o e-mail e o WhatsApp.", tvGo:"Completar meus dados", divT:"Divisão do dinheiro (só você vê)", divCli:"Cliente paga: {v}", divMb:"Miss Bardot é sua: os {v} ficam com você.", divNoNet:"Essa lancha não tem o valor do dono cadastrado para essa data.", divDono:"Parte do dono (valor dele na tabela): {v}", divBz:"Sua parte (Búzios Lanchas): {v}", divSin:"Sinal com você: {v}", divResto:"no embarque o cliente paga ao dono: {v}", divRep:"Repassar ao dono: {v}", divRepNeg:"O dono te deve: {v} (recebeu mais no embarque)", divRep0:"Sem sinal ainda. Depois do sinal, aparece quanto repassar ao dono (parte dele: {v}).", convSent:"convite enviado", plCancel:"Cancelar", plHrsT:"Horário personalizado", plHrsClr:"Tirar horário personalizado", plHrsBad:"Escolha a entrada e a saída (a saída depois da entrada).", plFaltaS:"Falta", plOutro:"Outro…", plEdit:"Editar", plBtn:"Modo planilha", plT:"Planilha de passeios", plBack:"Voltar", plHint:"Toque numa célula para editar. Salva sozinho quando você sai dela (fica verde), com as mesmas regras e avisos do passeio. Para um horário diferente, escolha “🕘 Outro…” no Horário.", plOB:"Búzios Lanchas", plOF:"Fora", plData:"Data", plHora:"Horário", plBoat:"Lancha", plCli:"Cliente", plPes:"Pessoas", plVal:"Valor", plSin:"Sinal", plFalta:"Falta receber", plObs:"Observações", plOpen:"Abrir", plTot:"Total · {n} passeios", plNone:"Nenhum passeio marcado daqui para frente.", plLocked:"Você não pode mudar este campo neste passeio"});
 Object.assign(T.en, {tvT:"Confirm your details", tvSub:"To receive payments and commissions through the app, fill in your details (name and WhatsApp) and confirm your email and WhatsApp.", tvGo:"Fill in my details", divT:"Money split (only you see this)", divCli:"Client pays: {v}", divMb:"Miss Bardot is yours: you keep the {v}.", divNoNet:"This boat has no owner price set for this date.", divDono:"Owner's share (their table price): {v}", divBz:"Your share (Búzios Lanchas): {v}", divSin:"Deposit with you: {v}", divResto:"at boarding the client pays the owner: {v}", divRep:"Pass on to the owner: {v}", divRepNeg:"The owner owes you: {v} (got more at boarding)", divRep0:"No deposit yet. After the deposit, it shows how much to pass on to the owner (their share: {v}).", convSent:"invite sent", plCancel:"Cancel", plHrsT:"Custom time", plHrsClr:"Remove custom time", plHrsBad:"Pick the start and end (end after start).", plFaltaS:"Due", plOutro:"Other…", plEdit:"Edit", plBtn:"Spreadsheet mode", plT:"Tours spreadsheet", plBack:"Back", plHint:"Tap a cell to edit. It saves by itself when you leave it (turns green), with the same rules and alerts as the tour. For a different time, pick “🕘 Other…” under Time.", plOB:"Búzios Lanchas", plOF:"Outside", plData:"Date", plHora:"Time", plBoat:"Boat", plCli:"Client", plPes:"People", plVal:"Price", plSin:"Deposit", plFalta:"Still to receive", plObs:"Notes", plOpen:"Open", plTot:"Total · {n} tours", plNone:"No tours booked from today on.", plLocked:"You can't change this field on this tour"});
 Object.assign(T.es, {tvT:"Confirma tus datos", tvSub:"Para recibir los pagos y las comisiones por la app, completa tus datos (nombre y WhatsApp) y confirma el correo y el WhatsApp.", tvGo:"Completar mis datos", divT:"División del dinero (solo tú lo ves)", divCli:"El cliente paga: {v}", divMb:"Miss Bardot es tuya: los {v} quedan contigo.", divNoNet:"Esta lancha no tiene el valor del dueño cargado para esa fecha.", divDono:"Parte del dueño (su valor en la tabla): {v}", divBz:"Tu parte (Búzios Lanchas): {v}", divSin:"Seña contigo: {v}", divResto:"al embarcar el cliente le paga al dueño: {v}", divRep:"Pasarle al dueño: {v}", divRepNeg:"El dueño te debe: {v} (recibió más al embarcar)", divRep0:"Todavía sin seña. Después de la seña, aparece cuánto pasarle al dueño (su parte: {v}).", convSent:"invitación enviada", plCancel:"Cancelar", plHrsT:"Horario personalizado", plHrsClr:"Quitar horario personalizado", plHrsBad:"Elige la entrada y la salida (la salida después de la entrada).", plFaltaS:"Falta", plOutro:"Otro…", plEdit:"Editar", plBtn:"Modo planilla", plT:"Planilla de paseos", plBack:"Volver", plHint:"Toca una celda para editar. Se guarda sola cuando sales de ella (queda verde), con las mismas reglas y avisos del paseo. Para otro horario, elige “🕘 Otro…” en Horario.", plOB:"Búzios Lanchas", plOF:"Fuera", plData:"Fecha", plHora:"Horario", plBoat:"Lancha", plCli:"Cliente", plPes:"Personas", plVal:"Valor", plSin:"Seña", plFalta:"Falta cobrar", plObs:"Observaciones", plOpen:"Abrir", plTot:"Total · {n} paseos", plNone:"No hay paseos marcados de hoy en adelante.", plLocked:"No puedes cambiar este campo en este paseo"});

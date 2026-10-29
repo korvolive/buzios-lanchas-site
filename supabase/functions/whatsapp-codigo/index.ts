@@ -16,15 +16,19 @@ const TOKEN = Deno.env.get("WA_TOKEN") || "", PHONE = Deno.env.get("WA_PHONE_ID"
 const ATIVO = Deno.env.get("WA_ATIVO") === "1";
 const LANG: Record<string, string> = { pt: "pt_BR", en: "en", es: "es" };
 const dig = (s: string) => String(s || "").replace(/\D/g, "");
-const ESPERA_S = 60, VALIDO_MIN = 10, MAX_TENT = 5; /* limites por dia: no banco (wa_reservar) */
+const ESPERA_S = 60, VALIDO_MIN = 30, MAX_TENT = 5; /* limites por dia: no banco (wa_reservar) */
 
 async function sha(s: string) {
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
-function codigo6() {
-  const a = new Uint32Array(1); crypto.getRandomValues(a);
-  return String(a[0] % 1000000).padStart(6, "0");
+/* reenviar dentro de 30 minutos manda o MESMO código (Rodrigo 2026-10-29: dois códigos diferentes confundem). O código sai de um HMAC
+   (chave só do servidor) sobre o celular e a hora em que ele vence, então dá para refazê-lo sem guardar o número no banco */
+const CHAVE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+async function codigoDe(s: string) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(CHAVE), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const b = new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(s)));
+  return String((b[0] * 16777216 + b[1] * 65536 + b[2] * 256 + b[3]) % 1000000).padStart(6, "0");
 }
 
 Deno.serve(async req => {
@@ -46,14 +50,20 @@ Deno.serve(async req => {
       /* reserva o envio no banco de uma vez só (60 s, 5 por dia por conta e por número, 200 por dia no total): pedidos ao mesmo tempo não passam juntos */
       const { data: res } = await db.rpc("wa_reservar", { u: uid, t: tel }).maybeSingle();
       if (!res) return json({ erro: w && Date.now() - new Date(w.ultimo_envio).getTime() < ESPERA_S * 1000 ? "espere" : "limite" }, 429);
-      const cod = codigo6();
+      /* código ainda valendo (mesmo número, sem esgotar as tentativas): manda o mesmo de novo */
+      const velhoMs = w && w.hash && w.tel_dig === tel && w.tentativas < MAX_TENT ? new Date(w.expira_em).getTime() : 0;
+      const velho = velhoMs > Date.now() ? await codigoDe(`${uid}:${tel}:${velhoMs}`) : "";
+      const mesmo = !!velho && (await sha(uid + ":" + velho)) === w.hash;
+      const expMs = mesmo ? velhoMs : Date.now() + VALIDO_MIN * 60000, cod = mesmo ? velho : await codigoDe(`${uid}:${tel}:${expMs}`);
+      const volta = () => db.from("wa_codigos").update({ hash: w.hash, expira_em: w.expira_em, tentativas: w.tentativas }).eq("user_id", uid); /* a reserva apagou o código */
+      if (mesmo) await volta();
       const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
         method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
         body: JSON.stringify({ messaging_product: "whatsapp", to: tel, type: "template", template: { name: TEMPLATE, language: { code: LANG[body.lang] || "pt_BR" },
           components: [{ type: "body", parameters: [{ type: "text", text: cod }] }, { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: cod }] }] } }),
       });
       if (!r.ok) { console.error("whatsapp", r.status, (await r.text()).slice(0, 400)); return json({ erro: "envio" }, 502); }
-      await db.from("wa_codigos").update({ hash: await sha(uid + ":" + cod), expira_em: new Date(Date.now() + VALIDO_MIN * 60000).toISOString(), tentativas: 0 }).eq("user_id", uid);
+      if (!mesmo) await db.from("wa_codigos").update({ hash: await sha(uid + ":" + cod), expira_em: new Date(expMs).toISOString(), tentativas: 0 }).eq("user_id", uid);
       return json({ ok: true });
     }
 
