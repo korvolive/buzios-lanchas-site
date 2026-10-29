@@ -7,6 +7,9 @@
 // POST {acao:"link", pid, valor, moeda, email?}  só administrador: cria ou muda a cobrança e manda o e-mail
 // POST {acao:"criar", p, k}                       a página: cria a ordem no PayPal
 // POST {acao:"capturar", p, k, order}             a página: captura, confere e marca como pago
+// POST {acao:"wa", p, k, w}                        a página aberta pelo botão do WhatsApp oficial: confirma o WhatsApp do cliente
+// Ao liberar (primeira vez), também manda pelo WhatsApp oficial o modelo de Utilidade pagamento_liberado com o botão
+// "Pagar a reserva" (/pagar/?p&k&w). w = wa_provas.token, só foi para aquele número, então tocar confirma o WhatsApp (Rodrigo 2026-10-29).
 // Chaves (Edge Functions > Secrets, coladas pelo Rodrigo): PAYPAL_CLIENT_ID, PAYPAL_SECRET e, para testes, PAYPAL_ENV=sandbox.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -104,6 +107,42 @@ async function email(uid: string, url: string, lancha: string, dia: string, valo
   return true;
 }
 
+// WhatsApp oficial (mesmo número dos códigos e do aviso de passeio): segredos WA_TOKEN e WA_PHONE_ID; WA_ATIVO=1 liga
+const WA_TOKEN = Deno.env.get("WA_TOKEN") || "", WA_PHONE = Deno.env.get("WA_PHONE_ID") || "", WA_ON = Deno.env.get("WA_ATIVO") === "1";
+const WA_MODELO = Deno.env.get("WA_MODELO_PAGAMENTO") || "pagamento_liberado";
+const WA_LANG: Record<string, string> = { pt: "pt_BR", en: "en", es: "es" };
+const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
+const dig = (x: unknown) => String(x || "").replace(/\D/g, "");
+const MES: Record<string, string[]> = {
+  pt: ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  es: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+};
+const dataLonga = (d: string, l: string) => { const [, m, dd] = d.split("-").map(Number); return l === "en" ? `${MES.en[m - 1]} ${dd}` : `${dd} de ${MES[l][m - 1]}`; };
+const nomeOk = (v: unknown) => { const n = String(v || "").trim().split(/\s+/)[0] || ""; return /^[\p{L}'-]{2,20}$/u.test(n) ? n : "-"; };
+async function waPagamento(p: { id: number; cliente: string; data: string }, k: string, lancha: string, valor: string) {
+  if (!WA_ON || !WA_TOKEN || !WA_PHONE) return false;
+  const { data: cl } = await db.from("clientes").select("nome, whatsapp").eq("user_id", p.cliente).maybeSingle();
+  const to = dig(cl?.whatsapp);
+  if (to.length < 10 || to.length > 15) return false;
+  const lg = String((await db.auth.admin.getUserById(p.cliente)).data?.user?.user_metadata?.lang || "");
+  const cc = (String(cl?.whatsapp || "").trim().match(/^\+(\d{1,3})\s/) || [])[1] || to.slice(0, 2);
+  const l = WA_LANG[lg] ? lg : cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en";
+  const { data: pv, error: pe } = await db.from("wa_provas").insert({ tel_dig: to, origem: "pagamento" }).select("token").single();
+  if (pe || !pv) { console.error("prova", pe?.message); return false; }
+  const r = await fetch(`https://graph.facebook.com/v21.0/${WA_PHONE}/messages`, {
+    method: "POST", headers: { authorization: `Bearer ${WA_TOKEN}`, "content-type": "application/json" },
+    body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
+      template: { name: WA_MODELO, language: { code: WA_LANG[l] }, components: [
+        { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), valor].map(text => ({ type: "text", text })) },
+        { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `?p=${p.id}&k=${k}&w=${pv.token}&l=${l}` }] },
+      ] } }),
+  });
+  if (!r.ok) { console.error("wa pagamento falhou", p.id, r.status, (await r.text()).slice(0, 400)); return false; }
+  console.log("wa pagamento ok", p.id);
+  return true;
+}
+
 const brlv = (v: number) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 async function pushAdmins(msg: { title: string; body: string }, tag: string) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
@@ -184,7 +223,23 @@ Deno.serve(async req => {
       await db.from("pedidos").update({ paypal_link: url, paypal_valor: texto, atualizado_em: new Date().toISOString() }).eq("id", pid);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const enviado = b.email === false ? false : await email(p.cliente, url, lancha, p.data, texto, moeda === "BRL").catch(e => (console.error(e), false));
-      return json({ link: url, texto, email: enviado });
+      // WhatsApp automático: só na primeira vez que o link é criado (mudar o valor depois não manda de novo)
+      const wa = b.email === false || old ? false : await waPagamento(p, c.token, lancha, texto).catch(e => (console.error("wa", e), false));
+      return json({ link: url, texto, email: enviado, wa });
+    }
+
+    // a página aberta pelo botão do WhatsApp oficial: o link só chegou naquele número, então confirma o WhatsApp do cliente do pedido
+    if (b.acao === "wa") {
+      const x = await carregar(Number(b.p), String(b.k || ""));
+      const w = String(b.w || "");
+      if (!x || !/^[0-9a-f-]{36}$/i.test(w)) return json({ ok: false });
+      const { data: pv } = await db.from("wa_provas").select("tel_dig, usado_em, criado_em").eq("token", w).eq("origem", "pagamento").maybeSingle();
+      if (!pv || pv.usado_em || Date.parse(pv.criado_em) < Date.now() - 30 * 864e5) return json({ ok: false });
+      const { data: cl } = await db.from("clientes").select("whatsapp, whatsapp_ok_em").eq("user_id", x.p.cliente).maybeSingle();
+      if (!cl || dig(cl.whatsapp).slice(-10) !== String(pv.tel_dig).slice(-10)) return json({ ok: false });
+      await db.from("wa_provas").update({ usado_em: new Date().toISOString() }).eq("token", w).is("usado_em", null);
+      if (!cl.whatsapp_ok_em) await db.from("clientes").update({ whatsapp_ok_em: new Date().toISOString() }).eq("user_id", x.p.cliente);
+      return json({ ok: true });
     }
 
     // robô (asaas expirar, com a chave de serviço): PayPal em análise que já foi liberado ou recusado

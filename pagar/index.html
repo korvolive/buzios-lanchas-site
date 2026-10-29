@@ -228,6 +228,8 @@ let asT=null;
 function asWatch(){ if(asT) return; asT=setInterval(async()=>{ if(document.hidden || state==="paid") return;
   try{ const j=await fetch(FN_AS,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({acao:"conferir",p:P,k:K})}).then(r=>r.json()); if(j.pago){ state="paid"; D.pago_em=new Date().toISOString(); clearInterval(asT); render(); setTimeout(refresh, 3000); } }catch(e){} }, 8000); }
 const post=b=>fetch(FN,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({p:P,k:K,...b})}).then(r=>r.json().catch(()=>({})));
+/* veio do botão do WhatsApp oficial (Rodrigo 2026-10-29): o link só chegou naquele número, então confirma o WhatsApp do cliente; tira o w do endereço */
+{ const W=q.get("w"); if(W && /^[0-9a-f-]{36}$/i.test(W)){ post({acao:"wa", w:W}).catch(()=>{}); try{ q.delete("w"); history.replaceState(null,"",location.pathname+"?"+q.toString()); }catch(e){} } }
 function loadSdk(){
   if(sdk) return sdk;
   sdk=new Promise((ok,no)=>{ const s=document.createElement("script");
