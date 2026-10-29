@@ -352,6 +352,7 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .vlink code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px}
 .vlink .btn{width:auto;flex:none;margin:0;padding:10px 12px}
 .vlink .btn.wa svg{width:20px;height:20px}
+.cfb .btn.wa.xs{padding:4px 10px;font-size:12px;gap:5px;font-weight:600}.btn.wa.xs svg{width:14px;height:14px}
 .vdet{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
 .vdet summary{cursor:pointer;font-weight:600}
 .vpcts{display:grid;gap:8px;margin:10px 0}
@@ -2047,7 +2048,7 @@ function dpgHTML(){
   if(!S.toPayFree?.length) return "";
   return `<details class="card cfm rvpend fold" data-fold="dpg"${foldOpen("dpg")?" open":""}>${foldSum(t("dpgT",{n:S.toPayFree.length}))}<p class="muted" style="margin-top:0">${t("dpgSub")}</p><ul class="owners">${S.toPayFree.map(b=>{ const w=waOf(b.fr.telefone);
     return `<li><span class="who">${avatar(b.lancha,"bav")}<span><strong>${esc(boatName(b.lancha))}</strong><br><small class="muted">${fmtLong(b.data)} · ${t("slot_"+b.horario)}</small><br><small>⚓ ${esc(b.fr.nome||"")}${+b.fr.diaria?` · ${t("drOpt",{v:brl(+b.fr.diaria)})}`:""}</small></span></span>
-      <span class="cfb">${w?`<a class="btn wa" href="https://wa.me/${w}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}<button type="button" class="btn sec" data-dpg="${b.id}">✓ ${t("dpgDone")}</button></span></li>`; }).join("")}</ul></details>`;
+      <span class="cfb" style="align-items:center"><button type="button" class="btn" data-dpg="${b.id}">✓ ${t("dpgDone")}</button>${w?`<a class="btn wa xs" href="https://wa.me/${w}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}</span></li>`; }).join("")}</ul></details>`;
 }
 async function markDiaria(id){
   S.toPayFree=(S.toPayFree||[]).filter(b=>b.id!==id);
