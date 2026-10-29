@@ -2047,7 +2047,7 @@ function dpgHTML(){
   if(!S.toPayFree?.length) return "";
   return `<details class="card cfm rvpend fold" data-fold="dpg"${foldOpen("dpg")?" open":""}>${foldSum(t("dpgT",{n:S.toPayFree.length}))}<p class="muted" style="margin-top:0">${t("dpgSub")}</p><ul class="owners">${S.toPayFree.map(b=>{ const w=waOf(b.fr.telefone);
     return `<li><span class="who">${avatar(b.lancha,"bav")}<span><strong>${esc(boatName(b.lancha))}</strong><br><small class="muted">${fmtLong(b.data)} · ${t("slot_"+b.horario)}</small><br><small>⚓ ${esc(b.fr.nome||"")}${+b.fr.diaria?` · ${t("drOpt",{v:brl(+b.fr.diaria)})}`:""}</small></span></span>
-      <span class="cfb">${w?`<a class="btn wa" href="https://wa.me/${w}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}<button type="button" class="link" data-dpg="${b.id}">${t("dpgDone")}</button></span></li>`; }).join("")}</ul></details>`;
+      <span class="cfb">${w?`<a class="btn wa" href="https://wa.me/${w}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}<button type="button" class="btn sec" data-dpg="${b.id}">✓ ${t("dpgDone")}</button></span></li>`; }).join("")}</ul></details>`;
 }
 async function markDiaria(id){
   S.toPayFree=(S.toPayFree||[]).filter(b=>b.id!==id);
