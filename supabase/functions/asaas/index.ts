@@ -3,7 +3,7 @@
 // O cliente paga Pix ou cartão com todas as taxas por conta dele (o valor sobe para a Búzios receber o sinal inteiro).
 // Split: a parte do dono (pedidos.repasse_dono) vai direto para a subconta Asaas do dono; o resto (comissão da Búzios + vendedor) fica na conta da Búzios.
 // GET  ?p&k                                  valores de Pix e cartão para a página
-// POST {acao:"pagar", p, k, metodo, n?, cpf?} a página: cria (ou reaproveita) a cobrança e devolve o Pix ou o link do cartão (n = 1 a 6 parcelas; cartão só com 7+ dias até o passeio)
+// POST {acao:"pagar", p, k, metodo, n?, cpf?} a página: cria (ou reaproveita) a cobrança e devolve o Pix ou o link do cartão (n = 1 a 6 parcelas; cartão só com 5+ dias até o passeio)
 // POST {acao:"conferir", p, k}                a página: confere no Asaas se já foi pago
 // POST {acao:"conta", ...dados} (login)      dono: cria a subconta Asaas dele (o Asaas manda o e-mail para ele ativar e mandar os documentos)
 // POST {acao:"documentos"} (login)          dono/vendedor: link do Asaas para enviar documento e selfie (BaaS), ou a situação da análise
@@ -42,9 +42,9 @@ const FIM: Record<string, number> = { manha: 14, dia: 17, tarde: 18, noite: 24 }
 // hora_fim do passeio na agenda ('HH:MM'), quando o dono anotou, vale no lugar do fim do horário
 const acabou = (d: string, h: string, fim?: string | null) => { const [fh, fm] = String(fim || "").split(":").map(Number);
   return Date.parse(`${d}T00:00:00-03:00`) + (fim && !isNaN(fh) ? fh + (fm || 0) / 60 : FIM[h] ?? 24) * 36e5 <= Date.now(); };
-// cartão só com 7 dias ou mais até o passeio (Rodrigo 2026-10-25): o cartão cai em cerca de 2 dias mesmo com antecipação,
+// cartão só com 5 dias ou mais até o passeio (Rodrigo 2026-10-25; era 7, mudou para 5 em 2026-10-29): o cartão cai em cerca de 2 dias mesmo com antecipação,
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
-const CARTAO_DIAS = 7;
+const CARTAO_DIAS = 5;
 const cartaoOk = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS;
 const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
 
