@@ -1976,7 +1976,8 @@ const foldGet = () => { try{ return JSON.parse(localStorage.getItem("dobra")||"{
 const foldOpen = (k, def=true) => foldGet()[k] ?? def;
 /* 2026-10-25: dono, marinheiro, freelancers e manutenção passaram a começar fechados; esquece o que ficou guardado deles uma vez */
 /* Consultas pelo site (Rodrigo 2026-10-27): abre sempre aberta quando entra no app; fechar vale só até sair */
-try{ const L=foldGet(); if("cons" in L){ delete L.cons; localStorage.setItem("dobra", JSON.stringify(L)); } }catch(e){}
+/* Calendário dos Passeios (Rodrigo 2026-10-29): também abre sempre aberto ao entrar no app */
+try{ const L=foldGet(); if("cons" in L || "cal2" in L){ delete L.cons; delete L.cal2; localStorage.setItem("dobra", JSON.stringify(L)); } }catch(e){}
 try{ if(!localStorage.getItem("dobra-v2")){ const L=foldGet(); ["mar","frl","mnt","dono"].forEach(k=>delete L[k]); localStorage.setItem("dobra", JSON.stringify(L)); localStorage.setItem("dobra-v2","1"); } }catch(e){}
 document.addEventListener("toggle", e=>{ const d=e.target; if(!d.matches?.("details.fold")) return;
   try{ const L=foldGet(); L[d.dataset.fold]=d.open; localStorage.setItem("dobra", JSON.stringify(L)); }catch(x){} }, true);
