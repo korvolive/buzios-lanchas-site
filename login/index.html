@@ -1037,6 +1037,7 @@ async function db(path, {method="GET", body, prefer}={}, retry=true){
 
 /* ===== estado ===== */
 const app = document.getElementById("app"), top_ = document.getElementById("top");
+try{ if(new URLSearchParams(location.search).get("pedidos")){ store.set("dono-tab","pedidos"); history.replaceState(null,"",location.pathname); } }catch(e){} /* aviso de pedido do operador abre direto em Reservas */
 let S = { ccOk:true, admin:false, boats:[], all:[], cur:null, month:null, blocks:new Map(), upcoming:[], owners:[], err:"", notes:true, tab: (t=>t==="cal"||t==="chat"?"lista":t)(store.get("dono-tab"))||"lista", past:[], /* Anteriores carrega junto, para mostrar a quantidade na aba */ items:null, ro:{}, staff:[], sailors:[], sailorOf:[], myTrips:null, free:[], isFree:false, marOk:true, embOk:true, ajOk:true, hrOk:true, mnOk:true, marNames:{} };
 const now = new Date(); S.month = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -1628,7 +1629,7 @@ function openAltReq(r){
     if(cond && !(body.p_cond_valor_dia>0)){ out.innerHTML=`<p class="msg err">${t("altCondBad")}</p>`; return; }
     if(!cond && !body.p_lancha && !body.p_data && !body.p_horario && !body.p_pessoas && body.p_valor==null && !body.p_hora_ini){ out.innerHTML=`<p class="msg err">${t("altNada")}</p>`; return; }
     const go=document.getElementById("algo"); go.disabled=true; out.innerHTML="";
-    try{ await RPC("solicitar_alteracao", body); await loadAlts(); closeDay(); toast(t("altOk")); mainView(); }
+    try{ const aid=await RPC("solicitar_alteracao", body); opAvisa("op_alteracao", aid); await loadAlts(); closeDay(); toast(t("altOk")); mainView(); }
     catch(err){ go.disabled=false; out.innerHTML=`<p class="msg err">${err.code==="P0001" ? esc(err.message) : t(err.status===404?"altSql":"opErr")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); } };
 }
 /* nome e último sobrenome, para caber nas listas (Rodrigo 2026-10-30) */
@@ -3137,6 +3138,8 @@ const FN = SB+"/functions/v1/notificar";
 const pushOk = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const b64bytes = b => { const s=atob(b.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((b.length+3)%4)); return Uint8Array.from(s,c=>c.charCodeAt(0)); };
+/* o operador avisa o administrador do pedido ou da alteração que acabou de fazer (Rodrigo 2026-10-30); o servidor só aceita o que ele mesmo criou */
+function opAvisa(tipo, id){ if(!(+id>0)) return; fresh().then(tok=>fetch(FN,{method:"POST", keepalive:true, headers:{apikey:KEY, authorization:"Bearer "+tok, "content-type":"application/json"}, body:JSON.stringify({tipo, id:+id})})).catch(()=>{}); }
 async function callFn(body){
   if(S.papel && body) throw Object.assign(new Error("ro"), {status:403}); /* operador/auditor não disparam avisos nem e-mails */
   const tok = await fresh();
@@ -5011,8 +5014,9 @@ function openOpPed(){
     if(!d) bad.push(t("opDateBad")); if(nome.split(" ").length<2) bad.push(t("opNameBad")); if(!ph.ok) bad.push(t("telBad")); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) bad.push(t("opEmailBad"));
     if(bad.length){ out.innerHTML=`<p class="msg err">${bad.join("<br>")}</p>`; return; }
     const go=document.getElementById("opgo"); go.disabled=true; out.innerHTML="";
-    try{ await RPC("lancar_pedido_operador",{p_lancha:sel.value, p_data:d, p_horario:h, p_pessoas:+pes.value||1, p_nome:nome, p_tel:ph.tel, p_email:email, p_lang:cliLang(ph.tel), p_embarque:document.getElementById("opm").value.trim()||null,
+    try{ const cid=await RPC("lancar_pedido_operador",{p_lancha:sel.value, p_data:d, p_horario:h, p_pessoas:+pes.value||1, p_nome:nome, p_tel:ph.tel, p_email:email, p_lang:cliLang(ph.tel), p_embarque:document.getElementById("opm").value.trim()||null,
         p_valor:nv("opv"), p_sinal:nv("ops"), p_hora_ini:hi||null, p_hora_fim:hf||null, p_obs:document.getElementById("opo").value.trim()||null}); /* o servidor confere tudo: teto da tabela, mínimo, sinal, horário */
+      opAvisa("op_pedido", cid);
       S.cons = await db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(()=>S.cons);
       closeDay(); toast(t("opOk")); mainView(); }
     catch(err){ go.disabled=false; out.innerHTML=`<p class="msg err">${err.code==="P0001" ? esc(err.message) : t(err.status===404?"opSql2":"opErr")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); } };
