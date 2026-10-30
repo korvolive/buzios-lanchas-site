@@ -5,7 +5,9 @@
 --        preco_tabela(lancha, data, horario)  = valor da tabela para o cliente
 --        preco_neto_tabela(lancha, data, horario) = parte do dono (neto)
 --   2) Pedido novo do operador (lancar_pedido_operador) com valor e sinal combinados, horário noite, horas e observação.
---        Valor combinado: no máximo o da tabela e no mínimo o neto do dono (Miss Bardot, que é da Búzios: sem mínimo). Vazio = tabela.
+--        Valor combinado: no máximo o da tabela. Mínimo do operador (Rodrigo 2026-10-30): lancha de dono = neto + metade da comissão da Búzios;
+--        Miss Bardot = até 3% abaixo da tabela de segunda a quinta (fora de feriadão, Réveillon e semana de Carnaval), nos outros dias só a tabela.
+--        O administrador só não passa do neto (Miss Bardot sem mínimo). Vazio = tabela.
 --        Sinal: zero (pré-reserva de 24 h) ou de 10% até o valor.
 --   3) aprovar_consulta(cid): "✓ Aprovar como está" cria o passeio direto (confere horário ocupado e manutenção,
 --        grava passeio + dados, registra o convite do cliente e apaga a consulta).
@@ -111,6 +113,43 @@ begin
   return v;
 end $$;
 
+-- semana de Carnaval de cada ano (sexta antes até a Quarta-feira de Cinzas), calculada pela Páscoa
+create or replace function public._carnaval(d date)
+returns boolean language sql immutable as $$ select d between public._pascoa(extract(year from d)::int) - 51 and public._pascoa(extract(year from d)::int) - 46 $$;
+
+-- mínimo que o operador pode combinar (Rodrigo 2026-10-30)
+create or replace function public._piso_operador(l text, d date, h text)
+returns numeric language plpgsql stable security definer set search_path to 'public' as $$
+declare tab numeric := public.preco_tabela(l, d, h); nt numeric := public.preco_neto_tabela(l, d, h); w int := extract(dow from d)::int; fora text[];
+begin
+  if tab is null then return null; end if;
+  if l = 'miss-bardot' then
+    select sem_feriados into fora from public.precos where lancha = l;
+    -- o próprio dia do feriado também fica fora (ex.: Finados numa segunda)
+    if w between 1 and 4 and public._feriadao(d, fora) is null and public._epoca(d) <> 'reveillon' and not public._carnaval(d)
+       and to_char(d, 'MM-DD') not in ('04-21','04-23','05-01','09-07','10-12','11-02','11-15','11-20')
+       and d not in (public._pascoa(extract(year from d)::int) - 2, public._pascoa(extract(year from d)::int) + 60) then
+      return ceil(tab * 0.97);
+    end if;
+    return tab;
+  end if;
+  if nt is null or nt >= tab then return coalesce(nt, tab); end if;
+  return ceil(nt + (tab - nt) / 2);  -- neto + metade da comissão da Búzios
+end $$;
+
+-- operador: no máximo a tabela, no mínimo o piso acima; o administrador segue em _confere_valor
+create or replace function public._confere_valor_op(l text, d date, h text, v numeric)
+returns numeric language plpgsql stable security definer set search_path to 'public' as $$
+declare tab numeric; mn numeric;
+begin
+  if public.e_admin() then return public._confere_valor(l, d, h, v); end if;
+  tab := public._confere_valor(l, d, h, v);  -- teto, valor válido e vazio = tabela
+  if v is null then return tab; end if;
+  mn := public._piso_operador(l, d, h);
+  if mn is not null and v < mn then raise exception 'O valor (R$ %) fica abaixo do mínimo para essa data (R$ %). Fale com o Rodrigo', v, mn; end if;
+  return v;
+end $$;
+
 create or replace function public._capacidade(l text)
 returns int language sql stable security definer set search_path to 'public' as $$
   select coalesce(nullif(dados->>'capacidade','')::int,
@@ -126,7 +165,7 @@ create or replace function public._horario_ok(h text, d date)
 returns boolean language sql immutable as $$ select h in ('manha','tarde','dia') or (h = 'noite' and to_char(d,'MM-DD') = '12-31') $$;
 
 revoke all on function public._pascoa(int), public._feriadao(date, text[]), public._epoca(date), public._valor_na_data(text, date, text, boolean),
-  public._confere_valor(text, date, text, numeric), public._capacidade(text), public._hora_ok(text), public._horario_ok(text, date) from public, anon, authenticated;
+  public._confere_valor(text, date, text, numeric), public._confere_valor_op(text, date, text, numeric), public._piso_operador(text, date, text), public._carnaval(date), public._capacidade(text), public._hora_ok(text), public._horario_ok(text, date) from public, anon, authenticated;
 revoke all on function public.preco_tabela(text, date, text), public.preco_neto_tabela(text, date, text) from public, anon;
 grant execute on function public.preco_tabela(text, date, text) to authenticated;
 -- o neto é só do administrador
@@ -164,7 +203,7 @@ begin
   if length(coalesce(p_embarque,'')) > 120 or length(coalesce(p_obs,'')) > 300 then raise exception 'Texto longo demais'; end if;
   if (p_hora_ini is null) <> (p_hora_fim is null) or (p_hora_ini is not null and not (public._hora_ok(p_hora_ini) and public._hora_ok(p_hora_fim) and p_hora_fim > p_hora_ini)) then
     raise exception 'Confira a hora de entrada e de saída'; end if;
-  v := public._confere_valor(p_lancha, p_data, p_horario, p_valor);
+  v := public._confere_valor_op(p_lancha, p_data, p_horario, p_valor);
   if p_sinal is not null and (p_sinal < 0 or (v is not null and p_sinal > v) or (p_sinal > 0 and v is not null and p_sinal < ceil(v * 0.1))) then
     raise exception 'Sinal inválido: zero (pré-reserva) ou de 10%% até o valor'; end if;
   if (select count(*) from public.consultas where criado_por = auth.uid() and criado_em > now() - interval '1 day') >= 60 then raise exception 'Limite de pedidos do dia'; end if;
@@ -184,7 +223,10 @@ revoke all on function public.lancar_pedido_operador(text, date, text, integer, 
 grant execute on function public.lancar_pedido_operador(text, date, text, integer, text, text, text, text, text, numeric, numeric, text, text, text) to authenticated;
 
 -- ============ 3) aprovar a consulta como está, num toque ============
-create or replace function public.aprovar_consulta(cid bigint)
+-- o sinal do operador é só combinado: com p_recebido = true o passeio fecha (o administrador confirmou o Pix);
+-- sem isso vira pré-reserva (sinal zero) e o sinal combinado fica na observação
+drop function if exists public.aprovar_consulta(bigint);
+create or replace function public.aprovar_consulta(cid bigint, p_recebido boolean default false)
 returns jsonb
 language plpgsql
 security definer
@@ -201,6 +243,11 @@ begin
   if not (v > 0) then raise exception 'Sem valor combinado nem preço de tabela: use o Aprovar normal e preencha o valor'; end if;
   s := coalesce(c.sinal, 0);
   if s < 0 or s > v then raise exception 'Sinal inválido'; end if;
+  if c.pessoas is not null and c.pessoas > public._capacidade(c.lancha) then raise exception 'Pessoas acima da capacidade da lancha (%)', public._capacidade(c.lancha); end if;
+  if s > 0 and not coalesce(p_recebido, false) then
+    c.obs := concat_ws(' · ', nullif(c.obs, ''), 'Sinal combinado R$ ' || s || ', ainda não recebido');
+    s := 0;
+  end if;
   if exists (select 1 from public.bloqueios x where x.lancha = c.lancha and x.data = c.data and public.choca_horario(x.horario, c.horario)) then
     raise exception 'Esse horário já está ocupado nessa lancha'; end if;
   if exists (select 1 from public.manutencoes m where m.lancha = c.lancha and m.de <= c.data and c.data <= m.ate) then
@@ -213,8 +260,8 @@ begin
   delete from public.consultas where id = cid;
   return jsonb_build_object('bid', bid, 'convite', res, 'pendente', s = 0, 'email', c.email, 'valor', v, 'sinal', s);
 end $$;
-revoke all on function public.aprovar_consulta(bigint) from public, anon;
-grant execute on function public.aprovar_consulta(bigint) to authenticated;
+revoke all on function public.aprovar_consulta(bigint, boolean) from public, anon;
+grant execute on function public.aprovar_consulta(bigint, boolean) to authenticated;
 
 -- ============ 4) alterações pedidas ============
 create table if not exists public.alteracoes_pedidas (
@@ -269,11 +316,12 @@ begin
   if np is not null and (np < 1 or np > public._capacidade(nl)) then raise exception 'Pessoas acima da capacidade da lancha (%)', public._capacidade(nl); end if;
   if (p_hora_ini is null) <> (p_hora_fim is null) or (p_hora_ini is not null and not (public._hora_ok(p_hora_ini) and public._hora_ok(p_hora_fim) and p_hora_fim > p_hora_ini)) then
     raise exception 'Confira a hora de entrada e de saída'; end if;
-  if p_valor is not null then perform public._confere_valor(nl, nd, nh, p_valor); end if;
+  if p_valor is not null then perform public._confere_valor_op(nl, nd, nh, p_valor); end if;
+  if p_valor is not null and p_valor < coalesce(a.sinal, 0) then raise exception 'O valor novo (R$ %) fica abaixo do sinal já pago (R$ %)', p_valor, a.sinal; end if;
   if coalesce(p_condicional, false) then
     if nh not in ('manha','tarde') then raise exception 'Condicional só para manhã ou tarde'; end if;
     if p_cond_valor_dia is null then raise exception 'Informe o valor da diária para a condicional'; end if;
-    perform public._confere_valor(nl, nd, 'dia', p_cond_valor_dia);
+    perform public._confere_valor_op(nl, nd, 'dia', p_cond_valor_dia);
   end if;
   if length(coalesce(p_motivo,'')) > 300 then raise exception 'Motivo longo demais'; end if;
   if p_lancha is not distinct from b.lancha then p_lancha := null; end if;
@@ -300,7 +348,7 @@ language plpgsql
 security definer
 set search_path to 'public'
 as $$
-declare r public.alteracoes_pedidas%rowtype; b record; a record; nl text; nd date; nh text; mudou boolean;
+declare r public.alteracoes_pedidas%rowtype; b record; a record; nl text; nd date; nh text; mudou boolean; np int; hoje date := (now() at time zone 'America/Sao_Paulo')::date;
 begin
   if not public.e_admin() then raise exception 'Só o administrador aprova'; end if;
   select * into r from public.alteracoes_pedidas where id = aid for update;
@@ -312,7 +360,11 @@ begin
   mudou := nl <> b.lancha or nd <> b.data or nh <> b.horario;
   -- os valores podem ter mudado desde o pedido: confere de novo
   if r.novo_valor is not null then perform public._confere_valor(nl, nd, nh, r.novo_valor); end if;
-  if r.novas_pessoas is not null and r.novas_pessoas > public._capacidade(nl) then raise exception 'Pessoas acima da capacidade da lancha'; end if;
+  np := coalesce(r.novas_pessoas, a.pessoas);
+  if np is not null and np > public._capacidade(nl) then raise exception 'Pessoas acima da capacidade da lancha (%)', public._capacidade(nl); end if;
+  if nd < hoje then raise exception 'A nova data já passou'; end if;
+  if coalesce(r.novo_valor, a.valor, 0) < coalesce(a.sinal, 0) then raise exception 'O valor novo fica abaixo do sinal já pago (R$ %)', a.sinal; end if;
+  if r.condicional and r.cond_valor_dia < coalesce(a.sinal, 0) then raise exception 'O valor da diária fica abaixo do sinal já pago'; end if;
   if mudou and (nl <> b.lancha or nd <> b.data) and exists (select 1 from public.manutencoes m where m.lancha = nl and m.de <= nd and nd <= m.ate) then
     raise exception 'A lancha está em manutenção nesse dia'; end if;
   update public.alteracoes_pedidas set antes = jsonb_build_object('lancha', b.lancha, 'data', b.data, 'horario', b.horario, 'pessoas', a.pessoas,
@@ -330,6 +382,9 @@ begin
       pessoas = coalesce(r.novas_pessoas, pessoas),
       hora_ini = case when r.hora_ini is not null then r.hora_ini when nh <> b.horario then null else hora_ini end,
       hora_fim = case when r.hora_fim is not null then r.hora_fim when nh <> b.horario then null else hora_fim end,
+      -- valor novo na reserva do cliente; a comissão do vendedor (preco_cliente - preco_base) fica igual
+      preco_base = case when r.novo_valor is not null and preco_cliente is not null and preco_base is not null then preco_base + (r.novo_valor - preco_cliente) else preco_base end,
+      preco_cliente = case when r.novo_valor is not null and preco_cliente is not null then r.novo_valor else preco_cliente end,
       atualizado_em = now()
    where bloqueio_id = b.id;
   -- diária virou manhã/tarde com condicional: volta para a diária sozinha se a outra metade não vender
