@@ -174,7 +174,6 @@ html.is-app #hdr-login{display:none}
   .car-mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px}
   .car-btn{flex:0 0 auto;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--brass);background:color-mix(in srgb,var(--brass) 14%,var(--surface));color:var(--brass);font:600 30px/1 var(--body);padding:0 0 4px;cursor:pointer;transition:opacity .2s}
   .car-btn:disabled{opacity:.3;cursor:default}
-  .car-hint{cursor:pointer}
   .car-hint:not(:empty){display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:0;padding:7px 10px;border-radius:999px;background:color-mix(in srgb,var(--brass) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--brass) 45%,transparent);color:var(--ink);font:600 14px/1.3 var(--body);text-align:center}
   .car-hint b{color:var(--brass);font-size:18px;animation:carNudge 1.4s ease-in-out infinite}
   @keyframes carNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
@@ -1996,7 +1995,7 @@ const cdRpc = n => fetch(SB_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{apikey
 const loadCdSet = () => CD_SET ||= cdRpc("lanchas_cupom_dono_v2").then(r=>r.ok ? r.json().then(a=>new Map(a.map(x=>[x.lancha,x.valor])))
   : cdRpc("lanchas_cupom_dono").then(r=>r.ok?r.json():[]).then(a=>new Map(a.map(x=>[typeof x==="string"?x:x.lanchas_cupom_dono,0])))).catch(()=>new Map());
 async function showBoatStatus(b){
-  if(!IS_BOT) loadCdSet().then(M=>{ const el=document.getElementById("cd-tag"); if(!el || !M.has(b.slug)) return; const v=+M.get(b.slug); if(v) el.textContent=t("cdTagV").replace("{v}","R$ "+v.toLocaleString("pt-BR")); el.hidden=false; });
+  if(!IS_BOT) loadCdSet().then(M=>{ const el=document.getElementById("cd-tag"); if(!el || !M.has(b.slug)) return; /* sem o valor: o cliente só vê quanto é depois de ganhar (Rodrigo 2026-10-30) */ el.hidden=false; });
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b); showPrices(b);
@@ -2390,9 +2389,9 @@ function carSync(reset){
 }
 document.addEventListener("scroll",e=>{ if(e.target.classList&&e.target.matches(".fleet-car .grid")) carSync(); },true);
 addEventListener("resize",()=>carSync());
-document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn,.car-hint"); if(!bt) return;
+document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if(!bt) return;
   const g=app.querySelector(".fleet-car .grid"), c=g.querySelector(".card:not([hidden])");
-  g.scrollBy({left:+(bt.dataset.car||1)*(c?c.offsetWidth+14:300),behavior:"smooth"}); }); /* tocar no aviso de deslizar também passa para a próxima */
+  g.scrollBy({left:+bt.dataset.car*(c?c.offsetWidth+14:300),behavior:"smooth"}); }); /* só as setas passam; a faixa do meio é só aviso (Rodrigo 2026-10-30) */
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
 async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
