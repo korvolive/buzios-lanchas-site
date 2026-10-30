@@ -9,6 +9,8 @@
 // POST { tipo: "embarque", id: <bloqueio> }  (administrador, dono ou marinheiro fixo) avisa o cliente com conta que o local de embarque mudou
 // POST { tipo: "alterado", id: <alteração> }  (só o administrador, depois de aprovar ou de mudar pelo formulário) avisa o cliente com conta que a reserva mudou (antes e depois)
 // POST { tipo: "avaliar", id: <bloqueio> }  (administrador; ou o dono, nos passeios de fora; depois de confirmar que o passeio aconteceu) pede a avaliação ao cliente (celular e e-mail)
+// POST { tipo: "op_pedido", id: <consulta> }  (o operador, logo depois de lançar o pedido) avisa o administrador para aprovar (celular e e-mail)
+// POST { tipo: "op_alteracao", id: <alteração> }  (o operador, logo depois de pedir a alteração) avisa o administrador para aprovar (celular e e-mail)
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
 // POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa quando um passeio termina (da Búzios Lanchas: o administrador; de fora: os donos),
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
@@ -52,6 +54,16 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Pedido novo pelo site", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas` }),
     en: p => ({ title: "New request from the website", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people` }),
     es: p => ({ title: "Pedido nuevo desde el sitio", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas` }),
+  },
+  op_pedido: {
+    pt: p => ({ title: "Pedido novo do Lucas: aprovar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas${p.cliente ? " · " + p.cliente : ""}` }),
+    en: p => ({ title: "New request from Lucas: approve", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people${p.cliente ? " · " + p.cliente : ""}` }),
+    es: p => ({ title: "Pedido nuevo de Lucas: aprobar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas${p.cliente ? " · " + p.cliente : ""}` }),
+  },
+  op_alteracao: {
+    pt: p => ({ title: "Alteração pedida pelo Lucas: aprovar", body: `${p.lancha} · ${dataBR(p.data)}${p.cliente ? " · " + p.cliente : ""}` }),
+    en: p => ({ title: "Change requested by Lucas: approve", body: `${p.lancha} · ${dataBR(p.data)}${p.cliente ? " · " + p.cliente : ""}` }),
+    es: p => ({ title: "Cambio pedido por Lucas: aprobar", body: `${p.lancha} · ${dataBR(p.data)}${p.cliente ? " · " + p.cliente : ""}` }),
   },
   fim: {
     pt: p => ({ title: "Passeio terminou: confirme", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirme que foi concluído e que não há saldo pendente para o cliente poder avaliar." : "Confirme que aconteceu para o cliente poder avaliar."}${p.com ? ` 💼 Comissão de ${p.com.nome}: ${COMV(p)}.` : ""}` }),
@@ -199,6 +211,16 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `New booking request from the website: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, ...(p.whats ? [`WhatsApp: ${p.whats}`] : []), `Date: ${p.data}`, `Time: ${p.horario}`, `People: ${p.pessoas}`, ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "The request is in Bookings › Pending. If the boat is free, tap Release payment; when the deposit arrives, tap Approve.", botao: "Open bookings" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Pedido nuevo de reserva desde el sitio: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, ...(p.whats ? [`WhatsApp: ${p.whats}`] : []), `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "El pedido está en Reservas › Pendientes. Si la lancha está libre, toca Liberar pago; cuando llegue la seña, toca Aprobar.", botao: "Abrir las reservas" }),
   },
+  op_pedido: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O Lucas lançou um pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${p.data}`, `Horário: ${p.horario}`, `Pessoas: ${p.pessoas}`, ...(p.valor ? [`Valor combinado: ${p.valor}`] : []), ...(p.sinal ? [`Sinal combinado: ${p.sinal}`] : [])], nota: "O pedido está em Reservas › Consultas. Toque em Aprovar como está.", botao: "Abrir as reservas" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Lucas launched a booking request: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${p.data}`, `Time: ${p.horario}`, `People: ${p.pessoas}`, ...(p.valor ? [`Agreed price: ${p.valor}`] : []), ...(p.sinal ? [`Agreed deposit: ${p.sinal}`] : [])], nota: "The request is in Bookings › Inquiries. Tap Approve as is.", botao: "Open bookings" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Lucas cargó un pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.valor ? [`Valor acordado: ${p.valor}`] : []), ...(p.sinal ? [`Seña acordada: ${p.sinal}`] : [])], nota: "El pedido está en Reservas › Consultas. Toca Aprobar tal cual.", botao: "Abrir las reservas" }),
+  },
+  op_alteracao: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O Lucas pediu uma alteração na reserva de ${p.cliente || "um cliente"}: ${p.lancha}.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.motivo ? [`Motivo: ${p.motivo}`] : [])], nota: "A alteração está no topo de Reservas. Toque em Aprovar ou Recusar.", botao: "Abrir as reservas" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Lucas asked to change ${p.cliente || "a client"}'s booking: ${p.lancha}.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.motivo ? [`Reason: ${p.motivo}`] : [])], nota: "The change is at the top of Bookings. Tap Approve or Refuse.", botao: "Open bookings" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Lucas pidió un cambio en la reserva de ${p.cliente || "un cliente"}: ${p.lancha}.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.motivo ? [`Motivo: ${p.motivo}`] : [])], nota: "El cambio está arriba en Reservas. Toca Aprobar o Rechazar.", botao: "Abrir las reservas" }),
+  },
   mar: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Você foi escolhido para pilotar a ${p.lancha}.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Dono da lancha: ${d}`)], nota: "Se não puder ir, avise pelo app em \"Não vou poder ir\".", botao: "Ver meus passeios" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `You were chosen to drive ${p.lancha}.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Boat owner: ${d}`)], nota: "If you can't make it, tell us in the app with \"I can't make it\".", botao: "See my trips" }),
@@ -255,6 +277,8 @@ const dd = (p: any) => (p.data ? ` · ${p.data}` : "");
 const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   dono: { pt: p => `Passeio confirmado: ${p.lancha}${dd(p)}`, en: p => `Tour confirmed: ${p.lancha}${dd(p)}`, es: p => `Paseo confirmado: ${p.lancha}${dd(p)}` },
   pedido: { pt: p => `Nova reserva pelo site: ${p.lancha}${dd(p)}`, en: p => `New booking request: ${p.lancha}${dd(p)}`, es: p => `Nueva reserva por el sitio: ${p.lancha}${dd(p)}` },
+  op_pedido: { pt: p => `Pedido do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Request from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Pedido de Lucas para aprobar: ${p.lancha}${dd(p)}` },
+  op_alteracao: { pt: p => `Alteração do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Change from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Cambio de Lucas para aprobar: ${p.lancha}${dd(p)}` },
   mar: { pt: p => `Você vai pilotar: ${p.lancha}${dd(p)}`, en: p => `You will skipper: ${p.lancha}${dd(p)}`, es: p => `Vas a pilotar: ${p.lancha}${dd(p)}` },
   saiu: { pt: p => `Marinheiro saiu do passeio: ${p.lancha}${dd(p)}`, en: p => `Skipper left the tour: ${p.lancha}${dd(p)}`, es: p => `El marinero dejó el paseo: ${p.lancha}${dd(p)}` },
   embarque: { pt: p => `Novo local de embarque: ${p.lancha}${dd(p)}`, en: p => `New boarding place: ${p.lancha}${dd(p)}`, es: p => `Nuevo lugar de embarque: ${p.lancha}${dd(p)}` },
@@ -266,7 +290,7 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   avisarCli: { pt: p => `Avise o cliente: passeio em breve na ${p.lancha}`, en: p => `Remind the client: tour soon on ${p.lancha}`, es: p => `Avisa al cliente: paseo pronto en ${p.lancha}` },
   cliente: { pt: p => `Reserva confirmada: ${p.lancha}${dd(p)}`, en: p => `Booking confirmed: ${p.lancha}${dd(p)}`, es: p => `Reserva confirmada: ${p.lancha}${dd(p)}` },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "op_pedido" | "op_alteracao", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
@@ -566,6 +590,34 @@ Deno.serve(async req => {
       const { data: ads } = await db.from("admins").select("user_id");
       const alvo = (ads || []).map(a => a.user_id).filter(x => x !== uid);
       return json({ enviados: await enviar(alvo, "fotos", { lancha: await nomeLancha(l), n: ps.length }, "/login/?fotos=1") });
+    }
+
+    // o operador (Lucas) lançou um pedido ou pediu uma alteração: avisa o administrador para aprovar (Rodrigo 2026-10-30)
+    if (tipo === "op_pedido" || tipo === "op_alteracao") {
+      const op = (await db.from("papeis_painel").select("papel").eq("user_id", uid).maybeSingle()).data?.papel === "operador";
+      if (!op && !admin) return json({ erro: "sem acesso" }, 403);
+      const dez = Date.now() - 10 * 60 * 1000, brl = (v: any) => +v > 0 ? `R$ ${Number(v).toLocaleString("pt-BR")}` : "";
+      let p: any, b: any, a: any;
+      if (tipo === "op_pedido") {
+        const { data: c } = await db.from("consultas").select("id, lancha, data, horario, pessoas, nome, valor, sinal, hora_ini, hora_fim, criado_por, criado_em").eq("id", id).maybeSingle();
+        if (!c || c.criado_por !== uid) return json({ erro: "pedido não encontrado" }, 404);
+        if (Date.parse(c.criado_em) < dez) return json({ enviados: 0 });
+        b = c; a = c; p = { id: c.id, lancha: await nomeLancha(c.lancha), data: c.data, horario: c.horario, pessoas: String(c.pessoas || ""), cliente: c.nome || "", valor: brl(c.valor), sinal: brl(c.sinal) };
+      } else {
+        const { data: r } = await db.from("alteracoes_pedidas").select("id, bloqueio_id, motivo, status, criado_por, criado_em").eq("id", id).maybeSingle();
+        if (!r || r.criado_por !== uid) return json({ erro: "alteração não encontrada" }, 404);
+        if (r.status !== "pendente" || Date.parse(r.criado_em) < dez) return json({ enviados: 0 });
+        b = (await db.from("bloqueios").select("id, lancha, data, horario").eq("id", r.bloqueio_id).maybeSingle()).data;
+        a = (await db.from("anotacoes").select("cliente, hora_ini, hora_fim").eq("bloqueio_id", r.bloqueio_id).maybeSingle()).data;
+        if (!b) return json({ erro: "passeio não encontrado" }, 404);
+        p = { id: r.id, lancha: await nomeLancha(b.lancha), data: b.data, horario: b.horario, cliente: a?.cliente || "", motivo: r.motivo || "" };
+      }
+      const { data: ads } = await db.from("admins").select("user_id");
+      const alvo = (ads || []).map(x => x.user_id).filter(x => x !== uid);
+      const enviados = await enviar(alvo, tipo, p, "/login/?pedidos=1");
+      let emails = 0;
+      for (const x of alvo) if (await mandarEmail(x, tipo, { ...p, b, a, data: dataBR(p.data) }).catch(e => (console.error(e), false))) emails++;
+      return json({ enviados, emails });
     }
 
     if (tipo === "pedido") {
