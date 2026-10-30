@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script>/* convite ou senha nova enviados pelo painel do Supabase caem aqui: a tela de criar senha fica em /login/ */(function(h){if(/access_token=/.test(h)&&/type=(invite|recovery)/.test(h))location.replace("/login/"+h)})(location.hash)</script>
 <script>/* aberto pelo app da Google Play (TWA): guarda antes de qualquer redirecionamento, que apaga o referrer */try{if(/^android-app:/.test(document.referrer))sessionStorage.setItem("twa","1");}catch(e){}
 /* link curto do convite (?c= / ?w=) e do vendedor para criar conta (?criar=1): abre o cadastro */(function(){var q=location.search;if(location.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q))location.replace("/login/"+(/[?&]criar=1/.test(q)?q:"?criar=1&"+q.slice(1)));})();</script>
 <!-- Google Tag Manager (mesmo contêiner do site antigo: Google Ads, conversão no clique do WhatsApp e Google Analytics) -->
