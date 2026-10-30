@@ -927,6 +927,9 @@ Object.assign(T.pt, {chBotPago:"Pagamento do sinal recebido: {v}. Agora a Búzio
 Object.assign(T.pt, {preBtn:"Mandar o link de pagamento ao cliente", preT:"Link de pagamento", preSub:"Mande pelo WhatsApp: {name} cria a conta pelo link e o Pix do sinal aparece na área do cliente. Ao tocar no botão, o aviso automático do número oficial não sai mais para este passeio.", waPre:"Olá{name}! A {boat} está guardada para você em {date}, {slot}, até {ate}.\n\nPara confirmar, crie sua conta no link abaixo: lá aparece o Pix do sinal de {v} (CNPJ da Búzios Lanchas). Depois é só anexar o comprovante.\n{url}\n\nSe o sinal não for pago até {ate}, a data volta a ficar livre."});
 Object.assign(T.en, {preBtn:"Send the payment link to the client", preT:"Payment link", preSub:"Send it on WhatsApp: {name} creates the account with the link and the deposit Pix shows up in the client area. Tapping the button stops the automatic message from the official number for this tour.", waPre:"Hi{name}! {boat} is held for you on {date}, {slot}, until {ate}.\n\nTo confirm, create your account with the link below: the Pix for the {v} deposit is there (Búzios Lanchas CNPJ). Then just attach the receipt.\n{url}\n\nIf the deposit is not paid by {ate}, the date becomes free again."});
 Object.assign(T.es, {preBtn:"Enviar el link de pago al cliente", preT:"Link de pago", preSub:"Envíalo por WhatsApp: {name} crea la cuenta con el link y el Pix de la seña aparece en el área del cliente. Al tocar el botón, el aviso automático del número oficial ya no sale para este paseo.", waPre:"¡Hola{name}! La {boat} está guardada para ti el {date}, {slot}, hasta {ate}.\n\nPara confirmar, crea tu cuenta en el link de abajo: ahí aparece el Pix de la seña de {v} (CNPJ de Búzios Lanchas). Después solo adjunta el comprobante.\n{url}\n\nSi la seña no se paga hasta {ate}, la fecha vuelve a quedar libre."});
+Object.assign(T.pt, {cpChecking:"Conferindo o comprovante…", cpNotRc:"Isso não parece um comprovante de pagamento. Envie o print ou o PDF do comprovante do Pix que o banco mostra depois de pagar."});
+Object.assign(T.en, {cpChecking:"Checking the receipt…", cpNotRc:"This does not look like a payment receipt. Please send the screenshot or PDF of the Pix receipt your bank shows after paying."});
+Object.assign(T.es, {cpChecking:"Revisando el comprobante…", cpNotRc:"Esto no parece un comprobante de pago. Envía la captura o el PDF del comprobante del Pix que muestra el banco después de pagar."});
 Object.assign(T.pt, {chBotVenc:"O prazo para pagar o sinal da {boat} em {date} acabou e a data foi liberada. Se ainda quiser o passeio, fale com a gente aqui no chat.", chBotAte:"A data fica guardada para você até {h}. Depois disso ela volta a ficar livre.", payAte:"Pague o sinal até {h}: depois disso a data volta a ficar livre.", chBotPassou:"A data do seu pedido da {boat} em {date} chegou sem a reserva ser concluída, então encerramos o pedido. Ficamos muito felizes com o seu interesse! Quando quiser, escolha outra data no site ou chame a gente aqui: vai ser um prazer levar você para passear em Búzios. ⛵", chBotExp:"O prazo de 2 horas para pagar o sinal acabou e a {boat} em {date} foi liberada. Se ainda estiver livre, você pode gerar o pagamento de novo pelo mesmo link.", chBotRc:"O recibo do sinal já está no app, em Meus passeios: é só tocar em Baixar recibo do sinal.", waRc:"🧾 O recibo do sinal já está no app Búzios Lanchas, em Meus passeios: {url}", chBotOk:"Pagamento do sinal confirmado: sua reserva na {boat} em {date} está confirmada! ✅", chBotResto:"Na hora do embarque, você paga o restante ({v}) direto ao responsável pela lancha.", pixWa:"Mandar o Pix no WhatsApp do cliente", repT:"Para onde vai o dinheiro", repSin:"Sinal que você recebe: {v}", repDono:"Você repassa ao dono: {v}", repDonoNeg:"O dono repassa a você: {v}", repVend:"Comissão do vendedor: {v}", repBz:"Fica com a Búzios Lanchas: {v}", repResto:"No embarque, o cliente paga ao dono: {v}"});
 Object.assign(T.en, {ppPay:"Pay with PayPal ({v})", ppOr:"or pay with Pix:", ppMade:"PayPal charge on the site: {v}", ppWa:"Send PayPal to the client on WhatsApp", ppCopy:"Copy PayPal link", ppVal:"Client from abroad: PayPal amount ({c})", ppGen:"Create charge", ppPaid:"Deposit paid: {v} on {d}. The booking confirms itself.", rcVerT:"Confirm your account to download the receipt", rcVerP:"To protect your data, the receipt is only available after you confirm your email or your WhatsApp. It takes less than a minute.", rcVerGo:"Confirm now", rcBtn:"Download deposit receipt", rbT:"Receipt", rbN:"No.", rbTxt:"We received from {nome} the amount of {v} as the deposit for the boat tour booking below.", rbBoat:"Boat", rbDate:"Date", rbTime:"Time", rbPeople:"People", rbForma:"Payment method", rbEm:"Paid on", rbRest:"The balance is paid at boarding, directly to the boat's crew.", rbPrint:"Print or save as PDF", rbAt:"Armação dos Búzios, {d}", rbF_pix:"Pix", rbF_cartao:"Credit card", rbF_paypal:"PayPal", ppPaidC:"Deposit paid: {v}. Búzios Lanchas will confirm your booking.", ppSentMail:"PayPal charge created and e-mailed to the client", ppMadeT:"PayPal charge saved"});
 Object.assign(T.en, {cupT:"You have a discount coupon", cupTn:"You have {n} discount coupons", cupUntil:"for your next tour · valid until {d}", cupHow:"To use it, pick a boat on the site and, when booking, tap Use my coupon.", cupUsed:"{v} coupon on this tour", cupGift:"Rate your tour and get a discount coupon for your next tour on this boat.", cupGiftV:"Rate your tour and get a {v} coupon for your next tour on this boat.", cupWon:"🎁 Done! Your {v} coupon is now in your account.", cupAdm:"coupon −{v} (from commission)"});
@@ -1793,8 +1796,23 @@ async function cpStore(path, file){ /* comprovantes/<pasta>/<arquivo>: cliente n
   const r=await fetch(`${SB}/storage/v1/object/comprovantes/${path}`,{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+await fresh(), "content-type":file.type||"application/octet-stream"}, body:file});
   if(!r.ok) throw new Error(r.status);
 }
+/* comprovante do cliente: o próprio aparelho lê o texto da imagem (tesseract.js) e recusa foto que não tem nada de comprovante.
+   Se a leitura falhar ou demorar, deixa passar: um comprovante de verdade nunca fica barrado (Rodrigo 2026-10-30). PDF do banco passa direto. */
+const OCR="https://cdn.jsdelivr.net/npm/";
+let ocrLib=null;
+const ocrLoad=()=>ocrLib||(ocrLib=new Promise((ok,no)=>{ const s=document.createElement("script"); s.src=OCR+"tesseract.js@5.1.1/dist/tesseract.min.js"; s.onload=()=>ok(window.Tesseract); s.onerror=()=>{ ocrLib=null; no(); }; document.head.appendChild(s); }));
+const CP_WORDS=/pix|comprovante|transfer|pagamento|pago|valor|r\$|cnpj|cpf|recibo|banco|transa|autentica|favorecido|destinat|recebedor|institui|ag[eê]ncia|32\.?154\.?099|b[uú]zios/i;
+async function pareceComprovante(file){
+  if(!file || !/^image\//.test(file.type)) return true;
+  const ler=(async()=>{ const T=await ocrLoad();
+    const w=await T.createWorker("por", 1, {workerPath:OCR+"tesseract.js@5.1.1/dist/worker.min.js", corePath:OCR+"tesseract.js-core@5.1.1", langPath:OCR+"@tesseract.js-data/por@1.0.0/4.0.0_best_int"});
+    try{ return (await w.recognize(file)).data.text||""; } finally{ w.terminate(); } })();
+  const txt=await Promise.race([ler, new Promise(r=>setTimeout(()=>r(null),25000))]).catch(()=>null);
+  return txt==null || CP_WORDS.test(txt);
+}
 async function cpUpload(pid, file){
   if(!file) return; if(file.size>5*1024*1024){ toast(t("cpBig")); return; }
+  toast(t("cpChecking")); if(!(await pareceComprovante(file))){ alert(t("cpNotRc")); return; }
   const path=`${ses.user.id}/${pid}-${Date.now()}.${cpExt(file)}`;
   toast(t("cpSending"));
   try{ await cpStore(path, file);
@@ -4313,6 +4331,8 @@ async function attShrink(f){
 }
 async function attUpload(cid, file){
   const pdf=file.type==="application/pdf"; if(!pdf && !/^image\//.test(file.type)) return toast(t("attType"));
+  if(!pdf && !S.admin && !S.papel && (S.convs||[]).find(x=>x.id===cid)?.tipo==="suporte"){ /* no chat da Búzios o anexo do cliente é o comprovante do sinal */
+    toast(t("cpChecking")); if(!(await pareceComprovante(file))){ alert(t("cpNotRc")); return; } }
   const f = pdf ? file : await attShrink(file); if(f.size>10*1024*1024) return toast(t("attBig"));
   const ext = pdf ? "pdf" : (f.type.split("/")[1]||"jpg").replace("jpeg","jpg"), path=`${cid}/${ses.user.id}-${Date.now()}.${ext}`;
   const clip=document.getElementById("chclip"); if(clip) clip.classList.add("busy"); toast(t("attSending"));
