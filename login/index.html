@@ -6169,7 +6169,9 @@ function renderTrip(){
   const lockOrigin = !S.admin && n.origem==="buzios";
   const lockVals = () => { const on = !S.admin && origem==="buzios";
     ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(el){ el.disabled=on; if(on && !lockOrigin) el.value=""; } });
-    const h=document.getElementById("vlock"); if(h) h.hidden=!on; const sh=document.getElementById("sminh"); if(sh) sh.hidden=on; };
+    const h=document.getElementById("vlock"); if(h) h.hidden=!on; const sh=document.getElementById("sminh"); if(sh) sh.hidden=on;
+    /* passeio de fora (agência, cliente do dono): nome e WhatsApp do cliente não são obrigatórios (Rodrigo 2026-10-30) */
+    ["n-cliente","n-telefone"].forEach(id=>{ const q=document.getElementById(id)?.closest(".f")?.querySelector(".req"); if(q) q.hidden = origem==="fora"; }); };
   sheet.querySelectorAll("[data-o]").forEach(x=>{ if(lockOrigin) x.disabled=true; x.onclick=()=>{ if(!S.admin) return; origem = origem===x.dataset.o ? null : x.dataset.o;
     sheet.querySelectorAll("[data-o]").forEach(y=>y.setAttribute("aria-checked", y.dataset.o===origem)); lockVals(); }; });
   lockVals();
@@ -6306,8 +6308,9 @@ function renderTrip(){
       if(!origem) miss.push(sheet.querySelector("[data-o]").closest("fieldset"));
       if(sheet.querySelector("[data-emb]") && !emb) miss.push(sheet.querySelector("[data-emb]").closest("fieldset"));
       if(nota.hora_ini || nota.hora_fim){ if(!nota.hora_ini) miss.push(document.getElementById("n-hi")); if(!nota.hora_fim || (nota.hora_ini && nota.hora_fim<=nota.hora_ini)) miss.push(document.getElementById("n-hf")); }
-      if(!nota.cliente) miss.push(document.getElementById("n-cliente"));
-      const telOk = okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
+      const fora = origem==="fora";
+      if(!nota.cliente && !fora) miss.push(document.getElementById("n-cliente"));
+      const telOk = (fora && !tel) || okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
       if(!nota.pessoas) miss.push(document.getElementById("n-pessoas"));
       const cemEl=document.getElementById("n-cemail"); if(cemEl?.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(cemEl.value.trim())) miss.push(cemEl);
       ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(!el.disabled && nota[k]==null) miss.push(el); });
