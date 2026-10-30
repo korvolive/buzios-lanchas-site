@@ -164,18 +164,22 @@ html.is-app #hdr-login{display:none}
 /* Cartões */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px}
 /* celular: lanchas lado a lado, arrastando ou pelas setas (Rodrigo 2026-10-24) */
-.fleet-car{position:relative}.car-btn,.car-count,.car-hint{display:none}
+.fleet-car{position:relative}.car-btn,.car-count,.car-hint,.car-nav{display:none}
 @media (max-width:700px){
   .fleet-car .grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -16px;padding:4px 16px 14px;scroll-padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .fleet-car .grid::-webkit-scrollbar{display:none}
   .fleet-car .card{flex:0 0 86%;scroll-snap-align:start}
-  .car-btn:not([hidden]){display:grid;place-items:center;position:absolute;top:118px;z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(6,30,45,.72);color:#fff;font:600 28px/1 var(--body);padding:0 0 3px;box-shadow:0 2px 10px rgba(0,0,0,.3);cursor:pointer}
-  .car-btn.prev{left:-6px}.car-btn.next{right:-6px}
-  .car-hint:not(:empty){display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 12px;padding:9px 12px;border-radius:999px;background:color-mix(in srgb,var(--brass) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--brass) 45%,transparent);color:var(--ink);font:600 14px/1.3 var(--body);text-align:center}
+  /* setas embaixo das lanchas, centralizadas com o contador (Rodrigo 2026-10-30: a seta em cima da foto ficava torta) */
+  .car-nav:not([hidden]){display:flex;align-items:center;gap:10px;margin:0 0 12px}
+  .car-mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .car-btn{flex:0 0 auto;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--brass);background:color-mix(in srgb,var(--brass) 14%,var(--surface));color:var(--brass);font:600 30px/1 var(--body);padding:0 0 4px;cursor:pointer;transition:opacity .2s}
+  .car-btn:disabled{opacity:.3;cursor:default}
+  .car-hint{cursor:pointer}
+  .car-hint:not(:empty){display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:0;padding:7px 10px;border-radius:999px;background:color-mix(in srgb,var(--brass) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--brass) 45%,transparent);color:var(--ink);font:600 14px/1.3 var(--body);text-align:center}
   .car-hint b{color:var(--brass);font-size:18px;animation:carNudge 1.4s ease-in-out infinite}
   @keyframes carNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
   @media (prefers-reduced-motion:reduce){.car-hint b{animation:none}}
-  .car-count{display:block;text-align:center;margin:2px 0 0;color:var(--muted);font:500 13px/1.4 var(--mono)}
+  .car-count{display:block;text-align:center;margin:0;color:var(--muted);font:500 13px/1.4 var(--mono)}
 }
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:transform .2s,border-color .2s}
 .card:hover{transform:translateY(-3px);border-color:var(--sea)}
@@ -2225,7 +2229,7 @@ function home(){
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
     ${vendCard(null)}
-    <p class="car-hint"></p><div class="fleet-car"><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" hidden>‹</button><div class="grid">
+    <div class="car-nav" hidden><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}">‹</button><div class="car-mid"><p class="car-hint"></p><p class="car-count" aria-live="polite"></p></div><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
       ${list.map(b=>`
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
@@ -2237,8 +2241,7 @@ function home(){
             <div class="price-from">${precoTrancado()?`<div><strong>${t(VEND?.parceiro?"lockCardP":"lockCard")}</strong></div>`:showPrice()?`<div><span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t("seeBoat")}</span></div>
           </div>
         </a>`).join("")}
-    </div><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}" hidden>›</button></div>
-    <p class="car-count" aria-live="polite"></p>
+    </div></div>
     ${waCta()}
   </div></section>
   ${routeSection()}
@@ -2380,15 +2383,16 @@ function carSync(reset){
   const cs=[...g.querySelectorAll(".card")].filter(c=>!c.hidden), n=cs.length, w=cs[0]?cs[0].offsetWidth+14:1;
   const i=Math.min(n,Math.round(g.scrollLeft/w)+1), on=g.scrollWidth>g.clientWidth+4;
   const pv=app.querySelector(".car-btn.prev"), nx=app.querySelector(".car-btn.next"), ct=app.querySelector(".car-count");
-  pv.hidden=!on||g.scrollLeft<8; nx.hidden=!on||g.scrollLeft>g.scrollWidth-g.clientWidth-8;
+  pv.disabled=g.scrollLeft<8; nx.disabled=g.scrollLeft>g.scrollWidth-g.clientWidth-8;
+  const nv=app.querySelector(".car-nav"); if(nv) nv.hidden=!(on&&n>1);
   ct.textContent=on&&n>1?t("carCount",{i,n}):"";
   const h=app.querySelector(".car-hint"); if(h) h.innerHTML=on&&n>1?`<span>👉</span> ${t("carHint",{n})} <b aria-hidden="true">→</b>`:"";
 }
 document.addEventListener("scroll",e=>{ if(e.target.classList&&e.target.matches(".fleet-car .grid")) carSync(); },true);
 addEventListener("resize",()=>carSync());
-document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if(!bt) return;
+document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn,.car-hint"); if(!bt) return;
   const g=app.querySelector(".fleet-car .grid"), c=g.querySelector(".card:not([hidden])");
-  g.scrollBy({left:+bt.dataset.car*(c?c.offsetWidth+14:300),behavior:"smooth"}); });
+  g.scrollBy({left:+(bt.dataset.car||1)*(c?c.offsetWidth+14:300),behavior:"smooth"}); }); /* tocar no aviso de deslizar também passa para a próxima */
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
 async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
