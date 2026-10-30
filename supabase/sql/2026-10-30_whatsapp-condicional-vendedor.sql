@@ -7,7 +7,9 @@
 -- Segurança:
 --   resolver_condicionais: só o robô (pg_cron, como postgres) e definir_condicional chamam; anon e authenticated não executam.
 --   definir_condicional, venda_manual_salvar, venda_manual_paga, vendas_manuais_lista: checam e_admin() dentro da função.
---   marcar_wa: pedidos/consultas/cadastros/condicional = só admin; avisos do passeio (cobranca, convite, aviso, embarque) = admin ou dono da lancha.
+--   marcar_wa: igual ao arquivo 2026-10-30_papeis-operador-auditor.sql: pedidos/consultas/cadastros/condicional = admin ou operador;
+--     avisos do passeio (cobranca, convite, aviso, embarque) = admin, operador ou dono da lancha. O auditor nunca grava.
+--     Usa papel_painel(), criada no arquivo de papéis (rode aquele antes, se for montar o banco do zero).
 --   vendas_manuais: RLS ligado e sem grants; só as funções acima leem e escrevem (dono nunca vê comissão).
 
 -- 1) colunas
@@ -53,10 +55,10 @@ language plpgsql
 security definer
 set search_path to 'public'
 as $$
-declare agora timestamptz := now(); lch text;
+declare agora timestamptz := now(); lch text; atend boolean := public.e_admin() or coalesce(public.papel_painel() = 'operador', false);
 begin
   if tipo in ('pix','central','aprovado_cliente','aprovado_dono','consulta','lead') then
-    if not public.e_admin() then raise exception 'Sem acesso'; end if;
+    if not atend then raise exception 'Sem acesso'; end if;
     if tipo = 'pix' then update public.pedidos set wa_pix_em = agora where id = rid;
     elsif tipo = 'central' then update public.pedidos set wa_central_em = agora where id = rid;
     elsif tipo = 'aprovado_cliente' then update public.pedidos set wa_aprovado_cliente_em = agora where id = rid;
@@ -65,15 +67,15 @@ begin
     else update public.vendedor_leads set wa_lead_em = agora where id = rid;
     end if;
   elsif tipo in ('condicional','cond_inicio') then
-    if not public.e_admin() then raise exception 'Sem acesso'; end if;
+    if not atend then raise exception 'Sem acesso'; end if;
     if tipo = 'condicional' then update public.anotacoes set wa_cond_em = agora where bloqueio_id = rid;
     else update public.anotacoes set wa_cond_ini_em = agora where bloqueio_id = rid;
     end if;
   elsif tipo in ('cobranca','convite','aviso','embarque') then
-    -- avisos do passeio: administrador ou dono da lancha (o dono também manda esses no app)
+    -- avisos do passeio: administrador, operador ou dono da lancha
     select lancha into lch from public.bloqueios where id = rid;
     if lch is null then raise exception 'Passeio não encontrado'; end if;
-    if not public.e_admin() and not exists (select 1 from public.donos d where d.lancha = lch and d.user_id = auth.uid()) then
+    if not atend and not exists (select 1 from public.donos d where d.lancha = lch and d.user_id = auth.uid()) then
       raise exception 'Sem acesso';
     end if;
     if tipo = 'cobranca' then update public.anotacoes set wa_cobranca_em = agora where bloqueio_id = rid;
@@ -86,7 +88,6 @@ begin
   end if;
   return agora;
 end $$;
-
 create or replace function public.definir_condicional(bid bigint, valor_dia numeric)
 returns timestamptz
 language plpgsql
