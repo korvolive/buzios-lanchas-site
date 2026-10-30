@@ -243,6 +243,11 @@ Deno.serve(async req => {
       const x = await carregar(Number(b.p), String(b.k || ""));
       const w = String(b.w || "");
       if (!x || !/^[0-9a-f-]{36}$/i.test(w)) return json({ ok: false });
+      // só confirma para o próprio cliente do pedido, logado neste aparelho (revisão de segurança 2026-10-30: quem
+      // cadastrasse o número de outra pessoa faria o dono do número confirmar a conta errada só por abrir o link)
+      const auth = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      const uid = auth ? (await db.auth.getUser(auth)).data?.user?.id : null;
+      if (!uid || uid !== x.p.cliente) return json({ ok: false });
       const { data: pv } = await db.from("wa_provas").select("tel_dig, usado_em, criado_em").eq("token", w).eq("origem", "pagamento").maybeSingle();
       if (!pv || pv.usado_em || Date.parse(pv.criado_em) < Date.now() - 30 * 864e5) return json({ ok: false });
       const { data: cl } = await db.from("clientes").select("whatsapp, whatsapp_ok_em").eq("user_id", x.p.cliente).maybeSingle();
