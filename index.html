@@ -2228,7 +2228,7 @@ function home(){
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
     ${vendCard(null)}
-    <div class="car-nav" hidden><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}">‹</button><div class="car-mid"><p class="car-hint"></p><p class="car-count" aria-live="polite"></p></div><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
+    <div class="car-nav"${list.length>1?"":" hidden"}><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" disabled>‹</button><div class="car-mid"><p class="car-hint">${list.length>1?`<span>👉</span> ${t("carHint",{n:list.length})} <b aria-hidden="true">→</b>`:""}</p><p class="car-count" aria-live="polite">${list.length>1?t("carCount",{i:1,n:list.length}):""}</p></div><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
       ${list.map(b=>`
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
