@@ -657,9 +657,11 @@ Deno.serve(async req => {
       } catch (e: any) { if (e.asaas) return json({ erro: "asaas", detalhe: String(e.message).slice(0, 300) }, 400); throw e; }
       await db.from("asaas_contas").insert({ user_id: u.id, conta_id: a.id, wallet_id: a.walletId, nome, cpf_cnpj: doc, email });
       // a chave da subconta só vem na criação: guardada numa tabela que só esta função lê, para buscar o link do documento e da selfie
+      // a chave vem em accessToken.apiKey (visto no sandbox em 2026-10-30; antes vinha em apiKey)
+      const chave = a.accessToken?.apiKey || a.apiKey;
       // cifrada; se falhar, a conta principal gera outra chave no Asaas (Minhas contas > subconta)
-      if (a.apiKey) {
-        try { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: await cifrar(a.apiKey) }); if (error) console.error("asaas_chaves", error.message); }
+      if (chave) {
+        try { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: await cifrar(chave) }); if (error) console.error("asaas_chaves", error.message); }
         catch (e) { console.error("asaas_chaves", e); }
       }
       return json({ ok: true });

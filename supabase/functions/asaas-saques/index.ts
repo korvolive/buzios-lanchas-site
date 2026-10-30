@@ -21,6 +21,13 @@ const dig = (s: unknown) => String(s ?? "").replace(/\D/g, "");
 const brl = (v: number) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const igual = (a: unknown, b: unknown) => Math.round(+(a as number) * 100) === Math.round(+(b as number) * 100);
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// o Asaas manda o CPF/CNPJ do destino mascarado ("***.828.036-**", visto no sandbox em 2026-10-30):
+// confere dígito a dígito o que aparece e exige pelo menos 6 dígitos visíveis
+function mesmoDoc(mascarado: unknown, real: unknown) {
+  const m = String(mascarado ?? "").replace(/[^\d*]/g, ""), r = dig(real);
+  if (!m || m.length !== r.length || m.replace(/\*/g, "").length < 6) return false;
+  return [...m].every((c, i) => c === "*" || c === r[i]);
+}
 
 // comparação em tempo constante do token
 function tokenOk(t: string) {
@@ -101,14 +108,14 @@ async function decidir(b: any): Promise<{ ok: boolean; motivo?: string; id?: str
   }
   if (tipo !== "TRANSFER") return { ok: false, motivo: "Operação não permitida pelo sistema da Búzios Lanchas" };
   const t = b?.transfer || {}, id = String(t.id || ""), valor = +t.value;
-  const doc = dig(t?.bankAccount?.cpfCnpj), chave = String(t?.bankAccount?.pixAddressKey || "");
+  const doc = String(t?.bankAccount?.cpfCnpj || ""), chave = String(t?.bankAccount?.pixAddressKey || "");
   if (!id) return { ok: false, motivo: "Transferência sem id" };
   const a = await procurar(id);
   if (a?.origem === "saque") {
     const s = a.saque, { data: ct } = await db.from("asaas_contas").select("cpf_cnpj").eq("user_id", s.user_id).maybeSingle();
     if (!igual(valor, a.valor)) return { ok: false, motivo: "Valor diferente do pedido de saque", id, valor };
     if (chave && dig(chave) !== dig(s.chave) && chave.trim().toLowerCase() !== String(s.chave).trim().toLowerCase()) return { ok: false, motivo: "Chave Pix diferente da cadastrada", id, valor };
-    if (!ct?.cpf_cnpj || !doc || doc !== dig(ct.cpf_cnpj)) {
+    if (!ct?.cpf_cnpj || !mesmoDoc(doc, ct.cpf_cnpj)) {
       await db.from("saques").update({ status: "falhou", motivo: "cpf" }).eq("id", s.id);
       await avisarRecusa(s.user_id, valor).catch((e) => console.error("avisarRecusa", e));
       return { ok: false, motivo: "A chave Pix não é do mesmo CPF/CNPJ da conta", id, valor };
@@ -121,7 +128,7 @@ async function decidir(b: any): Promise<{ ok: boolean; motivo?: string; id?: str
   }
   // feita fora do site (painel do Asaas): só para conta do próprio CNPJ da Búzios
   const meu = await proprio();
-  if (meu && doc === meu) return { ok: true, motivo: "conta do próprio CNPJ", id, valor };
+  if (meu && mesmoDoc(doc, meu)) return { ok: true, motivo: "conta do próprio CNPJ", id, valor };
   return { ok: false, motivo: "Transferência não reconhecida pelo sistema da Búzios Lanchas", id, valor };
 }
 
