@@ -418,6 +418,7 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .mrate{color:#b07d10;font-weight:700;font-size:13px;white-space:nowrap}.mrate small{font-weight:400;color:var(--muted)}.rvm{display:flex;align-items:center;gap:6px;margin-top:10px}.rvm .bav,.rvm .face{width:24px;height:24px;font-size:10px}
 .rvask{display:flex;flex-direction:column;gap:2px;margin-top:8px}.rvpend{border:2px solid var(--gold,#d9b65d)}.rvpend h2{margin-top:0}.rvpend .trow{display:flex;align-items:center;gap:10px;margin-top:12px}.rvpend .trow span{flex:1;min-width:0}.rvpend .btn{width:auto;padding:10px 16px;margin:0}.rvadm{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}.rvadm q{display:block;font-size:14px;color:var(--muted);margin-top:4px}.rvadm .link{color:#e06c6c;margin-top:6px}.rvd{display:block;margin-top:8px}.rvd q{display:block;font-size:14px;color:var(--muted);margin-top:4px}
 .cfb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.cfb .btn{width:auto;padding:8px 14px;font-size:14px}.cfm .owners li{flex-wrap:wrap}.cfm .owners li span{word-break:normal}
+.wapend .owners li{flex-wrap:nowrap;align-items:center}.wapend .owners li .who{flex:1;min-width:0}.wapend .owners li .who>span{min-width:0;flex:1}.wapend .cfb{margin-top:0;flex:none} /* botão sempre à direita, alinhado (Rodrigo 2026-10-30) */
 .trip.rq{cursor:default;align-items:flex-start;min-width:0}.trip.rq .tbody{flex:1;min-width:0}.trip.rq .tside{flex:none}
 .trip.rq.st-aprovado{border-left-color:#2f9e6a}.trip.rq.st-recusado,.trip.rq.st-cancelado{border-left-color:var(--line);opacity:.75}
 .tabs.four button{font-size:14px;padding:10px 2px;white-space:nowrap}
@@ -1577,7 +1578,7 @@ function condTagHTML(r){ const c=condOf(r.id); if(!c) return ""; const n=c.nota|
 function condWa(c){ const n=c.nota||{}, w=waOf(n.telefone); if(w.length<8 || !["confirmada","voltou"].includes(n.cond_resultado)) return "";
   const msg=inLang(cliLang(n.telefone), ()=>{ const dt=fmtLong(c.data), resto=Math.max(0,(+n.valor||0)-(+n.sinal||0));
     return t(n.cond_resultado==="voltou"?"waCondBack":"waCondOk",{name:(n.cliente||"").split(" ")[0]||"", boat:boatName(c.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:slotLine(c.horario,{}), tot:brl(+n.valor||0), resto:resto?t("waCondResto",{v:brl(resto)}):""}); });
-  return `<a class="btn wa"${waAttr("condicional",c.id)} href="https://wa.me/${w}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc((n.cliente||"").split(" ")[0])})}${waTag("condicional",c.id)}</a>`; }
+  return `<a class="btn wa"${waAttr("condicional",c.id)} href="https://wa.me/${w}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp${waTag("condicional",c.id)}</a>`; }
 async function setCond(bid, v){
   try{ const ate=await db("rpc/definir_condicional",{method:"POST",body:{bid, valor_dia:v}}); toast(v ? t("condOk",{o:condOutro(tripRow?.horario),d:condAte(ate)}) : t("condOffOk")); await loadCond(); return true; }
   catch(e){ toast(e.status===404 ? t("condSql") : t("condErr")); return false; } }
@@ -1601,7 +1602,7 @@ function waPendHTML(){
   const cd=(S.cond||[]).filter(c=>c.data>=today && !c.nota?.wa_cond_em && !waAt("condicional",c.id) && condWa(c));
   if(!ps.length && !cs.length && !cd.length) return "";
   const li=(l,d,h,nome,btn)=>`<li><span class="who">${avatar(l,"bav")}<span><strong>${esc(boatName(l))}</strong><br><small class="muted">${fmtLong(d)} · ${t("slot_"+h)}${nome?" · "+esc(nome):""}</small></span></span><span class="cfb">${btn}</span></li>`;
-  return `<details class="card cfm rvpend fold" data-fold="wapend"${foldOpen("wapend")?" open":""}>${foldSum(t("waPendT",{n:ps.length+cs.length+cd.length}))}<p class="muted" style="margin-top:0">${t("waPendSub")}</p><ul class="owners">${
+  return `<details class="card cfm rvpend wapend fold" data-fold="wapend"${foldOpen("wapend")?" open":""}>${foldSum(t("waPendT",{n:ps.length+cs.length+cd.length}))}<p class="muted" style="margin-top:0">${t("waPendSub")}</p><ul class="owners">${
     cd.map(c=>li(c.lancha,c.data,c.horario,`${c.nota.cliente||""} · ${c.nota.cond_resultado==="voltou"?t("condBack"):t("condSold",{o:cap(condOutro(c.horario))})}`, condWa(c))).join("")}${
     ps.map(p=>li(p.lancha,p.data,p.horario,p.clientes?.nome, (S.ppPay||{})[p.id] && /\/pagar\//.test(p.paypal_link||"") ? centralWa(p) : pixWa(p))).join("")}${
     cs.map(c=>{ const {wa,msg}=consWa(c); return li(c.lancha,c.data,c.horario,c.nome,`<a class="btn wa"${waAttr("consulta",c.id)} href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`); }).join("")}</ul></details>`;

@@ -277,6 +277,9 @@ html.is-app #hdr-login{display:none}
 .vid{display:block;width:100%;height:100%;object-fit:cover}
 .vidplay{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--sea);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.35)}.vidplay svg{margin-left:4px}
 .vidbox.on .vidplay{display:none}
+.vbar{position:absolute;left:0;right:0;bottom:0;display:none;align-items:center;gap:6px;padding:22px 8px 8px;background:linear-gradient(transparent,rgba(0,0,0,.65));cursor:default}.vidbox.st .vbar{display:flex}
+.vseek{flex:1;min-width:0;accent-color:#fff;height:28px;margin:0;cursor:pointer}.vtm{color:#fff;font-size:11px;font-variant-numeric:tabular-nums;min-width:30px;text-align:center}
+.vsk{border:0;background:rgba(255,255,255,.22);color:#fff;border-radius:999px;padding:7px 9px;font:700 12px/1 inherit;cursor:pointer;white-space:nowrap}
 @media(max-width:760px){.vidrow{display:block}.vidrow .block+.block{margin-top:28px}.vidbox{margin-left:auto;margin-right:auto;width:min(100%,calc((100svh - 140px) * 9 / 16))}} /* celular: o vídeo ocupa quase toda a largura e ainda cabe inteiro na tela (Rodrigo 2026-10-24) */
 .vid.empty{position:relative;overflow:hidden;display:grid;place-items:center;background:var(--sea-deep);color:#eaf4f6}
 .vid.empty img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 65%;opacity:.35;filter:blur(2px)}
@@ -2297,7 +2300,15 @@ function gallery(b){
 /* vídeo: toca e pausa no toque, sem controles do navegador (sem tela cheia nem picture-in-picture) */
 function bindVideo(){ const box=document.getElementById("vidbox"), v=box?.querySelector("video"); if(!v) return;
   box.onclick=()=>{ if(v.paused) v.play().catch(()=>{}); else v.pause(); };
-  v.onplay=()=>box.classList.add("on"); v.onpause=v.onended=()=>box.classList.remove("on"); }
+  v.onplay=()=>box.classList.add("on","st"); v.onpause=v.onended=()=>box.classList.remove("on");
+  /* barra para avançar ou voltar o vídeo, como no YouTube (Rodrigo 2026-10-30) */
+  const bar=box.querySelector(".vbar"), sk=box.querySelector(".vseek"), tm=box.querySelector(".vtm"); if(!bar) return;
+  const mmss=x=>{ x=Math.max(0,Math.floor(x||0)); return Math.floor(x/60)+":"+String(x%60).padStart(2,"0"); };
+  let drag=false; v.ontimeupdate=()=>{ if(!drag && v.duration) sk.value=Math.round(v.currentTime/v.duration*1000); tm.textContent=mmss(v.currentTime); };
+  bar.onclick=e=>e.stopPropagation();
+  sk.oninput=()=>{ drag=true; if(v.duration){ v.currentTime=sk.value/1000*v.duration; tm.textContent=mmss(v.currentTime); } };
+  sk.onchange=()=>{ drag=false; };
+  bar.querySelectorAll("[data-sk]").forEach(x=>x.onclick=()=>{ if(v.duration) v.currentTime=Math.min(Math.max(v.currentTime+ +x.dataset.sk,0),v.duration-0.2); }); }
 function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
@@ -2336,7 +2347,7 @@ function boatPage(b){
         <div class="block b-gal"><div>${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
       </div>
       <div class="b-more">${"" /* vídeo, "O que trazer" e avaliações: no celular vêm depois do botão de consultar (Rodrigo 2026-10-24) */}
-        ${b.video?`<div class="vidrow"><div class="block b-vid"><h2>${t("video")}</h2><div class="vidbox" id="vidbox"><video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" playsinline preload="none" disablepictureinpicture controlslist="nofullscreen nodownload noremoteplayback" ${b.videoCapa?`poster="/${b.videoCapa}"`:b.photos?`poster="${imgSrc(b.photos[0])}"`:""}></video><button type="button" class="vidplay" aria-label="${t("videoPlay")}"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button></div></div>`:""}
+        ${b.video?`<div class="vidrow"><div class="block b-vid"><h2>${t("video")}</h2><div class="vidbox" id="vidbox"><video class="vid" src="${/^(\/|https?:)/.test(b.video)?b.video:"/"+b.video}" playsinline preload="none" disablepictureinpicture controlslist="nofullscreen nodownload noremoteplayback" ${b.videoCapa?`poster="/${b.videoCapa}"`:b.photos?`poster="${imgSrc(b.photos[0])}"`:""}></video><button type="button" class="vidplay" aria-label="${t("videoPlay")}"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button><div class="vbar"><button type="button" class="vsk" data-sk="-10" aria-label="-10 s">« 10s</button><input type="range" class="vseek" min="0" max="1000" step="1" value="0" aria-label="${t("video")}"><span class="vtm">0:00</span><button type="button" class="vsk" data-sk="10" aria-label="+10 s">10s »</button></div></div></div>`:""}
         <div class="block b-bring"><h2>${t("bring")}</h2><ul class="bring">${(UI[lang].bringList||UI.pt.bringList).map(x=>`<li><span aria-hidden="true">✅</span>${x}</li>`).join("")}</ul></div>${b.video?"</div>":""}
         ${b.siteRevs===false?"":`<div id="site-revs">${b.reviews?"":`<div class="block b-reviews"><h2>${t("siteRevT")}</h2><p class="rev-head" style="color:var(--muted)">${t("siteRevNone")}</p></div>`}</div>`}
         ${b.reviews?`<div class="block b-reviews b-google"><h2>${t("reviewsTitle")}</h2><p class="rev-head"><span class="stars" aria-hidden="true">★★★★★</span>${t("reviewsSub")}</p>
