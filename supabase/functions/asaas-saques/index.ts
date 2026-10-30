@@ -3,6 +3,8 @@
 // (Integrações > Mecanismos de segurança > Validação de saque via webhook), o Asaas pergunta aqui, cerca de 5 segundos depois
 // de cada saída de dinheiro, se pode seguir. Responde {status:"APPROVED"} ou {status:"REFUSED", refuseReason}.
 // Sem resposta (ou 3 falhas seguidas) o Asaas cancela a transferência: na dúvida, recusa.
+// A configuração da conta principal vale sozinha para todas as subcontas (documentação do Asaas, 2026-10-30).
+// Deixar DESLIGADA a opção "operações realizadas pela interface": o que o Rodrigo faz no painel segue com token, como hoje.
 // Libera:
 //  - transferências que o nosso sistema criou (repasse ao dono, comissão do vendedor, saque do dono/vendedor), com o mesmo valor;
 //  - no saque do dono/vendedor, só se a chave Pix for a cadastrada e for do mesmo CPF/CNPJ da subconta (proteção contra fraude);
@@ -102,7 +104,7 @@ async function decidir(b: any): Promise<{ ok: boolean; motivo?: string; id?: str
   if (tipo === "PIX_REFUND") return { ok: true, motivo: "devolução ao cliente", id: b?.pixRefund?.id, valor: +b?.pixRefund?.value || undefined };
   if (tipo === "PAYMENT_SPLIT") { // liquidação de split: só das cobranças que o site criou
     const sp = b?.paymentSplit || {};
-    const pid = String(sp.paymentId || sp.payment || "");
+    const pid = String(sp.payment?.id || "");
     const { data } = pid ? await db.from("pagamentos_asaas").select("id").eq("asaas_id", pid).maybeSingle() : { data: null };
     return data ? { ok: true, id: sp.id, valor: +sp.totalValue || +sp.fixedValue || undefined } : { ok: false, motivo: "Split de cobrança desconhecida", id: sp.id };
   }
