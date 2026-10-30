@@ -799,6 +799,9 @@ Object.assign(T.es, {opBtn:"➕ Cargar pedido", opT:"Cargar pedido para que Rodr
 Object.assign(T.pt, {papelOp:"🛠 Operador: vê reservas, pedidos e consultas e manda WhatsApp. Não altera nada.", papelAud:"👁 Auditor: somente leitura. Não altera nada.", roOnly:"Seu acesso não permite alterar isso.", waMarkErr:"A mensagem abriu, mas não deu para registrar o envio. Confira a internet e toque de novo depois de enviar.", condIniBtn:"Avisar {name} no WhatsApp", waCondIni:"Olá, {name}! Seu passeio na {boat} em {date} passou para 4 horas de forma condicional.\n🕙 Horário: {slot}\n✅ Se o outro horário da lancha for vendido até as 20h de {ate}, o seu passeio fica em 4 horas, por {v4}.\n↩️ Se não for vendido, ele volta para a diária completa, por {vd}.\nO sinal que você já pagou continua valendo nos dois casos.", condConf:"⚠️ Não deu para voltar para a diária: a outra metade está presa por pré-reserva ou pedido pendente", condAlT:"⚠️ Meia diária condicional sem solução ({n})", condAlSub:"O prazo passou e o passeio não voltou para a diária sozinho. Abra o passeio e decida: confirme as 4 horas, ou tire a pré-reserva/pedido da outra metade e mude para a diária.", condAlOpen:"Abrir passeio", condPendIni:"ficou condicional, falta avisar"});
 Object.assign(T.en, {papelOp:"🛠 Operator: sees bookings, requests and inquiries and sends WhatsApp. Can't change anything.", papelAud:"👁 Auditor: read only. Can't change anything.", roOnly:"Your access doesn't allow changing this.", waMarkErr:"The message opened, but the send couldn't be recorded. Check the internet and tap again after sending.", condIniBtn:"Notify {name} on WhatsApp", waCondIni:"Hi, {name}! Your tour on {boat} on {date} is now 4 hours, on a conditional basis.\n🕙 Time: {slot}\n✅ If the boat's other time slot is sold by 8 pm on {ate}, your tour stays at 4 hours, for {v4}.\n↩️ If it isn't sold, it goes back to the full day, for {vd}.\nThe deposit you already paid stays valid either way.", condConf:"⚠️ Couldn't go back to the full day: the other half is held by a pre-booking or pending request", condAlT:"⚠️ Conditional half day needs a decision ({n})", condAlSub:"The deadline passed and the trip didn't go back to the full day on its own. Open the trip and decide: confirm the 4 hours, or remove the pre-booking/request on the other half and switch to the full day.", condAlOpen:"Open trip", condPendIni:"now conditional, client not told yet"});
 Object.assign(T.es, {papelOp:"🛠 Operador: ve reservas, pedidos y consultas y manda WhatsApp. No cambia nada.", papelAud:"👁 Auditor: solo lectura. No cambia nada.", roOnly:"Tu acceso no permite cambiar esto.", waMarkErr:"El mensaje se abrió, pero no se pudo registrar el envío. Revisa internet y toca de nuevo después de enviar.", condIniBtn:"Avisar a {name} por WhatsApp", waCondIni:"¡Hola, {name}! Tu paseo en {boat} el {date} pasó a 4 horas de forma condicional.\n🕙 Horario: {slot}\n✅ Si el otro horario de la lancha se vende hasta las 20 h del {ate}, tu paseo queda en 4 horas, por {v4}.\n↩️ Si no se vende, vuelve al día completo, por {vd}.\nLa seña que ya pagaste sigue valiendo en los dos casos.", condConf:"⚠️ No se pudo volver al día completo: la otra mitad está ocupada por una prerreserva o un pedido pendiente", condAlT:"⚠️ Medio día condicional sin resolver ({n})", condAlSub:"El plazo pasó y el paseo no volvió solo al día completo. Abre el paseo y decide: confirma las 4 horas, o quita la prerreserva/pedido de la otra mitad y cambia al día completo.", condAlOpen:"Abrir paseo", condPendIni:"quedó condicional, falta avisar"});
+Object.assign(T.pt, {"opValor": "Valor combinado (R$, opcional)", "opTabV": "Tabela nesse dia: {v}. Vazio = usa a tabela. Nunca acima dela.", "opTabNo": "Sem preço de tabela nesse dia: lance sem valor e o Rodrigo combina.", "opSinal": "Sinal combinado (R$)", "opSinalSub": "0 = pré-reserva. Se tiver sinal, de 10% até o valor.", "opHrs": "Horário combinado (opcional)", "opHi": "Entrada", "opHf": "Saída", "opObs": "Observação (opcional)", "opSql2": "Falta rodar no Supabase o arquivo 2026-10-30_supabase-operador-um-toque.sql.", "csOne": "✓ Aprovar como está", "csOneQ": "Aprovar o pedido de {name} como está? O passeio entra na agenda na hora.", "csOneOk": "Aprovado: o passeio já está na agenda", "csComb": "combinado {v}", "csSin": "sinal {v}", "altBtn": "✏️ Pedir alteração", "altJa": "Já tem uma alteração deste passeio esperando o Rodrigo.", "altT": "Pedir alteração", "altSub": "O Rodrigo aprova com um toque. O sinal do cliente continua valendo.", "altValSub": "Vazio = mantém o valor. Se trocar lancha ou horário, usa a tabela: {v}.", "altCond": "Meia diária condicional", "altCondSub": "Fica em 4 horas só se a outra metade da lancha vender até as 20h da véspera. Se não vender, volta para a diária por este valor:", "altCondV": "Valor da diária (R$)", "altMot": "Motivo (opcional)", "altGo": "Enviar para o Rodrigo aprovar", "altOk": "Pedido de alteração enviado ao Rodrigo", "altNada": "Mude pelo menos um item.", "altCondBad": "Informe o valor da diária.", "altCardT": "✏️ Alterações para aprovar ({n})", "altCardOpT": "✏️ Alterações esperando o Rodrigo ({n})", "altCardSub": "Antes e depois. Ao aprovar, o cliente é avisado por e-mail e no celular, e o sinal continua valendo.", "altAntes": "Antes", "altDepois": "Depois", "altAp": "✓ Aprovar", "altRec": "Recusar", "altRecQ": "Recusar esta alteração?", "altApOk": "Alteração aprovada", "altRecOk": "Alteração recusada", "altCondTag": "condicional: se a outra metade não vender, volta para a diária por {v}", "altPes": "{n} pessoas", "altNotT": "Reserva alterada", "altNotSub": "Avise {name} no WhatsApp:", "altPend": "reserva alterada, falta avisar", "altSql": "Falta rodar no Supabase o arquivo 2026-10-30_supabase-operador-um-toque.sql.", "waAlt": "Olá, {name}! Sua reserva foi alterada.\n❌ Antes: {antes}\n✅ Agora: {depois}\nO sinal que você já pagou continua valendo.\nQualquer dúvida, é só chamar aqui."});
+Object.assign(T.en, {"opValor": "Agreed price (R$, optional)", "opTabV": "Price list on this day: {v}. Empty = uses the price list. Never above it.", "opTabNo": "No list price on this day: add it without a price and Rodrigo will agree it.", "opSinal": "Agreed deposit (R$)", "opSinalSub": "0 = pre-booking. With a deposit, from 10% up to the price.", "opHrs": "Agreed hours (optional)", "opHi": "Start", "opHf": "End", "opObs": "Note (optional)", "opSql2": "Run the file 2026-10-30_supabase-operador-um-toque.sql in Supabase first.", "csOne": "✓ Approve as is", "csOneQ": "Approve {name}'s request as is? The trip goes into the schedule right away.", "csOneOk": "Approved: the trip is in the schedule", "csComb": "agreed {v}", "csSin": "deposit {v}", "altBtn": "✏️ Request a change", "altJa": "This trip already has a change waiting for Rodrigo.", "altT": "Request a change", "altSub": "Rodrigo approves it with one tap. The client's deposit stays valid.", "altValSub": "Empty = keeps the price. If you change the boat or time, it uses the price list: {v}.", "altCond": "Conditional half day", "altCondSub": "Stays at 4 hours only if the boat's other half sells by 8 pm the day before. If not, it goes back to the full day for this price:", "altCondV": "Full-day price (R$)", "altMot": "Reason (optional)", "altGo": "Send for Rodrigo to approve", "altOk": "Change request sent to Rodrigo", "altNada": "Change at least one item.", "altCondBad": "Enter the full-day price.", "altCardT": "✏️ Changes to approve ({n})", "altCardOpT": "✏️ Changes waiting for Rodrigo ({n})", "altCardSub": "Before and after. When you approve, the client is told by email and on the phone, and the deposit stays valid.", "altAntes": "Before", "altDepois": "After", "altAp": "✓ Approve", "altRec": "Decline", "altRecQ": "Decline this change?", "altApOk": "Change approved", "altRecOk": "Change declined", "altCondTag": "conditional: if the other half doesn't sell, back to the full day for {v}", "altPes": "{n} people", "altNotT": "Booking changed", "altNotSub": "Tell {name} on WhatsApp:", "altPend": "booking changed, client not told yet", "altSql": "Run the file 2026-10-30_supabase-operador-um-toque.sql in Supabase first.", "waAlt": "Hi, {name}! Your booking was changed.\n❌ Before: {antes}\n✅ Now: {depois}\nThe deposit you already paid is still valid.\nAny questions, just message us here."});
+Object.assign(T.es, {"opValor": "Valor acordado (R$, opcional)", "opTabV": "Tarifa de ese día: {v}. Vacío = usa la tarifa. Nunca por encima.", "opTabNo": "Sin tarifa ese día: cárgalo sin valor y Rodrigo lo acuerda.", "opSinal": "Seña acordada (R$)", "opSinalSub": "0 = prerreserva. Con seña, del 10% hasta el valor.", "opHrs": "Horario acordado (opcional)", "opHi": "Entrada", "opHf": "Salida", "opObs": "Observación (opcional)", "opSql2": "Falta ejecutar en Supabase el archivo 2026-10-30_supabase-operador-um-toque.sql.", "csOne": "✓ Aprobar tal cual", "csOneQ": "¿Aprobar el pedido de {name} tal cual? El paseo entra en la agenda al instante.", "csOneOk": "Aprobado: el paseo ya está en la agenda", "csComb": "acordado {v}", "csSin": "seña {v}", "altBtn": "✏️ Pedir cambio", "altJa": "Este paseo ya tiene un cambio esperando a Rodrigo.", "altT": "Pedir cambio", "altSub": "Rodrigo lo aprueba con un toque. La seña del cliente sigue valiendo.", "altValSub": "Vacío = mantiene el valor. Si cambias lancha u horario, usa la tarifa: {v}.", "altCond": "Medio día condicional", "altCondSub": "Queda en 4 horas solo si la otra mitad de la lancha se vende hasta las 20 h del día anterior. Si no, vuelve al día completo por este valor:", "altCondV": "Valor del día completo (R$)", "altMot": "Motivo (opcional)", "altGo": "Enviar para que Rodrigo apruebe", "altOk": "Pedido de cambio enviado a Rodrigo", "altNada": "Cambia al menos un dato.", "altCondBad": "Indica el valor del día completo.", "altCardT": "✏️ Cambios para aprobar ({n})", "altCardOpT": "✏️ Cambios esperando a Rodrigo ({n})", "altCardSub": "Antes y después. Al aprobar, el cliente recibe aviso por e-mail y en el celular, y la seña sigue valiendo.", "altAntes": "Antes", "altDepois": "Después", "altAp": "✓ Aprobar", "altRec": "Rechazar", "altRecQ": "¿Rechazar este cambio?", "altApOk": "Cambio aprobado", "altRecOk": "Cambio rechazado", "altCondTag": "condicional: si la otra mitad no se vende, vuelve al día completo por {v}", "altPes": "{n} personas", "altNotT": "Reserva cambiada", "altNotSub": "Avisa a {name} por WhatsApp:", "altPend": "reserva cambiada, falta avisar", "altSql": "Falta ejecutar en Supabase el archivo 2026-10-30_supabase-operador-um-toque.sql.", "waAlt": "¡Hola, {name}! Tu reserva fue cambiada.\n❌ Antes: {antes}\n✅ Ahora: {depois}\nLa seña que ya pagaste sigue valiendo.\nCualquier duda, escríbenos aquí."});
 Object.assign(T.pt, {condTag:"🔁 Vira diária se a {o} não vender até {d}", condT:"🔁 Meia diária condicional", condSub:"O cliente fica com 4 horas só se a {o} desta lancha for vendida até as 20h da véspera. Se não vender, o passeio volta sozinho para a diária, com o valor abaixo.", condVal:"Valor da diária (R$)", condOn:"Ativar condicional", condOff:"Desligar condicional", condOk:"Pronto! Volta para a diária se a {o} não vender até {d}.", condOffOk:"Condicional desligada: o passeio fica em 4 horas.", condErr:"Não deu para salvar a condicional.", condSql:"Falta rodar no Supabase o SQL da meia diária condicional.", condSold:"✅ {o} vendida: 4 horas confirmadas", condBack:"↩️ Voltou para a diária", condFail:"⚠ Não deu para voltar para a diária sozinho: confira o passeio", o_manha:"manhã", o_tarde:"tarde",
   waCondOk:"Olá, {name}! Boa notícia: o outro horário da {boat} em {date} foi vendido, então o seu passeio fica confirmado em 4 horas ✅\n🕙 Horário: {slot}{resto}", waCondBack:"Olá, {name}! Como combinamos, o outro horário da {boat} em {date} não foi vendido, então o seu passeio voltou para a diária completa.\n🕙 Horário: {slot}\n💰 Valor total: {tot}{resto}", waCondResto:"\n💰 Restante no embarque: {v}"});
 Object.assign(T.en, {condTag:"🔁 Back to full day unless the {o} sells by {d}", condT:"🔁 Conditional half day", condSub:"The client keeps 4 hours only if this boat's {o} is sold by 8 pm the day before. If not, the trip goes back to the full day on its own, at the price below.", condVal:"Full-day price (R$)", condOn:"Turn on conditional", condOff:"Turn off conditional", condOk:"Done! Goes back to the full day unless the {o} sells by {d}.", condOffOk:"Conditional turned off: the trip stays at 4 hours.", condErr:"Couldn't save the conditional.", condSql:"The conditional half-day SQL still needs to run in Supabase.", condSold:"✅ {o} sold: 4 hours confirmed", condBack:"↩️ Back to the full day", condFail:"⚠ Couldn't switch back to the full day on its own: check the trip", o_manha:"morning", o_tarde:"afternoon",
@@ -1554,6 +1557,80 @@ async function loadCond(){ if(!S.admin || S.condOff) return;
   const q=c=>db(`bloqueios?select=id,lancha,data,horario,anotacoes!inner(cliente,telefone,valor,sinal,cond_ate,cond_valor,cond_resultado,cond_em,wa_cond_em${c})&anotacoes.cond_ate=not.is.null&data=gte.${iso(d0)}&order=data`);
   S.cond = await q(",wa_cond_ini_em").catch(e=>e.status===400 ? q("") : Promise.reject(e)) /* sem o SQL dos ajustes ainda */
     .then(r=>r.map(rowOf), e=>{ if(e.status===400) S.condOff=true; return null; }); }
+/* alterações pedidas pelo suporte (Rodrigo 2026-10-30): o administrador aprova num toque; o cliente é avisado com o antes e o depois */
+async function loadAlts(){ if(!S.admin) return;
+  S.alts = await db("alteracoes_pedidas?select=*,bloqueios(id,lancha,data,horario,anotacoes(cliente,telefone,pessoas,valor,sinal,hora_ini,hora_fim,cond_ate,cond_valor,cond_resultado))&or=(status.eq.pendente,and(status.eq.aprovada,wa_em.is.null))&order=criado_em&limit=200")
+    .catch(()=>null); }
+const altTrip = a => { const b=a.bloqueios||{}, n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes; return {id:b.id, lancha:b.lancha, data:b.data||"", horario:b.horario, nota:n||{}}; };
+const altPendOf = bid => (S.alts||[]).find(a=>a.status==="pendente" && a.bloqueio_id===bid);
+function altPair(a){ const r=altTrip(a), n=r.nota, cur={lancha:r.lancha, data:r.data, horario:r.horario, pessoas:n.pessoas, valor:n.valor, hora_ini:n.hora_ini, hora_fim:n.hora_fim};
+  if(a.status!=="pendente") return {antes:a.antes||cur, depois:cur};
+  const h=a.novo_horario||cur.horario, mud=h!==cur.horario;
+  return {antes:cur, depois:{lancha:a.nova_lancha||cur.lancha, data:a.nova_data||cur.data, horario:h, pessoas:a.novas_pessoas??cur.pessoas, valor:a.novo_valor??cur.valor, hora_ini:a.hora_ini ?? (mud?null:cur.hora_ini), hora_fim:a.hora_fim ?? (mud?null:cur.hora_fim)}}; }
+const altRes = (x, v) => [boatName(x.lancha), fmtLong(x.data), slotLine(x.horario,x), x.pessoas?t("altPes",{n:x.pessoas}):"", v && +x.valor>0 ? brl(+x.valor) : ""].filter(Boolean).join(" · ");
+/* mensagem pronta no idioma do cliente; o valor só aparece se mudou */
+function altWa(a, full){ const r=altTrip(a), w=waOf(r.nota.telefone); if(w.length<8) return "";
+  const {antes, depois}=altPair(a), v=+antes.valor>0 && +depois.valor>0 && +antes.valor!==+depois.valor, nm=(r.nota.cliente||"").split(" ")[0]||"";
+  const msg=inLang(cliLang(r.nota.telefone), ()=>t("waAlt",{name:nm, antes:altRes(antes,v), depois:altRes(depois,v)}));
+  return `<a class="btn wa"${waAttr("alteracao",a.id)} href="https://wa.me/${w}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${full?t("notifyBtn",{name:esc(r.nota.cliente||"")}):"WhatsApp"}${waTag("alteracao",a.id)}</a>`; }
+function altHTML(){ const L=(S.alts||[]).filter(a=>a.status==="pendente" && altTrip(a).data>=todayISO()); if(!L.length) return "";
+  const it=a=>{ const r=altTrip(a), {antes, depois}=altPair(a);
+    return `<li style="display:block;padding:10px 0"><span class="who">${avatar(depois.lancha,"bav")}<span><strong>${esc(r.nota.cliente||"")}</strong>${a.motivo?`<br><small class="muted">📝 ${esc(a.motivo)}</small>`:""}</span></span>
+      <p style="margin:8px 0;font-size:14px;line-height:1.45"><span class="muted">${t("altAntes")}:</span> ${esc(altRes(antes,1))}<br><b>${t("altDepois")}:</b> <b>${esc(altRes(depois,1))}</b>${a.condicional?`<br><small>⏳ ${t("altCondTag",{v:brl(+a.cond_valor_dia)})}</small>`:""}</p>
+      ${S.papel?"":`<span class="reqbtns" style="display:flex;gap:8px"><button type="button" class="btn" data-altap="${a.id}">${t("altAp")}</button><button type="button" class="btn sec" data-altrec="${a.id}">${t("altRec")}</button></span>`}</li>`; };
+  return `<div class="card cfm" style="margin:0 0 14px"><h3 style="margin:0 0 4px">${t(S.papel?"altCardOpT":"altCardT",{n:L.length})}</h3><p class="muted" style="margin-top:0">${t("altCardSub")}</p><ul class="owners">${L.map(it).join("")}</ul></div>`; }
+/* aviso no WhatsApp depois de aprovar (ou de mudar pelo formulário): a meia diária usa a mensagem dela */
+function openAltWa(a){ const r=altTrip(a), btn=a.condicional ? condIniWa(condOf(r.id),1) : altWa(a,1); if(!btn) return;
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✏️ ${t("altNotT")}</h2><p class="muted" style="margin-top:0">${t("altNotSub",{name:esc(r.nota.cliente||"")})}</p>
+    <div style="margin:0 0 10px">${btn}</div><button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on"); document.getElementById("nfx").onclick = closeDay; }
+document.addEventListener("click", async e=>{ const x=e.target.closest("[data-altap],[data-altrec]"); if(!x || S.papel) return; const ap=!!x.dataset.altap, aid=+(x.dataset.altap||x.dataset.altrec);
+  if(!ap && !confirm(t("altRecQ"))) return; x.disabled=true;
+  try{ if(!ap){ await RPC("recusar_alteracao",{aid}); toast(t("altRecOk")); await loadAlts(); return mainView(); }
+    await RPC("aprovar_alteracao",{aid}); toast(t("altApOk")); callFn({tipo:"alterado", id:aid}).catch(()=>{}); /* e-mail e celular do cliente */
+    await Promise.all([loadAlts(), loadCond()]); loadBlocks(); mainView(); const a=(S.alts||[]).find(z=>z.id===aid); if(a) openAltWa(a); }
+  catch(err){ x.disabled=false; toast(err.status===404 ? t("altSql") : errMsg(err)); } });
+/* suporte: pede a alteração de um passeio fechado (lancha, data, horário, pessoas, valor, horas, meia diária condicional) */
+function openAltReq(r){
+  const n=r.nota||{}, boats=(S.all||[]).filter(b=>b.ativa!==false && !boatRow(b.slug)?.oculta && !boatRow(b.slug)?.dados?.exemplo).sort((a,b)=>a.nome.localeCompare(b.nome));
+  let h=r.horario;
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${t("altT")}</h2>
+    <p class="muted" style="margin-top:0"><b>${esc(n.cliente||"")}</b> · ${esc(altRes({...n, lancha:r.lancha, data:r.data, horario:r.horario},1))}</p><p class="muted" style="margin-top:0;font-size:13px">${t("altSub")}</p>
+    <form id="alf" class="nform" novalidate><div id="almsg"></div>
+      <label class="f"><span>${t("opBoat")}</span><select class="in" id="alb">${boats.map(b=>`<option value="${esc(b.slug)}"${b.slug===r.lancha?" selected":""}>${esc(b.nome)}</option>`).join("")}</select></label>
+      <label class="f"><span>${t("opDate")}</span><input type="date" class="in" id="ald" min="${todayISO()}" max="${maxISO()}" value="${r.data}"></label>
+      <div class="f"><span>${t("opSlot")}</span><div class="origin"><div>${["manha","tarde","dia","noite"].map(x=>`<button type="button" role="radio" data-alh="${x}" aria-checked="${x===h}"${x==="noite"&&r.data.slice(5)!=="12-31"?" hidden":""}>${t("slot_"+x)}</button>`).join("")}</div></div></div>
+      <div class="row2"><label class="f"><span>${t("hrIn")}</span><select class="in" id="alhi">${rlHrOpts((n.hora_ini||"").slice(0,5)||null,15,true)}</select></label><label class="f"><span>${t("hrOut")}</span><select class="in" id="alhf">${rlHrOpts((n.hora_fim||"").slice(0,5)||null,15,true)}</select></label></div>
+      <label class="f"><span>${t("people")}</span><select class="in" id="alp"></select></label>
+      <label class="f"><span>${t("opValor")}</span><input type="number" class="in" id="alv" inputmode="numeric" min="0" step="10" placeholder="${+n.valor>0?n.valor:""}"><small class="muted" id="alvt"></small></label>
+      <div class="f" id="alcw"><label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="alc"> ${t("altCond")}</label>
+        <div id="alcb" hidden><small class="muted">${t("altCondSub")}</small><input type="number" class="in" id="alcv" inputmode="numeric" min="0" step="10" aria-label="${t("altCondV")}" placeholder="${t("altCondV")}" value="${r.horario==="dia"&&+n.valor>0?n.valor:""}"></div></div>
+      <label class="f"><span>${t("altMot")}</span><textarea class="in" id="alm" rows="2" maxlength="300"></textarea></label>
+      <button class="btn" id="algo">${t("altGo")}</button></form>
+    <button type="button" class="btn sec" id="alx" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  document.getElementById("alx").onclick = closeDay;
+  const sel=document.getElementById("alb"), dIn=document.getElementById("ald"), pes=document.getElementById("alp"), out=document.getElementById("almsg"), vt=document.getElementById("alvt"), cw=document.getElementById("alcw"), cb=document.getElementById("alc");
+  const fillP=()=>{ const cap=capOf(boats.find(b=>b.slug===sel.value)||{})||16, v=Math.min(+pes.value||+n.pessoas||2,cap); pes.innerHTML=Array.from({length:cap},(_,i)=>`<option value="${i+1}"${i+1===v?" selected":""}>${i+1}</option>`).join(""); };
+  const tab=async()=>{ vt.textContent=""; const d=dIn.value; if(!d) return; const k=sel.value+d+h; const v=await RPC("preco_tabela",{l:sel.value, d, h}).catch(()=>undefined);
+    if(k!==sel.value+dIn.value+h || v===undefined) return; vt.textContent = +v>0 ? t("altValSub",{v:brl(+v)}) : t("opTabNo"); };
+  const condV=()=>{ cw.hidden=!["manha","tarde"].includes(h); if(cw.hidden) cb.checked=false; document.getElementById("alcb").hidden=!cb.checked; };
+  const pick=x=>{ h=x; sheet.querySelectorAll("[data-alh]").forEach(y=>y.setAttribute("aria-checked",String(y.dataset.alh===x))); condV(); tab(); };
+  const noite=()=>{ const ok=dIn.value.slice(5)==="12-31", b=sheet.querySelector('[data-alh="noite"]'); b.hidden=!ok; if(!ok && h==="noite") pick("manha"); else tab(); };
+  sel.onchange=()=>{ fillP(); tab(); }; fillP(); pes.value=String(n.pessoas||pes.value); dIn.addEventListener("change", noite); dIn.addEventListener("input", noite);
+  sheet.querySelectorAll("[data-alh]").forEach(x=>x.onclick=()=>pick(x.dataset.alh)); cb.onchange=condV; condV(); tab();
+  document.getElementById("alf").onsubmit = async e => { e.preventDefault();
+    const nv=k=>{ const x=String(document.getElementById(k).value).replace(",",".").trim(); return x===""?null:+x; };
+    const hi=document.getElementById("alhi").value.slice(0,5), hf=document.getElementById("alhf").value.slice(0,5), d=dIn.value, np=+pes.value||null, cond=cb.checked;
+    const mudaH = (hi||"")!==(n.hora_ini||"").slice(0,5) || (hf||"")!==(n.hora_fim||"").slice(0,5);
+    const body={bid:r.id, p_lancha:sel.value!==r.lancha?sel.value:null, p_data:d&&d!==r.data?d:null, p_horario:h!==r.horario?h:null, p_pessoas:np!==+n.pessoas?np:null, p_valor:nv("alv"),
+      p_hora_ini:mudaH&&hi?hi:null, p_hora_fim:mudaH&&hf?hf:null, p_condicional:cond, p_cond_valor_dia:cond?nv("alcv"):null, p_motivo:document.getElementById("alm").value.trim()||null};
+    if(cond && !(body.p_cond_valor_dia>0)){ out.innerHTML=`<p class="msg err">${t("altCondBad")}</p>`; return; }
+    if(!cond && !body.p_lancha && !body.p_data && !body.p_horario && !body.p_pessoas && body.p_valor==null && !body.p_hora_ini){ out.innerHTML=`<p class="msg err">${t("altNada")}</p>`; return; }
+    const go=document.getElementById("algo"); go.disabled=true; out.innerHTML="";
+    try{ await RPC("solicitar_alteracao", body); await loadAlts(); closeDay(); toast(t("altOk")); mainView(); }
+    catch(err){ go.disabled=false; out.innerHTML=`<p class="msg err">${err.code==="P0001" ? esc(err.message) : t(err.status===404?"altSql":"opErr")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); } };
+}
 /* nome e último sobrenome, para caber nas listas (Rodrigo 2026-10-30) */
 const nome2 = x => { const p=String(x||"").trim().split(/\s+/).filter(Boolean); return p.length>2 ? p[0]+" "+p[p.length-1] : p.join(" "); };
 /* aviso de que o passeio ficou condicional (ao ativar), no idioma do cliente */
@@ -1621,15 +1698,17 @@ async function waMarca(el,tp,id){
 document.addEventListener("click", e=>{ const a=e.target.closest?.("[data-wae]"); if(!a) return; const [tp,id]=a.dataset.wae.split(":"); setTimeout(()=>waMarca(a,tp,+id),300); }, true);
 /* Reservas (Rodrigo 2026-10-30): pagamentos liberados sem o Pix nem a central mandados no WhatsApp, e consultas ativas sem resposta */
 function waPendHTML(){
-  if(!S.admin || (S.waOff || !S.wa) && !S.cond?.length) return "";
+  if(!S.admin || (S.waOff || !S.wa) && !S.cond?.length && !S.alts?.length) return "";
   const today=todayISO(), tel=p=>splitPhone(p.clientes?.whatsapp).num.replace(/\D/g,"").length>=8;
   const ps=(S.reqs||[]).filter(p=>p.status==="pendente" && p.data>=today && p.sinal_liberado_em && +p.sinal_valor>0 && !p.comprovante_em && !ppPaid(p) && tel(p) && !waAt("pix",p.id) && !waAt("central",p.id));
   const cs=(S.cons||[]).filter(c=>!consVenc(c) && !waAt("consulta",c.id) && consWa(c).wa.length>=8);
   const cd=(S.cond||[]).filter(c=>c.data>=today && !c.nota?.wa_cond_em && !waAt("condicional",c.id) && condWa(c));
   const ci=(S.cond||[]).filter(c=>c.data>=today && condIniPend(c) && condIniWa(c));
-  if(!ps.length && !cs.length && !cd.length && !ci.length) return "";
+  const al=(S.alts||[]).filter(a=>a.status==="aprovada" && !a.wa_em && !waAt("alteracao",a.id) && !a.condicional && altTrip(a).data>=today && altWa(a)); /* condicional: o aviso é o da meia diária (ci) */
+  if(!ps.length && !cs.length && !cd.length && !ci.length && !al.length) return "";
   const li=(l,d,h,nome,btn)=>`<li><span class="who">${avatar(l,"bav")}<span><strong>${esc(boatName(l))}</strong><br><small class="muted">${fmtLong(d)} · ${t("slot_"+h)}${nome?" · "+esc(nome):""}</small></span></span><span class="cfb">${btn}</span></li>`;
-  return `<details class="card cfm rvpend wapend fold" data-fold="wapend">${foldSum(t("waPendT",{n:ps.length+cs.length+cd.length+ci.length}))}<p class="muted" style="margin-top:0">${t("waPendSub")}</p><ul class="owners">${
+  return `<details class="card cfm rvpend wapend fold" data-fold="wapend">${foldSum(t("waPendT",{n:ps.length+cs.length+cd.length+ci.length+al.length}))}<p class="muted" style="margin-top:0">${t("waPendSub")}</p><ul class="owners">${
+    al.map(a=>{ const r=altTrip(a); return li(r.lancha,r.data,r.horario,`${nome2(r.nota.cliente)} · ${t("altPend")}`, altWa(a)); }).join("")}${
     ci.map(c=>li(c.lancha,c.data,c.horario,`${nome2(c.nota.cliente)} · ${t("condPendIni")}`, condIniWa(c))).join("")}${
     cd.map(c=>li(c.lancha,c.data,c.horario,`${nome2(c.nota.cliente)} · ${c.nota.cond_resultado==="voltou"?t("condBack"):t("condSold",{o:cap(condOutro(c.horario))})}`, condWa(c))).join("")}${
     ps.map(p=>li(p.lancha,p.data,p.horario,nome2(p.clientes?.nome), (S.ppPay||{})[p.id] && /\/pagar\//.test(p.paypal_link||"") ? centralWa(p) : pixWa(p))).join("")}${
@@ -3539,7 +3618,7 @@ function pedidosHTML(){
   const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); (S.reqTrips||[]).forEach(r=>L[kindT(r)].push(r));
   L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows); L.hist.sort((x,z)=>cmpRows(z,x)); L.canc.sort((x,z)=>cmpRows(z,x));
   const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
-  return `${S.papel==="operador"?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${condAlertHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}<p class="how muted">${t("reqSub")}</p>
+  return `${S.papel==="operador"?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${altHTML()}${condAlertHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}<p class="how muted">${t("reqSub")}</p>
     <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${!L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
       : f!=="pendente" ? byBoat(L[f]).map(([l,rs])=>`<details class="rqboat" data-rqb="${f}|${esc(l)}"${S.rqOpen?.has(f+"|"+l)?" open":""}><summary class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}<i class="chev" aria-hidden="true">›</i></span></summary><div class="trips">${rs.map(card).join("")}</div></details>`).join("") /* cada lancha abre e fecha com um toque */
@@ -3582,7 +3661,7 @@ async function loadReqs(){
     /* passeios lançados direto na agenda de qualquer lancha (sem pedido do site) também entram em Reservas */
     const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
     S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>+r.nota?.sinal>0 && !ligados.has(r.id)); /* só entra quem já pagou ao menos o sinal */
-    await Promise.all([loadWaSent(), loadCond()]); /* quando cada WhatsApp foi mandado; meias diárias condicionais */
+    await Promise.all([loadWaSent(), loadCond(), loadAlts()]); /* quando cada WhatsApp foi mandado; meias diárias condicionais; alterações pedidas */
     S.cons = await db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(e=>e.status===404||e.status===400 ? false : null); /* consulta rápida: false = falta o SQL */
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length + (S.cons||[]).length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
@@ -3606,9 +3685,9 @@ function consHTML(){
     <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{month:"short"}).replace(".","")}</span></span>
     <span class="tbody"><button type="button" class="cstg" data-cst="${c.id}" aria-expanded="${!!op}"><strong class="who" title="${esc(c.nome)}">${avatar(c.lancha,"bav")}<span class="trnm"><span class="trnn">${esc(shortName(c.nome))}${ccFlag(c.telefone,c.pais)}</span><small class="trhr">${esc(boatName(c.lancha))} · ${c.horario==="noite"?t("slot_noite"):t("hours_"+c.horario)}</small>${c.telefone?`<small class="trtel">📞 ${esc(c.telefone)}</small>`:""}</span></strong><svg class="cschev" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <span class="csmore"><span class="csl">${cap(d.toLocaleDateString(t("locale"),{weekday:"short"}).replace(".",""))}${c.pessoas?` · ${c.pessoas} pax`:""}</span>
-      <span class="tmeta"><i class="stb ${c.chamou?"st-aprovado":"st-pendente"}">${c.chamou?"✓ "+t("csCalled"):"⚠ "+t("csNoCall")}</i>${c.criado_por?`<i>📲 ${t("opTag")}</i>`:""}${c.embarque?`<i>⚓ ${esc(c.embarque)}</i>`:""}${c.data<today?`<i>${t("csPast")}</i>`:""}<i>${t("csAt",{d:new Date(c.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</i></span>
+      <span class="tmeta"><i class="stb ${c.chamou?"st-aprovado":"st-pendente"}">${c.chamou?"✓ "+t("csCalled"):"⚠ "+t("csNoCall")}</i>${c.criado_por?`<i>📲 ${t("opTag")}</i>`:""}${+c.valor>0?`<i>💰 ${t("csComb",{v:brl(+c.valor)})}${c.sinal!=null?" · "+t("csSin",{v:brl(+c.sinal)}):""}</i>`:c.sinal!=null&&c.criado_por?`<i>💰 ${t("csSin",{v:brl(+c.sinal)})}</i>`:""}${c.hora_ini?`<i>🕙 ${hhmm(c.hora_ini)}–${hhmm(c.hora_fim)}</i>`:""}${c.obs?`<i>📝 ${esc(c.obs)}</i>`:""}${c.embarque?`<i>⚓ ${esc(c.embarque)}</i>`:""}${c.data<today?`<i>${t("csPast")}</i>`:""}<i>${t("csAt",{d:new Date(c.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</i></span>
       ${(k=>k.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(k.tot)}</b>${k.net?` · ${t("sinNet")} ${brl(k.net)}`:""}${k.com!=null?` · ${t("sinCom")} ${brl(k.com)}`:""}</small>`:"")(pedCalc(c))}
-      <span class="reqbtns"${S.papel?" hidden":""}>${!past?`<button type="button" class="btn" data-csok="${c.id}">${t("csOk")}</button>`:""}<button type="button" class="btn sec" data-csno="${c.id}"${past?' data-past="1"':""}>${t(past?"csRm":"csNo")}</button>${!past?`<button type="button" class="btn sec" data-csed="${c.id}">✏️ ${t("edBtn")}</button>`:""}</span></span></span>
+      <span class="reqbtns"${S.papel?" hidden":""}>${!past&&c.criado_por?`<button type="button" class="btn" data-csone="${c.id}">${t("csOne")}</button>`:""}${!past?`<button type="button" class="btn${c.criado_por?" sec":""}" data-csok="${c.id}">${t("csOk")}</button>`:""}<button type="button" class="btn sec" data-csno="${c.id}"${past?' data-past="1"':""}>${t(past?"csRm":"csNo")}</button>${!past?`<button type="button" class="btn sec" data-csed="${c.id}">✏️ ${t("edBtn")}</button>`:""}</span></span></span>
     <span class="tside">${wa.length>=8?`<a class="twa"${waAttr("consulta",c.id)} href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span>${waTag("consulta",c.id)}</a>`:""}${wa.length>=8&&!past&&c.pessoas?`<a class="twa rlk" href="https://wa.me/${wa}?text=${encodeURIComponent(rlMsg(L,{nome:c.nome, lancha:c.lancha, data:c.data, horario:c.horario, pessoas:c.pessoas}))}" target="_blank" rel="noopener" aria-label="${t("rlBtnL")}: ${esc(c.nome)}">📲<span>${t("rlBtn").replace("📲 ","")}</span></a>`:""}</span></div>`; };
   /* escolher a lancha (ou todas) quando há consultas de mais de uma (Rodrigo 2026-10-25) */
   const chips = L => { const by={}; L.forEach(c=>by[c.lancha]=(by[c.lancha]||0)+1); const ks=Object.keys(by).sort((a,b)=>boatName(a).localeCompare(boatName(b)));
@@ -3625,11 +3704,22 @@ function consHTML(){
 /* a consulta venceu: falta menos de 1 hora para o início do passeio (manhã e dia 10h, tarde 14h, noite 20h, horário de Brasília) */
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-csb]"); if(!b) return; S.csBoat=b.dataset.csb; mainView(); });
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-cso]"); if(!b) return; store.set("cs-ordem", b.dataset.cso); mainView(); });
+/* consulta lançada pelo suporte, aprovada como está num toque: o servidor confere horário, manutenção, valor e sinal (Rodrigo 2026-10-30) */
+document.addEventListener("click", async e=>{ const x=e.target.closest("[data-csone]"); if(!x || S.papel) return; const c=(S.cons||[]).find(q=>q.id===+x.dataset.csone); if(!c || !confirm(t("csOneQ",{name:c.nome}))) return;
+  x.disabled=true;
+  try{ const res=await RPC("aprovar_consulta",{cid:c.id}); S.cons=S.cons.filter(q=>q.id!==c.id); S.reqCount=Math.max(0,(S.reqCount||1)-1); toast(t("csOneOk"));
+    const row={id:res.bid, lancha:c.lancha, data:c.data, horario:c.horario}, nota={origem:"buzios", cliente:c.nome, telefone:c.telefone, pessoas:c.pessoas, valor:res.valor, sinal:res.sinal, embarque:c.embarque||null, hora_ini:c.hora_ini||null, hora_fim:c.hora_fim||null};
+    if(!res.pendente) callFn({tipo:"aprovado", id:res.bid}).catch(()=>{}); /* passeio fechado: avisa o dono */
+    loadBlocks(); mainView();
+    if(res.pendente) return toast(t("holdSaved")); /* pré-reserva: o convite sai quando o sinal entrar */
+    if(res.convite==="ligado") return linkedInfo(res.bid, c.nome);
+    openInvite(res.email, nota, row); if(res.email) mailInvite(res.bid, res.email); }
+  catch(err){ x.disabled=false; toast(err.status===404 ? t("opSql2") : errMsg(err)); } });
 function consVenc(c){ return Date.parse(`${c.data}T${({manha:"10",dia:"10",tarde:"14",noite:"20"})[c.horario]||"10"}:00:00-03:00`)-36e5 <= Date.now(); }
 let consultaFor = null;
 function openCons(c){
   pedidoFor=null; consultaFor=c;
-  tripRow={lancha:c.lancha, data:c.data, horario:c.horario, nota:{origem:"buzios", cliente:c.nome, telefone:c.telefone, pessoas:c.pessoas, ...((k=>k.tot?{valor:k.tot}:{})(pedCalc(c))), ...(S.embOk ? {embarque:c.embarque||null} : {obs:c.embarque?`${t("boarding")}: ${c.embarque}`:null})}};
+  tripRow={lancha:c.lancha, data:c.data, horario:c.horario, nota:{origem:"buzios", cliente:c.nome, telefone:c.telefone, pessoas:c.pessoas, ...((k=>+c.valor>0?{valor:+c.valor}:k.tot?{valor:k.tot}:{})(pedCalc(c))), ...(c.sinal!=null?{sinal:+c.sinal}:{}), ...(c.hora_ini?{hora_ini:c.hora_ini, hora_fim:c.hora_fim}:{}), ...(c.obs?{obs:c.obs}:{}), ...(S.embOk ? {embarque:c.embarque||null} : {obs:[c.obs, c.embarque?`${t("boarding")}: ${c.embarque}`:null].filter(Boolean).join(" · ")||null})}};
   tripNew=true; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on");
   const em=document.getElementById("n-cemail"); if(em) em.value=c.email||""; /* o convite para confirmar o e-mail sai ao salvar */
 }
@@ -4878,29 +4968,42 @@ function openOpPed(){
     <form id="opf" class="nform" novalidate><div id="opmsg"></div>
       <label class="f"><span>${t("opBoat")}</span><select class="in" id="opb">${boats.map(b=>`<option value="${esc(b.slug)}">${esc(b.nome)}</option>`).join("")}</select></label>
       <label class="f"><span>${t("opDate")}</span><input type="date" class="in" id="opd" min="${todayISO()}" max="${maxISO()}"></label>
-      <div class="f"><span>${t("opSlot")}</span><div class="origin"><div>${["manha","tarde","dia"].map(x=>`<button type="button" role="radio" data-oph="${x}" aria-checked="${x===h}">${t("slot_"+x)}</button>`).join("")}</div></div></div>
+      <div class="f"><span>${t("opSlot")}</span><div class="origin"><div>${["manha","tarde","dia","noite"].map(x=>`<button type="button" role="radio" data-oph="${x}" aria-checked="${x===h}"${x==="noite"?" hidden":""}>${t("slot_"+x)}</button>`).join("")}</div></div></div>
+      <div class="row2"><label class="f"><span>${t("hrIn")}</span><select class="in" id="ophi">${rlHrOpts(null,15,true)}</select></label><label class="f"><span>${t("hrOut")}</span><select class="in" id="ophf">${rlHrOpts(null,15,true)}</select></label></div>
       <label class="f"><span>${t("people")}</span><select class="in" id="opp"></select></label>
+      <label class="f"><span>${t("opValor")}</span><input type="number" class="in" id="opv" inputmode="numeric" min="0" step="10"><small class="muted" id="opvt"></small></label>
+      <label class="f"><span>${t("opSinal")}</span><input type="number" class="in" id="ops" inputmode="numeric" min="0" step="10"><small class="muted">${t("opSinalSub")}</small></label>
       <label class="f"><span>${t("opName")}</span><input type="text" class="in" id="opn" autocapitalize="words" autocomplete="off" placeholder="${t("ph_client")}"></label>
       ${phoneField("op","WhatsApp","")}
       <label class="f"><span>${t("opEmail")}</span><input type="email" class="in" id="ope" autocomplete="off" inputmode="email"></label>
       <label class="f"><span>${t("opEmb")}</span><input type="text" class="in" id="opm" maxlength="120" autocomplete="off"></label>
+      <label class="f"><span>${t("opObs")}</span><textarea class="in" id="opo" rows="2" maxlength="300"></textarea></label>
       <button class="btn" id="opgo">${t("opGo")}</button></form>
     <button type="button" class="btn sec" id="opx" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on"); bindPhone("op");
   document.getElementById("opx").onclick = closeDay;
   const sel=document.getElementById("opb"), pes=document.getElementById("opp"), out=document.getElementById("opmsg");
   const fillP=()=>{ const cap=capOf(boats.find(b=>b.slug===sel.value)||{})||16, v=Math.min(+pes.value||2,cap); pes.innerHTML=Array.from({length:cap},(_,i)=>`<option value="${i+1}"${i+1===v?" selected":""}>${i+1}</option>`).join(""); };
-  sel.onchange=fillP; fillP();
-  sheet.querySelectorAll("[data-oph]").forEach(x=>x.onclick=()=>{ h=x.dataset.oph; sheet.querySelectorAll("[data-oph]").forEach(y=>y.setAttribute("aria-checked",String(y===x))); });
+  /* preço da tabela calculado no servidor, para o suporte ver o teto (Rodrigo 2026-10-30) */
+  const dIn=document.getElementById("opd"), vt=document.getElementById("opvt");
+  const tab=async()=>{ const d=dIn.value; vt.textContent=""; if(!d) return; const k=sel.value+d+h;
+    const v=await RPC("preco_tabela",{l:sel.value, d, h}).catch(()=>undefined); if(k!==sel.value+dIn.value+h || v===undefined) return; vt.textContent = +v>0 ? t("opTabV",{v:brl(+v)}) : t("opTabNo"); };
+  const pick=x=>{ h=x; sheet.querySelectorAll("[data-oph]").forEach(y=>y.setAttribute("aria-checked",String(y.dataset.oph===x))); tab(); };
+  /* noite só no Réveillon (31/12) */
+  const noite=()=>{ const ok=dIn.value.slice(5)==="12-31", b=sheet.querySelector('[data-oph="noite"]'); b.hidden=!ok; if(!ok && h==="noite") pick("manha"); else tab(); };
+  sel.onchange=()=>{ fillP(); tab(); }; fillP(); dIn.addEventListener("change", noite); dIn.addEventListener("input", noite);
+  sheet.querySelectorAll("[data-oph]").forEach(x=>x.onclick=()=>pick(x.dataset.oph));
   document.getElementById("opf").onsubmit = async e => { e.preventDefault();
     const nome=document.getElementById("opn").value.replace(/\s+/g," ").trim(), email=document.getElementById("ope").value.trim(), d=document.getElementById("opd").value, ph=readPhone("op"), bad=[];
+    const hi=document.getElementById("ophi").value.slice(0,5), hf=document.getElementById("ophf").value.slice(0,5), nv=k=>{ const x=String(document.getElementById(k).value).replace(",",".").trim(); return x===""?null:+x; };
     if(!d) bad.push(t("opDateBad")); if(nome.split(" ").length<2) bad.push(t("opNameBad")); if(!ph.ok) bad.push(t("telBad")); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) bad.push(t("opEmailBad"));
     if(bad.length){ out.innerHTML=`<p class="msg err">${bad.join("<br>")}</p>`; return; }
     const go=document.getElementById("opgo"); go.disabled=true; out.innerHTML="";
-    try{ await RPC("lancar_pedido_operador",{p_lancha:sel.value, p_data:d, p_horario:h, p_pessoas:+pes.value||1, p_nome:nome, p_tel:ph.tel, p_email:email, p_lang:cliLang(ph.tel), p_embarque:document.getElementById("opm").value.trim()||null});
+    try{ await RPC("lancar_pedido_operador",{p_lancha:sel.value, p_data:d, p_horario:h, p_pessoas:+pes.value||1, p_nome:nome, p_tel:ph.tel, p_email:email, p_lang:cliLang(ph.tel), p_embarque:document.getElementById("opm").value.trim()||null,
+        p_valor:nv("opv"), p_sinal:nv("ops"), p_hora_ini:hi||null, p_hora_fim:hf||null, p_obs:document.getElementById("opo").value.trim()||null}); /* o servidor confere tudo: teto da tabela, mínimo, sinal, horário */
       S.cons = await db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(()=>S.cons);
       closeDay(); toast(t("opOk")); mainView(); }
-    catch(err){ go.disabled=false; out.innerHTML=`<p class="msg err">${t(err.status===404?"opSql":"opErr")}</p>`; } };
+    catch(err){ go.disabled=false; out.innerHTML=`<p class="msg err">${err.code==="P0001" ? esc(err.message) : t(err.status===404?"opSql2":"opErr")}</p>`; out.scrollIntoView({block:"center",behavior:"smooth"}); } };
 }
 function openVendSell(slug){
   const b=S.all.find(x=>x.slug===slug), d=S.vavD, own=(S.own||[]).includes(slug), r=(S.vavPr||[]).find(x=>x.lancha===slug);
@@ -6099,6 +6202,10 @@ function renderTrip(){
   const nf=document.getElementById("nform");
   const unmiss=e=>{ const m=e.target.closest(".miss"); if(m) m.classList.remove("miss"); };
   nf.addEventListener("input",unmiss); nf.addEventListener("change",unmiss); nf.addEventListener("click",unmiss);
+  /* suporte: não grava o passeio, mas pede a alteração para o Rodrigo aprovar num toque */
+  if(S.papel==="operador" && r?.id && !tripNew && r.nota && r.data>=todayISO()){ const h2=sheet.querySelector("h2");
+    h2?.insertAdjacentHTML("afterend", altPendOf(r.id) ? `<p class="msg">${t("altJa")}</p>` : `<button type="button" class="btn" id="altreq" style="margin:0 0 12px">${t("altBtn")}</button>`);
+    const ab=document.getElementById("altreq"); if(ab) ab.onclick=()=>openAltReq(r); }
   nf.onsubmit = async e => { e.preventDefault();
     const out=document.getElementById("nmsg"), b=document.getElementById("nsave");
     const g=k=>document.getElementById("n-"+k)?.value.trim()||"", num=k=>{ const v=g(k).replace(",","."); return v===""?null:+v; };
@@ -6183,6 +6290,14 @@ function renderTrip(){
       if(confirmed && !n.cliente_conta && !nota.cliente_conta){ closeDay(); loadBlocks(); toast(t("holdConfirmed"));
         const m = await mailInvite(row.id, ""); return openInvite(m.email, nota, row, m.st); }
       toast(pending ? t("holdSaved") : confirmed ? t("holdConfirmed") : tripNew ? t("tripSaved") : t("noteSaved"));
+      /* lancha, data, horário, pessoas ou horas mudados num passeio fechado: avisa o cliente igual à alteração aprovada (Rodrigo 2026-10-30) */
+      if(S.admin && !S.papel && !tripNew && !pending && !isPending(n) && (nota.cliente || nota.telefone)){
+        const hh=x=>(x||"").slice(0,5), antes={lancha:r.lancha, data:r.data, horario:r.horario, pessoas:n.pessoas??null, valor:n.valor??null, hora_ini:n.hora_ini||null, hora_fim:n.hora_fim||null};
+        if(row.lancha!==r.lancha || row.data!==r.data || row.horario!==r.horario || +(nota.pessoas||0)!==+(n.pessoas||0) || hh(nota.hora_ini)!==hh(n.hora_ini) || hh(nota.hora_fim)!==hh(n.hora_fim)){
+          const aid=await RPC("registrar_alteracao",{bid:row.id, p_antes:antes}).catch(()=>null);
+          if(aid){ callFn({tipo:"alterado", id:aid}).catch(()=>{}); if(nota.embarque && n.embarque && nota.embarque!==n.embarque) callFn({tipo:"embarque", id:row.id}).catch(()=>{});
+            const a={id:aid, status:"aprovada", condicional:false, antes, bloqueios:{id:row.id, lancha:row.lancha, data:row.data, horario:row.horario, anotacoes:{...n, ...nota}}};
+            S.alts=[...(S.alts||[]), a]; if(waOf(nota.telefone).length>=8){ closeDay(); loadBlocks(); return openAltWa(a); } } } }
       /* local de embarque trocado num passeio já fechado: avisa o cliente (e-mail automático se tiver conta; WhatsApp pelo botão) */
       if(!tripNew && !pending && !isPending(n) && nota.embarque && n.embarque && nota.embarque!==n.embarque){ callFn({tipo:"embarque", id:row.id}).catch(()=>{}); if(waOf(nota.telefone).length>=8){ closeDay(); loadBlocks(); return notifyEmb(row, nota); } }
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }

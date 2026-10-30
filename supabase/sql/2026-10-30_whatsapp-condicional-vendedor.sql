@@ -71,6 +71,10 @@ begin
     if tipo = 'condicional' then update public.anotacoes set wa_cond_em = agora where bloqueio_id = rid;
     else update public.anotacoes set wa_cond_ini_em = agora where bloqueio_id = rid;
     end if;
+  elsif tipo = 'alteracao' then
+    -- aviso de reserva alterada (rid = id da alteração)
+    if not atend then raise exception 'Sem acesso'; end if;
+    update public.alteracoes_pedidas set wa_em = agora where id = rid;
   elsif tipo in ('cobranca','convite','aviso','embarque') then
     -- avisos do passeio: administrador, operador ou dono da lancha
     select lancha into lch from public.bloqueios where id = rid;
