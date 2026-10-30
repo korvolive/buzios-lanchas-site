@@ -4923,6 +4923,7 @@ function mainView(){
   if(view==="planilha"){ if(!document.activeElement?.closest?.("#plan")) planView(); return; } /* modo planilha aberto: não troca de tela por baixo */
   S.prFlush?.(); S.prFlush=null;
   S.needRender=false;
+  if(S.booting){ app.innerHTML = `<p class="loading">…</p>`; return; } /* ainda carregando: o boot desenha a tela certa no fim */
   if(S.isClient) return clientView();
   top_.hidden = false; top_.innerHTML = headerHTML(); bindLang();
   document.getElementById("out").onclick = logout;
@@ -6413,7 +6414,7 @@ async function socioAceitar(){ const c=store.get("socio-c"); if(!c || !ses) retu
   store.set("socio-c",null); S.vendas=undefined; S.vParte=undefined;
   if(r==="ok") setTimeout(()=>toast(t("socOk")),1500); else if(r==="ja_vendedor") setTimeout(()=>toast(t("socJa")),1500); else if(r==="invalido" || r==="cliente_de_outro") setTimeout(()=>toast(t("socInv")),1500); }
 async function boot(){
-  app.innerHTML = `<p class="loading">…</p>`; S.notes = true;
+  app.innerHTML = `<p class="loading">…</p>`; S.notes = true; S.booting = true; /* troca de idioma no meio do carregamento não abre a tela errada (Lucas 2026-10-30) */
   try{
     ses.user = await authCall("user",null,"GET",await fresh()); /* sempre confere de quem é o login (evita misturar contas no mesmo aparelho) */
     saveSes(ses); importGoogle(); saveLang();
@@ -6426,7 +6427,7 @@ async function boot(){
     const [admin, all, mine] = await Promise.all([db("rpc/e_admin",{method:"POST",body:{}}), db("lanchas?select=slug,nome,dados,ativa,oculta&order=nome").catch(e=>e.status===400 ? db("lanchas?select=slug,nome,dados,ativa&order=nome").catch(x=>x.status===400 ? db("lanchas?select=slug,nome&order=nome") : Promise.reject(x)) : Promise.reject(e)), db(`donos?select=lancha&user_id=eq.${ses.user.id}`)]);
     S.admin = admin===true; S.all = all;
     /* operador e auditor (Rodrigo 2026-10-30): veem o painel do administrador, mas o banco só deixa ler (e o operador registrar o WhatsApp) */
-    S.papel = null; if(!S.admin){ const pp = await db("rpc/papel_painel",{method:"POST",body:{}}).catch(()=>null); if(pp==="operador" || pp==="auditor"){ S.papel=pp; S.admin=true; if(pp==="operador" && !["lista","pedidos"].includes(S.tab)) S.tab="pedidos"; if(pp==="auditor" && !["lista","pedidos","usuarios"].includes(S.tab)) S.tab="lista"; } }
+    S.papel = null; if(!S.admin){ const pq=()=>db("rpc/papel_painel",{method:"POST",body:{}}).then(r=>r??null, ()=>undefined); let pp = await pq(); if(pp===undefined){ await fresh(true).catch(()=>{}); pp = await pq(); } if(pp===undefined) throw Object.assign(new Error("papel"),{status:0}); /* falha de rede ou login: tenta de novo em vez de abrir como cliente */ if(pp==="operador" || pp==="auditor"){ S.papel=pp; S.admin=true; if(pp==="operador" && !["lista","pedidos"].includes(S.tab)) S.tab="pedidos"; if(pp==="auditor" && !["lista","pedidos","usuarios"].includes(S.tab)) S.tab="lista"; } }
     if(S.admin && new URLSearchParams(location.search).get("consulta")){ S.tab="pedidos"; S.reqF="pendente"; history.replaceState(null,"",location.pathname); } /* aviso "não chamou no WhatsApp" */
     await socioAceitar();
     S.vend = (await db("rpc/meu_vendedor",{method:"POST",body:{}}).catch(()=>[]))[0] || null; await loadVendIds();
@@ -6499,11 +6500,13 @@ async function boot(){
     S.pushWho = S.admin || mine.length>0 || S.isFree || (S.sailorOf||[]).length>0; /* marinheiros também: recebem o aviso quando são escolhidos para pilotar */
     S.marRates = {};
     if(owner) db("rpc/notas_marinheiros",{method:"POST",body:{}}).then(r=>{ r.forEach(x=>S.marRates[x.marinheiro]={media:+x.media,total:+x.total}); if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{});
+    S.booting = false;
     if(S.tab!=="pedidos" && S.tab!=="lista") await loadToConfirm();
     await loadBlocks();
     const av=+new URLSearchParams(location.search).get("avisar"); if(av){ history.replaceState(null,"",location.pathname); const row=(S.upcoming||[]).find(x=>x.id===av); if(row) avisarInicio(row); }
     autoPush();
   }catch(e){
+    S.booting = false;
     if(!ses) return show();
     /* login encerrado no servidor (saiu em outro aparelho, senha trocada, conta apagada): volta para a tela de entrar */
     if((e.status===401 || e.status===403) && /session_not_found|user_not_found|bad_jwt|refresh_token_not_found/i.test(e.code+" "+e.message)){ saveSes(null); loginErr=false; loginMsg=t("sesEnded"); return show(); }
