@@ -6,7 +6,8 @@
 // POST { tipo: "pedido",   id: <pedido> }    (o próprio cliente, uma vez) avisa o administrador (no celular e por e-mail)
 // POST { tipo: "marinheiro", id: <bloqueio> }  (administrador ou dono da lancha) avisa o marinheiro escolhido para pilotar (celular e e-mail)
 // POST { tipo: "recusou", id: <bloqueio> }  (o marinheiro que acabou de sair do passeio) avisa os donos da lancha e o administrador (celular e e-mail)
-// POST { tipo: "embarque", id: <bloqueio> }  (administrador, dono ou marinheiro fixo) avisa o cliente com conta que o local de embarque mudou
+// POST { tipo: "embarque", id: <bloqueio>, antes?: <local antigo> }  (administrador, dono ou marinheiro fixo) avisa o cliente com conta que o local de embarque mudou;
+//                       quando é o marinheiro fixo, avisa também o dono e o administrador (celular e e-mail)
 // POST { tipo: "alterado", id: <alteração> }  (só o administrador, depois de aprovar ou de mudar pelo formulário) avisa o cliente com conta que a reserva mudou (antes e depois)
 // POST { tipo: "avaliar", id: <bloqueio> }  (administrador; ou o dono, nos passeios de fora; depois de confirmar que o passeio aconteceu) pede a avaliação ao cliente (celular e e-mail)
 // POST { tipo: "op_pedido", id: <consulta> }  (o operador, logo depois de lançar o pedido) avisa o administrador para aprovar (celular e e-mail)
@@ -95,6 +96,11 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Fotos novas para aprovar", body: `${p.lancha}: ${p.n} foto${p.n > 1 ? "s" : ""} esperando a sua aprovação. Toque para ver.` }),
     en: p => ({ title: "New photos to approve", body: `${p.lancha}: ${p.n} photo${p.n > 1 ? "s" : ""} waiting for your approval. Tap to see.` }),
     es: p => ({ title: "Fotos nuevas para aprobar", body: `${p.lancha}: ${p.n} foto${p.n > 1 ? "s" : ""} esperando tu aprobación. Toca para ver.` }),
+  },
+  emb_mar: {
+    pt: p => ({ title: "Marinheiro mudou o embarque", body: `${p.nome} mudou o embarque da ${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} para ${p.embarque}${p.cliente ? " · " + p.cliente : ""}.` }),
+    en: p => ({ title: "Skipper changed the boarding place", body: `${p.nome} changed ${p.lancha}'s boarding · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} to ${p.embarque}${p.cliente ? " · " + p.cliente : ""}.` }),
+    es: p => ({ title: "El marinero cambió el embarque", body: `${p.nome} cambió el embarque de ${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} a ${p.embarque}${p.cliente ? " · " + p.cliente : ""}.` }),
   },
   recusou: {
     pt: p => ({ title: "Marinheiro saiu do passeio", body: `${p.nome} não vai poder pilotar a ${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Escolha outro marinheiro.` }),
@@ -242,6 +248,11 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `You were chosen to drive ${p.lancha}.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Boat owner: ${d}`)], nota: "If you can't make it, tell us in the app with \"I can't make it\".", botao: "See my trips" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Te eligieron para pilotar ${p.lancha}.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.pessoas ? [`Personas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...p.donos.map((d: any) => `Dueño de la lancha: ${d}`)], nota: "Si no puedes ir, avisa en la app con \"No voy a poder ir\".", botao: "Ver mis paseos" }),
   },
+  emb_mar: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `${p.nome}, marinheiro fixo da ${p.lancha}, mudou o local de embarque de um passeio.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.antes ? [`Antes: ${p.antes}`] : []), `Agora: ${p.embarque}`], nota: p.temConta ? "O cliente tem conta e já recebeu o novo local no celular e por e-mail." : "O cliente não tem conta no app. O marinheiro recebeu o botão para avisar no WhatsApp; confira se ele avisou.", botao: "Abrir a agenda" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `${p.nome}, ${p.lancha}'s fixed skipper, changed a tour's boarding place.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...(p.antes ? [`Before: ${p.antes}`] : []), `Now: ${p.embarque}`], nota: p.temConta ? "The client has an account and already got the new place on the phone and by email." : "The client has no app account. The skipper got a button to tell them on WhatsApp; check that they did.", botao: "Open the schedule" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `${p.nome}, marinero fijo de ${p.lancha}, cambió el lugar de embarque de un paseo.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.antes ? [`Antes: ${p.antes}`] : []), `Ahora: ${p.embarque}`], nota: p.temConta ? "El cliente tiene cuenta y ya recibió el nuevo lugar en el celular y por e-mail." : "El cliente no tiene cuenta en la app. El marinero recibió el botón para avisarle por WhatsApp; verifica que lo hizo.", botao: "Abrir la agenda" }),
+  },
   saiu: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `${p.nome} não vai poder pilotar a ${p.lancha} neste passeio.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.pessoas ? [`Pessoas: ${p.pessoas}`] : []), ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "Abra a agenda e escolha outro marinheiro para este passeio.", botao: "Escolher outro marinheiro" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `${p.nome} can't drive ${p.lancha} on this trip.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.pessoas ? [`People: ${p.pessoas}`] : []), ...(p.embarque ? [`Boarding: ${p.embarque}`] : [])], nota: "Open the schedule and choose another skipper for this trip.", botao: "Choose another skipper" }),
@@ -303,6 +314,7 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   op_alteracao: { pt: p => `Alteração do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Change from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Cambio de Lucas para aprobar: ${p.lancha}${dd(p)}` },
   mar: { pt: p => `Você vai pilotar: ${p.lancha}${dd(p)}`, en: p => `You will skipper: ${p.lancha}${dd(p)}`, es: p => `Vas a pilotar: ${p.lancha}${dd(p)}` },
   saiu: { pt: p => `Marinheiro saiu do passeio: ${p.lancha}${dd(p)}`, en: p => `Skipper left the tour: ${p.lancha}${dd(p)}`, es: p => `El marinero dejó el paseo: ${p.lancha}${dd(p)}` },
+  emb_mar: { pt: p => `Marinheiro mudou o embarque: ${p.lancha}${dd(p)}`, en: p => `Skipper changed the boarding place: ${p.lancha}${dd(p)}`, es: p => `El marinero cambió el embarque: ${p.lancha}${dd(p)}` },
   embarque: { pt: p => `Novo local de embarque: ${p.lancha}${dd(p)}`, en: p => `New boarding place: ${p.lancha}${dd(p)}`, es: p => `Nuevo lugar de embarque: ${p.lancha}${dd(p)}` },
   alterado: { pt: p => `Reserva alterada: ${p.lancha}${dd(p)}`, en: p => `Booking changed: ${p.lancha}${dd(p)}`, es: p => `Reserva cambiada: ${p.lancha}${dd(p)}` },
   avaliar: { pt: p => `Avalie o seu passeio na ${p.lancha}`, en: p => `Rate your tour on ${p.lancha}`, es: p => `Califica tu paseo en ${p.lancha}` },
@@ -313,7 +325,7 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   avisarCli: { pt: p => `Avise o cliente: passeio em breve na ${p.lancha}`, en: p => `Remind the client: tour soon on ${p.lancha}`, es: p => `Avisa al cliente: paseo pronto en ${p.lancha}` },
   cliente: { pt: p => `Reserva confirmada: ${p.lancha}${dd(p)}`, en: p => `Booking confirmed: ${p.lancha}${dd(p)}`, es: p => `Reserva confirmada: ${p.lancha}${dd(p)}` },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_alteracao" | "op_comprovante", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_alteracao" | "op_comprovante" | "emb_mar", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
@@ -544,12 +556,26 @@ Deno.serve(async req => {
       const fixo = !!(await db.from("marinheiros").select("user_id").eq("user_id", uid).eq("lancha", b.lancha).eq("fixo", true).maybeSingle()).data;
       if (!admin && !dono && !fixo) return json({ erro: "sem permissão" }, 403);
       const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, embarque, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
-      if (!an?.cliente_conta || !an.embarque) return json({ enviados: 0, email: false });
+      if (!an?.embarque) return json({ enviados: 0, email: false });
       const lancha = await nomeLancha(b.lancha);
+      // marinheiro fixo mudou: o dono e o administrador ficam sabendo (Rodrigo 2026-10-30), com ou sem conta do cliente
+      let equipe = 0;
+      if (fixo && !admin && !dono) {
+        const nome = (await db.from("marinheiros").select("nome").eq("user_id", uid).eq("lancha", b.lancha).maybeSingle()).data?.nome || "Marinheiro";
+        const { data: ds } = await db.from("donos").select("user_id").eq("lancha", b.lancha);
+        const { data: ads } = await db.from("admins").select("user_id");
+        const alvo = [...new Set([...(ds || []), ...(ads || [])].map(x => x.user_id))].filter(x => x !== uid);
+        const antes = String(corpo.antes || "").slice(0, 120);
+        equipe = await enviar(alvo, "emb_mar", { ...b, lancha, nome, embarque: an.embarque, cliente: an.cliente || "" }, "/login/");
+        const { data: ps } = await db.from("perfis").select("user_id, nome").in("user_id", alvo.length ? alvo : ["00000000-0000-0000-0000-000000000000"]);
+        const p = { b, a: an, lancha, nome, data: dataBR(b.data), cliente: an.cliente || "", antes: antes && antes !== an.embarque ? antes : "", embarque: an.embarque, temConta: !!an.cliente_conta, nomes: Object.fromEntries((ps || []).map(x => [x.user_id, x.nome])) };
+        for (const d of alvo) await mandarEmail(d, "emb_mar", p).catch(e => console.error(e));
+      }
+      if (!an.cliente_conta) return json({ enviados: 0, email: false, equipe });
       const enviados = await enviar([an.cliente_conta], "embarque", { ...b, lancha, embarque: an.embarque }, "/login/");
       const { data: c } = await db.from("clientes").select("nome").eq("user_id", an.cliente_conta).maybeSingle();
       const email = await mandarEmail(an.cliente_conta, "embarque", { b, a: an, lancha, data: dataBR(b.data), embarque: an.embarque, nomes: { [an.cliente_conta]: c?.nome || an.cliente || "" } }).catch(e => (console.error(e), false));
-      return json({ enviados, email });
+      return json({ enviados, email, equipe });
     }
 
     if (tipo === "alterado") {
