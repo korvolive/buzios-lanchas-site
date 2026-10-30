@@ -16,7 +16,7 @@
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 //                       Na mesma rodada avisa o cliente com conta 1 hora antes do início do passeio (celular e e-mail), com embarque, mapa e contatos
 //                       (dono da lancha; nos passeios da Búzios Lanchas também a Búzios Lanchas). Uma vez por passeio (tabela inicio_avisos).
-//                       E apaga a pré-reserva (valor lançado, sinal zero) que passou 24 horas sem sinal: a data volta livre no site e o administrador é avisado.
+//                       E apaga a pré-reserva (valor lançado, sinal zero) que passou do prazo sem sinal (12 h, 6 h, 2 h ou 1 h, conforme a distância até o passeio): a data volta livre no site e o administrador é avisado.
 // As chaves do envio são criadas aqui mesmo na primeira vez e ficam em push_config (ninguém do app lê).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -70,10 +70,15 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     en: p => ({ title: "Trip ended: please confirm", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}${p.com ? ` 💼 Commission for ${p.com.nome}: ${COMV(p)}.` : ""}` }),
     es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para que el cliente pueda evaluar." : "Confirma que ocurrió para que el cliente pueda evaluar."}${p.com ? ` 💼 Comisión de ${p.com.nome}: ${COMV(p)}.` : ""}` }),
   },
+  venceu_cli: {
+    pt: p => ({ title: "Prazo do sinal encerrado", body: `${p.lancha} · ${dataBR(p.data)}: o prazo para pagar o sinal acabou e a data foi liberada. Se ainda quiser o passeio, fale com a gente.` }),
+    en: p => ({ title: "Deposit deadline ended", body: `${p.lancha} · ${dataBR(p.data)}: the deadline to pay the deposit has ended and the date was released. If you still want the tour, talk to us.` }),
+    es: p => ({ title: "Plazo de la seña terminado", body: `${p.lancha} · ${dataBR(p.data)}: terminó el plazo para pagar la seña y la fecha quedó libre. Si todavía quieres el paseo, habla con nosotros.` }),
+  },
   venceu: {
-    pt: p => ({ title: "Pré-reserva vencida", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. O sinal não entrou em 24 horas: a data voltou a ficar livre no site.` }),
-    en: p => ({ title: "Hold expired", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. No deposit within 24 hours: the date is free again on the website.` }),
-    es: p => ({ title: "Pre-reserva vencida", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. La seña no entró en 24 horas: la fecha volvió a quedar libre en el sitio.` }),
+    pt: p => ({ title: "Pré-reserva vencida", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. O sinal não entrou no prazo: a data voltou a ficar livre no site.` }),
+    en: p => ({ title: "Hold expired", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. No deposit within the deadline: the date is free again on the website.` }),
+    es: p => ({ title: "Pre-reserva vencida", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. La seña no entró en el plazo: la fecha volvió a quedar libre en el sitio.` }),
   },
   marinheiro: {
     pt: p => ({ title: "Você vai pilotar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Toque para ver o passeio.` }),
@@ -251,10 +256,15 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...(p.com ? [`💼 Seller commission for ${p.com.nome}: ${COMV(p)}. Remember to pay it after confirming (Bookings › History › Mark commission paid).`] : [])], nota: "Open the app on the Tours tab: the tour is at the top, under \"Tours waiting for confirmation\".", botao: "Confirm the tour" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para liberar la evaluación del cliente." : "Confirma si ocurrió para liberar la evaluación del cliente."}`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.com ? [`💼 Comisión del vendedor ${p.com.nome}: ${COMV(p)}. Recuerda pagarla después de confirmar (Reservas › Historial › Marcar comisión pagada).`] : [])], nota: "Abre la app en la pestaña Paseos: el paseo está arriba, en \"Paseos pendientes de confirmación\".", botao: "Confirmar el paseo" }),
   },
+  venceu_cli: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O prazo para pagar o sinal da sua reserva na ${p.lancha} acabou e a data foi liberada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`], nota: "Se ainda quiser o passeio, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The deadline to pay the deposit for your booking on ${p.lancha} has ended and the date was released.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`], nota: "If you still want the tour, talk to us in the app chat or on WhatsApp +55 21 99927-2550.", botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó el plazo para pagar la seña de tu reserva en ${p.lancha} y la fecha quedó libre.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`], nota: "Si todavía quieres el paseo, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Abrir la app" }),
+  },
   venceu: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A pré-reserva na ${p.lancha} venceu: o sinal não entrou em 24 horas. O app apagou a pré-reserva e a data voltou a ficar livre no site.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Se o cliente ainda quiser, crie o passeio de novo no app.", botao: "Abrir o app" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The hold on ${p.lancha} expired: no deposit within 24 hours. The app deleted the hold and the date is free again on the website.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : [])], nota: "If the client still wants it, create the trip again in the app.", botao: "Open the app" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `La pre-reserva en ${p.lancha} venció: la seña no entró en 24 horas. La app borró la pre-reserva y la fecha volvió a quedar libre en el sitio.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Si el cliente todavía quiere, crea el paseo de nuevo en la app.", botao: "Abrir la app" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A pré-reserva na ${p.lancha} venceu: o sinal não entrou no prazo. O app apagou a pré-reserva e a data voltou a ficar livre no site.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Se o cliente ainda quiser, crie o passeio de novo no app.", botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The hold on ${p.lancha} expired: no deposit within the deadline. The app deleted the hold and the date is free again on the website.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : [])], nota: "If the client still wants it, create the trip again in the app.", botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `La pre-reserva en ${p.lancha} venció: la seña no entró en el plazo. La app borró la pre-reserva y la fecha volvió a quedar libre en el sitio.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Si el cliente todavía quiere, crea el paseo de nuevo en la app.", botao: "Abrir la app" }),
   },
   inicio: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Seu passeio na ${p.lancha} começa em breve!`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(MAPA[p.embarque] ? [`Localização: ${MAPA[p.embarque]}`] : []), ...(TAXA[p.embarque] ? [taxa(p.embarque, "pt")] : []), ...(p.donos || []).map((d: string) => `Dono da lancha: ${d}`), ...(p.buzios ? ["Búzios Lanchas: WhatsApp (21) 99927-2550"] : [])], nota: "Chegue ao local de embarque uns 10 minutos antes. Qualquer imprevisto, fale com o dono da lancha. Bom passeio!", botao: "Ver minha reserva" }),
@@ -285,12 +295,13 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   alterado: { pt: p => `Reserva alterada: ${p.lancha}${dd(p)}`, en: p => `Booking changed: ${p.lancha}${dd(p)}`, es: p => `Reserva cambiada: ${p.lancha}${dd(p)}` },
   avaliar: { pt: p => `Avalie o seu passeio na ${p.lancha}`, en: p => `Rate your tour on ${p.lancha}`, es: p => `Califica tu paseo en ${p.lancha}` },
   fim: { pt: p => `Passeio terminou, confirme: ${p.lancha}${dd(p)}`, en: p => `Tour ended, please confirm: ${p.lancha}${dd(p)}`, es: p => `Paseo terminado, confirma: ${p.lancha}${dd(p)}` },
+  venceu_cli: { pt: p => `Prazo do sinal encerrado: ${p.lancha}${dd(p)}`, en: p => `Deposit deadline ended: ${p.lancha}${dd(p)}`, es: p => `Plazo de la seña terminado: ${p.lancha}${dd(p)}` },
   venceu: { pt: p => `Pré-reserva vencida: ${p.lancha}${dd(p)}`, en: p => `Hold expired: ${p.lancha}${dd(p)}`, es: p => `Pre-reserva vencida: ${p.lancha}${dd(p)}` },
   inicio: { pt: p => `Seu passeio começa em breve: ${p.lancha}`, en: p => `Your tour starts soon: ${p.lancha}`, es: p => `Tu paseo empieza pronto: ${p.lancha}` },
   avisarCli: { pt: p => `Avise o cliente: passeio em breve na ${p.lancha}`, en: p => `Remind the client: tour soon on ${p.lancha}`, es: p => `Avisa al cliente: paseo pronto en ${p.lancha}` },
   cliente: { pt: p => `Reserva confirmada: ${p.lancha}${dd(p)}`, en: p => `Booking confirmed: ${p.lancha}${dd(p)}`, es: p => `Reserva confirmada: ${p.lancha}${dd(p)}` },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "op_pedido" | "op_alteracao", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_alteracao", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
@@ -398,15 +409,25 @@ async function inicios() {
   return n;
 }
 
-// pré-reserva (valor lançado, sinal zero) com mais de 24 horas sem sinal: apaga, a data volta livre no site e o administrador é avisado (Rodrigo 2026-10-25).
+// pré-reserva (valor lançado, sinal zero) que passou do prazo sem sinal: apaga, a data volta livre no site e o administrador é avisado (Rodrigo 2026-10-25).
+// Prazo contado da criação (Rodrigo 2026-10-30): passeio a 7 dias ou mais 12 h, de 2 a 6 dias 6 h, véspera 2 h, mesmo dia 1 h (igual ao app e ao vencer_pre_pedidos).
 // Só passeios de hoje em diante e sem pedido do site ligado (pedido aprovado tem fluxo próprio).
+const prazoPre = (data: string, hoje: string) => { const n = Math.round((Date.parse(data + "T12:00:00Z") - Date.parse(hoje + "T12:00:00Z")) / 864e5); return n >= 7 ? 12 : n >= 2 ? 6 : n === 1 ? 2 : 1; };
 async function vencerPre() {
-  const limite = new Date(Date.now() - 24 * 3600 * 1000).toISOString(), hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
-  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, anotacoes!inner(cliente, valor, sinal, hora_ini, hora_fim), pedidos(id)")
+  // pedido da pré-reserva (cliente com conta) sem sinal no prazo: o banco cancela, solta a pré-reserva e escreve no chat; aqui o cliente é avisado
+  const { data: ps, error: pe } = await db.rpc("vencer_pre_pedidos");
+  if (pe) console.error("vencer pedidos", pe.message);
+  for (const p of Array.isArray(ps) ? ps : []) { // antes do SQL novo a função devolvia só a contagem
+    const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+    await enviar([p.cliente], "venceu_cli", { id: p.id, lancha, data: p.data, horario: p.horario }, "/login/").catch(e => console.error(e));
+    await mandarEmail(p.cliente, "venceu_cli", { b: p, a: null, lancha, data: dataBR(p.data) }).catch(e => console.error(e));
+  }
+  const limite = new Date(Date.now() - 1 * 3600 * 1000).toISOString(), hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
+  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, criado_em, anotacoes!inner(cliente, valor, sinal, hora_ini, hora_fim), pedidos(id)")
     .lt("criado_em", limite).gte("data", hoje).gt("anotacoes.valor", 0).eq("anotacoes.sinal", 0);
   if (error) { console.error("vencer", error.message); return 0; }
   const um = (x: any) => Array.isArray(x) ? x[0] : x;
-  const vencidas = (bs || []).filter(b => !(b.pedidos || []).length);
+  const vencidas = (bs || []).filter(b => !(b.pedidos || []).length && Date.parse((b as any).criado_em) <= Date.now() - prazoPre(b.data, hoje) * 3600e3);
   if (!vencidas.length) return 0;
   const adms = ((await db.from("admins").select("user_id")).data || []).map(x => x.user_id);
   let n = 0;
