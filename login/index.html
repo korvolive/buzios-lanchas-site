@@ -2051,7 +2051,7 @@ function dpgHTML(){
 }
 async function markDiaria(id){
   S.toPayFree=(S.toPayFree||[]).filter(b=>b.id!==id);
-  try{ await db("rpc/marcar_diaria_paga",{method:"POST",body:{bid:id}}); toast(t("dpgOk")); }catch(e){ toast(t("dpgErr")); loadDiarias().then(()=>{ if(view==="main" && !sheetDay && !tripRow) mainView(); }); }
+  try{ await db("rpc/marcar_diaria_paga",{method:"POST",body:{bid:id}}); toast(t("dpgOk")); }catch(e){ toast(t("dpgErr")); loadDiarias().then(()=>{ if(view==="main" && !sheetDay && !tripRow) bgView(); }); }
   if(view==="main" && !sheetDay && !tripRow) mainView();
 }
 const WA_AVAL_DESDE = "2026-10-24"; /* lembrete do WhatsApp só para os confirmados a partir daqui */
@@ -3630,7 +3630,7 @@ function profView(){
     const fail = m => { out.innerHTML=`<p class="msg err">${m}</p>`; b.disabled=false; };
     if(!nomeOk(nome)) return fail(t("nameBad")); if(!ph.ok) return fail(t("myPhoneBad"));
     b.disabled=true;
-    try{ await db("perfis",{method:"POST", body:{nome, telefone:ph.tel}, prefer:"resolution=merge-duplicates,return=minimal"}); S.needProf=false; toast(t("saved")); await loadBlocks(); }
+    try{ await db("perfis",{method:"POST", body:{nome, telefone:ph.tel}, prefer:"resolution=merge-duplicates,return=minimal"}); S.needProf=false; toast(t("dataSaved")); await loadBlocks(); }
     catch(x){ fail(x.status ? esc(x.message) : t("netErr")); } };
 }
 /* administrador: nome e WhatsApp de um dono */
@@ -5099,7 +5099,7 @@ function bindMainRest(){
   const reloadStaff = async () => { S.staff = await db("rpc/lista_visualizadores",{method:"POST",body:{}}); mainView(); };
   app.querySelectorAll("button[data-sv]").forEach(x=>x.onclick=async()=>{ if(x.getAttribute("aria-checked")==="true") return; /* só os botões Sim/Não dos funcionários: o campo do sinal também tem data-sv */
     const bs=x.parentElement.querySelectorAll("button"); bs.forEach(y=>y.disabled=true);
-    try{ await db("rpc/cadastrar_visualizador",{method:"POST",body:{email_func:x.dataset.sv, l:S.cur, valores:x.dataset.v==="true"}}); toast(t("saved")); await reloadStaff(); }
+    try{ await db("rpc/cadastrar_visualizador",{method:"POST",body:{email_func:x.dataset.sv, l:S.cur, valores:x.dataset.v==="true"}}); toast(t("dataSaved")); await reloadStaff(); }
     catch(e){ bs.forEach(y=>y.disabled=false); toast(t("saveErr")); } });
   app.querySelectorAll("[data-srm]").forEach(x=>x.onclick=async()=>{ const email=x.dataset.srm;
     if(!confirm(t("confirmRm",{email, boat:boatName(S.cur)}))) return; x.disabled=true;
@@ -5135,7 +5135,7 @@ function bindMainRest(){
     try{ await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:me1.dataset.ofx, l:S.cur, nome_mar:me1.dataset.on, e_fixo:true}}); toast(me1.dataset.ofx===ses.user.email ? t("meFixoOk") : t("ownerFixoOk",{name:me1.dataset.on})); await reloadSailors(); }
     catch(e){ me1.disabled=false; out.innerHTML=`<p class="msg err">${e.code==="P0001"?esc(e.message):t("saveErr")}</p>`; } });
   app.querySelectorAll("[data-mfx]").forEach(x=>x.onclick=async()=>{ x.disabled=true;
-    try{ await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:x.dataset.mfx, l:S.cur, nome_mar:x.dataset.mn, e_fixo:x.getAttribute("aria-pressed")!=="true"}}); toast(t("saved")); await reloadSailors(); }
+    try{ await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:x.dataset.mfx, l:S.cur, nome_mar:x.dataset.mn, e_fixo:x.getAttribute("aria-pressed")!=="true"}}); toast(t("dataSaved")); await reloadSailors(); }
     catch(e){ x.disabled=false; toast(t("saveErr")); } });
   app.querySelectorAll("[data-mrm]").forEach(x=>x.onclick=async()=>{
     if(!confirm(t("confirmRmMar",{name:x.dataset.mn, boat:boatName(S.cur)}))) return; x.disabled=true;
@@ -5263,21 +5263,21 @@ async function fetchRows(q){
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){
   if(!S.cur || S.tab==="vendas") return mainView();
-  if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) mainView(); }); }
+  if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) bgView(); }); }
   if((S.admin || S.own?.length) && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
   if(S.tab==="pedidos" && S.admin){ const my=++loadSeq; await loadReqs(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await Promise.all([loadUsers(), loadComPend(), loadLeads()]); if(my===loadSeq) mainView(); return; }
   if(S.tab==="lancha" && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
   if(S.tab==="lancha"){ if(S.cur==="*") S.cur=S.boats[0].slug; const my=++loadSeq, l=S.cur;
-    if(S.admin){ S.ph=null; db(`precos_hist?select=*&lancha=eq.${encodeURIComponent(l)}&order=em.desc&limit=5`).then(r=>{ if(l===S.cur) S.ph=r; }, ()=>{ if(l===S.cur) S.ph=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); }); }
-    else if((S.own||[]).includes(l)){ S.mn=null; S.mnOff=null; S.mnDraft=null; S.mnDirty=false; RPC("meus_netos",{l}).then(r=>{ if(l===S.cur) S.mn=r; }, ()=>{ S.mn=null; /* função ainda não criada */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); }); }
-    if(S.admin && boatRow(l)?.dados) loadPub().then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
-    db("rpc/lista_visualizadores",{method:"POST",body:{}}).then(v=>{ S.staff=v; }, ()=>{ S.staff=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
+    if(S.admin){ S.ph=null; db(`precos_hist?select=*&lancha=eq.${encodeURIComponent(l)}&order=em.desc&limit=5`).then(r=>{ if(l===S.cur) S.ph=r; }, ()=>{ if(l===S.cur) S.ph=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); }); }
+    else if((S.own||[]).includes(l)){ S.mn=null; S.mnOff=null; S.mnDraft=null; S.mnDirty=false; RPC("meus_netos",{l}).then(r=>{ if(l===S.cur) S.mn=r; }, ()=>{ S.mn=null; /* função ainda não criada */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); }); }
+    if(S.admin && boatRow(l)?.dados) loadPub().then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
+    db("rpc/lista_visualizadores",{method:"POST",body:{}}).then(v=>{ S.staff=v; }, ()=>{ S.staff=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     if(S.admin) db(`precos?select=*&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.no7=false; return r; }, e=>{ if(e.status!==400) throw e; S.no7=true; /* colunas de 7 horas ainda não criadas */ return db(`precos?select=baixa,media,alta,pico,reveillon&lancha=eq.${encodeURIComponent(l)}`); })
-      .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
-    S.neto=null; if(S.admin) db(`precos_neto?select=chave,neto,comissao,ref,taxa_pct&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.hasTaxa=true; return r; }, e=>{ if(e.status!==400) throw e; S.hasTaxa=false; /* sem a coluna taxa_pct ainda */ return db(`precos_neto?select=chave,neto,comissao,ref&lancha=eq.${encodeURIComponent(l)}`); }).catch(e=>{ if(e.status!==400) throw e; return db(`precos_neto?select=chave,neto,comissao&lancha=eq.${encodeURIComponent(l)}`); /* sem a coluna ref ainda */ }).then(r=>{ S.neto=Object.fromEntries(r.map(x=>[x.chave,x])); S.hasRef=r.some(x=>"ref" in x); }, e=>{ S.neto=false; /* tabela ainda não criada: editor antigo */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
-    S.photos=null; S.pend=[]; loadPhotos(l).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
-    S.cupDono=undefined; if(S.admin || S.own?.includes(l)) db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(r=>{ S.cupDono=r.find(x=>x.lancha===l)||null; } /* a tabela não tem leitura direta: a rpc devolve todas */, e=>{ S.cupDono=(e.status===404||e.status===400) ? false : undefined; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") mainView(); });
+      .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
+    S.neto=null; if(S.admin) db(`precos_neto?select=chave,neto,comissao,ref,taxa_pct&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.hasTaxa=true; return r; }, e=>{ if(e.status!==400) throw e; S.hasTaxa=false; /* sem a coluna taxa_pct ainda */ return db(`precos_neto?select=chave,neto,comissao,ref&lancha=eq.${encodeURIComponent(l)}`); }).catch(e=>{ if(e.status!==400) throw e; return db(`precos_neto?select=chave,neto,comissao&lancha=eq.${encodeURIComponent(l)}`); /* sem a coluna ref ainda */ }).then(r=>{ S.neto=Object.fromEntries(r.map(x=>[x.chave,x])); S.hasRef=r.some(x=>"ref" in x); }, e=>{ S.neto=false; /* tabela ainda não criada: editor antigo */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
+    S.photos=null; S.pend=[]; loadPhotos(l).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
+    S.cupDono=undefined; if(S.admin || S.own?.includes(l)) db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(r=>{ S.cupDono=r.find(x=>x.lancha===l)||null; } /* a tabela não tem leitura direta: a rpc devolve todas */, e=>{ S.cupDono=(e.status===404||e.status===400) ? false : undefined; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     try{ const r=await db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`); if(my!==loadSeq) return; S.items = r[0]?.opcionais || []; S.err=""; }
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
     return mainView(); }
@@ -6008,7 +6008,7 @@ async function boot(){
     if(S.eq?.membro && new URLSearchParams(location.search).get("equipe")){ history.replaceState(null,"",location.pathname); setTimeout(openEq, 600); } /* toque no aviso de alerta */
     if(!window.bootPollsOn) setInterval(()=>{ if(document.visibilityState==="visible" && !eqOn && S.eq?.membro) loadEq().then(eqRefresh); }, 30000);
     /* chat do pedido: conversas de quem está logado; ?chat=ID (toque na notificação) abre a conversa */
-    loadConvs().then(()=>{ if(view==="main" && !sheetDay && !tripRow && !chatCid) S.isClient ? (S.me && clientView()) : mainView();
+    loadConvs().then(()=>{ if(view==="main" && !sheetDay && !tripRow && !chatCid) bgView();
       const chq=+new URLSearchParams(location.search).get("chat"); if(chq){ history.replaceState(null,"",location.pathname); openChat(chq); } });
     /* lista de conversas quase em tempo real (Rodrigo 2026-10-22): confere a cada 5 s com o app aberto e o chat fechado */
     if(!window.bootPollsOn){ window.bootPollsOn=1; setInterval(()=>{ if(document.visibilityState!=="visible" || chatCid || !S.convs) return; const was=S.chatUnread, ult=S.convs.map(c=>c.ultima_em).join(); loadConvs().then(()=>{ if(S.chatUnread>was) chatPing(0); if(S.chatUnread!==was || S.convs.map(c=>c.ultima_em).join()!==ult) convsChanged(); }); }, 5000);
@@ -6039,11 +6039,11 @@ async function boot(){
     store.set("conta-tipo", S.isClient ? "cliente" : "equipe");
     /* equipe (dono, funcionário, marinheiro): também confirma e-mail e WhatsApp, que vão servir para receber pelo Asaas (Rodrigo 2026-10-28) */
     if(!S.isClient && !S.admin){ S.me = (await db(`clientes?select=nome,cpf,whatsapp,nascimento,whatsapp_ok_em&user_id=eq.${ses.user.id}`).catch(()=>[]))[0] || null;
-      if(!S.waCfg) waFn({acao:"status"}).then(r=>{ if(r.configurado){ S.waCfg=true; if(view==="main" && !sheetDay && !tripRow && S.me && !S.me.whatsapp_ok_em) mainView(); } }); }
+      if(!S.waCfg) waFn({acao:"status"}).then(r=>{ if(r.configurado){ S.waCfg=true; if(view==="main" && !sheetDay && !tripRow && S.me && !S.me.whatsapp_ok_em) bgView(); } }); }
     if(!S.isClient){ let vs=null; try{ vs=JSON.parse(localStorage.getItem("vend")); }catch(e){} if(vs?.cod){ try{ localStorage.removeItem("vend"); }catch(e){} if(vs.n) setTimeout(()=>toast(t("eqJa")), 900); } } /* link ou QR de vendedor aberto por alguém da equipe: nada muda, só avisa (Rodrigo 2026-10-25) */
-    if(S.admin) loadFotoPend().then(()=>{ if(view==="main" && !sheetDay && !tripRow) mainView(); if(new URLSearchParams(location.search).get("fotos")){ history.replaceState(null,"",location.pathname); openFotoPend(); } });
-    db("fotos?select=lancha,lista").then(rows=>{ rows.forEach(r=>setCover(r.lancha,r.lista)); if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{}); /* capa de cada lancha (avatares) */
-    if(S.admin) Promise.all([db("pedidos?select=id&status=eq.pendente"), db("consultas?select=id").catch(()=>[])]).then(([r,c])=>{ S.reqCount=r.length+c.length; if(view==="main" && !sheetDay && !tripRow) mainView(); }, ()=>{});
+    if(S.admin) loadFotoPend().then(()=>{ if(view==="main" && !sheetDay && !tripRow) bgView(); if(new URLSearchParams(location.search).get("fotos")){ history.replaceState(null,"",location.pathname); openFotoPend(); } });
+    db("fotos?select=lancha,lista").then(rows=>{ rows.forEach(r=>setCover(r.lancha,r.lista)); if(view==="main" && !sheetDay && !tripRow) bgView(); }, ()=>{}); /* capa de cada lancha (avatares) */
+    if(S.admin) Promise.all([db("pedidos?select=id&status=eq.pendente"), db("consultas?select=id").catch(()=>[])]).then(([r,c])=>{ S.reqCount=r.length+c.length; if(view==="main" && !sheetDay && !tripRow) bgView(); }, ()=>{});
     /* pedido ou consulta nova com o app aberto: aparece sozinha, com som e aviso, sem precisar atualizar a página (Rodrigo 2026-10-24) */
     if(S.admin){ const reqPoll=()=>{ if(document.visibilityState!=="visible") return;
         Promise.all([db("pedidos?select=id&status=eq.pendente"), db("consultas?select=id").catch(()=>[])]).then(([r,c])=>{
