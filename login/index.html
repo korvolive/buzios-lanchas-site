@@ -1516,7 +1516,7 @@ function payBox(p){
 function pedCalc(p){
   const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=p.horario==="dia", nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
   /* preço vem da tabela; o que o site mandou só vale se bater com ela (revisão de segurança 2026-10-24: dá para mexer no navegador) */
-  const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && +p.preco_base && !(p.oferta_valor>0 && Math.abs(+p.preco_base-p.oferta_valor) <= 1) && Math.abs(+p.preco_base-tab) > 1); /* valor combinado no link (ofertas): o banco já conferiu */ /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
+  const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && +p.preco_base && !(p.oferta_valor>0 && Math.abs(+p.preco_base-p.oferta_valor) <= 1) && !(p.alt_valor>0 && Math.abs((+p.preco_cliente||+p.preco_base)-p.alt_valor) <= 1) && Math.abs(+p.preco_base-tab) > 1); /* valor combinado no link (ofertas): o banco já conferiu */ /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
   const net=valorNaData(nm,p.data,h7,{...o, esp:null, rx:0, rx7:0}); /* o neto do dono não muda no período especial nem com o "Búzios a mais" do Réveillon */
   /* comissão da Búzios desta reserva mudada no Editar (0 a 10%, Rodrigo 2026-10-26): total = neto + comissão (+ % do vendedor) */
   const ov = p.comissao_pct!=null && p.comissao_pct!=="" && net ? Math.round(net*(+p.comissao_pct)/100) : null; /* % com casas: guarda também um valor exato em R$ */
@@ -3636,6 +3636,10 @@ const pedHrs = L => !L?.length ? Promise.resolve() : db("pedidos?select=id,hora_
   const ids=[...new Set(r.map(x=>x.oferta).filter(Boolean))]; if(!ids.length) return;
   const ov=new Map((await db(`ofertas?select=id,valor&id=in.(${ids.join(",")})`).catch(()=>[])).map(x=>[x.id,+x.valor||0]));
   L.forEach(p=>{ if(p.oferta) p.oferta_valor=ov.get(p.oferta)||0; }); }, ()=>{});
+/* valor novo de uma alteração aprovada (Rodrigo 2026-10-30): o banco já conferiu, então não é "suspeito" nem volta para a tabela */
+const pedAlt = L => { const ids=[...new Set((L||[]).filter(p=>p.bloqueio_id).map(p=>p.bloqueio_id))]; if(!ids.length) return Promise.resolve();
+  return db(`alteracoes_pedidas?select=bloqueio_id,novo_valor&status=eq.aprovada&novo_valor=not.is.null&bloqueio_id=in.(${ids.join(",")})&order=resolvido_em.asc`).then(r=>{
+    const m=new Map(r.map(x=>[x.bloqueio_id,+x.novo_valor])); L.forEach(p=>{ if(m.has(p.bloqueio_id)) p.alt_valor=m.get(p.bloqueio_id); }); }, ()=>{}); };
 async function loadReqs(){
   try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp,pais)&order=criado_em.desc&limit=300`);
     S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct").then(r=>(S.cpOk=true,r))
@@ -3649,7 +3653,7 @@ async function loadReqs(){
     /* pago pelo Asaas com divisão: a parte do dono já foi direto para ele, não repassar de novo (revisão 2026-10-25) */
     if(S.admin && !S.asVend) asFn({acao:"faltam"}).then(j=>{ S.asVend=new Set(j.vend_conta||[]); if(S.tab==="pedidos") bgView(); }, ()=>{}); /* vendedores com conta Asaas: botão "Pagar pelo Asaas" */
     if(S.admin) await db("pagamentos_asaas?select=pedido,repasse,wallet_id&pago_em=not.is.null").then(r=>{ S.asPg=Object.fromEntries(r.map(a=>[a.pedido,a])); }, ()=>{ S.asPg=null; });
-    await pedHrs(S.reqs);
+    await Promise.all([pedHrs(S.reqs), pedAlt(S.reqs)]);
     if(S.admin) await db("vendedores?select=user_id,pix_tipo,pix_chave,indicado_por,indicacao_pct").catch(e=>e.status===400 ? db("vendedores?select=user_id,pix_tipo,pix_chave") : Promise.reject(e)).then(r=>{ S.vpix=Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{ S.vpix=null; }); /* chave Pix de cada vendedor */
     S.ppPay = Object.fromEntries((await db("pagamentos_pp?select=pedido,moeda,valor,pago_em,pago_valor").catch(()=>[])).map(x=>[x.pedido,x])); /* cobranças do PayPal */
     if(!S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* sinal de 50% e neto do dia no pedido */

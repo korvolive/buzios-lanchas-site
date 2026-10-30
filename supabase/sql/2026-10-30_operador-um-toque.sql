@@ -382,8 +382,11 @@ begin
       pessoas = coalesce(r.novas_pessoas, pessoas),
       hora_ini = case when r.hora_ini is not null then r.hora_ini when nh <> b.horario then null else hora_ini end,
       hora_fim = case when r.hora_fim is not null then r.hora_fim when nh <> b.horario then null else hora_fim end,
-      -- valor novo na reserva do cliente; a comissão do vendedor (preco_cliente - preco_base) fica igual
-      preco_base = case when r.novo_valor is not null and preco_cliente is not null and preco_base is not null then preco_base + (r.novo_valor - preco_cliente) else preco_base end,
+      -- valor novo na reserva do cliente; com vendedor a comissão dele (preco_cliente - preco_base) fica igual,
+      -- sem vendedor (preco_cliente vazio) o valor novo vai para preco_base
+      preco_base = case when r.novo_valor is null then preco_base
+                        when preco_cliente is null then r.novo_valor
+                        when preco_base is not null then preco_base + (r.novo_valor - preco_cliente) else preco_base end,
       preco_cliente = case when r.novo_valor is not null and preco_cliente is not null then r.novo_valor else preco_cliente end,
       atualizado_em = now()
    where bloqueio_id = b.id;
