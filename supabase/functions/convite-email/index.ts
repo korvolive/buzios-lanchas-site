@@ -63,7 +63,7 @@ Deno.serve(async req => {
       nome: c.nome || "", primeiro: (c.nome || "").split(" ")[0] || "",
       lancha: nomeL, data: dataBR(b.data), horario: an?.hora_ini && an?.hora_fim ? `${(SLOT[lang][b.horario] || b.horario).replace(/ \(.*$/, "")} (${hm(an.hora_ini, lang)} ${LIGA[lang]} ${hm(an.hora_fim, lang)})` : SLOT[lang][b.horario] || b.horario,
       pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque ? an.embarque + (MAPA[an.embarque] ? ` · ${{ pt: "Localização", en: "Location", es: "Ubicación" }[lang] || "Localização"}: ${MAPA[an.embarque]}` : "") + (TAXA[an.embarque] ? ` · ${taxa(an.embarque, lang)}` : "") : "",
-      cupom: cupV > 0 ? `R$ ${cupV.toLocaleString("pt-BR")}` : "",
+      cupom: cupV > 0 ? ({ pt: "desconto", en: "discount", es: "descuento" } as Record<string, string>)[lang] || "desconto" : "", // sem o valor antes de ganhar (Rodrigo 2026-10-30); o modelo do e-mail diz "cupom de {{cupom}}"
       pagina: `${SITE}${lang === "pt" ? "" : "/" + lang}/lancha/${b.lancha}/`,
     };
     const { error } = await db.auth.admin.inviteUserByEmail(c.email, { data: dados, redirectTo: `${SITE}/login/` });

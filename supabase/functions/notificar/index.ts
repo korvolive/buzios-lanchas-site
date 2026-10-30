@@ -83,9 +83,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Nuevo lugar de embarque", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}: el embarque ahora es en ${p.embarque}.` }),
   },
   avaliar: {
-    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie e ganhe um cupom de ${p.cup.valor} para o seu próximo passeio nesta mesma lancha.` : ""}` }),
-    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate it and get a ${p.cup.valor} coupon for your next tour on this same boat.` : ""}` }),
-    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica y gana un cupón de ${p.cup.valor} para tu próximo paseo en esta misma lancha.` : ""}` }),
+    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha.` : ""}` }),
+    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate it and get a discount coupon for your next tour on this same boat.` : ""}` }),
+    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica y gana un cupón de descuento para tu próximo paseo en esta misma lancha.` : ""}` }),
   },
   inicio: {
     pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
@@ -128,9 +128,9 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
 
 // cupom de fidelidade do passeio: vai junto do pedido de avaliação, no celular e no e-mail (Rodrigo 2026-10-23)
 const CUP_TXT: Record<string, (c: any) => string> = {
-  pt: c => `🎁 Avalie e ganhe um cupom de ${c.valor} para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`,
-  en: c => `🎁 Rate your tour and get a ${c.valor} coupon for your next tour on this same boat, valid for 6 months.`,
-  es: c => `🎁 Califica y gana un cupón de ${c.valor} para tu próximo paseo en esta misma lancha, válido por 6 meses.`,
+  pt: c => `🎁 Avalie e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`,
+  en: c => `🎁 Rate your tour and get a discount coupon for your next tour on this same boat, valid for 6 months.`,
+  es: c => `🎁 Califica y gana un cupón de descuento para tu próximo paseo en esta misma lancha, válido por 6 meses.`,
 };
 const CUP_USO: Record<string, string> = {
   pt: "O cupom aparece na sua conta assim que você avaliar. Para usar, na hora de reservar toque em Usar meu cupom.",
