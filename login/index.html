@@ -4080,7 +4080,12 @@ async function chTrad(){
   const ids=chatRows.filter(m=>m.autor && m.autor!==ses.user.id && !m.apagada && !m.anexo && m.texto && !chTr.has(trKey(m.id))).slice(-40).map(m=>m.id);
   if(!ids.length) return; chTrBusy=true; const cid=chatCid, lg=lang;
   try{ const r=await fetch(SB+"/functions/v1/traduzir-chat",{method:"POST",headers:{apikey:KEY,authorization:"Bearer "+await fresh(),"content-type":"application/json"},body:JSON.stringify({cid, ids, para:lg})});
-    const j=r.ok ? await r.json() : {}; ids.forEach(id=>chTr.set(id+"|"+lg, j[id]||null));
+    const j=r.ok ? await r.json() : {};
+    /* o Google recusa o servidor (429, 2026-10-30): o que o servidor não traduziu, o próprio aparelho traduz (detecta o idioma pelo texto) */
+    await Promise.all(ids.filter(id=>!j[id]).map(async id=>{ const m=chatRows.find(x=>x.id===id); if(!m?.texto) return;
+      try{ const g=await (await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${lg}&dt=t&q=${encodeURIComponent(m.texto.slice(0,1500))}`)).json();
+        j[id]={t:g[0].map(x=>x[0]).join(""), de:String(g[2]||"").slice(0,2)}; }catch(e){} }));
+    ids.forEach(id=>chTr.set(id+"|"+lg, j[id]||null));
     if(chatCid===cid && ids.some(id=>j[id] && j[id].de!==lg)) renderChat(!!document.getElementById("chmore")); }
   catch(e){} chTrBusy=false;
 }
