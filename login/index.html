@@ -49,6 +49,9 @@ button{cursor:pointer}
 .newb .link{margin:0;padding:4px 0;white-space:nowrap}
 i.newt{color:#b25b00;font-weight:800;font-style:normal}
 .btn.wa{background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+/* já enviado no WhatsApp: cinza, com a hora, e continua clicável para reenviar (Rodrigo 2026-10-30) */
+.btn[data-wsent],.twa[data-wsent]{background:#8a949b;border-color:#8a949b;color:#fff}.btn[data-wsent]{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:8px;row-gap:2px;text-align:center}.btn[data-wsent] .wsent{grid-column:1/-1}
+.wsent{flex-basis:100%;display:block;text-align:center;font-size:12px;font-weight:500;line-height:1.25}.twa[data-wsent]{flex-wrap:wrap;justify-content:center;border-radius:14px}.twa .wsent{font-size:10px}
 .soclist{list-style:none;margin:6px 0 0;padding:0}.soclist li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
 .asmeus{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:14px;overflow-wrap:anywhere}.asmeus>span{flex:1;min-width:0}.asmeus .btn{flex:none;width:auto;margin:0;padding:8px 14px}.asgrid{display:grid;grid-template-columns:3fr 2fr;gap:8px}.asgrid>*{min-width:0}.asgrid .in{width:100%;box-sizing:border-box}
 .asselo{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:10px 0 0}.asselo img{height:36px;width:auto}.asselo .sl-d{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .asselo .sl-l{display:none}:root:not([data-theme="light"]) .asselo .sl-d{display:block}}:root[data-theme="dark"] .asselo .sl-l{display:none}:root[data-theme="dark"] .asselo .sl-d{display:block}.asselo small{color:var(--muted);font-size:12px}
@@ -782,6 +785,9 @@ Object.assign(T.es, {"nasc": "Fecha de nacimiento", "updT": "Mis datos", "myData
 Object.assign(T.pt, {clf_passeou:"Passeios finalizados", clf_marcado:"Passeios em andamento", cliDone1:"1 passeio feito", cliDoneN:"{n} passeios feitos", nextTrip:"Próximo passeio", cliNoTrip:"Nenhum passeio ainda"});
 Object.assign(T.en, {clf_passeou:"Finished tours", clf_marcado:"Upcoming tours", cliDone1:"1 tour done", cliDoneN:"{n} tours done", nextTrip:"Next tour", cliNoTrip:"No tours yet"});
 Object.assign(T.es, {clf_passeou:"Paseos finalizados", clf_marcado:"Paseos en curso", cliDone1:"1 paseo hecho", cliDoneN:"{n} paseos hechos", nextTrip:"Próximo paseo", cliNoTrip:"Ningún paseo todavía"});
+Object.assign(T.pt, {waSent:"enviado {d}", waPendT:"📲 WhatsApp pendente ({n})", waPendSub:"Pagamentos liberados que ainda não foram mandados no WhatsApp do cliente, e consultas do site ainda sem resposta. Some daqui depois do envio."});
+Object.assign(T.en, {waSent:"sent {d}", waPendT:"📲 WhatsApp to send ({n})", waPendSub:"Released payments not yet sent to the client on WhatsApp, and site inquiries not yet answered. They leave this list once sent."});
+Object.assign(T.es, {waSent:"enviado {d}", waPendT:"📲 WhatsApp pendiente ({n})", waPendSub:"Pagos liberados que todavía no se mandaron por WhatsApp al cliente, y consultas del sitio todavía sin respuesta. Salen de aquí después del envío."});
 Object.assign(T.pt, {dpgT:"💵 Diária de marinheiro freelancer ({n})", dpgSub:"O passeio terminou. Confira se a diária do marinheiro já foi paga; o pagamento é combinado direto com ele. Toque em Já paguei para tirar o aviso.", dpgDone:"Já paguei", dpgOk:"Diária marcada como paga.", dpgErr:"Não deu para salvar agora. Tente de novo.", waAvT:"📲 Falta pedir a avaliação no WhatsApp ({n})", waAvSub:"Toque em Enviar: o seu WhatsApp abre com a mensagem pronta. O aviso só some depois de enviar.", waAvGo:"Enviar no WhatsApp", waAvDone:"Já pedi", revAskT:"Pedir a avaliação ao cliente", revAskSub:"Passeio de {name} na {boat} confirmado. Se tiver conta no app, já recebeu o pedido de avaliação por e-mail e no celular. Mande também pelo WhatsApp:", revAskWa:"Pedir avaliação no WhatsApp", revNoPhone:"Esse passeio não tem o WhatsApp do cliente. Copie a mensagem e mande por onde preferir.", revMailSending:"Enviando o e-mail pedindo a avaliação…", revMailOk:"E-mail enviado para {email} pedindo a avaliação.", revMailNone:"Esse cliente não tem e-mail cadastrado. Mande pelo WhatsApp.", revMailFail:"Não deu para mandar o e-mail. Mande pelo WhatsApp.", waReview:"Olá, {name}! 😊 Esperamos que o passeio na {boat} tenha sido incrível! Como foi o atendimento?\n\nSua opinião é muito importante para nós. Avalie a lancha e o marinheiro, leva menos de 1 minuto:{cup}\n⭐ {url}\n\nObrigado por passear com a Búzios Lanchas. Esperamos ver você de novo em breve! 🚤", waRevCup:"\n🎁 Avaliando, você ganha um cupom de desconto para o próximo passeio na {boat}.", waReviewNew:"Olá, {name}! 😊 Esperamos que o passeio na {boat} tenha sido incrível! Como foi o atendimento?\n\nSua opinião é muito importante para nós. Avalie a lancha e o marinheiro pelo link abaixo (é só terminar seu cadastro, leva menos de 1 minuto):{cup}\n⭐ {url}\n\nObrigado por passear com a Búzios Lanchas. Esperamos ver você de novo em breve! 🚤"});
 Object.assign(T.en, {dpgT:"💵 Freelance skipper daily rate ({n})", dpgSub:"The trip is over. Check that the skipper's daily rate has been paid; payment is arranged directly with him. Tap Already paid to clear this.", dpgDone:"Already paid", dpgOk:"Daily rate marked as paid.", dpgErr:"Could not save right now. Try again.", waAvT:"📲 Review still to ask on WhatsApp ({n})", waAvSub:"Tap Send: your WhatsApp opens with the message ready. This stays here until you send it.", waAvGo:"Send on WhatsApp", waAvDone:"Already asked", revAskT:"Ask the client for a review", revAskSub:"{name}'s tour on {boat} is confirmed. If they have an account in the app, they already got the review request by email and on their phone. Send it on WhatsApp too:", revAskWa:"Ask for a review on WhatsApp", revNoPhone:"This tour has no client WhatsApp. Copy the message and send it however you like.", revMailSending:"Sending the review request email…", revMailOk:"Email sent to {email} asking for a review.", revMailNone:"This client has no email. Send it on WhatsApp.", revMailFail:"Couldn't send the email. Send it on WhatsApp.", waReview:"Hi, {name}! 😊 We hope your tour on {boat} was amazing! How was the service?\n\nYour opinion means a lot to us. Please rate the boat and the skipper, it takes less than a minute:{cup}\n⭐ {url}\n\nThank you for touring with Búzios Lanchas. We hope to see you again soon! 🚤", waRevCup:"\n🎁 Rate it and get a discount coupon for your next tour on {boat}.", waReviewNew:"Hi, {name}! 😊 We hope your tour on {boat} was amazing! How was the service?\n\nYour opinion means a lot to us. Please rate the boat and the skipper at the link below (just finish signing up, it takes less than a minute):{cup}\n⭐ {url}\n\nThank you for touring with Búzios Lanchas. We hope to see you again soon! 🚤"});
 Object.assign(T.es, {dpgT:"💵 Diaria de marinero freelancer ({n})", dpgSub:"El paseo terminó. Revisa si la diaria del marinero ya fue pagada; el pago se acuerda directo con él. Toca Ya pagué para quitar el aviso.", dpgDone:"Ya pagué", dpgOk:"Diaria marcada como pagada.", dpgErr:"No se pudo guardar ahora. Intenta de nuevo.", waAvT:"📲 Falta pedir la evaluación por WhatsApp ({n})", waAvSub:"Toca Enviar: tu WhatsApp se abre con el mensaje listo. El aviso solo desaparece después de enviarlo.", waAvGo:"Enviar por WhatsApp", waAvDone:"Ya lo pedí", revAskT:"Pedir la evaluación al cliente", revAskSub:"El paseo de {name} en {boat} está confirmado. Si tiene cuenta en la app, ya recibió el pedido de evaluación por correo y en el celular. Envíalo también por WhatsApp:", revAskWa:"Pedir evaluación por WhatsApp", revNoPhone:"Este paseo no tiene el WhatsApp del cliente. Copia el mensaje y envíalo como prefieras.", revMailSending:"Enviando el correo pidiendo la evaluación…", revMailOk:"Correo enviado a {email} pidiendo la evaluación.", revMailNone:"Este cliente no tiene correo. Envíalo por WhatsApp.", revMailFail:"No se pudo enviar el correo. Envíalo por WhatsApp.", waReview:"¡Hola, {name}! 😊 ¡Esperamos que el paseo en {boat} haya sido increíble! ¿Qué tal la atención?\n\nTu opinión es muy importante para nosotros. Califica la lancha y al marinero, toma menos de 1 minuto:{cup}\n⭐ {url}\n\nGracias por pasear con Búzios Lanchas. ¡Esperamos verte de nuevo pronto! 🚤", waRevCup:"\n🎁 Calificando, ganas un cupón de descuento para tu próximo paseo en {boat}.", waReviewNew:"¡Hola, {name}! 😊 ¡Esperamos que el paseo en {boat} haya sido increíble! ¿Qué tal la atención?\n\nTu opinión es muy importante para nosotros. Califica la lancha y al marinero en el enlace de abajo (solo termina tu registro, toma menos de 1 minuto):{cup}\n⭐ {url}\n\nGracias por pasear con Búzios Lanchas. ¡Esperamos verte de nuevo pronto! 🚤"});
@@ -1511,12 +1517,44 @@ function repHTML(p, c, sin){
     <span>${t("repBz",{v:brl(bz)})}</span>
     <span>${t("repResto",{v:brl(resto)})}</span></span>`;
 }
+/* registro de envio no WhatsApp (Rodrigo 2026-10-30): cada botão grava a hora do toque (rpc marcar_wa), igual ao pedido de avaliação.
+   Já enviado: botão cinza com "✓ enviado dd/mm hh:mm", que continua funcionando para reenviar. Sem o SQL ainda, nada aparece e nada quebra */
+const WA_REG = [["pedidos","id",{pix:"wa_pix_em", central:"wa_central_em", aprovado_cliente:"wa_aprovado_cliente_em", aprovado_dono:"wa_aprovado_dono_em"}],
+  ["consultas","id",{consulta:"wa_resposta_em"}], ["vendedor_leads","id",{lead:"wa_lead_em"}],
+  ["anotacoes","bloqueio_id",{cobranca:"wa_cobranca_em", convite:"wa_convite_em", aviso:"wa_aviso_em", embarque:"wa_embarque_em"}]];
+async function loadWaSent(){ if(S.waOff) return;
+  await Promise.all(WA_REG.map(([tb,k,m])=>{ if(tb!=="anotacoes" && !S.admin) return null; const cs=Object.values(m);
+    return db(`${tb}?select=${k},${cs.join(",")}&or=(${cs.map(c=>c+".not.is.null").join(",")})&limit=2000`).then(r=>{ S.wa=S.wa||{};
+      r.forEach(x=>Object.entries(m).forEach(([tp,c])=>{ if(x[c]) S.wa[tp+":"+x[k]]=x[c]; })); }, e=>{ if(e.status===400) S.waOff=true; }); })); }
+const waAt = (tp,id) => id==null ? null : (S.wa||{})[tp+":"+id];
+const waTag = (tp,id) => { const x=waAt(tp,id); return x ? `<small class="wsent">✓ ${t("waSent",{d:new Date(x).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</small>` : ""; };
+/* data-wae marca sozinho ao tocar; auto=false quando o próprio botão confere os campos antes e marca depois */
+const waAttr = (tp,id,auto=true) => id==null ? "" : `${auto?` data-wae="${tp}:${id}"`:""}${waAt(tp,id)?" data-wsent":""}`;
+async function waMarca(el,tp,id){
+  S.wa=S.wa||{}; S.wa[tp+":"+id]=new Date().toISOString();
+  if(el){ el.setAttribute("data-wsent",""); el.querySelector(".wsent")?.remove(); el.insertAdjacentHTML("beforeend",waTag(tp,id)); }
+  try{ const r=await db("rpc/marcar_wa",{method:"POST",body:{tipo:tp,rid:id}}); if(typeof r==="string") S.wa[tp+":"+id]=r; }catch(e){}
+  if(S.tab==="pedidos" && view==="main" && !sheetDay && !tripRow) bgView(); /* tira do card WhatsApp pendente */
+}
+document.addEventListener("click", e=>{ const a=e.target.closest?.("[data-wae]"); if(!a) return; const [tp,id]=a.dataset.wae.split(":"); setTimeout(()=>waMarca(a,tp,+id),300); }, true);
+/* Reservas (Rodrigo 2026-10-30): pagamentos liberados sem o Pix nem a central mandados no WhatsApp, e consultas ativas sem resposta */
+function waPendHTML(){
+  if(!S.admin || S.waOff || !S.wa) return "";
+  const today=todayISO(), tel=p=>splitPhone(p.clientes?.whatsapp).num.replace(/\D/g,"").length>=8;
+  const ps=(S.reqs||[]).filter(p=>p.status==="pendente" && p.data>=today && p.sinal_liberado_em && +p.sinal_valor>0 && !p.comprovante_em && !ppPaid(p) && tel(p) && !waAt("pix",p.id) && !waAt("central",p.id));
+  const cs=(S.cons||[]).filter(c=>!consVenc(c) && !waAt("consulta",c.id) && consWa(c).wa.length>=8);
+  if(!ps.length && !cs.length) return "";
+  const li=(l,d,h,nome,btn)=>`<li><span class="who">${avatar(l,"bav")}<span><strong>${esc(boatName(l))}</strong><br><small class="muted">${fmtLong(d)} · ${t("slot_"+h)}${nome?" · "+esc(nome):""}</small></span></span><span class="cfb">${btn}</span></li>`;
+  return `<details class="card cfm rvpend fold" data-fold="wapend"${foldOpen("wapend")?" open":""}>${foldSum(t("waPendT",{n:ps.length+cs.length}))}<p class="muted" style="margin-top:0">${t("waPendSub")}</p><ul class="owners">${
+    ps.map(p=>li(p.lancha,p.data,p.horario,p.clientes?.nome, (S.ppPay||{})[p.id] && /\/pagar\//.test(p.paypal_link||"") ? centralWa(p) : pixWa(p))).join("")}${
+    cs.map(c=>{ const {wa,msg}=consWa(c); return li(c.lancha,c.data,c.horario,c.nome,`<a class="btn wa"${waAttr("consulta",c.id)} href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`); }).join("")}</ul></details>`;
+}
 /* depois de liberar: o mesmo Pix do chat, pronto para mandar no WhatsApp do cliente, no idioma dele */
 function pixWa(p){
   const ph=splitPhone(p.clientes?.whatsapp), cc=String(ph.cc||"55").replace(/\D/g,""), tel=ph.num.replace(/\D/g,""); if(tel.length<8 || !(+p.sinal_valor>0)) return "";
   const lg = ppLang(p), M=COB_MSG[lg], c=pedCalc(p), v=+p.sinal_valor;
   const txt=M.msg({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:slotTxt(lg,p.horario,p.hora_ini,p.hora_fim), v:brl(v), resto:c.tot>v?brl(c.tot-v):"", pix:pixPayload(PIX_CNPJ, v, "PED"+p.id)});
-  return `<a class="btn wa" href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("pixWa")}</a>`;
+  return `<a class="btn wa"${waAttr("pix",p.id)} href="https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("pixWa")}${waTag("pix",p.id)}</a>`;
 }
 /* cliente estrangeiro (WhatsApp fora do +55): cobrança do PayPal dentro do site (/pagar/), na moeda dele, com o câmbio do dia + 10% (editável).
    Criada sozinha ao liberar o pagamento; o cliente recebe o link por e-mail e o administrador manda no WhatsApp.
@@ -1541,11 +1579,16 @@ function ppAdm(p){
   if(pg?.pago_em) return `<span class="ppbox"><b class="cpok">✓ ${t("ppPaid",{v:esc(pg.pago_valor||p.paypal_valor||""),d:dd(pg.pago_em)})}</b></span>`;
   const field = pix ? "" : `<label class="f"><span>💳 ${t("ppVal",{c:COB_SYM[c]})}</span><span class="pkey"><input type="number" class="in" inputmode="decimal" min="1" step="any" data-ppv="${p.id}" data-cur="${c}" placeholder="${COB_SYM[c]}"${pg?` value="${+pg.valor}"`:""}><button type="button" class="btn${pg?" sec":""}" data-ppg="${p.id}">${t(pg?"save":"ppGen")}</button></span></label>`;
   if(!pg || !/\/pagar\//.test(p.paypal_link||"")) return `<span class="ppbox">${pix ? `${pixWa(p)}<button type="button" class="btn sec" data-ppc="${p.id}">${t("ctMake")}</button>` : field}</span>`;
-  const ph=splitPhone(p.clientes?.whatsapp), tel=ph.num.replace(/\D/g,""), lg=ppLang(p), M=COB_MSG[lg], k=pedCalc(p), v=+p.sinal_valor;
-  const txt=CENTRAL_MSG[lg]({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:slotTxt(lg,p.horario,p.hora_ini,p.hora_fim), v:pix?brl(v):`${p.paypal_valor||""} (${brl(v)})`, link:curto(p.paypal_link), resto:k.tot>v?brl(k.tot-v):""});
   return `<span class="ppbox"><small class="cpok">🧾 ${t(pix?"ctMadePix":"ppMade",{v:esc(p.paypal_valor||"")})}</small>
-    ${tel.length>=8?`<a class="btn wa" href="https://wa.me/${String(ph.cc||"55").replace(/\D/g,"")}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("ctWa")}</a>`:""}
+    ${centralWa(p)}
     <button type="button" class="btn sec" data-copy="${esc(p.paypal_link)}">${t("ctCopy")}</button>${field}</span>`;
+}
+/* botão da central de pagamento no WhatsApp do cliente (o mesmo do pedido e do card WhatsApp pendente) */
+function centralWa(p){
+  const pix=ppPix(p), ph=splitPhone(p.clientes?.whatsapp), tel=ph.num.replace(/\D/g,""), lg=ppLang(p), M=COB_MSG[lg], k=pedCalc(p), v=+p.sinal_valor;
+  if(tel.length<8) return "";
+  const txt=CENTRAL_MSG[lg]({nome:(p.clientes?.nome||"").split(" ")[0], lancha:boatName(p.lancha), data:dateOf(p.data).toLocaleDateString(M.loc,{weekday:"long",day:"numeric",month:"long"}), horario:slotTxt(lg,p.horario,p.hora_ini,p.hora_fim), v:pix?brl(v):`${p.paypal_valor||""} (${brl(v)})`, link:curto(p.paypal_link), resto:k.tot>v?brl(k.tot-v):""});
+  return `<a class="btn wa"${waAttr("central",p.id)} href="https://wa.me/${String(ph.cc||"55").replace(/\D/g,"")}${tel}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">${WA_ICON} ${t("ctWa")}${waTag("central",p.id)}</a>`;
 }
 /* cria ou muda a cobrança do PayPal (e manda o e-mail ao cliente só na primeira vez) */
 async function ppLink(p, fx, cur){
@@ -3289,7 +3332,7 @@ async function avisarInicio(row){
   const n=row.nota||{}, wa=waOf(n.telefone), msg=startMsg(row, await convQ(row.id, new URLSearchParams({criar:"1"})));
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>📲 ${t("iniT")}</h2><p class="muted" style="margin-top:0">${t("iniSub",{name:esc(n.cliente||"")})}</p>
     <pre class="wamsg">${esc(msg)}</pre>
-    <a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("iniWa")}</a>
+    <a class="btn wa"${waAttr("aviso",row.id)} style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("iniWa")}${waTag("aviso",row.id)}</a>
     <button type="button" class="btn sec" id="inicp">${t("invCopy")}</button>
     <button type="button" class="btn sec" id="inix" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
@@ -3409,7 +3452,7 @@ function pedidosHTML(){
   const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); (S.reqTrips||[]).forEach(r=>L[kindT(r)].push(r));
   L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows); L.hist.sort((x,z)=>cmpRows(z,x)); L.canc.sort((x,z)=>cmpRows(z,x));
   const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
-  return `${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}<p class="how muted">${t("reqSub")}</p>
+  return `${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}<p class="how muted">${t("reqSub")}</p>
     <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${!L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
       : f!=="pendente" ? byBoat(L[f]).map(([l,rs])=>`<details class="rqboat" data-rqb="${f}|${esc(l)}"${S.rqOpen?.has(f+"|"+l)?" open":""}><summary class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}<i class="chev" aria-hidden="true">›</i></span></summary><div class="trips">${rs.map(card).join("")}</div></details>`).join("") /* cada lancha abre e fecha com um toque */
@@ -3452,21 +3495,24 @@ async function loadReqs(){
     /* passeios lançados direto na agenda de qualquer lancha (sem pedido do site) também entram em Reservas */
     const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
     S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>+r.nota?.sinal>0 && !ligados.has(r.id)); /* só entra quem já pagou ao menos o sinal */
+    await loadWaSent(); /* quando cada WhatsApp foi mandado */
     S.cons = await db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(e=>e.status===404||e.status===400 ? false : null); /* consulta rápida: false = falta o SQL */
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length + (S.cons||[]).length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
 }
 /* consulta rápida: quem preencheu a janelinha do site; não bloqueia a lancha. Aprovar = passeio novo já preenchido (com o e-mail para o convite); Recusar = apaga */
+/* resposta da consulta no WhatsApp, no idioma do cliente (passou do prazo: a mensagem gentil) */
+function consWa(c){ const ph=splitPhone(c.telefone), wa=ph.cc+ph.num.replace(/\D/g,""), L=["pt","en","es"].includes(c.lang)?c.lang:"pt";
+  const tt=(k,o)=>(T[L][k]||T.pt[k]).replace(/\{(\w+)\}/g,(m,x)=>o[x]??m);
+  const when=dateOf(c.data).toLocaleDateString(T[L].locale||"pt-BR",{day:"numeric",month:"long"}), slot=(T[L]["slot_"+c.horario]||t("slot_"+c.horario)).toLowerCase();
+  return {wa, msg:tt(consVenc(c)?"csWaPast":c.chamou?"csWaCall":"csWaNoCall",{name:c.nome.split(" ")[0], boat:boatName(c.lancha), date:when, slot, people:c.pessoas?tt("csPeople",{n:c.pessoas}):""})}; }
 function consHTML(){
   if(S.cons===false) return `<div class="card"><p class="msg err" style="margin:0">${t("csSql")}</p></div>`;
   if(!S.cons?.length) return "";
   const today=todayISO(), ativas=S.cons.filter(c=>!consVenc(c)), vencidas=S.cons.filter(consVenc);
   /* passou do prazo (1 h antes do início): vai para Vencidas, com a mensagem gentil pronta para o Rodrigo mandar do número dele (Rodrigo 2026-10-25) */
   const card=c=>{ const past=consVenc(c);
-    const d=dateOf(c.data), ph=splitPhone(c.telefone), wa=ph.cc+ph.num.replace(/\D/g,""), L=["pt","en","es"].includes(c.lang)?c.lang:"pt";
-    const tt=(k,o)=>(T[L][k]||T.pt[k]).replace(/\{(\w+)\}/g,(m,x)=>o[x]??m);
-    const when=dateOf(c.data).toLocaleDateString(T[L].locale||"pt-BR",{day:"numeric",month:"long"}), slot=(T[L]["slot_"+c.horario]||t("slot_"+c.horario)).toLowerCase();
-    const msg=tt(past?"csWaPast":c.chamou?"csWaCall":"csWaNoCall",{name:c.nome.split(" ")[0], boat:boatName(c.lancha), date:when, slot, people:c.pessoas?tt("csPeople",{n:c.pessoas}):""});
+    const d=dateOf(c.data), L=["pt","en","es"].includes(c.lang)?c.lang:"pt", {wa,msg}=consWa(c);
     /* compacto (Rodrigo 2026-10-25): nome; dia da semana, horário, lancha e pessoas numa linha; o resto em etiquetas pequenas */
     const op=S.csOpen?.has(c.id); /* recolhido: data, nome e, embaixo do nome, lancha e horário; a setinha abre o resto (Rodrigo 2026-10-26) */
     return `<div class="trip rq csc st-pendente${c.horario==="dia"?" full":""}${op?"":" fold"}" data-csc="${c.id}">
@@ -3476,7 +3522,7 @@ function consHTML(){
       <span class="tmeta"><i class="stb ${c.chamou?"st-aprovado":"st-pendente"}">${c.chamou?"✓ "+t("csCalled"):"⚠ "+t("csNoCall")}</i>${c.embarque?`<i>⚓ ${esc(c.embarque)}</i>`:""}${c.data<today?`<i>${t("csPast")}</i>`:""}<i>${t("csAt",{d:new Date(c.criado_em).toLocaleString(t("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})})}</i></span>
       ${(k=>k.tot?`<small class="sincalc">${t("sinTot")} <b>${brl(k.tot)}</b>${k.net?` · ${t("sinNet")} ${brl(k.net)}`:""}${k.com!=null?` · ${t("sinCom")} ${brl(k.com)}`:""}</small>`:"")(pedCalc(c))}
       <span class="reqbtns">${!past?`<button type="button" class="btn" data-csok="${c.id}">${t("csOk")}</button>`:""}<button type="button" class="btn sec" data-csno="${c.id}"${past?' data-past="1"':""}>${t(past?"csRm":"csNo")}</button>${!past?`<button type="button" class="btn sec" data-csed="${c.id}">✏️ ${t("edBtn")}</button>`:""}</span></span></span>
-    <span class="tside">${wa.length>=8?`<a class="twa" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span></a>`:""}${wa.length>=8&&!past&&c.pessoas?`<a class="twa rlk" href="https://wa.me/${wa}?text=${encodeURIComponent(rlMsg(L,{nome:c.nome, lancha:c.lancha, data:c.data, horario:c.horario, pessoas:c.pessoas}))}" target="_blank" rel="noopener" aria-label="${t("rlBtnL")}: ${esc(c.nome)}">📲<span>${t("rlBtn").replace("📲 ","")}</span></a>`:""}</span></div>`; };
+    <span class="tside">${wa.length>=8?`<a class="twa"${waAttr("consulta",c.id)} href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span>${waTag("consulta",c.id)}</a>`:""}${wa.length>=8&&!past&&c.pessoas?`<a class="twa rlk" href="https://wa.me/${wa}?text=${encodeURIComponent(rlMsg(L,{nome:c.nome, lancha:c.lancha, data:c.data, horario:c.horario, pessoas:c.pessoas}))}" target="_blank" rel="noopener" aria-label="${t("rlBtnL")}: ${esc(c.nome)}">📲<span>${t("rlBtn").replace("📲 ","")}</span></a>`:""}</span></div>`; };
   /* escolher a lancha (ou todas) quando há consultas de mais de uma (Rodrigo 2026-10-25) */
   const chips = L => { const by={}; L.forEach(c=>by[c.lancha]=(by[c.lancha]||0)+1); const ks=Object.keys(by).sort((a,b)=>boatName(a).localeCompare(boatName(b)));
     if(ks.length<2) return "";
@@ -4264,9 +4310,9 @@ async function loadLeads(){ if(!S.admin) return;
   if(!S.vcod) await db("vendedores?select=user_id,codigo,ativo").then(v=>{ S.vcod=Object.fromEntries(v.filter(x=>x.ativo).map(x=>[x.user_id,x.codigo])); }, ()=>{});
   if(!S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null);
   const tem=new Set((S.users||[]).map(u=>String(u.telefone||"").replace(/\D/g,"").slice(-10)).filter(x=>x.length===10)); /* já tem conta: não é mais lead */
-  S.leads = r.filter(l=>S.vcod?.[l.vendedor] && !tem.has(String(l.telefone).slice(-10))); }
+  S.leads = r.filter(l=>S.vcod?.[l.vendedor] && !tem.has(String(l.telefone).slice(-10))); await loadWaSent(); }
 const rppN = () => (S.rpp||[]).filter(r=>!r.enviando).length; /* repasses do PayPal esperando o administrador mandar */
-const leadSent = id => !!(store.get("lead-env")||{})[id];
+const leadSent = id => !!waAt("lead",id) || !!(store.get("lead-env")||{})[id];
 const leadsNew = () => (S.leads||[]).filter(l=>!leadSent(l.id)).length;
 function leadsHTML(){ const L=S.leads||[]; if(!L.length) return "";
   return `<div class="card"><h2>📝 ${t("ldT",{n:L.length})}</h2><p class="muted" style="margin-top:0">${t("ldSub")}</p><div class="ulist">${L.map(l=>{
@@ -4275,7 +4321,7 @@ function leadsHTML(){ const L=S.leads||[]; if(!L.length) return "";
     const msg=((T[l.lang]||T.pt).ldMsg).replace("{name}",first).replace("{vend}",vend).replace("{url}",url);
     const h=Math.max(1,Math.ceil((Date.parse(l.criado_em)+864e5-Date.now())/36e5));
     return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(null,l.nome,"face")}<span><strong>${esc(l.nome)}</strong><br><small class="muted">${esc(t("ldVia",{v:vend}))} · ${t("ldLeft",{h})}${leadSent(l.id)?` · ${t("ldSent")}`:""}</small></span></span>
-      <span class="reqbtns" style="margin:0"><a class="btn${leadSent(l.id)?" sec":" wa"}" data-ld="${l.id}" href="https://wa.me/${esc(l.telefone)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a></span></div>`; }).join("")}</div></div>`; }
+      <span class="reqbtns" style="margin:0"><a class="btn${leadSent(l.id)?" sec":" wa"}"${waAttr("lead",l.id)} data-ld="${l.id}" href="https://wa.me/${esc(l.telefone)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp${waTag("lead",l.id)}</a></span></div>`; }).join("")}</div></div>`; }
 function bindLeads(){ app.querySelectorAll("[data-ld]").forEach(a=>a.addEventListener("click",()=>{ const m=store.get("lead-env")||{}; m[a.dataset.ld]=Date.now(); store.set("lead-env",m); setTimeout(bgView,400); })); }
 /* repasses do PayPal (Rodrigo 2026-10-25): o saque do PayPal cai no Asaas somado; com um toque, a parte de cada dono sai do Asaas para a conta dele */
 /* transferências que o Asaas segura até o Rodrigo aprovar (token do app ou SMS): botão direto para o Asaas (Rodrigo 2026-10-25) */
@@ -4565,7 +4611,7 @@ async function openInvite(email, nota, row, mailDone){
   const msg=inLang(cliLang(nota.telefone), ()=>{ const dt=fmtLong(row.data); return t("waInvite",{cup: cupV ? t("invCup",{v:brl(cupV), boat:boatName(row.lancha)}) : "", name, boat:boatName(row.lancha), date:lang==="en"?dt:dt.toLowerCase(), slot:slotLine(row.horario,nota), people:nota.pessoas||"", emb:nota.embarque?`📍 ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}${TAXA[nota.embarque]?`ℹ️ ${feeS(nota.embarque)}\n`:""}`:"", url}); });
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✉ ${t("invT",{name:esc(nota.cliente||email)})}</h2><p class="muted" style="margin-top:0">${t(email?"invSub":"invSubTel",{name:esc(name||nota.cliente||""), email:esc(email)})}</p>
     ${mailDone ? mailMsg(mailDone, email) : email ? `<p class="muted" id="invmail">✉ ${t("mailSending",{email:esc(email)})}</p>` : ""}
-    ${wa.length>=8?`<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("invBtn")}</a>`:""}
+    ${wa.length>=8?`<a class="btn wa"${waAttr("convite",row.id)} style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("invBtn")}${waTag("convite",row.id)}</a>`:""}
     <button type="button" class="btn sec" id="invcp">${t("invCopy")}</button>
     <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
@@ -4586,7 +4632,7 @@ function notifyEmb(row, nota){
   const cw=waOf(nota.telefone), cl=cliLang(nota.telefone);
   const msg=inLang(cl, ()=>t("waEmb",{name:(nota.cliente||"").split(" ")[0]||"", boat:boatName(row.lancha), date:fmtLong(row.data), slot:slotLine(row.horario,nota), emb:nota.embarque, map:(mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:"")+(TAXA[nota.embarque]?`ℹ️ ${feeS(nota.embarque)}\n`:"")}));
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>📍 ${t("embNotT")}</h2><p class="muted" style="margin-top:0">${t("embNotSub",{name:esc(nota.cliente||"")})}</p>
-    <a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${cw}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(nota.cliente||"")})}</a>
+    <a class="btn wa"${waAttr("embarque",row.id)} style="margin:0 0 10px" href="https://wa.me/${cw}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(nota.cliente||"")})}${waTag("embarque",row.id)}</a>
     <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   document.getElementById("nfx").onclick = closeDay;
@@ -4597,10 +4643,10 @@ function notifyOwner(p, row, nota){
   const cw=waOf(nota.telefone), cl=cliLang(nota.telefone), resto=Math.max(0,(+nota.valor||0)-(+nota.sinal||0)), cmsg=inLang(cl, ()=>t("waConfirm",{rc: /\/pagar\//.test(p?.paypal_link||"") ? t("waRc",{url:location.origin+"/login/"})+"\n" : "" /* sinal pago pela central: o recibo está em Meus passeios (Rodrigo 2026-10-29) */, resto: resto ? "💰 "+t("chBotResto",{v:brl(resto)})+"\n" : "", name:(nota.cliente||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:slotLine(row.horario,nota), people:nota.pessoas||p.pessoas, emb:nota.embarque?`📍 ${nota.embarque}\n${mapUrl(nota.embarque)?`🗺️ ${mapUrl(nota.embarque)}\n`:""}${TAXA[nota.embarque]?`ℹ️ ${feeS(nota.embarque)}\n`:""}`:""}));
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✓ ${t("notifyT")}</h2><p class="muted" style="margin-top:0">${t("notifySub",{boat:esc(boat)})}</p>
     ${os.length ? os.map(o=>waOf(o.telefone).length>=8
-      ? `<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${waOf(o.telefone)}?text=${encodeURIComponent(msg(o))}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(o.nome||o.email)})}</a>`
+      ? `<a class="btn wa"${waAttr("aprovado_dono",p?.id)} style="margin:0 0 10px" href="https://wa.me/${waOf(o.telefone)}?text=${encodeURIComponent(msg(o))}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(o.nome||o.email)})}${waTag("aprovado_dono",p?.id)}</a>`
       : `<p class="msg err">${t("notifyNoPhone",{name:esc(o.nome||o.email)})} <button type="button" class="link" data-onm="${esc(o.email)}" data-ol="${o.lancha}">${t("setName")}</button></p>`).join("")
       : `<p class="msg err">${t("notifyNone",{boat:esc(boat)})}</p>`}
-    ${cw.length>=8 ? `<p class="muted" style="margin:14px 0 8px">${t("notifyCli")}</p><a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${cw}?text=${encodeURIComponent(cmsg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(nota.cliente||"")})}</a>` : ""}
+    ${cw.length>=8 ? `<p class="muted" style="margin:14px 0 8px">${t("notifyCli")}</p><a class="btn wa"${waAttr("aprovado_cliente",p?.id)} style="margin:0 0 10px" href="https://wa.me/${cw}?text=${encodeURIComponent(cmsg)}" target="_blank" rel="noopener">${WA_ICON} ${t("notifyBtn",{name:esc(nota.cliente||"")})}${waTag("aprovado_cliente",p?.id)}</a>` : ""}
     <button type="button" class="btn sec" id="nfx" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   document.getElementById("nfx").onclick = closeDay;
@@ -5261,7 +5307,7 @@ async function fetchRows(q){
   return (await db(`bloqueios?select=id,lancha,data,horario,revenda,status_manual&${q}`)).map(rowOf);
 }
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
-async function loadBlocks(){
+async function loadBlocks(){ loadWaSent(); /* quando o convite, a cobrança e os avisos foram mandados no WhatsApp */
   if(!S.cur || S.tab==="vendas") return mainView();
   if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) bgView(); }); }
   if((S.admin || S.own?.length) && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
@@ -5714,7 +5760,7 @@ function renderTrip(){
         <label class="f"><span id="cob-fxl"></span><input type="number" id="cob-fx" inputmode="decimal" min="1" step="any"></label>
         <button type="button" class="btn sec" id="cob-gen" style="margin:0 0 10px">${t("cobPpGen")}</button>
         <label class="f"><span>${t("cobPpLink")}</span><input type="url" id="cob-pl" inputmode="url" autocomplete="off" placeholder="https://www.paypal.com/invoice/p/#..."></label></div>
-        <button type="button" class="btn" id="cob-send">${t("cobSend")}</button>
+        <button type="button" class="btn" id="cob-send"${waAttr("cobranca",r?.id,false)}>${t("cobSend")}${waTag("cobranca",r?.id)}</button>
         <button type="button" class="btn sec" id="cob-ok" style="margin-top:8px">${t("cobGot")}</button>
         ${r && !tripNew ? `<div id="cob-files" class="cobfiles"></div><label class="btn sec cpup" style="margin-top:8px">📎 ${t("cpAttach")}<input type="file" accept="image/*,application/pdf" id="cob-file" hidden></label>` : ""}</details>` : ""}
       ${f("obs","area")}` : ""}
@@ -5856,7 +5902,7 @@ function renderTrip(){
         const pl=document.getElementById("cob-pl"), link=pl.value.trim(); if(!/^https:\/\/\S*paypal\.(com|me)\//i.test(link)){ pl.focus(); toast(t("cobPpNoLink")); return; }
         txt = COB_PP[lg]({...o, fx:`${COB_SYM[c]} ${fx.toLocaleString(M.loc)}`, link}); }
       else txt = M.msg({...o, pix:pixPayload(PIX_CNPJ, v, "SINAL"+(r?.id||""))});
-      window.open(`https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}`, "_blank", "noopener"); };
+      window.open(`https://wa.me/${cc}${tel}?text=${encodeURIComponent(txt)}`, "_blank", "noopener"); if(r?.id) waMarca(document.getElementById("cob-send"),"cobranca",r.id); };
     const cf=document.getElementById("cob-file"), cfl=document.getElementById("cob-files");
     const showFiles=async()=>{ if(!cfl) return; const L=await cpList(r.id).catch(()=>[]);
       cfl.innerHTML=L.map(f=>`<button type="button" class="btn sec" data-cpv="${esc(f.path)}">📎 ${t("cpSee",{d:new Date(f.em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</button>`).join("");
