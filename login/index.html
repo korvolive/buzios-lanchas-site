@@ -1785,6 +1785,8 @@ async function loadAvHoje(){ if(!(S.admin || S.papel==="operador")) return;
   S.avHoje = await db(`bloqueios?select=id,lancha,data,horario,revenda,status_manual,anotacoes!inner(cliente,telefone,valor,sinal,origem,cliente_conta,embarque,hora_ini,hora_fim,wa_aviso_em)&data=eq.${todayISO()}&anotacoes.origem=eq.buzios&anotacoes.cliente_conta=is.null&order=horario&limit=100`)
     .then(r=>r.map(b=>{ const x=rowOf(b); if(x.nota?.wa_aviso_em){ S.wa=S.wa||{}; S.wa["aviso:"+x.id]=x.nota.wa_aviso_em; } return x; }), ()=>null); }
 function avIni(x){ const h=(x.nota?.hora_ini||SLOT_INI[x.horario]||"10:00").slice(0,5), [a,b]=h.split(":").map(Number), d=new Date(); d.setHours(a,b||0,0,0); return d.getTime(); }
+/* o aviso do passeio só faz sentido antes de começar; depois vira o reenvio do convite (Rodrigo 2026-10-31) */
+function antesIni(r,n){ const h=todayISO(); return r.data>h || (r.data===h && avIni({horario:r.horario, nota:n})>Date.now()); }
 function avHojeHTML(){
   const agora=Date.now(), L=(S.avHoje||[]).filter(x=>x.nota && !x.revenda && !(+x.nota.valor>0 && !(+x.nota.sinal>0)) && waOf(x.nota.telefone).length>=8 && avIni(x)>agora) /* some quando o passeio começa; depois do aviso continua, para reenviar se o WhatsApp não saiu (Rodrigo 2026-10-31) */
     .sort((a,b)=>avIni(a)-avIni(b)); if(!L.length) return "";
@@ -6270,7 +6272,7 @@ function renderTrip(){
     ${pedidoFor ? `<p class="muted" style="margin-top:0">${t("approveSub")}</p>` : tripNew ? "" : `<p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}<br><small>${t("noteSub")}</small></p>`}
     ${n.cliente_conta && !tripNew && S.convs!==false && (S.admin || (n.origem==="buzios" && r.data>=todayISO())) && !isRO(r.lancha) ? `<div class="chpw"><button type="button" class="chpill" ${S.admin?`data-och="suporte" data-cli="${n.cliente_conta}"`:`data-och="dono" data-bid="${r.id}"`}>💬 <span>${t("chTalkCli")}</span></button></div>` : ""}
     ${!tripNew && r?.nota ? `<div class="strow"><span>${t("rsL")}</span>${canRv ? `<select class="stsel st-${stOf(r)}" id="stsel" aria-label="${t("rsL")}"><option value="">${t("rsAuto",{s:t("rs_"+stAuto(n,r.id))})}</option>${["sinal","confirmada","pago","revenda","finalizado"].map(k=>`<option value="${k}"${r.stm===k||(!r.stm&&k==="revenda"&&r.revenda)?" selected":""}>${t("rs_"+k)}</option>`).join("")}</select>` : stPill(r)}<small class="muted">${stOf(r)==="revenda"?t("rvOnTxt"):canRv?t("rsHintAdm"):t("rsHint")}</small></div>` : ""}
-    ${!tripNew && !pedidoFor && !n.cliente_conta && !isPending(n) && waNum.length>=8 ? `<button type="button" class="btn wa" id="invagain" style="margin:0 0 12px">${WA_ICON} ${t(r.data>=todayISO()?"iniBtn":"invAgain")}</button>` : ""}
+    ${!tripNew && !pedidoFor && !n.cliente_conta && !isPending(n) && waNum.length>=8 ? `<button type="button" class="btn wa" id="invagain" style="margin:0 0 12px">${WA_ICON} ${t(antesIni(r,n)?"iniBtn":"invAgain")}</button>` : ""}
     ${!tripNew && isPending(n) && n.origem==="buzios" && S.admin && S.papel!=="auditor" && r.data>=todayISO() ? `<div id="tcomp" class="tcomp" hidden></div>` : ""}
     ${!tripNew && !pedidoFor && !n.cliente_conta && isPending(n) && n.origem==="buzios" && S.admin && S.papel!=="auditor" && r.data>=todayISO() && waNum.length>=8 ? `<button type="button" class="btn wa" id="prelink" style="margin:0 0 12px">${WA_ICON} ${t("preBtn")}${waTag("convite",r.id)}</button>` : ""}
     ${n.cliente_conta && !tripNew ? `<details class="clicard" id="clicard"><summary>✓ ${t("cliCard")}</summary><div id="clibody"><p class="muted">…</p></div></details>` : ""}
@@ -6331,7 +6333,7 @@ function renderTrip(){
     const em = typed || (S.admin ? (await db(`convites?select=email&bloqueio_id=eq.${r.id}`).catch(()=>[]))[0]?.email || "" : "");
     try{ const res = await db("rpc/convidar_cliente",{method:"POST",body:{bid:r.id, email_cli:em||null, nome_cli:n.cliente||"", tel:n.telefone||""}});
       if(res==="ligado"){ closeDay(); loadBlocks(); return linkedInfo(r.id, n.cliente||em); }
-      ia.disabled=false; if(r.data>=todayISO()) avisarInicio(r); else openInvite(em, n, r); if(typed) mailInvite(r.id, typed);
+      ia.disabled=false; if(antesIni(r,n)) avisarInicio(r); else openInvite(em, n, r); if(typed) mailInvite(r.id, typed);
     }catch(e){ ia.disabled=false; toast(e.status===404 ? t("needSqlConv") : e.code==="P0001" ? e.message : t("saveErr")); } };
   const cc=document.getElementById("clicard");
   if(cc) cc.ontoggle=async()=>{ if(!cc.open || cc.dataset.ok) return; cc.dataset.ok=1; const box=document.getElementById("clibody");
