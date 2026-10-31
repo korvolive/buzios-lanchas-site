@@ -2431,7 +2431,7 @@ async function markWa(id){
   if(view==="main" && !sheetDay && !tripRow) mainView();
 }
 function confirmHTML(){
-  if(!S.admin && !(S.own||[]).length) return "";
+  if(S.papel || (!S.admin && !(S.own||[]).length)) return ""; /* operador/auditor não confirmam passeio */
   if(S.toConfirm===false) return S.admin ? `<p class="msg err">${t("needSqlAv")}</p>` : "";
   if(!S.toConfirm?.length) return "";
   return `<details class="card cfm rvpend fold" data-fold="cf"${foldOpen("cf")?" open":""}>${foldSum(t("cfT",{n:S.toConfirm.length}))}<p class="muted" style="margin-top:0">${t(S.toConfirm.some(b=>b.fora)?"cfSubFora":"cfSub")}</p><ul class="owners">${S.toConfirm.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
@@ -4247,7 +4247,7 @@ function bellItems(){
   const ne=+S.eq?.nao_lidas||0; if(ne) L.push({i:"👥", n:ne, txt:n1(ne,"blEq"), go:()=>openEq()});
   if(!S.isClient){
     const nr=S.admin ? +S.reqCount||0 : 0; if(nr) L.push({i:"📖", n:nr, txt:n1(nr,"blReq"), go:()=>bellTab("pedidos")});
-    const nf=Array.isArray(S.toConfirm) && (S.admin || (S.own||[]).length) ? S.toConfirm.length : 0;
+    const nf=Array.isArray(S.toConfirm) && !S.papel && (S.admin || (S.own||[]).length) ? S.toConfirm.length : 0;
     if(nf) L.push({i:"✅", n:nf, txt:n1(nf,"blCf"), go:()=>bellTab("lista", ".cfm")});
   } else if(S.me){
     const rows=(S.myReq||[]).filter(p=>p.status!=="cancelado" && p.status!=="recusado"), today=todayISO();
