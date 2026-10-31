@@ -1761,7 +1761,7 @@ async function loadAvHoje(){ if(!(S.admin || S.papel==="operador")) return;
     .then(r=>r.map(b=>{ const x=rowOf(b); if(x.nota?.wa_aviso_em){ S.wa=S.wa||{}; S.wa["aviso:"+x.id]=x.nota.wa_aviso_em; } return x; }), ()=>null); }
 function avIni(x){ const h=(x.nota?.hora_ini||SLOT_INI[x.horario]||"10:00").slice(0,5), [a,b]=h.split(":").map(Number), d=new Date(); d.setHours(a,b||0,0,0); return d.getTime(); }
 function avHojeHTML(){
-  const agora=Date.now(), L=(S.avHoje||[]).filter(x=>x.nota && !x.revenda && !(+x.nota.valor>0 && !(+x.nota.sinal>0)) && waOf(x.nota.telefone).length>=8 && avIni(x)>agora && !waAt("aviso",x.id)) /* some quando o aviso foi mandado ou o passeio começou (Rodrigo 2026-10-31) */
+  const agora=Date.now(), L=(S.avHoje||[]).filter(x=>x.nota && !x.revenda && !(+x.nota.valor>0 && !(+x.nota.sinal>0)) && waOf(x.nota.telefone).length>=8 && avIni(x)>agora) /* some quando o passeio começa; depois do aviso continua, para reenviar se o WhatsApp não saiu (Rodrigo 2026-10-31) */
     .sort((a,b)=>avIni(a)-avIni(b)); if(!L.length) return "";
   const hora=x=>new Date(avIni(x)).toTimeString().slice(0,5), ja=x=>!!waAt("aviso",x.id), now=x=>!ja(x) && avIni(x)-36e5<=agora, n=L.filter(now).length;
   return `<details class="card cfm rvpend fold" data-fold="avhoje"${n||foldOpen("avhoje")?" open":""}>${foldSum(t("ahT",{n:L.length})+(n?` · 🔔 ${n}`:""))}<p class="muted" style="margin-top:0">${t("ahSub")}</p><ul class="owners">${L.map(x=>{ const nm=x.nota.cliente||"";
