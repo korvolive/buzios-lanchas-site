@@ -10,7 +10,7 @@
 //                       quando é o marinheiro fixo, avisa também o dono e o administrador (celular e e-mail)
 // POST { tipo: "alterado", id: <alteração> }  (só o administrador, depois de aprovar ou de mudar pelo formulário) avisa o cliente com conta que a reserva mudou (antes e depois)
 // POST { tipo: "avaliar", id: <bloqueio> }  (administrador; ou o dono, nos passeios de fora; depois de confirmar que o passeio aconteceu) pede a avaliação ao cliente (celular e e-mail)
-// POST { tipo: "op_pedido", id: <consulta> }  (o operador, logo depois de lançar o pedido) avisa o administrador para aprovar (celular e e-mail)
+// POST { tipo: "op_pedido", id: <consulta> }  (o operador ou o vendedor, logo depois de lançar o pedido) avisa o administrador para aprovar (celular e e-mail)
 // POST { tipo: "op_pre", id: <bloqueio> }  (o operador, logo depois de lançar a Miss Bardot, que já vira pré-reserva) avisa o administrador (Rodrigo 2026-10-31)
 // POST { tipo: "op_comprovante", id: <bloqueio> }  (o operador, logo depois de anexar o comprovante que o cliente mandou no WhatsApp) avisa o administrador para conferir
 // POST { tipo: "op_alteracao", id: <alteração> }  (o operador, logo depois de pedir a alteração) avisa o administrador para aprovar (celular e e-mail)
@@ -59,9 +59,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Pedido nuevo desde el sitio", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas` }),
   },
   op_pedido: {
-    pt: p => ({ title: "Pedido novo do Lucas: aprovar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas${p.cliente ? " · " + p.cliente : ""}` }),
-    en: p => ({ title: "New request from Lucas: approve", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people${p.cliente ? " · " + p.cliente : ""}` }),
-    es: p => ({ title: "Pedido nuevo de Lucas: aprobar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas${p.cliente ? " · " + p.cliente : ""}` }),
+    pt: p => ({ title: p.quem ? `Venda nova de ${p.quem}: aprovar` : "Pedido novo do Lucas: aprovar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas${p.cliente ? " · " + p.cliente : ""}` }),
+    en: p => ({ title: p.quem ? `New sale from ${p.quem}: approve` : "New request from Lucas: approve", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people${p.cliente ? " · " + p.cliente : ""}` }),
+    es: p => ({ title: p.quem ? `Venta nueva de ${p.quem}: aprobar` : "Pedido nuevo de Lucas: aprobar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas${p.cliente ? " · " + p.cliente : ""}` }),
   },
   op_pre: {
     pt: p => ({ title: "Pré-reserva do Lucas", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas${p.cliente ? " · " + p.cliente : ""}. Esperando o sinal.` }),
@@ -235,9 +235,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Pedido nuevo de reserva desde el sitio: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, ...(p.whats ? [`WhatsApp: ${p.whats}`] : []), `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : [])], nota: "El pedido está en Reservas › Pendientes. Si la lancha está libre, toca Liberar pago; cuando llegue la seña, toca Aprobar.", botao: "Abrir las reservas" }),
   },
   op_pedido: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O Lucas lançou um pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${p.data}`, `Horário: ${p.horario}`, `Pessoas: ${p.pessoas}`, ...(p.valor ? [`Valor combinado: ${p.valor}`] : []), ...(p.sinal ? [`Sinal combinado: ${p.sinal}`] : [])], nota: "O pedido está em Reservas › Consultas. Toque em Aprovar como está.", botao: "Abrir as reservas" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Lucas launched a booking request: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${p.data}`, `Time: ${p.horario}`, `People: ${p.pessoas}`, ...(p.valor ? [`Agreed price: ${p.valor}`] : []), ...(p.sinal ? [`Agreed deposit: ${p.sinal}`] : [])], nota: "The request is in Bookings › Inquiries. Tap Approve as is.", botao: "Open bookings" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Lucas cargó un pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.valor ? [`Valor acordado: ${p.valor}`] : []), ...(p.sinal ? [`Seña acordada: ${p.sinal}`] : [])], nota: "El pedido está en Reservas › Consultas. Toca Aprobar tal cual.", botao: "Abrir las reservas" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: p.quem ? `O vendedor ${p.quem} lançou um pedido de reserva: ${p.lancha}.` : `O Lucas lançou um pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${p.data}`, `Horário: ${p.horario}`, `Pessoas: ${p.pessoas}`, ...(p.valor ? [`Valor combinado: ${p.valor}`] : []), ...(p.com ? [`Comissão do vendedor: ${p.com}`] : []), ...(p.sinal ? [`Sinal combinado: ${p.sinal}`] : [])], nota: "O pedido está em Reservas › Consultas. Toque em Aprovar como está.", botao: "Abrir as reservas" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: p.quem ? `The seller ${p.quem} launched a booking request: ${p.lancha}.` : `Lucas launched a booking request: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${p.data}`, `Time: ${p.horario}`, `People: ${p.pessoas}`, ...(p.valor ? [`Agreed price: ${p.valor}`] : []), ...(p.com ? [`Seller commission: ${p.com}`] : []), ...(p.sinal ? [`Agreed deposit: ${p.sinal}`] : [])], nota: "The request is in Bookings › Inquiries. Tap Approve as is.", botao: "Open bookings" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: p.quem ? `El vendedor ${p.quem} cargó un pedido de reserva: ${p.lancha}.` : `Lucas cargó un pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.valor ? [`Valor acordado: ${p.valor}`] : []), ...(p.com ? [`Comisión del vendedor: ${p.com}`] : []), ...(p.sinal ? [`Seña acordada: ${p.sinal}`] : [])], nota: "El pedido está en Reservas › Consultas. Toca Aprobar tal cual.", botao: "Abrir las reservas" }),
   },
   op_pre: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O Lucas criou uma pré-reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${p.data}`, `Horário: ${p.horario}`, `Pessoas: ${p.pessoas}`, ...(p.valor ? [`Valor: ${p.valor}`] : []), ...(p.sinal ? [`Sinal combinado: ${p.sinal}`] : [])], nota: "A data já está segura esperando o sinal. Quando o Pix entrar, abra Reservas › Sinais pendentes e toque em Cliente pagou.", botao: "Abrir as reservas" }),
@@ -320,7 +320,7 @@ const dd = (p: any) => (p.data ? ` · ${p.data}` : "");
 const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   dono: { pt: p => `Passeio confirmado: ${p.lancha}${dd(p)}`, en: p => `Tour confirmed: ${p.lancha}${dd(p)}`, es: p => `Paseo confirmado: ${p.lancha}${dd(p)}` },
   pedido: { pt: p => `Nova reserva pelo site: ${p.lancha}${dd(p)}`, en: p => `New booking request: ${p.lancha}${dd(p)}`, es: p => `Nueva reserva por el sitio: ${p.lancha}${dd(p)}` },
-  op_pedido: { pt: p => `Pedido do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Request from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Pedido de Lucas para aprobar: ${p.lancha}${dd(p)}` },
+  op_pedido: { pt: p => p.quem ? `Venda de ${p.quem} para aprovar: ${p.lancha}${dd(p)}` : `Pedido do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => p.quem ? `Sale from ${p.quem} to approve: ${p.lancha}${dd(p)}` : `Request from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => p.quem ? `Venta de ${p.quem} para aprobar: ${p.lancha}${dd(p)}` : `Pedido de Lucas para aprobar: ${p.lancha}${dd(p)}` },
   op_pre: { pt: p => `Pré-reserva do Lucas: ${p.lancha}${dd(p)}`, en: p => `Pre-booking by Lucas: ${p.lancha}${dd(p)}`, es: p => `Pre-reserva de Lucas: ${p.lancha}${dd(p)}` },
   op_comprovante: { pt: p => `Comprovante do Lucas para conferir: ${p.lancha}${dd(p)}`, en: p => `Receipt from Lucas to check: ${p.lancha}${dd(p)}`, es: p => `Comprobante de Lucas para revisar: ${p.lancha}${dd(p)}` },
   op_alteracao: { pt: p => `Alteração do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Change from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Cambio de Lucas para aprobar: ${p.lancha}${dd(p)}` },
@@ -685,14 +685,18 @@ Deno.serve(async req => {
     // o operador (Lucas) lançou um pedido ou pediu uma alteração: avisa o administrador para aprovar (Rodrigo 2026-10-30)
     if (tipo === "op_pedido" || tipo === "op_pre" || tipo === "op_alteracao" || tipo === "op_comprovante") {
       const op = (await db.from("papeis_painel").select("papel").eq("user_id", uid).maybeSingle()).data?.papel === "operador";
-      if (!op && !admin) return json({ erro: "sem acesso" }, 403);
+      /* o vendedor também lança pedido para o Rodrigo aprovar: aqui só o pedido dele mesmo (Rodrigo 2026-10-31) */
+      const vend = !op && !admin && tipo === "op_pedido";
+      if (!op && !admin && !vend) return json({ erro: "sem acesso" }, 403);
       const dez = Date.now() - 10 * 60 * 1000, brl = (v: any) => +v > 0 ? `R$ ${Number(v).toLocaleString("pt-BR")}` : "";
       let p: any, b: any, a: any;
       if (tipo === "op_pedido") {
-        const { data: c } = await db.from("consultas").select("id, lancha, data, horario, pessoas, nome, valor, sinal, hora_ini, hora_fim, criado_por, criado_em").eq("id", id).maybeSingle();
-        if (!c || c.criado_por !== uid) return json({ erro: "pedido não encontrado" }, 404);
+        const { data: c } = await db.from("consultas").select("id, lancha, data, horario, pessoas, nome, valor, sinal, hora_ini, hora_fim, criado_por, criado_em, vendedor, comissao_vend").eq("id", id).maybeSingle();
+        if (!c || c.criado_por !== uid || (vend && c.vendedor !== uid)) return json({ erro: "pedido não encontrado" }, 404);
         if (Date.parse(c.criado_em) < dez) return json({ enviados: 0 });
-        b = c; a = c; p = { id: c.id, lancha: await nomeLancha(c.lancha), data: c.data, horario: c.horario, pessoas: String(c.pessoas || ""), cliente: c.nome || "", valor: brl(c.valor), sinal: brl(c.sinal) };
+        const quem = c.vendedor ? ((await db.from("perfis").select("nome").eq("user_id", c.vendedor).maybeSingle()).data?.nome
+          || (await db.from("clientes").select("nome").eq("user_id", c.vendedor).maybeSingle()).data?.nome || "vendedor").split(" ")[0] : "";
+        b = c; a = c; p = { id: c.id, lancha: await nomeLancha(c.lancha), data: c.data, horario: c.horario, pessoas: String(c.pessoas || ""), cliente: c.nome || "", valor: brl(c.valor), sinal: brl(c.sinal), quem, com: c.vendedor ? brl(c.comissao_vend) : "" };
       } else if (tipo === "op_pre") {
         b = (await db.from("bloqueios").select("id, lancha, data, horario, criado_por, criado_em").eq("id", id).maybeSingle()).data;
         if (!b || b.criado_por !== uid) return json({ erro: "pré-reserva não encontrada" }, 404);
