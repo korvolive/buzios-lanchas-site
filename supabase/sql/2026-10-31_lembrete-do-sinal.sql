@@ -48,7 +48,8 @@ begin
   return agora;
 end $function$;
 
--- O cliente desistiu pelo WhatsApp: o administrador ou o operador cancela a pré-reserva (sem sinal e sem comprovante).
+-- O cliente desistiu pelo WhatsApp: o administrador ou o operador cancela a pré-reserva (sem sinal e sem comprovante),
+-- também quando o cliente já criou conta (o pedido dele fica cancelado).
 -- A data fica livre e a consulta vai para Recusadas, onde o Rodrigo pode resgatar se o cliente voltar.
 create or replace function public.cancelar_pre_reserva(bid bigint)
 returns void language plpgsql security definer set search_path to 'public' as $$
@@ -60,8 +61,16 @@ begin
   if b.id is null or a.bloqueio_id is null then raise exception 'Passeio não encontrado'; end if;
   if a.origem is distinct from 'buzios' or not (a.valor > 0) or coalesce(a.sinal, 0) <> 0 then raise exception 'Só dá para cancelar aqui uma pré-reserva sem sinal'; end if;
   if a.comprovante is not null then raise exception 'Este passeio já tem comprovante: fale com o Rodrigo'; end if;
-  if exists (select 1 from public.pedidos where bloqueio_id = bid and status not in ('cancelado','recusado')) then
-    raise exception 'Cliente com conta no app: o Rodrigo cancela pelo pedido'; end if;
+  -- cliente com conta (Rodrigo 2026-10-31): o Lucas também cancela, a não ser que o cliente já tenha pago ou mandado comprovante
+  if exists (select 1 from public.pedidos p where p.bloqueio_id = bid and p.status = 'pendente' and (p.comprovante_em is not null
+       or exists (select 1 from public.pagamentos_pp g where g.pedido = p.id and (g.pago_em is not null or g.captura is not null))
+       or exists (select 1 from public.pagamentos_asaas x where x.pedido = p.id)
+       or exists (select 1 from public.mensagens m join public.conversas c on c.id = m.conversa
+                   where c.tipo = 'suporte' and c.cliente = p.cliente and m.autor = p.cliente and m.anexo is not null
+                     and m.apagada_em is null and m.criado_em >= coalesce(p.sinal_liberado_em, p.criado_em)))) then
+    raise exception 'O cliente já pagou ou mandou comprovante: fale com o Rodrigo'; end if;
+  update public.pedidos set status = 'cancelado', motivo = 'cliente', bloqueio_id = null, atualizado_em = now()
+   where bloqueio_id = bid and status = 'pendente';
   select nullif(btrim(email), '') into em from public.convites where bloqueio_id = bid;
   begin
     insert into public.consultas (chamou, wa_resposta_em, criado_por, lancha, data, horario, pessoas, embarque, nome, telefone, email, lang,
