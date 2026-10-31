@@ -2456,6 +2456,13 @@ const avPrice = slug => { const r=(S.avPr||[]).find(x=>x.lancha===slug), k=kOf(S
   /* tabelinha 4h | 7h com uma linha do cliente e outra do dono (Rodrigo 2026-10-25: os valores corridos confundiam) */
   if(!v4 && !v7) return ""; const c=v=>v?brl(v):t("prOnReq"), e=espOf(S.avD, r.especiais);
   return `${e?`<small class="avp">⭐ ${esc(e.nome||t("espTag"))}</small>`:""}<span class="avg"><i></i><i class="h">4h</i><i class="h">7h</i><i class="l">${t("avCli")}</i><i class="v">${c(v4)}</i><i class="v">${c(v7)}</i>${n4||n7?`<i class="l">${t("avDono")}</i><i class="n">${n4?brl(n4):"—"}</i><i class="n">${n7?brl(n7):"—"}</i>`:""}</span>`; };
+/* períodos ocupados de uma lancha num dia (Rodrigo 2026-10-31): passeio com Entrada/Saída fora do padrão (ex.: 13h às 17h) ocupa os dois períodos que toca;
+   hoje, o período que já começou não aparece mais como livre */
+function avTaken(rows, d){ const s=new Set(), W={manha:[600,840], tarde:[840,1080]}, mm=x=>{ const [h,m]=String(x).slice(0,5).split(":").map(Number); return h*60+(m||0); };
+  (rows||[]).filter(r=>!r.revenda).forEach(r=>{ s.add(r.horario); const n=[].concat(r.anotacoes||[])[0];
+    if(r.horario!=="noite" && /^\d{1,2}:\d{2}/.test(n?.hora_ini||"") && /^\d{1,2}:\d{2}/.test(n?.hora_fim||"")){ const a=mm(n.hora_ini), b=mm(n.hora_fim); for(const k in W) if(a<W[k][1] && b>W[k][0]) s.add(k); } });
+  if(d===todayISO()){ const nw=new Date(), nm=nw.getHours()*60+nw.getMinutes(); for(const k in W) if(nm>=W[k][0]) s.add(k); }
+  return s; }
 /* busca rápida: quais lanchas estão livres numa data (para não fechar com o cliente à toa) */
 function avHTML(){
   const boats=S.boats.filter(b=>b.ativa!==false && !isRO(b.slug) && !boatRow(b.slug)?.oculta && !boatRow(b.slug)?.dados?.exemplo /* fora do site e lancha de exemplo não entram (Rodrigo 2026-10-25) */); if(isRO() || boats.length<2) return "";
@@ -2463,7 +2470,7 @@ function avHTML(){
   if(S.avD && S.avRows==null) list=`<small class="muted">${t("avLoading")}</small>`;
   else if(S.avD && S.avRows==="err") list=`<small class="muted">${t("netErr")}</small>`;
   else if(S.avD){ const d=S.avD, nt=hasNight(d);
-    const rows=boats.filter(b=>!S.avN || capOf(b)>=S.avN).map(b=>{ if((S.avMnt||[]).some(x=>x.lancha===b.slug)) return {b, rv:null, st:3, slot:"", lab:t("mntAv"), cls:"no"}; const mine=S.avRows.filter(r=>r.lancha===b.slug), rv=mine.find(r=>r.revenda), s=new Set(mine.filter(r=>!r.revenda).map(r=>r.horario)), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
+    const rows=boats.filter(b=>!S.avN || capOf(b)>=S.avN).map(b=>{ if((S.avMnt||[]).some(x=>x.lancha===b.slug)) return {b, rv:null, st:3, slot:"", lab:t("mntAv"), cls:"no"}; const mine=S.avRows.filter(r=>r.lancha===b.slug), rv=mine.find(r=>r.revenda), s=avTaken(mine, d), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
       const st = full ? 2 : m||tt ? 1 : 0, slot = st===1 ? (m?"tarde":"manha") : "";
       const lab = (st===2 ? t("avBusy") : st===1 ? t(m?"avOnlyT":"avOnlyM",{h:t("hours_"+slot)}) : t("avFree")) + (nt ? " · "+t(s.has("noite")?"avNightB":"avNightF") : "") + (rv ? " · "+t("avRv") : "");
       const nf=full&&nt&&!s.has("noite");
@@ -2477,7 +2484,7 @@ function avHTML(){
 async function loadAv(){ const d=S.avD, my=++avSeq; S.avRows=null; mainView();
   if(S.admin && !S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* neto = parte do dono */
   S.avMnt = await db(`manutencoes?select=lancha&de=lte.${d}&ate=gte.${d}`).catch(()=>[]); /* em manutenção: aparece como parada */
-  try{ const r=await db(`bloqueios?select=id,lancha,horario,revenda&data=eq.${d}`); if(my===avSeq) S.avRows=r; }catch(e){ if(my===avSeq) S.avRows="err"; }
+  try{ const r=await db(`bloqueios?select=id,lancha,horario,revenda,anotacoes(hora_ini,hora_fim)&data=eq.${d}`).catch(()=>db(`bloqueios?select=id,lancha,horario,revenda&data=eq.${d}`)); if(my===avSeq) S.avRows=r; }catch(e){ if(my===avSeq) S.avRows="err"; }
   if(my===avSeq && S.tab==="lista" && view==="main" && !sheetDay && !tripRow) mainView(); }
 let avSeq=0;
 /* dono: quanto receber de cada cliente no embarque, nos próximos passeios (Rodrigo 2026-10-25: a galera não ficar perguntando) */
@@ -5145,7 +5152,7 @@ function vAvHTML(){
   if(S.vavD && S.vavRows==null) list=`<small class="muted">${t("avLoading")}</small>`;
   else if(S.vavD && S.vavRows==="err") list=`<small class="muted">${t("netErr")}</small>`;
   else if(S.vavD){ const k=seasonBase(S.vavD), own=S.own||[], teto=vTeto(), pcOf=c=>vPc(pctKey(c,S.vavD)), pc=pcOf(k);
-    const rows=S.all.filter(b=>b.ativa!==false && !b.oculta && !b.dados?.exemplo /* lancha de exemplo do cadastro: não se vende */ && (!S.vavN || capOf(b)>=S.vavN)).filter(b=>!(S.vavMnt||[]).some(x=>x.lancha===b.slug)) /* em manutenção: não aparece para o vendedor */.map(b=>{ const s=new Set(S.vavRows.filter(r=>r.lancha===b.slug && !r.revenda).map(r=>r.horario)), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
+    const rows=S.all.filter(b=>b.ativa!==false && !b.oculta && !b.dados?.exemplo /* lancha de exemplo do cadastro: não se vende */ && (!S.vavN || capOf(b)>=S.vavN)).filter(b=>!(S.vavMnt||[]).some(x=>x.lancha===b.slug)) /* em manutenção: não aparece para o vendedor */.map(b=>{ const s=avTaken(S.vavRows.filter(r=>r.lancha===b.slug), S.vavD), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
       return {b, st: full?2:m||tt?1:0, lab: full ? t("avBusy") : m||tt ? t(m?"avOnlyT":"avOnlyM",{h:t("hours_"+(m?"tarde":"manha"))}) : t("avFree")}; }).sort((x,y)=>x.st-y.st || x.b.nome.localeCompare(y.b.nome));
     const val=(b,h7)=>{ const r=(S.vavPr||[]).find(x=>x.lancha===b.slug), kb=kOf(S.vavPr,b.slug,S.vavD), base=valorNaData(r,S.vavD,h7,valOpts(r)), h=h7?"7h":"4h"; if(!base) return `${h} ${t("prOnReq")}`;
       const cli=own.includes(b.slug) ? base : Math.round(base*(1+pcOf(kb)/100)/10)*10; /* na própria lancha o dono-vendedor não soma comissão */
@@ -5264,7 +5271,7 @@ function paintVav(){ const x=app.querySelector(".vav"); if(!x) return; x.outerHT
 async function loadVav(){ const d=S.vavD, my=++vavSeq; S.vavRows=null; paintVav();
   if(!S.vavPr) S.vavPr = await db("precos?select=*").catch(()=>[]);
   S.vavMnt = await db(`manutencoes?select=lancha&de=lte.${d}&ate=gte.${d}`).catch(()=>[]);
-  try{ const r=await db(`bloqueios?select=lancha,horario,revenda&data=eq.${d}`); if(my===vavSeq) S.vavRows=r; }catch(e){ if(my===vavSeq) S.vavRows="err"; }
+  try{ const r=await db(`bloqueios?select=lancha,horario,revenda,anotacoes(hora_ini,hora_fim)&data=eq.${d}`).catch(()=>db(`bloqueios?select=lancha,horario,revenda&data=eq.${d}`)); if(my===vavSeq) S.vavRows=r; }catch(e){ if(my===vavSeq) S.vavRows="err"; }
   if(my===vavSeq) paintVav(); }
 function bindVav(){
   const d=document.getElementById("vavd"); if(d) d.onchange=()=>{ S.vavD=d.value; if(S.vavD) loadVav(); else paintVav(); };
