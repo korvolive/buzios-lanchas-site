@@ -370,7 +370,7 @@ const FORA_DESDE = "2026-10-21"; // passeios de fora: o dono confirma a partir d
 async function fins() {
   const agora = new Date(Date.now() - 3 * 3600 * 1000), hoje = agora.toISOString().slice(0, 10), hora = agora.getUTCHours() + agora.getUTCMinutes() / 60;
   const d0 = new Date(agora.getTime() - 3 * 86400 * 1000).toISOString().slice(0, 10);
-  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, anotacoes(origem, cliente, cliente_conta, hora_ini, hora_fim), realizados(aconteceu), fim_avisos(bloqueio_id)").gte("data", d0).lte("data", hoje);
+  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, anotacoes(origem, cliente, cliente_conta, hora_ini, hora_fim, valor, sinal), realizados(aconteceu), fim_avisos(bloqueio_id)").gte("data", d0).lte("data", hoje);
   if (error) { console.error("fim", error.message); return 0; }
   const um = (x: any) => Array.isArray(x) ? x[0] : x;
   const prontos = (bs || []).filter(b => {
@@ -397,12 +397,31 @@ async function fins() {
   const nomesPs = Object.fromEntries((ps || []).map(x => [x.user_id, x.nome]));
   for (const b of prontos.filter(b => ok.has(b.id))) {
     const a = um(b.anotacoes), fora = a?.origem !== "buzios", alvo = fora ? donos.get(b.lancha) || [] : adms;
+    // Miss Bardot da Búzios (Rodrigo 2026-10-31): confirma sozinho que aconteceu e já pede a avaliação ao cliente com conta.
+    // Pré-reserva sem sinal continua no quadro para o administrador confirmar à mão.
+    if (b.lancha === AUTO_CONFIRMA && !fora && !(+a?.valor > 0 && !(+a?.sinal > 0))) {
+      const auto = await autoConfirma(b, a, nomes.get(b.lancha) || b.lancha).catch(e => (console.error("auto", e), false));
+      if (auto) continue;
+    }
     const com = fora ? null : await comissaoDe(b.id).catch(e => (console.error("comissao", e), null)); // só o administrador paga comissão
     n += await enviar(alvo, "fim", { id: b.id, lancha: nomes.get(b.lancha), data: b.data, horario: b.horario, cliente: a?.cliente || "", fora, com }, "/login/");
     // também por e-mail, para confirmar o quanto antes mesmo sem o aviso no celular
     for (const ad of alvo) await mandarEmail(ad, "fim", { b, a, lancha: nomes.get(b.lancha), data: dataBR(b.data), cliente: a?.cliente || "", fora, com, nomes: nomesPs }).catch(e => console.error(e));
   }
   return n;
+}
+
+const AUTO_CONFIRMA = "miss-bardot";
+async function autoConfirma(b: any, a: any, lancha: string) {
+  const { error } = await db.from("realizados").upsert({ bloqueio_id: b.id, aconteceu: true, por: null }, { onConflict: "bloqueio_id", ignoreDuplicates: true });
+  if (error) { console.error("auto realizados", error.message); return false; }
+  const cli = a?.cliente_conta || (await db.from("pedidos").select("cliente").eq("bloqueio_id", b.id).eq("status", "aprovado").limit(1).maybeSingle()).data?.cliente;
+  if (!cli) return true; // sem conta: o pedido de avaliação vai pelo WhatsApp (quadro "Falta pedir a avaliação no WhatsApp")
+  const cup = await cupomDo(b.id, cli).catch(e => (console.error(e), null));
+  await enviar([cli], "avaliar", { id: b.id, data: b.data, horario: b.horario, lancha, cup }, "/login/").catch(e => console.error(e));
+  const { data: c } = await db.from("clientes").select("nome").eq("user_id", cli).maybeSingle();
+  await mandarEmail(cli, "avaliar", { b, a, lancha, cup, data: dataBR(b.data), nomes: { [cli]: c?.nome || a?.cliente || "" } }).catch(e => console.error(e));
+  return true;
 }
 
 // aviso ao cliente 1 hora antes do início (hora_ini combinada, senão o início do horário padrão; noite só com hora combinada)
