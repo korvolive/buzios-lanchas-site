@@ -20,7 +20,12 @@ const SLOT: Record<string, Record<string, string>> = {
   en: { dia: "10am to 5pm", manha: "10am to 2pm", tarde: "2pm to 6pm", noite: "New Year's Eve night" },
   es: { dia: "10 h a 17 h", manha: "10 h a 14 h", tarde: "14 h a 18 h", noite: "Nochevieja nocturno" },
 };
-const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "content-type": "application/json" } });
+// horário combinado (Entrada/Saída) vale mais que o padrão do período (Rodrigo 2026-10-31: cliente com 13h às 17h recebeu "14h às 18h")
+const hm = (x: string, l: string) => { const [h, m] = x.split(":").map(Number); if (l === "en") return (h % 12 || 12) + (m ? ":" + String(m).padStart(2, "0") : "") + (h < 12 ? "am" : "pm"); return l === "es" ? h + (m ? ":" + String(m).padStart(2, "0") : "") + " h" : h + "h" + (m ? String(m).padStart(2, "0") : ""); };
+const okHm = (x: unknown) => /^\d{1,2}:\d{2}/.test(String(x || ""));
+const horaTxt = (l: string, horario: string, ini?: string | null, fim?: string | null) =>
+  okHm(ini) && okHm(fim) ? `${hm(String(ini), l)} ${l === "pt" ? "às" : l === "es" ? "a" : "to"} ${hm(String(fim), l)}` : (SLOT[l][horario] || horario);
+, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "content-type": "application/json" } });
 const dig = (x: unknown) => String(x || "").replace(/\D/g, "");
 const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
 const MES: Record<string, string[]> = {
@@ -86,7 +91,7 @@ async function avisarPasseios(modelo: string) {
     .gte("data", hoje).lte("data", ate).is("revenda", null).order("criado_em").limit(40);
   if (error) { console.error("passeios", error.message); return 0; }
   if (!bs?.length) return 0;
-  const { data: ns } = await db.from("anotacoes").select("bloqueio_id, cliente, telefone, cliente_conta, aviso_wa_em").in("bloqueio_id", bs.map(b => b.id));
+  const { data: ns } = await db.from("anotacoes").select("bloqueio_id, cliente, telefone, cliente_conta, aviso_wa_em, hora_ini, hora_fim").in("bloqueio_id", bs.map(b => b.id));
   const { data: ls } = await db.from("lanchas").select("slug, nome");
   const nomeL = (s: string) => ls?.find(l => l.slug === s)?.nome || s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   const { data: rec } = await db.from("anotacoes").select("bloqueio_id, telefone").gte("aviso_wa_em", new Date(agora - 864e5).toISOString());
@@ -121,7 +126,7 @@ async function avisarPasseios(modelo: string) {
     const cc = (String(x.telefone).trim().match(/^\+(\d{1,3})\s/) || [])[1] || to.slice(0, 2);
     const l = cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en";
     ja.add(to); livre--; porL.set(b.lancha, (porL.get(b.lancha) || 0) + 1);
-    const p = [nomeOk(x.cliente), nomeL(b.lancha), `${dataLonga(b.data, l)} (${SLOT[l][b.horario] || b.horario})`];
+    const p = [nomeOk(x.cliente), nomeL(b.lancha), `${dataLonga(b.data, l)} (${horaTxt(l, b.horario, x.hora_ini, x.hora_fim)})`];
     const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
       method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
@@ -149,7 +154,7 @@ Deno.serve(async req => {
     let livre = 30 - (count ?? 0);
     if (livre <= 0) return json({ ok: true, enviados: 0, trava: "hora", leads, passeios });
     // consultas de 70 s a 30 min atrás, sem chamar no WhatsApp e sem resgate ainda
-    const { data: cs } = await db.from("consultas").select("id, lancha, data, horario, pessoas, nome, telefone, lang")
+    const { data: cs } = await db.from("consultas").select("id, lancha, data, horario, pessoas, nome, telefone, lang, hora_ini, hora_fim")
       .eq("chamou", false).is("wa_enviado_em", null)
       .lte("criado_em", new Date(agora - 70e3).toISOString()).gte("criado_em", new Date(agora - 30 * 60e3).toISOString())
       .order("criado_em").limit(10);
@@ -168,7 +173,7 @@ Deno.serve(async req => {
       if (to.length < 10 || to.length > 15 || ja.has(to)) continue; // fica marcada sem mandar: não tenta de novo
       ja.add(to); livre--;
       const l = SLOT[c.lang] ? c.lang : "pt";
-      const p = [nomeOk(c.nome), nomeL(c.lancha), `${dataFmt(c.data, l)}, ${SLOT[l][c.horario] || c.horario}`, String(c.pessoas || "-")];
+      const p = [nomeOk(c.nome), nomeL(c.lancha), `${dataFmt(c.data, l)}, ${horaTxt(l, c.horario, c.hora_ini, c.hora_fim)}`, String(c.pessoas || "-")];
       const r = await fetch(`https://graph.facebook.com/v21.0/${PHONE}/messages`, {
         method: "POST", headers: { authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
         body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
