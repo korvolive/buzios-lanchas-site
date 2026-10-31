@@ -2167,7 +2167,7 @@ function seo(b){
     "image":absImg(BOATS[0].photos[0]),"description":t("seoDesc"),
     "address":{"@type":"PostalAddress","addressLocality":"Armação dos Búzios","addressRegion":"RJ","addressCountry":"BR"},
     "geo":{"@type":"GeoCoordinates","latitude":-22.7469,"longitude":-41.8817},
-    "areaServed":{"@type":"City","name":"Armação dos Búzios"},"sameAs":["https://www.instagram.com/missbardotbuzios/"],
+    "areaServed":{"@type":"City","name":"Armação dos Búzios"},"sameAs":["https://www.instagram.com/missbardotbuzios/","https://share.google/zCKATgMtWBwdo8w2F"],
     ...(all.length&&PRECOS_PUBLICOS?{"priceRange":`R$ ${Math.min(...all)} - R$ ${Math.max(...all)}`}:{})};
   const graph = [biz];
   if(!b) graph.push({"@type":"FAQPage","mainEntity":UI[lang].faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))});
