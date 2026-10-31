@@ -6099,7 +6099,7 @@ function renderSheet(busy){
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${fmtLong(d)}</h2><p class="muted" style="margin-top:0">${t(isRO()?"roSheetSub":"sheetSub")}</p>${mntOn(d)?`<p class="msg err">${t("mntDay")}</p>`:""}
     ${["manha","tarde","dia",...(hasNight(d)?["noite"]:[])].map(k=>{ const r=s.get(k), on=!!r, inc = (k==="manha"||k==="tarde") && dia && !on, mt = !on && !!mntOn(d);
       return `<button type="button" class="opt${busy===k?" saving":""}" role="checkbox" aria-checked="${on}" data-s="${k}"${inc||busy||isRO()?" disabled":""}>
-        <span class="box"></span><div><strong>${t("slot_"+k)}</strong><span>${t("hours_"+k)}</span></div><em>${on?t("rented"):inc?t("inDay"):mt?t("mntLeg"):t("free")}</em></button>`
+        <span class="box"></span><div><strong>${t("slot_"+k)}</strong><span>${on && r.nota?.hora_ini ? slotHours(k, r.nota) : t("hours_"+k)}</span></div><em>${on?t("rented"):inc?t("inDay"):mt?t("mntLeg"):t("free")}</em></button>`
         + (on && S.notes && !(isRO() && !noteLine(r.nota)) ? `<button type="button" class="note-btn" data-n="${k}">${r.nota&&noteLine(r.nota) ? `<span>${noteLine(r.nota)}</span><b>${isRO()?"›":"✎"}</b>` : t("addNote")}</button>` : ""); }).join("")}
     <button class="btn" id="sheetx" style="margin-top:6px">${t("close")}</button>`;
   document.getElementById("sheetx").onclick = closeDay;
