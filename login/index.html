@@ -355,6 +355,8 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .vpay{margin:0 0 12px;padding:9px 11px;border-radius:10px;background:rgba(47,143,91,.1);font-size:14px;line-height:1.45}
 .vlink{display:flex;gap:6px;align-items:center;margin-bottom:10px}
 .vsellh{margin:12px 0 6px;font-size:17px}
+.vav .avl li{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 10px;background:var(--bg)}.vav .avl li .avr{padding:0}
+.avl button.vsell{all:unset;box-sizing:border-box;flex-basis:100%;margin-top:10px;text-align:center;padding:10px;border-radius:10px;background:var(--sea);color:var(--surface);font-weight:600;font-size:15px;cursor:pointer}
 .vlink code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px}
 .vlink .btn{width:auto;flex:none;margin:0;padding:10px 12px}
 .vlink .btn.wa svg{width:20px;height:20px}
@@ -5192,7 +5194,7 @@ function vAvHTML(){
       const bs = S.vParte>0 && S.vParte<1 ? Math.round(cli-(cli-base)*S.vParte) : base; /* sócio: a diferença é só a parte dele */
       return `${h} ${brl(bs)} → <b>${brl(cli)}</b>`; };
     list=`<p class="avseason">${t("vavSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k), p:String(pc).replace(".",",")})}${ferOf(S.vavD)&&k!=="reveillon"?" "+t("ferNote",{f:t("fer_"+ferOf(S.vavD))}):""} ${S.vend?.parceiro?"":`<button type="button" class="link" id="vpgo">${t("vavAdj")}</button>`}</p>
-      <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b)} · ${val(r.b,1)}</small>`:""}</span>${r.st<2 && !S.vend?.parceiro?`<button type="button" class="btn sec vsell" data-vsell="${esc(r.b.slug)}">💼 ${t("vsBtn")}</button>`:""}</li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
+      <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b)} · ${val(r.b,1)}</small>`:""}</span>${r.st<2 && !S.vend?.parceiro?`<button type="button" class="vsell" data-vsell="${esc(r.b.slug)}">💼 ${t("vsBtn")} ${esc(r.b.nome)}</button>`:""}</li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
   return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" max="${maxISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
 let vavSeq=0;
