@@ -1519,10 +1519,12 @@ function loadAgenda(){
   const mnt = fetch(`${AGENDA_URL.replace("bloqueios","manutencoes")}?select=lancha,de,ate&ate=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
   /* data segurada: outro cliente gerou o pagamento há menos de 2 horas, ou já pagou (Rodrigo 2026-10-25) */
   const seg = fetch(SB_URL+"/rest/v1/rpc/datas_seguradas", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
+  /* passeio com horário fora do padrão (ex.: 13h às 17h) ocupa também o outro período que toca (Rodrigo 2026-10-31); sem o SQL ainda, volta vazio */
+  const ext = fetch(SB_URL+"/rest/v1/rpc/periodos_extra", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
   return agenda ||= Promise.all([fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}&revenda=is.null`, {headers:{apikey:AGENDA_KEY}})
-    .then(r=>r.ok ? r.json() : Promise.reject(r.status)), mnt, seg])
-    .then(([rows, mn, sg])=>{ const m=new Map(), add=(k,h)=>{ if(!m.has(k)) m.set(k,new Set()); m.get(k).add(h); };
-      rows.concat(sg).forEach(r=>add(r.lancha+"|"+r.data, r.horario));
+    .then(r=>r.ok ? r.json() : Promise.reject(r.status)), mnt, seg, ext])
+    .then(([rows, mn, sg, ex])=>{ const m=new Map(), add=(k,h)=>{ if(!m.has(k)) m.set(k,new Set()); m.get(k).add(h); };
+      rows.concat(sg, ex).forEach(r=>add(r.lancha+"|"+r.data, r.horario));
       const td=todayISO(); mn.forEach(x=>{ for(let d=new Date((x.de>td?x.de:td)+"T12:00:00Z"); ; d.setUTCDate(d.getUTCDate()+1)){ const k=d.toISOString().slice(0,10); if(k>x.ate) break; add(x.lancha+"|"+k,"dia"); add(x.lancha+"|"+k,"noite"); } });
       return m; })
     .catch(()=>{ agenda=null; return null; });
