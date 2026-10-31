@@ -11,6 +11,7 @@
 // POST { tipo: "alterado", id: <alteração> }  (só o administrador, depois de aprovar ou de mudar pelo formulário) avisa o cliente com conta que a reserva mudou (antes e depois)
 // POST { tipo: "avaliar", id: <bloqueio> }  (administrador; ou o dono, nos passeios de fora; depois de confirmar que o passeio aconteceu) pede a avaliação ao cliente (celular e e-mail)
 // POST { tipo: "op_pedido", id: <consulta> }  (o operador, logo depois de lançar o pedido) avisa o administrador para aprovar (celular e e-mail)
+// POST { tipo: "op_pre", id: <bloqueio> }  (o operador, logo depois de lançar a Miss Bardot, que já vira pré-reserva) avisa o administrador (Rodrigo 2026-10-31)
 // POST { tipo: "op_comprovante", id: <bloqueio> }  (o operador, logo depois de anexar o comprovante que o cliente mandou no WhatsApp) avisa o administrador para conferir
 // POST { tipo: "op_alteracao", id: <alteração> }  (o operador, logo depois de pedir a alteração) avisa o administrador para aprovar (celular e e-mail)
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
@@ -61,6 +62,11 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Pedido novo do Lucas: aprovar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas${p.cliente ? " · " + p.cliente : ""}` }),
     en: p => ({ title: "New request from Lucas: approve", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people${p.cliente ? " · " + p.cliente : ""}` }),
     es: p => ({ title: "Pedido nuevo de Lucas: aprobar", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas${p.cliente ? " · " + p.cliente : ""}` }),
+  },
+  op_pre: {
+    pt: p => ({ title: "Pré-reserva do Lucas", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas${p.cliente ? " · " + p.cliente : ""}. Esperando o sinal.` }),
+    en: p => ({ title: "Pre-booking by Lucas", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people${p.cliente ? " · " + p.cliente : ""}. Waiting for the deposit.` }),
+    es: p => ({ title: "Pre-reserva de Lucas", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas${p.cliente ? " · " + p.cliente : ""}. Esperando la seña.` }),
   },
   op_comprovante: {
     pt: p => ({ title: "Comprovante anexado pelo Lucas: conferir", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. Confira o Pix e preencha o sinal.` }),
@@ -233,6 +239,11 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Lucas launched a booking request: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${p.data}`, `Time: ${p.horario}`, `People: ${p.pessoas}`, ...(p.valor ? [`Agreed price: ${p.valor}`] : []), ...(p.sinal ? [`Agreed deposit: ${p.sinal}`] : [])], nota: "The request is in Bookings › Inquiries. Tap Approve as is.", botao: "Open bookings" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Lucas cargó un pedido de reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.valor ? [`Valor acordado: ${p.valor}`] : []), ...(p.sinal ? [`Seña acordada: ${p.sinal}`] : [])], nota: "El pedido está en Reservas › Consultas. Toca Aprobar tal cual.", botao: "Abrir las reservas" }),
   },
+  op_pre: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O Lucas criou uma pré-reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${p.data}`, `Horário: ${p.horario}`, `Pessoas: ${p.pessoas}`, ...(p.valor ? [`Valor: ${p.valor}`] : []), ...(p.sinal ? [`Sinal combinado: ${p.sinal}`] : [])], nota: "A data já está segura esperando o sinal. Quando o Pix entrar, abra Reservas › Sinais pendentes e toque em Cliente pagou.", botao: "Abrir as reservas" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Lucas created a pre-booking: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${p.data}`, `Time: ${p.horario}`, `People: ${p.pessoas}`, ...(p.valor ? [`Price: ${p.valor}`] : []), ...(p.sinal ? [`Agreed deposit: ${p.sinal}`] : [])], nota: "The date is already held waiting for the deposit. When the Pix comes in, open Bookings › Pending deposits and tap Client paid.", botao: "Open bookings" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Lucas creó una pre-reserva: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${p.data}`, `Horario: ${p.horario}`, `Personas: ${p.pessoas}`, ...(p.valor ? [`Valor: ${p.valor}`] : []), ...(p.sinal ? [`Seña acordada: ${p.sinal}`] : [])], nota: "La fecha ya está guardada esperando la seña. Cuando entre el Pix, abre Reservas › Señas pendientes y toca El cliente pagó.", botao: "Abrir las reservas" }),
+  },
   op_comprovante: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O Lucas anexou o comprovante do sinal de ${p.cliente || "um cliente"}: ${p.lancha}.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`], nota: "A data fica segura até você conferir. Confira o Pix no banco, abra o passeio e preencha o sinal.", botao: "Abrir os passeios" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Lucas attached ${p.cliente || "a client"}'s deposit receipt: ${p.lancha}.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`], nota: "The date stays held until you check it. Check the Pix in the bank, open the tour and enter the deposit.", botao: "Open tours" }),
@@ -310,6 +321,7 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   dono: { pt: p => `Passeio confirmado: ${p.lancha}${dd(p)}`, en: p => `Tour confirmed: ${p.lancha}${dd(p)}`, es: p => `Paseo confirmado: ${p.lancha}${dd(p)}` },
   pedido: { pt: p => `Nova reserva pelo site: ${p.lancha}${dd(p)}`, en: p => `New booking request: ${p.lancha}${dd(p)}`, es: p => `Nueva reserva por el sitio: ${p.lancha}${dd(p)}` },
   op_pedido: { pt: p => `Pedido do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Request from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Pedido de Lucas para aprobar: ${p.lancha}${dd(p)}` },
+  op_pre: { pt: p => `Pré-reserva do Lucas: ${p.lancha}${dd(p)}`, en: p => `Pre-booking by Lucas: ${p.lancha}${dd(p)}`, es: p => `Pre-reserva de Lucas: ${p.lancha}${dd(p)}` },
   op_comprovante: { pt: p => `Comprovante do Lucas para conferir: ${p.lancha}${dd(p)}`, en: p => `Receipt from Lucas to check: ${p.lancha}${dd(p)}`, es: p => `Comprobante de Lucas para revisar: ${p.lancha}${dd(p)}` },
   op_alteracao: { pt: p => `Alteração do Lucas para aprovar: ${p.lancha}${dd(p)}`, en: p => `Change from Lucas to approve: ${p.lancha}${dd(p)}`, es: p => `Cambio de Lucas para aprobar: ${p.lancha}${dd(p)}` },
   mar: { pt: p => `Você vai pilotar: ${p.lancha}${dd(p)}`, en: p => `You will skipper: ${p.lancha}${dd(p)}`, es: p => `Vas a pilotar: ${p.lancha}${dd(p)}` },
@@ -325,7 +337,7 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   avisarCli: { pt: p => `Avise o cliente: passeio em breve na ${p.lancha}`, en: p => `Remind the client: tour soon on ${p.lancha}`, es: p => `Avisa al cliente: paseo pronto en ${p.lancha}` },
   cliente: { pt: p => `Reserva confirmada: ${p.lancha}${dd(p)}`, en: p => `Booking confirmed: ${p.lancha}${dd(p)}`, es: p => `Reserva confirmada: ${p.lancha}${dd(p)}` },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_alteracao" | "op_comprovante" | "emb_mar", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_pre" | "op_alteracao" | "op_comprovante" | "emb_mar", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
@@ -652,7 +664,7 @@ Deno.serve(async req => {
     }
 
     // o operador (Lucas) lançou um pedido ou pediu uma alteração: avisa o administrador para aprovar (Rodrigo 2026-10-30)
-    if (tipo === "op_pedido" || tipo === "op_alteracao" || tipo === "op_comprovante") {
+    if (tipo === "op_pedido" || tipo === "op_pre" || tipo === "op_alteracao" || tipo === "op_comprovante") {
       const op = (await db.from("papeis_painel").select("papel").eq("user_id", uid).maybeSingle()).data?.papel === "operador";
       if (!op && !admin) return json({ erro: "sem acesso" }, 403);
       const dez = Date.now() - 10 * 60 * 1000, brl = (v: any) => +v > 0 ? `R$ ${Number(v).toLocaleString("pt-BR")}` : "";
@@ -662,6 +674,12 @@ Deno.serve(async req => {
         if (!c || c.criado_por !== uid) return json({ erro: "pedido não encontrado" }, 404);
         if (Date.parse(c.criado_em) < dez) return json({ enviados: 0 });
         b = c; a = c; p = { id: c.id, lancha: await nomeLancha(c.lancha), data: c.data, horario: c.horario, pessoas: String(c.pessoas || ""), cliente: c.nome || "", valor: brl(c.valor), sinal: brl(c.sinal) };
+      } else if (tipo === "op_pre") {
+        b = (await db.from("bloqueios").select("id, lancha, data, horario, criado_por, criado_em").eq("id", id).maybeSingle()).data;
+        if (!b || b.criado_por !== uid) return json({ erro: "pré-reserva não encontrada" }, 404);
+        if (Date.parse(b.criado_em) < dez) return json({ enviados: 0 });
+        a = (await db.from("anotacoes").select("cliente, pessoas, valor, sinal_combinado, hora_ini, hora_fim").eq("bloqueio_id", id).maybeSingle()).data || {};
+        p = { id: b.id, lancha: await nomeLancha(b.lancha), data: b.data, horario: b.horario, pessoas: String(a.pessoas || ""), cliente: a.cliente || "", valor: brl(a.valor), sinal: brl(a.sinal_combinado) };
       } else if (tipo === "op_comprovante") {
         a = (await db.from("anotacoes").select("cliente, comprovante_por, comprovante_em").eq("bloqueio_id", id).maybeSingle()).data;
         if (!a || a.comprovante_por !== uid || !a.comprovante_em) return json({ erro: "comprovante não encontrado" }, 404);

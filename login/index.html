@@ -5200,7 +5200,7 @@ function openOpPed(vend){
       if(vend){ await RPC("lancar_pedido_vendedor",{...base, p_comissao:nv("opc")}); closeDay(); toast(t("vplOk")); return; } /* vendedor: sem sinal; cai nas Consultas do Rodrigo com a comissão */
       /* Miss Bardot (Rodrigo 2026-10-31): o pedido do Lucas já vira pré-reserva e abre a mensagem de pagamento; as outras lanchas seguem para o Rodrigo aprovar */
       const ar=await RPC("lancar_reserva_operador",{...base, p_sinal:nv("ops")}).catch(e=>{ if(e.status===404) return null; throw e; });
-      if(ar?.auto){ closeDay(); loadBlocks(); loadReqs().then(()=>{ if(view==="main") mainView(); });
+      if(ar?.auto){ opAvisa("op_pre", ar.bid); closeDay(); loadBlocks(); loadReqs().then(()=>{ if(view==="main") mainView(); });
         if(ar.convite==="ligado") return toast(t("opAutoConta"));
         toast(t("opAutoOk",{h:holdDur(d)}));
         return preLink({id:ar.bid, lancha:sel.value, data:d, horario:h, nota:{origem:"buzios", cliente:nome, telefone:ph.tel, valor:ar.valor, sinal:0, hora_ini:hi||null, hora_fim:hf||null}}); }
