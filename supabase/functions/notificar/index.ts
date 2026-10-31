@@ -124,9 +124,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Tu reserva fue cambiada", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. La seña sigue valiendo. Toca para ver.` }),
   },
   avaliar: {
-    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} e o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha.` : ""}` }),
-    en: p => ({ title: "How was your tour?", body: `Rate ${p.lancha} and the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate it and get a discount coupon for your next tour on this same boat.` : ""}` }),
-    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Califica ${p.lancha} y al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica y gana un cupón de descuento para tu próximo paseo en esta misma lancha.` : ""}` }),
+    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} no Google e depois o marinheiro. Leva menos de 1 minuto.${p.cup ? ` 🎁 Avalie o marinheiro e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha.` : ""}` }),
+    en: p => ({ title: "How was your tour?", body: `Review ${p.lancha} on Google, then rate the skipper. It takes less than a minute.${p.cup ? ` 🎁 Rate the skipper and get a discount coupon for your next tour on this same boat.` : ""}` }),
+    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Evalúa ${p.lancha} en Google y después al marinero. Lleva menos de 1 minuto.${p.cup ? ` 🎁 Califica al marinero y gana un cupón de descuento para tu próximo paseo en esta misma lancha.` : ""}` }),
   },
   inicio: {
     pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
@@ -169,14 +169,14 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
 
 // cupom de fidelidade do passeio: vai junto do pedido de avaliação, no celular e no e-mail (Rodrigo 2026-10-23)
 const CUP_TXT: Record<string, (c: any) => string> = {
-  pt: c => `🎁 Avalie e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`,
-  en: c => `🎁 Rate your tour and get a discount coupon for your next tour on this same boat, valid for 6 months.`,
-  es: c => `🎁 Califica y gana un cupón de descuento para tu próximo paseo en esta misma lancha, válido por 6 meses.`,
+  pt: c => `🎁 Avalie o marinheiro e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`,
+  en: c => `🎁 Rate the skipper and get a discount coupon for your next tour on this same boat, valid for 6 months.`,
+  es: c => `🎁 Califica al marinero y gana un cupón de descuento para tu próximo paseo en esta misma lancha, válido por 6 meses.`,
 };
 const CUP_USO: Record<string, string> = {
-  pt: "O cupom aparece na sua conta assim que você avaliar. Para usar, na hora de reservar toque em Usar meu cupom.",
-  en: "The coupon shows up in your account as soon as you rate. To use it, tap Use my coupon when booking.",
-  es: "El cupón aparece en tu cuenta en cuanto califiques. Para usarlo, al reservar toca Usar mi cupón.",
+  pt: "O cupom aparece na sua conta assim que você avaliar o marinheiro. Para usar, na hora de reservar toque em Usar meu cupom.",
+  en: "The coupon shows up in your account as soon as you rate the skipper. To use it, tap Use my coupon when booking.",
+  es: "El cupón aparece en tu cuenta en cuanto califiques al marinero. Para usarlo, al reservar toca Usar mi cupón.",
 };
 async function cupomDo(bid: number, cli: string) {
   // cupom só nasce depois que o cliente avalia (Rodrigo 2026-10-23): aqui só promete o valor do cupom do dono da lancha
@@ -280,9 +280,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu reserva en ${p.lancha} fue cambiada.`, linhas: [`Antes: ${resumo(p.antes, "es")}`, `Ahora: ${resumo(p.depois, "es")}`, ...(p.cond ? [`Si el otro horario de la lancha se vende hasta las 20 h del ${p.cond.ate}, el paseo queda así. Si no, vuelve al día completo, por R$ ${brl(p.cond.valor)}.`] : []), "La seña que ya pagaste sigue valiendo.", "Búzios Lanchas: WhatsApp +55 21 99927-2550"], nota: "Cualquier duda, háblanos.", botao: "Ver mi reserva" }),
   },
   avaliar: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Obrigado por passear com a gente na ${p.lancha}! Conte como foi: dê a nota da lancha e do marinheiro.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cup ? [CUP_TXT.pt(p.cup)] : [])], nota: `${p.cup ? CUP_USO.pt + " " : ""}A avaliação leva menos de 1 minuto e ajuda outros clientes a escolher. Você pode alterá-la por até 7 dias.`, botao: "Avaliar o passeio" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Thank you for touring with us on ${p.lancha}! Tell us how it went: rate the boat and the skipper.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cup ? [CUP_TXT.en(p.cup)] : [])], nota: `${p.cup ? CUP_USO.en + " " : ""}The review takes less than a minute and helps other guests choose. You can change it for up to 7 days.`, botao: "Rate the tour" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${p.lancha}! Cuéntanos cómo fue: califica la lancha y al marinero.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cup ? [CUP_TXT.es(p.cup)] : [])], nota: `${p.cup ? CUP_USO.es + " " : ""}La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir. Puedes cambiarla hasta 7 días.`, botao: "Evaluar el paseo" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Obrigado por passear com a gente na ${p.lancha}! Conte como foi: avalie a lancha no Google e depois o marinheiro no app.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cup ? [CUP_TXT.pt(p.cup)] : [])], nota: `${p.cup ? CUP_USO.pt + " " : ""}A avaliação leva menos de 1 minuto e ajuda outros clientes a escolher. Você pode alterá-la por até 7 dias.`, botao: "Avaliar o passeio" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Thank you for touring with us on ${p.lancha}! Tell us how it went: review the boat on Google, then rate the skipper in the app.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cup ? [CUP_TXT.en(p.cup)] : [])], nota: `${p.cup ? CUP_USO.en + " " : ""}The review takes less than a minute and helps other guests choose. You can change it for up to 7 days.`, botao: "Rate the tour" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `¡Gracias por pasear con nosotros en ${p.lancha}! Cuéntanos cómo fue: evalúa la lancha en Google y después califica al marinero en la app.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cup ? [CUP_TXT.es(p.cup)] : [])], nota: `${p.cup ? CUP_USO.es + " " : ""}La evaluación lleva menos de 1 minuto y ayuda a otros clientes a elegir. Puedes cambiarla hasta 7 días.`, botao: "Evaluar el paseo" }),
   },
   fim: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Terminou um passeio na ${p.lancha}. ${p.fora ? "Confirme que ele foi concluído e que não há saldo pendente para liberar a avaliação do cliente." : "Confirme se ele aconteceu para liberar a avaliação do cliente."}`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.com ? [`💼 Comissão do vendedor ${p.com.nome}: ${COMV(p)}. Lembre de pagar depois de confirmar (Reservas › Histórico › Marcar comissão paga).`] : [])], nota: "Abra o app na aba Passeios: o passeio está no topo, em \"Passeios pendentes de confirmação\".", botao: "Confirmar o passeio" }),
