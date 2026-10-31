@@ -154,7 +154,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .msg.err{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 .msg.ok{background:var(--chip)}
 .login{padding-top:24px}
-.newacc{border:2px solid var(--brass,#c99a2e);margin:14px 0 18px}.newacc p{margin:0 0 12px;font-size:15px}.newacc .btn{width:100%;background:var(--sea);color:#fff} .haveacc{font-size:16px;margin:0 0 8px}
+.newacc{border:2px solid var(--brass,#c99a2e);margin:18px 0 0;padding:14px 16px}.newacc p{margin:0 0 10px;font-size:14px}.newacc .btn{width:100%;background:var(--sea);color:#fff;padding:10px 14px;font-size:15px} .haveacc{font-size:16px;margin:0 0 8px}
 .login .logo{width:72px;height:72px;border-radius:18px;display:block;margin:0 0 16px}
 .boats{display:flex;gap:8px;overflow-x:auto;margin:0 0 14px;padding-bottom:2px}
 .boats button{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-weight:600}
@@ -1113,7 +1113,6 @@ function loginView(){
   app.innerHTML = `<div class="login">
     <div style="display:flex;justify-content:space-between;align-items:flex-start"><img class="logo" src="/login/icon-192.png" alt=""><span class="top-lang" style="background:var(--sea-deep);border-radius:999px">${langSel()}</span></div>
     <h1>${t("loginTitle")}</h1><p class="muted">${pendRes() ? t("resLoginSub",{boat:esc(pendRes().nome)}) : t("loginSub")}</p>
-    <div class="card newacc"><p><b>${t("newAccT")}</b><br><span class="muted">${t("newAccSub")}</span></p><button type="button" class="btn" id="tosign">${t("newAccBtn")}</button></div>
     <h2 class="haveacc">${t("haveAccT")}</h2>
     <form class="card" id="lf" novalidate>
       ${loginMsg?`<p class="msg ${loginErr?"err":"ok"}">${loginMsg}</p>`:""}
@@ -1123,6 +1122,7 @@ function loginView(){
       <button class="btn" id="go">${t("enter")}</button>
       <button type="button" class="link" id="forgot">${t("forgot")}</button>${loginBy==="tel" ? `<p class="muted" style="font-size:13px;margin:6px 0 0">${t(waOn?"forgotTelHintWa":"forgotTelHint")}</p>` : ""}
     </form>
+    <div class="card newacc"><p><b>${t("newAccT")}</b><br><span class="muted">${t("newAccSub")}</span></p><button type="button" class="btn" id="tosign">${t("newAccBtn")}</button></div>
     </div>`;
   const s=document.querySelector(".top-lang select"); if(s){ s.style.border="0"; s.style.background="transparent"; s.style.color="#fff"; s.style.padding="8px 12px"; }
   bindLang();
