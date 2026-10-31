@@ -25,7 +25,7 @@ const hm = (x: string, l: string) => { const [h, m] = x.split(":").map(Number); 
 const okHm = (x: unknown) => /^\d{1,2}:\d{2}/.test(String(x || ""));
 const horaTxt = (l: string, horario: string, ini?: string | null, fim?: string | null) =>
   okHm(ini) && okHm(fim) ? `${hm(String(ini), l)} ${l === "pt" ? "às" : l === "es" ? "a" : "to"} ${hm(String(fim), l)}` : (SLOT[l][horario] || horario);
-, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "content-type": "application/json" } });
+const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "content-type": "application/json" } });
 const dig = (x: unknown) => String(x || "").replace(/\D/g, "");
 const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
 const MES: Record<string, string[]> = {
