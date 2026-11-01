@@ -673,7 +673,7 @@ const BOATS = [
       es:{tagline:"Totalmente reformada, climatizada y con sonido premium. Ideal para familias, amigos y celebraciones.",
           description:"La Miss Bardot es el escenario perfecto para vivir lo mejor de Búzios: un paseo romántico, un momento en familia o un día entre amigos. Son 35 pies con ambientes climatizados, camarote con cama doble y TV, baño, cocina con freidora de aire y parrilla. Lo más destacado es el sistema de sonido premium Hertz Marine: audio potente y nítido, hecho para sonar fuerte al aire libre sin perder calidad. Solo tienes que conectar tu playlist por Bluetooth y convertir el mar de Búzios en tu pista de baile. Paseos de día, al atardecer o, a consultar, nocturnos."}
     },
-    included:["Marinheiro experiente","Combustível","Gelo escama","Gelo filtrado","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Ar-condicionado","Som na proa","Piscina inflável","Wi-Fi Starlink","Banheiro","Gerador de energia","Air fryer","Cabine com cama de casal","Televisão","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho","Coletes para todos"],
+    included:["Marinheiro experiente","Combustível","Gelo escama","Gelo filtrado","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Ar-condicionado","Som na proa","Piscina inflável","Wi-Fi Starlink","Banheiro","Gerador de energia","Air fryer","Cabine com cama","Televisão","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho","Coletes para todos"],
     prices:{baixa:2200, media:2500, alta:3000, pico:4000, reveillon:4500}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* não usado: o valor de 7 horas de cada temporada é editado no app (tabela precos) */
     boarding:{4:["Porto Veleiro (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marina"]}, /* local de embarque por duração do passeio (4 ou 7 horas); com mais de um, o cliente escolhe; null = "a combinar" */
@@ -903,7 +903,7 @@ const PHRASES = {
   "Cooler":["Cooler","Hielera"],
   "Gerador de energia":["Power generator","Generador eléctrico"],
   "Air fryer":["Air fryer","Freidora de aire"],
-  "Cabine com cama de casal":["Cabin with double bed","Camarote con cama doble"],
+  "Cabine com cama":["Cabin with bed","Camarote con cama"],
   "Televisão":["Television","Televisión"],
   "Som Hertz Marine com Bluetooth":["Hertz Marine sound system with Bluetooth","Sonido Hertz Marine con Bluetooth"],
   "Som Bluetooth":["Bluetooth sound system","Sonido Bluetooth"],
@@ -1532,7 +1532,7 @@ function loadAgenda(){
 }
 /* Itens de cada lancha: o dono marca no app /login/ (tabela itens). Os básicos ficam sempre; os opcionais
    vêm do banco na ordem de ITEM_ORDER. Se o banco não responder, vale a lista "included" do código. */
-const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama de casal","Televisão","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
+const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama","Televisão","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
 /* Avaliações dos clientes (feitas no app depois do passeio): nota média e os últimos comentários da lancha.
    Se o banco não responder, a seção simplesmente não aparece. */
 const siteRevs = new Map(), revsOk = new Map();
@@ -1585,7 +1585,7 @@ let itens = null, itensP = null;
 function loadItens(){
   return itensP ||= fetch(AGENDA_URL.replace("bloqueios","itens")+"?select=lancha,opcionais", {headers:{apikey:AGENDA_KEY}})
     .then(r=>r.ok ? r.json() : Promise.reject(r.status))
-    .then(rows=>{ itens = new Map(rows.map(r=>[r.lancha, r.opcionais||[]])); return itens; })
+    .then(rows=>{ itens = new Map(rows.map(r=>[r.lancha, (r.opcionais||[]).map(x=>x==="Cabine com cama de casal"?"Cabine com cama":x)])); return itens; }) /* nome antigo do item (Rodrigo 2026-11-01: nem toda cabine tem cama de casal) */
     .catch(()=>null);
 }
 const incItems = b => boatItems(b).map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("");
@@ -1681,7 +1681,7 @@ const ITEM_ICON = {
   "Gerador de energia":IC('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'),
   "Geladeira":IC('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14M8.5 5.5v2M8.5 13v3"/>'),
   "Air fryer":IC('<path d="M6 6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14H6z"/><path d="M6 11h12M10 15h4M9 8h6"/>'),
-  "Cabine com cama de casal":IC('<path d="M2 19V7M2 15h20v4M22 15v-3a3 3 0 0 0-3-3h-8v6M6.5 12.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>'),
+  "Cabine com cama":IC('<path d="M2 19V7M2 15h20v4M22 15v-3a3 3 0 0 0-3-3h-8v6M6.5 12.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>'),
   "Televisão":IC('<rect x="2.5" y="5" width="19" height="13" rx="2"/><path d="M8 21h8M9 2l3 3 3-3"/>'),
   "Toldo com sombra":IC('<path d="M2 11a10 6 0 0 1 20 0zM12 11v10M12 5V3"/>'),
   "Solário na popa":IC('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
