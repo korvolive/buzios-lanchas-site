@@ -2920,6 +2920,18 @@ function nbToggles(id, list, on){ return `<div class="items" id="${id}">${list.m
 const nbPicked = id => [...document.querySelectorAll(`#${id} [aria-pressed=true]`)].map(x=>x.dataset.v);
 /* frase curta automática (pt, en, es) com o tamanho, as pessoas e os melhores itens marcados; quem quiser edita */
 const FRASE_TOP = ["Ar-condicionado","Cabine com cama de casal","Wi-Fi Starlink","Banheiro","Piscina inflável","Solário na popa","Tapete flutuante","Stand up paddle","Toldo com sombra","Som na proa","Gerador de energia","Air fryer","Geladeira","Televisão","Ducha de água doce","Máscaras de mergulho"];
+/* descrição da lancha (só para o Google, a página não mostra): montada sozinha no padrão das outras (Rodrigo 2026-11-01: tirar o campo do cadastro) */
+function autoDesc(nome, pes, cap, its){
+  const low = x => /^(Wi-Fi|Starlink)/.test(x) ? x : x[0].toLowerCase()+x.slice(1), top=FRASE_TOP.filter(k=>its.includes(k)).slice(0,5);
+  const who = cap<=6 ? ["casais, famílias e grupos pequenos","couples, families and small groups","parejas, familias y grupos pequeños"] : cap<=10 ? ["famílias e grupos pequenos","families and small groups","familias y grupos pequeños"]
+    : cap<=14 ? ["famílias e grupos de amigos","families and groups of friends","familias y grupos de amigos"] : ["grupos grandes e comemorações","large groups and celebrations","grupos grandes y celebraciones"];
+  const base = [["som Bluetooth","churrasqueira"],["Bluetooth sound","a barbecue grill"],["sonido Bluetooth","parrilla"]];
+  const list = i => { const n = top.length ? top.map(k=>low(ITEMS.find(x=>x[0]===k)[i])) : base[i], e=[" e "," and "," y "][i]; return n.length>1 ? n.slice(0,-1).join(", ")+e+n[n.length-1] : n[0]; };
+  const pc=String(pes).replace(".",",");
+  return {pt:`A ${nome} é uma lancha de ${pc} pés para até ${cap} pessoas, ótima para ${who[0]} curtirem as praias de Búzios com conforto. Tem ${list(0)}.`,
+    en:`${nome} is a ${pes}-foot boat for up to ${cap} people, great for ${who[1]} to enjoy the beaches of Búzios in comfort. It has ${list(1)}.`,
+    es:`La ${nome} es una lancha de ${pc} pies para hasta ${cap} personas, ideal para que ${who[2]} disfruten las playas de Búzios con comodidad. Tiene ${list(2)}.`};
+}
 function autoFrase(pes, cap, its){
   const low = x => /^(Wi-Fi|Starlink)/.test(x) ? x : x[0].toLowerCase()+x.slice(1), top=FRASE_TOP.filter(k=>its.includes(k)).slice(0,3);
   const who = cap<=6 ? ["casais e grupos pequenos","couples and small groups","parejas y grupos pequeños"] : cap<=10 ? ["famílias e grupos pequenos","families and small groups","familias y grupos pequeños"]
@@ -2942,11 +2954,9 @@ async function openBoatForm(l){
         <label class="f"><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="decimal" min="10" max="200" step="0.5" value="${d.pes||""}" placeholder="30"></label>
         <label class="f"><span>${t("nbCap")}${REQ}</span><input type="number" id="nb-cap" inputmode="numeric" min="1" max="80" value="${d.capacidade||""}" placeholder="10"></label></div>
       
-      <label class="f"><span>${t("nbDesc")}${REQ}</span><textarea id="nb-ds" rows="5" maxlength="1200" placeholder="${t("nbDescPh")}">${tr(d.descricao,"pt")}</textarea></label>
       <details class="nbtr"${d.frase?.en?" open":""}><summary>${t("nbTrT")}</summary><p class="muted" style="margin:6px 0 10px">${t("nbTrSub")}</p>
         <button type="button" class="btn sec" id="nb-tr" style="margin:0 0 12px">${t("nbTrGo")}</button>
-        ${["en","es"].map(k=>`<label class="f"><span>${t("nbTag")} · ${k.toUpperCase()}</span><textarea id="nb-fr-${k}" rows="2" maxlength="200"${d.frase?.[k]?' data-mine="1"':""}>${tr(d.frase,k)}</textarea></label>
-        <label class="f"><span>${t("nbDesc")} · ${k.toUpperCase()}</span><textarea id="nb-ds-${k}" rows="5" maxlength="1500">${tr(d.descricao,k)}</textarea></label>`).join("")}</details>
+        ${["en","es"].map(k=>`<label class="f"><span>${t("nbTag")} · ${k.toUpperCase()}</span><textarea id="nb-fr-${k}" rows="2" maxlength="200"${d.frase?.[k]?' data-mine="1"':""}>${tr(d.frase,k)}</textarea></label>`).join("")}</details>
       <h3 class="nbh">📍 ${t("nbEmb4")}</h3>${nbToggles("nb-e4", BOARD_OPTS.map(o=>[o,o]), emb["4"]||[])}
       <h3 class="nbh">📍 ${t("nbEmb7")}</h3>${nbToggles("nb-e7", BOARD_OPTS.map(o=>[o,o]), emb["7"]||[])}
       <p class="muted" style="margin:4px 0 0;font-size:14px">${t("nbEmbHint")}</p>
@@ -2969,9 +2979,9 @@ async function openBoatForm(l){
     const a=autoFrase(pes, cap, nbPicked("nb-it")); frs.forEach((x,i)=>{ if(!x.dataset.mine) x.value=a[["pt","en","es"][i]]; }); };
   ["nb-pes","nb-cap"].forEach(id=>document.getElementById(id).addEventListener("input", autoFr));
   sheet.querySelectorAll(".items button").forEach(x=>x.onclick=()=>{ x.setAttribute("aria-pressed", x.getAttribute("aria-pressed")!=="true"); autoFr(); });
-  const fillTr = async () => { const pt=[val("nb-fr"), val("nb-ds")]; if(!pt[0] && !pt[1]) return true;
+  const fillTr = async () => { const pt=[val("nb-fr")]; if(!pt[0]) return true;
     const r=await nbTranslate(pt); if(!r) return false;
-    ["en","es"].forEach(k=>{ const f=document.getElementById("nb-fr-"+k); if(r[k]?.[0] && (frs[0].dataset.mine || !f.value)){ f.value=r[k][0]; f.dataset.mine="1"; } if(r[k]?.[1]) document.getElementById("nb-ds-"+k).value=r[k][1]; }); return true; };
+    ["en","es"].forEach(k=>{ const f=document.getElementById("nb-fr-"+k); if(r[k]?.[0] && (frs[0].dataset.mine || !f.value)){ f.value=r[k][0]; f.dataset.mine="1"; } }); return true; };
   document.getElementById("nb-tr").onclick = async e => { const x=e.currentTarget; x.disabled=true; x.textContent=t("nbTrWait"); const ok=await fillTr(); x.disabled=false; x.textContent=t("nbTrGo"); toast(ok?t("nbTrOk"):t("nbTrErr")); };
   const fi=document.getElementById("nb-file");
   const drawPh = () => { const g=document.getElementById("nb-ph");
@@ -2992,13 +3002,12 @@ async function openBoatForm(l){
     if(!(cap>=1 && cap<=80)) return fail(t("nbCapBad"), document.getElementById("nb-cap"));
     autoFr();
     if(val("nb-fr").length<10) return fail(t("nbTagBad"), document.getElementById("nb-fr"));
-    if(val("nb-ds").length<30) return fail(t("nbDescBad"), document.getElementById("nb-ds"));
     const prices={lancha:slug, atualizado_em:new Date().toISOString()}, nets=[]; /* valor digitado = neto do dono; total = neto + taxa da Búzios */
     for(const x of sheet.querySelectorAll("[data-nbpr]")){ const v=x.value.trim(); if(v && !(+v>0)) return fail(t("prBad"), x); const n=v ? Math.round(+v) : null; if(n>VMAX) return fail(t("valMax"), x); nets.push({lancha:slug, chave:x.dataset.nbpr, neto:n, comissao:n?taxaB(slug,n):null, ref:n, atualizado_em:prices.atualizado_em}); prices[x.dataset.nbpr] = n ? n+taxaB(slug,n) : null; }
     if(!l && !files.length) return fail(t("nbPhNeed"), document.getElementById("nb-ph"));
     go.disabled=true; go.textContent=t("nbSaving");
-    if(["en","es"].some(k=>!val("nb-fr-"+k) || !val("nb-ds-"+k))) await fillTr(); /* inglês e espanhol: traduz o que estiver vazio */
-    const dados={pes, capacidade:cap, frase:{pt:val("nb-fr"), en:val("nb-fr-en"), es:val("nb-fr-es")}, descricao:{pt:val("nb-ds"), en:val("nb-ds-en"), es:val("nb-ds-es")}, embarque:{"4":nbPicked("nb-e4"), "7":nbPicked("nb-e7")}};
+    if(["en","es"].some(k=>!val("nb-fr-"+k))) await fillTr(); /* inglês e espanhol: traduz o que estiver vazio */
+    const dados={pes, capacidade:cap, frase:{pt:val("nb-fr"), en:val("nb-fr-en"), es:val("nb-fr-es")}, descricao:d.descricao?.pt ? d.descricao : autoDesc(nome, pes, cap, nbPicked("nb-it")), embarque:{"4":nbPicked("nb-e4"), "7":nbPicked("nb-e7")}};
     const ativa = l ? b.ativa!==false : true;
     try{ await db("rpc/salvar_lancha",{method:"POST", body:{l:slug, nome, d:dados, ativa}}); }
     catch(x){ return fail(x.status===404 ? t("nbNeedSql") : /lancha_do_codigo/.test(x.message||"") ? t("nbExists") : t("saveErr")); }
