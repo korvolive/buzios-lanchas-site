@@ -1136,6 +1136,7 @@ function checkGoogle(){
   fetch(SB+"/auth/v1/settings",{headers:{apikey:KEY}}).then(r=>r.ok?r.json():null).then(j=>{ if(j?.external?.google){ googleOn=true; if(view==="login"||view==="signup"){ show(); gTap(); } } }).catch(()=>{});
 }
 function loginView(){
+  setTimeout(gTap, 0); /* a tela redesenha sozinha (troca e-mail/celular, senha errada): o botão do Google volta a abrir a janelinha */
   top_.hidden = true;
   app.innerHTML = `<div class="login">
     <div style="display:flex;justify-content:space-between;align-items:flex-start"><img class="logo" src="/login/icon-192.png" alt=""><span class="top-lang" style="background:var(--sea-deep);border-radius:999px">${langSel()}</span></div>
@@ -1344,6 +1345,7 @@ function waLinkLoad(){
 }
 let socNome=null; /* convite de sócio: primeiro nome de quem convidou, na tela de cadastro */
 function signupView(){
+  setTimeout(gTap, 0); /* a tela redesenha sozinha (troca e-mail/celular, senha errada): o botão do Google volta a abrir a janelinha */
   waLinkLoad(); const wl=waLinkOk();
   loginShell(t("signupTitle"), pendRes() ? t("resSignupSub",{boat:esc(pendRes().nome)}) : t("signupSub"), `${googleOn?`<a class="gbtn" href="${googleHref()}">${GOOGLE_ICON}<span>${t("google")}</span></a>`:""}<button type="button" class="link" id="tologin" style="display:block;margin:0 auto 6px">${t("haveAcc")}</button><p class="or muted">${t("orNew")}</p><form class="card" id="sf" novalidate><div id="smsg">${loginMsg && !loginErr ? `<p class="msg ok">${loginMsg}</p>` : ""}</div>
       ${wl?`<p class="msg ok">✓ ${t("wlOk",{tel:esc(wl.tel)})}</p>`:""}
@@ -5237,7 +5239,7 @@ function openOpPed(vend){
       <div class="f"><span>${t("opSlot")}</span><div class="origin"><div>${["manha","tarde","dia","noite"].map(x=>`<button type="button" role="radio" data-oph="${x}" aria-checked="${x===h}"${x==="noite"?" hidden":""}>${t("slot_"+x)}</button>`).join("")}</div></div></div>
       <div class="row2"><label class="f"><span>${t("hrIn")}</span><select class="in" id="ophi">${rlHrOpts(null,15,true)}</select></label><label class="f"><span>${t("hrOut")}</span><select class="in" id="ophf">${rlHrOpts(null,15,true)}</select></label></div>
       <label class="f"><span>${t("people")}</span><select class="in" id="opp"></select></label>
-      <label class="f"><span>${t("opValor")}</span><input type="number" class="in" id="opv" inputmode="numeric" min="0" step="10"${vend?" hidden":""}><small class="muted" id="opvt"></small></label>
+      <label class="f"><span>${t(vend?"vsVal":"opValor")}</span><input type="number" class="in" id="opv" inputmode="numeric" min="0" step="10"${vend?" hidden":""}><small class="muted" id="opvt"></small></label>
       ${vend ? `<label class="f"><span>${t("vplCom")}</span><input type="number" class="in" id="opc" inputmode="numeric" min="0" step="10"><small class="muted">${t("vplComSub",{p:vTeto()})}</small></label>`
         : `<label class="f"><span>${t("opSinal")}</span><input type="number" class="in" id="ops" inputmode="numeric" min="0" step="10"><small class="muted">${t("opSinalSub")}</small></label>`}
       <label class="f"><span>${t("opName")}</span><input type="text" class="in" id="opn" autocapitalize="words" autocomplete="off" placeholder="${t("ph_client")}"></label>
@@ -5254,7 +5256,7 @@ function openOpPed(vend){
   /* preço da tabela calculado no servidor, para o suporte ver o teto (Rodrigo 2026-10-30) */
   const dIn=document.getElementById("opd"), vt=document.getElementById("opvt");
   const tab=async()=>{ const d=dIn.value; vt.textContent=""; if(!d) return; const k=sel.value+d+h;
-    const v=await RPC("preco_tabela",{l:sel.value, d, h}).catch(()=>undefined); if(k!==sel.value+dIn.value+h) return; if(v===undefined){ vt.textContent=t("opTabErr"); return; } /* antes falhava calado e o Lucas ficava sem preço (Rodrigo 2026-10-31) */ vt.textContent = +v>0 ? t("opTabV",{v:brl(+v)}) : t("opTabNo");
+    const v=await RPC("preco_tabela",{l:sel.value, d, h}).catch(()=>undefined); if(k!==sel.value+dIn.value+h) return; if(v===undefined){ vt.textContent=t("opTabErr"); return; } /* antes falhava calado e o Lucas ficava sem preço (Rodrigo 2026-10-31) */ vt.textContent = +v>0 ? (vend ? brl(+v) : t("opTabV",{v:brl(+v)})) : t("opTabNo"); /* vendedor: só o valor da lancha, sem campo para mudar */
     /* grupo pequeno (Miss Bardot): mostra até onde o Lucas pode descer, como último recurso (Rodrigo 2026-10-31) */
     if(!vend && +v>0){ const pq=+pes.value||1, g=await RPC("piso_grupo",{l:sel.value, d, h, pes:pq}).catch(()=>null); if(k===sel.value+dIn.value+h && pq===(+pes.value||1) && +g>0) vt.textContent += " " + t("dgOpHint",{v:brl(+g)}); } };
   const pick=x=>{ h=x; sheet.querySelectorAll("[data-oph]").forEach(y=>y.setAttribute("aria-checked",String(y.dataset.oph===x))); tab(); };
@@ -6625,16 +6627,17 @@ function renderTrip(){
       if(confirmed && !n.cliente_conta && !nota.cliente_conta){ closeDay(); loadBlocks(); toast(t("holdConfirmed"));
         const m = await mailInvite(row.id, ""); return openInvite(m.email, nota, row, m.st); }
       toast(pending ? t("holdSaved",{h:holdDur(row.data)}) : confirmed ? t("holdConfirmed") : tripNew ? t("tripSaved") : t("noteSaved"));
+      let embDone=false;
       /* lancha, data, horário, pessoas ou horas mudados num passeio fechado: avisa o cliente igual à alteração aprovada (Rodrigo 2026-10-30) */
       if(S.admin && !S.papel && !tripNew && !pending && !isPending(n) && (nota.cliente || nota.telefone)){
         const hh=x=>(x||"").slice(0,5), antes={lancha:r.lancha, data:r.data, horario:r.horario, pessoas:n.pessoas??null, valor:n.valor??null, hora_ini:n.hora_ini||null, hora_fim:n.hora_fim||null, embarque:n.embarque||null};
         if(row.lancha!==r.lancha || row.data!==r.data || row.horario!==r.horario || +(nota.pessoas||0)!==+(n.pessoas||0) || hh(nota.hora_ini)!==hh(n.hora_ini) || hh(nota.hora_fim)!==hh(n.hora_fim) || (nota.embarque && n.embarque && nota.embarque!==n.embarque)){
           const aid=await RPC("registrar_alteracao",{bid:row.id, p_antes:antes}).catch(()=>null);
-          if(aid){ callFn({tipo:"alterado", id:aid}).catch(()=>{}); if(nota.embarque && n.embarque && nota.embarque!==n.embarque) callFn({tipo:"embarque", id:row.id}).catch(()=>{});
+          if(aid){ callFn({tipo:"alterado", id:aid}).catch(()=>{}); if(nota.embarque && n.embarque && nota.embarque!==n.embarque){ embDone=true; callFn({tipo:"embarque", id:row.id}).catch(()=>{}); }
             const a={id:aid, status:"aprovada", condicional:false, antes, bloqueios:{id:row.id, lancha:row.lancha, data:row.data, horario:row.horario, anotacoes:{...n, ...nota}}};
             S.alts=[...(S.alts||[]), a]; if(waOf(nota.telefone).length>=8){ closeDay(); loadBlocks(); return openAltWa(a); } } } }
       /* local de embarque trocado num passeio já fechado: avisa o cliente (e-mail automático se tiver conta; WhatsApp pelo botão) */
-      if(!tripNew && !pending && !isPending(n) && nota.embarque && n.embarque && nota.embarque!==n.embarque){ callFn({tipo:"embarque", id:row.id}).catch(()=>{}); if(waOf(nota.telefone).length>=8){ closeDay(); loadBlocks(); return notifyEmb(row, nota); } }
+      if(!tripNew && !pending && !isPending(n) && nota.embarque && n.embarque && nota.embarque!==n.embarque){ if(!embDone) callFn({tipo:"embarque", id:row.id}).catch(()=>{}); /* não avisa duas vezes */ if(waOf(nota.telefone).length>=8){ closeDay(); loadBlocks(); return notifyEmb(row, nota); } }
       if(fromDay){ row.nota=nota; noteFor=null; await loadBlocks(); renderSheet(); } else { closeDay(); loadBlocks(); }
     }catch(err){ b.disabled=false;
       if(created) await db(`bloqueios?id=eq.${created}`,{method:"DELETE"}).catch(()=>{}); /* não deixa horário marcado sem os dados */
