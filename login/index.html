@@ -3897,6 +3897,10 @@ async function loadReqs(){
     if(S.admin) await db("vendedores?select=user_id,pix_tipo,pix_chave,indicado_por,indicacao_pct").catch(e=>e.status===400 ? db("vendedores?select=user_id,pix_tipo,pix_chave") : Promise.reject(e)).then(r=>{ S.vpix=Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{ S.vpix=null; }); /* chave Pix de cada vendedor */
     S.ppPay = Object.fromEntries((await db("pagamentos_pp?select=pedido,moeda,valor,pago_em,pago_valor").catch(()=>[])).map(x=>[x.pedido,x])); /* cobranças do PayPal */
     if(!S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); /* sinal de 50% e neto do dia no pedido */
+    /* pré-reserva que o cliente resgatou pelo convite: o pedido já nasce com o pagamento liberado, sem o administrador tocar em "Liberar".
+       A central não era criada (Rodrigo 2026-11-01, Cintia): o app do administrador cria sozinho ao abrir, uma vez por pedido */
+    if(S.admin && !S.papel){ const ct=S.ctTry ||= new Set(), falta=S.reqs.filter(p=>p.status==="pendente" && p.sinal_liberado_em && +p.sinal_valor>0 && !p.paypal_link && !S.ppPay[p.id] && !ct.has(p.id));
+      if(falta.length){ falta.forEach(p=>ct.add(p.id)); Promise.all(falta.map(ppAuto)).then(()=>{ if(S.tab==="pedidos") bgView(); }); } }
     if(S.reqs.some(p=>p.vendedor) && !S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null); /* nome dos vendedores */
     S.reqs.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); /* o passeio foi apagado da agenda */
     S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
