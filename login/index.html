@@ -377,6 +377,7 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .vsales li > span:first-child{display:grid;gap:2px;min-width:0}.vsales small{color:var(--muted);font-size:12.5px}.vsales .vcl{display:flex;align-items:center;gap:6px;color:inherit}.vsales .vcl .face{width:22px;height:22px;font-size:10px;flex:none}.vsales .vwa{display:inline-flex;color:#25d366}.vsales .vwa svg{width:18px;height:18px}#vclis .clis{margin-top:6px}
 .vamt{display:grid;justify-items:end;gap:3px;font-weight:700;white-space:nowrap}
 .vst{font-weight:600;font-size:11.5px;padding:2px 7px;border-radius:999px;background:var(--line);color:var(--ink)}
+.rcico{padding:6px 10px!important;min-width:0;font-size:16px;line-height:1}
 .vst.ok{background:#2f8f5b;color:#fff}.vst.aprovado{background:#dbeee3;color:#1f6b43}.vst.pendente{background:#f5ead0;color:#7a5a12}
 /* valores: neto + comissão Búzios Lanchas = total, por período */
 .pnet{display:grid;gap:12px;margin:10px 0 14px}
@@ -1996,8 +1997,8 @@ function cttHTML(p){ if(reqEnded(p)) return ""; const L=(S.ctt||[]).filter(c=>c.
 const rcLink = p => S.rcs ? (S.rcs.has(p.id) ? `<span class="reqbtns"><button type="button" class="btn sec" data-rcg="${p.id}">🧾 ${t("rcBtn")}</button></span>` : "")
   : (p.status==="aprovado" && p.bloqueio_id) || (p.status==="pendente" && ppPaid(p)) ? (/\/pagar\/\?/.test(p.paypal_link||"") ? `<span class="reqbtns"><a class="btn sec" href="${esc(p.paypal_link)}&recibo=1" data-rcg="1">🧾 ${t("rcBtn")}</a></span>` : "") : ""; /* sem a função meus_recibos ainda: só o da central de pagamento */
 /* o recibo na tela, por cima do app; imprimir ou salvar em PDF imprime só ele */
-function openRecibo(id){
-  const R=S.rcs?.get(id), p=(S.myReq||[]).find(x=>x.id===id); if(!R || !p) return;
+function openRecibo(id, R0, p0){ /* R0/p0: o administrador abrindo o recibo de um cliente (Rodrigo 2026-11-01) */
+  const R=R0||S.rcs?.get(id), p=p0||(S.myReq||[]).find(x=>x.id===id); if(!R || !p) return;
   const dt=x=>new Date(x).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit",year:"numeric"}), v=R.valor_txt ? esc(R.valor_txt) : brl(R.valor_brl||0);
   const d=cap(dateOf(p.data).toLocaleDateString(t("locale"),{weekday:"long",day:"numeric",month:"long",year:"numeric"}));
   document.getElementById("rcprint")?.remove();
@@ -2014,6 +2015,10 @@ function openRecibo(id){
   const fechar=()=>{ w.remove(); document.documentElement.classList.remove("rcon"); };
   w.querySelector("#rcpr").onclick=()=>print(); w.querySelector("#rcx").onclick=fechar; w.querySelector("#rcx").focus();
 }
+/* administrador: 🧾 na reserva confirmada abre o mesmo recibo do sinal que o cliente vê (rpc recibo_admin) */
+document.addEventListener("click", async e=>{ const a=e.target.closest("[data-rca]"); if(!a) return; const id=+a.dataset.rca, p=(S.reqs||[]).find(x=>x.id===id); if(!p) return;
+  a.disabled=true; try{ const r=await RPC("recibo_admin",{pid:id}); if(r?.[0]) openRecibo(id, r[0], p); else toast(t("rcNone")); }
+  catch(x){ toast(x.status===404 ? t("rcSql") : t("saveErr")); } finally{ a.disabled=false; } });
 /* recibo só para quem já confirmou o e-mail ou o WhatsApp (Rodrigo 2026-10-29): senão, a janelinha leva ao cartão "Verifique sua conta" */
 document.addEventListener("click", e=>{ const a=e.target.closest("[data-rcg]"); if(!a || !S.me) return;
   if((!semEmail() && !emPend()) || S.me.whatsapp_ok_em){ if(a.tagName==="BUTTON") openRecibo(+a.dataset.rcg); return; }
@@ -2036,7 +2041,7 @@ function reqCard(p, adm){
       ${(()=>{ const cu=adm ? (+p.cupom_valor ? {valor:p.cupom_valor} : null) : (S.cups||[]).find(c=>c.pedido===p.id); return cu ? `<span class="tmeta"><i>🎟️ ${t("cupUsed",{v:brl(+cu.valor)})}</i></span>` : ""; })()}
       ${adm && p.status==="pendente" && S.cpOk ? admPay(p) : ""}
       ${adm && p.status==="pendente" ? `<span class="reqbtns"><button type="button" class="btn" data-ap="${p.id}">${t("approve")}</button><button type="button" class="btn sec" data-rq="${p.id}">${t("refuseReq")}</button><button type="button" class="btn sec" data-ed="${p.id}">✏️ ${t("edBtn")}</button></span>`
-        : adm && p.status==="aprovado" && p.bloqueio_id ? `${S.cpOk ? repHTML(p, pedCalc(p), +p.sinal_valor||0) : ""}<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button></span>`
+        : adm && p.status==="aprovado" && p.bloqueio_id ? `${S.cpOk ? repHTML(p, pedCalc(p), +p.sinal_valor||0) : ""}<span class="reqbtns"><button type="button" class="btn sec" data-ob="${p.bloqueio_id}">${t("openTripB")}</button>${S.admin && !S.papel ? `<button type="button" class="btn sec rcico" data-rca="${p.id}" title="${t("rcSee")}" aria-label="${t("rcSee")}">🧾</button>` : ""}</span>`
         : !adm && p.status==="pendente" ? `${p.sinal_liberado_em || !S.cpOk ? `<span class="payhint">${t("payHint")}</span>${p.pagar_ate && !p.comprovante_em ? `<span class="payhint">⏳ ${esc(t("payAte",{h:fmtAte(p.pagar_ate)}))}</span>` : ""}${S.cpOk?payBox(p):""}` : `<span class="payhint">${t("payWait")}</span>`}<span class="reqbtns"><a class="btn" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("waDeposit",{boat:boatName(p.lancha), date:fmtLong(p.data), slot:t("slot_"+p.horario)}))}" target="_blank" rel="noopener">${t("payBtn")}</a><button type="button" class="btn sec" data-gu="${p.id}">${t("giveUp")}</button></span>`
         /* reserva já confirmada: o cliente ainda pode mandar o comprovante, se quiser (Rodrigo 2026-11-01) */
         : !adm && p.status==="aprovado" && p.bloqueio_id && p.data>=todayISO() && S.cpOk ? `<span class="paybox">${p.comprovante ? `<span class="cpok">✓ ${t("cpSent",{d:new Date(p.comprovante_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})})}</span>` : ""}<label class="btn sec cpup">📎 ${t(p.comprovante?"cpResend":"cpSend")}<input type="file" accept="image/*,application/pdf" data-cp="${p.id}" hidden></label></span>` : ""}${adm?admRev(p):pastState(p)+rcLink(p)}</span>${!adm ? chatBtns(p) : ""}
@@ -5088,9 +5093,9 @@ async function linkedInfo(bid, typed){
   sheet.classList.add("on"); sheetBg.classList.add("on"); document.getElementById("nfx").onclick = closeDay;
 }
 /* convite: link para o cliente criar a conta com o e-mail; o passeio entra na conta dele ao completar o cadastro */
-Object.assign(T.pt, {invCup:"\n⭐ Avaliando, você ganha um cupom de desconto para o próximo passeio."});
-Object.assign(T.en, {invCup:"\n⭐ Rate it and get a discount coupon for your next tour."});
-Object.assign(T.es, {invCup:"\n⭐ Califícalo y gana un cupón de descuento para tu próximo paseo."});
+Object.assign(T.pt, {rcSee:"Ver o recibo do sinal", rcNone:"Esta reserva ainda não tem recibo: o sinal não foi registrado.", rcSql:"Falta rodar no Supabase o arquivo 2026-11-01_supabase-recibo-admin.sql.", invCup:"\n⭐ Avaliando, você ganha um cupom de desconto para o próximo passeio."});
+Object.assign(T.en, {rcSee:"See the deposit receipt", rcNone:"This booking has no receipt yet: the deposit was not recorded.", rcSql:"The file 2026-11-01_supabase-recibo-admin.sql still needs to be run in Supabase.", invCup:"\n⭐ Rate it and get a discount coupon for your next tour."});
+Object.assign(T.es, {rcSee:"Ver el recibo de la seña", rcNone:"Esta reserva aún no tiene recibo: la seña no fue registrada.", rcSql:"Falta ejecutar en Supabase el archivo 2026-11-01_supabase-recibo-admin.sql.", invCup:"\n⭐ Califícalo y gana un cupón de descuento para tu próximo paseo."});
 async function openInvite(email, nota, row, mailDone){
   const name=(nota.cliente||"").split(" ")[0]||"", q=await convQ(row.id, new URLSearchParams({criar:"1"})); /* link curto: só o código; nome, WhatsApp e e-mail vêm do convite (rpc convite_dados). Espaço no link quebrava o clique no WhatsApp (Rodrigo 2026-10-27) */
   const url=curto(`${location.origin}/login/?${q}`), wa=waOf(nota.telefone);
