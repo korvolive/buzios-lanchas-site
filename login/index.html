@@ -2892,7 +2892,7 @@ function boatInfoHTML(){
   if(!d) return "";
   const on = b.ativa!==false, live = on && pubSite?.includes(b.slug);
   const st = b.oculta ? t("visHidden") : !on ? t("nbOff") : pubSite==null ? "…" : live ? `${t("nbLive")} <a href="/lancha/${b.slug}/" target="_blank" rel="noopener">${t("nbSee")}</a>` : t("nbSoon");
-  return `<div class="card"><h2>${t("nbInfoT")}</h2><p style="margin:0 0 6px"><strong>${esc(b.nome)}</strong> · ${d.pes} ${t("nbFeetU")} · ${d.capacidade} ${t("people").toLowerCase()}</p>
+  return `<div class="card"><h2>${t("nbInfoT")}</h2><p style="margin:0 0 6px"><strong>${esc(b.nome)}</strong> · ${lang==="en"?d.pes:String(d.pes).replace(".",",")} ${t("nbFeetU")} · ${d.capacidade} ${t("people").toLowerCase()}</p>
     <p class="muted" style="margin:0 0 6px">${esc(d.frase?.[lang]||d.frase?.pt||"")}</p><p style="margin:0 0 12px">${st}</p>
     <button type="button" class="btn" id="nbedit">${t("nbEdit")}</button></div>`;
 }
@@ -2906,7 +2906,8 @@ function autoFrase(pes, cap, its){
     : cap<=14 ? ["famílias e grupos de amigos","families and groups of friends","familias y grupos de amigos"] : ["grupos grandes e comemorações","large groups and celebrations","grupos grandes y celebraciones"];
   const base = [["som Bluetooth","churrasqueira"],["Bluetooth sound","a barbecue grill"],["sonido Bluetooth","parrilla"]];
   const list = i => { const n = top.length ? top.map(k=>low(ITEMS.find(x=>x[0]===k)[i])) : base[i], e=[" e "," and "," y "][i]; return n.length>1 ? n.slice(0,-1).join(", ")+e+n[n.length-1] : n[0]; };
-  return {pt:`Lancha de ${pes} pés com ${list(0)}. Ideal para ${who[0]}.`, en:`A ${pes}-foot boat with ${list(1)}. Ideal for ${who[1]}.`, es:`Lancha de ${pes} pies con ${list(2)}. Ideal para ${who[2]}.`};
+  const pc=String(pes).replace(".",",");
+  return {pt:`Lancha de ${pc} pés com ${list(0)}. Ideal para ${who[0]}.`, en:`A ${pes}-foot boat with ${list(1)}. Ideal for ${who[1]}.`, es:`Lancha de ${pc} pies con ${list(2)}. Ideal para ${who[2]}.`};
 }
 async function nbTranslate(pt){ try{ const tok=await fresh(); const r=await fetch(FN.replace("notificar","traduzir"),{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+tok, "content-type":"application/json"}, body:JSON.stringify({textos:pt})}); return r.ok ? await r.json() : null; }catch(e){ return null; } }
 async function openBoatForm(l){
@@ -2918,7 +2919,7 @@ async function openBoatForm(l){
     <form id="nbf" class="nform" novalidate><div id="nbmsg"></div>
       <label class="f"><span>${t("nbName")}${REQ}</span><input type="text" id="nb-nome" maxlength="40" autocapitalize="words" autocomplete="off" value="${esc(b?.nome||"")}" placeholder="${t("nbNamePh")}"></label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <label class="f"><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="numeric" min="10" max="200" value="${d.pes||""}" placeholder="30"></label>
+        <label class="f"><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="decimal" min="10" max="200" step="0.5" value="${d.pes||""}" placeholder="30"></label>
         <label class="f"><span>${t("nbCap")}${REQ}</span><input type="number" id="nb-cap" inputmode="numeric" min="1" max="80" value="${d.capacidade||""}" placeholder="10"></label></div>
       
       <label class="f"><span>${t("nbDesc")}${REQ}</span><textarea id="nb-ds" rows="5" maxlength="1200" placeholder="${t("nbDescPh")}">${tr(d.descricao,"pt")}</textarea></label>
@@ -2944,7 +2945,7 @@ async function openBoatForm(l){
   /* frase curta: o app escreve enquanto a pessoa não editar o campo (apagar tudo volta para a automática) */
   const frs = ["nb-fr","nb-fr-en","nb-fr-es"].map(id=>document.getElementById(id));
   frs.forEach(x=>x.oninput=()=>{ if(x.value.trim()) x.dataset.mine="1"; else delete x.dataset.mine; });
-  const autoFr = () => { const pes=+val("nb-pes"), cap=+val("nb-cap"); if(!(pes>=10 && cap>=1)) return;
+  const autoFr = () => { const pes=+val("nb-pes").replace(",","."), cap=+val("nb-cap"); if(!(pes>=10 && cap>=1)) return;
     const a=autoFrase(pes, cap, nbPicked("nb-it")); frs.forEach((x,i)=>{ if(!x.dataset.mine) x.value=a[["pt","en","es"][i]]; }); };
   ["nb-pes","nb-cap"].forEach(id=>document.getElementById(id).addEventListener("input", autoFr));
   sheet.querySelectorAll(".items button").forEach(x=>x.onclick=()=>{ x.setAttribute("aria-pressed", x.getAttribute("aria-pressed")!=="true"); autoFr(); });
@@ -2960,7 +2961,7 @@ async function openBoatForm(l){
   document.getElementById("nbf").onsubmit = async e => { e.preventDefault();
     const out=document.getElementById("nbmsg"), go=document.getElementById("nbgo");
     const fail = (m, el) => { out.innerHTML=`<p class="msg err">${m}</p>`; (el||out).scrollIntoView({block:"center",behavior:"smooth"}); el?.focus?.(); go.disabled=false; go.textContent=l?t("nbSave"):t("nbCreate"); };
-    const nome=val("nb-nome"), pes=+val("nb-pes"), cap=+val("nb-cap"), slug=l||slugOf(nome);
+    const nome=val("nb-nome"), pes=Math.round(+val("nb-pes").replace(",",".")*2)/2 /* meio pé: 27,5 (Rodrigo 2026-11-01) */, cap=+val("nb-cap"), slug=l||slugOf(nome);
     if(nome.length<2 || !slug) return fail(t("nbNameBad"), document.getElementById("nb-nome"));
     if(!l && (S.all||[]).some(x=>x.slug===slug)) return fail(t("nbExists"), document.getElementById("nb-nome"));
     if(!(pes>=10 && pes<=200)) return fail(t("nbFeetBad"), document.getElementById("nb-pes"));

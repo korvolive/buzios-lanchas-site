@@ -1340,7 +1340,8 @@ const wa = text => `https://wa.me/${WHATS}?text=${encodeURIComponent(text)}`;
 const waLink = name => wa(t("waBoat",{name}));
 const boatSVG = `<svg viewBox="0 0 200 90" aria-hidden="true"><path d="M8 58h184l-22 24H34z" fill="currentColor"/><path d="M52 58l16-22h70l18 22z" fill="currentColor" opacity=".55"/><rect x="80" y="40" width="40" height="8" rx="2" fill="currentColor" opacity=".35"/><path d="M0 86c20-6 40 6 60 0s40 6 60 0 40 6 60 0 20 4 20 4" stroke="currentColor" stroke-width="2" fill="none" opacity=".5"/></svg>`;
 const ph = (note) => `<div class="ph">${boatSVG}<span class="note">${note}</span></div>`;
-const specs = b => `<span class="specs"><span><b>${b.feet??"—"}</b> ${t("feet")}</span><span>${t("upTo")} <b>${b.capacity}</b> ${t("people")}</span></span>`; /* ao lado do nome, no card */
+const ftx = b => b.feet==null ? null : lang==="en" ? String(b.feet) : String(b.feet).replace(".",","); /* 27,5 pés (Rodrigo 2026-11-01) */
+const specs = b => `<span class="specs"><span><b>${ftx(b)??"—"}</b> ${t("feet")}</span><span>${t("upTo")} <b>${b.capacity}</b> ${t("people")}</span></span>`; /* ao lado do nome, no card */
 
 /* ============ reserva por data ============ */
 /* "dia" ocupa o dia inteiro; "manha" e "tarde" podem ser vendidos na mesma lancha no mesmo dia */
@@ -1701,7 +1702,7 @@ const ITEM_ICON = {
 const itemChip = i => `<li${STACK_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${tx(i)}</li>`;
 const cardItems = b => { const has=boatItems(b); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i))].map(itemChip).join(""); };
 const stackHTML = b => `<ol class="stack">
-  <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t("stBoatT",{f:b.feet})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
+  <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t("stBoatT",{f:ftx(b)})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${t("stRouteP")}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🧭</span><div><strong>${t("stCrewT")}</strong><small>${t("stCrewP")}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🛟</span><div><strong>${t("stSafeT")}</strong><small>${t("stSafeP")}</small></div></li>
@@ -2151,7 +2152,7 @@ function headTag(sel,tag,attrs){
   return el;
 }
 function seo(b){
-  const title = b ? t("seoBoatTitle",{name:b.name, feet:b.feet??"", cap:b.capacity}) : t("seoTitle");
+  const title = b ? t("seoBoatTitle",{name:b.name, feet:ftx(b)??"", cap:b.capacity}) : t("seoTitle");
   const desc = b ? `${bt(b,"tagline")} ${t("seoBoatTail")}` : t("seoDesc");
   const url = SITE + pathFor(lang, b?.slug);
   const img = absImg((b?.photos||BOATS[0].photos)[0]);
@@ -2339,7 +2340,7 @@ function boatPage(b){
           <div class="b-title${b.featured?" sel":""}"><h1>${b.name}</h1><button type="button" class="b-share" data-share="${b.slug}" aria-label="${t("shareL")}">${SHARE_ICO}<span>${t("shareB")}</span></button>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
           </div>
           <div class="spec-row">
-            <div><b>${b.feet??"—"}</b><span>${t("specFeet")}</span></div>
+            <div><b>${ftx(b)??"—"}</b><span>${t("specFeet")}</span></div>
             <div><b>${b.capacity}</b><span>${t("specPeople")}</span></div>
             <div><b>4h / 7h</b><span>${t("specTours")}</span></div>
           </div>
@@ -2524,7 +2525,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
     if(BOATS.some(b=>b.slug===r.slug) || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
     dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true,
-      feet:d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
+      feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
       tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
       i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
       included:[...BASICS_NEW], prices:{}, price7h:null,
