@@ -19,7 +19,10 @@
 // POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site)
 // Pagou: a reserva se confirma sozinha (rpc confirmar_pago), sem o administrador aprovar (Rodrigo, 2026-10-25).
 // Gerou o Pix ou o cartão: a data fica segurada por 2 horas para esse cliente (pp_vaga e datas_seguradas).
-// Chave (Edge Functions > Secrets, colada pelo Rodrigo): ASAAS_API_KEY. A chave da subconta do dono não é guardada.
+// POST {event:"ACCOUNT_STATUS_..."} (do Asaas, webhook da subconta) a análise do documento e da selfie mudou: confere no Asaas e, aprovada, avisa a pessoa
+// Chave (Edge Functions > Secrets, colada pelo Rodrigo): ASAAS_API_KEY. A chave de cada subconta fica em asaas_chaves CIFRADA
+// com o segredo ASAAS_CHAVES_SEGREDO (AES-GCM); sem esse segredo a chave não é guardada (a conta principal gera outra no Asaas).
+// Saídas de dinheiro sem token/SMS: webhook de validação de saques na função asaas-saques.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -46,6 +49,25 @@ const acabou = (d: string, h: string, fim?: string | null) => { const [fh, fm] =
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
 const cartaoOk = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS;
+// chave da subconta cifrada (revisão de segurança 2026-10-28): no banco só fica "v1:<iv>:<cifra>"
+const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
+const de64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+async function segredo() {
+  const s = Deno.env.get("ASAAS_CHAVES_SEGREDO") || "";
+  if (s.length < 32) throw new Error("sem_segredo");
+  return crypto.subtle.importKey("raw", await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)), "AES-GCM", false, ["encrypt", "decrypt"]);
+}
+async function cifrar(txt: string) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  return `v1:${b64(iv)}:${b64(new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await segredo(), new TextEncoder().encode(txt))))}`;
+}
+async function chaveSub(uid: string) {
+  const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", uid).maybeSingle();
+  const [v, iv, ct] = String(k?.api_key || "").split(":");
+  if (v !== "v1" || !iv || !ct) return "";
+  try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: de64(iv) }, await segredo(), de64(ct))); }
+  catch (e) { console.error("chaveSub", uid, e); return ""; }
+}
 const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
 
 async function asaas(path: string, body?: unknown, method = body === undefined ? "GET" : "POST") {
@@ -306,17 +328,40 @@ async function quem(req: Request) {
 // da Búzios até a pessoa ter a conta de recebimento aprovada. Aprovou, este robô (cron asaas-expirar) envia sozinho.
 // Só com asaas_config.saldo_auto ligado; só enquanto o saldo do Asaas cobre; cada envio travado para nunca sair duas vezes.
 // O PayPal fica de fora: o dinheiro só chega ao Asaas quando o Rodrigo saca, e segue pelo toque "O PayPal caiu".
+// contas esperando aprovação: confere no Asaas (com a chave da subconta) e avisa quem foi aprovado.
+// Roda no robô de 10 em 10 minutos e na hora em que o Asaas avisa (webhook da subconta, eventos ACCOUNT_STATUS_*).
+async function conferirContas() {
+  const { data: esp } = await db.from("asaas_contas").select("user_id").is("aprovada_em", null).limit(20);
+  for (const c of esp || []) {
+    const k = await chaveSub(c.user_id);
+    if (!k) continue;
+    const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+    if (st?.general !== "APPROVED") continue;
+    const { data: foi } = await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", c.user_id).is("aprovada_em", null).select("user_id");
+    if (foi?.length) await avisarAprovada(c.user_id).catch((e) => console.error("avisarAprovada", e));
+  }
+}
+const APROVADA: Record<string, { title: string; body: string }> = {
+  pt: { title: "Conta de recebimento aprovada ✅", body: "Seus documentos foram aprovados. A partir de agora, o que é seu cai direto na sua conta." },
+  en: { title: "Payout account approved ✅", body: "Your documents were approved. From now on, your share goes straight to your account." },
+  es: { title: "Cuenta de cobro aprobada ✅", body: "Tus documentos fueron aprobados. Desde ahora, lo tuyo cae directo en tu cuenta." },
+};
+async function avisarAprovada(uid: string) {
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...APROVADA[l], url: "/login/", tag: "conta-aprovada" }), { TTL: 86400, urgency: "normal" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+
 async function enviarSaldos() {
   const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
   if (!cfg?.saldo_auto) return { ligado: false };
-  // contas esperando aprovação: confere no Asaas (com a chave da subconta)
-  const { data: esp } = await db.from("asaas_contas").select("user_id").is("aprovada_em", null).limit(20);
-  for (const c of esp || []) {
-    const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", c.user_id).maybeSingle();
-    if (!k?.api_key) continue;
-    const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
-    if (st?.general === "APPROVED") await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", c.user_id).is("aprovada_em", null);
-  }
+  await conferirContas();
   const { data: ok } = await db.from("asaas_contas").select("user_id, wallet_id").not("aprovada_em", "is", null);
   if (!ok?.length) return { ligado: true, enviados: 0 };
   let saldo = +(await asaas("/finance/balance")).balance || 0, n = 0;
@@ -398,6 +443,11 @@ Deno.serve(async req => {
     // aviso do Asaas: não confia no corpo, confere a cobrança direto no Asaas
     if (b?.event && b?.payment?.id) {
       if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id)).catch(e => console.error("webhook", e));
+      return json({ ok: true });
+    }
+    // aviso da subconta (documento e selfie): também não confia no corpo, só manda conferir no Asaas
+    if (/^ACCOUNT_STATUS_/.test(String(b?.event || ""))) {
+      await conferirContas().catch(e => console.error("conta webhook", e));
       return json({ ok: true });
     }
 
@@ -514,17 +564,17 @@ Deno.serve(async req => {
     // saque (Rodrigo 2026-10-28): o dono/vendedor tira o dinheiro da conta de recebimento dele pelo nosso app, sem entrar no Asaas.
     // Só para a chave Pix cadastrada por ele na área de vendas (lida aqui do banco, nunca do navegador); um saque por vez.
     if (b.acao === "saque_info" || b.acao === "sacar") {
-      const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", u.id).maybeSingle();
+      const k = await chaveSub(u.id);
       const { data: ct } = await db.from("asaas_contas").select("aprovada_em").eq("user_id", u.id).maybeSingle();
-      if (!k?.api_key || !ct?.aprovada_em) return json({ erro: "sem_conta" }, 409);
+      if (!k || !ct?.aprovada_em) return json({ erro: "sem_conta" }, 409);
       const sub = async (path: string, body?: unknown) => {
-        const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k.api_key, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
+        const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
         const t = await r.text(); let j: any = {}; try { j = JSON.parse(t); } catch (_) { /* vazio */ }
         if (!r.ok) { console.error("saque", path, r.status, t.slice(0, 600)); const e: any = new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); e.status = r.status; throw e; }
         return j;
       };
       const disp = Math.floor((+(await sub("/finance/balance")).balance || 0) * 100) / 100;
-      const { data: hist } = await db.from("saques").select("id, valor, chave, tipo, status, asaas_id, criado_em").eq("user_id", u.id).order("criado_em", { ascending: false }).limit(5);
+      const { data: hist } = await db.from("saques").select("id, valor, chave, tipo, status, motivo, asaas_id, criado_em").eq("user_id", u.id).order("criado_em", { ascending: false }).limit(5);
       for (const h of hist || []) { // saque a caminho: confere se o Pix já caiu
         if (h.status !== "processando" || !h.asaas_id) continue;
         const st = String((await sub("/transfers/" + encodeURIComponent(h.asaas_id)).catch(() => ({})))?.status || "");
@@ -600,19 +650,28 @@ Deno.serve(async req => {
           ...(pf ? { birthDate: b.nascimento } : { companyType: b.tipo }),
           address: String(b.rua).trim(), addressNumber: String(b.numero).trim(), complement: String(b.complemento || "").trim() || undefined,
           province: String(b.bairro).trim(), postalCode: dig(b.cep),
+          // o Asaas avisa esta função quando a análise do documento e da selfie mudar (aprovada: a pessoa recebe o aviso na hora)
+          webhooks: [{ name: "Situação da conta", url: FN_URL, email: "korvolive@gmail.com", enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY",
+            events: ["ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED", "ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED", "ACCOUNT_STATUS_DOCUMENT_APPROVED", "ACCOUNT_STATUS_DOCUMENT_REJECTED"] }],
         });
       } catch (e: any) { if (e.asaas) return json({ erro: "asaas", detalhe: String(e.message).slice(0, 300) }, 400); throw e; }
       await db.from("asaas_contas").insert({ user_id: u.id, conta_id: a.id, wallet_id: a.walletId, nome, cpf_cnpj: doc, email });
       // a chave da subconta só vem na criação: guardada numa tabela que só esta função lê, para buscar o link do documento e da selfie
-      if (a.apiKey) { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: a.apiKey }); if (error) console.error("asaas_chaves", error.message); }
+      // a chave vem em accessToken.apiKey (visto no sandbox em 2026-10-30; antes vinha em apiKey)
+      const chave = a.accessToken?.apiKey || a.apiKey;
+      // cifrada; se falhar, a conta principal gera outra chave no Asaas (Minhas contas > subconta)
+      if (chave) {
+        try { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: await cifrar(chave) }); if (error) console.error("asaas_chaves", error.message); }
+        catch (e) { console.error("asaas_chaves", e); }
+      }
       return json({ ok: true });
     }
 
     // BaaS: documento e selfie pelo link do Asaas, sem a pessoa entrar no Asaas (Rodrigo 2026-10-27)
     if (b.acao === "documentos") {
-      const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", u.id).maybeSingle();
-      if (!k?.api_key) return json({ status: "sem" });
-      const r = await fetch(API() + "/myAccount/documents", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } });
+      const k = await chaveSub(u.id);
+      if (!k) return json({ status: "sem" });
+      const r = await fetch(API() + "/myAccount/documents", { headers: { access_token: k, "user-agent": "buzios-lanchas" } });
       const j: any = await r.json().catch(() => ({}));
       if (!r.ok) { console.error("documentos", r.status, JSON.stringify(j).slice(0, 400)); return json({ status: "sem" }); }
       const l: any[] = j.data || [];
@@ -621,7 +680,7 @@ Deno.serve(async req => {
       if (l.some((d) => d.status === "PENDING")) return json({ status: "analise" });
       if (!l.length) return json({ status: "sem" });
       // documentos conferidos não bastam: a conta só recebe quando o Asaas aprova tudo (status geral APPROVED)
-      const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+      const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
       if (st?.general !== "APPROVED") return json({ status: "analise" });
       await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", u.id).is("aprovada_em", null); // a partir daqui, a parte dele cai na hora
       return json({ status: "ok" });
