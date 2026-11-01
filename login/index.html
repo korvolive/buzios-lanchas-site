@@ -404,7 +404,7 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .nslots button[data-ns=noite]{grid-column:1/-1}
 .nslots button:disabled{opacity:.45;cursor:not-allowed}
 .pwlink{text-align:center;margin:18px 0 0}
-.gbtn{display:flex;width:max-content;align-items:center;justify-content:center;gap:8px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:999px;padding:7px 16px;font-size:14px;font-weight:600;text-decoration:none;margin:0 auto 16px}.gbtn svg{width:18px;height:18px}
+a[data-gsi]{position:relative;overflow:hidden}.gsio{position:absolute;inset:0;opacity:.011;z-index:2}.gsio iframe{margin:0!important}.gbtn{display:flex;width:max-content;align-items:center;justify-content:center;gap:8px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:999px;padding:7px 16px;font-size:14px;font-weight:600;text-decoration:none;margin:0 auto 16px}.gbtn svg{width:18px;height:18px}
 .or{text-align:center;font-size:14px;margin:4px 0 12px}
 .lgby .lgg{display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none}.lgby .lgg svg{width:15px;height:15px;flex:none}
 .lgby{display:flex;gap:4px;font-size:14px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px;margin:0 0 14px}.lgby button,.lgby .lgg{flex:1;min-width:0;white-space:nowrap;border:0;background:transparent;border-radius:999px;padding:7px 4px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}.lgby button[aria-pressed="true"]{background:var(--sea);color:var(--full-ink,#fff);box-shadow:0 1px 3px rgba(0,0,0,.15)}
@@ -1090,9 +1090,9 @@ function show(){
     if(p?.k==="email" && p.email && view==="login"){ codeEmail=p.email; codeMode="signup"; codeMsg=""; view="code"; }
     else if(p?.k==="wa" && view==="login" && (p.mode==="senha" || d)){ waFlow={mode:p.mode, tel:p.tel, show:p.show, ...(p.mode==="cadastro"?{data:{...d, nascimento:p.nasc||d.nascimento||null}}:{})}; wcMsg=""; view="wacode"; } }
   if(!ses && view!=="newpw" && view!=="signup" && view!=="code" && view!=="wacode") view="login";
-  if(view==="login") return loginView();
+  if(view==="login"){ loginView(); return gTap(); }
   if(view==="newpw") return newPwView();
-  if(view==="signup") return signupView();
+  if(view==="signup"){ signupView(); return gTap(); }
   if(view==="code") return codeView();
   if(view==="wacode") return waFlow ? waCodeView() : (view="login", loginView());
   mainView();
@@ -1121,10 +1121,15 @@ async function gCred(res){
   try{ const j = await authCall("token?grant_type=id_token", {provider:"google", id_token:res.credential, nonce:gNonce});
     ses = null; saveSes(j); view = "main"; boot(); }
   catch(e){ location.href = googleHref(); } /* se der errado, segue pelo caminho de sempre */ }
-/* aparece sozinha na tela de entrar e no toque do botão do Google; se o navegador não mostrar, abre a tela do Google */
-function gTap(clique){ if(!gOk()) return clique ? (location.href=googleHref()) : undefined;
-  gLoad().then(()=>google.accounts.id.prompt(n=>{ if(clique && (n.isNotDisplayed?.() || n.isSkippedMoment?.())) location.href=googleHref(); }), ()=>{ if(clique) location.href=googleHref(); }); }
-document.addEventListener("click", e=>{ const a=e.target.closest('a[href*="provider=google"]'); if(!a || !gOk()) return; e.preventDefault(); gTap(true); });
+/* a janelinha aparece sozinha uma vez; o botão do Google vira o botão oficial, que abre a escolha da conta numa janelinha
+   (antes o toque chamava a janelinha de novo, o navegador recusava e ia para a tela do Google: Rodrigo 2026-11-01) */
+let gAuto = false;
+function gRender(){ if(!gOk() || !window.google?.accounts?.id) return;
+  /* o botão oficial fica invisível por cima do nosso: o visual continua o mesmo, mas o toque abre a janelinha do Google */
+  document.querySelectorAll('a[href*="provider=google"]:not([data-gsi])').forEach(a=>{ a.dataset.gsi="1"; const d=document.createElement("div"); d.className="gsio"; a.appendChild(d);
+    google.accounts.id.renderButton(d, {type:"standard", theme:"outline", size:"large", shape:"pill", width:Math.min(400, Math.max(200, a.offsetWidth)), locale:lang==="pt"?"pt-BR":lang}); }); }
+function gTap(){ if(!gOk()) return;
+  gLoad().then(()=>{ gRender(); if(!gAuto){ gAuto=true; google.accounts.id.prompt(); } }, ()=>{}); }
 function checkGoogle(){
   if(googleOn!==null) return;
   googleOn = false;
