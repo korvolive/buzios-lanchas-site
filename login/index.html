@@ -2391,15 +2391,15 @@ function tripEnded(data, horario, n){
 }
 /* administrador: passeios da Búzios Lanchas que já passaram, para confirmar se aconteceram (libera a avaliação do cliente) */
 /* com o app aberto, os passeios que acabaram de terminar entram no quadro ao voltar para o app */
-document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && (S.admin || S.own?.length) && view==="main" && !sheetDay && !tripRow) loadToConfirm().then(bgView).catch(()=>{}); });
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && (S.admin || S.own?.length || S.papel==="operador") && view==="main" && !sheetDay && !tripRow) loadToConfirm().then(bgView).catch(()=>{}); });
 async function loadToConfirm(){
   /* da Búzios Lanchas: o administrador confirma; de fora: o dono da lancha confirma (com o pagamento quitado) */
-  const own = S.own||[];
-  if(!S.admin && !own.length) return;
+  const own = S.own||[], op = S.papel==="operador"; /* operador (Lucas) vê o lembrete de pedir avaliação dos passeios da Búzios Lanchas (Rodrigo 2026-11-01: não aparecia) */
+  if(!S.admin && !own.length && !op) return;
   const d0 = iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-60));
   try{ const r = await db(`bloqueios?select=id,lancha,data,horario,anotacoes!inner(cliente,origem,cliente_conta,telefone,valor,sinal${S.hrOk?",hora_fim":""}),realizados(aconteceu,em,wa_aval)${S.admin?"":`&lancha=in.(${own.join(",")})`}&data=lte.${todayISO()}&data=gte.${d0}&order=data.desc&limit=200`);
     const mine = r.filter(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes, fora=n?.origem!=="buzios";
-      if(fora ? !(own.includes(b.lancha) && b.data>=FORA_DESDE) : !S.admin) return false;
+      if(fora ? !(own.includes(b.lancha) && b.data>=FORA_DESDE) : !(S.admin || op)) return false;
       b.fora=fora; return true; });
     const rz = b => Array.isArray(b.realizados) ? b.realizados[0] : b.realizados;
     S.toConfirm = mine.filter(b=>!rz(b) && tripEnded(b.data, b.horario, (Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes)));
@@ -5918,7 +5918,7 @@ const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o convite, a cobrança e os avisos foram mandados no WhatsApp */
   if(!S.cur || S.tab==="vendas") return mainView();
   if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null, S.tab==="lancha" ? loadDg() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) bgView(); }); }
-  if((S.admin || S.own?.length) && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
+  if((S.admin || S.own?.length || S.papel==="operador") && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
   if(S.tab==="pedidos" && S.admin){ const my=++loadSeq; await loadReqs(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await Promise.all([loadUsers(), loadComPend(), loadLeads()]); if(my===loadSeq) mainView(); return; }
   if(S.tab==="lancha" && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
