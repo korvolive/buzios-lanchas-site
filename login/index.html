@@ -1107,7 +1107,7 @@ const IOS_APP = /BuziosLanchasIOS/.test(navigator.userAgent);
 const googleBtn = () => googleOn ? `<p class="or muted">${t("orGoogle")}</p><a class="gbtn" href="${googleHref()}">${GOOGLE_ICON}<span>${t("google")}</span></a>` : "";
 /* janelinha do Google (One Tap): o cliente escolhe a conta sem sair do site (Rodrigo 2026-10-31).
    Precisa do ID do cliente do Google (público, não é senha); sem ele fica só o botão que abre a tela do Google */
-const GOOGLE_CID = "";
+const GOOGLE_CID = "196855191562-6bgn8a5205m9rvnaq9a80va2k0pr7fss.apps.googleusercontent.com";
 let gsi = null, gNonce = "";
 const gOk = () => !!GOOGLE_CID && googleOn && !IOS_APP && !ses && (view==="login" || view==="signup");
 function gLoad(){ if(gsi) return gsi;
@@ -1124,7 +1124,7 @@ async function gCred(res){
 /* aparece sozinha na tela de entrar e no toque do botão do Google; se o navegador não mostrar, abre a tela do Google */
 function gTap(clique){ if(!gOk()) return clique ? (location.href=googleHref()) : undefined;
   gLoad().then(()=>google.accounts.id.prompt(n=>{ if(clique && (n.isNotDisplayed?.() || n.isSkippedMoment?.())) location.href=googleHref(); }), ()=>{ if(clique) location.href=googleHref(); }); }
-document.addEventListener("click", e=>{ const a=e.target.closest("a.gbtn"); if(!a || !gOk()) return; e.preventDefault(); gTap(true); });
+document.addEventListener("click", e=>{ const a=e.target.closest('a[href*="provider=google"]'); if(!a || !gOk()) return; e.preventDefault(); gTap(true); });
 function checkGoogle(){
   if(googleOn!==null) return;
   googleOn = false;
