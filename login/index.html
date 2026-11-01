@@ -2642,7 +2642,7 @@ const prKeyOf = () => "dono-prdraft:"+S.cur;
 /* "Sair do app?" só quando algum valor da lancha foi mudado de verdade (Rodrigo 2026-10-23) */
 const mnChanged = () => !!S.mnDirty && (S.mnOff!=null || !!S.mnEpCh || [...app.querySelectorAll(".mnet input")].some(x=>x.type==="checkbox"||x.type==="radio" ? x.checked!==x.defaultChecked : x.value!==x.defaultValue));
 const prDirty = () => view==="main" && S.tab==="lancha" && (mnChanged() && !!app.querySelector("#mnsave") || !!app.querySelector("#prsave") && !!store.get(prKeyOf()));
-const prDrop = () => { store.set(prKeyOf(),null); S.mnDirty=false; S.mnDraft=null; S.mnOff=null; S.mnEpCh=false; };
+const prDrop = () => { store.set(prKeyOf(),null); S.mnDirty=false; S.mnDraft=null; S.mnOff=null; S.mnEpCh=false; S.mnEp=null; };
 const lvq = document.createElement("div"); lvq.id="lvq"; lvq.hidden=true; lvq.setAttribute("role","dialog"); lvq.setAttribute("aria-modal","true"); document.body.append(lvq);
 let lvGo = null, lvBypass = false, lvAlt = null; /* lvAlt: outra tela usando a mesma pergunta (reserva alterada, Rodrigo 2026-10-31) */
 const askLeave = (go, alt) => { lvGo=go; lvAlt=alt||null; lvq.innerHTML=`<div class="lvc"><h2>${t(alt?.T||"lvT")}</h2><p class="muted">${t(alt?.S||"lvSub")}</p><button type="button" class="btn" data-lv="s">${t("lvSave")}</button><button type="button" class="btn sec" data-lv="x">${t("lvDrop")}</button><button type="button" class="link" data-lv="c">${t("lvStay")}</button></div>`; lvq.hidden=false; lvq.querySelector("[data-lv]").focus(); };
@@ -2716,8 +2716,10 @@ const EP_PREV = {media:"baixa", alta:"media"};
 const epKey = () => "dono-ep:"+S.cur;
 const epCan = (it, k) => [k, k+"7", EP_PREV[k], EP_PREV[k]+"7"].every(c=>it[c]?.ref>0);
 const epEff = (it, c) => +(S.mnDraft?.[c] ?? it[c]?.neto ?? it[c]?.ref) || 0;
-const epOn = (it, k) => { if(!EP_PREV[k] || !epCan(it,k)) return true; const sv=(store.get(epKey())||{})[k];
-  if(sv===false) return false; return sv===true || ["","7"].some(h=>epEff(it,k+h)!==epEff(it,EP_PREV[k]+h)); };
+const epSavedEq = (it, k) => ["","7"].every(h=>(+(it[k+h]?.neto ?? it[k+h]?.ref)||0)===(+(it[EP_PREV[k]+h]?.neto ?? it[EP_PREV[k]+h]?.ref)||0));
+/* ordem: o que acabou de tocar (ainda salvando) > o que salvou neste aparelho > os valores salvos. "Desligado" guardado só vale enquanto os valores salvos continuam iguais (revisão 2026-11-01) */
+const epOn = (it, k) => { if(!EP_PREV[k] || !epCan(it,k)) return true; if(S.mnEp?.[k]!=null) return S.mnEp[k]; const sv=(store.get(epKey())||{})[k], eq=epSavedEq(it,k);
+  return sv===true || !eq; };
 function ownPricesHTML(){
   if(S.admin || !(S.own||[]).includes(S.cur) || !S.mn) return "";
   const it=Object.fromEntries((S.mn.itens||[]).map(x=>[x.chave,x])), lock=!!S.mn.prox && new Date(S.mn.prox)>new Date();
@@ -5648,8 +5650,8 @@ function bindMainRest(){
     app.querySelectorAll("[data-mfer]").forEach(x=>x.onclick=()=>{ const k=x.dataset.mfer, off=[...(S.mnOff ?? (S.mn.sem_feriados||[]))]; S.mnOff = off.includes(k) ? off.filter(f=>f!==k) : [...off, k]; S.mnDirty=true; mnKeep(); mainView(); });
   /* liga/desliga média e alta do dono: desligada copia a época anterior e salva em seguida; ligada volta com o valor dentro da faixa */
   app.querySelectorAll("[data-ep]").forEach(x=>x.onclick=()=>{ const k=x.dataset.ep, on=x.getAttribute("aria-pressed")!=="true", it=Object.fromEntries((S.mn.itens||[]).map(y=>[y.chave,y]));
-    mnKeep(); const sv={...(store.get(epKey())||{}), [k]:on}; store.set(epKey(), sv);
-    if(on) for(const h of ["","7"]){ let p=EP_PREV[k]; while(sv[p]===false && EP_PREV[p]) p=EP_PREV[p]; const pv=epEff(it,p+h), [lo,hi]=mnRange(it[k+h].ref); S.mnDraft[k+h]=String(Math.min(hi, Math.max(lo, pv))); }
+    mnKeep(); S.mnEp={...(S.mnEp||{}), [k]:on};
+    if(on) for(const h of ["","7"]){ let p=EP_PREV[k]; while(!epOn(it,p) && EP_PREV[p]) p=EP_PREV[p]; const pv=epEff(it,p+h), [lo,hi]=mnRange(it[k+h].ref); S.mnDraft[k+h]=String(Math.min(hi, Math.max(lo, pv))); }
     S.mnEpCh=true; S.mnDirty=true; mainView(); });
   /* valores do dono: salvam sozinhos logo depois de cada mudança, se passarem nas regras (Rodrigo 2026-10-23, sem a trava de 7 dias) */
   const mns=document.getElementById("mnsave"), mnSt=(k,c)=>{ if(mns){ mns.textContent=t(k); mns.className="mnst"+(c?" "+c:""); } };
@@ -5662,7 +5664,7 @@ function bindMainRest(){
   if(S.mnDirty && (S.mnOff!=null || S.mnEpCh)) S.mnAuto(); /* feriado ligado/desligado: a tela redesenha e salva em seguida */
   if(mns) mns.onclick=async()=>{ const lancha=S.cur, v={}, ds={};
     /* valor fora das regras: não salva e o campo volta sozinho para o último valor salvo (Rodrigo 2026-10-25: parecia ter salvo) */
-    const nope=msg=>{ S.mnLast=null; app.querySelectorAll(".mnet input").forEach(x=>{ x.value=x.defaultValue; }); S.mnDirty=false; S.mnDraft=null; ppPaint(); mnSt("mnAuto"); toast(msg+" "+t("mnBack")); };
+    const nope=msg=>{ S.mnLast=null; S.mnEp=null; S.mnEpCh=false; app.querySelectorAll(".mnet input").forEach(x=>{ x.value=x.defaultValue; }); S.mnDirty=false; S.mnDraft=null; ppPaint(); mnSt("mnAuto"); toast(msg+" "+t("mnBack")); };
     for(const x of app.querySelectorAll("input[data-mn]")){ const n=+x.value, lo=+x.min, hi=+x.max; /* só os campos de valor: os botões Remover dos marinheiros também têm data-mn (nome) */
       if(!x.value.trim() || !(n>=lo && n<=hi)){ return nope(t("mnBad",{a:brl(lo), b:brl(hi)})); }
       if(n%50){ return nope(t("mnStep")); }
@@ -5676,7 +5678,8 @@ function bindMainRest(){
       if(kind==="ds"){ ds[c]=Math.round(n*100)/100; if(x.dataset.both) ds[c+"7"]=ds[c]; } else rv[c]=Math.round(n*100)/100; }
     for(const k of ["media","alta"]) for(const h of ["","7"]) if(ds[k+h]==null && ds[EP_PREV[k]+h]!=null) ds[k+h]=ds[EP_PREV[k]+h]; /* época desligada: mesmo desconto de segunda a quinta da anterior */
     mnSt("mnSaving");
-    const off=S.mnOff ?? (S.mn.sem_feriados||[]), fixa=()=>{ app.querySelectorAll(".mnet input").forEach(x=>{ x.defaultValue=x.value; }); S.mnDirty=false; S.mnDraft=null; S.mnEpCh=false; };
+    const off=S.mnOff ?? (S.mn.sem_feriados||[]), fixa=()=>{ app.querySelectorAll(".mnet input").forEach(x=>{ x.defaultValue=x.value; }); S.mnDirty=false; S.mnDraft=null; S.mnEpCh=false;
+      { const it=Object.fromEntries((S.mn.itens||[]).map(y=>[y.chave,y])), sv={...(store.get(epKey())||{})}; for(const k of ["media","alta"]) if(epCan(it,k)) sv[k]=epOn(it,k); store.set(epKey(), sv); S.mnEp=null; } };
     try{ const r=await RPC("salvar_netos_v2",{l:lancha, v, off, pf:+app.querySelector("[data-mpf]").value, pr:rv.alta, pr7:rv.alta7, ds});
       fixa(); mnSt("mnSavedAuto","ok"); mnMark();
       if(r?.mudou){ /* sem aviso à Búzios Lanchas quando o dono muda valores (Rodrigo 2026-10-26) */
@@ -5921,7 +5924,7 @@ async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o con
   if(S.tab==="lancha" && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
   if(S.tab==="lancha"){ if(S.cur==="*") S.cur=S.boats[0].slug; const my=++loadSeq, l=S.cur;
     if(S.admin){ S.ph=null; db(`precos_hist?select=*&lancha=eq.${encodeURIComponent(l)}&order=em.desc&limit=5`).then(r=>{ if(l===S.cur) S.ph=r; }, ()=>{ if(l===S.cur) S.ph=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); }); }
-    else if((S.own||[]).includes(l)){ S.mn=null; S.mnOff=null; S.mnDraft=null; S.mnDirty=false; S.mnEpCh=false; RPC("meus_netos",{l}).then(r=>{ if(l===S.cur) S.mn=r; }, ()=>{ S.mn=null; /* função ainda não criada */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); }); }
+    else if((S.own||[]).includes(l)){ S.mn=null; S.mnOff=null; S.mnDraft=null; S.mnDirty=false; S.mnEpCh=false; S.mnEp=null; RPC("meus_netos",{l}).then(r=>{ if(l===S.cur) S.mn=r; }, ()=>{ S.mn=null; /* função ainda não criada */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); }); }
     if(S.admin && boatRow(l)?.dados) loadPub().then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     db("rpc/lista_visualizadores",{method:"POST",body:{}}).then(v=>{ S.staff=v; }, ()=>{ S.staff=null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     if(S.admin) db(`precos?select=*&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.no7=false; return r; }, e=>{ if(e.status!==400) throw e; S.no7=true; /* colunas de 7 horas ainda não criadas */ return db(`precos?select=baixa,media,alta,pico,reveillon&lancha=eq.${encodeURIComponent(l)}`); })
