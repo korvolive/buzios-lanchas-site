@@ -1121,15 +1121,14 @@ async function gCred(res){
   try{ const j = await authCall("token?grant_type=id_token", {provider:"google", id_token:res.credential, nonce:gNonce});
     ses = null; saveSes(j); view = "main"; boot(); }
   catch(e){ location.href = googleHref(); } /* se der errado, segue pelo caminho de sempre */ }
-/* a janelinha aparece sozinha uma vez; o botão do Google vira o botão oficial, que abre a escolha da conta numa janelinha
+/* o botão do Google vira o botão oficial, que abre a escolha da conta numa janelinha
    (antes o toque chamava a janelinha de novo, o navegador recusava e ia para a tela do Google: Rodrigo 2026-11-01) */
-let gAuto = false;
 function gRender(){ if(!gOk() || !window.google?.accounts?.id) return;
   /* o botão oficial fica invisível por cima do nosso: o visual continua o mesmo, mas o toque abre a janelinha do Google */
   document.querySelectorAll('a[href*="provider=google"]:not([data-gsi])').forEach(a=>{ a.dataset.gsi="1"; const d=document.createElement("div"); d.className="gsio"; a.appendChild(d);
     google.accounts.id.renderButton(d, {type:"standard", theme:"outline", size:"large", shape:"pill", width:Math.min(400, Math.max(200, a.offsetWidth)), locale:lang==="pt"?"pt-BR":lang}); }); }
 function gTap(){ if(!gOk()) return;
-  gLoad().then(()=>{ gRender(); if(!gAuto){ gAuto=true; google.accounts.id.prompt(); } }, ()=>{}); }
+  gLoad().then(gRender, ()=>{}); } /* sem janelinha automática: só abre no toque do Google (Rodrigo 2026-11-01) */
 function checkGoogle(){
   if(googleOn!==null) return;
   googleOn = false;
