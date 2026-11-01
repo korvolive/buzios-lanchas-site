@@ -1105,11 +1105,31 @@ const googleHref = () => `${SB}/auth/v1/authorize?provider=google&prompt=select_
 /* no app do iPhone o Google não deixa entrar dentro do app (abriria no Safari); lá fica e-mail, senha e WhatsApp */
 const IOS_APP = /BuziosLanchasIOS/.test(navigator.userAgent);
 const googleBtn = () => googleOn ? `<p class="or muted">${t("orGoogle")}</p><a class="gbtn" href="${googleHref()}">${GOOGLE_ICON}<span>${t("google")}</span></a>` : "";
+/* janelinha do Google (One Tap): o cliente escolhe a conta sem sair do site (Rodrigo 2026-10-31).
+   Precisa do ID do cliente do Google (público, não é senha); sem ele fica só o botão que abre a tela do Google */
+const GOOGLE_CID = "196855191562-6bgn8a5205m9rvnaq9a80va2k0pr7fss.apps.googleusercontent.com";
+let gsi = null, gNonce = "";
+const gOk = () => !!GOOGLE_CID && googleOn && !IOS_APP && !ses && (view==="login" || view==="signup");
+function gLoad(){ if(gsi) return gsi;
+  gsi = new Promise((ok, no)=>{ const sc=document.createElement("script"); sc.src="https://accounts.google.com/gsi/client"; sc.async=true; sc.onload=ok; sc.onerror=no; document.head.appendChild(sc); })
+    .then(async ()=>{ gNonce = Array.from(crypto.getRandomValues(new Uint8Array(16)), b=>b.toString(16).padStart(2,"0")).join("");
+      const h = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(gNonce))), b=>b.toString(16).padStart(2,"0")).join("");
+      google.accounts.id.initialize({client_id:GOOGLE_CID, callback:gCred, nonce:h, use_fedcm_for_prompt:true, itp_support:true, cancel_on_tap_outside:true, context:"signin", ux_mode:"popup"}); })
+    .catch(()=>{ gsi=null; throw new Error("gsi"); });
+  return gsi; }
+async function gCred(res){
+  try{ const j = await authCall("token?grant_type=id_token", {provider:"google", id_token:res.credential, nonce:gNonce});
+    ses = null; saveSes(j); view = "main"; boot(); }
+  catch(e){ location.href = googleHref(); } /* se der errado, segue pelo caminho de sempre */ }
+/* aparece sozinha na tela de entrar e no toque do botão do Google; se o navegador não mostrar, abre a tela do Google */
+function gTap(clique){ if(!gOk()) return clique ? (location.href=googleHref()) : undefined;
+  gLoad().then(()=>google.accounts.id.prompt(n=>{ if(clique && (n.isNotDisplayed?.() || n.isSkippedMoment?.())) location.href=googleHref(); }), ()=>{ if(clique) location.href=googleHref(); }); }
+document.addEventListener("click", e=>{ const a=e.target.closest('a[href*="provider=google"]'); if(!a || !gOk()) return; e.preventDefault(); gTap(true); });
 function checkGoogle(){
   if(googleOn!==null) return;
   googleOn = false;
   if(IOS_APP) return;
-  fetch(SB+"/auth/v1/settings",{headers:{apikey:KEY}}).then(r=>r.ok?r.json():null).then(j=>{ if(j?.external?.google){ googleOn=true; if(view==="login"||view==="signup") show(); } }).catch(()=>{});
+  fetch(SB+"/auth/v1/settings",{headers:{apikey:KEY}}).then(r=>r.ok?r.json():null).then(j=>{ if(j?.external?.google){ googleOn=true; if(view==="login"||view==="signup"){ show(); gTap(); } } }).catch(()=>{});
 }
 function loginView(){
   top_.hidden = true;
