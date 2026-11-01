@@ -72,7 +72,7 @@ h1 .vtag{font-size:12px;line-height:20px}
 main:has(#plan){max-width:100%;padding-left:8px;padding-right:8px}main{max-width:560px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px))}
 body.has-help .login{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 body.has-help main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
-.help{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:700;font-size:15px;padding:11px 16px 11px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28)}.help svg{width:22px;height:22px;fill:#fff;flex:none}.help[hidden]{display:none}.fabs{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.fabs .help{position:static}.help.sup{background:#25d366;border:0;cursor:pointer;font-family:inherit;position:relative}.sup .unr{position:absolute;top:-7px;right:-7px;background:#e5484d}.supm{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.supm[hidden]{display:none}.help.supch{background:var(--sea);border:0;cursor:pointer;font-family:inherit}.supch .unr{background:#e5484d;margin-left:2px}
+.help{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:700;font-size:15px;padding:11px 16px 11px 13px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.28)}.help svg{width:22px;height:22px;fill:#fff;flex:none}.help[hidden]{display:none}.fabs{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.fabs .help{position:static}.fabs{transition:opacity .2s,transform .2s}.fabs.rolando{opacity:0;transform:translateY(16px);pointer-events:none}.help.sup{background:#25d366;border:0;cursor:pointer;font-family:inherit;position:relative}.sup .unr{position:absolute;top:-7px;right:-7px;background:#e5484d}.supm{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.supm[hidden]{display:none}.help.supch{background:var(--sea);border:0;cursor:pointer;font-family:inherit}.supch .unr{background:#e5484d;margin-left:2px}
 h1,h2{font-family:var(--display);line-height:1.15;margin:0 0 6px}
 h1{font-size:26px} h2{font-size:20px}
 .muted{color:var(--muted)}
@@ -6908,6 +6908,8 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   const SUP_ICON=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a9 9 0 0 0-9 9v6a3 3 0 0 0 3 3h2v-8H5v-1a7 7 0 0 1 14 0v1h-3v8h3v1h-6v2h6a2 2 0 0 0 2-2v-9a9 9 0 0 0-9-9z"/></svg>`;
   const close=()=>{ menu.hidden=true; sup.setAttribute("aria-expanded","false"); };
   const chatOk=()=>Array.isArray(S.convs) && (S.isClient || S.convs.length>0);
+  /* rolando a tela, o botão some e volta quando para, para não ficar em cima dos botões dos cards (Rodrigo 2026-11-01, print da cliente) */
+  let rolT=null; addEventListener("scroll", ()=>{ if(!menu.hidden || box.dataset.auth) return; box.classList.add("rolando"); clearTimeout(rolT); rolT=setTimeout(()=>box.classList.remove("rolando"), 900); }, {passive:true});
   let was="";
   const paint=()=>{ const auth=!!app.querySelector(".login"), on=!auth && !top_.hidden && !S.admin, n=+S.chatUnread||0, k=[on,auth,lang,n,chatOk(),menu.hidden].join("|");
     if(k===was) return; was=k;
