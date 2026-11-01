@@ -331,6 +331,9 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .tdate b{display:block;font:800 24px/1 var(--display)}.tdate span{font-size:12px;text-transform:uppercase;color:var(--muted);font-weight:700}
 .tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .tbody strong{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* nome do cliente em branco no modo escuro: o cinza-claro parecia apagado (Rodrigo 2026-11-01) */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tbody strong{color:#fff}}
+:root[data-theme="dark"] .tbody strong{color:#fff}
 .tbody strong.who{display:flex;flex-wrap:wrap;row-gap:2px;width:100%}.tbody strong .wn{display:inline-flex;align-items:center;gap:8px;min-width:0;max-width:100%;flex:0 1 auto}.tbody strong .cnm{overflow:hidden;text-overflow:ellipsis;min-width:0}.tbody strong .wbdg{margin-left:auto;display:inline-flex;align-items:center;gap:6px;flex:none;padding-left:6px}.tbody strong .csite{cursor:help}.tbody strong .vbadge{display:inline-flex;flex:none;margin-left:-4px}.ubody .vbadge,.cli .vbadge{margin-left:2px;vertical-align:-3px}
 @media (max-width:560px){.tbody strong .wbdg{margin-left:0;padding-left:0}}.tbody strong .csite{flex:none;font-size:13px;font-weight:700;color:#1f7a4f}
 .tbody em{font-style:normal;color:var(--muted);font-weight:600}
