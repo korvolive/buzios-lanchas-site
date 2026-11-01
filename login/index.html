@@ -5618,32 +5618,34 @@ function bindMainRest(){
   if(prs && S.neto){ /* neto + comissão: digitar a % calcula o R$ e vice-versa; o total aparece na hora */
     const sync = c => { const b=app.querySelector(`[data-br="${c}"]`); if(b) b.textContent=prBrTxt(c); const tv=app.querySelector(`[data-tv="${c}"]`); if(tv && document.activeElement!==tv) tv.value = prNetOf(c)>0 ? prBrOf(c) : ""; app.querySelector(`[data-tt="${c}"]`).innerHTML=prTot(c); };
     app.querySelectorAll("[data-nt]").forEach(x=>x.oninput=()=>sync(x.dataset.nt));
-    const bzCap = x => { if(+x.value>BZ_MAX){ x.value=BZ_MAX; toast(t("prBlBad")); } };
+    /* valor fora da regra: o campo volta para o último valor salvo e o aviso aparece (Rodrigo 2026-11-01) */
+    const prBack = (x, msg) => { x.value=x.defaultValue; x.dispatchEvent(new Event("input",{bubbles:true})); x.focus(); toast(msg+" "+t("mnBack")); };
+    const bzCap = x => { if(+x.value>BZ_MAX){ x.value=x.defaultValue; toast(t("prBlBad")+" "+t("mnBack")); } };
     app.querySelectorAll("[data-tp]").forEach(x=>x.oninput=()=>{ bzCap(x); x.dataset.ed="1"; sync(x.dataset.tp); });
     app.querySelectorAll("[data-rxp]").forEach(x=>x.oninput=()=>{ bzCap(x); const h=x.dataset.rxp, n=rvNetOf(h), v=app.querySelector(`[data-rx="${h}"]`); if(n>0 && x.value.trim()!=="") v.value=Math.round(n*(+x.value)/100); ppPaint(); });
-    app.querySelectorAll("[data-rx]").forEach(x=>x.oninput=()=>{ const n=rvNetOf(x.dataset.rx); if(n>0 && +x.value>n*BZ_MAX/100){ x.value=Math.floor(n*BZ_MAX/100); toast(t("prBlBad")); } rxSync(); ppPaint(); });
+    app.querySelectorAll("[data-rx]").forEach(x=>x.oninput=()=>{ const n=rvNetOf(x.dataset.rx); if(n>0 && +x.value>n*BZ_MAX/100){ x.value=x.defaultValue; toast(t("prBlBad")+" "+t("mnBack")); } rxSync(); ppPaint(); });
     app.querySelector(".pnet")?.addEventListener("input", e=>{ if(!e.target.matches("[data-rxp]")) rxSync(); }); rxSync();
-    app.querySelectorAll("[data-tv]").forEach(x=>x.oninput=()=>{ const c=x.dataset.tv, n=prNetOf(c), p=app.querySelector(`[data-tp="${c}"]`); if(n>0 && +x.value>n*BZ_MAX/100){ x.value=Math.floor(n*BZ_MAX/100); toast(t("prBlBad")); } if(n>0 && x.value.trim()!==""){ p.value=+(+x.value/n*100).toFixed(2); p.dataset.ed="1"; } sync(c); });
+    app.querySelectorAll("[data-tv]").forEach(x=>x.oninput=()=>{ const c=x.dataset.tv, n=prNetOf(c), p=app.querySelector(`[data-tp="${c}"]`); if(n>0 && +x.value>n*BZ_MAX/100){ x.value=x.defaultValue; toast(t("prBlBad")+" "+t("mnBack")); } if(n>0 && x.value.trim()!==""){ p.value=+(+x.value/n*100).toFixed(2); p.dataset.ed="1"; } sync(c); });
     if(document.getElementById("prdn")) app.querySelectorAll("[data-nt]").forEach(x=>{ const c=x.dataset.nt; sync(c); const k=c.replace("7",""); const pv=app.querySelector(`[data-pv="${k}"]`); if(pv) pv.textContent=prVend(k); });
     prs.onclick=async()=>{ const lancha=S.cur, body={lancha, atualizado_em:new Date().toISOString()}, rows=[];
       for(const x of app.querySelectorAll("[data-nt]")){ const c=x.dataset.nt, n=prNetOf(c), br=prBrOf(c);
-        if(x.value.trim()!=="" && !(n>0)){ x.focus(); return toast(t("prBad")); }
-        if(n>VMAX || prTotVal(c)>VMAX){ x.focus(); return toast(t("valMax")); }
+        if(x.value.trim()!=="" && !(n>0)){ return prBack(x, t("prBad")); }
+        if(n>VMAX || prTotVal(c)>VMAX){ return prBack(x, t("valMax")); }
         body[c] = n>0 ? Math.round(n+br) : (S.prices[c] ?? null);
         const was=S.neto[c], nn=n>0?Math.round(n):null; /* referência do dono: muda quando o administrador muda o valor */
-        const tp=S.hasTaxa ? prPctSet(c) : null; if(tp!=null && !(tp>=0 && tp<=BZ_MAX)){ app.querySelector(`[data-tp="${c}"]`).focus(); return toast(t("prBlBad")); }
+        const tp=S.hasTaxa ? prPctSet(c) : null; if(tp!=null && !(tp>=0 && tp<=BZ_MAX)){ return prBack(app.querySelector(`[data-tp="${c}"]`), t("prBlBad")); }
         rows.push({lancha, chave:c, neto:nn, comissao:n>0?Math.round(br):null, ...(S.hasRef?{ref: nn===was?.neto && was?.ref!=null ? was.ref : nn}:{}), ...(S.hasTaxa?{taxa_pct: tp==null || tp===taxaDef(lancha) && was?.taxa_pct==null ? null : Math.round(tp*100)/100}:{}), atualizado_em:body.atualizado_em}); }
       const apc=[...app.querySelectorAll("[data-apc]")]; if(apc.length){ const dsw={};
-        for(const x of apc){ const n=+x.value; if(x.value.trim()==="" || !(n>=0 && n<=+x.max)){ x.focus(); return toast(t("mnPctBad",{n:x.max})); } body[x.dataset.apc]=n; }
-        for(const x of app.querySelectorAll("[data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(x.value.trim()==="" || !(n>=0 && n<=mx)){ x.focus(); return toast(t("pairBad",{n:mx})); }
+        for(const x of apc){ const n=+x.value; if(x.value.trim()==="" || !(n>=0 && n<=+x.max)){ return prBack(x, t("mnPctBad",{n:x.max})); } body[x.dataset.apc]=n; }
+        for(const x of app.querySelectorAll("[data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(x.value.trim()==="" || !(n>=0 && n<=mx)){ return prBack(x, t("pairBad",{n:mx})); }
           const v=Math.round(n*100)/100; if(kind==="ds"){ dsw[c]=v; if(x.dataset.both) dsw[c+"7"]=v; } else body[c.endsWith("7")?"pct_reveillon7":"pct_reveillon"]=v; }
-        if("bz_reveillon" in S.prices) for(const h of ["", ...(S.no7?[]:["7"])]){ const x=app.querySelector(`[data-rx="${h}"]`), v=x && x.value.trim()!=="" ? +x.value : 0; if(!(v>=0 && v<=VMAX)){ x.focus(); return toast(t("prBad")); } body["bz_reveillon"+h] = v>0 ? Math.round(v) : null; }
+        if("bz_reveillon" in S.prices) for(const h of ["", ...(S.no7?[]:["7"])]){ const x=app.querySelector(`[data-rx="${h}"]`), v=x && x.value.trim()!=="" ? +x.value : 0; if(!(v>=0 && v<=VMAX)){ return prBack(x, t("prBad")); } body["bz_reveillon"+h] = v>0 ? Math.round(v) : null; }
         body.desc_semana=dsw; body.sem_feriados=[...app.querySelectorAll("[data-afer]")].filter(x=>x.getAttribute("aria-pressed")==="false").map(x=>x.dataset.afer); }
       const st=document.getElementById("prst"), prSt=(k,c)=>{ if(st){ st.textContent=t(k); st.className="mnst"+(c?" "+c:""); } };
       prs.disabled=true; prSt("mnSaving");
       try{ await db("precos_neto",{method:"POST", body:rows, prefer:"resolution=merge-duplicates,return=minimal"});
         await db("precos",{method:"POST", body, prefer:"resolution=merge-duplicates,return=minimal"});
-        S.prices={...S.prices, ...body}; S.neto={...S.neto, ...Object.fromEntries(rows.map(r=>[r.chave,r]))}; prDone(); prSt("mnSavedAuto","ok"); }
+        S.prices={...S.prices, ...body}; S.neto={...S.neto, ...Object.fromEntries(rows.map(r=>[r.chave,r]))}; prDone(); prCard?.querySelectorAll("input").forEach(y=>{ y.defaultValue=y.value; }); prSt("mnSavedAuto","ok"); }
       catch(e){ prSt("mnAuto"); toast(t("saveErr")); } finally{ prs.disabled=false; } };
     let prT=null; const prAuto=()=>{ clearTimeout(prT); prT=setTimeout(()=>{ prT=null; if(document.body.contains(prs)) prs.onclick(); }, 700); };
     /* tela redesenhada antes do salvamento automático (Novo período, Editar, trocar de aba): salva antes de redesenhar, senão o valor digitado se perdia (revisão 2026-10-27) */
@@ -5714,7 +5716,7 @@ function bindMainRest(){
       if(r?.mudou){ /* sem aviso à Búzios Lanchas quando o dono muda valores (Rodrigo 2026-10-26) */
         S.mn=await RPC("meus_netos",{l:lancha}).catch(()=>S.mn); }
       S.mn.sem_feriados=off; S.mnOff=null; ppPaint(); }
-    catch(e){ mnSt("mnAuto"); toast(e.code==="P0001"?e.message:t("saveErr")); } };
+    catch(e){ if(e.code==="P0001") return nope(e.message); mnSt("mnAuto"); toast(t("saveErr")); } };
   /* "Salvar" no aviso de sair: salva os quadros com mudança; se algo não passar na conferência, abre o quadro e fica na tela */
   S.prSave = async () => { if(prs && store.get(prKey)) await prs.onclick(); if(!prDirty()) return true;
     if(mnChanged() && mns && !store.get(prKey)) await mns.onclick(); const ok=!prDirty();
