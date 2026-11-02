@@ -1745,7 +1745,7 @@ function sellerBox(b, box, sl){
     document.getElementById("v-copy").onclick=()=>navigator.clipboard?.writeText(link).then(()=>{ document.getElementById("v-copy").textContent=t("copied"); },()=>prompt("",link)); return; }
   const teto$=Math.min(VEND_MAN_MAX, Math.round(base*VEND_MAN_PCT/100)), dflt=cli-base; let com=dflt, made={}, tm=null;
   box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p>
-    <div class="vrow"><span class="vlab">${t("vendMine")}</span><span class="vin"><input type="number" id="v-pct" min="0" max="${VEND_MAN_PCT}" step="0.5" value="${pct}" inputmode="decimal" aria-label="${t("vendPct")}"><i>%</i><input type="number" id="v-rs" min="0" max="${teto$}" step="10" value="${dflt}" inputmode="numeric" aria-label="${t("vendRs")}"><i>R$</i></span></div>
+    <div class="vrow"><span class="vlab">${t("vendMine")}</span><span class="vin"><input type="number" id="v-pct" style="display:none" min="0" max="${VEND_MAN_PCT}" step="0.5" value="${pct}" inputmode="decimal" aria-label="${t("vendPct")}"><input type="number" id="v-rs" min="0" max="${teto$}" step="10" value="${dflt}" inputmode="numeric" aria-label="${t("vendRs")}"><i>R$</i></span></div>
     <input type="range" id="v-rg" min="0" max="${Math.min(VEND_MAN_PCT, Math.ceil(teto$/base*100))}" step="0.5" value="${pct}" aria-label="${t("vendPct")}">
     <p class="vrow tot"><span>${t("vendClient")}</span><b id="v-cli">${brl(cli)}</b></p>
     <p class="vnote">${t("vendNote",{v:brl(teto$)})}</p>
