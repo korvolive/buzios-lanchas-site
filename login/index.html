@@ -960,6 +960,10 @@ Object.assign(T.es, {ctSentWa:"Central de pago creada y enviada al cliente por W
 Object.assign(T.es, {chTrT:"Traducción automática de los mensajes", chTrOn:"Traducir", chTrOff:"Original", chTrOrig:"Traducido · ver original", chTrSee:"Ver traducción", chTrOnT:"Traducción automática activada", chTrOffT:"Traducción desactivada: mensajes en el idioma original"});
 Object.assign(T.es, {chBotPago:"Seña recibida: {v}. Ahora Búzios Lanchas confirma tu reserva."});
 Object.assign(T.es, {chBotVenc:"Terminó el plazo para pagar la seña de la {boat} el {date} y la fecha quedó libre. Si todavía quieres el paseo, habla con nosotros aquí en el chat.", chBotAte:"La fecha queda guardada para ti hasta {h}. Después vuelve a quedar libre.", payAte:"Paga la seña hasta {h}: después la fecha vuelve a quedar libre.", chBotPassou:"La fecha de tu pedido de la {boat} el {date} llegó sin que se completara la reserva, así que cerramos el pedido. ¡Nos alegró mucho tu interés! Cuando quieras, elige otra fecha en el sitio o escríbenos aquí: será un placer llevarte a pasear en Búzios. ⛵", chBotExp:"Se acabaron las 2 horas para pagar la seña y la {boat} el {date} fue liberada. Si sigue libre, puedes generar el pago de nuevo con el mismo link.", chBotRc:"El recibo de la seña ya está en la app, en Mis paseos: solo toca Descargar recibo de la seña.", waRc:"🧾 El recibo de la seña ya está en la app Búzios Lanchas, en Mis paseos: {url}", chBotOk:"Seña recibida: ¡tu reserva en {boat} el {date} está confirmada! ✅", chBotResto:"Al embarcar, pagas el resto ({v}) directamente al responsable de la lancha.", pixWa:"Enviar el Pix al WhatsApp del cliente", repT:"A dónde va el dinero", repSin:"Seña que recibes: {v}", repDono:"Le pasas al dueño: {v}", repDonoNeg:"El dueño te pasa: {v}", repVend:"Comisión del vendedor: {v}", repBz:"Queda para Búzios Lanchas: {v}", repResto:"Al embarcar, el cliente le paga al dueño: {v}"});
+/* crédito do cliente (Rodrigo 2026-11-02): o sinal vira crédito para usar em até 1 ano, só na mesma lancha */
+Object.assign(T.pt, {crBtn:"💳 Virar crédito para o cliente", crT:"Transformar em crédito", crSub:"O passeio sai da agenda e a data volta a ficar livre no site. O sinal vira um crédito para {name} usar só na {boat}. Ele aparece na conta do cliente e no card Créditos de clientes, em Reservas.", crVal:"Valor do crédito", crAte:"Válido até", crGo:"Cancelar o passeio e criar o crédito", crQ:"Cancelar o passeio de {d} e criar um crédito de {v} na {boat}, válido até {ate}?", crOk:"Crédito criado. A data já está livre no site.", crAteBad:"Escolha uma validade entre amanhã e 2 anos.", crValBad:"Valor inválido.", crSql:"Falta rodar no Supabase o arquivo 2026-11-02_supabase-credito-do-cliente.sql.", crDoneT:"Crédito criado", crDoneSub:"O cliente já foi avisado no chat do app, no celular e por e-mail (quando tem conta). Se quiser, mande também pelo WhatsApp:", crNoAcc:"Este cliente ainda não tem conta no app: avise pelo WhatsApp.", crWa:"Oi{name}! O sinal que você pagou ({v}) virou crédito para usar na {boat} até {ate}.{acc}\nQuando escolher a nova data, é só me chamar aqui. 😊", crWaAcc:" Ele já aparece na sua conta, em Meus passeios: {url}", crAdmT:"💳 Créditos de clientes ({n})", crAdmSub:"Sinal que virou crédito. Vale só na lancha indicada, até a data de validade.", crFrom:"do passeio de {d}", crUntil:"vale até {d}", crExp:"venceu em {d}", crUse:"📅 Remarcar", crDel:"🗑 Remover", crDelQ:"Remover o crédito de {v} de {name} na {boat}? O cliente é avisado. Isso não pode ser desfeito.", crDelOk:"Crédito removido.", crUsing:"💳 Usando o crédito de {v} de {name} (vale até {ate}). O sinal já vem preenchido com o crédito.", crUsed:"Crédito usado neste passeio.", crCliT:"Você tem um crédito", crCliTn:"Você tem {n} créditos", crCliOnly:"só na {boat}", crCliHow:"Para usar, escolha a nova data e fale com a gente pelo chat ou pelo WhatsApp.", crCliWa:"Quero usar meu crédito", crCliWaTx:"Oi! Quero usar o meu crédito de {v} na {boat}. Qual data está livre?", chBotCrNovo:"O sinal que você pagou virou um crédito de {v} para usar na {boat} até {ate}. Quando escolher a nova data, é só chamar a gente aqui no chat ou no WhatsApp. O crédito também aparece em Meus passeios.", chBotCrRm:"O seu crédito de {v} na {boat} foi encerrado. Qualquer dúvida, fale com a gente aqui.", chBotCrVence:"Lembrete: o seu crédito de {v} na {boat} vence em {ate}. Escolha a nova data e fale com a gente aqui para usar.", chBotCrVenceu:"O seu crédito de {v} na {boat} venceu em {ate}."});
+Object.assign(T.en, {crBtn:"💳 Turn into client credit", crT:"Turn into credit", crSub:"The tour leaves the schedule and the date is free again on the website. The deposit becomes a credit for {name} to use only on {boat}. It shows in the client's account and in the Client credits card, under Bookings.", crVal:"Credit amount", crAte:"Valid until", crGo:"Cancel the tour and create the credit", crQ:"Cancel the tour on {d} and create a {v} credit on {boat}, valid until {ate}?", crOk:"Credit created. The date is already free on the website.", crAteBad:"Pick a validity between tomorrow and 2 years.", crValBad:"Invalid amount.", crSql:"Run the file 2026-11-02_supabase-credito-do-cliente.sql in Supabase first.", crDoneT:"Credit created", crDoneSub:"The client was already told in the app chat, on the phone and by email (when they have an account). If you want, send it on WhatsApp too:", crNoAcc:"This client has no app account yet: tell them on WhatsApp.", crWa:"Hi{name}! The deposit you paid ({v}) became a credit to use on {boat} until {ate}.{acc}\nWhen you pick the new date, just message me here. 😊", crWaAcc:" It already shows in your account, under My tours: {url}", crAdmT:"💳 Client credits ({n})", crAdmSub:"Deposits that became credit. Valid only on the boat shown, until the expiry date.", crFrom:"from the tour on {d}", crUntil:"valid until {d}", crExp:"expired on {d}", crUse:"📅 Reschedule", crDel:"🗑 Remove", crDelQ:"Remove {name}'s {v} credit on {boat}? The client is told. This can't be undone.", crDelOk:"Credit removed.", crUsing:"💳 Using {name}'s {v} credit (valid until {ate}). The deposit is already filled with the credit.", crUsed:"Credit used on this tour.", crCliT:"You have a credit", crCliTn:"You have {n} credits", crCliOnly:"only on {boat}", crCliHow:"To use it, pick your new date and talk to us in the chat or on WhatsApp.", crCliWa:"I want to use my credit", crCliWaTx:"Hi! I want to use my {v} credit on {boat}. Which dates are free?", chBotCrNovo:"The deposit you paid became a {v} credit to use on {boat} until {ate}. When you pick the new date, just message us here in the chat or on WhatsApp. The credit also shows in My tours.", chBotCrRm:"Your {v} credit on {boat} was closed. Any questions, talk to us here.", chBotCrVence:"Reminder: your {v} credit on {boat} expires on {ate}. Pick your new date and talk to us here to use it.", chBotCrVenceu:"Your {v} credit on {boat} expired on {ate}."});
+Object.assign(T.es, {crBtn:"💳 Convertir en crédito del cliente", crT:"Convertir en crédito", crSub:"El paseo sale de la agenda y la fecha vuelve a quedar libre en el sitio. La seña se convierte en un crédito para que {name} lo use solo en {boat}. Aparece en la cuenta del cliente y en la tarjeta Créditos de clientes, en Reservas.", crVal:"Valor del crédito", crAte:"Válido hasta", crGo:"Cancelar el paseo y crear el crédito", crQ:"¿Cancelar el paseo del {d} y crear un crédito de {v} en {boat}, válido hasta {ate}?", crOk:"Crédito creado. La fecha ya está libre en el sitio.", crAteBad:"Elige una validez entre mañana y 2 años.", crValBad:"Valor inválido.", crSql:"Falta ejecutar en Supabase el archivo 2026-11-02_supabase-credito-do-cliente.sql.", crDoneT:"Crédito creado", crDoneSub:"El cliente ya fue avisado en el chat de la app, en el celular y por correo (cuando tiene cuenta). Si quieres, mándalo también por WhatsApp:", crNoAcc:"Este cliente todavía no tiene cuenta en la app: avísale por WhatsApp.", crWa:"¡Hola{name}! La seña que pagaste ({v}) se convirtió en crédito para usar en {boat} hasta el {ate}.{acc}\nCuando elijas la nueva fecha, solo escríbeme aquí. 😊", crWaAcc:" Ya aparece en tu cuenta, en Mis paseos: {url}", crAdmT:"💳 Créditos de clientes ({n})", crAdmSub:"Señas que se convirtieron en crédito. Válido solo en la lancha indicada, hasta la fecha de vencimiento.", crFrom:"del paseo del {d}", crUntil:"válido hasta {d}", crExp:"venció el {d}", crUse:"📅 Reprogramar", crDel:"🗑 Quitar", crDelQ:"¿Quitar el crédito de {v} de {name} en {boat}? El cliente es avisado. No se puede deshacer.", crDelOk:"Crédito quitado.", crUsing:"💳 Usando el crédito de {v} de {name} (válido hasta {ate}). La seña ya viene llena con el crédito.", crUsed:"Crédito usado en este paseo.", crCliT:"Tienes un crédito", crCliTn:"Tienes {n} créditos", crCliOnly:"solo en {boat}", crCliHow:"Para usarlo, elige la nueva fecha y habla con nosotros por el chat o por WhatsApp.", crCliWa:"Quiero usar mi crédito", crCliWaTx:"¡Hola! Quiero usar mi crédito de {v} en {boat}. ¿Qué fechas están libres?", chBotCrNovo:"La seña que pagaste se convirtió en un crédito de {v} para usar en {boat} hasta el {ate}. Cuando elijas la nueva fecha, solo escríbenos aquí en el chat o por WhatsApp. El crédito también aparece en Mis paseos.", chBotCrRm:"Tu crédito de {v} en {boat} fue cerrado. Cualquier duda, habla con nosotros aquí.", chBotCrVence:"Recordatorio: tu crédito de {v} en {boat} vence el {ate}. Elige la nueva fecha y habla con nosotros aquí para usarlo.", chBotCrVenceu:"Tu crédito de {v} en {boat} venció el {ate}."});
 Object.assign(T.es, {tabUsers:"Usuarios", usersQ:"Buscar por nombre, correo o WhatsApp", usersQNone:"No se encontró a nadie.", userNew:"Nuevo usuario", userNewShort:"Nuevo",
   needSqlUsers:"Falta crear la parte de usuarios en Supabase (función lista_usuarios).", needSqlDel:"Falta habilitar en Supabase la función para borrar cuentas (excluir_usuario).",
   uf_lbl:"Grupo", uf_bloq:"🚫 Bloqueados", ubTag:"🚫 Bloqueado", ubBlock:"🚫 Bloquear usuario", ubUnblock:"Desbloquear", ubQ:"¿Bloquear a {name}? Ya no podrá entrar, pedir paseos ni mandar o ver mensajes. Sus pedidos pendientes se cancelan.", ubWhy:"Motivo del bloqueo (solo tú lo ves; puedes dejarlo en blanco)", ubOk:"Usuario bloqueado.", ubOff:"Usuario desbloqueado.", ubSql:"Falta ejecutar el SQL del bloqueo de usuarios en Supabase.", blockedMsg:"Tu cuenta fue bloqueada en el sitio de Búzios Lanchas y ya no se puede usar. Si crees que es un error, escríbenos por WhatsApp +55 21 99927-2550.", uf_todos:"Todos", uf_dono:"Dueños", uf_mar:"Marineros", userWa:"Hablar con {name} por WhatsApp", ug_mar_fixo:"Marineros fijos", ug_mar_free:"Marineros freelancers", uf_cli:"Clientes", uf_func:"Empleados", uf_sem:"Registro incompleto",
@@ -1461,6 +1465,7 @@ async function loadMyReq(){
   /* lanchas com cupom do dono e o valor (v2); sem o v2 ainda, só quais lanchas têm */
   const cdP=db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(a=>a.map(x=>[x.lancha,x.valor]), e=>e.status===404 ? db("rpc/lanchas_cupom_dono",{method:"POST",body:{}}).then(a=>a.map(x=>[typeof x==="string"?x:x.lanchas_cupom_dono,0])) : Promise.reject(e))
     .then(a=>{ S.cdVal=new Map(a); S.cdSet=new Set(S.cdVal.keys()); }, ()=>{ S.cdVal=new Map(); S.cdSet=new Set(); });
+  S.myCreds = await db("rpc/meus_creditos",{method:"POST",body:{}}).catch(()=>[]); /* crédito do cliente (Rodrigo 2026-11-02) */
   S.cups = await db("rpc/meus_cupons_v2",{method:"POST",body:{}}).catch(()=>db("rpc/meus_cupons",{method:"POST",body:{}})).catch(()=>[]); /* cupons de fidelidade (nascem quando o passeio termina) */ await cdP;
   const [emb, ctt] = await Promise.all([db("rpc/meus_embarques",{method:"POST",body:{}}).catch(()=>[]), db("rpc/meus_contatos",{method:"POST",body:{}}).catch(()=>[])]);
   S.ctt = ctt||[]; /* WhatsApp do dono e do marinheiro fixo no passeio confirmado (Rodrigo 2026-10-27) */ /* o local de embarque que ficou marcado no passeio */
@@ -1791,6 +1796,74 @@ function lembHTML(){
   const n=L.filter(x=>lembPlan(x).agora).length;
   return `<details class="card cfm rvpend fold" data-fold="lemb"${n||foldOpen("lemb")?" open":""}>${foldSum(t("lbT",{n:L.length})+(n?` · 🔔 ${n}`:""))}<p class="muted" style="margin-top:0">${t("lbSub")}</p><ul class="owners">${L.map(x=>{ const k=lembPlan(x), nm=x.nota.cliente||"";
     return `<li><span class="who">${avatar(x.lancha,"bav")}<span><strong>${esc(boatName(x.lancha))}</strong><br><small class="muted">${fmtLong(x.data)} · ${t("slot_"+x.horario)}${nm?" · "+esc(nome2(nm)):""}</small><br><small>${k.agora?`<b>🔔 ${t("lbNow")}</b> · `:""}⏳ ${t("lbAte",{d:fmtAte(k.fim)})}${!k.agora&&k.prox?` · ${t("lbProx",{d:fmtAte(k.prox)})}`:""}</small></span></span><span class="cfb"><button type="button" class="btn${k.agora?"":" sec"}" data-lemb="${x.id}">${lbFirst(x)?"📲 "+t("preBtn"):"⏰ "+t("lbBtn")}</button>${waTag("lembrete",x.id)}<button type="button" class="btn sec" data-lbopen="${x.id}">💰 ${t("lbOpen")}</button></span></li>`; }).join("")}</ul></details>`; }
+
+/* ===== crédito do cliente (Rodrigo 2026-11-02): o cliente desiste, o sinal vira crédito para usar em até 1 ano só na mesma lancha.
+   Virar crédito apaga o passeio (a data volta livre no site); o cliente vê o crédito em Meus passeios e é avisado no chat, no celular e por e-mail.
+   Remover (ex.: vendeu a data e devolveu o sinal) pede confirmação e também avisa o cliente. Remarcar abre o passeio novo com o sinal = crédito. ===== */
+async function loadCreds(){ if(!(S.admin || S.papel==="operador")) return;
+  S.creds = await RPC("creditos_admin",{}).catch(e=>e.status===404 ? false : null); }
+const crAberto = c => !c.usado_em && !c.removido_em;
+const ymd1y = () => { const d=new Date(); d.setFullYear(d.getFullYear()+1); return iso(d); };
+function credAdmHTML(){
+  const L=(S.creds||[]).filter(crAberto); if(!L.length) return "";
+  const hoje=todayISO(), ro = !S.admin || S.papel==="auditor";
+  return `<details class="card cfm fold" data-fold="cred"${foldOpen("cred",false)?" open":""}>${foldSum(t("crAdmT",{n:L.length}))}<p class="muted" style="margin-top:0">${t("crAdmSub")}</p><ul class="owners">${L.map(c=>{ const venc=c.valido_ate<hoje, wa=waOf(c.telefone);
+    return `<li><span class="who">${avatar(c.lancha,"bav")}<span><strong>${brl(+c.valor)} · ${esc(boatName(c.lancha))}</strong><br><small class="muted">${esc(c.nome||"")}${c.origem_data?" · "+t("crFrom",{d:fmtCupD(c.origem_data)}):""}</small><br><small>${venc?`<b>⚠ ${t("crExp",{d:fmtCupD(c.valido_ate)})}</b>`:"⏳ "+t("crUntil",{d:fmtCupD(c.valido_ate)})}</small></span></span>
+      <span class="cfb">${ro||venc?"":`<button type="button" class="btn" data-cru="${c.id}">${t("crUse")}</button>`}${wa.length>=8?`<a class="btn sec" href="https://wa.me/${wa}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}${ro?"":`<button type="button" class="btn sec" data-crx="${c.id}">${t("crDel")}</button>`}</span></li>`; }).join("")}</ul></details>`;
+}
+document.addEventListener("click", async e=>{
+  const u=e.target.closest?.("[data-cru]"), x=e.target.closest?.("[data-crx]"); if(!u && !x) return;
+  const c=(S.creds||[]).find(r=>r.id===+(u||x).dataset[u?"cru":"crx"]); if(!c) return;
+  if(u){ /* remarcar: passeio novo da mesma lancha, com cliente, WhatsApp e o sinal = crédito; ao salvar, o crédito vira usado */
+    consultaFor=null; pedidoFor=null;
+    tripRow={lancha:c.lancha, data:"", horario:"", cred:c, nota:{origem:"buzios", cliente:c.nome||"", telefone:c.telefone||null, sinal:+c.valor}};
+    tripNew=true; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on"); return; }
+  if(!confirm(t("crDelQ",{v:brl(+c.valor), name:c.nome||"", boat:boatName(c.lancha)}))) return;
+  x.disabled=true;
+  try{ await RPC("remover_credito",{cid:c.id}); callFn({tipo:"credito", id:c.id, acao:"removido"}).catch(()=>{}); toast(t("crDelOk")); await loadCreds(); mainView(); }
+  catch(err){ x.disabled=false; toast(errMsg(err)); }
+});
+function credSheet(r){
+  const n=r.nota||{}, min=iso(new Date(Date.now()+864e5)), max=maxISO();
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>💳 ${t("crT")}</h2>
+    <p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)} · ${esc(boatName(r.lancha))}</p>
+    <p class="muted">${t("crSub",{name:esc(n.cliente||""), boat:esc(boatName(r.lancha))})}</p><div id="crmsg"></div>
+    <div class="row2"><label class="f"><span>${t("crVal")}</span><input type="number" class="in" id="cr-v" inputmode="decimal" min="1" max="99999" step="any" value="${+n.sinal||""}"></label>
+    <label class="f"><span>${t("crAte")}</span><input type="date" class="in" id="cr-ate" min="${min}" max="${max}" value="${ymd1y()}"></label></div>
+    <button type="button" class="btn" id="cr-go">${t("crGo")}</button>
+    <button type="button" class="btn sec" id="cr-x" style="margin-top:10px">${t("back")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  sheet.querySelector(".shx").onclick = closeDay; document.getElementById("cr-x").onclick = ()=>{ renderTrip(); };
+  const out=document.getElementById("crmsg"), go=document.getElementById("cr-go");
+  go.onclick = async () => { const v=+String(document.getElementById("cr-v").value).replace(",","."), ate=document.getElementById("cr-ate").value;
+    if(!(v>0 && v<=99999)){ out.innerHTML=`<p class="msg err">${t("crValBad")}</p>`; return; }
+    if(!ate || ate<min || ate>max){ out.innerHTML=`<p class="msg err">${t("crAteBad")}</p>`; return; }
+    if(!confirm(t("crQ",{d:fmtCupD(r.data), v:brl(v), boat:boatName(r.lancha), ate:fmtCupD(ate)}))) return;
+    go.disabled=true;
+    try{ const cid=await RPC("virar_credito",{bid:r.id, ate, v});
+      callFn({tipo:"credito", id:cid, acao:"novo"}).catch(()=>{});
+      toast(t("crOk")); loadBlocks(); loadReqs().catch(()=>{});
+      credDone({lancha:r.lancha, valor:v, valido_ate:ate, nome:n.cliente, telefone:n.telefone, cliente:n.cliente_conta}); }
+    catch(e){ go.disabled=false; out.innerHTML=`<p class="msg err">${e.status===404 ? t("crSql") : errMsg(e)}</p>`; } };
+}
+function credDone(c){
+  const wa=waOf(c.telefone), first=(c.nome||"").trim().split(" ")[0]||"";
+  const msg=inLang(cliLang(c.telefone), ()=>t("crWa",{name:first?", "+first:"", v:brl(+c.valor), boat:boatName(c.lancha), ate:fmtCupD(c.valido_ate), acc:c.cliente?t("crWaAcc",{url:location.origin+"/login/"}):""}));
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✅ ${t("crDoneT")}</h2>
+    <p class="muted" style="margin-top:0">${c.cliente ? t("crDoneSub") : t("crNoAcc")}</p><pre class="wamsg">${esc(msg)}</pre>
+    ${wa.length>=8?`<a class="btn wa" style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp</a>`:""}
+    <button type="button" class="btn sec" id="crcp">${t("invCopy")}</button>
+    <button type="button" class="btn sec" id="crok" style="margin-top:10px">${t("close")}</button>`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  sheet.querySelector(".shx").onclick = document.getElementById("crok").onclick = () => { closeDay(); mainView(); };
+  document.getElementById("crcp").onclick = () => navigator.clipboard.writeText(msg).then(()=>toast(t("invCopied")), ()=>prompt("", msg));
+}
+/* cliente: créditos abertos, com a lancha e a validade */
+function credCliHTML(){
+  const L=S.myCreds||[]; if(!L.length) return "";
+  return `<div class="card cupcard"><h2>💳 ${t(L.length>1?"crCliTn":"crCliT",{n:L.length})}</h2>${L.map(c=>`<div class="cuprow"><b>${brl(+c.valor)}</b><span><b>${t("crCliOnly",{boat:esc(boatName(c.lancha))})}</b> · ${t("crUntil",{d:fmtCupD(c.valido_ate)})}</span></div>`).join("")}
+    <p class="muted" style="margin:8px 0 10px">${t("crCliHow")}</p><a class="btn wa" href="https://wa.me/${WHATS}?text=${encodeURIComponent(t("crCliWaTx",{v:brl(+L[0].valor), boat:boatName(L[0].lancha)}))}" target="_blank" rel="noopener">${WA_ICON} ${t("crCliWa")}</a></div>`;
+}
 /* primeira cobrança ainda não enviada (sem pedido do site e sem WhatsApp de cobrança/lembrete): o botão manda a mensagem de pré-reserva, não o lembrete (Rodrigo 2026-10-31) */
 const lbFirst = x => !x.ped && !waAt("convite",x.id) && !waAt("cobranca",x.id) && !waAt("lembrete",x.id);
 async function lembrar(x){
@@ -2096,7 +2169,7 @@ function clientView(){
   const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p)), pend=rows.filter(rvPending).sort(cmpRows);
   app.innerHTML = `<h1 class="hello">${t("cliHello",{name:esc(S.me.nome.split(" ")[0])})}${S.me.pais?` <button type="button" class="pflag" id="pflag" aria-label="${t("paisT")}" title="${esc(paisName(S.me.pais))}">${flag(S.me.pais)}</button>`:""}${S.vend?vtag():""}</h1>
     ${pend.length ? `<div class="card rvpend"><h2>${t("rvPendT")}</h2><p class="muted" style="margin:0">${t("rvPendSub")}</p>${pend.filter(p=>p.data>="2026-10-22" && S.cdSet?.has(p.lancha) && !(S.cups||[]).some(c=>c.origem_pedido===p.id)).map(p=>`<p class="cupgift">🎁 ${t("cupGift") /* sem o valor antes de ganhar (Rodrigo 2026-10-30) */}</p>`).join("")/* cupom só depois de avaliar (Rodrigo 2026-10-23); só lancha com cupom do dono, o valor aparece quando ganha (Rodrigo 2026-10-25) */}${pend.map(p=>`<div class="trow"><span class="who">${avatar(p.lancha,"bav")}<span><strong>${esc(boatName(p.lancha))}</strong><br><small class="muted">${fmtLong(p.data)} · ${t("slot_"+p.horario)}</small></span></span><button type="button" class="btn" data-rv="${p.id}">${t("rvPendBtn")}</button></div>`).join("")}</div>` : ""}
-    ${S.vend ? eqCardHTML() : ""}${cupHTML()}
+    ${S.vend ? eqCardHTML() : ""}${credCliHTML()}${cupHTML()}
     ${verHTML()}
     ${pushNudgeHTML()}
     ${ocupHTML()}
@@ -3885,7 +3958,7 @@ function pedidosHTML(){
   const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.forEach(p=>L[kind(p)].push(p)); (S.reqTrips||[]).forEach(r=>L[kindT(r)].push(r));
   L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows); L.hist.sort((x,z)=>cmpRows(z,x)); L.canc.sort((x,z)=>cmpRows(z,x));
   const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
-  return `${S.papel==="operador"?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${altHTML()}${condAlertHTML()}${lembHTML()}${avHojeHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}<p class="how muted">${t("reqSub")}</p>
+  return `${S.papel==="operador"?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${altHTML()}${condAlertHTML()}${lembHTML()}${credAdmHTML()}${avHojeHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}<p class="how muted">${t("reqSub")}</p>
     <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${!L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
       : f!=="pendente" ? byBoat(L[f]).map(([l,rs])=>`<details class="rqboat" data-rqb="${f}|${esc(l)}"${S.rqOpen?.has(f+"|"+l)?" open":""}><summary class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}<i class="chev" aria-hidden="true">›</i></span></summary><div class="trips">${rs.map(card).join("")}</div></details>`).join("") /* cada lancha abre e fecha com um toque */
@@ -3936,7 +4009,7 @@ async function loadReqs(){
     /* passeios lançados direto na agenda de qualquer lancha (sem pedido do site) também entram em Reservas */
     const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
     S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>+r.nota?.sinal>0 && !ligados.has(r.id)); /* só entra quem já pagou ao menos o sinal */
-    await Promise.all([loadWaSent(), loadCond(), loadAlts(), loadLemb(), loadAvHoje()]); /* quando cada WhatsApp foi mandado; meias diárias condicionais; alterações pedidas */
+    await Promise.all([loadWaSent(), loadCond(), loadAlts(), loadLemb(), loadAvHoje(), loadCreds()]); /* quando cada WhatsApp foi mandado; meias diárias condicionais; alterações pedidas */
     setCons(await db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(e=>e.status===404||e.status===400 ? false : null)); /* consulta rápida: false = falta o SQL */
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length + (S.cons||[]).length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
@@ -4267,7 +4340,8 @@ const markRead = cid => RPC("marcar_lida",{cid}).then(()=>{ const c=(S.convs||[]
 function chBotHTML(m){
   const [, k, a, b, hx] = String(m.papel).split(":"), hora=new Date(m.criado_em).toLocaleTimeString(t("locale"),{hour:"2-digit",minute:"2-digit"});
   let body;
-  if(k==="pago") body = esc(t("chBotPago",{v:String(m.papel).slice(13)}));
+  if(k==="credito"){ const [, , ac, v, l, ate] = String(m.papel).split(":"); body = esc(t({novo:"chBotCrNovo", removido:"chBotCrRm", vence:"chBotCrVence", venceu:"chBotCrVenceu"}[ac]||"chBotCrNovo",{v:brl(+v), boat:boatName(l), ate:ate?fmtCupD(ate):""})); } /* crédito do cliente (Rodrigo 2026-11-02) */
+  else if(k==="pago") body = esc(t("chBotPago",{v:String(m.papel).slice(13)}));
   else if(k==="expirou") body = esc(t("chBotExp",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""}));
   else if(k==="venceu") body = esc(t("chBotVenc",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""}));
   else if(k==="passou") body = esc(t("chBotPassou",{boat:boatName(m.p_lancha), date:m.p_data?fmtLong(m.p_data):""}));
@@ -4298,7 +4372,7 @@ async function chTrad(){
 const trOf = m => { if(!trOn() || !m.texto || m.autor===ses.user.id) return null; const x=chTr.get(trKey(m.id)); return x && x.de!==lang && x.t && x.t.trim()!==m.texto.trim() ? x : null; };
 function chMsgHTML(m){
   if(m.apagada && String(m.papel||"").startsWith("sistema:")) return ""; /* mensagem automática apagada pelo administrador some (Rodrigo 2026-10-24) */
-  if(/^sistema:(pedido|sinal|ok|pago|expirou|passou|venceu):/.test(m.papel||"")) return chBotHTML(m);
+  if(/^sistema:(pedido|sinal|ok|pago|expirou|passou|venceu|credito):/.test(m.papel||"")) return chBotHTML(m);
   if(String(m.papel||"").startsWith("sistema:")) return `<div class="chsys" data-mid="${m.id}">${t({"sistema:inativo":S.admin?"chSysInAdm":"chSysIn", "sistema:encerrado":"chSysEnc", "sistema:reaberto":"chSysReab"}[m.papel]||"chSysIn")}</div>`;
   const me=m.autor===ses.user.id, canDel = !m.apagada && S.admin; /* só o administrador apaga (Rodrigo, 2026-10-22) */
   const canRep = !m.apagada && !me && !S.admin && m.papel!=="suporte";
@@ -6395,6 +6469,7 @@ function renderTrip(){
   const slotOff = k => taken.some(h=>choca(h,k));
   const slotBtns = () => `${[...SLOTS,...(nd&&hasNight(nd)?["noite"]:[])].map(k=>`<button type="button" role="radio" data-ns="${k}" aria-checked="${nslot===k}"${slotOff(k)?" disabled":""}>${t("slot_"+k)}<small>${slotOff(k)?t("avBusy"):t("hours_"+k)}</small></button>`).join("")}`;
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${pedidoFor?t("approveT"):tripNew?t("tripNew"):t("tripEdit")}</h2>
+    ${tripNew && r?.cred ? `<p class="msg ok" style="margin-top:0">${t("crUsing",{v:brl(+r.cred.valor), name:esc(r.cred.nome||""), ate:fmtCupD(r.cred.valido_ate)})}</p>` : ""}
     ${pedidoFor ? `<p class="muted" style="margin-top:0">${t("approveSub")}</p>` : tripNew ? "" : `<p class="muted" style="margin-top:0">${fmtLong(r.data)} · ${t("slot_"+r.horario)}${S.boats.length>1?" · "+esc(boatName(r.lancha)):""}<br><small>${t("noteSub")}</small></p>`}
     ${n.cliente_conta && !tripNew && S.convs!==false && (S.admin || (n.origem==="buzios" && r.data>=todayISO())) && !isRO(r.lancha) ? `<div class="chpw"><button type="button" class="chpill" ${S.admin?`data-och="suporte" data-cli="${n.cliente_conta}"`:`data-och="dono" data-bid="${r.id}"`}>💬 <span>${t("chTalkCli")}</span></button></div>` : ""}
     ${!tripNew && r?.nota ? `<div class="strow"><span>${t("rsL")}</span>${canRv ? `<select class="stsel st-${stOf(r)}" id="stsel" aria-label="${t("rsL")}"><option value="">${t("rsAuto",{s:t("rs_"+stAuto(n,r.id))})}</option>${["sinal","confirmada","pago","revenda","finalizado"].map(k=>`<option value="${k}"${r.stm===k||(!r.stm&&k==="revenda"&&r.revenda)?" selected":""}>${t("rs_"+k)}</option>`).join("")}</select>` : stPill(r)}<small class="muted">${stOf(r)==="revenda"?t("rvOnTxt"):canRv?t("rsHintAdm"):t("rsHint")}</small></div>` : ""}
@@ -6443,6 +6518,7 @@ function renderTrip(){
       ${waNum.length>=12?`<a class="btn sec" style="margin:0 0 10px" href="https://wa.me/${waNum}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
       <button class="btn" id="nsave">${t("save")}</button></form>
     <button type="button" class="btn sec" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>
+    ${!tripNew && S.admin && S.papel!=="auditor" && n.origem==="buzios" && +n.sinal>0 && S.creds!==false ? `<button type="button" class="btn sec" id="ncred" style="margin-top:10px">${t("crBtn")}</button>` : ""}
     ${!tripNew && !fromDay ? `<button type="button" class="link danger" id="nfree">${t("freeSlot")}</button>` : ""}`;
   document.getElementById("nback").onclick=()=>tripLeave(()=>{ if(fromDay){ tripEd=false; noteFor=null; renderSheet(); } else closeDay(); }); tripWatch();
   const sts=document.getElementById("stsel");
@@ -6468,6 +6544,7 @@ function renderTrip(){
         <div class="rorow"><span>WhatsApp</span><strong><a href="https://wa.me/${wa}" target="_blank" rel="noopener">${esc(c.whatsapp)}</a></strong></div>${c.email?`<div class="rorow"><span>${t("email")}</span><strong style="overflow-wrap:anywhere"><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></strong></div>`:""}
         <div class="rorow"><span>${t("cliSince")}</span><strong>${new Date(c.desde).toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</strong></div><div class="rorow"><span>${t("cliTrips")}</span><strong>${c.passeios}</strong></div></div>` : `<p class="muted">—</p>`; }
     catch(e){ cc.dataset.ok=""; box.innerHTML=`<p class="msg err">${t("loadErr")}</p>`; } };
+  const ncr=document.getElementById("ncred"); if(ncr) ncr.onclick=()=>tripLeave(()=>credSheet(r));
   const fr=document.getElementById("nfree");
   if(fr) fr.onclick=async()=>{ if(!S.admin && n.origem==="buzios"){ if(confirm(t("freeBuz"))) window.open("https://wa.me/"+WHATS+"?text="+encodeURIComponent(t("freeBuzWa",{boat:boatName(r.lancha), d:fmtLong(r.data)})),"_blank"); return; } /* passeio da Búzios Lanchas: só o administrador apaga */
     if(!confirm(noteLine(n)?t("confirmFree"):t("freeSlot")+"?")) return;
@@ -6681,6 +6758,7 @@ function renderTrip(){
       }
       if(pedidoFor) nota.cliente_conta = pedidoFor.cliente; else if(n.cliente_conta) nota.cliente_conta = n.cliente_conta; /* não perde o vínculo ao editar */
       if(S.notes && (hasNote || row.nota)) await db("anotacoes",{method:"POST", body:{bloqueio_id:row.id, ...nota}, prefer:"resolution=merge-duplicates,return=minimal"});
+      if(tripNew && tripRow?.cred){ const cu=tripRow.cred; tripRow.cred=null; await RPC("usar_credito",{cid:cu.id, bid:row.id}).then(()=>{ toast(t("crUsed")); loadCreds(); }, e=>toast(errMsg(e))); } /* remarcou com o crédito: ele sai da lista */
       if(vmx && await vmSave(row.id, vmx)) toast(t("vmOk"));
       if(S.admin && tripNew && S.vdcChk) await S.vdcChk().catch(()=>{});
       if(S.admin && tripNew && S.vdcBase) await db("passeio_preco_base",{method:"POST", body:{bloqueio_id:row.id, preco_base:S.vdcBase}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{}); /* comissão do vendedor/parceiro (antes do convite, que cria o pedido) */
