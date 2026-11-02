@@ -2424,6 +2424,14 @@ const withNight = (s,txt,key) => s.has("noite") ? (txt ? txt+"+"+t(key==="c"?"c_
 const cellLabel = s => !s||!s.size ? "" : withNight(s, !daySize(s) ? "" : s.has("dia") ? t("c_dia") : s.has("manha")&&s.has("tarde") ? t("c_manha")+"<br>"+t("c_tarde") : s.has("manha") ? t("c_manha") : t("c_tarde"), "c");
 const dayLabel = s => !s||!s.size ? "" : withNight(s, !daySize(s) ? "" : s.has("dia") ? t("full") : s.has("manha")&&s.has("tarde") ? t("m")+"+"+t("tA") : s.has("manha") ? t("m") : t("tA"), "l");
 
+/* meses anteriores no calendário (Rodrigo 2026-11-02): só os meses que tiveram passeio, para o dono lembrar das datas e ver o total do mês */
+const ymOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}`, ymDate = k => new Date(+k.slice(0,4), +k.slice(5,7)-1, 1);
+function calPrev(){ const m=S.month, th=new Date(now.getFullYear(),now.getMonth(),1);
+  if(m>th) return new Date(m.getFullYear(),m.getMonth()-1,1);
+  const k=ymOf(m), p=(S.pastMonths||[]).filter(x=>x<k).pop(); return p ? ymDate(p) : null; }
+function calNext(){ const m=S.month, th=new Date(now.getFullYear(),now.getMonth(),1);
+  if(m>=th) return new Date(m.getFullYear(),m.getMonth()+1,1);
+  const k=ymOf(m), n=(S.pastMonths||[]).find(x=>x>k); return n ? ymDate(n) : th; }
 function calendarHTML(){
   const m=S.month, y=m.getFullYear(), mo=m.getMonth(), first=new Date(y,mo,1).getDay(), days=new Date(y,mo+1,0).getDate(), td=todayISO();
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -2435,7 +2443,7 @@ function calendarHTML(){
     cells += `<button type="button" class="day ${dayState(s)}${mt?" mnt":""}${k===td?" today":""}${past?" past":""}" data-d="${k}"${past?" disabled":""} aria-label="${fmtLong(k)}${mt?": "+t("mntLeg"):""}${s&&s.size?": "+dayLabel(s):""}"><b>${d}</b><small>${mt&&!(s&&s.size)?t("mntShort"):(s&&s.size)?cellLabel(s):t("free")}</small></button>`;
   }
   return `<div class="card">
-    <div class="cal-head"><button type="button" id="pm" aria-label="${t("prev")}"${m<=thisMonth?" disabled":""}>‹</button><h2>${cap(m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h2><button type="button" id="nm" aria-label="${t("next")}">›</button></div>
+    <div class="cal-head"><button type="button" id="pm" aria-label="${t("prev")}"${calPrev()?"":" disabled"}>‹</button><h2>${cap(m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h2><button type="button" id="nm" aria-label="${t("next")}">›</button></div>
     <div class="cal">${wds.map(w=>`<span class="wd">${w}</span>`).join("")}${cells}</div>
     <div class="legend"><span><i class="free"></i>${t("free")}</span><span><i class="half"></i>${t("half")}</span><span><i class="full"></i>${t("full")}</span>${mntList().length?`<span><i class="mntl"></i>${t("mntLeg")}</span>`:""}</div>
     ${monthSummaryHTML()}
@@ -5856,8 +5864,8 @@ function bindMainRest(){
   app.querySelectorAll("[data-lt]").forEach(x=>x.onclick=()=>{ S.lt=x.dataset.lt; if(S.lt==="ant" && !S.past){ S.past=[]; S.pastOk=false; mainView(); loadBlocks(); } else mainView(); });
   app.querySelectorAll("[data-d]").forEach(x=>x.onclick=()=>openDay(x.dataset.d));
   const pm=document.getElementById("pm"), nm=document.getElementById("nm"), rt=document.getElementById("retry");
-  if(pm) pm.onclick=()=>{ S.month=new Date(S.month.getFullYear(),S.month.getMonth()-1,1); loadBlocks(); };
-  if(nm) nm.onclick=()=>{ S.month=new Date(S.month.getFullYear(),S.month.getMonth()+1,1); loadBlocks(); };
+  if(pm) pm.onclick=()=>{ const d=calPrev(); if(d){ S.month=d; loadBlocks(); } };
+  if(nm) nm.onclick=()=>{ S.month=calNext(); loadBlocks(); };
   if(rt) rt.onclick=()=>loadBlocks();
   const ix=document.getElementById("instx"); if(ix) ix.onclick=()=>{ store.set(ix.dataset.velho?"velho-off":"dono-noinstall",true); document.getElementById("inst").remove(); };
   const ic=document.getElementById("instcopy"); if(ic) ic.onclick=async()=>{ try{ await navigator.clipboard.writeText(location.origin+"/login/"); toast(t("copied")); }catch(e){ prompt(t("copyLink"), location.origin+"/login/"); } };
@@ -6079,6 +6087,10 @@ async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o con
       fetchRows(`${lf}data=gte.${todayISO()}&order=data.asc&limit=200`),
       S.past ? fetchRows(`${lf}data=lt.${todayISO()}&data=gte.${iso(new Date(now.getFullYear(),now.getMonth()-24,1))}&order=data.desc&limit=500`) : null]);
     if(S.past){ S.past = past; S.pastOk = true; }
+    if(!all && S.pmFor!==S.cur){ const l=S.cur, m0=iso(new Date(now.getFullYear(),now.getMonth(),1)), m1=iso(new Date(now.getFullYear(),now.getMonth(),0));
+      S.pmFor=l; S.pastMonths=[]; /* meses anteriores com passeio desta lancha (navegação do calendário) */
+      (ro ? fetchVis(null, m1) : db(`bloqueios?select=data&lancha=eq.${encodeURIComponent(l)}&data=lt.${m0}&order=data.asc&limit=5000`))
+        .then(r=>{ if(S.cur!==l) return; S.pastMonths=[...new Set(r.map(x=>String(x.data).slice(0,7)))].sort(); const b=document.getElementById("pm"); if(b) b.disabled=!calPrev(); }, ()=>{}); }
     if(!ro && !S.feitos) S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
     if(my!==loadSeq) return;
     S.blocks = new Map(); rows.forEach(r=>{ if(!S.blocks.has(r.data)) S.blocks.set(r.data,new Map()); S.blocks.get(r.data).set(r.horario,r); });
