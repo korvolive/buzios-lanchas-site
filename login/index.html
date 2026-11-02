@@ -5285,7 +5285,7 @@ function tabsHTML(){
 /* área do vendedor: o link dele, a comissão por período (1% ao teto) e as vendas. O valor neto e o link de cada passeio ficam no site, na página da lancha */
 const vLink = () => location.origin+"/?v="+S.vend.codigo;
 /* comissão do vendedor: só baixa, média e alta, de 1% a 10% (padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
-const VEND_KEYS = ["baixa","media","alta"], VEND_TETO = 5, VEND_PADRAO = 5; /* link do vendedor: 5% fixo para todos (Rodrigo 2026-11-02) */
+const VEND_KEYS = ["baixa","media","alta"], VEND_TETO = 3, VEND_PADRAO = 3; /* link do vendedor: 3% fixo para todos, igual ao parceiro (Rodrigo 2026-11-02) */
 const vManCap = v => Math.min(1000, Math.round((+v||0)*30/100)); /* Vender: comissão em R$ até R$ 1.000 e 30% do valor (Rodrigo 2026-11-02) */
 const vTeto = () => Math.min(+S.vend?.teto || VEND_TETO, VEND_TETO);
 const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? seasonBase(iso) : key;
