@@ -6087,9 +6087,9 @@ async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o con
       fetchRows(`${lf}data=gte.${todayISO()}&order=data.asc&limit=200`),
       S.past ? fetchRows(`${lf}data=lt.${todayISO()}&data=gte.${iso(new Date(now.getFullYear(),now.getMonth()-24,1))}&order=data.desc&limit=500`) : null]);
     if(S.past){ S.past = past; S.pastOk = true; }
-    if(!all && S.pmFor!==S.cur){ const l=S.cur, m0=iso(new Date(now.getFullYear(),now.getMonth(),1)), m1=iso(new Date(now.getFullYear(),now.getMonth(),0));
+    if(!all && S.pmFor!==S.cur){ const l=S.cur, m0=iso(new Date(now.getFullYear(),now.getMonth(),1)), m1=iso(new Date(now.getFullYear(),now.getMonth(),0)), m12=iso(new Date(now.getFullYear()-1,now.getMonth(),1)); /* até 12 meses para trás (Rodrigo 2026-11-02) */
       S.pmFor=l; S.pastMonths=[]; /* meses anteriores com passeio desta lancha (navegação do calendário) */
-      (ro ? fetchVis(null, m1) : db(`bloqueios?select=data&lancha=eq.${encodeURIComponent(l)}&data=lt.${m0}&order=data.asc&limit=5000`))
+      (ro ? fetchVis(m12, m1) : db(`bloqueios?select=data&lancha=eq.${encodeURIComponent(l)}&data=gte.${m12}&data=lt.${m0}&order=data.asc&limit=5000`))
         .then(r=>{ if(S.cur!==l) return; S.pastMonths=[...new Set(r.map(x=>String(x.data).slice(0,7)))].sort(); const b=document.getElementById("pm"); if(b) b.disabled=!calPrev(); }, ()=>{}); }
     if(!ro && !S.feitos) S.feitos = Object.fromEntries((await db("realizados?select=bloqueio_id,aconteceu").catch(()=>[])).map(r=>[r.bloqueio_id, r.aconteceu]));
     if(my!==loadSeq) return;
