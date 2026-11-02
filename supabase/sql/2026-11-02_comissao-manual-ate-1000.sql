@@ -49,7 +49,8 @@ begin
   if data < (now() at time zone 'America/Sao_Paulo')::date then raise exception 'data'; end if;
   if horario not in ('manha','tarde','dia','noite') then raise exception 'horario'; end if;
   pr := public.preco_tabela(oferta_vendedor.lancha, oferta_vendedor.data, oferta_vendedor.horario);
-  if comissao is null or comissao < 0 or comissao > case when pr > 0 then public._teto_comissao_manual(pr) else 1000 end then raise exception 'comissao'; end if;
+  if pr > 0 then pr := public._teto_comissao_manual(pr); else pr := 1000; end if; -- teto da comissão (sem preço de tabela: R$ 1.000)
+  if comissao is null or comissao < 0 or comissao > pr then raise exception 'comissao'; end if;
   if (select count(*) from public.ofertas o where o.vendedor = v.user_id and o.criado_em > now() - interval '1 day') >= 200 then raise exception 'muitos'; end if;
   insert into public.ofertas (lancha, data, horario, pessoas, valor, criado_por, vendedor, comissao)
     values (oferta_vendedor.lancha, oferta_vendedor.data, oferta_vendedor.horario, nullif(oferta_vendedor.pessoas, 0), null, v.user_id, v.user_id, round(oferta_vendedor.comissao))
