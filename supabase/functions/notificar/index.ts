@@ -14,11 +14,13 @@
 // POST { tipo: "op_pre", id: <bloqueio> }  (o operador, logo depois de lançar a Miss Bardot, que já vira pré-reserva) avisa o administrador (Rodrigo 2026-10-31)
 // POST { tipo: "op_comprovante", id: <bloqueio> }  (o operador, logo depois de anexar o comprovante que o cliente mandou no WhatsApp) avisa o administrador para conferir
 // POST { tipo: "op_alteracao", id: <alteração> }  (o operador, logo depois de pedir a alteração) avisa o administrador para aprovar (celular e e-mail)
+// POST { tipo: "credito", id: <crédito>, acao: "novo" | "removido" }  (só o administrador) avisa o cliente com conta do crédito novo ou removido (celular e e-mail; o chat já foi escrito pelo banco)
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
 // POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa quando um passeio termina (da Búzios Lanchas: o administrador; de fora: os donos),
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 //                       Na mesma rodada avisa o cliente com conta 1 hora antes do início do passeio (celular e e-mail), com embarque, mapa e contatos
 //                       (dono da lancha; nos passeios da Búzios Lanchas também a Búzios Lanchas). Uma vez por passeio (tabela inicio_avisos).
+//                       Também avisa o cliente do crédito que vence em 30 dias e do crédito que venceu (chat, celular e e-mail; Rodrigo 2026-11-02).
 //                       E apaga a pré-reserva (valor lançado, sinal zero) que passou do prazo sem sinal (12 h, 6 h, 2 h ou 1 h, conforme a distância até o passeio): a data volta livre no site e o administrador é avisado.
 // As chaves do envio são criadas aqui mesmo na primeira vez e ficam em push_config (ninguém do app lê).
 import webpush from "npm:web-push@3.6.7";
@@ -137,6 +139,26 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Avise o cliente: passeio em breve", body: `${p.cliente || "Cliente"} · ${p.lancha} · ${p.hora}. Ele ainda não tem conta no app: toque para mandar o aviso no WhatsApp.` }),
     en: p => ({ title: "Tell the client: tour soon", body: `${p.cliente || "Client"} · ${p.lancha} · ${p.hora}. They have no app account yet: tap to send the reminder on WhatsApp.` }),
     es: p => ({ title: "Avisa al cliente: paseo pronto", body: `${p.cliente || "Cliente"} · ${p.lancha} · ${p.hora}. Todavía no tiene cuenta en la app: toca para mandar el aviso por WhatsApp.` }),
+  },
+  cred_novo: {
+    pt: p => ({ title: "Você tem um crédito", body: `${p.valor} para usar na ${p.lancha} até ${dataBR(p.ate)}. Toque para ver.` }),
+    en: p => ({ title: "You have a credit", body: `${p.valor} to use on ${p.lancha} until ${dataBR(p.ate)}. Tap to see it.` }),
+    es: p => ({ title: "Tienes un crédito", body: `${p.valor} para usar en ${p.lancha} hasta ${dataBR(p.ate)}. Toca para verlo.` }),
+  },
+  cred_removido: {
+    pt: p => ({ title: "Crédito encerrado", body: `O seu crédito de ${p.valor} na ${p.lancha} foi encerrado.` }),
+    en: p => ({ title: "Credit closed", body: `Your ${p.valor} credit on ${p.lancha} was closed.` }),
+    es: p => ({ title: "Crédito cerrado", body: `Tu crédito de ${p.valor} en ${p.lancha} fue cerrado.` }),
+  },
+  cred_vence: {
+    pt: p => ({ title: "Seu crédito vence em breve", body: `${p.valor} na ${p.lancha}, válido até ${dataBR(p.ate)}. Escolha a nova data e fale com a gente.` }),
+    en: p => ({ title: "Your credit expires soon", body: `${p.valor} on ${p.lancha}, valid until ${dataBR(p.ate)}. Pick your new date and talk to us.` }),
+    es: p => ({ title: "Tu crédito vence pronto", body: `${p.valor} en ${p.lancha}, válido hasta ${dataBR(p.ate)}. Elige la nueva fecha y habla con nosotros.` }),
+  },
+  cred_venceu: {
+    pt: p => ({ title: "Crédito vencido", body: `O seu crédito de ${p.valor} na ${p.lancha} venceu em ${dataBR(p.ate)}.` }),
+    en: p => ({ title: "Credit expired", body: `Your ${p.valor} credit on ${p.lancha} expired on ${dataBR(p.ate)}.` }),
+    es: p => ({ title: "Crédito vencido", body: `Tu crédito de ${p.valor} en ${p.lancha} venció el ${dataBR(p.ate)}.` }),
   },
   teste: {
     pt: () => ({ title: "Notificações ativadas", body: "Você vai receber os avisos da Búzios Lanchas aqui." }),
@@ -289,6 +311,26 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A tour on ${p.lancha} has ended. ${p.fora ? "Confirm it was completed with no balance due so the client can rate it." : "Confirm it happened so the client can rate it."}`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.cliente ? [`Client: ${p.cliente}`] : []), ...(p.com ? [`💼 Seller commission for ${p.com.nome}: ${COMV(p)}. Remember to pay it after confirming (Bookings › History › Mark commission paid).`] : [])], nota: "Open the app on the Tours tab: the tour is at the top, under \"Tours waiting for confirmation\".", botao: "Confirm the tour" }),
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó un paseo en ${p.lancha}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para liberar la evaluación del cliente." : "Confirma si ocurrió para liberar la evaluación del cliente."}`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : []), ...(p.com ? [`💼 Comisión del vendedor ${p.com.nome}: ${COMV(p)}. Recuerda pagarla después de confirmar (Reservas › Historial › Marcar comisión pagada).`] : [])], nota: "Abre la app en la pestaña Paseos: el paseo está arriba, en \"Paseos pendientes de confirmación\".", botao: "Confirmar el paseo" }),
   },
+  cred_novo: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O sinal que você pagou virou um crédito para o seu próximo passeio na ${p.lancha}.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido até: ${dataBR(p.ate)}`], nota: "Para usar, escolha a nova data e fale com a gente no chat do app ou no WhatsApp (21) 99927-2550. O crédito também aparece em Meus passeios.", botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The deposit you paid became a credit for your next tour on ${p.lancha}.`, linhas: [`Amount: ${p.valor}`, `Boat: ${p.lancha}`, `Valid until: ${dataBR(p.ate)}`], nota: "To use it, pick your new date and talk to us in the app chat or on WhatsApp +55 21 99927-2550. The credit also shows in My tours.", botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `La seña que pagaste se convirtió en un crédito para tu próximo paseo en ${p.lancha}.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido hasta: ${dataBR(p.ate)}`], nota: "Para usarlo, elige la nueva fecha y habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550. El crédito también aparece en Mis paseos.", botao: "Abrir la app" }),
+  },
+  cred_removido: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O seu crédito na ${p.lancha} foi encerrado.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido até: ${dataBR(p.ate)}`], nota: "Qualquer dúvida, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your credit on ${p.lancha} was closed.`, linhas: [`Amount: ${p.valor}`, `Boat: ${p.lancha}`, `Valid until: ${dataBR(p.ate)}`], nota: "Any questions, talk to us in the app chat or on WhatsApp +55 21 99927-2550.", botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu crédito en ${p.lancha} fue cerrado.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido hasta: ${dataBR(p.ate)}`], nota: "Cualquier duda, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Abrir la app" }),
+  },
+  cred_vence: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Lembrete: o seu crédito na ${p.lancha} vence em breve.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido até: ${dataBR(p.ate)}`], nota: "Para usar, escolha a nova data e fale com a gente no chat do app ou no WhatsApp (21) 99927-2550. O crédito também aparece em Meus passeios.", botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Reminder: your credit on ${p.lancha} expires soon.`, linhas: [`Amount: ${p.valor}`, `Boat: ${p.lancha}`, `Valid until: ${dataBR(p.ate)}`], nota: "To use it, pick your new date and talk to us in the app chat or on WhatsApp +55 21 99927-2550. The credit also shows in My tours.", botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Recordatorio: tu crédito en ${p.lancha} vence pronto.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido hasta: ${dataBR(p.ate)}`], nota: "Para usarlo, elige la nueva fecha y habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550. El crédito también aparece en Mis paseos.", botao: "Abrir la app" }),
+  },
+  cred_venceu: {
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O seu crédito na ${p.lancha} venceu.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido até: ${dataBR(p.ate)}`], nota: "Qualquer dúvida, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Your credit on ${p.lancha} has expired.`, linhas: [`Amount: ${p.valor}`, `Boat: ${p.lancha}`, `Valid until: ${dataBR(p.ate)}`], nota: "Any questions, talk to us in the app chat or on WhatsApp +55 21 99927-2550.", botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu crédito en ${p.lancha} venció.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido hasta: ${dataBR(p.ate)}`], nota: "Cualquier duda, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Abrir la app" }),
+  },
   venceu_cli: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O prazo para pagar o sinal da sua reserva na ${p.lancha} acabou e a data foi liberada.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`], nota: "Se ainda quiser o passeio, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Abrir o app" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The deadline to pay the deposit for your booking on ${p.lancha} has ended and the date was released.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`], nota: "If you still want the tour, talk to us in the app chat or on WhatsApp +55 21 99927-2550.", botao: "Open the app" }),
@@ -331,13 +373,17 @@ const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
   alterado: { pt: p => `Reserva alterada: ${p.lancha}${dd(p)}`, en: p => `Booking changed: ${p.lancha}${dd(p)}`, es: p => `Reserva cambiada: ${p.lancha}${dd(p)}` },
   avaliar: { pt: p => `Avalie o seu passeio na ${p.lancha}`, en: p => `Rate your tour on ${p.lancha}`, es: p => `Califica tu paseo en ${p.lancha}` },
   fim: { pt: p => `Passeio terminou, confirme: ${p.lancha}${dd(p)}`, en: p => `Tour ended, please confirm: ${p.lancha}${dd(p)}`, es: p => `Paseo terminado, confirma: ${p.lancha}${dd(p)}` },
+  cred_novo: { pt: p => `Você tem um crédito na ${p.lancha}`, en: p => `You have a credit on ${p.lancha}`, es: p => `Tienes un crédito en ${p.lancha}` },
+  cred_removido: { pt: p => `Crédito encerrado: ${p.lancha}`, en: p => `Credit closed: ${p.lancha}`, es: p => `Crédito cerrado: ${p.lancha}` },
+  cred_vence: { pt: p => `Seu crédito vence em breve: ${p.lancha}`, en: p => `Your credit expires soon: ${p.lancha}`, es: p => `Tu crédito vence pronto: ${p.lancha}` },
+  cred_venceu: { pt: p => `Crédito vencido: ${p.lancha}`, en: p => `Credit expired: ${p.lancha}`, es: p => `Crédito vencido: ${p.lancha}` },
   venceu_cli: { pt: p => `Prazo do sinal encerrado: ${p.lancha}${dd(p)}`, en: p => `Deposit deadline ended: ${p.lancha}${dd(p)}`, es: p => `Plazo de la seña terminado: ${p.lancha}${dd(p)}` },
   venceu: { pt: p => `Pré-reserva vencida: ${p.lancha}${dd(p)}`, en: p => `Hold expired: ${p.lancha}${dd(p)}`, es: p => `Pre-reserva vencida: ${p.lancha}${dd(p)}` },
   inicio: { pt: p => `Seu passeio começa em breve: ${p.lancha}`, en: p => `Your tour starts soon: ${p.lancha}`, es: p => `Tu paseo empieza pronto: ${p.lancha}` },
   avisarCli: { pt: p => `Avise o cliente: passeio em breve na ${p.lancha}`, en: p => `Remind the client: tour soon on ${p.lancha}`, es: p => `Avisa al cliente: paseo pronto en ${p.lancha}` },
   cliente: { pt: p => `Reserva confirmada: ${p.lancha}${dd(p)}`, en: p => `Booking confirmed: ${p.lancha}${dd(p)}`, es: p => `Reserva confirmada: ${p.lancha}${dd(p)}` },
 };
-async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_pre" | "op_alteracao" | "op_comprovante" | "emb_mar", p: any) {
+async function mandarEmail(userId: string, tipo: "dono" | "cliente" | "pedido" | "mar" | "saiu" | "embarque" | "alterado" | "avaliar" | "fim" | "inicio" | "avisarCli" | "venceu" | "venceu_cli" | "op_pedido" | "op_pre" | "op_alteracao" | "op_comprovante" | "emb_mar" | "cred_novo" | "cred_removido" | "cred_vence" | "cred_venceu", p: any) {
   const { data } = await db.auth.admin.getUserById(userId);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return false; // conta só com WhatsApp: sem e-mail de verdade
@@ -499,12 +545,52 @@ async function vencerPre() {
   return n;
 }
 
+// crédito do cliente (Rodrigo 2026-11-02): o sinal virou crédito para usar em até 1 ano na mesma lancha.
+// Avisa no chat, no celular e por e-mail: 30 dias antes de vencer e quando vence. Cada aviso uma vez (colunas aviso_vence_em, aviso_venceu_em).
+const brlCred = (v: any) => "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
+async function avisarCredito(c: any, acao: string, chat: boolean) {
+  if (!c.cliente) return 0;
+  const lancha = (await db.from("lanchas").select("nome").eq("slug", c.lancha).maybeSingle()).data?.nome || c.lancha, valor = brlCred(c.valor);
+  if (chat) {
+    const tx = acao === "vence" ? `Lembrete: o seu crédito de ${valor} na ${lancha} vence em ${dataBR(c.valido_ate)}. Escolha a nova data e fale com a gente aqui para usar.`
+      : `O seu crédito de ${valor} na ${lancha} venceu em ${dataBR(c.valido_ate)}.`;
+    let { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", c.cliente).maybeSingle();
+    if (!cv && (await db.from("clientes").select("user_id").eq("user_id", c.cliente).maybeSingle()).data)
+      cv = (await db.from("conversas").insert({ tipo: "suporte", cliente: c.cliente }).select("id").maybeSingle()).data; // sem chat ainda: cria o de atendimento
+    if (cv) {
+      await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: `credito:${acao}:${c.valor}:${c.lancha}:${c.valido_ate}` });
+      await db.from("conversas").update({ ultima_em: new Date().toISOString(), ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
+    }
+  }
+  const n = await enviar([c.cliente], "cred_" + acao, { id: c.id, lancha, valor, ate: c.valido_ate }, "/login/");
+  const { data: cl } = await db.from("clientes").select("nome").eq("user_id", c.cliente).maybeSingle();
+  await mandarEmail(c.cliente, ("cred_" + acao) as any, { b: {}, a: null, lancha, valor, ate: c.valido_ate, nomes: { [c.cliente]: cl?.nome || c.nome || "" } }).catch(e => console.error(e));
+  return n;
+}
+async function creditosAviso() {
+  const hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10), em30 = new Date(Date.now() - 3 * 3600 * 1000 + 30 * 864e5).toISOString().slice(0, 10);
+  const semana = new Date(Date.now() - 7 * 864e5).toISOString();
+  const { data: cs, error } = await db.from("creditos").select("id, cliente, nome, lancha, valor, valido_ate, criado_em, aviso_vence_em, aviso_venceu_em")
+    .is("usado_em", null).is("removido_em", null).not("cliente", "is", null).lte("valido_ate", em30);
+  if (error) { if (!/creditos|aviso_/.test(error.message)) console.error("creditos", error.message); return 0; } // sem o SQL ainda: segue sem os avisos
+  let n = 0;
+  for (const c of cs || []) {
+    const acao = c.valido_ate < hoje ? (c.aviso_venceu_em ? null : "venceu") : (c.aviso_vence_em || c.criado_em > semana ? null : "vence");
+    if (!acao) continue;
+    const col = acao === "venceu" ? "aviso_venceu_em" : "aviso_vence_em";
+    const { data: ok } = await db.from("creditos").update({ [col]: new Date().toISOString() }).eq("id", c.id).is(col, null).select("id");
+    if (!ok?.length) continue; // outra rodada já avisou
+    n += await avisarCredito(c, acao, true).catch(e => (console.error("credito", c.id, e), 0));
+  }
+  return n;
+}
+
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
     if (req.method === "GET") return json({ publica: (await chaves()).publica });
     const corpo = await req.clone().json().catch(() => ({}));
-    if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)), vencidas: await vencerPre().catch(e => (console.error("vencer", e), 0)) });
+    if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)), vencidas: await vencerPre().catch(e => (console.error("vencer", e), 0)), creditos: await creditosAviso().catch(e => (console.error("creditos", e), 0)) });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     // o próprio servidor (pagamento automático confirmou a reserva, função asaas/paypal-checkout) entra como administrador
     const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "", sistema = !!srk && token === srk;
@@ -517,6 +603,14 @@ Deno.serve(async req => {
     const nomeLancha = async (slug: string) => (await db.from("lanchas").select("nome").eq("slug", slug).maybeSingle()).data?.nome || slug;
 
     if (tipo === "teste") return json({ enviados: await enviar([uid], "teste", {}, "/login/", typeof corpo.ep === "string" ? corpo.ep : undefined) });
+
+    if (tipo === "credito") {
+      if (!admin) return json({ erro: "só o administrador" }, 403);
+      const acao = corpo.acao === "removido" ? "removido" : "novo";
+      const { data: c } = await db.from("creditos").select("id, cliente, nome, lancha, valor, valido_ate").eq("id", id).maybeSingle();
+      if (!c) return json({ erro: "crédito não encontrado" }, 404);
+      return json({ enviados: await avisarCredito(c, acao, false) }); // o chat o banco já escreveu (virar_credito / remover_credito)
+    }
 
     if (tipo === "aprovado") {
       if (!admin) return json({ erro: "só o administrador" }, 403);
