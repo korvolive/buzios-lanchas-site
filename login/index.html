@@ -1842,7 +1842,7 @@ function credSheet(r){
     go.disabled=true;
     try{ const cid=await RPC("virar_credito",{bid:r.id, ate, v});
       callFn({tipo:"credito", id:cid, acao:"novo"}).catch(()=>{});
-      toast(t("crOk")); loadBlocks(); loadReqs().catch(()=>{});
+      toast(t("crOk")); loadBlocks(); await loadReqs().catch(()=>{});
       credDone({lancha:r.lancha, valor:v, valido_ate:ate, nome:n.cliente, telefone:n.telefone, cliente:n.cliente_conta}); }
     catch(e){ go.disabled=false; out.innerHTML=`<p class="msg err">${e.status===404 ? t("crSql") : errMsg(e)}</p>`; } };
 }
@@ -6463,7 +6463,7 @@ function renderTrip(){
   /* passeio já marcado: o administrador (e o dono, nos passeios que ele fechou) troca lancha, data e horário no mesmo formulário */
   const canMove = !tripNew && r.data>=todayISO() && (S.admin || n.origem!=="buzios");
   const canRv = !tripNew && !!r?.id && r.data>=todayISO() && S.admin; /* cliente pediu para revender (só o administrador marca): o horário volta a aparecer livre no site */
-  const showWhen = tripNew || canMove, showBoat = S.boats.length>1 && (S.cur==="*" || pedidoFor || canMove);
+  const showWhen = tripNew || canMove, showBoat = S.boats.length>1 && !r?.cred /* crédito vale só na lancha dele */ && (S.cur==="*" || pedidoFor || canMove);
   /* horários já ocupados da lancha na data não podem ser escolhidos (manhã ou tarde ocupada trava o dia todo, e vice-versa; Rodrigo 2026-10-22) */
   let taken = [];
   const slotOff = k => taken.some(h=>choca(h,k));
@@ -6518,7 +6518,7 @@ function renderTrip(){
       ${waNum.length>=12?`<a class="btn sec" style="margin:0 0 10px" href="https://wa.me/${waNum}" target="_blank" rel="noopener">WhatsApp ${esc(n.cliente||"")}</a>`:""}
       <button class="btn" id="nsave">${t("save")}</button></form>
     <button type="button" class="btn sec" id="nback" style="margin-top:10px">${fromDay?t("back"):t("close")}</button>
-    ${!tripNew && S.admin && S.papel!=="auditor" && n.origem==="buzios" && +n.sinal>0 && S.creds!==false ? `<button type="button" class="btn sec" id="ncred" style="margin-top:10px">${t("crBtn")}</button>` : ""}
+    ${!tripNew && S.admin && S.papel!=="auditor" && n.origem==="buzios" && +n.sinal>0 && r.data>=todayISO() && S.creds!==false ? `<button type="button" class="btn sec" id="ncred" style="margin-top:10px">${t("crBtn")}</button>` : ""}
     ${!tripNew && !fromDay ? `<button type="button" class="link danger" id="nfree">${t("freeSlot")}</button>` : ""}`;
   document.getElementById("nback").onclick=()=>tripLeave(()=>{ if(fromDay){ tripEd=false; noteFor=null; renderSheet(); } else closeDay(); }); tripWatch();
   const sts=document.getElementById("stsel");

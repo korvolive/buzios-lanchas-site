@@ -554,7 +554,9 @@ async function avisarCredito(c: any, acao: string, chat: boolean) {
   if (chat) {
     const tx = acao === "vence" ? `Lembrete: o seu crédito de ${valor} na ${lancha} vence em ${dataBR(c.valido_ate)}. Escolha a nova data e fale com a gente aqui para usar.`
       : `O seu crédito de ${valor} na ${lancha} venceu em ${dataBR(c.valido_ate)}.`;
-    const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", c.cliente).maybeSingle();
+    let { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", c.cliente).maybeSingle();
+    if (!cv && (await db.from("clientes").select("user_id").eq("user_id", c.cliente).maybeSingle()).data)
+      cv = (await db.from("conversas").insert({ tipo: "suporte", cliente: c.cliente }).select("id").maybeSingle()).data; // sem chat ainda: cria o de atendimento
     if (cv) {
       await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: `credito:${acao}:${c.valor}:${c.lancha}:${c.valido_ate}` });
       await db.from("conversas").update({ ultima_em: new Date().toISOString(), ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);

@@ -60,6 +60,7 @@ begin
   if b.id is null or a.bloqueio_id is null then raise exception 'Passeio não encontrado'; end if;
   if a.origem is distinct from 'buzios' then raise exception 'Só passeio fechado pela Búzios Lanchas vira crédito'; end if;
   if not (coalesce(a.sinal, 0) > 0) then raise exception 'Este passeio não tem sinal pago'; end if;
+  if b.data < hoje then raise exception 'A data deste passeio já passou'; end if;
   val := coalesce(v, a.sinal);
   if not (val > 0 and val <= 99999) then raise exception 'Valor do crédito inválido'; end if;
   if ate is null or ate <= hoje or ate > hoje + interval '2 years' then raise exception 'Escolha uma validade entre amanhã e 2 anos'; end if;
@@ -101,6 +102,8 @@ begin
   select * into c from public.creditos where id = cid for update;
   if c.id is null then raise exception 'Crédito não encontrado'; end if;
   if c.usado_em is not null or c.removido_em is not null then raise exception 'Este crédito já foi usado ou removido'; end if;
+  if c.valido_ate < (now() at time zone 'America/Sao_Paulo')::date then raise exception 'Este crédito já venceu'; end if;
+  if bid is not null and exists (select 1 from public.creditos where usado_bloqueio = bid) then raise exception 'Este passeio já usou um crédito'; end if;
   if bid is not null then
     select lancha into l from public.bloqueios where id = bid;
     if l is null then raise exception 'Passeio não encontrado'; end if;
