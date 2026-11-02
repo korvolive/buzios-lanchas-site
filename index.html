@@ -1319,7 +1319,7 @@ const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(l
 let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
-const VEND_TETO = 5, VEND_PADRAO = 5; /* link do vendedor: 5% fixo para todos (Rodrigo 2026-11-02) */
+const VEND_TETO = 3, VEND_PADRAO = 3; /* link do vendedor: 3% fixo para todos, igual ao parceiro (Rodrigo 2026-11-02) */
 const VEND_MAN_PCT = 30, VEND_MAN_MAX = 1000; /* link feito pelo vendedor para um cliente: comissão em R$ até R$ 1.000 e 30% do valor (Rodrigo 2026-11-02) */
 const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? (iso ? seasonBase(iso) : "alta") : key;
 const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[pctKey(key)] ?? VEND_PADRAO), 1), Math.min(+v?.teto || VEND_TETO, VEND_TETO));
