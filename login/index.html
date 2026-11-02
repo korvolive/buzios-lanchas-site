@@ -6564,7 +6564,7 @@ function renderTrip(){
     ["valor","sinal"].forEach(k=>{ const el=document.getElementById("n-"+k); if(el){ el.disabled=on; if(on && !lockOrigin) el.value=""; } });
     const h=document.getElementById("vlock"); if(h) h.hidden=!on; const sh=document.getElementById("sminh"); if(sh) sh.hidden=on;
     /* passeio de fora (agência, cliente do dono): nome e WhatsApp do cliente não são obrigatórios (Rodrigo 2026-10-30) */
-    ["n-cliente","n-telefone"].forEach(id=>{ const q=document.getElementById(id)?.closest(".f")?.querySelector(".req"); if(q) q.hidden = origem==="fora"; }); };
+    ["n-cliente","n-telefone"].forEach(id=>{ const q=document.getElementById(id)?.closest(".f")?.querySelector(".req"); if(q) q.hidden = origem==="fora" || (id==="n-telefone" && S.admin); }); }; /* administrador lança sem o WhatsApp do cliente (Rodrigo 2026-11-02) */
   sheet.querySelectorAll("[data-o]").forEach(x=>{ if(lockOrigin) x.disabled=true; x.onclick=()=>{ if(!S.admin) return; origem = origem===x.dataset.o ? null : x.dataset.o;
     sheet.querySelectorAll("[data-o]").forEach(y=>y.setAttribute("aria-checked", y.dataset.o===origem)); lockVals(); }; });
   lockVals();
@@ -6709,7 +6709,7 @@ function renderTrip(){
       if(nota.hora_ini || nota.hora_fim){ if(!nota.hora_ini) miss.push(document.getElementById("n-hi")); if(!nota.hora_fim || (nota.hora_ini && nota.hora_fim<=nota.hora_ini)) miss.push(document.getElementById("n-hf")); }
       const fora = origem==="fora";
       if(!nota.cliente && !fora) miss.push(document.getElementById("n-cliente"));
-      const telOk = (fora && !tel) || okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
+      const telOk = ((fora || S.admin) && !tel) || okPhone(g("ddi"), tel); if(!telOk) miss.push(document.getElementById("n-telefone"));
       /* o número do próprio dono não vale como WhatsApp do cliente: o aviso oficial e a avaliação iriam para ele (Rodrigo 2026-10-30) */
       const l10=x=>String(x||"").replace(/\D/g,"").slice(-10), equipe=[S.admin?null:S.myTel, ...(S.admin?(S.owners||[]).filter(o=>o.lancha===nboat).map(o=>o.telefone):[])].map(l10).filter(x=>x.length===10);
       const telTeam = tel && telOk && equipe.includes(l10(tel)); if(telTeam) miss.push(document.getElementById("n-telefone"));
