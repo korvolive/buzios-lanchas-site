@@ -1597,16 +1597,19 @@ function payBox(p){
 function pedCalc(p){
   const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=p.horario==="dia", nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
   /* preço vem da tabela; o que o site mandou só vale se bater com ela (revisão de segurança 2026-10-24: dá para mexer no navegador) */
-  const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && +p.preco_base && !(p.oferta_valor>0 && Math.abs(+p.preco_base-p.oferta_valor) <= 1) && !(p.alt_valor>0 && Math.abs((+p.preco_cliente||+p.preco_base)-p.alt_valor) <= 1) && !p.bloqueio_id /* pedido ligado a passeio: o banco copiou o valor do passeio (o cliente não grava bloqueio_id) */ && Math.abs(+p.preco_base-tab) > 1); /* valor combinado no link (ofertas): o banco já conferiu */ /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
+  /* parceiro, 1º passeio (Rodrigo 2026-11-02): o cliente paga a tabela e os 3% do parceiro (desc_parceiro) saem da parte da Búzios; pb = tabela antes disso */
+  const dp=+p.desc_parceiro||0, pb=+p.preco_base ? +p.preco_base+dp : 0;
+  const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && pb && !(p.oferta_valor>0 && Math.abs(pb-p.oferta_valor) <= 1) && !(p.alt_valor>0 && Math.abs((+p.preco_cliente||+p.preco_base)-p.alt_valor) <= 1) && !p.bloqueio_id /* pedido ligado a passeio: o banco copiou o valor do passeio (o cliente não grava bloqueio_id) */ && Math.abs(pb-tab) > 1); /* valor combinado no link (ofertas): o banco já conferiu */ /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
   const net=valorNaData(nm,p.data,h7,{...o, esp:null, rx:0, rx7:0}); /* o neto do dono não muda no período especial nem com o "Búzios a mais" do Réveillon */
   /* comissão da Búzios desta reserva mudada no Editar (0 a 10%, Rodrigo 2026-10-26): total = neto + comissão (+ % do vendedor) */
   const ov = p.comissao_pct!=null && p.comissao_pct!=="" && net ? Math.round(net*(+p.comissao_pct)/100) : null; /* % com casas: guarda também um valor exato em R$ */
-  let base=sus ? tab : +p.preco_base || tab, tot=sus ? (+p.preco_cliente ? Math.round(tab*(1+(+p.acrescimo_pct||0)/100)) : tab) : +p.preco_cliente || base;
-  if(ov!=null){ const f = +p.acrescimo_pct ? 1+(+p.acrescimo_pct)/100 : +p.preco_cliente && +p.preco_base ? +p.preco_cliente/+p.preco_base : 1; base=net+ov; tot=Math.round(base*f); }
+  let base=sus ? tab : pb || tab, tot=sus ? (+p.preco_cliente && !dp ? Math.round(tab*(1+(+p.acrescimo_pct||0)/100)) : tab) : +p.preco_cliente || base;
+  if(ov!=null){ const f = dp ? 1 : +p.acrescimo_pct ? 1+(+p.acrescimo_pct)/100 : +p.preco_cliente && +p.preco_base ? +p.preco_cliente/+p.preco_base : 1; base=net+ov; tot=Math.round(base*f); }
+  const bfull=base; if(dp && base) base -= (sus || ov!=null) ? Math.round(base*dp/pb) : dp;
   const cd=Math.max(+p.cupom_dono||0,0), cb=Math.max((+p.cupom_valor||0)-cd,0);
   const com0 = base && net ? base-net : null, cupB = cb, cup=cupB+cd;
   /* cupom de fidelidade: o cliente tem o desconto inteiro (como no site, na central e na agenda); o da Búzios sai só da comissão dela, o do dono (Rodrigo 2026-10-25) sai do neto do dono */
-  return {tot: tot ? tot-cup : tot, net: net!=null && cd ? net-cd : net, com: com0!=null ? com0-cupB : null, vd: p.preco_cliente && p.preco_base ? tot-base : null, cup, cupDono:cd, sus: ov!=null ? false : sus, base, cli:tot};
+  return {tot: tot ? tot-cup : tot, net: net!=null && cd ? net-cd : net, com: com0!=null ? com0-cupB : null, vd: p.preco_cliente && p.preco_base ? tot-base : null, cup, cupDono:cd, sus: ov!=null ? false : sus, base, bfull, dp: dp ? bfull-base : 0, cli:tot};
 }
 /* para onde vai o dinheiro (Rodrigo, 2026-10-22): o sinal fica com a Búzios Lanchas, que repassa ao dono a parte dele e paga o vendedor;
    o restante o cliente paga ao dono na hora do embarque */
@@ -3982,7 +3985,8 @@ const pedAlt = L => { const ids=[...new Set((L||[]).filter(p=>p.bloqueio_id).map
     const m=new Map(r.map(x=>[x.bloqueio_id,+x.novo_valor])); L.forEach(p=>{ if(m.has(p.bloqueio_id)) p.alt_valor=m.get(p.bloqueio_id); }); }, ()=>{}); };
 async function loadReqs(){
   try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp,pais)&order=criado_em.desc&limit=300`);
-    S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct").then(r=>(S.cpOk=true,r))
+    S.reqs = await q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct,desc_parceiro").then(r=>(S.cpOk=true,r))
+      .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem o desconto do parceiro */
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem a comissão por reserva */
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem o cupom do dono */
       .catch(e=>{ if(e.status!==400) throw e; return q(",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor").then(r=>(S.cpOk=true,r)); }) /* banco ainda sem o comprovante da comissão */
@@ -4111,10 +4115,10 @@ function editReq(p, cons){ /* cons = consulta pelo WhatsApp (tabela consultas): 
   const cap = () => CAPACITY[lb] || boatRow(lb)?.dados?.capacidade || 16;
   const slots = () => [...SLOTS, ...(d && hasNight(d) ? ["noite"] : [])];
   /* % padrão desta reserva = a taxa da tabela da lancha naquela época (pode não ser 8%: Rodrigo 2026-10-28) */
-  const k0=pedCalc({...p, comissao_pct:null}), cp0 = k0.net>0 && k0.base>0 ? Math.round((k0.base-k0.net)/k0.net*10000)/100 : TAXA_BUZIOS;
+  const k0=pedCalc({...p, comissao_pct:null}), cp0 = k0.net>0 && k0.bfull>0 ? Math.round((k0.bfull-k0.net)/k0.net*10000)/100 : TAXA_BUZIOS;
   let cp = p.comissao_pct!=null ? +p.comissao_pct : cp0;
   /* o cliente já viu o valor do pedido: a comissão só pode baixar, nunca passar do % que ele viu (Rodrigo 2026-10-29); teto geral 20% */
-  const seen = p.comissao_pct!=null ? +p.comissao_pct : +p.preco_base>0 && k0.net>0 ? Math.round((+p.preco_base-k0.net)/k0.net*10000)/100 : cp0, mx = Math.max(0, Math.min(20, seen));
+  const seen = p.comissao_pct!=null ? +p.comissao_pct : +p.preco_base>0 && k0.net>0 ? Math.round((+p.preco_base+(+p.desc_parceiro||0)-k0.net)/k0.net*10000)/100 : cp0, mx = Math.max(0, Math.min(20, seen));
   const tmp = () => ({...p, lancha:lb, data:d, horario:h, comissao_pct: cp===cp0 && p.comissao_pct==null ? null : cp, sinal_valor:null});
   const comVal = () => { const k=pedCalc({...tmp(), comissao_pct:cp}); return k.net ? Math.round(k.net*cp/100) : null; };
   const comLine = () => { const k=pedCalc(tmp()); return k.tot ? `${t("sinTot")} <b>${brl(k.tot)}</b> · ${t("sinNet")} ${brl(k.net)} · ${t("sinCom")} ${brl(k.com)}` : ""; };
@@ -4147,11 +4151,12 @@ function editReq(p, cons){ /* cons = consulta pelo WhatsApp (tabela consultas): 
       const vn=+String(vv).replace(",","."); if(cons && String(vv).trim()!=="" && !(vn>0 && vn<=VMAX)){ sheet.querySelector("#ed-m").innerHTML=`<p class="msg err">${t(vn>VMAX?"valMax":"prBad")}</p>`; return; }
       const r=(S.avPr||[]).find(x=>x.lancha===lb), base = r ? valorNaData(r, d, h==="dia", valOpts(r)) : null;
       const body={lancha:lb, data:d, horario:h, pessoas:+sheet.querySelector("#ed-p").value, embarque:sheet.querySelector("#ed-e").value||null, ...(cons?{}:{atualizado_em:new Date().toISOString()})};
-      const ovr = cp!==cp0 || p.comissao_pct!=null, k=ovr ? pedCalc(tmp()) : null, nb = ovr && k?.tot ? k.base : base;
+      const ovr = cp!==cp0 || p.comissao_pct!=null, k=ovr ? pedCalc(tmp()) : null, nb = ovr && k?.tot ? k.bfull : base;
       if(ovr) body.comissao_pct = cp;
       const vNew = vn>0 ? Math.round(vn) : null; if(cons && vNew!==(p.valor!=null ? +p.valor : null)) body.valor = vNew; /* só manda o valor quando mudou (revisão 2026-11-02) */
       if(p.preco_base) body.preco_base = nb || null;
       if(p.preco_cliente) body.preco_cliente = nb ? Math.round(nb*(1+(+p.acrescimo_pct||0)/100)) : null; /* vendedor: mesma % sobre o novo valor */
+      if(+p.desc_parceiro && nb){ const d=Math.round(nb*(+p.desc_parceiro)/(+p.preco_base+(+p.desc_parceiro))); body.preco_cliente=nb; body.preco_base=nb-d; body.desc_parceiro=d; } /* parceiro, 1º passeio: o cliente continua pagando a tabela */
       b.disabled=true;
       try{ await db(`${cons?"consultas":"pedidos"}?id=eq.${p.id}`,{method:"PATCH", body}); toast(t(cons?"csEdOk":"edOk")); closeDay(); await loadReqs(); mainView(); }
       catch(x){ b.disabled=false; toast(t("saveErr")); } };
@@ -5619,7 +5624,7 @@ function bindMainRest(){
     if(!confirm(t("sinLibQ",{v:brl(v)}))) return;
     x.disabled=true;
     try{ const p0=S.reqs.find(p=>p.id===id), k=p0&&pedCalc(p0);
-      if(k?.base && (k.sus || !+p0.preco_base)){ await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{preco_base:k.base, preco_cliente:+p0.preco_cliente?k.cli:null}}); p0.preco_base=k.base; if(+p0.preco_cliente) p0.preco_cliente=k.cli; } /* grava o preço da tabela antes de liberar: a confirmação automática usa esse valor para o saldo no embarque */
+      if(k?.base && (k.sus || !+p0.preco_base)){ await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{preco_base:k.base, preco_cliente:+p0.preco_cliente?k.cli:null, ...(k.dp?{desc_parceiro:k.dp}:{})}}); p0.preco_base=k.base; if(k.dp) p0.desc_parceiro=k.dp; if(+p0.preco_cliente) p0.preco_cliente=k.cli; } /* grava o preço da tabela antes de liberar: a confirmação automática usa esse valor para o saldo no embarque */
       const mid=await RPC("liberar_sinal",{pid:id, valor:v}); fnPost("aviso-chat",{id:mid}); const p=S.reqs.find(p=>p.id===id); if(p){ p.sinal_valor=v; p.sinal_liberado_em=new Date().toISOString(); saveRep(p); } toast(t("sinLibOk")); if(p) await ppAuto(p); mainView(); }
     catch(e){ x.disabled=false; toast(t("saveErr")); } });
   app.querySelectorAll("[data-ppv]").forEach(async el=>{ const p=S.reqs.find(r=>r.id===+el.dataset.ppv); if(!p || el.value) return;
@@ -6611,9 +6616,9 @@ function renderTrip(){
       const v=(await RPC("vendedor_do_cliente",{tel:d}).catch(()=>[]))?.[0]; if(my!==seq) return; if(!v){ vdc.hidden=true; return; }
       if(!S.avPr) S.avPr=await db("precos?select=*").catch(()=>[]);
       const pr=(S.avPr||[]).find(x=>x.lancha===nboat), base = pr && nd && nslot && nslot!=="noite" ? valorNaData(pr, nd, nslot==="dia", valOpts(pr)) : 0;
-      const cli = base ? Math.round(base*(1+(+v.pct||0)/100)/10)*10 : 0; if(my!==seq) return;
+      const cli = base ? (v.parceiro && v.primeiro ? base : Math.round(base*(1+(+v.pct||0)/100)/10)*10) : 0; /* parceiro: 1º passeio paga a tabela (Rodrigo 2026-11-02) */ if(my!==seq) return;
       S.vdcBase = base || null;
-      vdc.innerHTML = `💼 ${t(v.parceiro?"vdcP":"vdcV",{n:esc(v.parceiro?(v.empresa||v.nome):v.nome)})}<br><small>${cli ? t("vdcVal",{v:brl(cli),c:brl(cli-base)}) : t("vdcNoVal")}</small>${cli?` <button type="button" class="link" id="vdcuse">${t("vdcUse")}</button>`:""}`;
+      vdc.innerHTML = `💼 ${t(v.parceiro?"vdcP":"vdcV",{n:esc(v.parceiro?(v.empresa||v.nome):v.nome)})}<br><small>${cli ? t("vdcVal",{v:brl(cli),c:brl(v.parceiro && v.primeiro ? Math.round(base*(+v.pct||3)/100) : cli-base)}) : t("vdcNoVal")}</small>${cli?` <button type="button" class="link" id="vdcuse">${t("vdcUse")}</button>`:""}`;
       vdc.hidden=false; const u=document.getElementById("vdcuse"); if(u) u.onclick=()=>{ const vi=document.getElementById("n-valor"); if(vi){ vi.value=cli; vi.dispatchEvent(new Event("input",{bubbles:true})); } }; };
     S.vdcChk=()=>{ clearTimeout(tmr); return chk(); };
     const later=()=>{ clearTimeout(tmr); tmr=setTimeout(chk,600); };
