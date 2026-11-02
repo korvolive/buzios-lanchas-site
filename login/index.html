@@ -2004,7 +2004,7 @@ function openRecibo(id, R0, p0){ /* R0/p0: o administrador abrindo o recibo de u
   document.getElementById("rcprint")?.remove();
   const w=document.createElement("div"); w.id="rcprint"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true");
   w.innerHTML=`<div class="rcin"><div class="rcbox"><h2>${t("rbT")} <small>${t("rbN")} ${p.id}</small></h2>
-    <p>${t("rbTxt",{nome:`<b>${esc(R.nome||S.me?.nome||"—")}</b>`, v:`<b>${v}</b>`})}</p>
+    <p>${t("rbTxt",{nome:`<b>${esc(R.nome||(R0?"":S.me?.nome)||"—")}</b>`, v:`<b>${v}</b>`})}</p>
     <ul class="rcrows"><li><span>${t("rbBoat")}</span><b>${esc(boatName(p.lancha))}</b></li><li><span>${t("rbDate")}</span><b>${esc(d)}</b></li>
     <li><span>${t("rbTime")}</span><b>${esc(slotTxt(lang,p.horario,p.hora_ini,p.hora_fim))}</b></li>${p.pessoas?`<li><span>${t("rbPeople")}</span><b>${esc(p.pessoas)}</b></li>`:""}
     <li><span>${t("rbForma")}</span><b>${t("rbF_"+(R.forma||"pix"))}</b></li>${R.em?`<li><span>${t("rbEm")}</span><b>${dt(R.em)}</b></li>`:""}</ul>
@@ -2967,7 +2967,7 @@ async function openBoatForm(l){
       <p class="muted" style="margin:4px 0 0;font-size:14px">${t("nbEmbHint")}</p>
       <h3 class="nbh">${t("itemsOpt")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbItemsSub")}</p>${nbToggles("nb-it", ITEMS.map(it=>[it[0], itemName(it)]), items)}
       <h3 class="nbh">${t("pricesT")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbPricesSub")}</p>
-      <div class="prices p2"><div class="phd"><span></span><b>${t("pr4")}</b><b>${t("pr7")}</b></div>${SEASON3.map(k=>`<div class="prow"><span><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></span>${[k,k+"7"].map(c=>`<input type="number" inputmode="numeric" min="0" step="50" data-nbpr="${c}" value="${pr[c]??""}" placeholder="${t("prOnReq")}" aria-label="${t("pr_"+k).split(" · ")[0]} · ${t(c.endsWith("7")?"pr7":"pr4")}">`).join("")}</div>`).join("")}</div>
+      <div class="prices p2"><div class="phd"><span></span><b>${t("pr4")}</b><b>${t("pr7")}</b></div>${SEASON3.map(k=>`<div class="prow"><span><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></span>${[k,k+"7"].map(c=>`<input type="number" inputmode="numeric" min="0" step="50" data-nbpr="${c}" data-ini="${pr[c]??""}" value="${pr[c]??""}" placeholder="${t("prOnReq")}" aria-label="${t("pr_"+k).split(" · ")[0]} · ${t(c.endsWith("7")?"pr7":"pr4")}">`).join("")}</div>`).join("")}</div>
       ${l ? ""
         : `<h3 class="nbh">📷 ${t("phT").replace(/^📷 /,"")}</h3><p class="muted" style="margin:0 0 8px;font-size:14px">${t("nbPhSub",{max:PH_MAX})}</p>
         <div class="phgrid" id="nb-ph"></div><label class="btn sec phadd">${t("phAdd")}<input type="file" id="nb-file" accept="image/*" multiple></label>`}
@@ -3008,7 +3008,8 @@ async function openBoatForm(l){
     autoFr();
     if(val("nb-fr").length<10) return fail(t("nbTagBad"), document.getElementById("nb-fr"));
     const prices={lancha:slug, atualizado_em:new Date().toISOString()}, nets=[]; /* valor digitado = neto do dono; total = neto + taxa da Búzios */
-    for(const x of sheet.querySelectorAll("[data-nbpr]")){ const v=x.value.trim(); if(v && !(+v>0)) return fail(t("prBad"), x); const n=v ? Math.round(+v) : null; if(n>VMAX) return fail(t("valMax"), x); nets.push({lancha:slug, chave:x.dataset.nbpr, neto:n, comissao:n?taxaB(slug,n):null, ref:n, atualizado_em:prices.atualizado_em}); prices[x.dataset.nbpr] = n ? n+taxaB(slug,n) : null; }
+    for(const x of sheet.querySelectorAll("[data-nbpr]")){ const v=x.value.trim(); if(l && v===x.dataset.ini) continue; /* editando: só grava o valor que mudou; não apaga o preço do site nem mexe na referência do dono (revisão 2026-11-02) */
+      if(v && !(+v>0)) return fail(t("prBad"), x); const n=v ? Math.round(+v) : null; if(n>VMAX) return fail(t("valMax"), x); nets.push({lancha:slug, chave:x.dataset.nbpr, neto:n, comissao:n?taxaB(slug,n):null, ...(l?{}:{ref:n}), atualizado_em:prices.atualizado_em}); prices[x.dataset.nbpr] = n ? n+taxaB(slug,n) : null; }
     if(!l && !files.length) return fail(t("nbPhNeed"), document.getElementById("nb-ph"));
     go.disabled=true; go.textContent=t("nbSaving");
     if(["en","es"].some(k=>!val("nb-fr-"+k))) await fillTr(); /* inglês e espanhol: traduz o que estiver vazio */
@@ -3017,7 +3018,7 @@ async function openBoatForm(l){
     try{ await db("rpc/salvar_lancha",{method:"POST", body:{l:slug, nome, d:dados, ativa}}); }
     catch(x){ return fail(x.status===404 ? t("nbNeedSql") : /lancha_do_codigo/.test(x.message||"") ? t("nbExists") : t("saveErr")); }
     const opc=nbPicked("nb-it");
-    await Promise.all([db("precos_neto",{method:"POST", body:nets, prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>db("precos",{method:"POST", body:prices, prefer:"resolution=merge-duplicates,return=minimal"})).catch(()=>{}),
+    await Promise.all([!nets.length ? null : db("precos_neto",{method:"POST", body:nets, prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>db("precos",{method:"POST", body:prices, prefer:"resolution=merge-duplicates,return=minimal"})).catch(()=>{}),
       db("itens",{method:"POST", body:{lancha:slug, opcionais:ITEMS.map(i=>i[0]).filter(i=>opc.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{})]);
     const row={slug, nome, dados, ativa};
     if(l){ Object.assign(boatRow(l), row); Object.assign(S.boats.find(x=>x.slug===l)||{}, row); }
@@ -4075,7 +4076,7 @@ function editReq(p, cons){ /* cons = consulta pelo WhatsApp (tabela consultas): 
       const body={lancha:lb, data:d, horario:h, pessoas:+sheet.querySelector("#ed-p").value, embarque:sheet.querySelector("#ed-e").value||null, ...(cons?{}:{atualizado_em:new Date().toISOString()})};
       const ovr = cp!==cp0 || p.comissao_pct!=null, k=ovr ? pedCalc(tmp()) : null, nb = ovr && k?.tot ? k.base : base;
       if(ovr) body.comissao_pct = cp;
-      if(cons) body.valor = vn>0 ? Math.round(vn) : null;
+      const vNew = vn>0 ? Math.round(vn) : null; if(cons && vNew!==(p.valor!=null ? +p.valor : null)) body.valor = vNew; /* só manda o valor quando mudou (revisão 2026-11-02) */
       if(p.preco_base) body.preco_base = nb || null;
       if(p.preco_cliente) body.preco_cliente = nb ? Math.round(nb*(1+(+p.acrescimo_pct||0)/100)) : null; /* vendedor: mesma % sobre o novo valor */
       b.disabled=true;
@@ -5615,7 +5616,7 @@ function bindMainRest(){
   const PRF="[data-nt],[data-pr]", prKey="dono-prdraft:"+S.cur, prCard=prs?.closest(".card");
   const prDraft = () => { const d={}; prCard.querySelectorAll(PRF).forEach(x=>{ d[Object.keys(x.dataset)[0]+":"+Object.values(x.dataset)[0]]=x.value; }); return d; };
   if(prCard){ const d=store.get(prKey);
-    if(d){ prCard.querySelectorAll(PRF).forEach(x=>{ const k=Object.keys(x.dataset)[0]+":"+Object.values(x.dataset)[0]; if(k in d) x.value=x.defaultValue=d[k]; });
+    if(d){ prCard.querySelectorAll(PRF).forEach(x=>{ const k=Object.keys(x.dataset)[0]+":"+Object.values(x.dataset)[0]; if(k in d) x.value=d[k]; /* defaultValue continua o valor salvo: é para ele que o campo volta (revisão 2026-11-02) */ });
       prs.insertAdjacentHTML("beforebegin", `<p class="msg" id="prdn" style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 0">${t("prDraft")}<button type="button" class="link" id="prdx">${t("prDraftX")}</button></p>`);
       document.getElementById("prdx").onclick=()=>{ store.set(prKey,null); mainView(); }; }
     prCard.addEventListener("input", e=>{ if(e.target.matches(PRF)) store.set(prKey, prDraft()); }); }
@@ -5700,7 +5701,7 @@ function bindMainRest(){
   if(S.mnDirty && (S.mnOff!=null || S.mnEpCh)) S.mnAuto(); /* feriado ligado/desligado: a tela redesenha e salva em seguida */
   if(mns) mns.onclick=async()=>{ const lancha=S.cur, v={}, ds={};
     /* valor fora das regras: não salva e o campo volta sozinho para o último valor salvo (Rodrigo 2026-10-25: parecia ter salvo) */
-    const nope=msg=>{ S.mnLast=null; S.mnEp=null; S.mnEpCh=false; app.querySelectorAll(".mnet input").forEach(x=>{ x.value=x.defaultValue; }); S.mnDirty=false; S.mnDraft=null; ppPaint(); mnSt("mnAuto"); toast(msg+" "+t("mnBack")); };
+    const nope=msg=>{ const epRedo=S.mnEpCh || !!S.mnEp; S.mnLast=null; S.mnEp=null; S.mnEpCh=false; app.querySelectorAll(".mnet input").forEach(x=>{ x.value=x.defaultValue; }); S.mnDirty=false; S.mnDraft=null; ppPaint(); mnSt("mnAuto"); toast(msg+" "+t("mnBack")); if(epRedo) mainView(); /* chave de época volta a mostrar o que está salvo */ };
     for(const x of app.querySelectorAll("input[data-mn]")){ const n=+x.value, lo=+x.min, hi=+x.max; /* só os campos de valor: os botões Remover dos marinheiros também têm data-mn (nome) */
       if(!x.value.trim() || !(n>=lo && n<=hi)){ return nope(t("mnBad",{a:brl(lo), b:brl(hi)})); }
       if(n%50){ return nope(t("mnStep")); }
