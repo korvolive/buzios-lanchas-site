@@ -17,9 +17,10 @@ language sql stable security definer set search_path to 'public', 'auth' as $$
     select q.nome, q.telefone, q.email, q.criado_em from consultas q join me on me.user_id = q.vendedor
   ),
   y as (select *, right(regexp_replace(coalesce(tel, ''), '\D', '', 'g'), 11) k from x where coalesce(btrim(nome), '') <> '' and length(regexp_replace(coalesce(tel, ''), '\D', '', 'g')) >= 10)
-  select distinct on (k) nome, tel, em, quando from y
+  select nome, tel, em, quando from (select distinct on (k) nome, tel, em, quando from y
   where not public.e_equipe(coalesce((select c.user_id from clientes c where right(regexp_replace(coalesce(c.whatsapp,''), '\D', '', 'g'), 11) = y.k limit 1), '00000000-0000-0000-0000-000000000000'::uuid))
-  order by k, quando desc
+  order by k, quando desc) z
+  order by quando desc  -- os mais recentes primeiro
   limit 500;
 $$;
 revoke all on function public.meus_clientes_venda() from public, anon;
