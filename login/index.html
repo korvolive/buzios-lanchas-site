@@ -3242,6 +3242,9 @@ const feeS = e => TAXA[e] ? t("embFeeS",{v:TAXA[e][1]}) : ""; /* versão curta p
 const mapLink = e => (!mapUrl(e) ? `<span class="tmap">📍 ${esc(e)}</span>` : `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`) + (TAXA[e] ? `<span class="tfee">ℹ️ ${esc(feeTxt(e))}</span>` : "");
 const boarding = (l,h) => { const e=boatRow(l)?.dados?.embarque; if(e){ const L=(h==="dia"?e["7"]:e["4"])||[]; return L.length ? L.join(" / ") : t("nbTbd"); } return boardingCode(l,h); };
 const boardingCode = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marina" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
+/* passeios do marinheiro: a v2 traz o nome e o WhatsApp do cliente (fixo: todos da lancha; freelancer: só os dele) (Rodrigo 2026-11-03); sem o SQL, a antiga */
+const sailorTrips = () => db("rpc/passeios_marinheiro_v2",{method:"POST",body:{}})
+  .catch(e => e.status===404||e.status===400 ? db("rpc/passeios_marinheiro",{method:"POST",body:{}}) : Promise.reject(e)).catch(()=>null);
 /* tela do marinheiro: só visualiza. Fixo vê todos os passeios da lancha; freelancer só os dele (o banco já filtra) */
 function sailorHTML(){
   const rows=S.myTrips||[];
@@ -3250,10 +3253,11 @@ function sailorHTML(){
       return `<div class="trip${r.horario==="dia"?" full":""}${r.eu?" mine":""}" style="cursor:default">
         <span class="tdate"><b>${d.getDate()}</b><span>${d.toLocaleDateString(t("locale"),{weekday:"short",month:"short"}).replace(/\./g,"")}</span></span>
         <span class="tbody"><strong>${avatar(r.lancha)} ${esc(boatName(r.lancha))}</strong>
-          <span>${t("slot_"+r.horario)}${r.horario==="noite"?"":" · "+t("hours_"+r.horario)}</span>
+          <span>${t("slot_"+r.horario)}${r.hora_ini&&r.hora_fim?" · "+slotHours(r.horario,r):r.horario==="noite"?"":" · "+t("hours_"+r.horario)}</span>
           <span>${t("boarding")}: ${esc(r.embarque||boarding(r.lancha,r.horario))}</span>
           <span class="tmeta">${r.cliente?`<i>${esc(r.cliente)}</i>`:""}${r.pessoas?`<i>${r.pessoas} ${t("people").toLowerCase()}</i>`:""}<i class="${r.eu?"me":""}">⚓ ${r.eu?t("youPilot"):r.marinheiro?esc(r.marinheiro):t("sailorUnset")}</i>${r.ajudante?`<i>🤝 ${esc(r.ajudante)}</i>`:""}</span>
           ${r.obs?`<span>${esc(r.obs)}</span>`:""}
+          ${waOf(r.telefone).length>=8?`<a class="btn wa" style="margin:6px 0 0;padding:8px 14px;align-self:flex-start" href="https://wa.me/${waOf(r.telefone)}" target="_blank" rel="noopener" aria-label="${t("waClient",{name:esc(r.cliente||"")})}">${WA_ICON} ${esc(r.telefone)}</a>`:""}
           ${r.eu?`<button type="button" class="link danger" style="margin:4px 0 0;padding:4px 0;text-align:left" data-refuse="${r.id}">${t("cantGo")}</button>`:""}</span></div>`; }).join("")}</div>` : `<p class="muted" style="margin:0">${t("sailorNone")}</p>`}</div>`;
 }
 /* ============ fotos da lancha (tabela fotos; site lê a mesma lista, a 1ª é a capa) ============
@@ -5906,7 +5910,7 @@ function bindMainRest(){
     }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
   };
   app.querySelectorAll("[data-refuse]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("cantGoQ"))) return; x.disabled=true;
-    try{ await db("rpc/recusar_passeio",{method:"POST",body:{bid:+x.dataset.refuse}}); callFn({tipo:"recusou", id:+x.dataset.refuse}).catch(()=>{}); /* avisa o dono no celular e por e-mail */ S.myTrips = await db("rpc/passeios_marinheiro",{method:"POST",body:{}}); toast(t("refusedOk")); mainView(); }
+    try{ await db("rpc/recusar_passeio",{method:"POST",body:{bid:+x.dataset.refuse}}); callFn({tipo:"recusou", id:+x.dataset.refuse}).catch(()=>{}); /* avisa o dono no celular e por e-mail */ S.myTrips = await sailorTrips(); toast(t("refusedOk")); mainView(); }
     catch(e){ x.disabled=false; toast(t("saveErr")); } });
   const reloadSailors = async () => { S.sailors = await db("rpc/lista_marinheiros",{method:"POST",body:{}}); mainView(); };
   /* dono como marinheiro fixo: o próprio dono se escolhe, ou o administrador escolhe qualquer dono da lancha */
@@ -6888,7 +6892,7 @@ async function boot(){
     const [sl, fr, myT, sOf, meFree] = await Promise.all([
       owner ? db("rpc/lista_marinheiros",{method:"POST",body:{}}).catch(()=>null) : [],
       owner ? listFree().catch(()=>null) : [],
-      db("rpc/passeios_marinheiro",{method:"POST",body:{}}).catch(()=>null),
+      sailorTrips(),
       db(`marinheiros?select=lancha,fixo&user_id=eq.${ses.user.id}`).catch(()=>[]),
       db(`freelancers?select=*&user_id=eq.${ses.user.id}`).catch(()=>[])]);
     S.sailors = sl; S.free = fr; S.myTrips = myT; S.sailorOf = sOf; S.isFree = meFree.length>0; S.myDiaria = meFree[0]?.diaria; S.drOk = !!meFree[0] && "diaria" in meFree[0];
