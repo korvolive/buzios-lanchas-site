@@ -2899,19 +2899,25 @@ const DG_BOATS = ["miss-bardot"];
 const dgCan = () => S.admin && !S.papel && DG_BOATS.includes(S.cur);
 function loadDg(){ if(!dgCan()) return Promise.resolve(); const l=S.cur;
   return db(`descontos_grupo?select=id,de,ate,max_pessoas,pct&lancha=eq.${encodeURIComponent(l)}&ate=gte.${todayISO()}&order=de`).then(r=>{ if(l===S.cur) S.dg=r; }, e=>{ if(l===S.cur) S.dg = e.status===404||e.status===400 ? false : null; }); }
+/* lista dos períodos num bloco próprio: é trocada sozinha quando a lista chega do banco, mesmo se a tela não puder redesenhar (Rodrigo 2026-11-03) */
+function dgListHTML(){ const L=S.dg||[];
+  return `<div id="dglist">${L.length ? `<ul class="espl">${L.map(g=>`<li><span><b>${dBR(g.de)}${g.ate!==g.de?" – "+dBR(g.ate):""}</b><small>${t("dgLine",{n:g.max_pessoas, p:+g.pct})}</small></span><span class="espb"><button type="button" class="link danger" data-dgdel="${g.id}">${t("dgDel")}</button></span></li>`).join("")}</ul>` : `<p class="muted" style="margin:0 0 10px"><small>${t("dgNone")}</small></p>`}</div>`; }
+function dgRefresh(){ const el=document.getElementById("dglist"); if(!el || !Array.isArray(S.dg)) return; el.outerHTML=dgListHTML(); bindDgDel(); }
 function dgHTML(){
   if(!dgCan()) return "";
   if(S.dg===false) return `<div class="espin"><p class="msg err" style="margin:0">${t("dgSql")}</p></div>`;
-  const L=S.dg||[], td=todayISO(), half=Math.floor((capOf(S.all.find(b=>b.slug===S.cur)||{})||16)/2);
+  const td=todayISO(), half=Math.floor((capOf(S.all.find(b=>b.slug===S.cur)||{})||16)/2);
   return `<div class="espc espin"><h2>👥 ${t("dgT")}</h2><p class="muted" style="margin-top:0">${t("dgSub")}</p>
-    ${L.length ? `<ul class="espl">${L.map(g=>`<li><span><b>${dBR(g.de)}${g.ate!==g.de?" – "+dBR(g.ate):""}</b><small>${t("dgLine",{n:g.max_pessoas, p:+g.pct})}</small></span><span class="espb"><button type="button" class="link danger" data-dgdel="${g.id}">${t("dgDel")}</button></span></li>`).join("")}</ul>` : `<p class="muted" style="margin:0 0 10px"><small>${t("dgNone")}</small></p>`}
+    ${dgListHTML()}
     <div class="espf"><label>${t("espDe")}<input type="date" class="in" id="dgde" data-ate="dgate" min="${td}" max="${maxISO()}"></label><label>${t("espAte")}<input type="date" class="in" id="dgate" min="${td}" max="${maxISO()}"></label></div>
     <div class="row2"><label class="f"><span>${t("dgPes")}</span><input type="number" class="in" id="dgpes" inputmode="numeric" min="1" max="50" value="${half}"></label><label class="f"><span>${t("dgPct")}</span><input type="number" class="in" id="dgpct" inputmode="numeric" min="1" max="50" value="10"></label></div>
     <button type="button" class="btn" id="dgadd">${t("dgAdd")}</button></div>`;
 }
-function bindDg(){
+function bindDg(){ bindDgDel(); bindDgAdd(); }
+function bindDgDel(){
   app.querySelectorAll("[data-dgdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("dgDelQ"))) return; x.disabled=true;
-    try{ await db(`descontos_grupo?id=eq.${+x.dataset.dgdel}`,{method:"DELETE"}); await loadDg(); toast(t("dgRemoved")); }catch(e){ toast(t("saveErr")); } mainView(); });
+    try{ await db(`descontos_grupo?id=eq.${+x.dataset.dgdel}`,{method:"DELETE"}); await loadDg(); toast(t("dgRemoved")); }catch(e){ toast(t("saveErr")); } mainView(); }); }
+function bindDgAdd(){
   const ad=document.getElementById("dgadd"); if(!ad) return;
   ad.onclick=async()=>{ const de=document.getElementById("dgde").value, ate=document.getElementById("dgate").value, pes=+document.getElementById("dgpes").value, pct=+String(document.getElementById("dgpct").value).replace(",",".");
     if(!de || !ate) return toast(t("mntDates")); if(ate<de) return toast(t("mntOrder"));
@@ -6065,7 +6071,7 @@ async function fetchRows(q){
 const SLOT_ORDER = {dia:0, manha:1, tarde:2, noite:3};
 async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o convite, a cobrança e os avisos foram mandados no WhatsApp */
   if(!S.cur || S.tab==="vendas") return mainView();
-  if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null, S.tab==="lancha" ? loadDg() : null]).then(()=>{ if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) bgView(); }); }
+  if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null, S.tab==="lancha" ? loadDg() : null]).then(()=>{ if(l===S.cur) dgRefresh(); if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) bgView(); }); }
   if((S.admin || S.own?.length || S.papel==="operador") && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
   if(S.tab==="pedidos" && S.admin){ const my=++loadSeq; await loadReqs(); if(my===loadSeq) mainView(); return; }
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await Promise.all([loadUsers(), loadComPend(), loadLeads()]); if(my===loadSeq) mainView(); return; }
