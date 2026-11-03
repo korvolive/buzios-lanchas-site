@@ -1319,10 +1319,10 @@ const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(l
 let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
 const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
-const VEND_TETO = 3, VEND_PADRAO = 3; /* link do vendedor: 3% fixo para todos, igual ao parceiro (Rodrigo 2026-11-02) */
+const VEND_TETO = 10, VEND_PADRAO = 3; /* link do vendedor: 3% padrão; o administrador pode subir a % de cada vendedor até 10%; parceiro fica em 3% (Rodrigo 2026-11-03) */
 const VEND_MAN_PCT = 30, VEND_MAN_MAX = 1000; /* link feito pelo vendedor para um cliente: comissão em R$ até R$ 1.000 e 30% do valor (Rodrigo 2026-11-02) */
 const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? (iso ? seasonBase(iso) : "alta") : key;
-const vPct = (v, key) => Math.min(Math.max(+(v?.pcts?.[pctKey(key)] ?? VEND_PADRAO), 1), Math.min(+v?.teto || VEND_TETO, VEND_TETO));
+const vPct = (v, key) => v?.parceiro ? VEND_PADRAO : Math.min(Math.max(+v?.teto || VEND_PADRAO, 1), VEND_TETO); /* a % é a do vendedor (teto), igual em todas as épocas */
 const ownBoat = (v, b) => !!b && (v?.proprias||[]).includes(b.slug); /* dono que também vende: sem comissão nas próprias lanchas */
 const cliPrice = (base, key, v=VEND, b=null) => base && v && !ownBoat(v,b) ? (ofCom(base,v,b) ?? (parc1(v) ? base : Math.round(base*(1+vPct(v,key)/100)/10)*10)) : base; /* valor cheio, redondo de 10 em 10 */
 /* link do vendedor com comissão em R$ só para aquele cliente, data e horário (Rodrigo 2026-10-30): o valor vem do banco (ofertas, oferta_link_v2); o banco corta no teto */
@@ -1334,7 +1334,7 @@ const ofCom = (base, v, b) => { const o=OF_V; if(!b || !o || o.comissao==null ||
    e os 3% do parceiro saem da parte da Búzios (o banco confere em pedido_vendedor). Do 2º em diante: tabela + 3%, sem riscado */
 let PARC_JA = false; /* cliente logado que já tem passeio (pendente ou aprovado) com este parceiro */
 const parc1 = v => !!v?.parceiro && v===VEND && !PARC_JA;
-const parcDe = (base, b=null) => parc1(VEND) && base && !ownBoat(VEND,b) ? Math.round(base*(1+(Math.min(+VEND.teto||VEND_TETO,VEND_TETO))/100)/10)*10 : 0;
+const parcDe = (base, b=null) => parc1(VEND) && base && !ownBoat(VEND,b) ? Math.round(base*(1+VEND_PADRAO/100)/10)*10 : 0;
 const parcBox = (base, c, b) => { const de=parcDe(base,b); return de>c ? `<p class="parc">🎁 ${t("parcDesc",{n:esc(VEND.empresa||VEND.nome), v:money(de-c)})}</p>` : ""; };
 const parcRisco = (base, c, b) => { const de=parcDe(base,b); return de>c ? `<s class="parc-de">${money(de)}</s> ` : ""; };
 const minCli = b => { const all=Object.entries(b.prices||{}).filter(([,v])=>v!=null).map(([k,v])=>ME&&!VEND?v:cliPrice(v,k,VEND,b)); return all.length?Math.min(...all):null; };
@@ -1739,7 +1739,7 @@ function sellerBox(b, box, sl){
   const key=pctKey(seasonOf(pick.date,b).key,pick.date), base = sl.hours===7 ? (sl.night ? null : price7(b,pick.date)) : price4(b,pick.date);
   if(!base){ box.innerHTML=`<p class="pr-wait">${t("vendNoPrice")}</p>`; return; }
   if(ownBoat(ME,b)){ box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p><p class="vnote">${t("vendOwn")}</p></div>`; return; }
-  const teto=Math.min(+ME.teto||VEND_TETO,VEND_TETO), pct=vPct(ME,key), cli=cliPrice(base,key,ME);
+  const pct=vPct(ME,key), teto=pct, cli=cliPrice(base,key,ME);
   const q=new URLSearchParams({v:ME.codigo, data:pick.date, horario:pick.slot, ...(pick.people?{pessoas:pick.people}:{})});
   const link=SITE+pathFor(lang,b.slug)+"?"+q;
   /* parceiro: porcentagem fixa, sem ajuste; vê o que o cliente paga (já com o desconto) e a comissão dele */
@@ -1800,7 +1800,7 @@ function loadVend(){
   if(c){ q.delete("v"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
   const jobs=[], dropV=()=>{ VEND=null; try{ localStorage.removeItem("vend"); }catch(e){} };
   const pub = k => vRpc("vendedor_publico",{cod:k}).then(r=>{ if(r[0]) VEND=r[0]; else dropV(); });
-  /* cliente com conta: fica ligado ao vendedor por 12 meses desde o último passeio com ele (renova a cada reserva); o link de outro vendedor troca só se o atual não tiver passeio em aberto com ele. O banco diz qual vale */
+  /* cliente com conta: fica ligado ao vendedor por 2 anos desde o último passeio com ele (renova a cada reserva); o link de outro vendedor troca só se o atual não tiver passeio em aberto com ele. O banco diz qual vale */
   if(isClient()) jobs.push(clientToken().then(tok=>vRpc("vincular_vendedor",{cod:(c || !(saved?.t && Date.now()-saved.t>864e5)) && cod || null, novo},tok)) /* link guardado com mais de 24 h sem cadastro: o vendedor não ganha mais esse cliente (Rodrigo 2026-10-25); quem já está ligado continua */.then(k=>{ if(typeof k==="string" && k){ VEND_LIGADO = true; try{ localStorage.setItem("vend",JSON.stringify({cod:k, t:saved?.cod===k?saved.t:Date.now()})); }catch(e){} return pub(k); } dropV(); }, ()=>cod?pub(cod):null).catch(()=>{}));
   else if(lsGet("dono-ses")?.refresh_token){ dropV(); if(c) setTimeout(equipeDlg, 800); } /* equipe (dono, marinheiro, vendedor, administrador) nunca fica com vendedor nem vê preço de vendedor (Rodrigo 2026-10-24); link ou QR de vendedor só avisa (Rodrigo 2026-10-25) */
   else if(cod) jobs.push(pub(cod).catch(()=>{}));
