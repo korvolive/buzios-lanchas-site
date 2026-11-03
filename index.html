@@ -1328,7 +1328,7 @@ const cliPrice = (base, key, v=VEND, b=null) => base && v && !ownBoat(v,b) ? (of
 /* link do vendedor com comissão em R$ só para aquele cliente, data e horário (Rodrigo 2026-10-30): o valor vem do banco (ofertas, oferta_link_v2); o banco corta no teto */
 let OF_V = null;
 const ofCom = (base, v, b) => { const o=OF_V; if(!b || !o || o.comissao==null || !o.vcod || v?.codigo!==o.vcod || o.lancha!==b.slug || pick.date!==o.data || pick.slot!==o.horario) return null;
-  return Math.min(base + Math.max(0,+o.comissao), Math.round(base*(1+Math.min(+v.teto||VEND_TETO,VEND_TETO)/100))); };
+  return base + Math.min(Math.max(0,+o.comissao), VEND_MAN_MAX, Math.round(base*VEND_MAN_PCT/100)); }; /* link feito pelo vendedor: comissão em R$ até R$ 1.000 e 30% (o banco confere) */
 /* parceiro (pousada, restaurante): comissão fixa de 3% (Rodrigo 2026-10-27).
    Desconto real só no 1º passeio do cliente com o parceiro (Rodrigo 2026-11-02): ele paga a tabela, o preço normal (tabela + 3%) aparece riscado,
    e os 3% do parceiro saem da parte da Búzios (o banco confere em pedido_vendedor). Do 2º em diante: tabela + 3%, sem riscado */
