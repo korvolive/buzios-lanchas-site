@@ -5914,7 +5914,10 @@ function bindMainRest(){
     try{ await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:me1.dataset.ofx, l:S.cur, nome_mar:me1.dataset.on, e_fixo:true}}); toast(me1.dataset.ofx===ses.user.email ? t("meFixoOk") : t("ownerFixoOk",{name:me1.dataset.on})); await reloadSailors(); }
     catch(e){ me1.disabled=false; out.innerHTML=`<p class="msg err">${e.code==="P0001"?esc(e.message):t("saveErr")}</p>`; } });
   app.querySelectorAll("[data-mfx]").forEach(x=>x.onclick=async()=>{ x.disabled=true;
-    try{ await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:x.dataset.mfx, l:S.cur, nome_mar:x.dataset.mn, e_fixo:x.getAttribute("aria-pressed")!=="true"}}); toast(t("dataSaved")); await reloadSailors(); }
+    try{ const vira=x.getAttribute("aria-pressed")!=="true"; await db("rpc/cadastrar_marinheiro",{method:"POST",body:{email_mar:x.dataset.mfx, l:S.cur, nome_mar:x.dataset.mn, e_fixo:vira}});
+      /* virou fixo: vê a agenda da lancha com o nome e o WhatsApp dos clientes, igual ao cadastro de fixo (Rodrigo 2026-11-03) */
+      if(vira) await db("rpc/cadastrar_visualizador",{method:"POST",body:{email_func:x.dataset.mfx, l:S.cur, valores:true}}).catch(()=>{});
+      toast(t("dataSaved")); await reloadSailors(); }
     catch(e){ x.disabled=false; toast(t("saveErr")); } });
   app.querySelectorAll("[data-mrm]").forEach(x=>x.onclick=async()=>{
     if(!confirm(t("confirmRmMar",{name:x.dataset.mn, boat:boatName(S.cur)}))) return; x.disabled=true;
