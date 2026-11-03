@@ -2525,10 +2525,12 @@ const ocultas = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug&oc
   .then(r=>r.ok ? r.json() : null).then(r=>r && r.map(x=>x.slug)).catch(()=>null);
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
+/* cidade do site pelo domínio (Rodrigo 2026-11-03): cada cidade mostra só as lanchas dela; lancha sem cidade = Búzios */
+const CIDADE = /cabofrio/.test(location.hostname) ? "cabo-frio" : /arraial/.test(location.hostname) ? "arraial" : "buzios";
 const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
   .then(r=>r.ok ? r.json() : Promise.reject(r.status))
   .then(rows=>rows.forEach(r=>{ const d=r.dados||{};
-    if(BOATS.some(b=>b.slug===r.slug) || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
+    if(BOATS.some(b=>b.slug===r.slug) || (d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
     dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true,
       feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
