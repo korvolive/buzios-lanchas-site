@@ -5605,8 +5605,17 @@ function bindSoc(){ const g=document.getElementById("socgo"); if(!g) return;
 function planOpen(v, fn){ S.planY=scrollY; view=v; S.planM=""; if(v==="planilha" && !S.past){ S.past=[]; S.pastOk=false; loadBlocks(); } fn(); scrollTo(0,0); try{ history.pushState({plan:1}, ""); }catch(e){} }
 function planShut(){ if(view!=="planilha" && view!=="vplanilha") return; view="main"; mainView(); const y=S.planY||0; requestAnimationFrame(()=>scrollTo(0,y)); }
 function planClose(){ if(history.state?.plan){ history.back(); setTimeout(planShut, 400); } else planShut(); }
-addEventListener("popstate", ()=>{ if(view==="planilha" || view==="vplanilha") planShut(); });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && (view==="planilha" || view==="vplanilha") && !sheet.classList.contains("on") && !document.getElementById("obspop")?.offsetParent) planShut(); });
+/* sai da planilha já, tirando o passo extra do histórico sem disparar o popstate (revisão 2026-11-04) */
+function planLeave(){ if(history.state?.plan){ S.planNoPop=true; try{ history.back(); }catch(e){ S.planNoPop=false; } } planShut(); }
+addEventListener("popstate", ()=>{ if(S.planNoPop){ S.planNoPop=false; return; } if(view!=="planilha" && view!=="vplanilha") return;
+  /* voltar do celular fecha primeiro o que está por cima (janelinha da planilha ou o passeio aberto) e continua na planilha */
+  const pp=document.querySelector(".plpop"), on=sheet.classList.contains("on");
+  if(pp || on){ if(pp) pp.remove(); else closeDay(); try{ history.pushState({plan:1}, ""); }catch(e){} return; }
+  planShut(); });
+document.addEventListener("keydown", e=>{ if(e.key!=="Escape" || (view!=="planilha" && view!=="vplanilha")) return;
+  if(e.target?.matches?.("#plan input, #plan select, #plan textarea")) return; /* Esc na célula só desfaz a edição */
+  const pp=document.querySelector(".plpop"); if(pp){ pp.remove(); return; }
+  if(!sheet.classList.contains("on") && !document.getElementById("obspop")?.offsetParent) planLeave(); });
 function vPlanView(){
   top_.hidden=false; top_.innerHTML=headerHTML(); bindLang(); document.getElementById("out").onclick=logout;
   const V=(S.vendas||[]).slice().sort((a,b)=>a.data<b.data?1:a.data>b.data?-1:(b.criado_em||"").localeCompare(a.criado_em||"")), hoje=todayISO();
@@ -6291,7 +6300,7 @@ function planView(){
   document.getElementById("plback").onclick=document.getElementById("plx").onclick=planClose; { const ph=document.querySelector("#plan .plhead"); if(ph) ph.style.top=(top_.offsetHeight||0)+"px"; }
   document.getElementById("plnew").onclick=()=>{ pedidoFor=null; consultaFor=null; openTrip(null); };
   document.getElementById("plmes").onchange=e=>{ S.planM=e.target.value; planView(); scrollTo(0,0); };
-  app.querySelectorAll("[data-popen]").forEach(b=>b.onclick=()=>{ const r=S.upcoming.find(x=>x.id===+b.dataset.popen); if(mob) return openTrip(r); view="main"; mainView(); openTrip(r); });
+  app.querySelectorAll("[data-popen]").forEach(b=>b.onclick=()=>{ const r=S.upcoming.find(x=>x.id===+b.dataset.popen); if(mob) return openTrip(r); planLeave(); openTrip(r); });
   /* texto comprido (Rodrigo 2026-11-03): a célula para no limite com "…"; passando o mouse mostra tudo, e clicando no campo ele abre por inteiro */
   const tip=el=>{ if(!el.disabled) el.title = el.tagName==="SELECT" ? (el.selectedOptions[0]?.textContent||"") : el.value; };
   app.querySelectorAll("#plan [data-pk]").forEach(el=>{ tip(el); el.addEventListener("change", ()=>tip(el)); });
