@@ -1828,11 +1828,11 @@ function lembHTML(){
    Remover (ex.: vendeu a data e devolveu o sinal) pede confirmação e também avisa o cliente. Remarcar abre o passeio novo com o sinal = crédito. ===== */
 /* ===== avaliações do Google por lancha (Rodrigo 2026-11-04): o Grok (operador) ou o administrador copia a avaliação do perfil no Google
    e diz de qual lancha é; o site mostra na página da lancha com o selo do Google. "Passeios recentes" ajuda a achar a lancha pelo nome do cliente ===== */
-async function loadGrev(){ if(!(S.admin || S.papel==="operador")) return;
+async function loadGrev(){ if(!(S.admin || S.papel==="operador" || S.papel==="auditor")) return; /* o Analista (auditor) também lança avaliações do Google */
   S.grev = await db("avaliacoes_google?select=id,lancha,autor,nota,texto,data,perfil&order=criado_em.desc&limit=80").catch(e=>e.status===404||e.status===400 ? false : null);
   S.gpas = S.grev===false ? [] : await RPC("passeios_para_google",{}).catch(()=>[]); }
 function grevHTML(){
-  if(!S.grev && S.grev!==null) return ""; if(S.papel==="auditor") return "";
+  if(!S.grev && S.grev!==null) return "";
   const L=S.grev||[], bs=S.all.filter(b=>b.ativa!==false && !b.dados?.exemplo), st=k=>"★".repeat(k)+"☆".repeat(5-k);
   return `<details class="card cfm fold" data-fold="grev"${foldOpen("grev",false)?" open":""}>${foldSum(t("grT",{n:L.length}))}<p class="muted" style="margin-top:0">${t("grSub")}</p>
     <form id="grf" class="grf"><label class="f"><span>${t("grBoat")}</span><select class="in" id="grl" required><option value="">—</option>${bs.map(b=>`<option value="${esc(b.slug)}">${esc(b.nome)}</option>`).join("")}</select></label>
