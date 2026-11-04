@@ -2606,11 +2606,11 @@ const kOf = (rows, slug, d) => seasonKey(d, (rows||[]).find(x=>x.lancha===slug)?
 const seasonLab = d => { const k=seasonBase(d), f=ferOf(d); return t("avSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k)}) + (f && k!=="reveillon" ? " "+t("ferNote",{f:t("fer_"+f)}) : ""); };
 /* administrador: o valor de 4h e 7h de cada lancha na data buscada (Rodrigo 2026-10-22: achar o valor de uma cotação rápido) */
 /* capacidade ao lado do nome nas buscas por data (Rodrigo, 2026-10-22) */
-const capOf = b => +(CAPACITY[b.slug] || b.dados?.capacidade) || 0;
+const capOf = b => +(b.dados?.capacidade || CAPACITY[b.slug]) || 0;
 /* quantas pessoas: de 1 até a maior lancha cadastrada (sobe sozinho se entrar uma maior); vazio = todas */
 const paxSel = (id, v) => { const mx=Math.max(1, ...S.all.filter(b=>b.ativa!==false).map(capOf));
   return `<select class="in avpax" id="${id}" aria-label="${t("avPax")}"><option value="">👥 ${t("avPax")}</option>${Array.from({length:mx},(_,i)=>i+1).map(n=>`<option value="${n}"${+v===n?" selected":""}>👥 ${n}</option>`).join("")}</select>`; };
-const capTag = b => { const c=CAPACITY[b.slug] || b.dados?.capacidade; return c ? ` <small class="cap">👥 ${c}</small>` : ""; };
+const capTag = b => { const c=b.dados?.capacidade || CAPACITY[b.slug]; return c ? ` <small class="cap">👥 ${c}</small>` : ""; };
 const avPrice = slug => { const r=(S.avPr||[]).find(x=>x.lancha===slug), k=kOf(S.avPr,slug,S.avD); if(!r) return "";
   const o=valOpts(r), v4=valorNaData(r,S.avD,false,o), v7=valorNaData(r,S.avD,true,o), nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===slug).map(x=>[x.chave,x.neto]));
   const on={...o, esp:null, rx:0, rx7:0}, n4=valorNaData(nm,S.avD,false,on), n7=valorNaData(nm,S.avD,true,on);
@@ -3069,7 +3069,7 @@ async function openBoatForm(l){
   if(l){ [items, pr] = await Promise.all([db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`).then(r=>r[0]?.opcionais||[], ()=>[]), db(`precos_neto?select=chave,neto&lancha=eq.${encodeURIComponent(l)}`).then(r=>Object.fromEntries(r.filter(x=>x.neto>0).map(x=>[x.chave,x.neto])), ()=>({}))]); } /* o cadastro pede o valor neto do dono (Rodrigo 2026-11-01) */
   const files=[];
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${l?t("nbEditT"):t("nbNewT")}</h2><p class="muted" style="margin-top:0">${t(l?"nbEditSub":"nbNewSub")}</p>
-    <form id="nbf" class="nform" novalidate><div id="nbmsg"></div>
+    <form id="nbf" class="nform itc" novalidate><div id="nbmsg"></div>
       <label class="f"><span>${t("nbName")}${REQ}</span><input type="text" id="nb-nome" maxlength="40" autocapitalize="words" autocomplete="off" value="${esc(b?.nome||"")}" placeholder="${t("nbNamePh")}"></label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <label class="f"><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="decimal" min="10" max="200" step="0.5" value="${d.pes||""}" placeholder="30"></label>
@@ -3081,24 +3081,27 @@ async function openBoatForm(l){
       <h3 class="nbh">📍 ${t("nbEmb7")}</h3>${nbToggles("nb-e7", BOARD_OPTS.map(o=>[o,o]), emb["7"]||[])}
       <p class="muted" style="margin:4px 0 0;font-size:14px">${t("nbEmbHint")}</p></div>
       <p class="muted" id="nb-embo" style="margin:14px 0 0;font-size:14px"${(d.cidade||"buzios")==="buzios"?" hidden":""}>📍 ${t("nbEmbOther")}</p>
-      <h3 class="nbh">${t("itemsOpt")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbItemsSub")}</p>${nbToggles("nb-it", ITEMS.map(it=>[it[0], itemName(it)]), items)}
+      ${l ? "" /* lancha já cadastrada: itens e valores ficam nos cards da aba Lancha, sem repetir aqui (Rodrigo 2026-11-04: tudo no mesmo padrão) */
+        : `<h3 class="nbh">✨ ${t("itemsT")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbItemsSub")}</p>
+      <div id="nb-it"><h3 class="nbh">⭐ ${t("itemsGold")}</h3>${nbToggles("nb-itg", ITEMS.filter(it=>GOLD_ITEMS.includes(it[0])).sort((a,c)=>GOLD_ITEMS.indexOf(a[0])-GOLD_ITEMS.indexOf(c[0])).map(it=>[it[0], itemName(it)]), items).replace('class="items"','class="items gold"')}
+      <h3 class="nbh">${t("itemsOpt")}</h3>${nbToggles("nb-ito", ITEMS.filter(it=>!GOLD_ITEMS.includes(it[0])).map(it=>[it[0], itemName(it)]), items)}</div>
       <h3 class="nbh">${t("pricesT")}</h3><p class="muted" style="margin:0;font-size:14px">${t("nbPricesSub")}</p>
-      <div class="prices p2"><div class="phd"><span></span><b>${t("pr4")}</b><b>${t("pr7")}</b></div>${SEASON3.map(k=>`<div class="prow"><span><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></span>${[k,k+"7"].map(c=>`<input type="number" inputmode="numeric" min="0" step="50" data-nbpr="${c}" data-ini="${pr[c]??""}" value="${pr[c]??""}" placeholder="${t("prOnReq")}" aria-label="${t("pr_"+k).split(" · ")[0]} · ${t(c.endsWith("7")?"pr7":"pr4")}">`).join("")}</div>`).join("")}</div>
+      <div class="prices p2"><div class="phd"><span></span><b>${t("pr4")}</b><b>${t("pr7")}</b></div>${SEASON3.map(k=>`<div class="prow"><span><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></span>${[k,k+"7"].map(c=>`<input type="number" inputmode="numeric" min="0" step="50" data-nbpr="${c}" data-ini="${pr[c]??""}" value="${pr[c]??""}" placeholder="${t("prOnReq")}" aria-label="${t("pr_"+k).split(" · ")[0]} · ${t(c.endsWith("7")?"pr7":"pr4")}">`).join("")}</div>`).join("")}</div>`}
       ${l ? ""
         : `<h3 class="nbh">📷 ${t("phT").replace(/^📷 /,"")}</h3><p class="muted" style="margin:0 0 8px;font-size:14px">${t("nbPhSub",{max:PH_MAX})}</p>
         <div class="phgrid" id="nb-ph"></div><label class="btn sec phadd">${t("phAdd")}<input type="file" id="nb-file" accept="image/*" multiple></label>`}
-      <h3 class="nbh">✍️ ${t("nbTag")}</h3><label class="f" style="margin-top:8px"><textarea id="nb-fr" aria-label="${t("nbTag")}" rows="3" maxlength="160" placeholder="${t("nbTagAuto")}"${d.frase?.pt?' data-mine="1"':""}>${tr(d.frase,"pt")}</textarea><small class="muted" style="display:block;margin-top:4px">${t("nbTagHint")}</small></label>
+      <input type="hidden" id="nb-fr" value="${tr(d.frase,"pt")}"> <!-- frase curta (só Google e prévia do link): o app escreve sozinho, sem campo no formulário (Rodrigo 2026-11-04) -->
       <button class="btn" id="nbgo" style="margin-top:14px">${l?t("nbSave"):t("nbCreate")}</button></form>
     <button type="button" class="btn sec" id="nbx" style="margin-top:10px">${t("pwCancel")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   document.getElementById("nbx").onclick = closeDay;
   document.getElementById("nb-cid").onchange = e => { const bz=e.target.value==="buzios"; document.getElementById("nb-embw").hidden=!bz; document.getElementById("nb-embo").hidden=bz; }; /* os píeres da lista são de Búzios */
   const val = id => document.getElementById(id).value.trim();
+  const nbIts = () => l ? (S.items||items) : nbPicked("nb-it");
   /* frase curta: o app escreve enquanto a pessoa não editar o campo (apagar tudo volta para a automática) */
-  const frs = ["nb-fr"].map(id=>document.getElementById(id));
-  frs.forEach(x=>x.oninput=()=>{ if(x.value.trim()) x.dataset.mine="1"; else delete x.dataset.mine; });
   const autoFr = () => { const pes=+val("nb-pes").replace(",","."), cap=+val("nb-cap"); if(!(pes>=10 && cap>=1)) return;
-    const a=autoFrase(pes, cap, nbPicked("nb-it")); frs.forEach((x,i)=>{ if(!x.dataset.mine) x.value=a[["pt","en","es"][i]]; }); };
+    if(l && d.frase?.pt && pes===+d.pes && cap===+d.capacidade) return; /* lancha já cadastrada: a frase só muda se mudar o tamanho ou as pessoas */
+    document.getElementById("nb-fr").value=autoFrase(pes, cap, nbIts()).pt; };
   ["nb-pes","nb-cap"].forEach(id=>document.getElementById(id).addEventListener("input", autoFr));
   sheet.querySelectorAll(".items button").forEach(x=>x.onclick=()=>{ x.setAttribute("aria-pressed", x.getAttribute("aria-pressed")!=="true"); autoFr(); });
   /* traduz a frase curta para inglês e espanhol; se não der, o site mostra em português */
@@ -3124,7 +3127,7 @@ async function openBoatForm(l){
     if(!(pes>=10 && pes<=200)) return fail(t("nbFeetBad"), document.getElementById("nb-pes"));
     if(!(cap>=1 && cap<=80)) return fail(t("nbCapBad"), document.getElementById("nb-cap"));
     autoFr();
-    if(val("nb-fr").length<10) return fail(t("nbTagBad"), document.getElementById("nb-fr"));
+    
     const prices={lancha:slug, atualizado_em:new Date().toISOString()}, nets=[]; /* valor digitado = neto do dono; total = neto + taxa da Búzios */
     for(const x of sheet.querySelectorAll("[data-nbpr]")){ const v=x.value.trim(); if(l && v===x.dataset.ini) continue; /* editando: só grava o valor que mudou; não apaga o preço do site nem mexe na referência do dono (revisão 2026-11-02) */
       if(v && !(+v>0)) return fail(t("prBad"), x); const n=v ? Math.round(+v) : null; if(n>VMAX) return fail(t("valMax"), x); nets.push({lancha:slug, chave:x.dataset.nbpr, neto:n, comissao:n?taxaB(slug,n):null, ...(l?{}:{ref:n}), atualizado_em:prices.atualizado_em}); prices[x.dataset.nbpr] = n ? n+taxaB(slug,n) : null; }
@@ -3132,13 +3135,13 @@ async function openBoatForm(l){
     go.disabled=true; go.textContent=t("nbSaving");
     await fillTr(); /* inglês e espanhol: sempre automáticos */
     const cid=CIDADES[val("nb-cid")] ? val("nb-cid") : "buzios", bz=cid==="buzios";
-    const dados={pes, capacidade:cap, cidade:cid, frase:{pt:val("nb-fr"), en:val("nb-fr-en"), es:val("nb-fr-es")}, descricao:d.descricao?.pt && (d.cidade||"buzios")===cid ? d.descricao : autoDesc(nome, pes, cap, nbPicked("nb-it"), cid), embarque:bz ? {"4":nbPicked("nb-e4"), "7":nbPicked("nb-e7")} : {"4":[], "7":[]}};
+    const dados={pes, capacidade:cap, cidade:cid, frase:{pt:val("nb-fr"), en:val("nb-fr-en"), es:val("nb-fr-es")}, descricao:d.descricao?.pt && (d.cidade||"buzios")===cid ? d.descricao : autoDesc(nome, pes, cap, nbIts(), cid), embarque:bz ? {"4":nbPicked("nb-e4"), "7":nbPicked("nb-e7")} : {"4":[], "7":[]}};
     const ativa = l ? b.ativa!==false : true;
     try{ await db("rpc/salvar_lancha",{method:"POST", body:{l:slug, nome, d:dados, ativa}}); }
     catch(x){ return fail(x.status===404 ? t("nbNeedSql") : /lancha_do_codigo/.test(x.message||"") ? t("nbExists") : t("saveErr")); }
     const opc=nbPicked("nb-it");
     await Promise.all([!nets.length ? null : db("precos_neto",{method:"POST", body:nets, prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>db("precos",{method:"POST", body:prices, prefer:"resolution=merge-duplicates,return=minimal"})).catch(()=>{}),
-      db("itens",{method:"POST", body:{lancha:slug, opcionais:ITEMS.map(i=>i[0]).filter(i=>opc.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{})]);
+      l ? null /* editar não mexe nos itens: eles ficam no card da aba Lancha */ : db("itens",{method:"POST", body:{lancha:slug, opcionais:ITEMS.map(i=>i[0]).filter(i=>opc.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{})]);
     const row={slug, nome, dados, ativa};
     if(l){ Object.assign(boatRow(l), row); Object.assign(S.boats.find(x=>x.slug===l)||{}, row); }
     else{ S.all=[...S.all, row].sort((a,c)=>a.nome.localeCompare(c.nome)); S.boats=S.all; } /* só o administrador cadastra: ele vê todas */
@@ -4158,7 +4161,7 @@ async function aprovarPre(p){
    O valor de referência é recalculado para a nova lancha/data; o cliente vê o pedido já alterado */
 function editReq(p, cons){ /* cons = consulta pelo WhatsApp (tabela consultas): o valor sai da lancha nova sozinho */
   let lb=p.lancha, d=p.data, h=p.horario, vv = +p.valor>0 ? String(+p.valor) : ""; /* consulta: valor combinado (desconto do Rodrigo, 2026-11-01) */
-  const cap = () => CAPACITY[lb] || boatRow(lb)?.dados?.capacidade || 16;
+  const cap = () => boatRow(lb)?.dados?.capacidade || CAPACITY[lb] || 16;
   const slots = () => [...SLOTS, ...(d && hasNight(d) ? ["noite"] : [])];
   /* % padrão desta reserva = a taxa da tabela da lancha naquela época (pode não ser 8%: Rodrigo 2026-10-28) */
   const k0=pedCalc({...p, comissao_pct:null}), cp0 = k0.net>0 && k0.bfull>0 ? Math.round((k0.bfull-k0.net)/k0.net*10000)/100 : TAXA_BUZIOS;
@@ -6587,7 +6590,7 @@ function renderTrip(){
     type==="area"?`<textarea id="n-${k}" rows="2" placeholder="${t("ph_obs")}">${esc(n[k]??"")}</textarea>`
     :`<input type="${type}" id="n-${k}" ${extra} placeholder="${t("ph_"+({cliente:"client",telefone:"phone",pessoas:"people",valor:"value",sinal:"deposit"}[k]))}" value="${esc(n[k]??"")}">`}</label>`;
   const ph=splitPhone(n.telefone), waNum = ph.num.replace(/\D/g,"") ? ph.cc+ph.num.replace(/\D/g,"") : "";
-  const boatCap = () => CAPACITY[nboat] || boatRow(nboat)?.dados?.capacidade || 16;
+  const boatCap = () => boatRow(nboat)?.dados?.capacidade || CAPACITY[nboat] || 16;
   const peopleOpts = () => `<option value="">—</option>${Array.from({length:Math.max(boatCap(), +n.pessoas||0)},(_,i)=>`<option${+n.pessoas===i+1?" selected":""}>${i+1}</option>`).join("")}`;
   const fromDay = !!sheetDay;
   /* marinheiro do passeio: já vem o fixo da lancha; o dono troca só naquela data */
