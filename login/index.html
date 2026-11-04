@@ -1623,7 +1623,8 @@ function pedCalc(p){
   /* parceiro, 1º passeio (Rodrigo 2026-11-02): o cliente paga a tabela e os 3% do parceiro (desc_parceiro) saem da parte da Búzios; pb = tabela antes disso */
   const dp=+p.desc_parceiro||0, pb=+p.preco_base ? +p.preco_base+dp : 0;
   const tab=r ? +valorNaData(r,p.data,h7,o) || null : null, sus=!!(tab && pb && !(p.oferta_valor>0 && Math.abs(pb-p.oferta_valor) <= 1) && !(p.alt_valor>0 && Math.abs((+p.preco_cliente||+p.preco_base)-p.alt_valor) <= 1) && !p.bloqueio_id /* pedido ligado a passeio: o banco copiou o valor do passeio (o cliente não grava bloqueio_id) */ && Math.abs(pb-tab) > 1); /* valor combinado no link (ofertas): o banco já conferiu */ /* qualquer diferença (mais de R$ 1) usa a tabela: o preço do site define a comissão do vendedor (revisão 2026-10-25) */
-  const net=valorNaData(nm,p.data,h7,{...o, esp:null, rx:0, rx7:0}); /* o neto do dono não muda no período especial nem com o "Búzios a mais" do Réveillon */
+  const net=valorNaData(nm,p.data,h7,{...o, esp:ESP_BOATS.includes(p.lancha) ? o.esp : null, rx:0, rx7:0}); /* o neto do dono não muda no período especial nem com o "Búzios a mais" do Réveillon.
+     Exceto a Miss Bardot (lancha do Rodrigo, comissão 0): no período especial o neto é o próprio valor especial, senão a comissão aparecia negativa (2026-11-04) */
   /* comissão da Búzios desta reserva mudada no Editar (0 a 10%, Rodrigo 2026-10-26): total = neto + comissão (+ % do vendedor) */
   const ov = p.comissao_pct!=null && p.comissao_pct!=="" && net ? Math.round(net*(+p.comissao_pct)/100) : null; /* % com casas: guarda também um valor exato em R$ */
   let base=sus ? tab : pb || tab, tot=sus ? (+p.preco_cliente && !dp ? Math.round(tab*(1+(+p.acrescimo_pct||0)/100)) : tab) : +p.preco_cliente || base;
