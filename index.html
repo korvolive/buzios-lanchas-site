@@ -1,11 +1,23 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script>/* toque seguro (Rodrigo 2026-11-04): botão que acabou de aparecer ou mudou de lugar não aceita toque por um instante; evita apertar o botão errado quando a tela muda debaixo do dedo */
-(function(){ var SEL="button,a.btn,[role=button],label.btn,.rm", MS=350, born=new WeakMap(), pos=new WeakMap(), pend=false, now=function(){ return performance.now(); };
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script>/* toque seguro (Rodrigo 2026-11-04): se a tela mudou debaixo do dedo (botão apareceu ou mudou de lugar há menos de 0,4 s), o toque vai para o botão que estava naquele ponto antes da mudança, nunca para o que apareceu no lugar dele */
+(function(){ var SEL="button,a.btn,[role=button],label.btn,.rm", MS=400, born=new WeakMap(), pos=new WeakMap(), pend=false, hist=[], cur=[], VIU=300, now=function(){ return performance.now(); };
   function key(el){ var x=0,y=0,e=el; while(e){ x+=e.offsetLeft; y+=e.offsetTop; e=e.offsetParent; } return x+","+y+","+el.offsetWidth; }
-  function snap(){ pend=false; var t=now(), L=document.querySelectorAll(SEL); for(var i=0;i<L.length;i++){ var el=L[i], k=key(el), p=pos.get(el); if(p!==k){ if(p!==undefined || t>1500) born.set(el,t); pos.set(el,k); } } }
-  try{ new MutationObserver(function(){ if(!pend){ pend=true; requestAnimationFrame(snap); } }).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
-  document.addEventListener("toggle",function(){ if(!pend){ pend=true; requestAnimationFrame(snap); } },true);
-  document.addEventListener("click",function(e){ if(!e.isTrusted) return; var el=e.target&&e.target.closest&&e.target.closest(SEL); if(!el) return; if(pend) snap(); var b=born.get(el);
-    if(b!=null && now()-b<MS){ e.preventDefault(); e.stopImmediatePropagation(); } },true);
+  function sig(el){ var d=""; for(var k in el.dataset) d+=k+"="+el.dataset[k]+";"; return el.id ? "#"+el.id : el.tagName+"|"+d+"|"+(el.textContent||"").trim().slice(0,60); }
+  function snap(){ pend=false; var t=now(), L=document.querySelectorAll(SEL), lay=[], sx=scrollX, sy=scrollY;
+    for(var i=0;i<L.length;i++){ var el=L[i], k=key(el), p=pos.get(el); if(p!==k){ if(p!==undefined || t>1500) born.set(el,t); pos.set(el,k); }
+      var r=el.getBoundingClientRect(); if(r.width && r.height) lay.push({el:el, s:sig(el), x:r.left+sx, y:r.top+sy, w:r.width, h:r.height}); }
+    cur=lay; hist.push({t:t, lay:lay}); while(hist.length>12 || (hist.length>1 && t-hist[1].t>3000)) hist.shift(); }
+  function ok(){ if(!pend){ pend=true; requestAnimationFrame(snap); } }
+  try{ new MutationObserver(ok).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+  document.addEventListener("toggle",ok,true);
+  document.addEventListener("click",function(e){ if(!e.isTrusted || (!e.clientX && !e.clientY)) return; var el=e.target&&e.target.closest&&e.target.closest(SEL); if(!el) return; if(pend) snap(); var b=born.get(el);
+    if(b==null || now()-b>=MS) return;
+    /* a tela que a pessoa via quando mirou: a que estava valendo uns 0,3 s antes do toque */
+    var tv=now()-VIU, prev=[], px=e.clientX+scrollX, py=e.clientY+scrollY, was=null; for(var h=hist.length-1;h>=0;h--) if(hist[h].t<=tv){ prev=hist[h].lay; break; }
+    for(var i=0;i<prev.length;i++){ var o=prev[i]; if(px>=o.x && px<=o.x+o.w && py>=o.y && py<=o.y+o.h){ was=o; break; } }
+    var alvo = was ? (was.el.isConnected ? was.el : (function(){ for(var j=0;j<cur.length;j++) if(cur[j].s===was.s) return cur[j].el; return null; })()) : null;
+    if(alvo===el) return; /* é o mesmo botão: só mudou de lugar */
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(alvo && !alvo.disabled) alvo.click(); },true);
 })();</script><script>/* convite ou senha nova enviados pelo painel do Supabase caem aqui: a tela de criar senha fica em /login/ */(function(h){if(/access_token=/.test(h)&&/type=(invite|recovery)/.test(h))location.replace("/login/"+h)})(location.hash)</script>
 <script>/* aberto pelo app da Google Play (TWA): guarda antes de qualquer redirecionamento, que apaga o referrer */try{if(/^android-app:/.test(document.referrer))sessionStorage.setItem("twa","1");}catch(e){}
 /* link curto do convite (?c= / ?w=) e do vendedor para criar conta (?criar=1): abre o cadastro */(function(){var q=location.search;if(location.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q))location.replace("/login/"+(/[?&]criar=1/.test(q)?q:"?criar=1&"+q.slice(1)));})();
