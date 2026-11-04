@@ -2620,7 +2620,10 @@ const descSemana = (iso, k, ds, h7) => { const w=new Date(iso+"T12:00:00Z").getU
 /* valor na data a partir dos valores de baixa, média e alta (p[k] ou p[k+"7"]), com o % de feriado, de Réveillon ou o desconto; arredonda em R$ 10 */
 /* período de preço especial (precos.especiais, só o administrador cria; Rodrigo 2026-10-22): qualquer valor, e vale acima de tudo na data */
 const espOf = (iso, esp) => (Array.isArray(esp) ? esp : []).find(e=>e && e.de<=iso && iso<=e.ate) || null;
-const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, v=+p?.[base+(h7?"7":"")];
+/* nenhuma lancha fica sem valor (Rodrigo 2026-11-04): média vazia = baixa, alta vazia = média; as colunas antigas de pico e réveillon recebem a alta (o Réveillon e Carnaval sai da alta + % do dono, 0% = preço da alta) */
+const precoCheio = o => { for(const h of ["", "7"]){ if(!(("baixa"+h) in o)) continue; const g=k=>+o[k+h]>0 ? o[k+h] : null;
+    if(!g("media")) o["media"+h]=g("baixa"); if(!g("alta")) o["alta"+h]=g("media"); if(g("alta")){ o["pico"+h]=o["alta"+h]; o["reveillon"+h]=o["alta"+h]; } } return o; };
+const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, hh=h7?"7":"", v=+p?.[base+hh] || (base==="alta" ? +p?.["media"+hh] || +p?.["baixa"+hh] : base==="media" ? +p?.["baixa"+hh] : 0);
   if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ const rx = k==="reveillon" ? +(s7 ? o.rx7 : o.rx)||0 : 0; /* Búzios a mais só no Réveillon e Carnaval (Rodrigo 2026-10-28) */ return (pc ? Math.round(v*(1+pc/100)/10)*10 : v) + rx; };
 /* opções da lancha (linha da tabela precos): feriados tirados, os % de feriado e de Réveillon e o desconto de segunda a quinta */
 const valOpts = r => ({off:r?.sem_feriados||[], pf:r?.pct_feriado, pr:r?.pct_reveillon, pr7:r?.pct_reveillon7, ds:r?.desc_semana, esp:r?.especiais, rx:r?.bz_reveillon, rx7:r?.bz_reveillon7});
@@ -3169,7 +3172,7 @@ async function openBoatForm(l){
     try{ await db("rpc/salvar_lancha",{method:"POST", body:{l:slug, nome, d:dados, ativa}}); }
     catch(x){ return fail(x.status===404 ? t("nbNeedSql") : /lancha_do_codigo/.test(x.message||"") ? t("nbExists") : t("saveErr")); }
     const opc=nbPicked("nb-it");
-    await Promise.all([!nets.length ? null : db("precos_neto",{method:"POST", body:nets, prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>db("precos",{method:"POST", body:prices, prefer:"resolution=merge-duplicates,return=minimal"})).catch(()=>{}),
+    await Promise.all([!nets.length ? null : db("precos_neto",{method:"POST", body:nets, prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>db("precos",{method:"POST", body:precoCheio(prices), prefer:"resolution=merge-duplicates,return=minimal"})).catch(()=>{}),
       l ? null /* editar não mexe nos itens: eles ficam no card da aba Lancha */ : db("itens",{method:"POST", body:{lancha:slug, opcionais:ITEMS.map(i=>i[0]).filter(i=>opc.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}).catch(()=>{})]);
     const row={slug, nome, dados, ativa};
     if(l){ Object.assign(boatRow(l), row); Object.assign(S.boats.find(x=>x.slug===l)||{}, row); }
@@ -5919,7 +5922,7 @@ function bindMainRest(){
       const st=document.getElementById("prst"), prSt=(k,c)=>{ if(st){ st.textContent=t(k); st.className="mnst"+(c?" "+c:""); } };
       prs.disabled=true; prSt("mnSaving");
       try{ await db("precos_neto",{method:"POST", body:rows, prefer:"resolution=merge-duplicates,return=minimal"});
-        await db("precos",{method:"POST", body, prefer:"resolution=merge-duplicates,return=minimal"});
+        await db("precos",{method:"POST", body:precoCheio(body), prefer:"resolution=merge-duplicates,return=minimal"});
         S.prices={...S.prices, ...body}; S.neto={...S.neto, ...Object.fromEntries(rows.map(r=>[r.chave,r]))}; prDone(); prCard?.querySelectorAll("input").forEach(y=>{ y.defaultValue=y.value; }); prSt("mnSavedAuto","ok"); }
       catch(e){ prSt("mnAuto"); toast(t("saveErr")); } finally{ prs.disabled=false; } };
     let prT=null; const prAuto=()=>{ clearTimeout(prT); prT=setTimeout(()=>{ prT=null; if(document.body.contains(prs)) prs.onclick(); }, 700); };
@@ -5929,7 +5932,7 @@ function bindMainRest(){
   } else if(prs) prs.onclick=async()=>{ const lancha=S.cur, body={lancha, atualizado_em:new Date().toISOString()};
     for(const x of app.querySelectorAll("[data-pr]")){ const v=x.value.trim(); if(v && !(+v>0)){ x.focus(); return toast(t("prBad")); } if(+v>VMAX){ x.focus(); return toast(t("valMax")); } body[x.dataset.pr]= v ? Math.round(+v) : null; }
     prs.disabled=true;
-    try{ await db("precos",{method:"POST", body, prefer:"resolution=merge-duplicates,return=minimal"}); S.prices=body; prDone(); toast(t("pricesSaved")); }
+    try{ await db("precos",{method:"POST", body:precoCheio(body), prefer:"resolution=merge-duplicates,return=minimal"}); S.prices=body; prDone(); toast(t("pricesSaved")); }
     catch(e){ toast(t("saveErr")); } finally{ prs.disabled=false; } };
   const en=document.getElementById("espnew"); if(en) en.onclick=()=>{ S.espOpen=true; mainView(); document.getElementById("espnome")?.focus(); };
   bindMnt(); bindDg();
