@@ -571,7 +571,15 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 <div class="sheet-bg" id="sheet-bg"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast" role="status"></div>
-<script>
+<script>/* toque seguro (Rodrigo 2026-11-04): botão que acabou de aparecer ou mudou de lugar não aceita toque por um instante; evita apertar o botão errado quando a tela muda debaixo do dedo */
+(function(){ var SEL="button,a.btn,[role=button],label.btn,.rm", MS=350, born=new WeakMap(), pos=new WeakMap(), pend=false, now=function(){ return performance.now(); };
+  function key(el){ var x=0,y=0,e=el; while(e){ x+=e.offsetLeft; y+=e.offsetTop; e=e.offsetParent; } return x+","+y+","+el.offsetWidth; }
+  function snap(){ pend=false; var t=now(), L=document.querySelectorAll(SEL); for(var i=0;i<L.length;i++){ var el=L[i], k=key(el), p=pos.get(el); if(p!==k){ if(p!==undefined || t>1500) born.set(el,t); pos.set(el,k); } } }
+  try{ new MutationObserver(function(){ if(!pend){ pend=true; requestAnimationFrame(snap); } }).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+  document.addEventListener("toggle",function(){ if(!pend){ pend=true; requestAnimationFrame(snap); } },true);
+  document.addEventListener("click",function(e){ if(!e.isTrusted) return; var el=e.target&&e.target.closest&&e.target.closest(SEL); if(!el) return; if(pend) snap(); var b=born.get(el);
+    if(b!=null && now()-b<MS){ e.preventDefault(); e.stopImmediatePropagation(); } },true);
+})();</script><script>
 const EMBED = new URLSearchParams(location.search).has("embed"); /* aberto num iframe da página /pagar/ (Rodrigo 2026-10-25: o chat abre na própria página) */
 /* ===== conexão com o banco (Supabase). A chave abaixo é a pública: só lê o que as regras do banco deixam ===== */
 const SB = "https://sqoperylsqcbcjpcrlnp.supabase.co";
