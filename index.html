@@ -1648,7 +1648,7 @@ const esc = x => String(x??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;","
    Aparecem com o selo do Google, nunca como avaliação feita no site, e não entram nas estrelinhas da busca (regra do Google) */
 const GOOGLE_BL = "https://share.google/zCKATgMtWBwdo8w2F", gRevs = new Map(), gFold = x => String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 function loadGRevs(b){
-  const p = gRevs.get(b.slug) || fetch(SB_URL+"/rest/v1/avaliacoes_google?select=autor,nota,texto,data&lancha=eq."+encodeURIComponent(b.slug)+"&order=data.desc.nullslast&limit=40", {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+  const p = gRevs.get(b.slug) || fetch(SB_URL+"/rest/v1/avaliacoes_google?select=autor,nota,texto,data&lancha=eq."+encodeURIComponent(b.slug)+"&order=data.desc.nullslast&limit=2000", {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok?r.json():[]).catch(()=>[]);
   gRevs.set(b.slug, p);
   p.then(rows=>{ const box=document.getElementById("g-revs"); if(!box || route.slug!==b.slug || !rows.length) return;
     const st = k => "★".repeat(k)+"☆".repeat(5-k), mes = d => d ? new Date(d.length===7 ? d+"-15T12:00" : d+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"}) : "";
@@ -1660,7 +1660,7 @@ function loadGRevs(b){
     box.className="block b-reviews b-google"; box.innerHTML = `<h2>${t("reviewsTitle")}</h2><div class="gcard">
       <div class="gsum"><div class="gscore"><strong>${mtxt}</strong><span class="stars" aria-hidden="true">${st(Math.round(media))}</span><small>${t(list.length===1?"gRevCnt1":"gRevCnt",{n:list.length})}</small></div>
         <a class="gbtn" href="${gUrl}" target="_blank" rel="noopener"><b class="gbadge">G</b>${t("gRevAll")}</a></div>
-      <ul class="reviews">${list.map(x=>`<li><div class="gwho"><span class="gav" style="background:${cores[x.n.length%cores.length]}" aria-hidden="true">${ini(x.n)}</span><span><b>${x.n}</b>${x.d?`<small>${mes(x.d)}</small>`:""}</span><b class="gbadge" title="Google">G</b></div><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q><button type="button" class="gmore" hidden>${t("gMore")}</button>`:""}</li>`).join("")}</ul></div>`;
+      <ul class="reviews">${list.slice(0,40).map(x=>`<li><div class="gwho"><span class="gav" style="background:${cores[x.n.length%cores.length]}" aria-hidden="true">${ini(x.n)}</span><span><b>${x.n}</b>${x.d?`<small>${mes(x.d)}</small>`:""}</span><b class="gbadge" title="Google">G</b></div><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q><button type="button" class="gmore" hidden>${t("gMore")}</button>`:""}</li>`).join("")}</ul></div>`;
     /* texto longo (Rodrigo 2026-11-04): cartão com altura limitada, "Ler mais" abre o texto todo */
     box.querySelectorAll(".gcard q").forEach(q=>{ const bt=q.nextElementSibling; if(q.scrollHeight>q.clientHeight+2){ bt.hidden=false; bt.onclick=()=>{ const o=q.classList.toggle("full"); bt.textContent=t(o?"gLess":"gMore"); }; } }); if(location.hash==="#g-revs") box.scrollIntoView({block:"start"}); });
 }
