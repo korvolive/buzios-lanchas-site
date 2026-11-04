@@ -1819,7 +1819,11 @@ document.addEventListener("click", async e=>{
   const c=(S.creds||[]).find(r=>r.id===+(u||x).dataset[u?"cru":"crx"]); if(!c) return;
   if(u){ /* remarcar: passeio novo da mesma lancha, com cliente, WhatsApp e o sinal = crédito; ao salvar, o crédito vira usado */
     consultaFor=null; pedidoFor=null;
-    tripRow={lancha:c.lancha, data:"", horario:"", cred:c, nota:{origem:"buzios", cliente:c.nome||"", telefone:c.telefone||null, sinal:+c.valor}};
+    /* o crédito guarda a cópia do passeio (Rodrigo 2026-11-04): remarcar volta com tudo como estava (data e horário também, se ainda forem futuros); dá para mudar antes de salvar */
+    const pa=c.passeio?.anotacao||{}, keep=["pessoas","embarque","marinheiro","ajudante","hora_ini","hora_fim","valor","obs","obs_marinheiro","cliente_conta"], old={};
+    keep.forEach(k=>{ if(pa[k]!=null && pa[k]!=="") old[k]=pa[k]; });
+    const volta = c.origem_data && c.origem_data>=todayISO();
+    tripRow={lancha:c.lancha, data:volta?c.origem_data:"", horario:volta?(c.origem_horario||""):"", cred:c, nota:{...old, origem:"buzios", cliente:c.nome||pa.cliente||"", telefone:c.telefone||pa.telefone||null, sinal:+c.valor}};
     tripNew=true; sheetDay=null; noteFor=null; renderTrip(); sheet.classList.add("on"); sheetBg.classList.add("on"); return; }
   if(!confirm(t("crDelQ",{v:brl(+c.valor), name:c.nome||"", boat:boatName(c.lancha)}))) return;
   x.disabled=true;
