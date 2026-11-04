@@ -5513,7 +5513,7 @@ function openOpPed(vend){
       <label class="f"><span>${t("opBoat")}</span><select class="in" id="opb">${boats.map(b=>`<option value="${esc(b.slug)}">${esc(b.nome)}</option>`).join("")}</select></label>
       <label class="f"><span>${t("opDate")}</span><input type="date" class="in" id="opd" min="${todayISO()}" max="${maxISO()}"></label>
       <div class="f"><span>${t("opSlot")}</span><div class="origin"><div>${["manha","tarde","dia","noite"].map(x=>`<button type="button" role="radio" data-oph="${x}" aria-checked="${x===h}"${x==="noite"?" hidden":""}>${t("slot_"+x)}</button>`).join("")}</div></div></div>
-      <div class="row2"><label class="f"><span>${t("hrIn")}</span><select class="in" id="ophi">${rlHrOpts(null,15,true)}</select></label><label class="f"><span>${t("hrOut")}</span><select class="in" id="ophf">${rlHrOpts(null,15,true)}</select></label></div>
+      <div class="row2"${vend?" hidden":""}><label class="f"><span>${t("hrIn")}</span><select class="in" id="ophi">${rlHrOpts(null,15,true)}</select></label><label class="f"><span>${t("hrOut")}</span><select class="in" id="ophf">${rlHrOpts(null,15,true)}</select></label></div>
       <label class="f"><span>${t("people")}</span><select class="in" id="opp"></select></label>
       <label class="f"><span>${t(vend?"vsVal":"opValor")}</span><input type="number" class="in" id="opv" inputmode="numeric" min="0" step="10"${vend?" hidden":""}><small class="muted" id="opvt"></small></label>
       ${vend ? `<label class="f"><span>${t("vplCom")}</span><input type="number" class="in" id="opc" inputmode="numeric" min="0" step="10"><small class="muted">${t("vplComSub",{p:vTeto()})}</small></label>`
@@ -5540,7 +5540,7 @@ function openOpPed(vend){
   const HPAD={manha:["10:00","14:00"], tarde:["14:00","18:00"], dia:["10:00","17:00"]}; let hAuto=["",""];
   const pick=x=>{ h=x; sheet.querySelectorAll("[data-oph]").forEach(y=>y.setAttribute("aria-checked",String(y.dataset.oph===x)));
     const hi=document.getElementById("ophi"), hf=document.getElementById("ophf"), pd=HPAD[x]||["",""];
-    if(hi && hf && hi.value.slice(0,5)===hAuto[0] && hf.value.slice(0,5)===hAuto[1]){ hi.value=pd[0]; hf.value=pd[1]; hAuto=[hi.value.slice(0,5), hf.value.slice(0,5)]; }
+    if(hi && hf && (vend || (hi.value.slice(0,5)===hAuto[0] && hf.value.slice(0,5)===hAuto[1]))){ /* vendedor: só o horário padrão (Rodrigo 2026-11-04) */ hi.value=pd[0]; hf.value=pd[1]; hAuto=[hi.value.slice(0,5), hf.value.slice(0,5)]; }
     tab(); };
   /* noite só no Réveillon (31/12) */
   const noite=()=>{ const ok=dIn.value.slice(5)==="12-31", b=sheet.querySelector('[data-oph="noite"]'); b.hidden=!ok; if(!ok && h==="noite") pick("manha"); else tab(); };

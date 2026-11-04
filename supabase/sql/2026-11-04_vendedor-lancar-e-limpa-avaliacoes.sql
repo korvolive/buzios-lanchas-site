@@ -1,4 +1,4 @@
--- 1) Vendedor não conseguia "Cargar/Lançar pedido" (erro 400): bloqueios.revenda virou data/hora (timestamptz) e a função
+-- 1) Vendedor só no horário padrão (10-14, 14-18, 10-17) e corrige: vendedor não conseguia "Cargar/Lançar pedido" (erro 400): bloqueios.revenda virou data/hora (timestamptz) e a função
 --    ainda tratava como sim/não. Correção: só conta como ocupado quando a reserva NÃO está em revenda (revenda is null).
 create or replace function public.lancar_pedido_vendedor(p_lancha text, p_data date, p_horario text, p_pessoas integer, p_nome text, p_tel text, p_email text, p_lang text, p_embarque text default null, p_valor numeric default null, p_comissao numeric default null, p_hora_ini text default null, p_hora_fim text default null, p_obs text default null)
 returns bigint language plpgsql security definer set search_path to 'public' as $function$
@@ -19,6 +19,9 @@ begin
     raise exception 'Confira a hora de entrada e de saída'; end if;
   if exists (select 1 from public.bloqueios x where x.lancha = p_lancha and x.data = p_data and x.revenda is null and public.choca_horario(x.horario, p_horario)) then
     raise exception 'Esse horário já está ocupado nessa lancha'; end if;
+  -- vendedor só vende no horário padrão (Rodrigo 2026-11-04): 4h = 10h-14h ou 14h-18h, 7h = 10h-17h
+  p_hora_ini := case p_horario when 'manha' then '10:00' when 'tarde' then '14:00' when 'dia' then '10:00' else null end;
+  p_hora_fim := case p_horario when 'manha' then '14:00' when 'tarde' then '18:00' when 'dia' then '17:00' else null end;
   v := public.preco_tabela(p_lancha, p_data, p_horario);  -- valor da lancha: sempre o da tabela, o vendedor não muda (revisão 2026-11-01)
   if v is null or v <= 0 then raise exception 'Essa lancha não tem preço de tabela nesse dia. Fale com o Rodrigo'; end if;
   com := round(coalesce(p_comissao, 0)); tet := public._teto_comissao_manual(v);
