@@ -2328,7 +2328,7 @@ function home(){
     </div></div>
     ${waCta()}
   </div></section>
-  ${routeSection()}
+  ${CID ? "" : routeSection() /* roteiro e mapa só de Búzios por enquanto; as outras cidades ganham o delas depois */}
   <section class="section" id="como" style="padding-top:0"><div class="wrap">
     <div class="section-head"><div><span class="eyebrow">${t("howEyebrow")}</span><h2>${t("howTitle")}</h2></div></div>
     <div class="how" style="--step:'${t("step")} '">
