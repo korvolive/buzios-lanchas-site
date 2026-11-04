@@ -1649,29 +1649,35 @@ function loadGRevs(b){
        Nas outras lanchas entram todas as avaliações, então mostra a média e quantas são */
     const mb = b.slug==="miss-bardot", gUrl = mb ? GOOGLE_REVIEWS : GOOGLE_BL, media = list.reduce((a,x)=>a+x.k,0)/list.length, mtxt = (Math.round(media*10)/10).toFixed(1).replace(".", lang==="en"?".":",");
     box.className="block b-reviews b-google"; box.innerHTML = `<h2>${t("reviewsTitle")}</h2><p class="rev-head">${mb ? t("gRevSub") : `<span class="stars" aria-hidden="true">${st(Math.round(media))}</span>${t(list.length===1?"gRevN1":"gRevN",{m:mtxt, n:list.length})}`} <a href="${gUrl}" target="_blank" rel="noopener">${t("gRevAll")}</a></p>
-      <ul class="reviews">${list.map(x=>`<li><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q>`:""}<small>${x.n}${x.d?" · "+mes(x.d):""} · <b class="gbadge">G</b> Google</small></li>`).join("")}</ul>`; });
+      <ul class="reviews">${list.map(x=>`<li><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q>`:""}<small>${x.n}${x.d?" · "+mes(x.d):""} · <b class="gbadge">G</b> Google</small></li>`).join("")}</ul>`; if(location.hash==="#g-revs") box.scrollIntoView({block:"start"}); });
 }
 /* selo de nota nos cards da página inicial: uma chamada para as notas; os comentários só quando a pessoa abre */
 const revRpc = (f, body) => fetch(SB_URL+"/rest/v1/rpc/"+f, {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:JSON.stringify(body)}).then(r=>r.ok?r.json():Promise.reject(r.status));
 let notasP = null; const cardRevs = new Map();
 const numFmt = v => String(v).replace(".", lang==="en"?".":",");
+let gTodasP = null;
 function cardRatings(){
-  (notasP ||= revRpc("notas_lanchas",{}).catch(()=>{ notasP=null; return []; })).then(notas=>{
-    (notas||[]).forEach(n=>{ const w=app.querySelector(`.c-rw[data-rate="${n.lancha}"]`); if(!w || !n.total) return;
+  /* nota do card (Rodrigo 2026-11-04): junta as avaliações feitas no site com as do Google lançadas para a lancha */
+  gTodasP ||= fetch(SB_URL+"/rest/v1/avaliacoes_google?select=lancha,autor,nota,texto,data&order=data.desc.nullslast&limit=1000", {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+  (notasP ||= revRpc("notas_lanchas",{}).catch(()=>{ notasP=null; return []; })).then(async notas=>{
+    const G=await gTodasP, M=new Map((notas||[]).map(n=>[n.lancha,{...n, soma:(+n.media||0)*(+n.total||0), g:[]}]));
+    G.forEach(x=>{ const n=M.get(x.lancha) || {lancha:x.lancha, total:0, soma:0, g:[]}; n.total=(+n.total||0)+1; n.soma+=x.nota; n.g.push(x); M.set(x.lancha,n); });
+    [...M.values()].forEach(n=>{ if(n.total) n.media=Math.round(n.soma/n.total*10)/10; });
+    [...M.values()].forEach(n=>{ const w=app.querySelector(`.c-rw[data-rate="${n.lancha}"]`); if(!w || !n.total) return;
       const rate=w.querySelector(".c-rate"), rev=w.querySelector(".c-rev"), card=w.closest(".card"), m=numFmt(n.media);
       rate.innerHTML=`<b aria-hidden="true">★</b>${m}<small>(${n.total})</small>`;
       rate.setAttribute("aria-label", t(n.total===1?"siteRevSub1":"siteRevSub",{m, n:n.total}));
       w.hidden=false;
       const fill=()=>{ if(w.dataset.ok) return; w.dataset.ok=1; rev.innerHTML=`<span class="ld">…</span>`;
-        const p=cardRevs.get(n.lancha) || revRpc("avaliacoes_lancha",{l:n.lancha, lim:3}); cardRevs.set(n.lancha,p);
+        const p=cardRevs.get(n.lancha) || revRpc("avaliacoes_lancha",{l:n.lancha, lim:3}).catch(()=>[]).then(l=>[...l, ...n.g.slice(0,3).map(x=>({nota:x.nota, comentario:x.texto, nome:x.autor+" · Google", data:x.data||""}))].sort((x,y)=>(y.data||"").localeCompare(x.data||"")).slice(0,3)); cardRevs.set(n.lancha,p);
         p.then(list=>{ rev.innerHTML=`<strong>${t(n.total===1?"siteRevSub1":"siteRevSub",{m, n:n.total})}</strong>
-          ${list.length?`<ul style="margin-top:8px">${list.map(v=>`<li><span class="st" aria-label="${t("siteRevStars",{n:v.nota})}">${"★".repeat(v.nota)}${"☆".repeat(5-v.nota)}</span>${v.comentario?`<q>${esc(v.comentario)}</q>`:""}<small>${esc(v.nome)} · ${new Date(v.data+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"})}</small></li>`).join("")}</ul>`:""}
-          ${BOATS.find(x=>x.slug===n.lancha)?.siteRevs===false?"":`<span class="all" role="link" tabindex="0">${t("cardRevAll")} ›</span>`}`; })
+          ${list.length?`<ul style="margin-top:8px">${list.map(v=>`<li><span class="st" aria-label="${t("siteRevStars",{n:v.nota})}">${"★".repeat(v.nota)}${"☆".repeat(5-v.nota)}</span>${v.comentario?`<q>${esc(v.comentario)}</q>`:""}<small>${esc(v.nome)}${v.data?" · "+new Date(v.data+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"}):""}</small></li>`).join("")}</ul>`:""}
+          ${BOATS.find(x=>x.slug===n.lancha)?.siteRevs===false && !n.g.length?"":`<span class="all" role="link" tabindex="0">${t("cardRevAll")} ›</span>`}`; })
           .catch(()=>{ delete w.dataset.ok; rev.innerHTML=""; }); };
       w.onmouseenter=fill; w.onfocusin=fill;
       /* dentro do card (que é um link): tocar no selo abre/fecha os comentários sem abrir a lancha */
       w.onclick=e=>{ e.preventDefault(); e.stopPropagation();
-        if(e.target.closest(".all")){ location.href=card.getAttribute("href").split("?")[0]+"#site-revs"; return; }
+        if(e.target.closest(".all")){ location.href=card.getAttribute("href").split("?")[0]+(n.total>n.g.length?"#site-revs":"#g-revs"); return; }
         if(e.target.closest(".c-rate")){ fill(); const o=!w.classList.contains("open"); app.querySelectorAll(".c-rw.open").forEach(x=>{ x.classList.remove("open"); x.querySelector(".c-rate").setAttribute("aria-expanded","false"); }); w.classList.toggle("open",o); rate.setAttribute("aria-expanded",String(o)); } };
       w.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); e.target.click(); } if(e.key==="Escape"){ w.classList.remove("open"); rate.focus(); } };
     });
