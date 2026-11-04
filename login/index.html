@@ -5140,7 +5140,7 @@ function openUser(uid, msg=""){
   const up=document.getElementById("uparc"); if(up) up.onclick = async () => { const sim=!!up.dataset.sim; if(!confirm(t(sim?"parcQ":"parcVendQ"))) return; busy(true);
     try{ await RPC("definir_parceiro",{uid, sim}); toast(t("parcChOk")); await loadVendIds(); await afterUser(uid); }catch(e){ busy(false); toast(e.status===404?t("parcSql"):errMsg(e)); } };
   const uv=document.getElementById("uvend"); if(uv) uv.onclick = async () => { busy(true);
-    try{ await RPC("cadastrar_vendedor",{uid, teto:10}); toast(t("userSaved")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } };
+    try{ await RPC("cadastrar_vendedor",{uid, teto:3}); toast(t("userSaved")); await afterUser(uid); }catch(e){ busy(false); toast(errMsg(e)); } };
   const ua=document.getElementById("uadd");
   if(ua){ const tp=document.getElementById("uat"), ls=document.getElementById("ual"), sync=()=>{ ls.hidden = tp.value==="free"; }; tp.onchange=sync; sync();
     ua.onsubmit = async e => { e.preventDefault(); const k=tp.value, l=k==="free"?null:ls.value;
