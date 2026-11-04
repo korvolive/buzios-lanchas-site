@@ -2815,7 +2815,7 @@ const VMAX = 9999; /* nenhum valor de passeio passa de R$ 9.999 (Rodrigo 2026-10
 const PCT_MAX = {get pf(){ return S.cur==="miss-bardot" ? 20 : 10; } /* feriados até 10%, a Miss Bardot até 20% (Rodrigo 2026-10-28, era 15%) */, ds:15}; /* Réveillon e Carnaval: revMax() */ /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
 /* épocas do dono (Rodrigo 2026-11-01): média e alta são opcionais. Desligada = mesmo valor da época anterior (média = baixa, alta = média).
    Ligada quando o valor já é diferente; ligada sem mudar valor fica guardada neste aparelho */
-const EP_PREV = {media:"baixa", alta:"media"};
+const EP_PREV = {media:"baixa"}; /* só a média é opcional: baixa e alta toda lancha tem (Rodrigo 2026-11-04) */
 /* card de valores do administrador (Rodrigo 2026-11-04): média igual à baixa (ou alta igual à média) já aparece desligada, sozinha */
 const aepOn = k => { if(!EP_PREV[k]) return true; if(S.aEp?.l===S.cur && S.aEp[k]!=null) return S.aEp[k];
   return !["", ...(S.no7?[]:["7"])].every(h=>{ const a=+S.neto?.[k+h]?.neto||0, b=+S.neto?.[EP_PREV[k]+h]?.neto||0; return a>0 && a===b; }); };
@@ -5856,7 +5856,7 @@ function bindMainRest(){
     prs.onclick=async()=>{ const lancha=S.cur, body={lancha, atualizado_em:new Date().toISOString()}, rows=[];
       aepCopy();
       /* média não pode ser menor que a baixa, nem a alta menor que a média (Rodrigo 2026-11-04) */
-      for(const k of ["media","alta"]) for(const h of ["","7"]){ const x=app.querySelector(`[data-nt="${k+h}"]`), a=prNetOf(k+h), b=prNetOf(EP_PREV[k]+h); if(x && a>0 && b>0 && a<b) return prBack(x, t("prOrder")); }
+      for(const [k,pk] of [["media","baixa"],["alta","media"]]) for(const h of ["","7"]){ const x=app.querySelector(`[data-nt="${k+h}"]`), a=prNetOf(k+h), b=prNetOf(pk+h); if(x && a>0 && b>0 && a<b) return prBack(x, t("prOrder")); }
       for(const x of app.querySelectorAll("[data-nt]")){ const c=x.dataset.nt, n=prNetOf(c), br=prBrOf(c);
         if(x.value.trim()!=="" && !(n>0)){ return prBack(x, t("prBad")); }
         if(n>VMAX || prTotVal(c)>VMAX){ return prBack(x, t("valMax")); }
