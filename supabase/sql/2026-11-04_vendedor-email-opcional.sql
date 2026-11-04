@@ -1,6 +1,5 @@
--- 2026-11-04 (Rodrigo): o vendedor manda o link de pagamento ao cliente pelo WhatsApp dele.
--- 1) No "Cliente fechou: enviar para aprovar", o e-mail do cliente fica opcional.
--- 2) Depois que o Rodrigo aprova, o vendedor pega o link do cadastro com o Pix do sinal (CNPJ da Búzios) e o prazo.
+-- 2026-11-04 (Rodrigo): tudo pelo WhatsApp. No "Cliente fechou: enviar para aprovar" do vendedor, o e-mail do cliente fica opcional.
+-- Depois da aprovação, o número oficial manda sozinho o aviso passeio_registrado (link do cadastro que já confirma o WhatsApp).
 
 create or replace function public.lancar_pedido_vendedor(p_lancha text, p_data date, p_horario text, p_pessoas integer, p_nome text, p_tel text, p_email text, p_lang text, p_embarque text default null::text, p_valor numeric default null::numeric, p_comissao numeric default null::numeric, p_hora_ini text default null::text, p_hora_fim text default null::text, p_obs text default null::text)
  returns bigint
@@ -42,30 +41,5 @@ begin
     returning id into nid;
   return nid;
 end $function$;
-
--- link do cadastro/pagamento de uma venda aprovada, só para o vendedor dela
-create or replace function public.link_pagamento_vendedor(bid bigint)
-returns jsonb language plpgsql security definer set search_path to 'public' as $$
-declare b public.bloqueios%rowtype; n public.anotacoes%rowtype; c uuid;
-begin
-  if not exists (select 1 from public.vendas_manuais m where m.bloqueio_id = bid and m.vendedor = auth.uid()) then
-    raise exception 'Essa venda não é sua'; end if;
-  select * into b from public.bloqueios where id = bid;
-  select * into n from public.anotacoes where bloqueio_id = bid;
-  if b.id is null then raise exception 'Passeio não encontrado'; end if;
-  if n.cliente_conta is not null then return jsonb_build_object('conta', true); end if;
-  if coalesce(n.sinal, 0) > 0 then return jsonb_build_object('pago', true); end if;
-  select codigo into c from public.convites where bloqueio_id = bid;
-  if c is null then
-    insert into public.convites (nome, telefone, tel_dig, bloqueio_id) values (nullif(btrim(n.cliente), ''), nullif(btrim(n.telefone), ''), public._dig(n.telefone), bid)
-      on conflict (bloqueio_id) do nothing;
-    select codigo into c from public.convites where bloqueio_id = bid;
-  end if;
-  return jsonb_build_object('c', c, 'ate', b.criado_em + public._prazo_pre(b.data),
-    'sinal', coalesce(nullif(n.sinal_combinado, 0), round(coalesce(n.valor, 0) / 2)),
-    'cliente', n.cliente, 'telefone', n.telefone);
-end $$;
-revoke all on function public.link_pagamento_vendedor(bigint) from public, anon;
-grant execute on function public.link_pagamento_vendedor(bigint) to authenticated;
 
 select 'ok' as vendedor_manda_link;
