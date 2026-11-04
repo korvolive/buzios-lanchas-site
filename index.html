@@ -2585,7 +2585,15 @@ let dbDone = false, dbWait = false, dbAdded = 0;
 const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
   .then(r=>r.ok ? r.json() : Promise.reject(r.status))
   .then(rows=>rows.forEach(r=>{ const d=r.dados||{};
-    if(BOATS.some(b=>b.slug===r.slug) || (d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
+    const tr0 = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, cb=BOATS.find(b=>b.slug===r.slug);
+    /* lancha do código (Miss Bardot, Midas...): o que foi editado no app vale por cima do código; fotos, vídeo e avaliações continuam do código (Rodrigo 2026-11-04: todas no mesmo padrão) */
+    if(cb){ if(!d.capacidade || (d.cidade||"buzios")!==CIDADE) return; const e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[], antes=JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding]);
+      cb.db=true; cb.name=r.nome||cb.name; cb.feet=+d.pes||cb.feet; cb.capacity=d.capacidade;
+      cb.tagline=tr0(d.frase,"pt")||cb.tagline; cb.description=tr0(d.descricao,"pt")||cb.description;
+      cb.i18n=Object.fromEntries(["en","es"].map(l=>[l,{...(cb.i18n?.[l]||{}), tagline:tr0(d.frase,l)||cb.i18n?.[l]?.tagline, description:tr0(d.descricao,l)||cb.i18n?.[l]?.description}]));
+      cb.boarding = e4.length||e7.length ? {4:e4.length?e4:e7, 7:e7.length?e7:e4} : null;
+      if(antes!==JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding])) dbAdded++; return; }
+    if((d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
     dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true,
       feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
@@ -2596,7 +2604,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
   .catch(()=>{})
   .then(()=>ocultas).then(list=>{ if(list && hideBoats(list)) dbAdded++; })
   .finally(()=>{ dbDone=true; window.dbBoatsDone=true;
-    if(CID_DOMINIO){ if(!BOATS.length){ location.replace("https://www.lanchaembuzios.com.br"+pathFor(lang, null)); return; } document.documentElement.style.visibility = ""; } if(dbWait || (dbAdded && (!route.slug || HIDDEN.has(route.slug)))){ const y=scrollY; render(dbWait); if(!dbWait) scrollTo(0,y); } });
+    if(CID_DOMINIO){ if(!BOATS.length){ location.replace("https://www.lanchaembuzios.com.br"+pathFor(lang, null)); return; } document.documentElement.style.visibility = ""; } if(dbWait || (dbAdded && (!route.slug || HIDDEN.has(route.slug) || BOATS.some(b=>b.slug===route.slug && b.db)))){ const y=scrollY; render(dbWait); if(!dbWait) scrollTo(0,y); } });
 applyStatic();
 render();
 loadVend();
