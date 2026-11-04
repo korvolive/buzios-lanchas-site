@@ -2626,6 +2626,7 @@ function avTaken(rows, d){ const s=new Set(), W={manha:[600,840], tarde:[840,108
   return s; }
 /* busca rápida: quais lanchas estão livres numa data (para não fechar com o cliente à toa) */
 function avHTML(){
+  if(!S.admin) return ""; /* dono e vendedor: a busca de lancha livre fica só na área do vendedor ("Vender"), tudo num lugar (Rodrigo 2026-11-04) */
   const boats=S.boats.filter(b=>b.ativa!==false && !isRO(b.slug) && cidOk(b.slug) && !boatRow(b.slug)?.oculta && !boatRow(b.slug)?.dados?.exemplo /* fora do site e lancha de exemplo não entram (Rodrigo 2026-10-25) */); if(isRO() || boats.length<2) return "";
   let list="";
   if(S.avD && S.avRows==null) list=`<small class="muted">${t("avLoading")}</small>`;
