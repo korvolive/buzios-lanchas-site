@@ -899,7 +899,7 @@ const PHRASES = {
   "Wi-Fi Starlink":["Starlink Wi-Fi","Wi-Fi Starlink"],
   "Banheiro":["Bathroom","Baño"],
   "Geladeira":["Fridge","Refrigerador"],
-  "Stand up paddle":["Stand up paddle","Stand up paddle"],
+  "Stand up":["Stand up","Stand up"],
   "Churrasqueira":["Barbecue grill","Parrilla"],
   "Serviço de churrasqueiro":["Grill service","Servicio de parrillero"],
   "Cooler":["Cooler","Hielera"],
@@ -1590,7 +1590,7 @@ function loadAgenda(){
 }
 /* Itens de cada lancha: o dono marca no app /login/ (tabela itens). Os básicos ficam sempre; os opcionais
    vêm do banco na ordem de ITEM_ORDER. Se o banco não responder, vale a lista "included" do código. */
-const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama","Televisão","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up paddle","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
+const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama","Televisão","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
 /* Avaliações dos clientes (feitas no app depois do passeio): nota média e os últimos comentários da lancha.
    Se o banco não responder, a seção simplesmente não aparece. */
 const siteRevs = new Map(), revsOk = new Map();
@@ -1744,7 +1744,7 @@ const ITEM_ICON = {
   "Toldo com sombra":IC('<path d="M2 11a10 6 0 0 1 20 0zM12 11v10M12 5V3"/>'),
   "Solário na popa":IC('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
   "Tapete flutuante":IC('<rect x="3" y="7" width="18" height="7" rx="2"/><path d="M2 18c2 1.5 4 1.5 5 0s3-1.5 5 0 4 1.5 5 0 3-1.5 5 0"/>'),
-  "Stand up paddle":IC('<path d="M12 2c2 3 2 17 0 20-2-3-2-17 0-20zM18 3l-3 12M14 17l1.5-2.5L17 15"/>'),
+  "Stand up":IC('<path d="M12 2c2 3 2 17 0 20-2-3-2-17 0-20zM18 3l-3 12M14 17l1.5-2.5L17 15"/>'),
   "Máscaras de mergulho":IC('<path d="M3 8h18v6a2 2 0 0 1-2 2h-3l-2-2h-4l-2 2H5a2 2 0 0 1-2-2zM20 8V4"/>'),
   "Ducha de água doce":IC('<path d="M4 21V6a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1M8 10h8a4 4 0 0 0-8 0M10 14v1M12 14v2M14 14v1M11 18v1M13 18v1"/>'),
   "Macarrão flutuante":IC('<path d="M5 20 19 6M3.5 18.5l2 2M18 4l2 2M7.5 13.5l3 3M11.5 9.5l3 3"/>'),
