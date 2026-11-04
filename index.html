@@ -108,6 +108,8 @@ html.is-app #hdr-login{display:none}
 .selo-pop ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
 @media (max-width:600px){.b-title.sel{flex-direction:column;align-items:center}.selo-pop{left:50%;transform:translateX(-50%)}}
 .hero{background:linear-gradient(180deg,rgba(6,30,45,.6),rgba(6,30,45,.8)),url(/img/rt-08.jpg) center/cover var(--sea-deep);color:#eaf4f6;position:relative;overflow:hidden}
+.cid-out .hero-rev{display:none} /* as avaliações do Google são da Miss Bardot, em Búzios */
+.cid-out .hero{background:radial-gradient(1100px 480px at 85% -10%,rgba(201,154,46,.22),transparent 60%),linear-gradient(170deg,#06394a 0%,#0b5c73 70%,#0e6f86 100%)} /* Cabo Frio e Arraial: sem a foto da Ilha Feia (é de Búzios) até chegar a foto da cidade */
 .hero-rev{display:inline-flex;gap:8px;align-items:center;justify-self:start;white-space:nowrap;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 14px;color:#fff;font-size:14px;font-weight:600;text-decoration:none}
 .hero-rev span{color:#f5c542;letter-spacing:1px}
 .hero .wrap{padding-block:56px 72px;display:grid;gap:28px;position:relative;z-index:1}
@@ -603,7 +605,7 @@ h1,h2,h3{line-height:1.15}
 <div class="gamodal" id="gamodal" hidden role="dialog" aria-modal="true"><div class="gabox"><img src="/apple-touch-icon.png" alt=""><h3 data-t="getAppT"></h3><p data-t="getAppSub"></p><p class="gahw" id="gahow"></p><button type="button" class="btn" id="gainst" hidden data-t="getAppBtn"></button><button type="button" class="gaclose" id="gaclose" data-t="getAppClose"></button></div></div>
 <footer>
   <div class="wrap">
-    <div><h3>Búzios Lanchas</h3><p data-t="footAbout"></p></div>
+    <div><h3 id="foot-brand">Búzios Lanchas</h3><p data-t="footAbout"></p></div>
     <div><h3 data-t="footBook"></h3><p><a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></p></div>
     <div><h3 data-t="footApp"></h3><p><a href="#" class="get-app" data-t="getApp"></a></p></div>
     <div><h3 data-t="footTeam"></h3><p><a href="/login/" target="_blank" rel="noopener" data-t="footLogin"></a></p><p><a href="/login/?criar=1" target="_blank" rel="noopener" data-t="footSignup"></a></p></div>
@@ -1129,7 +1131,7 @@ const SHARE_ICO='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" str
 document.addEventListener("click", async e=>{ const btn=e.target.closest("[data-share]"); if(!btn) return; e.preventDefault();
   const b={name:btn.closest(".b-title")?.querySelector("h1")?.textContent||""}, u=new URL(SITE+location.pathname);
   if(ME?.codigo) u.searchParams.set("v", ME.codigo);
-  const url=u.toString(), title=b?.name ? `${b.name} · Búzios Lanchas` : document.title;
+  const url=u.toString(), title=b?.name ? `${b.name} · ${BRAND}` : document.title;
   if(navigator.share){ try{ await navigator.share({title, text:t("shareTxt",{boat:b?.name||""}), url}); return; }catch(err){ if(err?.name==="AbortError") return; } }
   const lb=btn.querySelector("span"), old=lb.textContent;
   try{ await navigator.clipboard.writeText(url); lb.textContent=t("shareOk"); }catch(err){ prompt(t("shareL"), url); }
@@ -1143,8 +1145,39 @@ Object.assign(UI.es, {cdTag:"🎁 ¿Paseaste en esta lancha? Gana un cupón de d
 Object.assign(UI.pt, {cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
 Object.assign(UI.en, {cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
 Object.assign(UI.es, {cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
+/* ============ cidades (Rodrigo 2026-11-03): o mesmo site para Búzios, Cabo Frio e Arraial do Cabo ============
+   A cidade vem do domínio (cabofriolanchas.com.br, lanchasemarraial.com.br); o resto é Búzios.
+   Para conferir antes de lançar: ?cidade=cabo-frio ou ?cidade=arraial (fica guardado na aba; ?cidade=buzios volta).
+   A empresa continua sendo a Búzios Lanchas (CNPJ, garantia, WhatsApp); muda a marca do topo, os textos e as lanchas. */
+const CIDADES_SITE = {
+  "cabo-frio": {nome:"Cabo Frio", marca:"Cabo Frio Lanchas", site:"https://www.cabofriolanchas.com.br", lat:-22.8794, lng:-42.0189, coord:["22°53′S · 42°01′O","22°53′S · 42°01′W","22°53′S · 42°01′O"],
+    praias:["Ilha do Japonês, Praia do Forte, Ilha do Papagaio e Praia das Conchas","Ilha do Japonês, Praia do Forte, Ilha do Papagaio and Praia das Conchas","Ilha do Japonês, Praia do Forte, Ilha do Papagaio y Praia das Conchas"]},
+  "arraial": {nome:"Arraial do Cabo", marca:"Arraial do Cabo Lanchas", site:"https://www.lanchasemarraial.com.br", lat:-22.9661, lng:-42.0278, coord:["22°58′S · 42°02′O","22°58′S · 42°02′W","22°58′S · 42°02′O"],
+    praias:["Prainhas do Pontal do Atalaia, Praia do Forno, Gruta Azul e Fenda de Nossa Senhora","Prainhas do Pontal do Atalaia, Praia do Forno, the Blue Grotto and Fenda de Nossa Senhora","Prainhas do Pontal do Atalaia, Praia do Forno, la Gruta Azul y Fenda de Nossa Senhora"]}
+};
+const CIDADE = (()=>{ const h=location.hostname; if(/cabofrio/.test(h)) return "cabo-frio"; if(/arraial/.test(h)) return "arraial";
+  try{ const q=new URLSearchParams(location.search).get("cidade"); if(q) sessionStorage.setItem("cidade", q); const c=sessionStorage.getItem("cidade"); if(CIDADES_SITE[c]) return c; }catch(e){}
+  return "buzios"; })();
+const CID = CIDADES_SITE[CIDADE] || null; /* null = Búzios */
+const BRAND = CID ? CID.marca : "Búzios Lanchas";
+if(CID){
+  document.documentElement.classList.add("cid-out");
+  const N=CID.nome, B=CID.marca, i={pt:0,en:1,es:2};
+  ["pt","en","es"].forEach(l=>{ const u=UI[l], k=i[l];
+    /* textos da cidade: troca Búzios pelo nome da cidade (a empresa "Búzios Lanchas" fica) */
+    ["logoCity","coords","seoTitle","seoDesc","seoBoatTitle","seoBoatTail","heroTitle","routeTitle","routeMapAria","aboutTitle","about1","trust1p","stRouteT","whenTitle","whenWa","shareTxt"].forEach(x=>{ if(typeof u[x]==="string") u[x]=u[x].replace(/Armação dos Búzios/g,N).replace(/Búzios(?! Lanchas)/g,N); });
+    ["seoTitle","seoBoatTitle"].forEach(x=>{ if(typeof u[x]==="string") u[x]=u[x].replace("| Búzios Lanchas","| "+B); });
+    u.coords=[`${CID.coord[0]} — Lanchas em ${N}`,`${CID.coord[1]} — Boats in ${N}`,`${CID.coord[2]} — Lanchas en ${N}`][k];
+    u.logoAria=[`${B}, início`,`${B}, home`,`${B}, inicio`][k];
+    u.footAbout=[`Passeios privativos de lancha em ${N}, RJ. ${B} é uma marca da Búzios Lanchas.`,`Private boat tours in ${N}, RJ, Brazil. ${B} is a Búzios Lanchas brand.`,`Paseos privados en lancha en ${N}, RJ, Brasil. ${B} es una marca de Búzios Lanchas.`][k];
+    u.stRouteP=[`${CID.praias[0]}. Você escolhe onde parar e quanto tempo ficar.`,`${CID.praias[1]}. You choose where to stop and for how long.`,`${CID.praias[2]}. Tú eliges dónde parar y cuánto quedarte.`][k];
+    u.about2=[`O passeio de lancha em ${N} passa pelas praias e ilhas mais bonitas da região, como ${CID.praias[0]}, e você escolhe quanto tempo ficar em cada uma. Há passeios de 4 e de 7 horas.`,`A boat tour in ${N} passes the most beautiful beaches and islands of the area, such as ${CID.praias[1]}, and you choose how long to stay at each one. There are 4 and 7 hour tours.`,`El paseo en lancha en ${N} pasa por las playas e islas más lindas de la región, como ${CID.praias[2]}, y tú eliges cuánto tiempo quedarte en cada una. Hay paseos de 4 y de 7 horas.`][k];
+    /* mensagens de WhatsApp dizem de qual site o cliente veio */
+    for(const x in u) if(typeof u[x]==="string") u[x]=u[x].replace(/site Búzios Lanchas/g,"site "+B).replace(/Búzios Lanchas website/g,B+" website").replace(/sitio de Búzios Lanchas/g,"sitio de "+B);
+  });
+}
 const LANGS = ["pt","en","es"];
-const SITE = "https://www.lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
+const SITE = CID ? CID.site : "https://www.lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
 /* endereços: / e /lancha/miss-bardot/ em português; /en/... e /es/... nas outras línguas */
 const pathFor = (l,slug) => (l==="pt"?"/":`/${l}/`) + (slug?`lancha/${slug}/`:"");
 const route = (()=>{
@@ -2122,6 +2155,7 @@ function applyStatic(){
   document.documentElement.lang = t("locale");
   document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
   document.getElementById("logo").setAttribute("aria-label",t("logoAria"));
+  if(CID){ const lg=document.querySelector("#logo > span"); if(lg?.firstChild) lg.firstChild.nodeValue=BRAND; const fb=document.getElementById("foot-brand"); if(fb) fb.textContent=BRAND; } /* marca da cidade no topo e no rodapé */
   document.getElementById("hdr-wa").href = topWa();
   /* entrar ou criar conta: botão com nome, para o cliente achar fácil (Rodrigo 2026-10-25); abre em outra aba */
   const hdrLogged = (()=>{ try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } })();
@@ -2161,23 +2195,23 @@ function seo(b){
   const title = b ? t("seoBoatTitle",{name:b.name, feet:ftx(b)??"", cap:b.capacity}) : t("seoTitle");
   const desc = b ? `${bt(b,"tagline")} ${t("seoBoatTail")}` : t("seoDesc");
   const url = SITE + pathFor(lang, b?.slug);
-  const img = absImg((b?.photos||BOATS[0].photos)[0]);
+  const img = absImg((b?.photos||BOATS[0]?.photos||["/img/rt-08.jpg"])[0]);
   /* iPhone no Safari: "Adicionar à Tela de Início" usa o título da página como nome do app */
   document.title = IS_IOS_TAB ? "Buzios Lanchas" : title;
   headTag('meta[name="description"]',"meta",{name:"description",content:desc});
   headTag('link[rel="canonical"]',"link",{rel:"canonical",href:url});
   [["pt-BR","pt"],["en","en"],["es","es"],["x-default","pt"]].forEach(([hl,l])=>
     headTag(`link[rel="alternate"][hreflang="${hl}"]`,"link",{rel:"alternate",hreflang:hl,href:SITE+pathFor(l,b?.slug)}));
-  const og = {"og:type":"website","og:site_name":"Búzios Lanchas","og:title":title,"og:description":desc,"og:url":url,"og:image":img,
+  const og = {"og:type":"website","og:site_name":BRAND,"og:title":title,"og:description":desc,"og:url":url,"og:image":img,
     "og:locale":{pt:"pt_BR",en:"en_US",es:"es_ES"}[lang]};
   for(const k in og) headTag(`meta[property="${k}"]`,"meta",{property:k,content:og[k]});
   headTag('meta[name="twitter:card"]',"meta",{name:"twitter:card",content:"summary_large_image"});
   const all = BOATS.flatMap(x=>Object.values(x.prices||{})).filter(Number.isFinite);
-  const biz = {"@type":"LocalBusiness","@id":SITE+"/#empresa","name":"Búzios Lanchas","url":SITE+"/","telephone":"+55-21-99927-2550",
-    "image":absImg(BOATS[0].photos[0]),"description":t("seoDesc"),
-    "address":{"@type":"PostalAddress","addressLocality":"Armação dos Búzios","addressRegion":"RJ","addressCountry":"BR"},
-    "geo":{"@type":"GeoCoordinates","latitude":-22.7469,"longitude":-41.8817},
-    "areaServed":{"@type":"City","name":"Armação dos Búzios"},"sameAs":["https://www.instagram.com/missbardotbuzios/","https://share.google/zCKATgMtWBwdo8w2F"],
+  const biz = {"@type":"LocalBusiness","@id":SITE+"/#empresa","name":BRAND,...(CID?{"parentOrganization":{"@type":"Organization","name":"Búzios Lanchas","url":"https://www.lanchaembuzios.com.br/"}}:{}),"url":SITE+"/","telephone":"+55-21-99927-2550",
+    "image":absImg((BOATS[0]?.photos||["/img/rt-08.jpg"])[0]),"description":t("seoDesc"),
+    "address":{"@type":"PostalAddress","addressLocality":CID?CID.nome:"Armação dos Búzios","addressRegion":"RJ","addressCountry":"BR"},
+    "geo":{"@type":"GeoCoordinates","latitude":CID?CID.lat:-22.7469,"longitude":CID?CID.lng:-41.8817},
+    "areaServed":{"@type":"City","name":CID?CID.nome:"Armação dos Búzios"},"sameAs":["https://www.instagram.com/missbardotbuzios/","https://share.google/zCKATgMtWBwdo8w2F"],
     ...(all.length&&PRECOS_PUBLICOS?{"priceRange":`R$ ${Math.min(...all)} - R$ ${Math.max(...all)}`}:{})};
   const graph = [biz];
   if(!b) graph.push({"@type":"FAQPage","mainEntity":UI[lang].faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))});
@@ -2189,7 +2223,7 @@ function seo(b){
       ...(ps.length&&!b.example&&PRECOS_PUBLICOS?{"offers":{"@type":"AggregateOffer","priceCurrency":"BRL","lowPrice":Math.min(...ps),"highPrice":Math.max(...ps),"offerCount":ps.length,"seller":{"@id":SITE+"/#empresa"}}}:{})};
     if(pr.aggregateRating || pr.offers) graph.push(pr);
     graph.push({"@type":"BreadcrumbList","itemListElement":[
-      {"@type":"ListItem","position":1,"name":"Búzios Lanchas","item":SITE+pathFor(lang)},
+      {"@type":"ListItem","position":1,"name":BRAND,"item":SITE+pathFor(lang)},
       {"@type":"ListItem","position":2,"name":b.name,"item":url}]});
   }
   headTag('script#ld-json',"script",{id:"ld-json",type:"application/ld+json"}).textContent = JSON.stringify({"@context":"https://schema.org","@graph":graph});
@@ -2273,7 +2307,7 @@ function home(){
     </div></div>
     ${waCta()}
   </div></section>
-  ${routeSection()}
+  ${CID ? "" : routeSection() /* roteiro e mapa só de Búzios por enquanto; as outras cidades ganham o delas depois */}
   <section class="section" id="como" style="padding-top:0"><div class="wrap">
     <div class="section-head"><div><span class="eyebrow">${t("howEyebrow")}</span><h2>${t("howTitle")}</h2></div></div>
     <div class="how" style="--step:'${t("step")} '">
@@ -2512,6 +2546,7 @@ const PUB = document.documentElement.dataset.pub;
 /* lanchas ocultas pelo administrador no app (lanchas.oculta): saem da vitrine e do sitemap.
    A lista data-hide vem da última publicação; o banco confere de novo a cada visita.
    A página da lancha oculta continua publicada: quando o administrador mostra de novo, ela volta na hora (Rodrigo 2026-10-25). */
+if(CID) BOATS.splice(0); /* as lanchas do código são todas de Búzios */
 const HIDDEN = new Map(); /* slug → {b: lancha, i: posição na vitrine} */
 let HIDE_LIST = [];
 const KEEP = window.PRERENDER ? route.slug : null; /* na publicação, a página da própria lancha oculta também é gerada */
@@ -2525,8 +2560,7 @@ const ocultas = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug&oc
   .then(r=>r.ok ? r.json() : null).then(r=>r && r.map(x=>x.slug)).catch(()=>null);
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
-/* cidade do site pelo domínio (Rodrigo 2026-11-03): cada cidade mostra só as lanchas dela; lancha sem cidade = Búzios */
-const CIDADE = /cabofrio/.test(location.hostname) ? "cabo-frio" : /arraial/.test(location.hostname) ? "arraial" : "buzios";
+/* cada cidade mostra só as lanchas dela (CIDADE, lá em cima); lancha sem cidade = Búzios */
 const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
   .then(r=>r.ok ? r.json() : Promise.reject(r.status))
   .then(rows=>rows.forEach(r=>{ const d=r.dados||{};

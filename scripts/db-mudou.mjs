@@ -6,7 +6,7 @@ import crypto from "node:crypto";
 import { lanchasDB } from "./lanchas-db.mjs";
 
 const SOURCE = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
-const SITE = SOURCE.match(/const SITE = "([^"]+)"/)[1];
+const SITE = SOURCE.match(/const SITE = (?:CID \? CID\.site : )?"([^"]+)"/)[1];
 const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOURCE.match(/const AGENDA_KEY = "([^"]+)"/)[1];
 
 let mudou = false;
