@@ -4980,7 +4980,7 @@ async function loadComPend(){ if(!S.admin) return;
   if(!S.vpix) await db("vendedores?select=user_id,pix_tipo,pix_chave,indicado_por,indicacao_pct").catch(e=>e.status===400 ? db("vendedores?select=user_id,pix_tipo,pix_chave") : Promise.reject(e)).then(r=>{ S.vpix=Object.fromEntries(r.map(v=>[v.user_id,v])); }, ()=>{});
   await RPC("verif_vendedores",{}).then(v=>{ S.vver=Object.fromEntries((v||[]).map(x=>[x.user_id,x])); }, ()=>{ S.vver=null; });
   S.comPend = r.filter(p=>p.preco_cliente-p.preco_base>0 && feitos[p.bloqueio_id]!==false && reqEnded(p) && comAinda(p));
-  await loadVM(); const vmF = S.vm ? Object.values(S.vm).filter(m=>!m.paga && +m.comissao>0 && reqEnded(m)) : [];
+  await loadVM(); const vmF = S.vm ? Object.values(S.vm).filter(vmAinda).filter(m=>+m.comissao>0 && reqEnded(m)) : [];
   const fv = vmF.length ? Object.fromEntries((await db(`realizados?select=bloqueio_id,aconteceu&bloqueio_id=in.(${vmF.map(m=>m.bloqueio_id).join(",")})`).catch(()=>[])).map(x=>[x.bloqueio_id,x.aconteceu])) : {};
   S.vmPend = vmF.filter(m=>fv[m.bloqueio_id]!==false);
   if(!S.users) S.users = await RPC("lista_usuarios",{}).catch(()=>null); }
@@ -5039,11 +5039,14 @@ const shareOf = p => { const v=S.vpix?.[p.vendedor]; return v?.indicado_por && +
 const comAinda = p => !p.comissao_paga || (shareOf(p)>0 && !p.indicacao_paga);
 /* comissão só com WhatsApp e e-mail confirmados (Rodrigo 2026-10-27); sem o SQL ainda, não trava */
 const verFalta = uid => { const v=S.vver?.[uid]; return !v || (v.email_ok && v.wa_ok) ? "" : t(!v.email_ok&&!v.wa_ok?"cmpFBoth":!v.email_ok?"cmpFEm":"cmpFWa"); };
+/* venda do app ainda tem algo a pagar: a parte do vendedor ou a do sócio que o convidou (Rodrigo 2026-11-04) */
+const vmAinda = m => !m.paga || (+m.parte>0 && !m.indicacao_paga);
 function comPendHTML(){ const L0=S.comPend||[]; if(!L0.length && !S.vmPend?.length) return "";
-  const rows=[]; (S.vmPend||[]).forEach(m=>rows.push({p:{id:m.bloqueio_id, lancha:m.lancha, data:m.data}, uid:m.vendedor, v:+m.comissao, vm:1})); L0.forEach(p=>{ const sh=shareOf(p); if(!p.comissao_paga) rows.push({p, uid:p.vendedor, v:p.preco_cliente-p.preco_base-sh}); if(sh>0 && !p.indicacao_paga) rows.push({p, uid:S.vpix[p.vendedor].indicado_por, v:sh, ind:1}); });
+  const rows=[]; (S.vmPend||[]).forEach(m=>{ if(!m.paga) rows.push({p:{id:m.bloqueio_id, lancha:m.lancha, data:m.data}, uid:m.vendedor, v:+m.comissao-(+m.parte||0), vm:1});
+    if(+m.parte>0 && !m.indicacao_paga) rows.push({p:{id:-m.bloqueio_id, lancha:m.lancha, data:m.data, vendedor:m.vendedor}, uid:m.indicado_por, v:+m.parte, ind:1, vm:2}); }); L0.forEach(p=>{ const sh=shareOf(p); if(!p.comissao_paga) rows.push({p, uid:p.vendedor, v:p.preco_cliente-p.preco_base-sh}); if(sh>0 && !p.indicacao_paga) rows.push({p, uid:S.vpix[p.vendedor].indicado_por, v:sh, ind:1}); });
   return `<div class="card"><h2>💰 ${t("cmpT",{n:rows.length})}</h2><p class="muted" style="margin-top:0">${t("cmpSub")}</p><div class="ulist">${rows.map(({p,uid,v:val,ind,vm})=>{ const v=S.vpix?.[uid], nm=vendName({vendedor:uid}), fl=vm ? "" : verFalta(uid);
-    return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(uid,nm,"face")}<span><strong>${esc(nm)} · ${brl(val)}</strong><br><small class="muted">${vm?esc(t("vmTrip"))+" · ":""}${ind?esc(t("cmpInd",{m:vendName(p)}))+" · ":""}${esc(boatName(p.lancha))} · ${fmtLong(p.data)}${v?.pix_chave?` · 🔑 ${esc(pixShow(v.pix_tipo,v.pix_chave))}`:""}</small>${fl?`<br><small class="msg err" style="display:inline-block;margin:4px 0 0;padding:2px 8px">⚠️ ${t("cmpFalta",{o:fl})}</small>`:""}</span></span>
-      ${fl ? "" : `<span class="reqbtns" style="margin:0">${vm ? `${v?.pix_chave ? `<button type="button" class="btn sec" data-pxk="${esc(v.pix_chave)}">${t("pxCopyKey")}</button>` : ""}<button type="button" class="btn sec" data-vmp="${p.id}">${t("vlPay")}</button>` : !ind && !shareOf(p) && S.asVend?.has(uid) && !p.comissao_comprovante ? `<button type="button" class="btn" data-cas="${p.id}">💳 ${t("vlPayAs")}</button>` : v?.pix_chave ? `<button type="button" class="btn sec" data-pxk="${esc(v.pix_chave)}">${t("pxCopyKey")}</button>` : ""}${vm ? "" : `<button type="button" class="btn sec" ${ind?"data-ipg":"data-cpg"}="${p.id}" data-on="1">${t("vlPay")}</button>`}</span>`}</div>`; }).join("")}</div></div>`; }
+    return `<div class="trow" style="flex-wrap:wrap;gap:6px"><span class="who" style="flex:1;min-width:0">${face(uid,nm,"face")}<span><strong>${esc(nm)} · ${brl(val)}</strong><br><small class="muted">${vm===1?esc(t("vmTrip"))+" · ":""}${ind?esc(t("cmpInd",{m:vendName(p)}))+" · ":""}${esc(boatName(p.lancha))} · ${fmtLong(p.data)}${v?.pix_chave?` · 🔑 ${esc(pixShow(v.pix_tipo,v.pix_chave))}`:""}</small>${fl?`<br><small class="msg err" style="display:inline-block;margin:4px 0 0;padding:2px 8px">⚠️ ${t("cmpFalta",{o:fl})}</small>`:""}</span></span>
+      ${fl ? "" : `<span class="reqbtns" style="margin:0">${vm===1 ? `${v?.pix_chave ? `<button type="button" class="btn sec" data-pxk="${esc(v.pix_chave)}">${t("pxCopyKey")}</button>` : ""}<button type="button" class="btn sec" data-vmp="${p.id}">${t("vlPay")}</button>` : !ind && !shareOf(p) && S.asVend?.has(uid) && !p.comissao_comprovante ? `<button type="button" class="btn" data-cas="${p.id}">💳 ${t("vlPayAs")}</button>` : v?.pix_chave ? `<button type="button" class="btn sec" data-pxk="${esc(v.pix_chave)}">${t("pxCopyKey")}</button>` : ""}${vm===1 ? "" : `<button type="button" class="btn sec" ${ind?"data-ipg":"data-cpg"}="${p.id}" data-on="1">${t("vlPay")}</button>`}</span>`}</div>`; }).join("")}</div></div>`; }
 function usuariosHTML(){
   if(S.users===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlUsers")}</p></div>`;
   if(!S.users) return `<p class="loading">…</p>`;
@@ -5809,7 +5812,7 @@ function bindMain(){
 const comPed = id => (S.reqs||[]).find(r=>r.id===id) || (S.comPend||[]).find(r=>r.id===id);
 function bindComBtns(){
   app.querySelectorAll("[data-vmp]").forEach(x=>x.onclick=async()=>{ x.disabled=true; const bid=+x.dataset.vmp;
-    try{ await RPC("venda_manual_paga",{bid, sim:true}); S.vmPend=(S.vmPend||[]).filter(m=>m.bloqueio_id!==bid); if(S.vm?.[bid]) S.vm[bid].paga=new Date().toISOString(); toast(t("vlPaidOk")); mainView(); }
+    try{ await RPC("venda_manual_paga",{bid, sim:true}); if(S.vm?.[bid]) S.vm[bid].paga=new Date().toISOString(); (S.vmPend||[]).forEach(m=>{ if(m.bloqueio_id===bid) m.paga=new Date().toISOString(); }); S.vmPend=(S.vmPend||[]).filter(vmAinda); toast(t("vlPaidOk")); mainView(); }
     catch(e){ x.disabled=false; toast(e.status===404 ? t("vmSql") : errMsg(e)); } });
   app.querySelectorAll("[data-cas]").forEach(x=>x.onclick=async()=>{ const p=comPed(+x.dataset.cas); if(!p) return;
     if(!confirm(t("vlPayAsQ",{v:brl(p.preco_cliente-p.preco_base-shareOf(p)), n:vendName(p)}))) return; x.disabled=true;
@@ -5822,7 +5825,8 @@ function bindComBtns(){
     catch(e){ x.disabled=false; toast(/depois_do_passeio/.test(e.message||"") ? t("vlNotYet") : /falta_confirmar/.test(e.message||"") ? t("vlFalta") : errMsg(e)); } });
   /* parte de quem convidou o sócio: paga por Pix e marcada aqui */
   app.querySelectorAll("[data-ipg]").forEach(x=>x.onclick=async()=>{ x.disabled=true;
-    try{ const id=+x.dataset.ipg; await RPC("pagar_indicacao",{pid:id, sim:true}); (S.comPend||[]).forEach(r=>{ if(r.id===id) r.indicacao_paga=new Date().toISOString(); }); S.comPend=(S.comPend||[]).filter(comAinda); toast(t("vlPaidOk")); mainView(); }
+    try{ const id=+x.dataset.ipg; await RPC("pagar_indicacao",{pid:id, sim:true}); (S.comPend||[]).forEach(r=>{ if(r.id===id) r.indicacao_paga=new Date().toISOString(); }); S.comPend=(S.comPend||[]).filter(comAinda);
+      if(id<0){ (S.vmPend||[]).forEach(m=>{ if(m.bloqueio_id===-id) m.indicacao_paga=new Date().toISOString(); }); if(S.vm?.[-id]) S.vm[-id].indicacao_paga=new Date().toISOString(); S.vmPend=(S.vmPend||[]).filter(vmAinda); } /* venda do app: id negativo */ toast(t("vlPaidOk")); mainView(); }
     catch(e){ x.disabled=false; toast(/depois_do_passeio/.test(e.message||"") ? t("vlNotYet") : /falta_confirmar/.test(e.message||"") ? t("vlFalta") : errMsg(e)); } });
   app.querySelectorAll("[data-pxk]").forEach(x=>x.onclick=()=>copyTxt(x.dataset.pxk));
 }
