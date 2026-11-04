@@ -1617,7 +1617,7 @@ function payBox(p){
 /* sinal já calculado em 50% do valor da data (editável) e, pequeno, o valor do dia, o neto do dono e a comissão (Rodrigo, 2026-10-22).
    O pagamento só aparece para o cliente depois que o administrador toca em Liberar pagamento. */
 function pedCalc(p){
-  const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=p.horario==="dia", nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
+  const r=(S.avPr||[]).find(x=>x.lancha===p.lancha), o=valOpts(r), h7=hSlot(p.horario), nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===p.lancha).map(x=>[x.chave,x.neto]));
   /* preço vem da tabela; o que o site mandou só vale se bater com ela (revisão de segurança 2026-10-24: dá para mexer no navegador) */
   /* parceiro, 1º passeio (Rodrigo 2026-11-02): o cliente paga a tabela e os 3% do parceiro (desc_parceiro) saem da parte da Búzios; pb = tabela antes disso */
   const dp=+p.desc_parceiro||0, pb=+p.preco_base ? +p.preco_base+dp : 0;
@@ -2623,7 +2623,9 @@ const espOf = (iso, esp) => (Array.isArray(esp) ? esp : []).find(e=>e && e.de<=i
 /* nenhuma lancha fica sem valor (Rodrigo 2026-11-04): média vazia = baixa, alta vazia = média; as colunas antigas de pico e réveillon recebem a alta (o Réveillon e Carnaval sai da alta + % do dono, 0% = preço da alta) */
 const precoCheio = o => { for(const h of ["", "7"]){ if(!(("baixa"+h) in o)) continue; const g=k=>+o[k+h]>0 ? o[k+h] : null;
     if(!g("media")) o["media"+h]=g("baixa"); if(!g("alta")) o["alta"+h]=g("media"); if(g("alta")){ o["pico"+h]=o["alta"+h]; o["reveillon"+h]=o["alta"+h]; } } return o; };
-const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, hh=h7?"7":"", v=+p?.[base+hh] || (base==="alta" ? +p?.["media"+hh] || +p?.["baixa"+hh] : base==="media" ? +p?.["baixa"+hh] : 0);
+/* Réveillon noturno (31/12, 22h às 5h, Rodrigo 2026-11-04): h7 = "noite" vale o de 7 horas + R$ 1.000, em todas as lanchas (igual ao banco) */
+const NOITE_EXTRA = 1000, hSlot = h => h==="noite" ? "noite" : h==="dia";
+const valorNaData = (p, iso, h7, o={}) => { if(h7==="noite"){ const v=valorNaData(p, iso, true, o); return v ? v+NOITE_EXTRA : null; } const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, hh=h7?"7":"", v=+p?.[base+hh] || (base==="alta" ? +p?.["media"+hh] || +p?.["baixa"+hh] : base==="media" ? +p?.["baixa"+hh] : 0);
   if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? +(s7 ? o.pr7 ?? o.pr : o.pr)||0 : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ const rx = k==="reveillon" ? +(s7 ? o.rx7 : o.rx)||0 : 0; /* Búzios a mais só no Réveillon e Carnaval (Rodrigo 2026-10-28) */ return (pc ? Math.round(v*(1+pc/100)/10)*10 : v) + rx; };
 /* opções da lancha (linha da tabela precos): feriados tirados, os % de feriado e de Réveillon e o desconto de segunda a quinta */
 const valOpts = r => ({off:r?.sem_feriados||[], pf:r?.pct_feriado, pr:r?.pct_reveillon, pr7:r?.pct_reveillon7, ds:r?.desc_semana, esp:r?.especiais, rx:r?.bz_reveillon, rx7:r?.bz_reveillon7});
@@ -4230,7 +4232,7 @@ function editReq(p, cons){ /* cons = consulta pelo WhatsApp (tabela consultas): 
       if(cv==="" || !(+cv>=0 && +cv<=mx+0.005) || (cvr!=="" && nn>0 && !(+cvr>=0 && +cvr<=nn*mx/100+0.5))){ sheet.querySelector("#ed-m").innerHTML=`<p class="msg err">${t("edComBad",{m:+mx.toFixed(2)})}</p>`; return; } if(+cv!==+cp.toFixed(2)) cp=+cv; /* veio do R$: mantém o valor exato */
       if(!d || d<todayISO() || !h){ sheet.querySelector("#ed-m").innerHTML=`<p class="msg err">${t("needDateSlot")}</p>`; return; }
       const vn=+String(vv).replace(",","."); if(cons && String(vv).trim()!=="" && !(vn>0 && vn<=VMAX)){ sheet.querySelector("#ed-m").innerHTML=`<p class="msg err">${t(vn>VMAX?"valMax":"prBad")}</p>`; return; }
-      const r=(S.avPr||[]).find(x=>x.lancha===lb), base = r ? valorNaData(r, d, h==="dia", valOpts(r)) : null;
+      const r=(S.avPr||[]).find(x=>x.lancha===lb), base = r ? valorNaData(r, d, hSlot(h), valOpts(r)) : null;
       const body={lancha:lb, data:d, horario:h, pessoas:+sheet.querySelector("#ed-p").value, embarque:sheet.querySelector("#ed-e").value||null, ...(cons?{}:{atualizado_em:new Date().toISOString()})};
       const ovr = cp!==cp0 || p.comissao_pct!=null, k=ovr ? pedCalc(tmp()) : null, nb = ovr && k?.tot ? k.bfull : base;
       if(ovr) body.comissao_pct = cp;
@@ -5447,12 +5449,12 @@ function vAvHTML(){
   else if(S.vavD){ const k=seasonBase(S.vavD), own=S.own||[], teto=vTeto(), pcOf=c=>vPc(pctKey(c,S.vavD)), pc=pcOf(k);
     const rows=S.all.filter(b=>b.ativa!==false && !b.oculta && vendCid(b) && !b.dados?.exemplo /* lancha de exemplo do cadastro: não se vende */ && (!S.vavN || capOf(b)>=S.vavN)).filter(b=>!(S.vavMnt||[]).some(x=>x.lancha===b.slug)) /* em manutenção: não aparece para o vendedor */.map(b=>{ const s=avTaken(S.vavRows.filter(r=>r.lancha===b.slug), S.vavD), m=s.has("manha"), tt=s.has("tarde"), full=s.has("dia")||(m&&tt);
       return {b, st: full?2:m||tt?1:0, lab: full ? t("avBusy") : m||tt ? t(m?"avOnlyT":"avOnlyM",{h:t("hours_"+(m?"tarde":"manha"))}) : t("avFree")}; }).sort((x,y)=>x.st-y.st || x.b.nome.localeCompare(y.b.nome));
-    const val=(b,h7)=>{ const r=(S.vavPr||[]).find(x=>x.lancha===b.slug), kb=kOf(S.vavPr,b.slug,S.vavD), base=valorNaData(r,S.vavD,h7,valOpts(r)), h=h7?"7h":"4h"; if(!base) return `${h} ${t("prOnReq")}`;
+    const val=(b,h7)=>{ const r=(S.vavPr||[]).find(x=>x.lancha===b.slug), kb=kOf(S.vavPr,b.slug,S.vavD), base=valorNaData(r,S.vavD,h7,valOpts(r)), h=h7==="noite"?"🌙 "+t("c_noite"):h7?"7h":"4h"; if(!base) return `${h} ${t("prOnReq")}`;
       const cli=own.includes(b.slug) ? base : Math.round(base*(1+pcOf(kb)/100)/10)*10; /* na própria lancha o dono-vendedor não soma comissão */
       const bs = S.vParte>0 && S.vParte<1 ? Math.round(cli-(cli-base)*S.vParte) : base; /* sócio: a diferença é só a parte dele */
       return `${h} ${brl(bs)} → <b>${brl(cli)}</b>`; };
     list=`<p class="avseason">${t("vavSeason",{s:t("pr_"+k).split(" · ")[0], m:t("prm_"+k), p:String(pc).replace(".",",")})}${ferOf(S.vavD)&&k!=="reveillon"?" "+t("ferNote",{f:t("fer_"+ferOf(S.vavD))}):""} ${S.vend?.parceiro || !VEND_EDITA?"":`<button type="button" class="link" id="vpgo">${t("vavAdj")}</button>`}</p>
-      <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}${vCityTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b)} · ${val(r.b,1)}</small>`:""}</span>${r.st<2 && !S.vend?.parceiro?`<button type="button" class="vsell" data-vsell="${esc(r.b.slug)}">💼 ${t("vsBtn")} ${esc(r.b.nome)}</button>`:""}</li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
+      <ul class="avl">${rows.map(r=>`<li><span class="avr"><b>${esc(r.b.nome)}${capTag(r.b)}${vCityTag(r.b)}</b><span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>${r.st<2?`<small class="avp vp">${val(r.b)} · ${val(r.b,1)}${S.vavD.slice(5)==="12-31"?" · "+val(r.b,"noite"):""}</small>`:""}</span>${r.st<2 && !S.vend?.parceiro?`<button type="button" class="vsell" data-vsell="${esc(r.b.slug)}">💼 ${t("vsBtn")} ${esc(r.b.nome)}</button>`:""}</li>`).join("")}</ul><small class="muted">${t("vavHow")}</small>`; }
   return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" max="${maxISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
 let vavSeq=0;
@@ -5540,7 +5542,7 @@ function openVendSell(slug){
   const busy=new Set((S.vavRows||[]).filter(x=>x.lancha===slug && !x.revenda).map(x=>x.horario));
   const slots=["manha","tarde","dia"].filter(h=> h==="dia" ? !busy.size : !busy.has(h) && !busy.has("dia"));
   const pct=own ? 0 : vPc(pctKey(kOf(S.vavPr,slug,d),d)), teto=own ? 0 : vTeto();
-  const base=h=>(r && valorNaData(r,d,h==="dia",valOpts(r)))||0;
+  const base=h=>(r && valorNaData(r,d,hSlot(h),valOpts(r)))||0;
   let h=slots[0], com=null;
   const mx=()=>own ? 0 : vManCap(base(h)), dflt=()=>Math.round(base(h)*pct/100/10)*10;
   const cap=capOf(b)||16;
@@ -6831,7 +6833,7 @@ function renderTrip(){
     const chk=async()=>{ const my=++seq, d=(ddi?.value||"55")+(tel.value||"").replace(/\D/g,""); S.vdcBase=null; if(d.length<10){ vdc.hidden=true; return; }
       const v=(await RPC("vendedor_do_cliente",{tel:d}).catch(()=>[]))?.[0]; if(my!==seq) return; if(!v){ vdc.hidden=true; return; }
       if(!S.avPr) S.avPr=await db("precos?select=*").catch(()=>[]);
-      const pr=(S.avPr||[]).find(x=>x.lancha===nboat), base = pr && nd && nslot && nslot!=="noite" ? valorNaData(pr, nd, nslot==="dia", valOpts(pr)) : 0;
+      const pr=(S.avPr||[]).find(x=>x.lancha===nboat), base = pr && nd && nslot ? valorNaData(pr, nd, hSlot(nslot), valOpts(pr)) : 0;
       const cli = base ? (v.parceiro && v.primeiro ? base : Math.round(base*(1+(+v.pct||0)/100)/10)*10) : 0; /* parceiro: 1º passeio paga a tabela (Rodrigo 2026-11-02) */ if(my!==seq) return;
       S.vdcBase = base || null;
       vdc.innerHTML = `💼 ${t(v.parceiro?"vdcP":"vdcV",{n:esc(v.parceiro?(v.empresa||v.nome):v.nome)})}<br><small>${cli ? t("vdcVal",{v:brl(cli),c:brl(v.parceiro && v.primeiro ? Math.round(base*(+v.pct||3)/100) : cli-base)}) : t("vdcNoVal")}</small>${cli?` <button type="button" class="link" id="vdcuse">${t("vdcUse")}</button>`:""}`;
