@@ -6465,7 +6465,11 @@ async function planSave(el){
 const sheet=document.getElementById("sheet"), sheetBg=document.getElementById("sheet-bg");
 let sheetDay = null;
 function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheetBg.classList.add("on"); }
-function closeDay(){ tripEd=false; sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; pedidoFor=null; consultaFor=null; chatClosed(); eqClosed(); }
+/* campos que salvam sozinhos: fechar a janela ou sair do app tira o foco antes, e o "change" salva (Rodrigo 2026-11-04) */
+const flushFocus = () => { const ae=document.activeElement; if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) ae.blur(); };
+document.addEventListener("visibilitychange", () => { if(document.hidden) flushFocus(); });
+window.addEventListener("pagehide", flushFocus);
+function closeDay(){ flushFocus(); tripEd=false; sheet.classList.remove("on"); sheetBg.classList.remove("on"); sheetDay=null; noteFor=null; tripRow=null; tripNew=false; pedidoFor=null; consultaFor=null; chatClosed(); eqClosed(); }
 /* reserva já existente com algo alterado: ao fechar, pergunta Salvar / Sair sem salvar / Continuar (Rodrigo 2026-10-31). Criando uma nova não pergunta */
 let tripEd=false;
 function tripLeave(go){ const nf=document.getElementById("nform");
