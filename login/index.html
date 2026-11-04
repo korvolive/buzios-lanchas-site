@@ -3570,7 +3570,7 @@ const pushOk = () => "serviceWorker" in navigator && "PushManager" in window && 
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const b64bytes = b => { const s=atob(b.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((b.length+3)%4)); return Uint8Array.from(s,c=>c.charCodeAt(0)); };
 /* o operador avisa o administrador do pedido ou da alteração que acabou de fazer (Rodrigo 2026-10-30); o servidor só aceita o que ele mesmo criou */
-function opAvisa(tipo, id){ if(!(+id>0)) return; fresh().then(tok=>fetch(FN,{method:"POST", keepalive:true, headers:{apikey:KEY, authorization:"Bearer "+tok, "content-type":"application/json"}, body:JSON.stringify({tipo, id:+id})})).catch(()=>{}); }
+function opAvisa(tipo, id){ if(!(+id>0) || (S.admin && !S.papel)) return; /* o próprio Rodrigo lançando não avisa a ele mesmo */ fresh().then(tok=>fetch(FN,{method:"POST", keepalive:true, headers:{apikey:KEY, authorization:"Bearer "+tok, "content-type":"application/json"}, body:JSON.stringify({tipo, id:+id})})).catch(()=>{}); }
 async function callFn(body){
   if(S.papel && body) throw Object.assign(new Error("ro"), {status:403}); /* operador/auditor não disparam avisos nem e-mails */
   const tok = await fresh();
@@ -4070,7 +4070,7 @@ function pedidosHTML(){
   const L={pendente:[], aprovado:[], hist:[], canc:[]}; S.reqs.filter(p=>cidOk(p.lancha)).forEach(p=>L[kind(p)].push(p)); (S.reqTrips||[]).filter(r=>cidOk(r.lancha)).forEach(r=>L[kindT(r)].push(r));
   L.pendente.sort(cmpRows); L.aprovado.sort(cmpRows); L.hist.sort((x,z)=>cmpRows(z,x)); L.canc.sort((x,z)=>cmpRows(z,x));
   const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
-  return `${S.papel==="operador"?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${altHTML()}${condAlertHTML()}${lembHTML()}${credAdmHTML()}${grevHTML()}${avHojeHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}${cidFilterHTML()}<p class="how muted">${t("reqSub")}</p>
+  return `${S.papel==="operador"||(S.admin&&!S.papel)?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${altHTML()}${condAlertHTML()}${lembHTML()}${credAdmHTML()}${grevHTML()}${avHojeHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}${cidFilterHTML()}<p class="how muted">${t("reqSub")}</p>
     <div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${!L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
       : f!=="pendente" ? byBoat(L[f]).map(([l,rs])=>`<details class="rqboat" data-rqb="${f}|${esc(l)}"${S.rqOpen?.has(f+"|"+l)?" open":""}><summary class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}<i class="chev" aria-hidden="true">›</i></span></summary><div class="trips">${rs.map(card).join("")}</div></details>`).join("") /* cada lancha abre e fecha com um toque */
