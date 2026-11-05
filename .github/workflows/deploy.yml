@@ -24,7 +24,16 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
+          python3 -m pip install --quiet --break-system-packages pillow
+          python3 scripts/webp.py
           node scripts/prerender.mjs
+      - name: Compressão e cache no servidor (.htaccess, sem apagar o que já existe lá)
+        if: github.event_name != 'schedule' || steps.db.outputs.mudou == 'true'
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: bash scripts/htaccess.sh
       - name: Enviar arquivos por FTP
         if: github.event_name != 'schedule' || steps.db.outputs.mudou == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

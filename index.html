@@ -43,7 +43,7 @@ fbq('init','1672637870274530');fbq('track','PageView');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fontes sem travar a primeira pintura no celular: o texto aparece na fonte do aparelho e troca quando a fonte chega -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[href="/img/rt-08.jpg"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/rt-08.jpg";hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
+<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[href="/img/rt-08.webp"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/rt-08.webp";hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
 <style>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
 :root{
@@ -129,7 +129,7 @@ html.is-app #hdr-login{display:none}
 .selo-pop strong{display:block;font:800 15px/1.3 var(--display);margin-bottom:6px}
 .selo-pop ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
 @media (max-width:600px){.b-title.sel{flex-direction:column;align-items:center}.selo-pop{left:50%;transform:translateX(-50%)}}
-.hero{background:linear-gradient(180deg,rgba(6,30,45,.6),rgba(6,30,45,.8)),url(/img/rt-08.jpg) center/cover var(--sea-deep);color:#eaf4f6;position:relative;overflow:hidden}
+.hero{background:linear-gradient(180deg,rgba(6,30,45,.6),rgba(6,30,45,.8)),url(/img/rt-08.webp) center/cover var(--sea-deep);color:#eaf4f6;position:relative;overflow:hidden}
 .cid-out .hero-rev{display:none} /* as avaliações do Google são da Miss Bardot, em Búzios */
 .cid-out .hero{background:radial-gradient(1100px 480px at 85% -10%,rgba(201,154,46,.22),transparent 60%),linear-gradient(170deg,#06394a 0%,#0b5c73 70%,#0e6f86 100%)} /* Cabo Frio e Arraial: sem a foto da Ilha Feia (é de Búzios) até chegar a foto da cidade */
 .hero-rev{display:inline-flex;gap:8px;align-items:center;justify-self:start;white-space:nowrap;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 14px;color:#fff;font-size:14px;font-weight:600;text-decoration:none}
@@ -858,7 +858,7 @@ const ROUTE_CREDITS = [
 const stopPhoto = i => ROUTE_PHOTOS.includes(i+1) ? `/img/rt-${String(i+1).padStart(2,"0")}` : null;
 /* mapa ilustrativo (vista aérea, img/mapa-buzios.jpg): um ponto numerado por parada; no computador, passar o mouse mostra a foto no canto */
 function routeMap(){
-  return `<div class="rt-stage"><img class="rt-map" draggable="false" src="/img/mapa-buzios.jpg" width="1600" height="1080" loading="lazy" alt="${t("routeMapAria")}">
+  return `<div class="rt-stage"><img class="rt-map" draggable="false" src="/img/mapa-buzios.webp" width="1600" height="1080" loading="lazy" alt="${t("routeMapAria")}">
     ${ROUTE.map(([nm,x,y],i)=>`<button type="button" class="pin" data-stop="${i}" style="left:${x}%;top:${y}%" aria-label="${i+1}. ${nm}">${i+1}</button>`).join("")}</div>
     <div class="rt-zoom"><button type="button" data-z="1" aria-label="${t("zoomIn")}">+</button><button type="button" data-z="-1" aria-label="${t("zoomOut")}">−</button></div>
     <div class="rt-peek" aria-hidden="true"><img alt=""><b></b></div>`;
@@ -2387,7 +2387,7 @@ function home(){
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           <span class="c-rw" data-rate="${b.slug}" hidden><span class="c-rate" role="button" tabindex="0" aria-expanded="false"></span><span class="c-rev"></span></span>
-          ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],1)}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0])} 1000w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
+          ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
             <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
@@ -2414,13 +2414,15 @@ function home(){
 
 /* ============ galeria ============ */
 /* foto: nome em /img (ex.: mb-01) ou foto enviada pelo app (URL do Supabase, sem .jpg); "-t" é a miniatura */
-const imgSrc = (p,thumb) => (/^https?:/.test(p[0]) ? p[0] : "/img/"+p[0]) + (thumb?"-t":"") + ".jpg";
-const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p);
+/* fotos do site em WebP (2026-11-05, mais leves no celular; scripts/webp.py gera na publicação): thumb 1 = miniatura, "m" = 800 px.
+   jpg=true para prévias de link e Google (absImg), que continuam em JPG. Fotos do banco (https) seguem como estão */
+const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? p[0] + (thumb===1?"-t":"") + ".jpg" : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
+const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
 const altOf = (b,i) => b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`;
 function gallery(b){
   const P=b.photos;
   return `<div class="gallery" data-i="0">
-    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" src="${imgSrc(P[0])}" alt="${altOf(b,0)}">
+    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" src="${imgSrc(P[0],"m")}" srcset="${imgSrc(P[0],"m")} 800w, ${imgSrc(P[0])} 1400w" sizes="(max-width:900px) 100vw, 60vw" fetchpriority="high" alt="${altOf(b,0)}">
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
       <button type="button" class="nav next" id="g-next" aria-label="${t("nextPhoto")}">›</button>
       <span class="count" id="g-count">1 / ${P.length}</span></div>
@@ -2449,7 +2451,7 @@ function bindGallery(b){
   if(!b||!b.photos) return; let i=0; const P=b.photos;
   const mm=document.getElementById("g-main");
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
-    m.src=imgSrc(P[i]); m.alt=altOf(b,i); document.getElementById("g-blur").src=imgSrc(P[i],1);
+    m.srcset=`${imgSrc(P[i],"m")} 800w, ${imgSrc(P[i])} 1400w`; m.src=imgSrc(P[i],"m"); m.alt=altOf(b,i); document.getElementById("g-blur").src=imgSrc(P[i],1);
     document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
     document.querySelectorAll("#g-strip button").forEach((t,k)=>{ if(k===i){t.setAttribute("aria-current","true"); t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});} else t.removeAttribute("aria-current"); }); };
   document.getElementById("g-prev").onclick=()=>show(i-1);
@@ -2665,7 +2667,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
       if(antes!==JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding])) dbAdded++; return; }
     if((d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
-    dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true,
+    dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true, dbNew:true,
       feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
       tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
       i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
@@ -2675,6 +2677,11 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
   .then(()=>ocultas).then(list=>{ if(list && hideBoats(list)) dbAdded++; })
   .finally(()=>{ dbDone=true; window.dbBoatsDone=true;
     if(CID_DOMINIO){ if(!BOATS.length){ location.replace("https://www.lanchaembuzios.com.br"+pathFor(lang, null)); return; } document.documentElement.style.visibility = ""; } if(dbWait || (dbAdded && (!route.slug || HIDDEN.has(route.slug) || BOATS.some(b=>b.slug===route.slug && b.db)))){ const y=scrollY; render(dbWait); if(!dbWait) scrollTo(0,y); } });
+/* dados do banco gravados na publicação (lanchas, valores, fotos): a página já abre igual à versão final e não se redesenha quando o banco responde (mais rápida no celular).
+   O banco continua sendo consultado em toda visita; se algo mudou desde a publicação, a página se atualiza como antes. */
+try{ const s=!window.PRERENDER && !CID && document.getElementById("dbsnap");
+  if(s) JSON.parse(s.textContent).forEach((x,i)=>{ if(!x || HIDE_LIST.includes(x.slug)) return; const b=BOATS.find(y=>y.slug===x.slug);
+    if(b) Object.assign(b,x); else if(x.dbNew) BOATS.splice(Math.min(i,BOATS.length),0,x); }); }catch(e){}
 applyStatic();
 render();
 loadVend();
