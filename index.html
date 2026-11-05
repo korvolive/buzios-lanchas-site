@@ -657,6 +657,7 @@ h1,h2,h3{line-height:1.15}
     <div><h3 data-t="footBook"></h3><p><a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></p></div>
     <div><h3 data-t="footApp"></h3><p><a href="#" class="get-app" data-t="getApp"></a></p></div>
     <div><h3 data-t="footTeam"></h3><p><a href="/login/" target="_blank" rel="noopener" data-t="footLogin"></a></p><p><a href="/login/?criar=1" target="_blank" rel="noopener" data-t="footSignup"></a></p></div>
+    <div id="foot-guias"><h3 data-t="footGuides"></h3><p><a id="fg-roteiro" href="/passeio-de-lancha-em-buzios/" data-t="footGuideRoute"></a></p><p><a id="fg-grupos" href="/lancha-para-grupos-e-aniversarios/" data-t="footGuideGroups"></a></p></div>
     <div><h3 data-t="footFollow"></h3><p><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a></p></div>
   </div>
   <div class="wrap legal">
@@ -1187,6 +1188,11 @@ document.addEventListener("click", async e=>{ const btn=e.target.closest("[data-
 Object.assign(UI.pt, {faqPreco:["Quanto custa alugar uma lancha em Búzios?", "O passeio privativo de 4 horas sai a partir de R$ {a} e o de 7 horas a partir de R$ {b}. O valor é por lancha, para o grupo todo (não é por pessoa), e muda conforme a lancha, a data e a temporada. Marinheiro, combustível, gelo e água mineral já estão inclusos. Para saber o valor da lancha e da data que você quer, consulte pelo WhatsApp: respondemos na hora."]});
 Object.assign(UI.en, {faqPreco:["How much does it cost to rent a boat in Búzios?", "The private 4-hour tour starts at R$ {a} and the 7-hour tour at R$ {b}. The price is per boat, for the whole group (not per person), and varies with the boat, the date and the season. Skipper, fuel, ice and mineral water are included. For the price of the boat and date you want, ask us on WhatsApp: we reply right away."]});
 Object.assign(UI.es, {faqPreco:["¿Cuánto cuesta alquilar una lancha en Búzios?", "El paseo privado de 4 horas sale desde R$ {a} y el de 7 horas desde R$ {b}. El precio es por lancha, para todo el grupo (no por persona), y cambia según la lancha, la fecha y la temporada. Marinero, combustible, hielo y agua mineral ya están incluidos. Para saber el precio de la lancha y la fecha que quieres, consúltanos por WhatsApp: respondemos al instante."]});
+/* guias de roteiro e de grupos (páginas geradas por scripts/paginas.mjs; os endereços aqui precisam ser os mesmos de lá) */
+Object.assign(UI.pt, {footGuides:"Guias", footGuideRoute:"Roteiro e praias do passeio", footGuideGroups:"Lancha para grupos e aniversários"});
+Object.assign(UI.en, {footGuides:"Guides", footGuideRoute:"Boat tour route and beaches", footGuideGroups:"Boat party for groups and birthdays"});
+Object.assign(UI.es, {footGuides:"Guías", footGuideRoute:"Recorrido y playas del paseo", footGuideGroups:"Lancha para grupos y cumpleaños"});
+const GUIAS = {roteiro:{pt:"passeio-de-lancha-em-buzios", en:"boat-tour-in-buzios", es:"paseo-en-lancha-en-buzios"}, grupos:{pt:"lancha-para-grupos-e-aniversarios", en:"boat-party-for-groups-in-buzios", es:"lancha-para-grupos-y-cumpleanos"}};
 Object.assign(UI.pt, {shareB:"Compartilhar", shareL:"Compartilhar o link desta lancha", shareOk:"Link copiado ✓", shareTxt:"Olha essa lancha em Búzios: {boat}"});
 Object.assign(UI.en, {shareB:"Share", shareL:"Share this boat's link", shareOk:"Link copied ✓", shareTxt:"Check out this boat in Búzios: {boat}"});
 Object.assign(UI.es, {shareB:"Compartir", shareL:"Compartir el enlace de esta lancha", shareOk:"Enlace copiado ✓", shareTxt:"Mira esta lancha en Búzios: {boat}"});
@@ -2247,6 +2253,8 @@ function applyStatic(){
   document.getElementById("logo").setAttribute("aria-label",t("logoAria"));
   if(CID){ const lg=document.querySelector("#logo > span"); if(lg?.firstChild) lg.firstChild.nodeValue=BRAND; const fb=document.getElementById("foot-brand"); if(fb) fb.textContent=BRAND; } /* marca da cidade no topo e no rodapé */
   document.getElementById("hdr-wa").href = topWa();
+  /* guias no rodapé: no idioma da página; os sites das outras cidades não têm (o roteiro é o de Búzios) */
+  const fgu=document.getElementById("foot-guias"); if(fgu){ fgu.hidden=!!CID; ["roteiro","grupos"].forEach(g=>{ const a=document.getElementById("fg-"+g); if(a) a.href=(lang==="pt"?"/":`/${lang}/`)+GUIAS[g][lang]+"/"; }); }
   /* entrar ou criar conta: botão com nome, para o cliente achar fácil (Rodrigo 2026-10-25); abre em outra aba */
   const hdrLogged = (()=>{ try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } })();
   const hdrClient = (()=>{ try{ return JSON.parse(localStorage.getItem("conta-tipo"))==="cliente"; }catch(e){ return false; } })();
