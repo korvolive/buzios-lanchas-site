@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { lanchasDB, precosDB } from "./lanchas-db.mjs";
+import { gerarPaginas, guiaPath } from "./paginas.mjs";
 import { chromium } from "playwright";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -74,6 +75,12 @@ const { slugs, dbSlugs, hidden, llm } = await page.evaluate(() => { const all = 
   const llm = { boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null, tag: txt(b.tagline),
       emb: [...new Set(Object.values(b.boarding || {}).flat())] })),
     faq: faqOf("pt").map(([q, a]) => [txt(q), txt(a)]), faqEn: faqOf("en").map(([q, a]) => [txt(q), txt(a)]), route: ROUTE.map(r => r[0]) };
+  /* dados das páginas de roteiro e de grupos (scripts/paginas.mjs) */
+  llm.guias = { piso4: pisoSite("4"), piso7: pisoSite("7"),
+    boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null,
+      tag: Object.fromEntries(["pt", "en", "es"].map(l => [l, txt(b.i18n?.[l]?.tagline ?? b.tagline)])), img: b.photos?.[0] ? imgSrc(b.photos[0], "m") : "" })),
+    route: ROUTE.map((r, i) => ({ name: r[0], desc: Object.fromEntries(["pt", "en", "es"].map(l => [l, UI[l].stops?.[i] || ""])),
+      img: ROUTE_PHOTOS.includes(i + 1) ? `/img/rt-${String(i + 1).padStart(2, "0")}-m.webp` : "", credit: ROUTE_CREDITS[i] || null })) };
   return { slugs: all.map(b => b.slug), dbSlugs: all.filter(b => b.db).map(b => b.slug), hidden: HIDE_LIST, llm }; });
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
 await browser.close();
@@ -86,11 +93,16 @@ for (const p of pages) {
 }
 
 const today = new Date().toISOString().slice(0, 10);
+/* páginas de roteiro e de grupos/aniversários em pt, en e es */
+const guias = gerarPaginas(ROOT, SITE, llm.guias);
+const altG = g => [["pt-BR", "pt"], ["en", "en"], ["es", "es"], ["x-default", "pt"]]
+  .map(([hl, l]) => `    <xhtml:link rel="alternate" hreflang="${hl}" href="${SITE}${guiaPath(g, l)}"/>`).join("\n");
 const alt = slug => [["pt-BR", "pt"], ["en", "en"], ["es", "es"], ["x-default", "pt"]]
   .map(([hl, l]) => `    <xhtml:link rel="alternate" hreflang="${hl}" href="${SITE}${pathFor(l, slug)}"/>`).join("\n");
 fs.writeFileSync(path.join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
   pages.filter(p => !hidden.includes(p.slug)).map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${today}</lastmod>\n${alt(p.slug)}\n  </url>`).join("\n") +
+  "\n" + guias.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${today}</lastmod>\n${altG(p.g)}\n  </url>`).join("\n") +
   `\n</urlset>\n`);
 /* llms.txt (2026-11-05): resumo do site em texto simples para ChatGPT, Claude, Perplexity e Gemini citarem a Búzios Lanchas com dados certos.
    Gerado a cada publicação a partir do próprio site, então fica sempre igual ao que está no ar */
@@ -109,6 +121,11 @@ fs.writeFileSync(path.join(ROOT, "llms.txt"), [
   "## Roteiro padrão",
   "",
   llm.route.join(", ") + ". O grupo escolhe como aproveitar: dá para ficar mais tempo em uma praia.",
+  "",
+  "## Guias",
+  "",
+  `- [Passeio de lancha em Búzios: roteiro e praias](${SITE}${guiaPath("roteiro", "pt")}) · [Boat tour in Búzios](${SITE}${guiaPath("roteiro", "en")}) · [Paseo en lancha en Búzios](${SITE}${guiaPath("roteiro", "es")})`,
+  `- [Lancha para grupos e aniversários](${SITE}${guiaPath("grupos", "pt")}) · [Boat party for groups](${SITE}${guiaPath("grupos", "en")}) · [Lancha para grupos y cumpleaños](${SITE}${guiaPath("grupos", "es")})`,
   "",
   "## Perguntas frequentes",
   "",
