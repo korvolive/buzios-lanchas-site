@@ -739,15 +739,15 @@ const BOATS = [
       ["lz-03","Solário na popa","center 55%"],
       ["lz-04","Cockpit com toldo e posto de comando","center 50%"]
     ],
-    tagline:"Lancha de 26 pés com toldo, solário na popa e banheiro. Ideal para casais, famílias e grupos pequenos.",
-    description:"A Les Zuzu é uma lancha de 26 pés para até 8 pessoas, perfeita para casais, famílias e grupos pequenos curtirem as praias de Búzios com mais privacidade. Tem toldo para sombra e solário na popa para tomar sol entre um mergulho e outro.",
+    tagline:"Lancha de 26 pés com toldo e banheiro. Ideal para casais, famílias e grupos pequenos.",
+    description:"A Les Zuzu é uma lancha de 26 pés para até 8 pessoas, perfeita para casais, famílias e grupos pequenos curtirem as praias de Búzios com mais privacidade. Tem toldo para sombra.",
     i18n:{
-      en:{tagline:"A 26-foot boat with a canopy, stern sun deck and bathroom. Ideal for couples, families and small groups.",
-          description:"Les Zuzu is a 26-foot boat for up to 8 people, perfect for couples, families and small groups to enjoy the beaches of Búzios with more privacy. It has a canopy for shade and a sun pad at the stern for sunbathing between swims."},
-      es:{tagline:"Lancha de 26 pies con toldo, solárium en la popa y baño. Ideal para parejas, familias y grupos pequeños.",
-          description:"La Les Zuzu es una lancha de 26 pies para hasta 8 personas, perfecta para que parejas, familias y grupos pequeños disfruten las playas de Búzios con más privacidad. Tiene toldo para dar sombra y solárium en la popa para tomar sol entre un chapuzón y otro."}
+      en:{tagline:"A 26-foot boat with a canopy and bathroom. Ideal for couples, families and small groups.",
+          description:"Les Zuzu is a 26-foot boat for up to 8 people, perfect for couples, families and small groups to enjoy the beaches of Búzios with more privacy. It has a canopy for shade."},
+      es:{tagline:"Lancha de 26 pies con toldo y baño. Ideal para parejas, familias y grupos pequeños.",
+          description:"La Les Zuzu es una lancha de 26 pies para hasta 8 personas, perfecta para que parejas, familias y grupos pequeños disfruten las playas de Búzios con más privacidad. Tiene toldo para dar sombra."}
     },
-    included:["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Toldo com sombra","Solário na popa","Banheiro","Tapete flutuante","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
+    included:["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Toldo com sombra","Banheiro","Tapete flutuante","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Coletes para todos"],
     prices:{baixa:1700, media:2000, alta:2300, pico:2500, reveillon:2800}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null,
     boarding:{4:["Porto Veleiro (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marina"]}, /* local de embarque por duração, ex.: {4:["Porto Veleiro (Praia dos Ossos)"], 7:[...]}; null = "a combinar" */
@@ -1352,9 +1352,9 @@ const PITCH = {
     en:"A whole day of <strong>sun, green sea and laughter</strong> with the people you love. Music on Bluetooth, <strong>barbecue on board</strong> and the boat taking you to <strong>the most beautiful beaches of Búzios</strong>, at your group's pace.",
     es:"Un día entero de <strong>sol, mar verde y risas</strong> con quien quieres. Música por Bluetooth, <strong>asado a bordo</strong> y la lancha llevándolos a <strong>las playas más lindas de Búzios</strong>, al ritmo del grupo."},
   "les-zuzu":{
-    pt:"<strong>Perfeita para casais e grupos pequenos</strong>: sombra no toldo, <strong>sol no solário da popa</strong> e paradas nas praias de água mais calma. Um passeio <strong>tranquilo e só de vocês</strong>.",
-    en:"<strong>Perfect for couples and small groups</strong>: shade under the canopy, <strong>sun on the stern sundeck</strong> and stops at the calmest beaches. A <strong>quiet tour that's all yours</strong>.",
-    es:"<strong>Perfecta para parejas y grupos pequeños</strong>: sombra en el toldo, <strong>sol en el solárium de popa</strong> y paradas en las playas más tranquilas. Un paseo <strong>sereno y solo de ustedes</strong>."},
+    pt:"<strong>Perfeita para casais e grupos pequenos</strong>: sombra no toldo e paradas nas praias de água mais calma. Um passeio <strong>tranquilo e só de vocês</strong>.",
+    en:"<strong>Perfect for couples and small groups</strong>: shade under the canopy and stops at the calmest beaches. A <strong>quiet tour that's all yours</strong>.",
+    es:"<strong>Perfecta para parejas y grupos pequeños</strong>: sombra en el toldo y paradas en las playas más tranquilas. Un paseo <strong>sereno y solo de ustedes</strong>."},
   "compostela":{
     pt:"Para viver <strong>Búzios a dois ou com poucos amigos</strong>: relaxar no tapete flutuante, <strong>música no Bluetooth</strong> e as praias mais bonitas <strong>sem multidão</strong>, no seu tempo.",
     en:"To enjoy <strong>Búzios as a couple or with a few friends</strong>: relax on the floating mat, <strong>music on Bluetooth</strong> and the most beautiful beaches <strong>without the crowds</strong>, at your own pace.",
@@ -1662,7 +1662,7 @@ function loadAgenda(){
 }
 /* Itens de cada lancha: o dono marca no app /login/ (tabela itens). Os básicos ficam sempre; os opcionais
    vêm do banco na ordem de ITEM_ORDER. Se o banco não responder, vale a lista "included" do código. */
-const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama","Televisão","Toldo com sombra","Solário na popa","Piscina inflável","Tapete flutuante","Stand up","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
+const ITEM_ORDER = ["Gelo filtrado","Banheiro","Ar-condicionado","Som na proa","Gerador de energia","Wi-Fi Starlink","Geladeira","Air fryer","Cabine com cama","Televisão","Toldo com sombra","Piscina inflável","Tapete flutuante","Stand up","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho"];
 /* as avaliações agora são só as do Google (Rodrigo 2026-11-04); o Google não deixa usar avaliação de outro site no JSON-LD, então o Product fica sem nota */
 var prodLD = null; /* var: seo() pode rodar antes desta linha */
 const ratingLD = () => ({});
@@ -1821,7 +1821,6 @@ const ITEM_ICON = {
   "Cabine com cama":IC('<path d="M2 19V7M2 15h20v4M22 15v-3a3 3 0 0 0-3-3h-8v6M6.5 12.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>'),
   "Televisão":IC('<rect x="2.5" y="5" width="19" height="13" rx="2"/><path d="M8 21h8M9 2l3 3 3-3"/>'),
   "Toldo com sombra":IC('<path d="M2 11a10 6 0 0 1 20 0zM12 11v10M12 5V3"/>'),
-  "Solário na popa":IC('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
   "Tapete flutuante":IC('<rect x="3" y="7" width="18" height="7" rx="2"/><path d="M2 18c2 1.5 4 1.5 5 0s3-1.5 5 0 4 1.5 5 0 3-1.5 5 0"/>'),
   "Stand up":IC('<path d="M12 2c2 3 2 17 0 20-2-3-2-17 0-20zM18 3l-3 12M14 17l1.5-2.5L17 15"/>'),
   "Máscaras de mergulho":IC('<path d="M3 8h18v6a2 2 0 0 1-2 2h-3l-2-2h-4l-2 2H5a2 2 0 0 1-2-2zM20 8V4"/>'),
