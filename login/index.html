@@ -5573,7 +5573,7 @@ function openOpPed(vend){
       ${vend ? cliPickHTML() : ""}
       <label class="f"><span>${t("opName")}</span><input type="text" class="in" id="opn" autocapitalize="words" autocomplete="off" placeholder="${t("ph_client")}"></label>
       ${phoneField("op","WhatsApp","")}
-      <label class="f"><span>${t(vend?"opEmail":"opEmailOpt")}</span><input type="email" class="in" id="ope" autocomplete="off" inputmode="email"></label>
+      <label class="f"><span>${t("opEmailOpt")}</span><input type="email" class="in" id="ope" autocomplete="off" inputmode="email"></label>
       <label class="f"><span>${t("opEmb")}</span><input type="text" class="in" id="opm" maxlength="120" autocomplete="off"></label>
       <label class="f"><span>${t("opObs")}</span><textarea class="in" id="opo" rows="2" maxlength="300"></textarea></label>
       <button class="btn" id="opgo">${t("opGo")}</button></form>
@@ -5621,7 +5621,7 @@ function openOpPed(vend){
   document.getElementById("opf").onsubmit = async e => { e.preventDefault();
     const nome=document.getElementById("opn").value.replace(/\s+/g," ").trim(), email=document.getElementById("ope").value.trim(), d=document.getElementById("opd").value, ph=readPhone("op"), bad=[];
     const hi=document.getElementById("ophi").value.slice(0,5), hf=document.getElementById("ophf").value.slice(0,5), nv=k=>{ const x=String(document.getElementById(k).value).replace(",",".").trim(); return x===""?null:+x; };
-    if(!d) bad.push(t("opDateBad")); if(nome.split(" ").length<2) bad.push(t("opNameBad")); if(!ph.ok) bad.push(t("telBad")); if((vend||email) && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) bad.push(t("opEmailBad")); /* Lucas: e-mail opcional, a cobrança vai pelo WhatsApp (Rodrigo 2026-11-05) */
+    if(!d) bad.push(t("opDateBad")); if(nome.split(" ").length<2) bad.push(t("opNameBad")); if(!ph.ok) bad.push(t("telBad")); if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) bad.push(t("opEmailBad")); /* e-mail opcional (Lucas e vendedor): a cobrança vai pelo WhatsApp (Rodrigo 2026-11-05) */
     if(bad.length){ out.innerHTML=`<p class="msg err">${bad.join("<br>")}</p>`; return; }
     const go=document.getElementById("opgo"); go.disabled=true; out.innerHTML="";
     try{ const base={p_lancha:sel.value, p_data:d, p_horario:h, p_pessoas:+pes.value||1, p_nome:nome, p_tel:ph.tel, p_email:email||null, p_lang:cliLang(ph.tel), p_embarque:document.getElementById("opm").value.trim()||null,
