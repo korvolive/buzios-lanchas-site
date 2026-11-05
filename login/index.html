@@ -6762,7 +6762,7 @@ function fmtBR(v){ const d=v.replace(/\D/g,"").slice(0,11); if(d.length<3) retur
 /* capacidade de cada lancha (a mesma do site, campo capacity em /index.html) */
 const CAPACITY = {"miss-bardot":16, "les-zuzu":8, "midas":12, "compostela":6, "bubbles":11};
 /* fotinho redonda de cada lancha: mesma 1ª foto do site (img/<id>-t.jpg) e o mesmo enquadramento */
-const PHOTO = {"miss-bardot":["mb-01","center 70%"], "les-zuzu":["lz-01","center 62%"], "midas":["md-05","center 50%"], "compostela":["cp-01","center 45%"], "bubbles":["bb-01","center 60%"]};
+const PHOTO = {"miss-bardot":["mb-01","center 70%"], "les-zuzu":["lz-01","center 62%"], "midas":["md-05","center 50%"], "compostela":["cp-09","center 50%"], "bubbles":["bb-01","center 60%"]};
 const avatar = (slug,cls="bav") => PHOTO[slug] ? `<img class="${cls}" src="${phUrl(PHOTO[slug][0],1)}" alt="" style="object-position:${PHOTO[slug][1]}">` : "";
 function renderNote(){ tripRow = S.blocks.get(sheetDay)?.get(noteFor); tripNew=false; if(!tripRow){ noteFor=null; return renderSheet(); } renderTrip(); }
 function renderTripRO(){

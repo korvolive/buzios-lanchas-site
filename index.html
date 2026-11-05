@@ -689,21 +689,21 @@ const BOATS = [
     slug:"miss-bardot", name:"Miss Bardot", featured:true, example:false,
     feet:35, capacity:16, crew:"Marinheiro com carteira de mestre",
     video:"video/miss-bardot.mp4", videoCapa:"img/miss-bardot-video.jpg",
-    photos:[
+    photos:[ /* igual à tabela fotos (capa = 1ª), para a página não piscar a foto antiga */
       ["mb-01","A Miss Bardot ancorada em águas verdes","center 70%"],
-      ["mb-02","Proa com som Hertz e mar de Búzios","center 60%"],
-      ["mb-03","Piscina inflável no mar","center 55%"],
-      ["mb-14","Churrasco servido no mar","center 50%"],
       ["mb-04","Navegando a caminho das praias","center 70%"],
-      ["mb-05","Na proa, em águas verdes","center 40%"],
+      ["mb-02","Proa com som Hertz e mar de Búzios","center 60%"],
+      ["mb-12","Fim de tarde com iluminação de LED","center 55%"],
+      ["mb-03","Piscina inflável no mar","center 55%"],
       ["mb-06","Área de popa com mesa e sofá","center 60%"],
       ["mb-07","Salão com cozinha e posto de comando","center 55%"],
-      ["mb-08","Cabine com cama de casal","center 55%"],
       ["mb-09","Sala interna com sofá","center 55%"],
-      ["mb-11","Casal na proa","center 40%"],
-      ["mb-12","Fim de tarde com iluminação de LED","center 55%"],
+      ["mb-08","Cabine com cama de casal","center 55%"],
       ["mb-13","Passeio ao sol","center 30%"],
-      ["mb-10","Banheiro a bordo","center 50%"] /* a foto do banheiro é sempre a última */
+      ["mb-05","Na proa, em águas verdes","center 40%"],
+      ["mb-11","Casal na proa","center 40%"],
+      ["mb-14","Churrasco servido no mar","center 50%"],
+      ["mb-10","Banheiro a bordo","center 50%"]
     ],
     /* avaliações reais do Google (as mesmas do site antigo), no idioma original de cada cliente.
        Pedido do Rodrigo: ficam só na Miss Bardot até o site ter várias avaliações próprias; aí ele pede para tirar */
@@ -733,7 +733,7 @@ const BOATS = [
     slug:"les-zuzu", name:"Les Zuzu", featured:false, example:false,
     feet:26, capacity:8, crew:"Marinheiro habilitado",
     video:null,
-    photos:[
+    photos:[ /* igual à tabela fotos (capa = 1ª), para a página não piscar a foto antiga */
       ["lz-01","A Les Zuzu ancorada em frente à praia","center 62%"],
       ["lz-02","Casco azul e branco, de lado","center 60%"],
       ["lz-03","Solário na popa","center 55%"],
@@ -756,12 +756,14 @@ const BOATS = [
     slug:"midas", name:"Midas", featured:false, example:false,
     feet:32, capacity:12, crew:"Marinheiro habilitado",
     video:null,
-    photos:[
+    photos:[ /* igual à tabela fotos (capa = 1ª), para a página não piscar a foto antiga */
       ["md-05","A Midas ancorada no mar azul","center 50%"],
+      ["https://sqoperylsqcbcjpcrlnp.supabase.co/storage/v1/object/public/lanchas/midas/1793323037113-xrulr","","center 50%"],
       ["md-01","A Midas vista de lado","40% center"],
       ["md-02","Proa com solário","center 60%"],
       ["md-03","Popa com plataforma de banho","center 60%"],
-      ["md-04","Área de popa com mesa e sofá","center 50%"]
+      ["md-04","Área de popa com mesa e sofá","center 50%"],
+      ["https://sqoperylsqcbcjpcrlnp.supabase.co/storage/v1/object/public/lanchas/midas/1793322922641-w0xwe","","center 50%"]
     ],
     tagline:"Lancha de 32 pés com piscina inflável, banheiro e som Bluetooth. Ideal para famílias e grupos de amigos.",
     description:"A Midas é uma lancha de 32 pés para até 12 pessoas, ótima para grupos médios curtirem as praias de Búzios com conforto. Tem banheiro a bordo e piscina inflável para aproveitar o mar.",
@@ -780,8 +782,8 @@ const BOATS = [
     slug:"compostela", name:"Compostela", featured:false, example:false,
     feet:22, capacity:6, crew:"Marinheiro habilitado",
     video:null,
-    photos:[
-      ["cp-01","A Compostela atracada no píer","center 45%"],
+    photos:[ /* igual à tabela fotos (capa = 1ª), para a página não piscar a foto antiga */
+      ["cp-09","A Compostela atracada no píer","center 50%"],
       ["cp-02","Popa com sofá, navegando em Búzios","center 60%"],
       ["cp-03","Proa com solário estofado","center 60%"],
       ["cp-04","Cockpit com toldo e posto de comando","center 55%"],
@@ -807,7 +809,7 @@ const BOATS = [
     slug:"bubbles", name:"Bubbles", featured:false, example:false,
     feet:26, capacity:11, crew:"Marinheiro habilitado",
     video:"video/bubbles.mp4", videoCapa:"img/bubbles-video.jpg",
-    photos:[
+    photos:[ /* igual à tabela fotos (capa = 1ª), para a página não piscar a foto antiga */
       ["bb-01","A Bubbles ancorada ao pôr do sol","center 60%"],
       ["bb-02","Navegando no mar azul de Búzios","center 60%"],
       ["bb-03","Vista de cima, em águas verdes","center 45%"],
@@ -815,6 +817,8 @@ const BOATS = [
       ["bb-05","Cockpit com toldo e mesa na popa","center 55%"],
       ["bb-06","Sofá em U na popa com mesa","center 55%"],
       ["bb-07","Proa com estofados em frente à praia","center 50%"],
+      ["https://sqoperylsqcbcjpcrlnp.supabase.co/storage/v1/object/public/lanchas/bubbles/1793364010817-mxare","","center 50%"],
+      ["https://sqoperylsqcbcjpcrlnp.supabase.co/storage/v1/object/public/lanchas/bubbles/1793364032879-jvfmi","","center 50%"],
       ["bb-08","Banheiro a bordo","center 55%"]
     ],
     tagline:"Lancha de 26 pés com banheiro, piscina inflável e sofá em U na popa. Ideal para famílias e amigos.",
