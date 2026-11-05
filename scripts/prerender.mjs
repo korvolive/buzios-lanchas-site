@@ -7,7 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { lanchasDB } from "./lanchas-db.mjs";
+import { lanchasDB, precosDB } from "./lanchas-db.mjs";
 import { chromium } from "playwright";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -68,7 +68,7 @@ const { slugs, dbSlugs, hidden, llm } = await page.evaluate(() => { const all = 
   const txt = x => String(x || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
   const llm = { boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null, tag: txt(b.tagline),
       emb: [...new Set(Object.values(b.boarding || {}).flat())] })),
-    faq: (UI.pt.faq || []).map(([q, a]) => [txt(q), txt(a)]), faqEn: (UI.en.faq || []).map(([q, a]) => [txt(q), txt(a)]), route: ROUTE.map(r => r[0]) };
+    faq: faqOf("pt").map(([q, a]) => [txt(q), txt(a)]), faqEn: faqOf("en").map(([q, a]) => [txt(q), txt(a)]), route: ROUTE.map(r => r[0]) };
   return { slugs: all.map(b => b.slug), dbSlugs: all.filter(b => b.db).map(b => b.slug), hidden: HIDE_LIST, llm }; });
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
 await browser.close();
@@ -117,5 +117,5 @@ fs.writeFileSync(path.join(ROOT, "llms.txt"), [
 const rows = await lanchasDB(DB, KEY);
 const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
 const ok = rows && ativas === [...dbSlugs].sort().join();
-fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
+fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows + (await precosDB(DB, KEY))).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
 console.log(`${pages.length} páginas, sitemap.xml e llms.txt gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);

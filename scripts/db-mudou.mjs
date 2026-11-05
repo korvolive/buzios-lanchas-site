@@ -3,7 +3,7 @@
    em $GITHUB_OUTPUT. Sem resposta do banco, não publica (tenta de novo na próxima vez). */
 import fs from "node:fs";
 import crypto from "node:crypto";
-import { lanchasDB } from "./lanchas-db.mjs";
+import { lanchasDB, precosDB } from "./lanchas-db.mjs";
 
 const SOURCE = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const SITE = SOURCE.match(/const SITE = (?:CID \? CID\.site : )?"([^"]+)"/)[1];
@@ -12,7 +12,7 @@ const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOU
 let mudou = false;
 const rows = await lanchasDB(DB, KEY);
 if (rows) {
-  const h = crypto.createHash("sha256").update(rows).digest("hex");
+  const h = crypto.createHash("sha256").update(rows + (await precosDB(DB, KEY))).digest("hex");
   const pub = await fetch(`${SITE}/lanchas-db.json?t=${Date.now()}`, { headers: { "cache-control": "no-cache" } })
     .then(r => (r.ok ? r.json() : null)).catch(() => null);
   /* site sem a marca: só publica se já existe alguma lancha cadastrada no app */
