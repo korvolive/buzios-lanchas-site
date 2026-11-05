@@ -566,7 +566,7 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 @media (max-height:1100px){.boat .pricebox{position:static}}
 
 footer{background:var(--sea-deep);color:#cfe3e9}
-footer .selo img{height:40px;width:auto;display:block}
+footer .fsiga{display:flex;align-items:center;gap:28px;flex-wrap:wrap} footer .aselo img{height:40px;width:auto;display:block}
 footer .wrap{padding-block:40px;display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;font-size:14px}
 footer .legal{padding-block:16px 24px;border-top:1px solid rgba(207,227,233,.15);font:400 13px/1.5 var(--mono);letter-spacing:.02em}
 footer .legal p{margin:0;opacity:.7}
@@ -604,6 +604,7 @@ h1,h2,h3{line-height:1.15}
   .how{text-align:center;gap:18px}
   footer .wrap{flex-direction:column;align-items:center;text-align:center;gap:22px}
   footer .legal{font-family:var(--body);text-align:center}
+  footer .fsiga{justify-content:center}
   .crumb{text-align:center}
   .boat{display:flex;flex-direction:column;align-items:stretch;gap:18px;padding-top:12px}
   .boat .pricebox{margin-top:8px}
@@ -658,11 +659,10 @@ h1,h2,h3{line-height:1.15}
     <div><h3 data-t="footApp"></h3><p><a href="#" class="get-app" data-t="getApp"></a></p></div>
     <div><h3 data-t="footTeam"></h3><p><a href="/login/" target="_blank" rel="noopener" data-t="footLogin"></a></p><p><a href="/login/?criar=1" target="_blank" rel="noopener" data-t="footSignup"></a></p></div>
     <div id="foot-guias"><h3 data-t="footGuides"></h3><p><a id="fg-roteiro" href="/passeio-de-lancha-em-buzios/" data-t="footGuideRoute"></a></p><p><a id="fg-grupos" href="/lancha-para-grupos-e-aniversarios/" data-t="footGuideGroups"></a></p></div>
-    <div><h3 data-t="footFollow"></h3><p><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a></p></div>
+    <div><h3 data-t="footFollow"></h3><p class="fsiga"><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a><span class="aselo"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1" alt="Serviços financeiros Asaas" height="40" loading="lazy"></span></p></div> <!-- selo do Asaas (BaaS), links do João Lucas 2026-10-27; ao lado do Instagram (Rodrigo 2026-11-05) -->
   </div>
   <div class="wrap legal">
     <p data-t="legalNote"></p>
-    <p class="selo"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1" alt="Serviços financeiros Asaas" height="40" loading="lazy"></p> <!-- selo do Asaas (BaaS), links do João Lucas 2026-10-27 -->
     <p>© <span id="ano">2026</span> Búzios Lanchas · CNPJ 32.154.099/0001-72 · Armação dos Búzios, RJ</p>
   </div>
 </footer>
