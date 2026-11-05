@@ -1184,6 +1184,9 @@ document.addEventListener("click", async e=>{ const btn=e.target.closest("[data-
   const lb=btn.querySelector("span"), old=lb.textContent;
   try{ await navigator.clipboard.writeText(url); lb.textContent=t("shareOk"); }catch(err){ prompt(t("shareL"), url); }
   setTimeout(()=>{ lb.textContent=old; }, 2200); });
+Object.assign(UI.pt, {faqPreco:["Quanto custa alugar uma lancha em Búzios?", "O passeio privativo de 4 horas sai a partir de R$ {a} e o de 7 horas a partir de R$ {b}. O valor é por lancha, para o grupo todo (não é por pessoa), e muda conforme a lancha, a data e a temporada. Marinheiro, combustível, gelo e água mineral já estão inclusos. Para saber o valor da lancha e da data que você quer, consulte pelo WhatsApp: respondemos na hora."]});
+Object.assign(UI.en, {faqPreco:["How much does it cost to rent a boat in Búzios?", "The private 4-hour tour starts at R$ {a} and the 7-hour tour at R$ {b}. The price is per boat, for the whole group (not per person), and varies with the boat, the date and the season. Skipper, fuel, ice and mineral water are included. For the price of the boat and date you want, ask us on WhatsApp: we reply right away."]});
+Object.assign(UI.es, {faqPreco:["¿Cuánto cuesta alquilar una lancha en Búzios?", "El paseo privado de 4 horas sale desde R$ {a} y el de 7 horas desde R$ {b}. El precio es por lancha, para todo el grupo (no por persona), y cambia según la lancha, la fecha y la temporada. Marinero, combustible, hielo y agua mineral ya están incluidos. Para saber el precio de la lancha y la fecha que quieres, consúltanos por WhatsApp: respondemos al instante."]});
 Object.assign(UI.pt, {shareB:"Compartilhar", shareL:"Compartilhar o link desta lancha", shareOk:"Link copiado ✓", shareTxt:"Olha essa lancha em Búzios: {boat}"});
 Object.assign(UI.en, {shareB:"Share", shareL:"Share this boat's link", shareOk:"Link copied ✓", shareTxt:"Check out this boat in Búzios: {boat}"});
 Object.assign(UI.es, {shareB:"Compartir", shareL:"Compartir el enlace de esta lancha", shareOk:"Enlace copiado ✓", shareTxt:"Mira esta lancha en Búzios: {boat}"});
@@ -1353,6 +1356,14 @@ const PITCH = {
 };
 
 /* ============ helpers ============ */
+/* "Quanto custa?" no FAQ (Rodrigo 2026-11-05: as IAs e o Google citam quem mostra valor; "só a partir de, para não assustar").
+   Sai sozinho da tabela de preços: o menor valor da baixa temporada entre as lanchas do site, arredondado para baixo na centena,
+   então não aponta uma lancha específica (o preço de cada lancha continua sob consulta) */
+const pisoSite = k => { const oc=b=>{ try{ return HIDE_LIST.includes(b.slug); }catch(e){ return false; } }; const v=BOATS.filter(b=>!b.example && !oc(b)).map(b=>+((k==="7"?b.prices7:b.prices)||{}).baixa).filter(x=>x>0);
+  return v.length ? Math.floor(Math.min(...v)/100)*100 : 0; };
+function faqOf(l){ const F=UI[l].faq||UI.pt.faq, a=pisoSite("4"), c=pisoSite("7"); if(!a || !UI[l].faqPreco) return F;
+  const n=v=>v.toLocaleString(l==="en"?"en-US":"pt-BR"), [q,txt]=UI[l].faqPreco;
+  return [F[0], [q, txt.replace("{a}",n(a)).replace("{b}", c ? n(c) : n(a))], ...F.slice(1)]; }
 const brl = v => v==null ? "—" : v.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
 /* moeda do visitante: estrangeiro vê o valor convertido na moeda dele, com 10% a mais
    (regra do Rodrigo: quem não paga em reais/Pix paga por outros meios, com taxas). Cotação: edge function "cambio". */
@@ -2293,7 +2304,7 @@ function seo(b){
     "areaServed":{"@type":"City","name":CID?CID.nome:"Armação dos Búzios"},"sameAs":["https://www.instagram.com/missbardotbuzios/","https://share.google/zCKATgMtWBwdo8w2F"],
     ...(all.length&&PRECOS_PUBLICOS?{"priceRange":`R$ ${Math.min(...all)} - R$ ${Math.max(...all)}`}:{})};
   const graph = [biz];
-  if(!b) graph.push({"@type":"FAQPage","mainEntity":UI[lang].faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))});
+  if(!b) graph.push({"@type":"FAQPage","mainEntity":faqOf(lang).map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))});
   if(b){
     const ps = Object.values(b.prices||{}).filter(Number.isFinite);
     /* Google exige offers, review ou aggregateRating no Product (Search Console 2026-10-26): sem preço público e sem avaliação, a lancha fica sem Product */
@@ -2395,7 +2406,7 @@ function home(){
   </div></section>
   <section class="section" id="duvidas" style="padding-top:0"><div class="wrap">
     <div class="section-head"><div><span class="eyebrow">${t("faqEyebrow")}</span><h2>${t("faqTitle")}</h2></div></div>
-    <div class="faq short">${UI[lang].faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div>
+    <div class="faq short">${faqOf(lang).map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div>
     <button type="button" class="more-btn" data-more=".faq" data-m="${t("seeMoreFaq")}">${t("seeMoreFaq")}</button>
     ${waCta()}
   </div></section>`;

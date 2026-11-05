@@ -8,3 +8,7 @@ export async function lanchasDB(DB, KEY) {
   const velho = await get("select=slug,nome,dados,ativa&dados=not.is.null&dados->>exemplo=is.null&order=slug");
   return velho === 400 ? null : velho;
 }
+/* Menor preço da baixa temporada de cada lancha: muda o "a partir de" do FAQ (2026-11-05), então também republica o site */
+export async function precosDB(DB, KEY) {
+  return fetch(DB + "/precos?select=lancha,baixa,baixa7&order=lancha", { headers: { apikey: KEY } }).then(r => (r.ok ? r.text() : "")).catch(() => "");
+}
