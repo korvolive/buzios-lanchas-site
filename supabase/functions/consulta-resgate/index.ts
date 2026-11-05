@@ -78,7 +78,8 @@ async function lembrarLeads(modelo: string) {
 }
 
 const POR_LANCHA_DIA = 10; // avisos por lancha em 24 h
-// passeio cadastrado para cliente sem conta: 1 aviso por passeio, entre 10 min e 24 h depois de cadastrado, só passeio de hoje em diante
+// passeio cadastrado para cliente sem conta: 1 aviso por passeio, entre 30 min (10 min se o passeio é hoje) e 24 h depois de cadastrado, só passeio de hoje em diante.
+// Os 30 min dão tempo para o Lucas mandar o link pelo WhatsApp dele; se mandar, o aviso oficial não sai (Rodrigo 2026-11-05)
 async function avisarPasseios(modelo: string) {
   const agora = Date.now();
   const { count } = await db.from("anotacoes").select("bloqueio_id", { count: "exact", head: true }).gte("aviso_wa_em", new Date(agora - 3600e3).toISOString());
@@ -86,7 +87,7 @@ async function avisarPasseios(modelo: string) {
   if (livre <= 0) return 0;
   const hoje = new Date(agora - 3 * 3600e3).toISOString().slice(0, 10); // dia de hoje no Brasil
   const ate = new Date(agora - 3 * 3600e3 + 60 * 864e5).toISOString().slice(0, 10); // só passeios até 60 dias para frente
-  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario")
+  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, criado_em")
     .lte("criado_em", new Date(agora - 10 * 60e3).toISOString()).gte("criado_em", new Date(agora - 24 * 3600e3).toISOString())
     .gte("data", hoje).lte("data", ate).is("revenda", null).order("criado_em").limit(40);
   if (error) { console.error("passeios", error.message); return 0; }
@@ -103,6 +104,7 @@ async function avisarPasseios(modelo: string) {
   let n = 0;
   for (const b of bs) {
     if (livre <= 0) break;
+    if (b.data > hoje && Date.parse(b.criado_em) > agora - 30 * 60e3) continue; // passeio de outro dia: espera 30 min
     const x = ns?.find(a => a.bloqueio_id === b.id);
     if (!x || x.cliente_conta || x.aviso_wa_em || !x.telefone) continue;
     if ((porL.get(b.lancha) || 0) >= POR_LANCHA_DIA) continue; // tenta de novo no próximo ciclo, dentro das 24 h
