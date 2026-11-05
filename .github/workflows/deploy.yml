@@ -43,3 +43,5 @@ jobs:
             package*.json
             supabase/**
             .claude/**
+            graphify-out/**
+            CLAUDE.md
