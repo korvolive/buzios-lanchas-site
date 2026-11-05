@@ -2412,12 +2412,13 @@ function gallery(b){
   </div>`;
 }
 /* vídeo: toca e pausa no toque, sem controles do navegador (sem tela cheia nem picture-in-picture) */
-function bindVideo(){ const box=document.getElementById("vidbox"), v=box?.querySelector("video"); if(!v) return;
+function bindVideo(){ if(window.__vidLock){ window.__vidLock=0; document.body.style.overflow=""; } /* a página redesenhou com o vídeo aberto: destrava a rolagem */
+  const box=document.getElementById("vidbox"), v=box?.querySelector("video"); if(!v) return;
   box.onclick=()=>{ if(v.paused) v.play().catch(()=>{}); else v.pause(); };
   /* celular (Rodrigo 2026-11-04): o vídeo fica num botão pequeno e abre em tela cheia, para a página não ficar comprida */
-  const bv=document.getElementById("bvid"), fecha=()=>{ v.pause(); bv.classList.remove("open"); document.body.style.overflow=""; document.removeEventListener("keydown",esc_); };
+  const bv=document.getElementById("bvid"), fecha=()=>{ v.pause(); bv.classList.remove("open"); document.body.style.overflow=""; window.__vidLock=0; document.removeEventListener("keydown",esc_); };
   const esc_=e=>{ if(e.key==="Escape") fecha(); };
-  document.getElementById("vidopen").onclick=()=>{ bv.classList.add("open"); document.body.style.overflow="hidden"; document.addEventListener("keydown",esc_); v.play().catch(()=>{}); };
+  document.getElementById("vidopen").onclick=()=>{ bv.classList.add("open"); document.body.style.overflow="hidden"; window.__vidLock=1; document.addEventListener("keydown",esc_); v.play().catch(()=>{}); };
   document.getElementById("vidx").onclick=e=>{ e.stopPropagation(); fecha(); };
   v.onplay=()=>box.classList.add("on","st"); v.onpause=v.onended=()=>box.classList.remove("on");
   /* barra para avançar ou voltar o vídeo, como no YouTube (Rodrigo 2026-10-30) */
