@@ -7,7 +7,7 @@
       var r=el.getBoundingClientRect(); if(r.width && r.height) lay.push({el:el, s:sig(el), x:r.left+sx, y:r.top+sy, w:r.width, h:r.height}); }
     cur=lay; hist.push({t:t, lay:lay}); while(hist.length>12 || (hist.length>1 && t-hist[1].t>3000)) hist.shift(); }
   function ok(){ if(!pend){ pend=true; requestAnimationFrame(snap); } }
-  try{ new MutationObserver(ok).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+  try{ new MutationObserver(ok).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","open"]}); /* janelas que abrem só trocando classe (vídeo) também contam */ }catch(e){}
   document.addEventListener("toggle",ok,true);
   document.addEventListener("click",function(e){ if(!e.isTrusted || (!e.clientX && !e.clientY)) return; var el=e.target&&e.target.closest&&e.target.closest(SEL); if(!el) return; if(pend) snap(); var b=born.get(el);
     if(b==null || now()-b>=MS) return;
@@ -17,6 +17,8 @@
     var alvo = was ? (was.el.isConnected ? was.el : (function(){ for(var j=0;j<cur.length;j++) if(cur[j].s===was.s) return cur[j].el; return null; })()) : null;
     if(alvo===el) return; /* é o mesmo botão: só mudou de lugar */
     e.preventDefault(); e.stopImmediatePropagation();
+    /* o botão de antes ficou coberto (janela abriu por cima): não clica nele, só ignora o toque */
+    if(alvo){ var ra=alvo.getBoundingClientRect(), tp=document.elementFromPoint(ra.left+ra.width/2, ra.top+ra.height/2); if(!tp || !(tp===alvo || alvo.contains(tp) || tp.contains(alvo))) alvo=null; }
     if(alvo && !alvo.disabled) alvo.click(); },true);
 })();</script><script>/* convite ou senha nova enviados pelo painel do Supabase caem aqui: a tela de criar senha fica em /login/ */(function(h){if(/access_token=/.test(h)&&/type=(invite|recovery)/.test(h))location.replace("/login/"+h)})(location.hash)</script>
 <script>/* aberto pelo app da Google Play (TWA): guarda antes de qualquer redirecionamento, que apaga o referrer */try{if(/^android-app:/.test(document.referrer))sessionStorage.setItem("twa","1");}catch(e){}
@@ -1660,10 +1662,13 @@ function loadGRevs(b){
     box.className="block b-reviews b-google"; box.innerHTML = `<h2>${t("reviewsTitle")}</h2><div class="gcard">
       <div class="gsum"><div class="gscore"><strong>${mtxt}</strong><span class="stars" aria-hidden="true">${st(Math.round(media))}</span><small>${t(list.length===1?"gRevCnt1":"gRevCnt",{n:list.length})}</small></div>
         <a class="gbtn" href="${gUrl}" target="_blank" rel="noopener"><b class="gbadge">G</b>${t("gRevAll")}</a></div>
-      <ul class="reviews">${list.slice(0,40).map(x=>`<li><div class="gwho"><span class="gav" style="background:${cores[x.n.length%cores.length]}" aria-hidden="true">${ini(x.n)}</span><span><b>${x.n}</b>${x.d?`<small>${mes(x.d)}</small>`:""}</span><b class="gbadge" title="Google">G</b></div><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q><button type="button" class="gmore" hidden>${t("gMore")}</button>`:""}</li>`).join("")}</ul></div>`;
+      <ul class="reviews">${list.slice(0,40).map((x,i)=>`<li><div class="gwho"><span class="gav" style="background:${cores[x.n.length%cores.length]}" aria-hidden="true">${ini(x.n)}</span><span><b>${x.n}</b>${x.d?`<small>${mes(x.d)}</small>`:""}</span><b class="gbadge" title="Google">G</b></div><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q><button type="button" class="gmore" data-gk="${b.slug}:${i}" hidden>${t("gMore")}</button>`:""}</li>`).join("")}</ul></div>`;
     /* texto longo (Rodrigo 2026-11-04): cartão com altura limitada, "Ler mais" abre o texto todo */
-    box.querySelectorAll(".gcard q").forEach(q=>{ const bt=q.nextElementSibling; if(q.scrollHeight>q.clientHeight+2){ bt.hidden=false; bt.onclick=()=>{ const o=q.classList.toggle("full"); bt.textContent=t(o?"gLess":"gMore"); }; } }); if(location.hash==="#g-revs") box.scrollIntoView({block:"start"}); });
+    /* aberto continua aberto quando a página se redesenha (revisão 2026-11-05); data-gk dá a cada botão uma identidade própria para o toque seguro */
+    box.querySelectorAll(".gcard q").forEach(q=>{ const bt=q.nextElementSibling, k=bt.dataset.gk; if(gAbertas.has(k)){ q.classList.add("full"); bt.textContent=t("gLess"); }
+      if(q.scrollHeight>q.clientHeight+2 || gAbertas.has(k)){ bt.hidden=false; bt.onclick=()=>{ const o=q.classList.toggle("full"); if(o) gAbertas.add(k); else gAbertas.delete(k); bt.textContent=t(o?"gLess":"gMore"); }; } }); if(location.hash==="#g-revs") box.scrollIntoView({block:"start"}); });
 }
+var gAbertas = new Set(); /* "Ler mais" abertos nas avaliações do Google */
 /* selo de nota nos cards da página inicial: uma chamada para as notas; os comentários só quando a pessoa abre */
 let notasP = null;
 const numFmt = v => String(v).replace(".", lang==="en"?".":",");
