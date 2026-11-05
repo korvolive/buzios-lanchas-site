@@ -143,6 +143,10 @@ async function waPagamento(p: { id: number; cliente: string; data: string }, k: 
   return true;
 }
 
+// mesmos do app (login/index.html: PAIS_DDI, COB_EUR, niceUp)
+const PAIS_DDI: Record<string, string> = { BR: "55", AR: "54", CL: "56", UY: "598", PY: "595", CO: "57", PE: "51", MX: "52", BO: "591", EC: "593", VE: "58", US: "1", CA: "1", PT: "351", ES: "34", FR: "33", IT: "39", DE: "49", GB: "44", IE: "353", NL: "31", BE: "32", CH: "41", AT: "43", SE: "46", NO: "47", DK: "45", FI: "358", PL: "48", IL: "972", AU: "61", NZ: "64", ZA: "27", JP: "81", CN: "86", KR: "82", IN: "91", AE: "971", CR: "506", PA: "507", DO: "1", GT: "502", CU: "53", PR: "1" };
+const COB_EUR = new Set(["49", "33", "39", "351", "31", "32", "43", "353", "30", "358", "352", "356", "357", "386", "421", "372", "371", "370", "385"]);
+const niceUp = (x: number) => { const step = x < 100 ? 5 : x < 1000 ? 10 : x < 10000 ? 50 : 10 ** (Math.floor(Math.log10(x)) - 1); return Math.ceil(x / step) * step; };
 const brlv = (v: number) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 async function pushAdmins(msg: { title: string; body: string }, tag: string) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
@@ -214,6 +218,40 @@ Deno.serve(async req => {
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
     }
     const b = await req.json().catch(() => ({}));
+
+    // a central nasce sozinha (Rodrigo 2026-11-05, Marcin): o cliente que acabou de criar a conta pelo link da pré-reserva
+    // chama aqui ao abrir Meus passeios. Antes, ela só era criada quando o administrador abria o app.
+    // Brasileiro ou pedido de vendedor: Pix em reais; estrangeiro: PayPal no câmbio do dia + 10% (igual ao app). Só e-mail:
+    // o WhatsApp da conversa já é do Lucas, então o número oficial não manda de novo.
+    if (b.acao === "auto") {
+      const auth = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      const uid = auth ? (await db.auth.getUser(auth)).data?.user?.id : null;
+      if (!uid) return json({ erro: "login" }, 401);
+      const { data: ps } = await db.from("pedidos").select("id, cliente, lancha, data, status, sinal_valor, sinal_liberado_em, vendedor")
+        .eq("cliente", uid).eq("status", "pendente").not("sinal_liberado_em", "is", null).is("paypal_link", null).gt("sinal_valor", 0).limit(5);
+      let n = 0;
+      for (const p of ps || []) {
+        if ((await db.from("pagamentos_pp").select("pedido").eq("pedido", p.id).maybeSingle()).data) continue;
+        const { data: cl } = await db.from("clientes").select("pais, whatsapp").eq("user_id", uid).maybeSingle();
+        const cc = PAIS_DDI[String(cl?.pais || "")] || (String(cl?.whatsapp || "").trim().match(/^\+(\d{1,3})\s/) || [])[1] || "55";
+        let moeda = "BRL", valor = +p.sinal_valor;
+        if (cc !== "55" && !p.vendedor) {
+          moeda = cc === "34" || COB_EUR.has(cc) ? "EUR" : cc === "44" ? "GBP" : "USD";
+          const fx = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/cambio").then(r => r.json()).catch(() => null);
+          const r = +fx?.rates?.[moeda.toLowerCase()];
+          if (!(r > 0)) continue; // sem câmbio agora: o app do administrador cria depois, como antes
+          valor = niceUp(valor * r * 1.10);
+        }
+        const { data: c, error } = await db.from("pagamentos_pp").insert({ pedido: p.id, moeda, valor }).select("token").single();
+        if (error || !c) continue; // outra chamada criou ao mesmo tempo
+        const url = `${SITE}/pagar/?p=${p.id}&k=${c.token}`, texto = fmt(moeda, valor);
+        await db.from("pedidos").update({ paypal_link: url, paypal_valor: texto, atualizado_em: new Date().toISOString() }).eq("id", p.id);
+        const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+        await email(p.cliente, url, lancha, p.data, texto, moeda === "BRL").catch(e => console.error(e));
+        console.log("central automática", p.id, texto); n++;
+      }
+      return json({ n });
+    }
 
     if (b.acao === "link") {
       const auth = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
