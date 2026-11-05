@@ -63,8 +63,13 @@ async function snap(l, slug) {
 }
 await page.goto(base + "/", { waitUntil: "domcontentloaded" });
 await ready();
-const { slugs, dbSlugs, hidden } = await page.evaluate(() => { const all = [...BOATS, ...[...HIDDEN.values()].map(x => x.b)];
-  return { slugs: all.map(b => b.slug), dbSlugs: all.filter(b => b.db).map(b => b.slug), hidden: HIDE_LIST }; });
+const { slugs, dbSlugs, hidden, llm } = await page.evaluate(() => { const all = [...BOATS, ...[...HIDDEN.values()].map(x => x.b)];
+  /* dados para o llms.txt (resumo do site para as IAs): só o que o site já mostra ao público */
+  const txt = x => String(x || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  const llm = { boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null, tag: txt(b.tagline),
+      emb: [...new Set(Object.values(b.boarding || {}).flat())] })),
+    faq: (UI.pt.faq || []).map(([q, a]) => [txt(q), txt(a)]), faqEn: (UI.en.faq || []).map(([q, a]) => [txt(q), txt(a)]), route: ROUTE.map(r => r[0]) };
+  return { slugs: all.map(b => b.slug), dbSlugs: all.filter(b => b.db).map(b => b.slug), hidden: HIDE_LIST, llm }; });
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
 await browser.close();
 server.close();
@@ -82,9 +87,35 @@ fs.writeFileSync(path.join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
   pages.filter(p => !hidden.includes(p.slug)).map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${today}</lastmod>\n${alt(p.slug)}\n  </url>`).join("\n") +
   `\n</urlset>\n`);
+/* llms.txt (2026-11-05): resumo do site em texto simples para ChatGPT, Claude, Perplexity e Gemini citarem a Búzios Lanchas com dados certos.
+   Gerado a cada publicação a partir do próprio site, então fica sempre igual ao que está no ar */
+const boatUrl = (l, slug) => SITE + pathFor(l, slug);
+fs.writeFileSync(path.join(ROOT, "llms.txt"), [
+  "# Búzios Lanchas",
+  "",
+  "> Aluguel de lancha em Búzios (Armação dos Búzios, RJ, Brasil): passeios privativos de 4 horas (10h às 14h ou 14h às 18h) e de 7 horas (10h às 17h), com marinheiro, combustível, gelo, carvão, água mineral, cooler e churrasqueira inclusos. O valor é por lancha, para o grupo todo. Reserva com sinal de 50% por Pix para a Búzios Lanchas (CNPJ 32.154.099/0001-72); o restante é pago no dia. Atendimento em português, inglês e espanhol.",
+  "",
+  `Site: ${SITE}/ · WhatsApp: +55 21 99927-2550 · Instagram: @missbardotbuzios · English: ${SITE}/en/ · Español: ${SITE}/es/`,
+  "",
+  "## Lanchas",
+  "",
+  ...llm.boats.map(b => `- [${b.name}](${boatUrl("pt", b.slug)}): ${[b.feet ? String(b.feet).replace(".", ",") + " pés" : "", b.cap ? "até " + b.cap + " pessoas" : ""].filter(Boolean).join(", ")}.${b.tag ? " " + b.tag : ""}${b.emb.length ? " Embarque: " + b.emb.join(" ou ") + "." : ""}`),
+  "",
+  "## Roteiro padrão",
+  "",
+  llm.route.join(", ") + ". O grupo escolhe como aproveitar: dá para ficar mais tempo em uma praia.",
+  "",
+  "## Perguntas frequentes",
+  "",
+  ...llm.faq.flatMap(([q, a]) => [`### ${q}`, "", a, ""]),
+  "## FAQ (English)",
+  "",
+  ...llm.faqEn.flatMap(([q, a]) => [`### ${q}`, "", a, ""]),
+].join("\n"));
+
 /* marca do que foi publicado: a cada 10 minutos o GitHub compara com o banco e publica de novo se mudou (scripts/db-mudou.mjs) */
 const rows = await lanchasDB(DB, KEY);
 const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
 const ok = rows && ativas === [...dbSlugs].sort().join();
 fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
-console.log(`${pages.length} páginas e sitemap.xml gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);
+console.log(`${pages.length} páginas, sitemap.xml e llms.txt gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);
