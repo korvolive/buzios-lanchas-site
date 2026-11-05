@@ -54,6 +54,11 @@ async function snap(l, slug) {
     /* lanchas do banco que ganharam página nesta publicação: o site só mostra estas (as novas entram na próxima) */
     document.documentElement.dataset.pub = [...BOATS, ...[...HIDDEN.values()].map(x => x.b)].filter(b => b.db).map(b => b.slug).join(",");
     document.documentElement.dataset.hide = HIDE_LIST.join(","); /* ocultas pelo administrador: a página existe, mas não aparece */
+    /* dados do banco desta publicação: a visita já abre com eles e não precisa redesenhar a página quando o banco responde */
+    const F = ["name", "feet", "capacity", "tagline", "description", "i18n", "boarding", "db", "prices", "prices7", "semFer", "pf", "pr", "pr7", "ds", "esp", "rx", "rx7", "photos"];
+    const snapDB = BOATS.map(b => b.dbNew ? b : Object.fromEntries(F.filter(k => b[k] !== undefined).map(k => [k, b[k]]).concat([["slug", b.slug]])));
+    const js = document.createElement("script"); js.type = "application/json"; js.id = "dbsnap";
+    js.textContent = JSON.stringify(snapDB).replace(/</g, "\\u003c"); document.head.appendChild(js);
     if (route.slug && HIDE_LIST.includes(route.slug)) document.head.insertAdjacentHTML("beforeend", '<meta name="robots" content="noindex">');
     document.querySelectorAll('script[src*="googletagmanager.com"],script[src*="connect.facebook.net"]').forEach(s => s.remove());
     return document.documentElement.outerHTML;
