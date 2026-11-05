@@ -79,7 +79,7 @@ async function lembrarLeads(modelo: string) {
 
 const POR_LANCHA_DIA = 10; // avisos por lancha em 24 h
 // passeio cadastrado para cliente sem conta: 1 aviso por passeio, entre 30 min (10 min se o passeio é hoje) e 24 h depois de cadastrado, só passeio de hoje em diante.
-// Os 30 min dão tempo para o Lucas mandar o link pelo WhatsApp dele; se mandar, o aviso oficial não sai (Rodrigo 2026-11-05)
+// Os 30 min dão tempo para o Lucas mandar o link pelo WhatsApp da conversa com o cliente; se mandar, o aviso oficial não sai (Rodrigo 2026-11-05)
 async function avisarPasseios(modelo: string) {
   const agora = Date.now();
   const { count } = await db.from("anotacoes").select("bloqueio_id", { count: "exact", head: true }).gte("aviso_wa_em", new Date(agora - 3600e3).toISOString());

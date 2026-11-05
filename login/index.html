@@ -4206,7 +4206,7 @@ document.addEventListener("click", async e=>{ const x=e.target.closest("[data-cs
     loadBlocks(); mainView();
     if(res.pendente && res.pedido){ await loadReqs(); const p=(S.reqs||[]).find(q=>q.id===res.pedido); if(p) await ppAuto(p); mainView(); return; } /* cliente com conta: o pedido já nasce com o sinal liberado; manda a central por e-mail e WhatsApp */
     if(res.pendente && c.vendedor){ toast(t("csVendAuto")); return; } /* venda de vendedor: o número oficial manda o link sozinho (confirma o WhatsApp); sem tela de WhatsApp para não cancelar o aviso (Rodrigo 2026-11-04) */
-    if(res.pendente && c.criado_por && c.criado_por!==ses.user.id){ callFn({tipo:"op_aprovado", id:res.bid}).catch(()=>{}); toast(t("opAprovAviso")); return preLink({...row, nota}); } /* pedido do Lucas: ele recebe o aviso e manda o link pelo WhatsApp do Lucas; o número oficial só manda depois de 30 min (Rodrigo 2026-11-05) */
+    if(res.pendente && c.criado_por && c.criado_por!==ses.user.id){ fnPost("aviso-lucas",{id:res.bid}); toast(t("opAprovAviso")); return preLink({...row, nota}); } /* pedido do Lucas: ele recebe o aviso e manda o link pelo WhatsApp do Lucas; o número oficial só manda depois de 30 min (Rodrigo 2026-11-05) */
     if(res.pendente){ toast(t("holdSaved",{h:holdDur(c.data)})); return preLink({...row, nota}); } /* pré-reserva: o cliente sem conta recebe o aviso do WhatsApp oficial; o pagamento abre quando ele criar a conta */
     if(res.convite==="ligado") return linkedInfo(res.bid, c.nome);
     openInvite(res.email, nota, row); if(res.email) mailInvite(res.bid, res.email); }
