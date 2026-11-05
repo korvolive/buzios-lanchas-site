@@ -155,6 +155,7 @@ const LP = {pt:"/", en:"/en/", es:"/es/"};
 function render(){
   const t=T[lang]; document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   document.querySelectorAll("[data-t]").forEach(el=>{ el.innerHTML=t[el.dataset.t]; });
+  document.getElementById("wa-fab").setAttribute("aria-label", t.waB);
   document.getElementById("wa-fab").href="https://wa.me/5521999272550?text="+encodeURIComponent(t.waM);
   document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.l===lang));
   document.getElementById("grid").innerHTML = CITIES.map(c=>{
