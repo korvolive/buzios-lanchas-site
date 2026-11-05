@@ -1199,9 +1199,9 @@ Object.assign(UI.es, {shareB:"Compartir", shareL:"Compartir el enlace de esta la
 Object.assign(UI.pt, {cdTag:"🎁 Passeou nesta lancha? Ganhe um cupom de desconto para o próximo passeio.", cdTagV:"🎁 Passeou nesta lancha? Ganhe {v} de desconto no próximo passeio."});
 Object.assign(UI.en, {cdTag:"🎁 Toured on this boat? Get a discount coupon for your next tour.", cdTagV:"🎁 Toured on this boat? Get {v} off your next tour."});
 Object.assign(UI.es, {cdTag:"🎁 ¿Paseaste en esta lancha? Gana un cupón de descuento para el próximo paseo.", cdTagV:"🎁 ¿Paseaste en esta lancha? Gana {v} de descuento en el próximo paseo."});
-Object.assign(UI.pt, {cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
-Object.assign(UI.en, {cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
-Object.assign(UI.es, {cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
+Object.assign(UI.pt, {cupPrice:"Com o seu cupom de {c}: <strong>{v}</strong>", cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
+Object.assign(UI.en, {cupPrice:"With your {c} coupon: <strong>{v}</strong>", cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
+Object.assign(UI.es, {cupPrice:"Con tu cupón de {c}: <strong>{v}</strong>", cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
 /* ============ cidades (Rodrigo 2026-11-03): o mesmo site para Búzios, Cabo Frio e Arraial do Cabo ============
    A cidade vem do domínio (cabofriolanchas.com.br, lanchasemarraial.com.br); o resto é Búzios.
    Para conferir antes de lançar: ?cidade=cabo-frio ou ?cidade=arraial (fica guardado na aba; ?cidade=buzios volta).
@@ -1436,7 +1436,7 @@ const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(l
   if(q.get("reserva")==="1" || q.get("o")){ localStorage.setItem("reserva-link",String(Date.now())); q.delete("reserva"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
   return Date.now()-(+localStorage.getItem("reserva-link")||0) < 3*864e5; }catch(e){ return false; } })();
 let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
-const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN; /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
+const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN || RECORRENTE; /* cliente que já fez passeio (ganhou cupom) vê o valor e reserva online (Rodrigo 2026-11-05) */ /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (Rodrigo 2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (Rodrigo 2026-10-24) */
 const VEND_TETO = 10, VEND_PADRAO = 3; /* link do vendedor: 3% padrão; o administrador pode subir a % de cada vendedor até 10%; parceiro fica em 3% (Rodrigo 2026-11-03) */
 const VEND_MAN_PCT = 30, VEND_MAN_MAX = 1000; /* link feito pelo vendedor para um cliente: comissão em R$ até R$ 1.000 e 30% do valor (Rodrigo 2026-11-02) */
@@ -1842,6 +1842,9 @@ const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">✅</span><div><strong>${t("stItemsT")}</strong><ul class="c-items st-items" id="stack-items">${stackItems(b)}</ul></div></li>
 </ol>`;
 /* o valor só aparece depois de escolher data e horário, e só o daquela data (regra do Rodrigo: não mostrar datas mais baratas) */
+/* cliente com cupom vê quanto fica o passeio com o desconto (Rodrigo 2026-11-05); cupons não somam: vale o maior desta lancha */
+const cupLine = (b,v) => { if(!v || !CUPS?.length) return ""; const L=CUPS.filter(c=>!c.lancha || c.lancha===b.slug); if(!L.length) return "";
+  const c=Math.max(...L.map(x=>+x.valor||0)); return c>0 ? `<p class="pr-cup">🎟️ ${t("cupPrice",{c:money(c),v:money(Math.max(0,v-c))})}</p>` : ""; };
 function showPrices(b){
   const box=document.getElementById("pr-val"); if(!box) return;
   const sl=pick.slot && slotOf(pick.slot);
@@ -1852,12 +1855,12 @@ function showPrices(b){
   const np=+pick.people;
   const v7 = sl.night ? priceNight(b,pick.date) : sl.hours===7 ? price7(b,pick.date) : null;
   const key=pctKey(seasonOf(pick.date,b).key,pick.date);
-  if(v7){ const c=cliPrice(v7,key,VEND,b); box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t(sl.night?"fromNightDate":"from7hDate",{d:fmtDate(pick.date)})} ${parcRisco(v7,c,b)}<strong>${money(c)}</strong>${np>1?`<em>${t("perPerson",{p:money(Math.ceil(c/np)),n:np})}</em>`:""}</p>${parcBox(v7,c,b)}${prExtra(b)}<p class="cur-sw">${curSwitch()}</p>`; return; }
+  if(v7){ const c=cliPrice(v7,key,VEND,b); box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t(sl.night?"fromNightDate":"from7hDate",{d:fmtDate(pick.date)})} ${parcRisco(v7,c,b)}<strong>${money(c)}</strong>${np>1?`<em>${t("perPerson",{p:money(Math.ceil(c/np)),n:np})}</em>`:""}</p>${cupLine(b,c)}${parcBox(v7,c,b)}${prExtra(b)}<p class="cur-sw">${curSwitch()}</p>`; return; }
   if(sl.hours===7){ box.innerHTML=`<div class="long"><span class="long-tag">${t("fullDay")}</span>
     <div class="long-head"><strong>${sl.night?slotLabel(pick.slot):t("tour7h")}</strong><span>${t("priceOnRequest")}</span></div>
     <p>${fmtDate(pick.date)}. ${t("longText")}</p></div>`; return; }
   const b4=price4(b,pick.date), v=cliPrice(b4,key,VEND,b);
-  box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from4hDate",{d:fmtDate(pick.date)})} ${v?parcRisco(b4,v,b):""}<strong>${v?money(v):t("onRequest")}</strong>${v&&np>1?`<em>${t("perPerson",{p:money(Math.ceil(v/np)),n:np})}</em>`:""}</p>${v?parcBox(b4,v,b)+prExtra(b)+`<p class="cur-sw">${curSwitch()}</p>`:""}`;
+  box.innerHTML=`<p class="from"><span>${t("priceTitle")}</span>${t("from4hDate",{d:fmtDate(pick.date)})} ${v?parcRisco(b4,v,b):""}<strong>${v?money(v):t("onRequest")}</strong>${v&&np>1?`<em>${t("perPerson",{p:money(Math.ceil(v/np)),n:np})}</em>`:""}</p>${cupLine(b,v)}${v?parcBox(b4,v,b)+prExtra(b)+`<p class="cur-sw">${curSwitch()}</p>`:""}`;
 }
 /* embaixo do valor: o que está incluso, aviso de valor de referência e a frase do Rodrigo com o WhatsApp (sem vendedor no meio).
    Rodrigo 2026-10-23: ele vende explicando o valor, então o site mostra o valor do jeito que ele explica e deixa a conversa aberta */
@@ -2160,6 +2163,7 @@ async function showBoatStatus(b){
   markSlots(b); showPrices(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
   const bkOn=document.getElementById("bk-on"); if(bkOn && !bkOn.hidden) soOnline(btn); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; soOnline(btn); if(btn.dataset.ready) showCup(out,b); } });
+  if(isClient() && !isTeam() && !showPrice()) loadCups().then(()=>{ if(showPrice() && document.getElementById("pr-val")) showPrices(b); }); /* recorrente: o valor aparece assim que o site sabe que ele já fez passeio */
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
   const boards=boardsFor(b,pick.slot), bx=document.getElementById("pk-board");
