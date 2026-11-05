@@ -5726,7 +5726,7 @@ function socHTML(){
   const rec=sum(V.filter(x=>!x.paga && x.data<todayISO())), pago=sum(V.filter(x=>x.paga));
   return `<details class="vdet" id="vsoc"><summary>🤝 ${t("socT")}</summary><p class="muted" style="margin-top:0">${t("socSub")}</p>
     <button type="button" class="btn wa" id="socgo">${WA_ICON} ${t("socGo")}</button><p class="muted" style="font-size:13px;margin:8px 0 0">${t("socNote")}</p>
-    ${S.socs==null ? `<p class="muted">…</p>` : S.socs.length ? `<h3 class="ugt" style="margin-top:16px">${t("socList")}</h3><ul class="soclist">${S.socs.map(s=>`<li>${face(s.user_id,s.nome,"face")}<span><b>${esc(s.nome||"—")}</b><br><small class="muted">${t("socRow")}</small></span></li>`).join("")}</ul>
+    ${S.socs==null ? `<p class="muted">…</p>` : S.socs.length ? `<h3 class="ugt" style="margin-top:16px">${t("socList")}</h3><ul class="soclist">${S.socs.map(s=>`<li>${face(s.user_id,s.nome,"face")}<span><b>${esc((w=>w.length>1?w[0]+" "+w[w.length-1]:w[0]||"—")(String(s.nome||"").trim().split(/\s+/)))}</b><br><small class="muted">${t("socRow")}</small>${"" /* nome e último sobrenome (Rodrigo 2026-11-05) */}</span></li>`).join("")}</ul>
       ${V.length?`<h3 class="ugt" style="margin-top:12px">${t("socEarn")}</h3><p style="margin:0">${t("socRec",{v:brl(rec)})}${pago?` · <span class="muted">${t("socPaid",{v:brl(pago)})}</span>`:""}</p>`:""}` : `<p class="muted" style="margin:12px 0 0">${t("socNone")}</p>`}${S.socPend?`<p class="muted" style="font-size:13px;margin:10px 0 0">⏳ ${t(S.socPend===1?"socPend1":"socPend",{n:S.socPend})}</p>`:""}</details>`;
 }
 function bindSoc(){ const g=document.getElementById("socgo"); if(!g) return;
