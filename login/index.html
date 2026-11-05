@@ -1508,6 +1508,10 @@ async function loadMyReq(){
   S.myReq.forEach(p=>{ if(p.status==="aprovado" && !p.bloqueio_id) p.status="cancelado"; }); await pedHrs(S.myReq);
   if(S.myReq.some(p=>p.status==="pendente" && p.bloqueio_id)) await db("pedidos?select=id,pagar_ate&status=eq.pendente&bloqueio_id=not.is.null").then(a=>a.forEach(x=>{ const p=S.myReq.find(q=>q.id===x.id); if(p) p.pagar_ate=x.pagar_ate; })).catch(()=>{}); /* prazo do sinal da pré-reserva (banco ainda sem a coluna: sem prazo na tela) */
   S.myReq.filter(p=>p.status==="pendente" && p.bloqueio_id && p.sinal_liberado_em && Date.now()-Date.parse(p.criado_em) < 6e5).forEach(p=>callFn({tipo:"pedido", id:p.id}).catch(()=>{})); /* pré-reserva ligada à conta agora: o Rodrigo recebe o aviso de pedido novo (o servidor manda uma vez só) */
+  /* central de pagamento sem depender do administrador abrir o app (Rodrigo 2026-11-05, Marcin): a pré-reserva que acabou de virar pedido na conta cria a central aqui */
+  const semCt=S.myReq.filter(p=>p.status==="pendente" && p.sinal_liberado_em && +p.sinal_valor>0 && S.ppCol!==false && !p.paypal_link);
+  if(semCt.length){ await fetch(FN.replace(/notificar$/,"central-auto"),{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+await fresh(), "content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : null).catch(()=>null)
+    .then(j=>j?.n ? db(`pedidos?select=id,paypal_link,paypal_valor&id=in.(${semCt.map(p=>p.id).join(",")})`).then(a=>a.forEach(x=>{ const p=S.myReq.find(q=>q.id===x.id); if(p){ p.paypal_link=x.paypal_link; p.paypal_valor=x.paypal_valor; } })) : 0).catch(()=>{}); }
   S.ppPay = Object.fromEntries((await db("pagamentos_pp?select=pedido,moeda,valor,pago_em,pago_valor").catch(()=>[])).map(x=>[x.pedido,x]));
   S.rcs = await db("rpc/meus_recibos",{method:"POST",body:{}}).then(a=>new Map(a.map(r=>[r.pedido_id,r])), ()=>null); /* recibos do sinal (Rodrigo 2026-10-29): todo passeio da Búzios Lanchas com sinal pago, também os lançados no app */
   /* lanchas com cupom do dono e o valor (v2); sem o v2 ainda, só quais lanchas têm */
