@@ -73,6 +73,9 @@ jobs:
             archive | tail -20
           # O arquivo é gerado sem assinatura; a assinatura de distribuição (App Store) é feita na exportação,
           # que não precisa de iPhone cadastrado na conta.
+          echo "== permissões (entitlements) gravadas no arquivo =="
+          find "$RUNNER_TEMP/App.xcarchive" -name "*.xcent" -exec sh -c 'echo "-- $1"; cat "$1"' _ {} \;
+          codesign -d --entitlements - "$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app" 2>&1 | head -20 || true
           cat > "$RUNNER_TEMP/export.plist" <<PL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
