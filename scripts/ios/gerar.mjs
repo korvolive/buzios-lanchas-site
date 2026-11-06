@@ -10,7 +10,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(`${out}/www`, { recursive: true });
 fs.writeFileSync(`${out}/package.json`, JSON.stringify({
   name: "buzios-lanchas-ios", private: true,
-  dependencies: { "@capacitor/cli": "^7.4.0", "@capacitor/core": "^7.4.0", "@capacitor/ios": "^7.4.0", "@capacitor/push-notifications": "^7.0.0" },
+  dependencies: { "@capacitor/cli": "^7.4.0", "@capacitor/core": "^7.4.0", "@capacitor/ios": "^7.4.0", "@capacitor/push-notifications": "^7.0.0", "@aparajita/capacitor-biometric-auth": "^9.1.0" },
 }, null, 2));
 fs.writeFileSync(`${out}/capacitor.config.json`, JSON.stringify({
   appId: "br.com.lanchaembuzios.app",
