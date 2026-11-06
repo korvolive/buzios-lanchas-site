@@ -27,6 +27,14 @@ jobs:
           python3 -m pip install --quiet --break-system-packages pillow
           python3 scripts/webp.py
           node scripts/prerender.mjs
+      - name: Arquivo que liga o app da Apple ao site (salvar e preencher senha no app)
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$APPLE_TEAM_ID" ]; then
+            printf '{"webcredentials":{"apps":["%s.br.com.lanchaembuzios.app"]}}\n' "$APPLE_TEAM_ID" > .well-known/apple-app-site-association
+            printf '<Files "apple-app-site-association">\nForceType application/json\n</Files>\n' > .well-known/.htaccess
+          fi
       - name: Compressão e cache no servidor (.htaccess, sem apagar o que já existe lá)
         if: github.event_name != 'schedule' || steps.db.outputs.mudou == 'true'
         env:
