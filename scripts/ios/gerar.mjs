@@ -10,7 +10,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(`${out}/www`, { recursive: true });
 fs.writeFileSync(`${out}/package.json`, JSON.stringify({
   name: "buzios-lanchas-ios", private: true,
-  dependencies: { "@capacitor/cli": "^7.4.0", "@capacitor/core": "^7.4.0", "@capacitor/ios": "^7.4.0" },
+  dependencies: { "@capacitor/cli": "^7.4.0", "@capacitor/core": "^7.4.0", "@capacitor/ios": "^7.4.0", "@capacitor/push-notifications": "^7.0.0" },
 }, null, 2));
 fs.writeFileSync(`${out}/capacitor.config.json`, JSON.stringify({
   appId: "br.com.lanchaembuzios.app",
@@ -20,6 +20,7 @@ fs.writeFileSync(`${out}/capacitor.config.json`, JSON.stringify({
   backgroundColor: web.background_color,
   server: { url: `https://${HOST}${web.start_url}`, allowNavigation: ["lanchaembuzios.com.br", "*.lanchaembuzios.com.br"] },
   ios: { contentInset: "never", backgroundColor: web.background_color },
+  plugins: { PushNotifications: { presentationOptions: ["badge", "sound", "alert"] } },
 }, null, 2));
 // Só aparece se o site não abrir (sem internet).
 fs.writeFileSync(`${out}/www/index.html`, `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">

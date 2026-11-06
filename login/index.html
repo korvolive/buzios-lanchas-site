@@ -2402,8 +2402,8 @@ function openFace(){
 async function pushTest(){
   closeDay();
   if(!pushOk()) return void toast(t("pushIOS").replace(/<[^>]+>/g,"")); /* iPhone no Safari: só funciona pelo app instalado na tela de início */
-  if(Notification.permission==="denied") return void toast(t("pushDenied"));
-  if(Notification.permission!=="granted"){ await pushAsk(); if(Notification.permission!=="granted") return; }
+  if(permNow()==="denied") return void toast(t("pushDenied"));
+  if(permNow()!=="granted"){ await pushAsk(); if(permNow()!=="granted") return; }
   try{ const ep = await pushSubscribe(); const r = await callFn({tipo:"teste", ep}); toast(r.enviados ? t("pushTestOk") : t("pushTestFail")); }
   catch(e){ toast(t("pushTestFail")); }
 }
@@ -3636,7 +3636,24 @@ function monthSummaryHTML(){
 }
 /* ===== notificações no celular: ligadas por padrão para o administrador e os donos ===== */
 const FN = SB+"/functions/v1/notificar";
-const pushOk = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+/* app da Apple: avisos nativos (APNs) pelo plugin do Capacitor; o aparelho vai para push_subs como "apns:<token>" */
+const nativeNP = () => IOS_APP ? window.Capacitor?.Plugins?.PushNotifications : null;
+let NPERM = "default"; /* default | granted | denied (cache da permissão nativa) */
+const mapPerm = r => r==="granted" ? "granted" : r==="denied" ? "denied" : "default";
+{ const NP = nativeNP(); if(NP){ NP.checkPermissions().then(r=>{ NPERM = mapPerm(r.receive); }).catch(()=>{});
+  NP.addListener("pushNotificationActionPerformed", a=>{ const u=a?.notification?.data?.url; if(u) location.href=u; }).catch?.(()=>{}); } }
+const permNow = () => nativeNP() ? NPERM : Notification.permission;
+const permAsk = async () => { const NP=nativeNP(); if(!NP) return Notification.requestPermission(); const r = await NP.requestPermissions(); NPERM = mapPerm(r.receive); return NPERM; };
+let apnsTok = null, apnsWait = null;
+function nativeToken(){
+  if(apnsTok) return Promise.resolve(apnsTok);
+  const NP = nativeNP();
+  return new Promise((res, rej) => {
+    if(!apnsWait){ apnsWait = []; NP.addListener("registration", t => { apnsTok = t.value; apnsWait.splice(0).forEach(w=>w[0](apnsTok)); }); NP.addListener("registrationError", e => apnsWait.splice(0).forEach(w=>w[1](e))); }
+    apnsWait.push([res, rej]); setTimeout(()=>rej(new Error("timeout")), 15000); NP.register();
+  });
+}
+const pushOk = () => !!nativeNP() || ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window);
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const b64bytes = b => { const s=atob(b.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((b.length+3)%4)); return Uint8Array.from(s,c=>c.charCodeAt(0)); };
 /* o operador avisa o administrador do pedido ou da alteração que acabou de fazer (Rodrigo 2026-10-30); o servidor só aceita o que ele mesmo criou */
@@ -3651,6 +3668,12 @@ async function callFn(body){
 async function fnPost(name, body){ if(S.papel) return; try{ const tok=await fresh(); await fetch(SB+"/functions/v1/"+name,{method:"POST",keepalive:true,headers:{apikey:KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify(body)}); }catch(_){} }
 /* inscreve este celular e grava no banco (passa para quem está logado se outra pessoa usou antes) */
 async function pushSubscribe(){
+  if(nativeNP()){
+    const ep = "apns:" + await nativeToken();
+    await db("rpc/salvar_push",{method:"POST", body:{ep, chave:"apns", segredo:"apns", idioma:lang}});
+    store.set("push-ep", ep);
+    return ep;
+  }
   const reg = await navigator.serviceWorker.ready;
   let sub = await reg.pushManager.getSubscription();
   if(!sub){ const {publica} = await callFn(); sub = await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:b64bytes(publica)}); }
@@ -3663,7 +3686,7 @@ let pushAsking = false;
 async function pushAsk(){
   if(pushAsking) return; pushAsking = true;
   try{
-    const r = await Notification.requestPermission();
+    const r = await permAsk();
     if(r==="granted"){ const first = !store.get("push-ep"); await pushSubscribe(); toast(t("pushOn")); if(first) callFn({tipo:"teste"}).catch(()=>{}); }
   }catch(e){} finally{ pushAsking = false; }
   if(view==="main" && !sheetDay && !tripRow && !chatCid) S.isClient ? (S.me && clientView()) : mainView();
@@ -3673,10 +3696,11 @@ const inApp = () => { try{ if(matchMedia("(display-mode: standalone)").matches |
 /* sem botão: já liga sozinho; se o celular ainda não deu permissão, pergunta no primeiro toque na tela */
 function autoPush(){
   if(!(S.pushWho || inApp()) || !pushOk()) return;
-  if(Notification.permission==="granted") return void pushSubscribe().catch(()=>{});
-  if(Notification.permission!=="default" || autoPush.armed) return;
+  { const NP = nativeNP(); if(NP && permNow()==="default") NP.checkPermissions().then(r=>{ NPERM = mapPerm(r.receive); if(NPERM==="granted") pushSubscribe().catch(()=>{}); }).catch(()=>{}); }
+  if(permNow()==="granted") return void pushSubscribe().catch(()=>{});
+  if(permNow()!=="default" || autoPush.armed) return;
   autoPush.armed = true;
-  const go = e => { if(e.target.closest?.("#pushgo")) return; removeEventListener("click", go, true); if(Notification.permission==="default") pushAsk(); };
+  const go = e => { if(e.target.closest?.("#pushgo")) return; removeEventListener("click", go, true); if(permNow()==="default") pushAsk(); };
   addEventListener("click", go, true); /* click (não pointerup): no iPhone a permissão só pode ser pedida num toque completo */
 }
 function pushHTML(){
@@ -3685,14 +3709,14 @@ function pushHTML(){
   const why = `<ul class="pwhy">${(S.admin ? [t("pushWhyPedido"), t("pushWhyFechou")] : S.boats?.some(b=>!S.ro?.[b.slug]) ? [t("pushWhyFechou"), t("pushWhyMar")] : [t("pushWhyPilot")]).map(x=>`<li>${x}</li>`).join("")}</ul><p class="pimp">${t("pushImportant")}</p>`;
   const card = (body, btn="") => `<div class="msg pushm pcard"><strong class="ptit">🔔 ${t("pushTitle")}</strong>${why}${body}${btn}</div>`;
   if(!pushOk()) return isIOS() && !IOS_APP ? card(`<p style="margin:0">${t("pushIOS")}</p>`) : ""; /* no app da Apple o aviso de Tela de Início não se aplica */
-  if(Notification.permission==="denied") return card(`<p style="margin:0">${t("pushDenied")}</p>`);
-  if(Notification.permission==="default") return card(`<p style="margin:0">${t("pushAsk")}</p>`, `<button type="button" class="btn" id="pushgo" style="margin-top:10px">${t("pushBtn")}</button>`);
+  if(permNow()==="denied") return card(`<p style="margin:0">${t("pushDenied")}</p>`);
+  if(permNow()==="default") return card(`<p style="margin:0">${t("pushAsk")}</p>`, `<button type="button" class="btn" id="pushgo" style="margin-top:10px">${t("pushBtn")}</button>`);
   return "";
 }
 /* estado dos avisos neste aparelho: on, pend (permitido, inscrevendo), ask, den (bloqueado), ios (iPhone fora da tela de início), na */
 function pushState(){
   if(!pushOk()) return isIOS() && !IOS_APP ? "ios" : "na";
-  const p=Notification.permission;
+  const p=permNow();
   if(p==="denied") return "den";
   if(p==="default") return "ask";
   return store.get("push-ep") ? "on" : "pend";
