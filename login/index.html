@@ -3684,14 +3684,14 @@ function pushHTML(){
   /* explica ao dono (e ao administrador) por que ligar: é assim que ele fica sabendo dos passeios fechados */
   const why = `<ul class="pwhy">${(S.admin ? [t("pushWhyPedido"), t("pushWhyFechou")] : S.boats?.some(b=>!S.ro?.[b.slug]) ? [t("pushWhyFechou"), t("pushWhyMar")] : [t("pushWhyPilot")]).map(x=>`<li>${x}</li>`).join("")}</ul><p class="pimp">${t("pushImportant")}</p>`;
   const card = (body, btn="") => `<div class="msg pushm pcard"><strong class="ptit">🔔 ${t("pushTitle")}</strong>${why}${body}${btn}</div>`;
-  if(!pushOk()) return isIOS() ? card(`<p style="margin:0">${t("pushIOS")}</p>`) : "";
+  if(!pushOk()) return isIOS() && !IOS_APP ? card(`<p style="margin:0">${t("pushIOS")}</p>`) : ""; /* no app da Apple o aviso de Tela de Início não se aplica */
   if(Notification.permission==="denied") return card(`<p style="margin:0">${t("pushDenied")}</p>`);
   if(Notification.permission==="default") return card(`<p style="margin:0">${t("pushAsk")}</p>`, `<button type="button" class="btn" id="pushgo" style="margin-top:10px">${t("pushBtn")}</button>`);
   return "";
 }
 /* estado dos avisos neste aparelho: on, pend (permitido, inscrevendo), ask, den (bloqueado), ios (iPhone fora da tela de início), na */
 function pushState(){
-  if(!pushOk()) return isIOS() ? "ios" : "na";
+  if(!pushOk()) return isIOS() && !IOS_APP ? "ios" : "na";
   const p=Notification.permission;
   if(p==="denied") return "den";
   if(p==="default") return "ask";
