@@ -2378,6 +2378,7 @@ function openFace(){
       ${S.isClient && S.me ? `<button type="button" class="btn sec" id="avme" style="margin:0 0 10px">✏️ ${t("myData")}</button>` : ""}
       <button type="button" class="btn sec" id="avem" style="margin:0">✉ ${t(semEmail()?"emAdd":"chEmail")}</button>
       ${S.pushWho && (pushOk() || isIOS()) ? `<button type="button" class="btn sec" id="avpt" style="margin:10px 0 0">🔔 ${t("pushTest")}</button>` : ""}
+      ${IOS_APP ? `<button type="button" class="btn sec" id="avbio" style="margin:10px 0 0">🔒 Testar Face ID</button>` : ""}
       ${S.admin ? "" : `<button type="button" class="link danger" id="avdel" style="margin-top:14px">${t("delMe")}</button>`}</div>
     <button type="button" class="btn sec" id="avclose" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
@@ -2397,6 +2398,7 @@ function openFace(){
   const pwb=document.getElementById("avpw"); if(pwb) pwb.onclick=()=>openPw();
   document.getElementById("avem").onclick=()=>openEmail();
   const pt=document.getElementById("avpt"); if(pt) pt.onclick=()=>pushTest();
+  const pbio=document.getElementById("avbio"); if(pbio) pbio.onclick=()=>{ closeDay(); bioLock(true); };
 }
 /* manda uma notificação de teste só para este aparelho */
 async function pushTest(){
@@ -3647,9 +3649,11 @@ const permAsk = async () => { const NP=nativeNP(); if(!NP) return Notification.r
 /* Face ID / Touch ID: no app da Apple, quem já está logado desbloqueia o app com o rosto (ou o código do aparelho) ao abrir e ao voltar depois de 30 s */
 const bioNP = () => IOS_APP ? window.Capacitor?.Plugins?.BiometricAuth : null;
 let bioOpen = false, bioHide = 0;
-async function bioLock(){
-  const B = bioNP(); if(!B || bioOpen || !sesStored()?.refresh_token) return;
-  try{ const c = await B.checkBiometry(); if(!c.isAvailable) return; }catch(e){ return; }
+async function bioLock(manual){
+  const B = bioNP();
+  if(manual && !B) return void toast("Face ID: plugin ausente neste app");
+  if(!B || bioOpen || !sesStored()?.refresh_token) return;
+  try{ const c = await B.checkBiometry(); if(!c.isAvailable){ if(manual) toast("Face ID indisponível: "+(c.reason||c.code||"sem motivo")+" (tipo "+c.biometryType+")"); return; } }catch(e){ if(manual) toast("Face ID erro: "+String(e&&(e.message||e.code)||e).slice(0,80)); return; }
   bioOpen = true;
   const X = {pt:["Desbloquear com Face ID","Sair da conta","Entrar na Búzios Lanchas","Usar o código do aparelho"], en:["Unlock with Face ID","Sign out","Sign in to Búzios Lanchas","Use device passcode"], es:["Desbloquear con Face ID","Cerrar sesión","Entrar en Búzios Lanchas","Usar el código del dispositivo"]}[lang] || ["Desbloquear com Face ID","Sair da conta","Entrar na Búzios Lanchas","Usar o código do aparelho"];
   const ov = document.createElement("div");
