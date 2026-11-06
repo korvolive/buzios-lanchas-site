@@ -68,11 +68,18 @@ jobs:
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER")
           xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            DEVELOPMENT_TEAM="$TEAM" CODE_SIGNING_ALLOWED=NO CODE_SIGN_ENTITLEMENTS=App/App.entitlements \
+            DEVELOPMENT_TEAM="$TEAM" CODE_SIGNING_ALLOWED=NO \
             MARKETING_VERSION="1.0.${{ github.run_number }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive | tail -20
-          # O arquivo é gerado sem assinatura; a assinatura de distribuição (App Store) é feita na exportação,
-          # que não precisa de iPhone cadastrado na conta.
+          # O arquivo é assinado para desenvolvimento (precisa de ao menos um iPhone cadastrado na conta Apple,
+          # em developer.apple.com > Devices) e carrega a permissão de notificações; a exportação assina para a App Store.
+          # grava a permissão de notificações no app do arquivo (assinatura provisória só para carregar as permissões;
+          # a exportação refaz a assinatura com o certificado da App Store e mantém as permissões)
+          APP="$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app"
+          codesign --force --sign - --entitlements App/App.entitlements "$APP"
+          echo "== permissões (entitlements) gravadas no arquivo =="
+          find "$RUNNER_TEMP/App.xcarchive" -name "*.xcent" -exec sh -c 'echo "-- $1"; cat "$1"' _ {} \;
+          codesign -d --entitlements - "$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app" 2>&1 | head -20 || true
           cat > "$RUNNER_TEMP/export.plist" <<PL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
