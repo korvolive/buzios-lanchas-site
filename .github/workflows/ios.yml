@@ -37,6 +37,7 @@ jobs:
           $B -c "Add :ITSAppUsesNonExemptEncryption bool false" $P
           $B -c "Add :NSCameraUsageDescription string 'Para tirar a sua foto de perfil e enviar comprovantes.'" $P
           $B -c "Add :NSPhotoLibraryUsageDescription string 'Para escolher a sua foto de perfil e enviar comprovantes e fotos das lanchas.'" $P
+          $B -c "Add :NSFaceIDUsageDescription string 'Para entrar no app com o seu rosto, sem digitar a senha.'" $P
           $B -c "Add :CFBundleDevelopmentRegion string pt-BR" $P 2>/dev/null || $B -c "Set :CFBundleDevelopmentRegion pt-BR" $P
           $B -c "Add :CFBundleLocalizations array" -c "Add :CFBundleLocalizations:0 string pt-BR" -c "Add :CFBundleLocalizations:1 string en" -c "Add :CFBundleLocalizations:2 string es" $P
           ICON=$(ls ios/App/App/Assets.xcassets/AppIcon.appiconset/*.png | head -1)
