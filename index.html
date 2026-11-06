@@ -25,18 +25,18 @@
 /* link curto do convite (?c= / ?w=) e do vendedor para criar conta (?criar=1): abre o cadastro */(function(){var q=location.search;if(location.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q))location.replace("/login/"+(/[?&]criar=1/.test(q)?q:"?criar=1&"+q.slice(1)));})();
 /* idioma logo no começo (Rodrigo aprovou 2026-10-31): quem chega na versão em português com o aparelho em outra língua vai para /en/ ou /es/ antes de baixar o resto da página; mesma regra do roteador mais abaixo, que continua cuidando dos casos especiais */(function(){try{var L=location,q=L.search,m=L.pathname.match(/^\/(lancha\/([a-z0-9-]+)\/?)?(index\.html)?$/);if(!m||/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)||/[?&](lang|o)=/.test(q)||/^#lancha-|access_token=/.test(L.hash)||(L.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q)))return;var s=null;try{s=localStorage.getItem("lang")}catch(e){}var n=(navigator.language||"pt").slice(0,2).toLowerCase(),l=/^(pt|en|es)$/.test(s||"")?s:(n==="pt"||n==="es"?n:"en");if(l!=="pt")L.replace("/"+l+"/"+(m[2]?"lancha/"+m[2]+"/":"")+q+L.hash)}catch(e){}})();</script>
 <!-- Google Tag Manager (mesmo contêiner do site antigo: Google Ads, conversão no clique do WhatsApp e Google Analytics) -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+<script>(function(w,d,s,l,i){if(/BuziosLanchasIOS/.test(navigator.userAgent))return;w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-NVP9L5DF');</script>
 <!-- Meta Pixel (Facebook e Instagram), o mesmo do site antigo -->
-<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+<script>!function(f,b,e,v,n,t,s){if(f.fbq||/BuziosLanchasIOS/.test(navigator.userAgent))return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init','1672637870274530');fbq('track','PageView');</script>
+if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <title>Búzios Lanchas | Aluguel de lanchas em Búzios</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1672637870274530&ev=PageView&noscript=1"></noscript>
 <link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#06394a"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Buzios Lanchas">
