@@ -1204,6 +1204,7 @@ function loginView(){
     <h1>${t("loginTitle")}</h1><p class="muted">${pendRes() ? t("resLoginSub",{boat:esc(pendRes().nome)}) : t("loginSub")}</p>
     <h2 class="haveacc">${t("haveAccT")}</h2>
     <form class="card" id="lf" novalidate>
+      ${bioLoginBtn()}
       ${loginMsg?`<p class="msg ${loginErr?"err":"ok"}">${loginMsg}</p>`:""}
       <div class="lgby" role="group"><button type="button" data-by="email" aria-pressed="${loginBy==="email"}">✉ ${t("email")}</button><button type="button" data-by="tel" aria-pressed="${loginBy==="tel"}">📱 ${t("byPhone")}</button>${googleOn ? `<a class="lgg" href="${googleHref()}">${GOOGLE_ICON}<span>Google</span></a>` : ""}</div>
       ${loginBy==="tel" ? phoneField("lg", t("whats"), store.get("dono-tel")||"") : `<label class="f"><span>${t("email")}</span><input type="email" id="em" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(typedEmail||store.get("dono-email")||"")}" required></label>`}
@@ -1221,6 +1222,7 @@ function loginView(){
   app.querySelectorAll("[data-by]").forEach(b=>b.onclick=()=>{ loginBy=b.dataset.by; store.set("dono-by",loginBy); loginMsg=""; loginView(); });
   /* entrar com o celular: a função acha a conta pelo WhatsApp e entra com a senha (o e-mail da conta não aparece) */
   const telFn = async body => { const r = await fetch(SB+"/functions/v1/entrar-celular",{method:"POST", headers:{apikey:KEY, "content-type":"application/json"}, body:JSON.stringify(body)}); return r.json().catch(()=>({erro:"falhou"})); };
+  { const bb=document.getElementById("biologin"); if(bb){ bb.onclick=()=>bioLogin(); if(!bioAutoDone){ bioAutoDone=true; setTimeout(()=>bioLogin(), 300); } } }
   document.getElementById("lf").onsubmit = async e => { e.preventDefault(); if(em) typedEmail = em.value;
     const go=document.getElementById("go");
     if(loginBy==="tel"){ const ph=readPhone("lg");
@@ -1234,10 +1236,12 @@ function loginView(){
       catch(err){ loginErr=true; loginMsg=t("netErr"); }
       return loginView(); }
     go.disabled=true; go.textContent=t("entering");
+    const bioE = em.value.trim(), bioP = pw.value, viaBio = bioTry; bioTry = false;
     try{ const s = await authCall("token?grant_type=password", {email:em.value.trim(), password:pw.value});
-      store.set("dono-email", em.value.trim()); saveSes(s); loginMsg=""; view="main"; await boot(); }
+      store.set("dono-email", em.value.trim()); saveSes(s); loginMsg=""; view="main"; await boot(); bioOffer(bioE, bioP); }
     catch(err){ if(err.status && /confirm/i.test(err.code+err.message)){ /* e-mail ainda não confirmado: manda o código e pede aqui */
         codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); emSent(); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
+      if(viaBio && err.status){ credDel(); } /* a senha mudou: apaga a guardada, a pessoa entra com a nova e o app oferece de novo */
       loginErr=true; loginMsg = err.code==="user_banned" ? t("blockedMsg") : err.status ? t("badLogin") : t("netErr"); loginView(); }
   };
   document.getElementById("tosign").onclick = () => { loginMsg=""; view="signup"; show(); };
@@ -2378,7 +2382,7 @@ function openFace(){
       ${S.isClient && S.me ? `<button type="button" class="btn sec" id="avme" style="margin:0 0 10px">✏️ ${t("myData")}</button>` : ""}
       <button type="button" class="btn sec" id="avem" style="margin:0">✉ ${t(semEmail()?"emAdd":"chEmail")}</button>
       ${S.pushWho && (pushOk() || isIOS()) ? `<button type="button" class="btn sec" id="avpt" style="margin:10px 0 0">🔔 ${t("pushTest")}</button>` : ""}
-      ${IOS_APP ? `<button type="button" class="btn sec" id="avbio" style="margin:10px 0 0">🔒 Testar Face ID</button>` : ""}
+      ${IOS_APP && bioX() ? `<button type="button" class="btn sec" id="avbio" style="margin:10px 0 0">🙂 ${store.get("bio-on") ? bioX().on : bioX().enable}</button>` : ""}
       ${S.admin ? "" : `<button type="button" class="link danger" id="avdel" style="margin-top:14px">${t("delMe")}</button>`}</div>
     <button type="button" class="btn sec" id="avclose" style="margin-top:10px">${t("close")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
@@ -2398,7 +2402,7 @@ function openFace(){
   const pwb=document.getElementById("avpw"); if(pwb) pwb.onclick=()=>openPw();
   document.getElementById("avem").onclick=()=>openEmail();
   const pt=document.getElementById("avpt"); if(pt) pt.onclick=()=>pushTest();
-  const pbio=document.getElementById("avbio"); if(pbio) pbio.onclick=()=>{ closeDay(); bioLock(true); };
+  const pbio=document.getElementById("avbio"); if(pbio) pbio.onclick=async()=>{ closeDay(); const X=bioX(); if(store.get("bio-on")){ await credDel(); toast(X.off); } else { store.set("bio-no", null); toast(X.later); } };
 }
 /* manda uma notificação de teste só para este aparelho */
 async function pushTest(){
@@ -3649,26 +3653,46 @@ const permNow = () => nativeNP() ? NPERM : Notification.permission;
 const permAsk = async () => { const NP=nativeNP(); if(!NP) return Notification.requestPermission(); const r = await NP.requestPermissions(); NPERM = mapPerm(r.receive); return NPERM; };
 /* Face ID / Touch ID: no app da Apple, quem já está logado desbloqueia o app com o rosto (ou o código do aparelho) ao abrir e ao voltar depois de 30 s */
 const bioNP = () => IOS_APP ? window.Capacitor?.Plugins?.BiometricAuthNative : null; /* nome do plugin nativo (o BiometricAuth do pacote é só a camada de JavaScript) */
-let bioOpen = false, bioHide = 0;
-async function bioLock(manual){
-  const B = bioNP();
-  if(manual && !B) return void toast("Face ID: plugin ausente neste app");
-  if(!B || bioOpen || !sesStored()?.refresh_token) return;
-  try{ const c = await B.checkBiometry(); if(!c.isAvailable){ if(manual) toast("Face ID indisponível: "+(c.reason||c.code||"sem motivo")+" (tipo "+c.biometryType+")"); return; } }catch(e){ if(manual) toast("Face ID erro: "+String(e&&(e.message||e.code)||e).slice(0,80)); return; }
-  bioOpen = true;
-  const X = {pt:["Desbloquear com Face ID","Sair da conta","Entrar na Búzios Lanchas","Usar o código do aparelho"], en:["Unlock with Face ID","Sign out","Sign in to Búzios Lanchas","Use device passcode"], es:["Desbloquear con Face ID","Cerrar sesión","Entrar en Búzios Lanchas","Usar el código del dispositivo"]}[lang] || ["Desbloquear com Face ID","Sair da conta","Entrar na Búzios Lanchas","Usar o código do aparelho"];
-  const ov = document.createElement("div");
-  ov.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:#0b2233;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;font:17px -apple-system,sans-serif;text-align:center";
-  ov.innerHTML = '<div style="font-size:56px">🔒</div><div style="font-size:22px;font-weight:700">Búzios Lanchas</div><button type="button" id="bioGo" style="background:#e2b44c;color:#0b2233;border:0;border-radius:14px;padding:16px 28px;font:700 17px -apple-system,sans-serif">'+X[0]+'</button><button type="button" id="bioOut" style="background:none;border:0;color:#7fd3e8;font:16px -apple-system,sans-serif">'+X[1]+'</button>';
-  document.body.appendChild(ov);
-  const go = async () => { try{ await B.internalAuthenticate({reason:X[2], allowDeviceCredential:true, iosFallbackTitle:X[3]}); ov.remove(); bioOpen = false; }catch(e){} };
-  ov.querySelector("#bioGo").onclick = go;
-  ov.querySelector("#bioOut").onclick = () => { ov.remove(); bioOpen = false; logout(); };
-  go();
+/* Entrar com Face ID (Rodrigo 2026-11-06): depois do 1º login com senha o app oferece guardar e-mail e senha no chaveiro do iPhone;
+   nas próximas vezes (mesmo depois de Sair) o Face ID preenche e entra. Só no app da Apple. */
+const secNP = () => IOS_APP ? window.Capacitor?.Plugins?.SecureStorage : null;
+const BIO_KEY = "bz_cred";
+const credSave = async c => { const S_ = secNP(); await S_.internalSetItem({prefixedKey:BIO_KEY, data:JSON.stringify(c), sync:false}); };
+const credGet = async () => { const S_ = secNP(); try{ const r = await S_.internalGetItem({prefixedKey:BIO_KEY, sync:false}); return r?.data ? JSON.parse(r.data) : null; }catch(e){ return null; } };
+const credDel = async () => { const S_ = secNP(); try{ await S_.internalRemoveItem({prefixedKey:BIO_KEY, sync:false}); }catch(e){} store.set("bio-on", null); };
+const bioX = () => ({
+  pt:{ask:"Entrar com Face ID?", sub:"Da próxima vez você entra só com o rosto, sem digitar e-mail e senha. Eles ficam guardados no chaveiro do iPhone.", yes:"Ativar Face ID", no:"Agora não", btn:"Entrar com Face ID", why:"Entrar na Búzios Lanchas", ok:"Face ID ativado.", off:"Face ID desativado.", on:"Desativar Face ID", enable:"Ativar Face ID", later:"Entre uma vez com e-mail e senha: vamos perguntar se quer ativar."},
+  en:{ask:"Sign in with Face ID?", sub:"Next time you sign in with just your face, no typing. Your email and password are kept in the iPhone keychain.", yes:"Turn on Face ID", no:"Not now", btn:"Sign in with Face ID", why:"Sign in to Búzios Lanchas", ok:"Face ID is on.", off:"Face ID is off.", on:"Turn off Face ID", enable:"Turn on Face ID", later:"Sign in once with email and password: we will ask if you want to turn it on."},
+  es:{ask:"¿Entrar con Face ID?", sub:"La próxima vez entras solo con el rostro, sin escribir. Tu correo y contraseña quedan en el llavero del iPhone.", yes:"Activar Face ID", no:"Ahora no", btn:"Entrar con Face ID", why:"Entrar en Búzios Lanchas", ok:"Face ID activado.", off:"Face ID desactivado.", on:"Desactivar Face ID", enable:"Activar Face ID", later:"Entra una vez con correo y contraseña: te preguntaremos si quieres activarlo."}
+}[lang] || null);
+const bioReady = async () => { const B = bioNP(); if(!B || !secNP()) return false; try{ return !!(await B.checkBiometry()).isAvailable; }catch(e){ return false; } };
+const bioAuth = async why => { await bioNP().internalAuthenticate({reason:why, allowDeviceCredential:true}); };
+/* depois do login com senha: oferece ativar (uma vez); se já está ativo e a senha mudou, atualiza o chaveiro */
+async function bioOffer(email, pw){
+  try{
+    if(!IOS_APP || !email || !pw || !(await bioReady())) return;
+    if(store.get("bio-on")){ const c = await credGet(); if(!c || c.email!==email || c.pw!==pw) await credSave({email, pw}); return; }
+    if(store.get("bio-no")) return;
+    const X = bioX(); const ov = document.createElement("div");
+    ov.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(5,15,25,.88);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font:17px -apple-system,sans-serif;text-align:center";
+    ov.innerHTML = '<div style="background:#12303f;border-radius:20px;padding:26px 22px;max-width:360px"><div style="font-size:48px">🙂</div><div style="font-size:21px;font-weight:700;margin:8px 0">'+X.ask+'</div><p style="margin:0 0 18px;opacity:.85;font-size:15px">'+X.sub+'</p><button type="button" id="bioYes" style="width:100%;background:#e2b44c;color:#0b2233;border:0;border-radius:14px;padding:15px;font:700 17px -apple-system,sans-serif">'+X.yes+'</button><button type="button" id="bioNo" style="width:100%;background:none;border:0;color:#7fd3e8;padding:14px;font:16px -apple-system,sans-serif">'+X.no+'</button></div>';
+    document.body.appendChild(ov);
+    ov.querySelector("#bioNo").onclick = () => { store.set("bio-no", 1); ov.remove(); };
+    ov.querySelector("#bioYes").onclick = async () => { try{ await bioAuth(X.why); await credSave({email, pw}); store.set("bio-on", 1); store.set("bio-no", null); toast(X.ok); }catch(e){} ov.remove(); };
+  }catch(e){}
 }
-if(IOS_APP){
-  bioLock();
-  document.addEventListener("visibilitychange", () => { if(document.hidden) bioHide = Date.now(); else if(bioHide && Date.now()-bioHide > 30000) bioLock(); });
+/* tela de login: botão Entrar com Face ID (e já abre sozinho na 1ª vez que a tela aparece) */
+let bioAutoDone = false, bioTry = false;
+const bioLoginBtn = () => (IOS_APP && store.get("bio-on") && bioX()) ? `<button type="button" class="btn" id="biologin" style="margin:0 0 14px">🙂 ${bioX().btn}</button>` : "";
+async function bioLogin(){
+  try{
+    const X = bioX(); await bioAuth(X.why);
+    const c = await credGet(); if(!c){ store.set("bio-on", null); return loginView(); }
+    if(loginBy!=="email"){ loginBy="email"; store.set("dono-by","email"); loginView(); }
+    const em_ = document.getElementById("em"), pw_ = document.getElementById("pw");
+    em_.value = c.email; pw_.value = c.pw; typedEmail = c.email; bioTry = true;
+    document.getElementById("lf").requestSubmit();
+  }catch(e){}
 }
 let apnsTok = null, apnsWait = null;
 function nativeToken(){
