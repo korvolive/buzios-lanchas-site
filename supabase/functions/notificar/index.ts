@@ -178,6 +178,30 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
   },
 };
 
+
+// aparelhos do app da Apple ficam em push_subs como "apns:<token>"; o envio vai direto para a Apple (APNs, chave .p8 nos segredos)
+let apnsJwt: { t: string; em: number } | null = null;
+async function apnsToken() {
+  if (apnsJwt && Date.now() - apnsJwt.em < 50 * 60e3) return apnsJwt.t;
+  const kid = Deno.env.get("APNS_KEY_ID")!, team = Deno.env.get("APNS_TEAM_ID")!;
+  const pem = Deno.env.get("APNS_KEY_P8")!.replace(/-----[A-Z ]+-----/g, "").replace(/\s+/g, "");
+  const key = await crypto.subtle.importKey("pkcs8", Uint8Array.from(atob(pem), c => c.charCodeAt(0)), { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const b64u = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const enc = (o: unknown) => b64u(new TextEncoder().encode(JSON.stringify(o)));
+  const head = `${enc({ alg: "ES256", kid })}.${enc({ iss: team, iat: Math.floor(Date.now() / 1000) })}`;
+  const sig = new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(head)));
+  apnsJwt = { t: `${head}.${b64u(sig)}`, em: Date.now() };
+  return apnsJwt.t;
+}
+async function enviarApns(token: string, m: { title: string; body: string }, url: string, tag: string) {
+  const r = await fetch(`https://api.push.apple.com/3/device/${token}`, {
+    method: "POST",
+    headers: { authorization: `bearer ${await apnsToken()}`, "apns-topic": "br.com.lanchaembuzios.app", "apns-push-type": "alert", "apns-priority": "10", "apns-collapse-id": tag.slice(0, 64) },
+    body: JSON.stringify({ aps: { alert: { title: m.title, body: m.body }, sound: "default" }, url }),
+  });
+  if (!r.ok) throw Object.assign(new Error(await r.text()), { statusCode: r.status });
+}
+
 async function enviar(users: string[], tipo: string, p: any, url: string, so?: string) {
   if (!users.length) return 0;
   const k = await chaves();
@@ -189,12 +213,18 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
   await Promise.all((subs || []).map(async s => {
     const m = (TXT[tipo][s.lang] || TXT[tipo].pt)(p);
     try {
+      if (s.endpoint.startsWith("apns:")) {
+        await enviarApns(s.endpoint.slice(5), m, url, `${tipo}-${p.id ?? "t"}`);
+        n++; console.log("push ok", tipo, "apns");
+        return;
+      }
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...m, url, tag: `${tipo}-${p.id ?? "t"}` }), { TTL: 86400, urgency: "high" });
       n++;
       console.log("push ok", tipo, new URL(s.endpoint).host);
     } catch (e: any) {
-      console.error("push falhou", tipo, e?.statusCode, new URL(s.endpoint).host, e?.body || String(e));
-      if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint);
+      const host = s.endpoint.startsWith("apns:") ? "apns" : new URL(s.endpoint).host;
+      console.error("push falhou", tipo, e?.statusCode, host, e?.body || String(e));
+      if (e?.statusCode === 404 || e?.statusCode === 410 || (host === "apns" && /BadDeviceToken|Unregistered/.test(String(e?.message)))) await db.from("push_subs").delete().eq("endpoint", s.endpoint);
     }
   }));
   return n;
