@@ -14,9 +14,9 @@ fi
 if [ $st -eq 78 ]; then
   : > .htaccess.servidor   # o servidor ainda não tem .htaccess
 elif [ $st -ne 0 ]; then
-  echo "não consegui ler o .htaccess do servidor (curl $st): fica como está"
+  echo "não consegui ler o .htaccess do servidor (curl $st): paro o deploy para não apagar o .htaccess de lá"
   rm -f .htaccess.servidor
-  exit 0
+  exit 1
 fi
 sed '/^# BEGIN buzios-velocidade$/,/^# END buzios-velocidade$/d' .htaccess.servidor > .htaccess
 cat >> .htaccess <<'BLOCO'
