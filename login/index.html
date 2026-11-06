@@ -1222,7 +1222,7 @@ function loginView(){
   app.querySelectorAll("[data-by]").forEach(b=>b.onclick=()=>{ loginBy=b.dataset.by; store.set("dono-by",loginBy); loginMsg=""; loginView(); });
   /* entrar com o celular: a função acha a conta pelo WhatsApp e entra com a senha (o e-mail da conta não aparece) */
   const telFn = async body => { const r = await fetch(SB+"/functions/v1/entrar-celular",{method:"POST", headers:{apikey:KEY, "content-type":"application/json"}, body:JSON.stringify(body)}); return r.json().catch(()=>({erro:"falhou"})); };
-  { const bb=document.getElementById("biologin"); if(bb){ bb.onclick=()=>bioLogin(); if(!bioAutoDone){ bioAutoDone=true; setTimeout(()=>bioLogin(), 300); } } }
+  { const bb=document.getElementById("biologin"); if(bb){ bb.onclick=()=>bioLogin(); } }
   document.getElementById("lf").onsubmit = async e => { e.preventDefault(); if(em) typedEmail = em.value;
     const go=document.getElementById("go");
     if(loginBy==="tel"){ const ph=readPhone("lg");
@@ -3671,7 +3671,7 @@ const bioAuth = async why => { await bioNP().internalAuthenticate({reason:why, a
 async function bioOffer(email, pw){
   try{
     if(!IOS_APP || !email || !pw || !(await bioReady())) return;
-    if(store.get("bio-on")){ const c = await credGet(); if(!c || c.email!==email || c.pw!==pw) await credSave({email, pw}); return; }
+    if(store.get("bio-on")){ const c = await credGet(); if(c && c.email===email){ if(c.pw!==pw) await credSave({email, pw}); return; } } /* outra conta: pergunta de novo se quer trocar o Face ID para ela */
     if(store.get("bio-no")) return;
     const X = bioX(); const ov = document.createElement("div");
     ov.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(5,15,25,.88);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font:17px -apple-system,sans-serif;text-align:center";
