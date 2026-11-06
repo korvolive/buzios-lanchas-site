@@ -544,13 +544,13 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .eqpin .equnp{font:inherit;font-size:13px;font-weight:700;color:inherit;background:none;border:0;padding:4px;cursor:pointer;text-decoration:underline;flex-shrink:0}
 .chm.pinhl{outline:3px solid var(--brass);outline-offset:2px}
 .chm.clima{flex-shrink:0;max-width:100%;align-self:stretch;padding:0;overflow:hidden;border-radius:14px;background:#fff6e0;color:#3d2a00;border:2px solid #e8a317}
-.chm.clima .clh{display:flex;align-items:center;gap:8px;background:#e8a317;color:#2a1c00;padding:7px 12px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.chm.clima .clh{display:flex;align-items:center;gap:8px;background:#e8a317;color:#2a1c00;padding:3px 10px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
 .chm.clima.grave{background:#fde4df;color:#5a140b;border-color:#c0392b}.chm.clima.grave .clh{background:#c0392b;color:#fff}
 .chm.clima.fim{background:var(--chip);color:inherit;border-color:var(--line,#ccc);opacity:.75}.chm.clima.fim .clh{background:#8a8a8a;color:#fff}
-.chm.clima .clb{padding:9px 12px 10px}.chm.clima .clt{font-weight:800;font-size:16px;margin:0 0 4px}.chm.clima .cht{font-size:14px}
-.chm.clima .clv{font-size:13px;font-weight:700;margin-top:6px}
-.chm.clima .alact{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.chm.clima .alact a,.chm.clima .alact button{font:inherit;font-size:14px;font-weight:700;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
-.chm.clima .chx{margin-top:4px}
+.chm.clima .clb{padding:6px 10px 7px}.chm.clima .clt{font-weight:800;font-size:14px;margin:0 0 2px}.chm.clima .cht{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;cursor:pointer}.chm.clima .cht.open{display:block;-webkit-line-clamp:unset}
+.chm.clima .clv{font-size:12px;font-weight:700;margin-top:3px}
+.chm.clima .alact{display:flex;gap:12px;flex-wrap:wrap;margin-top:3px}.chm.clima .alact a,.chm.clima .alact button{font:inherit;font-size:12.5px;font-weight:700;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.chm.clima .chx{margin-top:1px}
 .chm.alerta .alact{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.chm.alerta .alact a,.chm.alerta .alact button{font:inherit;font-size:14px;font-weight:700;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .chm.flag{outline:2px solid #e0a800}
 #altx{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:1px solid var(--line,#ccc);background:var(--surface);color:inherit;margin-top:4px}
@@ -4747,6 +4747,7 @@ const eqRole = m => m.papel ? `<span class="eqrole r-${m.papel}">${t("eqR_"+m.pa
 /* 👍 curtir: concordar sem mandar outra mensagem */
 const eqLikeHTML = m => m.apagada || m.curtidas==null ? "" : m.autor===ses.user.id ? (+m.curtidas ? `<span class="eqlk mine"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍 <b>${m.curtidas}</b></span>` : "") : `<button type="button" class="eqlk${m.curti?" on":""}" data-eqlk="${m.id}" aria-pressed="${!!m.curti}" aria-label="${t("eqLike")}"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍${+m.curtidas?` <b>${m.curtidas}</b>`:""}</button>`;
 /* alerta automático de mau tempo (Marinha / INMET), mandado pela própria Búzios Lanchas: visual de aviso oficial, sem autor */
+document.addEventListener("click", e=>{ const c=e.target.closest(".chm.clima .cht"); if(c) c.classList.toggle("open"); }); /* alerta compacto: toque no texto abre e fecha (Rodrigo 2026-11-06) */
 function eqClimaHTML(m){
   let d={}; try{ d=JSON.parse(m.local||"{}"); }catch(e){}
   const L=lang, quando=x=>new Date(x).toLocaleString(t("locale"),{weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});

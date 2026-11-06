@@ -20,12 +20,12 @@ const MARINHA = "https://www.marinha.mil.br/chm/dados-do-smm-avisos-de-mau-tempo
 const INMET = "https://apiprevmet3.inmet.gov.br/avisos/ativos";
 const BUZIOS = { lat: -22.75, lon: -41.88, ibge: "3300233" };
 
-// litoral em ordem (sul -> norte); Búzios = 25. Trecho costeiro vale se cobre 24.5..25.5
+// litoral em ordem (sul -> norte); Búzios = 25. Trecho costeiro só vale se passa por 25
 const COSTA: [string, number][] = [["CHUI", 0], ["RIO GRANDE", 1], ["MOSTARDAS", 2], ["TRAMANDAI", 3], ["TORRES", 4], ["CABO DE SANTA MARTA", 5], ["LAGUNA", 5],
   ["FLORIANOPOLIS", 6], ["ITAJAI", 7], ["SAO FRANCISCO DO SUL", 8], ["PARANAGUA", 9], ["CANANEIA", 10], ["IGUAPE", 11], ["PERUIBE", 11.5], ["SANTOS", 12],
   ["SAO SEBASTIAO", 13], ["ILHABELA", 13], ["UBATUBA", 14], ["PARATY", 15], ["PARATI", 15], ["ANGRA DOS REIS", 16], ["ILHA GRANDE", 16.5], ["GUARATIBA", 17],
   ["RIO DE JANEIRO", 18], ["NITEROI", 18], ["MARICA", 19], ["SAQUAREMA", 20], ["ARRAIAL DO CABO", 24.5], ["CABO FRIO", 24.5], ["BUZIOS", 25],
-  ["RIO DAS OSTRAS", 26], ["MACAE", 27], ["CABO DE SAO TOME", 28], ["SAO JOAO DA BARRA", 29], ["ITAPEMIRIM", 30], ["GUARAPARI", 31], ["VITORIA", 32],
+  ["RIO DAS OSTRAS", 26], ["MACAE", 27], ["CABO DE SAO TOME", 28], ["SAO JOAO DA BARRA", 29], ["MARATAIZES", 29.8], ["ITAPEMIRIM", 30], ["GUARAPARI", 31], ["VITORIA", 32],
   ["REGENCIA", 33], ["SAO MATEUS", 34], ["CONCEICAO DA BARRA", 34.5], ["CARAVELAS", 35], ["PORTO SEGURO", 36], ["ILHEUS", 37], ["SALVADOR", 38],
   ["ARACAJU", 40], ["MACEIO", 41], ["RECIFE", 42], ["CABEDELO", 42.5], ["NATAL", 43], ["FORTALEZA", 45], ["SAO LUIS", 47], ["SALINOPOLIS", 48],
   ["BELEM", 48.5], ["CABO ORANGE", 50], ["OIAPOQUE", 50]].sort((a, b) => b[0].length - a[0].length) as [string, number][];
@@ -43,7 +43,7 @@ function dentro(pts: [number, number][], x: number, y: number) { // ponto no pol
 
 function pegaBuzios(txt: string) {
   const t = sem(txt);
-  if (/BUZIOS|CABO FRIO|ARRAIAL DO CABO/.test(t)) return true;
+  if (/BUZIOS/.test(t)) return true;
   const oc = t.match(/AREA OCEANICA ENTRE (.+?) A PARTIR/);
   if (oc) {
     const pts = [...oc[1].matchAll(/(\d+(?:\.\d+)?)S0?(\d+(?:\.\d+)?)W/g)].map(m => [-+m[2], -+m[1]] as [number, number]);
@@ -53,8 +53,9 @@ function pegaBuzios(txt: string) {
   if (co) {
     const a = pos(co[1]), b = pos(co[2]);
     if (a == null || b == null) { console.log("lugar desconhecido", co[1], "|", co[2]); return false; }
-    return Math.min(a, b) <= 25.5 && Math.max(a, b) >= 24.5;
+    return Math.min(a, b) <= 25 && Math.max(a, b) >= 25; // o trecho tem que passar por Búzios; aviso que termina em Arraial do Cabo/Cabo Frio não vale (Rodrigo 2026-11-06)
   }
+  if (/CABO FRIO|ARRAIAL DO CABO/.test(t) && !/ENTRE/.test(t)) return true; // cita a região e não traz trecho para conferir
   return /AREA CHARLIE/.test(t) && !/ENTRE/.test(t);
 }
 
@@ -70,7 +71,26 @@ async function traduz(q: string, to: string) {
 }
 
 const lidos = { marinha: 0, inmet: 0 }; // quantos avisos cada fonte tem ao todo (para conferir com ?ver)
-type Aviso = { chave: string; fonte: "marinha" | "inmet"; tit: string; txt: string; tit_en?: string; txt_en?: string; ini?: string; fim?: string; nivel?: string };
+type Aviso = { chave: string; fonte: "marinha" | "inmet"; tit: string; txt: string; tit_en?: string; txt_en?: string; ini?: string; fim?: string; nivel?: string; raw?: string };
+
+// validade pelo texto oficial quando a página não traz as datas: "A PARTIR DE 061200Z" (início) e "VÁLIDO ATÉ 071200Z" (fim), dia+hora+minuto em UTC
+function dataZ(tok: string): string | undefined {
+  const m = tok.match(/^(\d{2})(\d{2})(\d{2})Z?$/); if (!m) return;
+  const now = new Date(); let best: Date | undefined;
+  for (const dm of [-1, 0, 1]) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + dm, +m[1], +m[2], +m[3]));
+    if (d.getUTCDate() !== +m[1]) continue;
+    if (!best || Math.abs(d.getTime() - now.getTime()) < Math.abs(best.getTime() - now.getTime())) best = d;
+  }
+  return best?.toISOString();
+}
+function validade(pt: string): { ini?: string; fim?: string } {
+  const ini = pt.match(/A PARTIR DE (\d{6})Z/)?.[1];
+  const v = pt.match(/V[ÁA]LIDO\s+(.+?)(?:\.|$)/i)?.[1] || "";
+  const toks = [...v.matchAll(/(\d{6})Z/g)].map(x => x[1]);
+  const fim = /AT[ÉE]/i.test(v) ? toks[toks.length - 1] : undefined;
+  return { ini: ini ? dataZ(ini) : toks.length > 1 ? dataZ(toks[0]) : undefined, fim: fim ? dataZ(fim) : undefined };
+}
 
 const FORTE = /MUITO|DURO|TEMPESTUOS|FURAC|VIOLENT|RESSACA/; // tipo do aviso da Marinha que impede sair
 async function marinha(): Promise<Aviso[]> {
@@ -86,14 +106,14 @@ async function marinha(): Promise<Aviso[]> {
     if (!pt || !pegaBuzios(pt)) continue;
     const tp = sem(pt.match(/AVISO DE (.+?) EMITIDO/)?.[1] || "");
     if (!FORTE.test(tp)) continue;
-    const fim = datas[num][1];
+    const val = validade(pt), fim = datas[num][1] || val.fim, ini = datas[num][0] || val.ini;
     if (fim && new Date(fim).getTime() < Date.now()) continue;
     const tipo = pt.match(/(AVISO DE .+?) EMITIDO/)?.[1] || "AVISO DE MAU TEMPO";
     const corpo = (pt.match(/EMITIDO .+?\/\d{4}\s+(.+?)\s*VÁLIDO/)?.[1] || pt).replace(/ A PARTIR DE \d{6}Z/, "");
     const tipoEn = en?.match(/NR \S+ (.+?) ISSUED/)?.[1];
     const corpoEn = en?.match(/ISSUED AT .+? \d{4}\s+(.+?)\s*VALID/)?.[1]?.replace(/ STARTING AT \d{6}Z/, "");
     out.push({ chave: "marinha-" + num, fonte: "marinha", tit: titulo(tipo) + ` (nº ${num})`, txt: corpo,
-      tit_en: tipoEn ? titulo(tipoEn) + ` (no. ${num})` : undefined, txt_en: corpoEn, ini: datas[num][0] || undefined, fim: fim || undefined });
+      tit_en: tipoEn ? titulo(tipoEn) + ` (no. ${num})` : undefined, txt_en: corpoEn, ini, fim: fim || undefined, raw: pt });
   }
   return out;
 }
@@ -135,7 +155,21 @@ Deno.serve(async req => {
     const { data: novos } = await db.from("clima_avisos").upsert(avisos.map(a => ({ chave: a.chave })), { onConflict: "chave", ignoreDuplicates: true }).select("chave");
     const nov = new Set(((novos || []) as any[]).map(x => x.chave));
     let enviados = 0;
+    // avisos novos da Marinha do mesmo tipo no mesmo ciclo viram UM alerta só (Rodrigo 2026-11-06)
+    const lista: Aviso[] = [], grupo: Record<string, Aviso> = {};
     for (const a of avisos.filter(a => nov.has(a.chave))) {
+      if (a.fonte !== "marinha") { lista.push(a); continue; }
+      const k = a.tit.replace(/\s*\(n[ºo]\.? [^)]*\)/, "");
+      const g = grupo[k];
+      if (!g) { grupo[k] = { ...a }; lista.push(grupo[k]); continue; }
+      const n = (x: string) => x.match(/\(n[ºo]\.? ([^)]*)\)/)?.[1] || "";
+      const junta = (x: string, y: string, ano = true) => x.replace(/\(n[ºo]\.? ([^)]*)\)/, (_m, v) => `(nº ${String(v).replace(/\/\d{4}$/, "")} e ${n(y)})`);
+      g.tit = junta(g.tit, a.tit); g.tit_en = g.tit_en && a.tit_en ? g.tit_en.replace(/\(no\.? ([^)]*)\)/, (_m, v) => `(no. ${String(v).replace(/\/\d{4}$/, "")} and ${a.tit_en!.match(/\(no\.? ([^)]*)\)/)?.[1] || ""})`) : g.tit_en;
+      g.txt = `${g.txt} ${a.txt}`; g.txt_en = g.txt_en && a.txt_en ? `${g.txt_en} ${a.txt_en}` : g.txt_en;
+      if (a.ini && (!g.ini || a.ini < g.ini)) g.ini = a.ini;
+      if (a.fim && (!g.fim || a.fim > g.fim)) g.fim = a.fim;
+    }
+    for (const a of lista) {
       const tit = { pt: a.tit, en: a.tit_en || await traduz(a.tit, "en"), es: await traduz(a.tit, "es") };
       const txt = { pt: a.txt, en: a.txt_en || await traduz(a.txt, "en"), es: await traduz(a.txt, "es") };
       const dados = { fonte: a.fonte, nivel: a.nivel, tit, txt, ini: a.ini, fim: a.fim, url: a.fonte === "marinha" ? MARINHA : "https://alertas2.inmet.gov.br/" };
