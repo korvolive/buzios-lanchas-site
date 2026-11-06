@@ -2405,7 +2405,7 @@ async function pushTest(){
   if(permNow()==="denied") return void toast(t("pushDenied"));
   if(permNow()!=="granted"){ await pushAsk(); if(permNow()!=="granted") return; }
   try{ const ep = await pushSubscribe(); const r = await callFn({tipo:"teste", ep}); toast(r.enviados ? t("pushTestOk") : t("pushTestFail")); }
-  catch(e){ toast(t("pushTestFail")); }
+  catch(e){ toast(t("pushTestFail")+(IOS_APP ? " ["+String(e&&(e.message||e.errorMessage||e.code)||e).slice(0,80)+"]" : "")); }
 }
 /* ajuste da foto: já abre centrada no rosto; arrastar move, a barra aproxima */
 async function openCrop(url, uid){ /* uid: foto de outra pessoa (página Usuários) */
@@ -3668,6 +3668,7 @@ async function callFn(body){
 async function fnPost(name, body){ if(S.papel) return; try{ const tok=await fresh(); await fetch(SB+"/functions/v1/"+name,{method:"POST",keepalive:true,headers:{apikey:KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify(body)}); }catch(_){} }
 /* inscreve este celular e grava no banco (passa para quem está logado se outra pessoa usou antes) */
 async function pushSubscribe(){
+  if(IOS_APP && !nativeNP()) throw new Error("plugin de avisos ausente");
   if(nativeNP()){
     const ep = "apns:" + await nativeToken();
     await db("rpc/salvar_push",{method:"POST", body:{ep, chave:"apns", segredo:"apns", idioma:lang}});
