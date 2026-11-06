@@ -179,7 +179,8 @@ export function gerarPaginas(ROOT, SITE, dados) {
     const c = C[l], t = T[g][l], url = SITE + guiaPath(g, l), outro = g === "roteiro" ? "grupos" : "roteiro";
     const wa = `https://wa.me/${WA}?text=${encodeURIComponent(c.waMsg)}`;
     const boats = g === "grupos" ? [...dados.boats].sort((a, b) => (b.cap || 0) - (a.cap || 0)) : dados.boats;
-    const heroImg = g === "roteiro" ? "/img/rt-08-m.webp" : (boats[0]?.img || "/img/rt-08-m.webp");
+    const img0 = boats[0]?.img, heroImg = g === "roteiro" || !/^(https:\/\/[\w.\-]+)?\/[\w\/.\-]+$/.test(img0 || "") ? "/img/rt-08-m.webp" : img0;
+    const abs = u => /^https?:/.test(u) ? u : SITE + u;
     const faq = [...(dados.piso4 ? [[faqPreco[l], c.price(num(dados.piso4, l), dados.piso7 ? num(dados.piso7, l) : "")]] : []), ...t.faq];
     const boatCards = boats.map(b => `<a class="boat" href="${boatPath(l, b.slug)}">${b.img ? `<img src="${esc(b.img)}" alt="${esc(b.name)}" loading="lazy" width="800" height="533">` : ""}<div class="tx"><h3>${esc(b.name)}</h3><div class="meta">${[b.feet ? c.feet(b.feet) : "", b.cap ? c.people(b.cap) : ""].filter(Boolean).join(" · ")}</div><p>${esc(b.tag?.[l] || "")}</p></div></a>`).join("");
     const body = g === "roteiro"
@@ -191,7 +192,7 @@ export function gerarPaginas(ROOT, SITE, dados) {
 <section><h2>${t.tipsT}</h2><ul class="list">${t.tips.map(x => `<li>${x}</li>`).join("")}</ul></section>`;
     const ld = { "@context": "https://schema.org", "@graph": [
       { "@type": "WebPage", "@id": url, "url": url, "name": t.h1, "description": t.desc, "inLanguage": c.html, "isPartOf": { "@type": "WebSite", "url": SITE + "/", "name": "Búzios Lanchas" },
-        "about": { "@id": SITE + "/#empresa" }, "primaryImageOfPage": SITE + heroImg.replace(/-m\.webp$/, ".jpg").replace(/\.webp$/, ".jpg") },
+        "about": { "@id": SITE + "/#empresa" }, "primaryImageOfPage": abs(heroImg).replace(/-m\.webp$/, ".jpg").replace(/\.webp$/, ".jpg") },
       ...(g === "roteiro" ? [{ "@type": "TouristTrip", "name": t.h1, "description": t.desc, "url": url, "provider": { "@id": SITE + "/#empresa" },
         "itinerary": { "@type": "ItemList", "itemListElement": dados.route.map((r, i) => ({ "@type": "ListItem", "position": i + 1, "item": { "@type": "TouristAttraction", "name": r.name, "description": r.desc[l] || "" } })) } }] : []),
       { "@type": "FAQPage", "mainEntity": faq.map(([q, a]) => ({ "@type": "Question", "name": q, "acceptedAnswer": { "@type": "Answer", "text": a } })) },
@@ -202,7 +203,7 @@ export function gerarPaginas(ROOT, SITE, dados) {
 <title>${esc(t.title)}</title><meta name="description" content="${esc(t.desc)}">
 <link rel="canonical" href="${url}">${alt}
 <meta property="og:type" content="article"><meta property="og:site_name" content="Búzios Lanchas"><meta property="og:title" content="${esc(t.h1)}"><meta property="og:description" content="${esc(t.desc)}">
-<meta property="og:url" content="${url}"><meta property="og:image" content="${SITE}${heroImg.replace(/-m\.webp$/, ".jpg").replace(/\.webp$/, ".jpg")}"><meta property="og:locale" content="${c.og}"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="${url}"><meta property="og:image" content="${abs(heroImg).replace(/-m\.webp$/, ".jpg").replace(/\.webp$/, ".jpg")}"><meta property="og:locale" content="${c.og}"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#06394a"><link rel="icon" href="/login/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="preload" as="image" href="${heroImg}" fetchpriority="high">
 ${TRACK}
 <style>${CSS}.hero{background-image:url(${heroImg})}</style>

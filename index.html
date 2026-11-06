@@ -1373,7 +1373,9 @@ const pisoSite = k => { const oc=b=>{ try{ return HIDE_LIST.includes(b.slug); }c
   return v.length ? Math.floor(Math.min(...v)/100)*100 : 0; };
 function faqOf(l){ const F=UI[l].faq||UI.pt.faq, a=pisoSite("4"), c=pisoSite("7"); if(!a || !UI[l].faqPreco) return F;
   const n=v=>v.toLocaleString(l==="en"?"en-US":"pt-BR"), [q,txt]=UI[l].faqPreco;
-  return [F[0], [q, txt.replace("{a}",n(a)).replace("{b}", c ? n(c) : n(a))], ...F.slice(1)]; }
+  /* sem valor de 7 horas ainda: tira a parte "e o de 7 horas a partir de R$ {b}" (não dizer que 7h custa o mesmo que 4h) */
+  const t2 = c ? txt.replace("{b}", n(c)) : txt.replace(/ (e o de 7 horas a partir de|and the 7-hour tour at|y el de 7 horas desde) R\$ \{b\}/, "");
+  return [F[0], [q, t2.replace("{a}",n(a))], ...F.slice(1)]; }
 const brl = v => v==null ? "—" : v.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
 /* moeda do visitante: estrangeiro vê o valor convertido na moeda dele, com 10% a mais
    (regra do Rodrigo: quem não paga em reais/Pix paga por outros meios, com taxas). Cotação: edge function "cambio". */
@@ -2433,7 +2435,9 @@ function home(){
    jpg=true para prévias de link e Google (absImg), que continuam em JPG. Fotos do banco (https) seguem como estão */
 const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? p[0] + (thumb===1?"-t":"") + ".jpg" : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
 const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
-const altOf = (b,i) => b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`;
+const altOf = (b,i) => esc(b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`);
+const okFoto = f => typeof f==="string" && (/^https:\/\/sqoperylsqcbcjpcrlnp\.supabase\.co\/storage\/v1\/object\/public\/[\w\/.\-]+$/.test(f) || /^[\w\-]+$/.test(f));
+const okPos = p => typeof p==="string" && /^[a-z0-9% .]{1,30}$/.test(p) ? p : "center 50%";
 function gallery(b){
   const P=b.photos;
   return `<div class="gallery" data-i="0">
@@ -2723,7 +2727,8 @@ Promise.all([fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista
   .then(r=>r.ok ? r.json() : Promise.reject(r.status)), dbBoats])
   .then(([rows])=>{ let mudou=false;
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b || !Array.isArray(r.lista) || !r.lista.length) return;
-      const P=r.lista.map(x=>[x.f, x.a||"", x.p||"center 50%"]);
+      /* só aceita foto do Storage do projeto (ou nome de arquivo local) e enquadramento simples: nada do banco vira código na página */
+      const P=r.lista.filter(x=>okFoto(x.f)).map(x=>[x.f, typeof x.a==="string"?x.a:"", okPos(x.p)]); if(!P.length) return;
       if(JSON.stringify(P)!==JSON.stringify(b.photos)){ b.photos=P; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .catch(()=>{}).finally(()=>window.fotosDone=true);
