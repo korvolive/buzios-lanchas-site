@@ -48,6 +48,7 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict><key>aps-environment</key><string>production</string></dict></plist>
           EN
+          python3 ../scripts/ios/appdelegate.py ios/App/App/AppDelegate.swift
           npx cap sync ios
       - name: Compilar para o simulador (teste, sem assinatura)
         working-directory: build-ios/ios/App
