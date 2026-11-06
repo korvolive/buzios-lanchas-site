@@ -3647,7 +3647,7 @@ const mapPerm = r => r==="granted" ? "granted" : r==="denied" ? "denied" : "defa
 const permNow = () => nativeNP() ? NPERM : Notification.permission;
 const permAsk = async () => { const NP=nativeNP(); if(!NP) return Notification.requestPermission(); const r = await NP.requestPermissions(); NPERM = mapPerm(r.receive); return NPERM; };
 /* Face ID / Touch ID: no app da Apple, quem já está logado desbloqueia o app com o rosto (ou o código do aparelho) ao abrir e ao voltar depois de 30 s */
-const bioNP = () => IOS_APP ? window.Capacitor?.Plugins?.BiometricAuth : null;
+const bioNP = () => IOS_APP ? window.Capacitor?.Plugins?.BiometricAuthNative : null; /* nome do plugin nativo (o BiometricAuth do pacote é só a camada de JavaScript) */
 let bioOpen = false, bioHide = 0;
 async function bioLock(manual){
   const B = bioNP();
@@ -3660,7 +3660,7 @@ async function bioLock(manual){
   ov.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:#0b2233;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;font:17px -apple-system,sans-serif;text-align:center";
   ov.innerHTML = '<div style="font-size:56px">🔒</div><div style="font-size:22px;font-weight:700">Búzios Lanchas</div><button type="button" id="bioGo" style="background:#e2b44c;color:#0b2233;border:0;border-radius:14px;padding:16px 28px;font:700 17px -apple-system,sans-serif">'+X[0]+'</button><button type="button" id="bioOut" style="background:none;border:0;color:#7fd3e8;font:16px -apple-system,sans-serif">'+X[1]+'</button>';
   document.body.appendChild(ov);
-  const go = async () => { try{ await B.authenticate({reason:X[2], allowDeviceCredential:true, iosFallbackTitle:X[3]}); ov.remove(); bioOpen = false; }catch(e){} };
+  const go = async () => { try{ await B.internalAuthenticate({reason:X[2], allowDeviceCredential:true, iosFallbackTitle:X[3]}); ov.remove(); bioOpen = false; }catch(e){} };
   ov.querySelector("#bioGo").onclick = go;
   ov.querySelector("#bioOut").onclick = () => { ov.remove(); bioOpen = false; logout(); };
   go();
