@@ -2738,7 +2738,8 @@ const paxSel = (id, v) => { const mx=Math.max(1, ...S.all.filter(b=>b.ativa!==fa
 const capTag = b => { const c=b.dados?.capacidade || CAPACITY[b.slug]; return c ? ` <small class="cap">👥 ${c}</small>` : ""; };
 const avPrice = slug => { const r=(S.avPr||[]).find(x=>x.lancha===slug), k=kOf(S.avPr,slug,S.avD); if(!r) return "";
   const o=valOpts(r), v4=valorNaData(r,S.avD,false,o), v7=valorNaData(r,S.avD,true,o), nm=Object.fromEntries((S.avNet||[]).filter(x=>x.lancha===slug).map(x=>[x.chave,x.neto]));
-  const on={...o, esp:null, rx:0, rx7:0}, n4=valorNaData(nm,S.avD,false,on), n7=valorNaData(nm,S.avD,true,on);
+  const on={...o, esp:ESP_BOATS.includes(slug) ? o.esp : null, rx:0, rx7:0}, n4=valorNaData(nm,S.avD,false,on), n7=valorNaData(nm,S.avD,true,on);
+  /* Miss Bardot no período especial: o dono recebe o próprio valor especial, igual ao pedido (pedCalc); antes a linha Dono mostrava a época e ficava acima do Cliente (2026-11-11) */
   /* tabelinha 4h | 7h com uma linha do cliente e outra do dono (2026-10-25: os valores corridos confundiam) */
   if(!v4 && !v7) return ""; const c=v=>v?brl(v):t("prOnReq"), e=espOf(S.avD, r.especiais);
   return `${e?`<small class="avp">⭐ ${esc(e.nome||t("espTag"))}</small>`:""}<span class="avg"><i></i><i class="h">4h</i><i class="h">7h</i><i class="l">${t("avCli")}</i><i class="v">${c(v4)}</i><i class="v">${c(v7)}</i>${n4||n7?`<i class="l">${t("avDono")}</i><i class="n">${n4?brl(n4):"—"}</i><i class="n">${n7?brl(n7):"—"}</i>`:""}</span>`; };
