@@ -154,17 +154,25 @@ async function vaga(pid: number, segurar = false) {
   return String(data || "livre");
 }
 
-async function cliente(uid: string, cpfNovo: string) {
-  const { data: ja } = await db.from("asaas_clientes").select("customer_id").eq("user_id", uid).maybeSingle();
-  if (ja) return ja.customer_id as string;
+// semDoc: estrangeiro pagando com cartão internacional, cobrança sem CPF/CNPJ (Mayara/Asaas 2026-11-11)
+async function cliente(uid: string, cpfNovo: string, semDoc = false) {
+  const { data: ja } = await db.from("asaas_clientes").select("customer_id, cpf").eq("user_id", uid).maybeSingle();
   const { data: cl } = await db.from("clientes").select("nome, cpf, whatsapp").eq("user_id", uid).maybeSingle();
-  const cpf = dig(cl?.cpf) || cpfNovo;
-  if (!cpfOk(cpf) && !cnpjOk(cpf)) return null;
+  const cpf = dig(cl?.cpf) || cpfNovo, docOk = cpfOk(cpf) || cnpjOk(cpf);
+  if (ja) {
+    if (ja.cpf || semDoc) return ja.customer_id as string;
+    // cliente criado sem documento (pagou como estrangeiro) e agora paga em reais: completa o CPF no Asaas
+    if (!docOk) return null;
+    await asaas(`/customers/${ja.customer_id}`, { cpfCnpj: cpf });
+    await db.from("asaas_clientes").update({ cpf }).eq("user_id", uid);
+    return ja.customer_id as string;
+  }
+  if (!docOk && !semDoc) return null;
   const u = (await db.auth.admin.getUserById(uid)).data?.user;
   const email = u?.email && !/@sem-email\.lanchaembuzios\.com\.br$/.test(u.email) ? u.email : undefined;
   const tel = dig(cl?.whatsapp);
-  const c = await asaas("/customers", { name: String(cl?.nome || u?.user_metadata?.nome || "Cliente").trim(), cpfCnpj: cpf, email, mobilePhone: tel.startsWith("55") ? tel.slice(2) : undefined, externalReference: uid, notificationDisabled: true });
-  await db.from("asaas_clientes").insert({ user_id: uid, customer_id: c.id, cpf });
+  const c = await asaas("/customers", { name: String(cl?.nome || u?.user_metadata?.nome || "Cliente").trim(), ...(docOk ? { cpfCnpj: cpf } : {}), email, mobilePhone: tel.startsWith("55") ? tel.slice(2) : undefined, externalReference: uid, notificationDisabled: true });
+  await db.from("asaas_clientes").insert({ user_id: uid, customer_id: c.id, cpf: docOk ? cpf : null });
   return c.id as string;
 }
 
@@ -433,7 +441,7 @@ Deno.serve(async req => {
       if (!x) return json({ erro: "link" }, 404);
       const s = +x.p.sinal_valor || 0;
       const { data: cl } = await db.from("clientes").select("cpf").eq("user_id", x.p.cliente).maybeSingle();
-      const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).maybeSingle();
+      const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
         cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c)) || null, cartao_ok: cartaoOk(x.p.data), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
@@ -501,7 +509,9 @@ Deno.serve(async req => {
       }
       if (c.pago_em || (cobs || []).some((r: any) => r.pago_em)) return json({ pago: true });
       if (c.captura) return json({ erro: "pendente" }, 409); // PayPal em análise: não cobra de novo
-      if (String(c.moeda || "BRL") !== "BRL") return json({ erro: "moeda" }, 409); // central em dólar/euro: só PayPal
+      // central em dólar/euro (estrangeiro): só cartão internacional, cobrado em reais, à vista e sem CPF (Rodrigo 2026-11-11); o PayPal continua como opção
+      const fora = String(c.moeda || "BRL") !== "BRL";
+      if (fora && b.metodo !== "cartao") return json({ erro: "moeda" }, 409);
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
       if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
@@ -514,7 +524,7 @@ Deno.serve(async req => {
       const rep = wallet ? +(p.repasse_dono ?? -1) : 0;
       if (wallet && rep < 0) return json({ erro: "repasse" }, 409); // o administrador ainda não definiu a parte do dono
       if (rep > sinal) return json({ erro: "repasse" }, 409);
-      const tt = await totais(sinal), np = metodo === "cartao" ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
+      const tt = await totais(sinal), np = metodo === "cartao" && !fora ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
       const op = tt.parcelas[np - 1], tot = metodo === "cartao" ? op.total : tt.pix;
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
       if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
@@ -530,7 +540,7 @@ Deno.serve(async req => {
         if (await conferir(r.asaas_id).catch(() => false)) return json({ pago: true });
         if (await cancelar(r.asaas_id)) await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null);
       }
-      const cus = await cliente(p.cliente, dig(b.cpf));
+      const cus = await cliente(p.cliente, dig(b.cpf), fora);
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const venc = new Date(Date.now() + 2 * 864e5 - 3 * 36e5).toISOString().slice(0, 10);
