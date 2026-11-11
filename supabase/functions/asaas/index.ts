@@ -39,7 +39,14 @@ const dig = (s: unknown) => String(s ?? "").replace(/\D/g, "");
 const SEGURA_MS = 2 * 36e5; // a data fica segurada por 2 horas depois de gerar o pagamento (Rodrigo, 2026-10-25)
 // pagamento só até 1 hora antes do início do passeio (Rodrigo, 2026-10-25): manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3)
 const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
-const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - 36e5 <= Date.now();
+const ANTES_MS = 40 * 6e4; // pagamento até 40 minutos antes do início (Rodrigo 2026-11-11; era 1 hora)
+const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - ANTES_MS <= Date.now();
+// horário combinado do passeio (Rodrigo 2026-11-11): usa a hora de entrada do pedido ou do passeio na agenda (rpc inicio_combinado); sem ela, o horário padrão acima
+async function tardeCombinado(p: any) {
+  const { data, error } = await db.rpc("inicio_combinado", { d: p.data, h: p.horario, hi: p.hora_ini ?? null, bid: p.bloqueio_id ?? null });
+  if (error || !data) return tarde(p.data, p.horario);
+  return Date.parse(String(data).slice(0, 19) + "-03:00") - ANTES_MS <= Date.now();
+}
 // fim do passeio (Brasília): manhã 14h, dia 17h, tarde 18h, noite no dia seguinte
 const FIM: Record<string, number> = { manha: 14, dia: 17, tarde: 18, noite: 24 };
 // hora_fim do passeio na agenda ('HH:MM'), quando o dono anotou, vale no lugar do fim do horário
@@ -131,7 +138,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono").eq("id", pid).maybeSingle();
   return p ? { c, p } : null;
 }
 
@@ -513,7 +520,7 @@ Deno.serve(async req => {
       const fora = String(c.moeda || "BRL") !== "BRL";
       if (fora && b.metodo !== "cartao") return json({ erro: "moeda" }, 409);
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
-      if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
+      if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
@@ -620,7 +627,8 @@ Deno.serve(async req => {
     // administrador: transferências que o Asaas segura até o Rodrigo aprovar (token do app ou SMS), para o app mostrar o botão de aprovar
     if (b.acao === "aprovar") {
       if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
-      const l = (await asaas("/transfers?limit=100")).data || [];
+      // chave sem permissão de transferência (403): responde zero em vez de erro (revisão 2026-11-11)
+      const l = (await asaas("/transfers?limit=100").catch((e: any) => { if (e?.status === 403) return { data: [] }; throw e; })).data || [];
       const pend = l.filter((x: any) => x.status === "PENDING" && x.authorized === false);
       return json({ n: pend.length, valor: Math.round(pend.reduce((a: number, x: any) => a + +x.value, 0) * 100) / 100 });
     }
@@ -653,17 +661,26 @@ Deno.serve(async req => {
       const renda = Number(b.renda);
       if (!(renda > 0)) return json({ erro: "renda" }, 400);
       if (dig(b.cep).length !== 8 || !String(b.rua || "").trim() || !String(b.numero || "").trim() || !String(b.bairro || "").trim()) return json({ erro: "endereco" }, 400);
+      // chave da subconta com permissão de saque (Mayara/Asaas 2026-11-11: accessTokenConfig com TRANSFER READ_WRITE).
+      // Se o Asaas recusar o accessTokenConfig, cria do jeito antigo (sem ele) para o cadastro do dono nunca travar; a conferência abaixo avisa o administrador.
+      const ACESSO = { name: "Chave Búzios Lanchas", permissions: [{ name: "PAYMENT", scope: "READ_WRITE" }, { name: "TRANSFER", scope: "READ_WRITE" }, { name: "WEBHOOK", scope: "READ_WRITE" }] };
+      const corpo: any = {
+        name: nome, email, cpfCnpj: doc, mobilePhone: tel, incomeValue: renda,
+        ...(pf ? { birthDate: b.nascimento } : { companyType: b.tipo }),
+        address: String(b.rua).trim(), addressNumber: String(b.numero).trim(), complement: String(b.complemento || "").trim() || undefined,
+        province: String(b.bairro).trim(), postalCode: dig(b.cep),
+        // o Asaas avisa esta função quando a análise do documento e da selfie mudar (aprovada: a pessoa recebe o aviso na hora)
+        webhooks: [{ name: "Situação da conta", url: FN_URL, email: "korvolive@gmail.com", enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY",
+          events: ["ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED", "ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED", "ACCOUNT_STATUS_DOCUMENT_APPROVED", "ACCOUNT_STATUS_DOCUMENT_REJECTED"] }],
+      };
       let a: any;
       try {
-        a = await asaas("/accounts", {
-          name: nome, email, cpfCnpj: doc, mobilePhone: tel, incomeValue: renda,
-          ...(pf ? { birthDate: b.nascimento } : { companyType: b.tipo }),
-          address: String(b.rua).trim(), addressNumber: String(b.numero).trim(), complement: String(b.complemento || "").trim() || undefined,
-          province: String(b.bairro).trim(), postalCode: dig(b.cep),
-          // o Asaas avisa esta função quando a análise do documento e da selfie mudar (aprovada: a pessoa recebe o aviso na hora)
-          webhooks: [{ name: "Situação da conta", url: FN_URL, email: "korvolive@gmail.com", enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY",
-            events: ["ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED", "ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED", "ACCOUNT_STATUS_DOCUMENT_APPROVED", "ACCOUNT_STATUS_DOCUMENT_REJECTED"] }],
-        });
+        try { a = await asaas("/accounts", { ...corpo, accessTokenConfig: ACESSO }); }
+        catch (e: any) {
+          if (!(e?.asaas && e.status === 400)) throw e; // recusa por dado errado volta a falhar abaixo e mostra o erro
+          console.error("accounts sem accessTokenConfig", String(e.message).slice(0, 200));
+          a = await asaas("/accounts", corpo);
+        }
       } catch (e: any) { if (e.asaas) return json({ erro: "asaas", detalhe: String(e.message).slice(0, 300) }, 400); throw e; }
       await db.from("asaas_contas").insert({ user_id: u.id, conta_id: a.id, wallet_id: a.walletId, nome, cpf_cnpj: doc, email });
       // a chave da subconta só vem na criação: guardada numa tabela que só esta função lê, para buscar o link do documento e da selfie
@@ -673,6 +690,13 @@ Deno.serve(async req => {
       if (chave) {
         try { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: await cifrar(chave) }); if (error) console.error("asaas_chaves", error.message); }
         catch (e) { console.error("asaas_chaves", e); }
+        // confere a chave nova: documentos (selfie) e saque precisam funcionar; se faltar permissão, avisa o administrador para ajustar no Asaas
+        const teste = async (path: string) => (await fetch(API() + path, { headers: { access_token: chave, "user-agent": "buzios-lanchas" } }).catch(() => null))?.status ?? 0;
+        const testes: Record<string, string> = { documentos: "/myAccount/documents", situacao: "/myAccount/status", saldo: "/finance/balance", saque: "/transfers?limit=1" };
+        const sem: string[] = [];
+        for (const [n, path] of Object.entries(testes)) { const r = await teste(path); if (r === 401 || r === 403) sem.push(n); }
+        console.log("subconta chave", a.id, "sem permissao:", sem.join(",") || "nenhuma", "permissoes", JSON.stringify(a.accessToken?.permissions || null).slice(0, 300));
+        if (sem.length) await pushAdmins({ title: "Subconta Asaas sem permissão", body: `A conta de ${nome} foi criada, mas a chave dela não tem permissão para: ${sem.join(", ")}. Avise o suporte técnico.` }, `subperm-${a.id}`).catch((e) => console.error(e));
       }
       return json({ ok: true });
     }
