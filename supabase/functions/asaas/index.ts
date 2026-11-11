@@ -663,7 +663,8 @@ Deno.serve(async req => {
       if (dig(b.cep).length !== 8 || !String(b.rua || "").trim() || !String(b.numero || "").trim() || !String(b.bairro || "").trim()) return json({ erro: "endereco" }, 400);
       // chave da subconta com permissão de saque (Mayara/Asaas 2026-11-11: accessTokenConfig com TRANSFER READ_WRITE).
       // Se o Asaas recusar o accessTokenConfig, cria do jeito antigo (sem ele) para o cadastro do dono nunca travar; a conferência abaixo avisa o administrador.
-      const ACESSO = { name: "Chave Búzios Lanchas", permissions: [{ name: "PAYMENT", scope: "READ_WRITE" }, { name: "TRANSFER", scope: "READ_WRITE" }, { name: "WEBHOOK", scope: "READ_WRITE" }] };
+      // testado no sandbox 2026-11-11: sem ACCOUNT_DOCUMENT/ACCOUNT_INFO/FINANCIAL_TRANSACTION a chave leva 403 em documentos, situação e saldo
+      const ACESSO = { name: "Chave Búzios Lanchas", permissions: [{ name: "PAYMENT", scope: "READ_WRITE" }, { name: "TRANSFER", scope: "READ_WRITE" }, { name: "WEBHOOK", scope: "READ_WRITE" }, { name: "ACCOUNT_DOCUMENT", scope: "READ_WRITE" }, { name: "ACCOUNT_INFO", scope: "READ_WRITE" }, { name: "FINANCIAL_TRANSACTION", scope: "READ" }, { name: "PIX_TRANSACTION", scope: "READ_WRITE" }, { name: "PIX_ADDRESS_KEY", scope: "READ_WRITE" }] };
       const corpo: any = {
         name: nome, email, cpfCnpj: doc, mobilePhone: tel, incomeValue: renda,
         ...(pf ? { birthDate: b.nascimento } : { companyType: b.tipo }),
