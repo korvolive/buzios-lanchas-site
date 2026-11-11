@@ -28,7 +28,7 @@ jobs:
           xcodebuild -version
       - name: Gerar o projeto iOS
         run: |
-          node scripts/ios/gerar.mjs build-ios
+          node scripts/ios/gerar.mjs build-ios "1.0.${{ github.run_number }}"
           cd build-ios
           npm install --no-audit --no-fund
           npx cap add ios
