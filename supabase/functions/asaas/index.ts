@@ -351,9 +351,33 @@ async function conferirContas() {
     const k = await chaveSub(c.user_id);
     if (!k) continue;
     const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
-    if (st?.general !== "APPROVED") continue;
+    if (st?.general !== "APPROVED") { await avisarDocsLiberados(c.user_id, k).catch((e) => console.error("docsLiberados", e)); continue; }
     const { data: foi } = await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", c.user_id).is("aprovada_em", null).select("user_id");
     if (foi?.length) await avisarAprovada(c.user_id).catch((e) => console.error("avisarAprovada", e));
+  }
+}
+// o link do documento e da selfie só aparece depois que o Asaas confere os dados do cadastro (no sandbox 2026-11-11 onboardingUrl vinha null logo após criar):
+// quando o link fica disponível, avisa a pessoa uma vez para ela enviar
+const DOCS_OK: Record<string, { title: string; body: string }> = {
+  pt: { title: "Agora falta o documento e a selfie", body: "Seu cadastro foi conferido. Abra o app e toque em Enviar documento e selfie para liberar a sua conta." },
+  en: { title: "Now send your ID and selfie", body: "Your details were checked. Open the app and tap Send ID and selfie to unlock your account." },
+  es: { title: "Ahora falta el documento y la selfie", body: "Tus datos fueron revisados. Abre la app y toca Enviar documento y selfie para liberar tu cuenta." },
+};
+async function avisarDocsLiberados(uid: string, k: string) {
+  const { data: ct } = await db.from("asaas_contas").select("docs_avisado_em").eq("user_id", uid).maybeSingle();
+  if (!ct || ct.docs_avisado_em) return;
+  const j: any = await fetch(API() + "/myAccount/documents", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+  if (!(j?.data || []).some((d: any) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl)) return;
+  const { data: foi } = await db.from("asaas_contas").update({ docs_avisado_em: new Date().toISOString() }).eq("user_id", uid).is("docs_avisado_em", null).select("user_id");
+  if (!foi?.length) return;
+  const { data: kk } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!kk) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", kk.publica, kk.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...DOCS_OK[l], url: "/login/", tag: "docs-liberados" }), { TTL: 86400, urgency: "normal" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
 const APROVADA: Record<string, { title: string; body: string }> = {
@@ -712,6 +736,8 @@ Deno.serve(async req => {
       const l: any[] = j.data || [];
       const falta = l.find((d) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
       if (falta) return json({ status: "pendente", url: falta.onboardingUrl, rejeitado: falta.status === "REJECTED" });
+      // documento ainda não enviado, mas o Asaas ainda não liberou o link (está conferindo os dados do cadastro): não é "em análise"
+      if (l.some((d) => ["NOT_SENT", "REJECTED"].includes(d.status))) return json({ status: "aguardando" });
       if (l.some((d) => d.status === "PENDING")) return json({ status: "analise" });
       if (!l.length) return json({ status: "sem" });
       // documentos conferidos não bastam: a conta só recebe quando o Asaas aprova tudo (status geral APPROVED)
