@@ -14,7 +14,7 @@ self.addEventListener("fetch", e => {
   }).catch(() => caches.match(e.request.mode === "navigate" ? "/login/" : e.request)));
 });
 
-/* número no ícone do app (Rodrigo 2026-10-23): o app grava o total certo ao abrir; cada aviso que chega soma 1 */
+/* número no ícone do app (2026-10-23): o app grava o total certo ao abrir; cada aviso que chega soma 1 */
 const BADGE = "/login/__badge";
 const badgeGet = () => caches.open(CACHE).then(c => c.match(BADGE)).then(r => r ? r.text() : "0").then(x => +x || 0).catch(() => 0);
 const badgeSet = n => caches.open(CACHE).then(c => c.put(BADGE, new Response(String(n)))).then(() => {
@@ -28,7 +28,7 @@ self.addEventListener("push", e => {
     body: d.body || "", tag: d.tag, renotify: !!d.tag, icon: "/login/icon-192.png", badge: "/login/icon-192.png", data: { url: d.url || "/login/" },
     ...(/^alerta-/.test(d.tag || "") ? { requireInteraction: true, vibrate: [400, 150, 400, 150, 800] } : {}) }); /* alerta da equipe: fica na tela até tocar */
   /* app aberto na frente: avisa a página (som + aviso dentro do app) em vez da notificação do sistema.
-     Site aberto na frente: toca o mesmo som e mostra a notificação normal (Rodrigo, 2026-10-22: todo aviso com som) */
+     Site aberto na frente: toca o mesmo som e mostra a notificação normal (2026-10-22: todo aviso com som) */
   e.waitUntil(badgeGet().then(n => badgeSet(n + 1)).then(() => clients.matchAll({ type: "window", includeUncontrolled: true })).then(ws => {
     const vis = ws.filter(x => x.visibilityState === "visible" && x.focused), app = vis.find(x => new URL(x.url).pathname.startsWith("/login/"));
     if (app) { app.postMessage({ tipo: /^chat-/.test(d.tag || "") ? "chat" : /^alerta-/.test(d.tag || "") ? "alerta" : "aviso", ...d }); return; }

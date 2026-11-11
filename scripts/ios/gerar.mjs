@@ -16,7 +16,7 @@ fs.writeFileSync(`${out}/capacitor.config.json`, JSON.stringify({
   appId: "br.com.lanchaembuzios.app",
   appName: "Buzios Lanchas", // nome na tela do iPhone sem acento (regra do Rodrigo)
   webDir: "www",
-  appendUserAgent: "BuziosLanchasIOS",
+  appendUserAgent: `BuziosLanchasIOS/${process.argv[3] || "1.0.0"}`, // versão no user agent: o site compara com a mínima (tabela app_versao)
   backgroundColor: web.background_color,
   server: { url: `https://${HOST}${web.start_url}`, allowNavigation: ["lanchaembuzios.com.br", "*.lanchaembuzios.com.br"] },
   ios: { contentInset: "never", backgroundColor: web.background_color },

@@ -7,12 +7,13 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { lanchasDB, precosDB } from "./lanchas-db.mjs";
 import { gerarPaginas, guiaPath } from "./paginas.mjs";
 import { chromium } from "playwright";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
-const SOURCE = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+let SOURCE = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const SITE = SOURCE.match(/const SITE = (?:CID \? CID\.site : )?"([^"]+)"/)[1];
 /* lanchas cadastradas no app ficam no banco (Supabase): a página lê lanchas, fotos, valores e itens de lá */
 const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOURCE.match(/const AGENDA_KEY = "([^"]+)"/)[1];
@@ -82,6 +83,15 @@ const { slugs, dbSlugs, hidden, llm } = await page.evaluate(() => { const all = 
     route: ROUTE.map((r, i) => ({ name: r[0], desc: Object.fromEntries(["pt", "en", "es"].map(l => [l, UI[l].stops?.[i] || ""])),
       img: ROUTE_PHOTOS.includes(i + 1) ? `/img/rt-${String(i + 1).padStart(2, "0")}-m.webp` : "", credit: ROUTE_CREDITS[i] || null })) };
   return { slugs: all.map(b => b.slug), dbSlugs: all.filter(b => b.db).map(b => b.slug), hidden: HIDE_LIST, llm }; });
+/* fotos do banco: cópia de 800 px para o celular (2026-11-09). Se falhar, a publicação segue com as originais */
+try {
+  const urls = await page.evaluate(() => [...new Set([...BOATS, ...[...HIDDEN.values()].map(x => x.b)].map(b => b.photos?.[0]?.[0]).filter(u => /^https?:/.test(u || "")))]);
+  const M = JSON.parse(execFileSync("python3", ["-I", path.join(ROOT, "scripts/fotos-db.py"), path.join(ROOT, "img"), ...urls], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"], timeout: 180000 }));
+  if (!SOURCE.includes("const FOTO_M = {}; /*FOTO_M*/")) throw new Error("marcador FOTO_M não encontrado");
+  SOURCE = SOURCE.replace("const FOTO_M = {}; /*FOTO_M*/", () => `const FOTO_M = ${JSON.stringify(M)};`);
+  for (const b of llm.guias.boats) { const k = (b.img || "").replace(/\.jpg$/, ""); if (M[k]) b.img = M[k]; }
+  console.log(`fotos do banco: ${Object.keys(M).length} de ${urls.length} com versão de celular`);
+} catch (e) { console.error("fotos do banco: usando as originais:", e.message); }
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
 await browser.close();
 server.close();
@@ -126,6 +136,9 @@ fs.writeFileSync(path.join(ROOT, "llms.txt"), [
   "",
   `- [Passeio de lancha em Búzios: roteiro e praias](${SITE}${guiaPath("roteiro", "pt")}) · [Boat tour in Búzios](${SITE}${guiaPath("roteiro", "en")}) · [Paseo en lancha en Búzios](${SITE}${guiaPath("roteiro", "es")})`,
   `- [Lancha para grupos e aniversários](${SITE}${guiaPath("grupos", "pt")}) · [Boat party for groups](${SITE}${guiaPath("grupos", "en")}) · [Lancha para grupos y cumpleaños](${SITE}${guiaPath("grupos", "es")})`,
+  `- [Quanto custa alugar uma lancha em Búzios](${SITE}${guiaPath("precos", "pt")}) · [Boat rental prices in Búzios](${SITE}${guiaPath("precos", "en")}) · [Precio del alquiler de lancha en Búzios](${SITE}${guiaPath("precos", "es")})`,
+  `- [Aluguel de lancha com marinheiro em Búzios](${SITE}${guiaPath("marinheiro", "pt")}) · [Boat rental with skipper](${SITE}${guiaPath("marinheiro", "en")}) · [Alquiler con marinero](${SITE}${guiaPath("marinheiro", "es")})`,
+  `- [Melhores praias de Búzios de lancha](${SITE}${guiaPath("praias", "pt")}) · [Best beaches in Búzios by boat](${SITE}${guiaPath("praias", "en")}) · [Mejores playas de Búzios](${SITE}${guiaPath("praias", "es")})`,
   "",
   "## Perguntas frequentes",
   "",

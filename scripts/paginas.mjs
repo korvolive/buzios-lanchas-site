@@ -1,4 +1,4 @@
-/* Páginas de conteúdo para o Google e as IAs (2026-11-05, pedido do Rodrigo):
+/* Páginas de conteúdo para o Google e as IAs (2026-11-05, pedido do o dono):
    "Passeio de lancha em Búzios: roteiro e praias" e "Lancha para grupos e aniversários", em pt, en e es.
    São páginas simples (sem o JavaScript do site), geradas a cada publicação pelo scripts/prerender.mjs
    com as lanchas, o roteiro e o "a partir de" que estão no ar. Para mudar um texto, mude aqui. */
@@ -8,6 +8,9 @@ import path from "node:path";
 export const GUIAS = {
   roteiro: { pt: "passeio-de-lancha-em-buzios", en: "boat-tour-in-buzios", es: "paseo-en-lancha-en-buzios" },
   grupos: { pt: "lancha-para-grupos-e-aniversarios", en: "boat-party-for-groups-in-buzios", es: "lancha-para-grupos-y-cumpleanos" },
+  precos: { pt: "quanto-custa-alugar-lancha-em-buzios", en: "boat-rental-prices-in-buzios", es: "precio-alquiler-lancha-en-buzios" },
+  marinheiro: { pt: "aluguel-de-lancha-com-marinheiro-em-buzios", en: "boat-rental-with-skipper-in-buzios", es: "alquiler-de-lancha-con-marinero-en-buzios" },
+  praias: { pt: "melhores-praias-de-buzios-de-lancha", en: "best-beaches-in-buzios-by-boat", es: "mejores-playas-de-buzios-en-lancha" },
 };
 export const guiaPath = (g, l) => (l === "pt" ? "/" : `/${l}/`) + GUIAS[g][l] + "/";
 
@@ -137,6 +140,145 @@ const T = {
   },
 };
 
+/* página "Quanto custa alugar uma lancha em Búzios" (2026-11-09, busca por preço). Só o "a partir de": nunca o preço de cada lancha. */
+T.precos = {
+  pt: { title: "Quanto custa alugar uma lancha em Búzios? Preços e temporadas | Búzios Lanchas",
+    desc: "Preço do aluguel de lancha em Búzios: o valor é por lancha, não por pessoa. Veja o que muda o preço (tamanho, 4 ou 7 horas, temporada), o que está incluso e como reservar.",
+    h1: "Quanto custa alugar uma lancha em Búzios",
+    lead: "O aluguel de lancha em Búzios é cobrado por lancha, para o grupo todo, e não por pessoa. O valor depende de três coisas: o tamanho da lancha, a duração do passeio e a data.",
+    whatT: "O que muda o preço",
+    what: ["<b>Tamanho da lancha</b>: lanchas maiores levam mais gente e têm mais conforto, como ar-condicionado e cabine. A Miss Bardot, de 35 pés, leva até 16 pessoas.",
+      "<b>Duração</b>: o passeio de 4 horas (10h às 14h ou 14h às 18h) ou o de 7 horas (10h às 17h), com mais tempo em cada praia.",
+      "<b>Data e temporada</b>: verão, feriados, Réveillon e Carnaval custam mais. De segunda a quinta, fora de feriado, algumas lanchas têm desconto.",
+      "<b>Tamanho do grupo</b>: como o valor é por lancha, quanto mais gente no grupo (até a capacidade), menor a conta de cada um."],
+    seasT: "Temporadas em Búzios",
+    seas: ["<b>Baixa temporada</b>: maio a outubro. Os melhores preços do ano.",
+      "<b>Média temporada</b>: março, abril e novembro.", "<b>Alta temporada</b>: dezembro, janeiro e fevereiro.",
+      "<b>Feriados</b>: feriadões têm valor próprio e esgotam antes.", "<b>Réveillon e Carnaval</b>: de 27 de dezembro a 5 de janeiro e no Carnaval. Reserve com bastante antecedência."],
+    inclT: "O que está incluso no valor",
+    incl: ["Marinheiro habilitado, combustível, gelo, carvão, água mineral e cooler.", "Churrasqueira e som Bluetooth. Se vocês levarem a carne, a tripulação faz o churrasco.",
+      "Comidas e bebidas não estão inclusas: o grupo leva o que quiser.", "Reserva com sinal de 50% para a Búzios Lanchas; o restante é pago no dia do passeio."],
+    boatsT: "As lanchas",
+    faq: [["O preço do passeio de lancha é por pessoa?", "Não. O valor é por lancha, para o grupo todo, até a capacidade da lancha."],
+      ["Qual a época mais barata para alugar lancha em Búzios?", "A baixa temporada, de maio a outubro, tem os menores preços. De segunda a quinta, fora de feriado, algumas lanchas também têm desconto."],
+      ["O combustível está incluso?", "Sim. Combustível, marinheiro, gelo, carvão, água mineral e cooler já estão no valor."],
+      ["Como faço para saber o preço exato da minha data?", "Mande a data e o número de pessoas pelo WhatsApp (21) 99927-2550. Respondemos na hora com as lanchas livres e o valor."]] },
+  en: { title: "How much does it cost to rent a boat in Búzios? Prices and seasons | Búzios Lanchas",
+    desc: "Boat rental prices in Búzios, Brazil: the price is per boat, not per person. See what changes the price (size, 4 or 7 hours, season), what's included and how to book.",
+    h1: "How much does it cost to rent a boat in Búzios",
+    lead: "Boat rental in Búzios is charged per boat, for the whole group, not per person. The price depends on three things: the size of the boat, the length of the tour and the date.",
+    whatT: "What changes the price",
+    what: ["<b>Boat size</b>: bigger boats take more people and have more comfort, such as air conditioning and a cabin. Miss Bardot, 35 ft, takes up to 16 people.",
+      "<b>Length</b>: the 4-hour tour (10am to 2pm or 2pm to 6pm) or the 7-hour tour (10am to 5pm), with more time at each beach.",
+      "<b>Date and season</b>: summer, holidays, New Year's and Carnival cost more. Monday to Thursday, outside holidays, some boats have a discount.",
+      "<b>Group size</b>: since the price is per boat, the more people in your group (up to capacity), the less each person pays."],
+    seasT: "Seasons in Búzios",
+    seas: ["<b>Low season</b>: May to October. The best prices of the year.",
+      "<b>Mid season</b>: March, April and November.", "<b>High season</b>: December, January and February.",
+      "<b>Holidays</b>: long holiday weekends have their own price and sell out first.", "<b>New Year's and Carnival</b>: December 27 to January 5 and Carnival. Book well in advance."],
+    inclT: "What's included in the price",
+    incl: ["Licensed skipper, fuel, ice, charcoal, mineral water and a cooler.", "Barbecue grill and Bluetooth speaker. If you bring the meat, the crew grills it.",
+      "Food and drinks are not included: your group brings what it likes.", "Booking with a 50% deposit to Búzios Lanchas; the rest is paid on the day of the tour."],
+    boatsT: "The boats",
+    faq: [["Is the boat tour price per person?", "No. The price is per boat, for the whole group, up to the boat's capacity."],
+      ["When is it cheapest to rent a boat in Búzios?", "Low season, May to October, has the lowest prices. Monday to Thursday, outside holidays, some boats also have a discount."],
+      ["Is fuel included?", "Yes. Fuel, skipper, ice, charcoal, mineral water and a cooler are included in the price."],
+      ["How do I get the exact price for my date?", "Send the date and number of people on WhatsApp +55 21 99927-2550. We reply right away with the available boats and the price."]] },
+  es: { title: "¿Cuánto cuesta alquilar una lancha en Búzios? Precios y temporadas | Búzios Lanchas",
+    desc: "Precio del alquiler de lancha en Búzios: el valor es por lancha, no por persona. Mira qué cambia el precio (tamaño, 4 o 7 horas, temporada), qué incluye y cómo reservar.",
+    h1: "Cuánto cuesta alquilar una lancha en Búzios",
+    lead: "El alquiler de lancha en Búzios se cobra por lancha, para todo el grupo, y no por persona. El precio depende de tres cosas: el tamaño de la lancha, la duración del paseo y la fecha.",
+    whatT: "Qué cambia el precio",
+    what: ["<b>Tamaño de la lancha</b>: las lanchas más grandes llevan más gente y tienen más comodidad, como aire acondicionado y cabina. La Miss Bardot, de 35 pies, lleva hasta 16 personas.",
+      "<b>Duración</b>: el paseo de 4 horas (de 10 a 14 h o de 14 a 18 h) o el de 7 horas (de 10 a 17 h), con más tiempo en cada playa.",
+      "<b>Fecha y temporada</b>: verano, feriados, Año Nuevo y Carnaval cuestan más. De lunes a jueves, fuera de feriados, algunas lanchas tienen descuento.",
+      "<b>Tamaño del grupo</b>: como el precio es por lancha, cuanta más gente en el grupo (hasta la capacidad), menos paga cada uno."],
+    seasT: "Temporadas en Búzios",
+    seas: ["<b>Temporada baja</b>: de mayo a octubre. Los mejores precios del año.",
+      "<b>Temporada media</b>: marzo, abril y noviembre.", "<b>Temporada alta</b>: diciembre, enero y febrero.",
+      "<b>Feriados</b>: los feriados largos tienen precio propio y se agotan primero.", "<b>Año Nuevo y Carnaval</b>: del 27 de diciembre al 5 de enero y en Carnaval. Reserva con mucha anticipación."],
+    inclT: "Qué incluye el precio",
+    incl: ["Marinero habilitado, combustible, hielo, carbón, agua mineral y conservadora.", "Parrilla y parlante Bluetooth. Si llevan la carne, la tripulación hace el asado.",
+      "Comidas y bebidas no están incluidas: el grupo lleva lo que quiera.", "Reserva con una seña del 50% a Búzios Lanchas; el resto se paga el día del paseo."],
+    boatsT: "Las lanchas",
+    faq: [["¿El precio del paseo en lancha es por persona?", "No. El precio es por lancha, para todo el grupo, hasta la capacidad de la lancha."],
+      ["¿Cuál es la época más barata para alquilar lancha en Búzios?", "La temporada baja, de mayo a octubre, tiene los precios más bajos. De lunes a jueves, fuera de feriados, algunas lanchas también tienen descuento."],
+      ["¿El combustible está incluido?", "Sí. Combustible, marinero, hielo, carbón, agua mineral y conservadora ya están en el precio."],
+      ["¿Cómo sé el precio exacto de mi fecha?", "Envía la fecha y la cantidad de personas por WhatsApp +55 21 99927-2550. Respondemos al instante con las lanchas libres y el precio."]] },
+};
+
+/* páginas "lancha com marinheiro" e "praias de Búzios" (2026-11-09). Seções: secs = [[título, [itens]]] */
+T.marinheiro = {
+  pt: { title: "Aluguel de lancha com marinheiro em Búzios | Búzios Lanchas",
+    desc: "Aluguel de lancha com marinheiro habilitado em Búzios: combustível, gelo, carvão e água inclusos. Passeios privativos de 4 ou 7 horas. Veja como funciona e as lanchas.",
+    h1: "Aluguel de lancha com marinheiro em Búzios",
+    lead: "Em todas as nossas lanchas o marinheiro habilitado já está incluso. Vocês não precisam de habilitação nem de se preocupar com a navegação: é só aproveitar o passeio com o grupo.",
+    secs: [["O que o marinheiro faz", ["Conduz a lancha com segurança e conhece as praias, as paradas e as condições do mar de Búzios.", "Ajuda no embarque e no desembarque e cuida da âncora nas paradas para mergulho.", "Se vocês levarem a carne, a tripulação faz o churrasco.", "Decide com o grupo o melhor caminho conforme o vento e o mar, sempre priorizando a segurança."]],
+      ["O que mais está incluso", ["Combustível, gelo, carvão, água mineral e cooler.", "Churrasqueira e som Bluetooth.", "Comidas e bebidas não estão inclusas: o grupo leva o que quiser."]],
+      ["Como reservar", ["Escolha a data e a lancha e fale com a gente pelo WhatsApp (21) 99927-2550.", "A reserva é confirmada com sinal de 50%; o restante é pago no dia.", "Crianças e pets são bem-vindos. A capacidade conta todo mundo, inclusive bebês."]]],
+    boatsT: "Lanchas com marinheiro",
+    faq: [["O marinheiro está incluso no valor?", "Sim. Todas as lanchas saem com marinheiro habilitado, e o valor também inclui combustível, gelo, carvão, água mineral e cooler."],
+      ["Preciso ter habilitação para alugar uma lancha em Búzios?", "Não. Como a lancha sai com marinheiro habilitado, o grupo só aproveita o passeio."]] },
+  en: { title: "Boat rental with skipper in Búzios | Búzios Lanchas",
+    desc: "Boat rental with a licensed skipper in Búzios, Brazil: fuel, ice, charcoal and water included. Private 4 or 7 hour tours. See how it works and the boats.",
+    h1: "Boat rental with skipper in Búzios",
+    lead: "On all our boats the licensed skipper is already included. You don't need a boating license or to worry about navigation: just enjoy the tour with your group.",
+    secs: [["What the skipper does", ["Drives the boat safely and knows the beaches, the stops and the sea conditions in Búzios.", "Helps with boarding and getting off, and handles the anchor at swim stops.", "If you bring the meat, the crew grills it.", "Chooses the best route with your group depending on wind and sea, always putting safety first."]],
+      ["What else is included", ["Fuel, ice, charcoal, mineral water and a cooler.", "Barbecue grill and Bluetooth speaker.", "Food and drinks are not included: your group brings what it likes."]],
+      ["How to book", ["Pick the date and the boat and message us on WhatsApp +55 21 99927-2550.", "The booking is confirmed with a 50% deposit; the rest is paid on the day.", "Children and pets are welcome. Capacity counts everyone, babies included."]]],
+    boatsT: "Boats with skipper",
+    faq: [["Is the skipper included in the price?", "Yes. Every boat comes with a licensed skipper, and the price also includes fuel, ice, charcoal, mineral water and a cooler."],
+      ["Do I need a boating license to rent a boat in Búzios?", "No. Since the boat comes with a licensed skipper, your group just enjoys the tour."]] },
+  es: { title: "Alquiler de lancha con marinero en Búzios | Búzios Lanchas",
+    desc: "Alquiler de lancha con marinero habilitado en Búzios: combustible, hielo, carbón y agua incluidos. Paseos privados de 4 o 7 horas. Mira cómo funciona y las lanchas.",
+    h1: "Alquiler de lancha con marinero en Búzios",
+    lead: "En todas nuestras lanchas el marinero habilitado ya está incluido. No necesitan licencia ni preocuparse por la navegación: solo disfrutar el paseo con el grupo.",
+    secs: [["Qué hace el marinero", ["Conduce la lancha con seguridad y conoce las playas, las paradas y las condiciones del mar de Búzios.", "Ayuda a subir y bajar, y se encarga del ancla en las paradas para nadar.", "Si llevan la carne, la tripulación hace el asado.", "Elige con el grupo el mejor camino según el viento y el mar, siempre priorizando la seguridad."]],
+      ["Qué más está incluido", ["Combustible, hielo, carbón, agua mineral y conservadora.", "Parrilla y parlante Bluetooth.", "Comidas y bebidas no están incluidas: el grupo lleva lo que quiera."]],
+      ["Cómo reservar", ["Elige la fecha y la lancha y escríbenos por WhatsApp +55 21 99927-2550.", "La reserva se confirma con una seña del 50%; el resto se paga el día del paseo.", "Niños y mascotas son bienvenidos. La capacidad cuenta a todos, incluso bebés."]]],
+    boatsT: "Lanchas con marinero",
+    faq: [["¿El marinero está incluido en el precio?", "Sí. Todas las lanchas salen con marinero habilitado, y el precio también incluye combustible, hielo, carbón, agua mineral y conservadora."],
+      ["¿Necesito licencia para alquilar una lancha en Búzios?", "No. Como la lancha sale con marinero habilitado, el grupo solo disfruta el paseo."]] },
+};
+T.praias = {
+  pt: { title: "Melhores praias de Búzios para ver de lancha | Búzios Lanchas",
+    desc: "Quais praias de Búzios conhecer de lancha: praias para mergulho, praias tranquilas e praias animadas. Azeda, João Fernandes, Amores, Tartaruga, Ilha Feia e mais.",
+    h1: "Melhores praias de Búzios para conhecer de lancha",
+    lead: "Búzios tem mais de 20 praias, e muitas ficam melhores vistas do mar. Veja como escolher onde parar no passeio de lancha privativo, de acordo com o que o seu grupo quer fazer.",
+    secs: [["Para mergulhar e fazer snorkel", ["<b>Azeda e Azedinha</b>: águas calmas e transparentes, boas para mergulho.", "<b>João Fernandes e João Fernandinho</b>: das mais procuradas, com água clara perto da pedra.", "<b>Ilha Feia</b>: parada de mar aberto, boa para quem quer snorkel."]],
+      ["Para ficar tranquilo com a família", ["<b>Praia da Tartaruga</b>: pequena, de água calma e fácil para quem tem criança.", "<b>Amores</b>: pequena enseada entre pedras, pertinho da Tartaruga.", "<b>Ossos</b>: perto do embarque e da vila, boa para um fim de passeio."]],
+      ["Para um passeio animado", ["<b>Ossos e Armação</b>: restaurantes e movimento na orla.", "Em dias de mar mais agitado, o marinheiro sugere as praias mais abrigadas."]],
+      ["Como escolher", ["No passeio de 4 horas dá para ver as principais praias e parar para mergulho.", "No passeio de 7 horas há mais tempo em cada parada, ideal para o dia inteiro.", "O roteiro muda conforme o vento e o mar: o marinheiro e o grupo decidem juntos."]]],
+    boatsT: "Lanchas para o passeio",
+    faq: [["Qual a melhor praia de Búzios para mergulhar?", "Azeda, João Fernandes e a Ilha Feia estão entre as melhores para mergulho e snorkel."],
+      ["Qual a melhor praia de Búzios para ir com criança?", "As praias mais calmas e tranquilas, como Tartaruga e Azedinha, são boas opções. O marinheiro ajuda a escolher conforme o mar do dia."],
+      ["Dá para conhecer várias praias no mesmo passeio?", "Sim. O roteiro padrão passa por várias praias e o grupo escolhe onde ficar mais tempo."]] },
+  en: { title: "Best beaches in Búzios to see by boat | Búzios Lanchas",
+    desc: "Which Búzios beaches to visit by boat: beaches for swimming and snorkeling, calm beaches and lively beaches. Azeda, João Fernandes, Amores, Tartaruga, Ilha Feia and more.",
+    h1: "Best beaches in Búzios to see by boat",
+    lead: "Búzios has more than 20 beaches, and many are best seen from the sea. Here is how to choose where to stop on a private boat tour, depending on what your group wants to do.",
+    secs: [["For swimming and snorkeling", ["<b>Azeda and Azedinha</b>: calm, clear water, great for swimming.", "<b>João Fernandes and João Fernandinho</b>: among the most popular, with clear water near the rocks.", "<b>Ilha Feia</b>: an open-sea stop, good for snorkeling."]],
+      ["For a relaxed day with family", ["<b>Tartaruga beach</b>: small, with calm water, easy for kids.", "<b>Amores</b>: a small cove between rocks, close to Tartaruga.", "<b>Ossos</b>: close to boarding and the village, nice at the end of the tour."]],
+      ["For a lively tour", ["<b>Ossos and Armação</b>: restaurants and activity along the shore.", "On rougher sea days, the skipper suggests the more sheltered beaches."]],
+      ["How to choose", ["The 4-hour tour covers the main beaches with a swim stop.", "The 7-hour tour gives more time at each stop, ideal for a full day.", "The route changes with wind and sea: the skipper and your group decide together."]]],
+    boatsT: "Boats for the tour",
+    faq: [["What is the best beach in Búzios for swimming?", "Azeda, João Fernandes and Ilha Feia are among the best for swimming and snorkeling."],
+      ["What is the best Búzios beach for kids?", "Calmer, quieter beaches such as Tartaruga and Azedinha are good options. The skipper helps choose depending on the sea that day."],
+      ["Can we see several beaches on one tour?", "Yes. The standard route passes several beaches and your group chooses where to stay longer."]] },
+  es: { title: "Mejores playas de Búzios para conocer en lancha | Búzios Lanchas",
+    desc: "Qué playas de Búzios conocer en lancha: playas para nadar y hacer snorkel, playas tranquilas y playas animadas. Azeda, João Fernandes, Amores, Tartaruga, Ilha Feia y más.",
+    h1: "Mejores playas de Búzios para conocer en lancha",
+    lead: "Búzios tiene más de 20 playas, y muchas se ven mejor desde el mar. Mira cómo elegir dónde parar en el paseo privado en lancha, según lo que quiera hacer tu grupo.",
+    secs: [["Para nadar y hacer snorkel", ["<b>Azeda y Azedinha</b>: aguas calmas y transparentes, ideales para nadar.", "<b>João Fernandes y João Fernandinho</b>: de las más buscadas, con agua clara junto a las rocas.", "<b>Ilha Feia</b>: parada de mar abierto, buena para snorkel."]],
+      ["Para estar tranquilos en familia", ["<b>Playa Tartaruga</b>: pequeña, de agua calma, fácil para niños.", "<b>Amores</b>: pequeña ensenada entre rocas, muy cerca de Tartaruga.", "<b>Ossos</b>: cerca del embarque y del pueblo, linda para el final del paseo."]],
+      ["Para un paseo animado", ["<b>Ossos y Armação</b>: restaurantes y movimiento en la costanera.", "En días de mar más agitado, el marinero sugiere las playas más protegidas."]],
+      ["Cómo elegir", ["El paseo de 4 horas permite ver las playas principales y parar a nadar.", "El paseo de 7 horas da más tiempo en cada parada, ideal para todo el día.", "El recorrido cambia según el viento y el mar: el marinero y el grupo deciden juntos."]]],
+    boatsT: "Lanchas para el paseo",
+    faq: [["¿Cuál es la mejor playa de Búzios para nadar?", "Azeda, João Fernandes e Ilha Feia están entre las mejores para nadar y hacer snorkel."],
+      ["¿Cuál es la mejor playa de Búzios para ir con niños?", "Las playas más calmas y tranquilas, como Tartaruga y Azedinha, son buenas opciones. El marinero ayuda a elegir según el mar del día."],
+      ["¿Se pueden conocer varias playas en el mismo paseo?", "Sí. El recorrido estándar pasa por varias playas y el grupo elige dónde quedarse más tiempo."]] },
+};
+
 const CSS = `:root{--bg:#f3f7f8;--surface:#fff;--ink:#0c2430;--muted:#55707b;--line:#d6e2e6;--sea:#0b5c73;--sea-deep:#06394a;--brass:#c99a2e;--wa:#1f9d55}
 @media (prefers-color-scheme:dark){:root{--bg:#071a22;--surface:#0d2531;--ink:#e6f1f4;--muted:#93aeb8;--line:#1d3a47;--sea:#4fb3cc;--sea-deep:#0a2e3b;--brass:#e0b54d;color-scheme:dark}}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
@@ -176,14 +318,23 @@ const TRACK = `<script>(function(w,d,s,l,i){if(/BuziosLanchasIOS/.test(navigator
 export function gerarPaginas(ROOT, SITE, dados) {
   const urls = [];
   for (const g of Object.keys(GUIAS)) for (const l of ["pt", "en", "es"]) {
-    const c = C[l], t = T[g][l], url = SITE + guiaPath(g, l), outro = g === "roteiro" ? "grupos" : "roteiro";
+    const c = C[l], t = T[g][l], url = SITE + guiaPath(g, l), outros = Object.keys(GUIAS).filter(x => x !== g);
     const wa = `https://wa.me/${WA}?text=${encodeURIComponent(c.waMsg)}`;
     const boats = g === "grupos" ? [...dados.boats].sort((a, b) => (b.cap || 0) - (a.cap || 0)) : dados.boats;
     const img0 = boats[0]?.img, heroImg = g === "roteiro" || !/^(https:\/\/[\w.\-]+)?\/[\w\/.\-]+$/.test(img0 || "") ? "/img/rt-08-m.webp" : img0;
     const abs = u => /^https?:/.test(u) ? u : SITE + u;
     const faq = [...(dados.piso4 ? [[faqPreco[l], c.price(num(dados.piso4, l), dados.piso7 ? num(dados.piso7, l) : "")]] : []), ...t.faq];
     const boatCards = boats.map(b => `<a class="boat" href="${boatPath(l, b.slug)}">${b.img ? `<img src="${esc(b.img)}" alt="${esc(b.name)}" loading="lazy" width="800" height="533">` : ""}<div class="tx"><h3>${esc(b.name)}</h3><div class="meta">${[b.feet ? c.feet(b.feet) : "", b.cap ? c.people(b.cap) : ""].filter(Boolean).join(" · ")}</div><p>${esc(b.tag?.[l] || "")}</p></div></a>`).join("");
-    const body = g === "roteiro"
+    const priceBox = dados.piso4 ? `<section><div class="price">${c.price(num(dados.piso4, l), dados.piso7 ? num(dados.piso7, l) : "")}</div></section>` : "";
+    const body = (g === "marinheiro" || g === "praias")
+      ? `${t.secs.map(([h2, it]) => `<section><h2>${h2}</h2><ul class="list">${it.map(x => `<li>${x}</li>`).join("")}</ul></section>`).join("\n")}
+<section><h2>${t.boatsT}</h2><div class="boats">${boatCards}</div></section>`
+      : g === "precos"
+      ? `${priceBox}<section><h2>${t.whatT}</h2><ul class="list">${t.what.map(x => `<li>${x}</li>`).join("")}</ul></section>
+<section><h2>${t.seasT}</h2><ul class="list">${t.seas.map(x => `<li>${x}</li>`).join("")}</ul></section>
+<section><h2>${t.inclT}</h2><ul class="list">${t.incl.map(x => `<li>${x}</li>`).join("")}</ul></section>
+<section><h2>${t.boatsT}</h2><div class="boats">${boatCards}</div></section>`
+      : g === "roteiro"
       ? `<section><h2>${t.routeT}</h2><p>${t.routeP}</p><ol class="stops">${dados.route.map((r, i) => `<li>${r.img ? `<img src="${r.img}" alt="${esc(r.name)}" loading="lazy" width="800" height="533">` : ""}<div class="tx"><h3>${i + 1}. ${esc(r.name)}</h3><p>${esc(r.desc[l] || "")}</p>${r.credit ? `<small>${c.photo}: ${r.credit[1] ? `<a href="${esc(r.credit[1])}" rel="nofollow noopener" target="_blank">${esc(r.credit[0])}</a>` : esc(r.credit[0])}</small>` : ""}</div></li>`).join("")}</ol></section>
 <section><h2>${t.howT}</h2><ul class="list">${t.how.map(x => `<li>${x}</li>`).join("")}</ul></section>
 <section><h2>${{ pt: "As lanchas", en: "The boats", es: "Las lanchas" }[l]}</h2><div class="boats">${boatCards}</div></section>`
@@ -213,10 +364,10 @@ ${TRACK}
 <div class="hero"><div class="in"><h1>${t.h1}</h1><p>${t.lead}</p><a class="btn" href="${wa}" target="_blank" rel="noopener">${c.wa}</a><a class="btn alt" href="${homePath(l)}#frota">${c.boats}</a></div></div>
 <main class="in">
 ${body}
-${dados.piso4 ? `<section><div class="price">${c.price(num(dados.piso4, l), dados.piso7 ? num(dados.piso7, l) : "")}</div></section>` : ""}
+${g === "precos" ? "" : priceBox}
 <section><h2>${c.faqT}</h2>${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section>
 <div class="cta"><p>${c.ctaP}</p><a class="btn" href="${wa}" target="_blank" rel="noopener">${c.wa}</a></div>
-<p>${c.other}: <a href="${guiaPath(outro, l)}">${T[outro][l].h1}</a> · <a href="${homePath(l)}">${c.boats}</a></p>
+<p>${c.other}: ${outros.map(o => `<a href="${guiaPath(o, l)}">${T[o][l].h1}</a>`).join(" · ")} · <a href="${homePath(l)}">${c.boats}</a></p>
 </main>
 <footer><div class="in"><p>${c.foot}</p><p><a href="${homePath(l)}">${c.home}</a> · <a href="https://wa.me/${WA}" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a> · <a href="/privacidade/">${c.privacy}</a></p></div></footer>
 </body></html>
