@@ -3945,21 +3945,33 @@ const asPerf = () => { if(S.asPerf!==undefined || !ses) return; S.asPerf=null; c
   Promise.all([db(`perfis?${q}`).catch(()=>[]), db(`clientes?select=nome,cpf,whatsapp,nascimento&user_id=eq.${ses.user.id}`).catch(()=>[])]).then(([p,c])=>{ const x=p[0]||{}, y=c[0]||{};
     S.asPerf={nome:x.nome||y.nome||"", telefone:x.telefone||y.whatsapp||"", cpf:y.cpf||"", nasc:y.nascimento||""}; bgView(); }); };
 /* documento e selfie no Asaas BaaS: link do próprio Asaas, aberto de dentro do app */
-const asDocs = () => { if(S.asDocs!==undefined) return; S.asDocs=null; asFn({acao:"documentos"}).then(j=>{ S.asDocs=j;
-  /* conta recém-criada: o Asaas leva alguns minutos para gerar o link do documento; tenta de novo a cada 15 s, até 20 vezes (2026-11-11) */
-  /* tela que se atualiza sozinha (Rodrigo 2026-11-12): preparando = a cada 12 s; voltou do link do Asaas e ainda "pendente" = "Conferindo seu envio..." a cada 6 s por até 2 min; em análise = a cada 30 s */
-  const conf=asConfAtivo();
-  if(j.status==="analise" || j.status==="ok") asConfLimpa();
-  const prox = !S.asConta ? 0 : (!j.status || j.status==="sem" || j.status==="aguardando") ? ((S.asDocsTry=(S.asDocsTry||0)+1)<=40 ? 12000 : 0) : j.status==="pendente" && conf ? 6000 : j.status==="analise" ? ((S.asAnTry=(S.asAnTry||0)+1)<=60 ? 30000 : 0) : 0;
-  clearTimeout(window.__asDocsT); if(prox) window.__asDocsT=setTimeout(()=>{ S.asDocs=undefined; asRedesenha(); }, prox);
-  asRedesenha(); }, ()=>{ S.asDocs={}; setTimeout(()=>{ S.asDocs=undefined; asRedesenha(); }, 15000); }); };
+/* consulta ao Asaas em segundo plano (Rodrigo 2026-11-12): a tela só é redesenhada quando a situação MUDA; nada pisca a cada consulta,
+   e quem está digitando não perde nada (bgView espera). Com o app em segundo plano, não consulta. */
+const asDocs = () => { if(S.asDocs!==undefined) return; S.asDocs=null; asDocsBusca(); };
+function asDocsBusca(){
+  clearTimeout(window.__asDocsT);
+  if(document.hidden && S.asDocs){ window.__asDocsT=setTimeout(asDocsBusca, 12000); return; }
+  asFn({acao:"documentos"}).then(j=>{
+    const conf=asConfAtivo(), a=S.asDocs;
+    if(j.status==="analise" || j.status==="ok") asConfLimpa();
+    j._conf = !!(conf && j.status==="pendente");
+    const mudou = !a || a.status!==j.status || a.url!==j.url || !!a.rejeitado!==!!j.rejeitado || !!a._conf!==j._conf;
+    S.asDocs=j;
+    /* preparando = a cada 12 s; voltou do link do Asaas e ainda "pendente" = "Conferindo seu envio..." a cada 6 s por até 2 min; em análise = a cada 30 s */
+    const prox = !S.asConta ? 0 : (!j.status || j.status==="sem" || j.status==="aguardando") ? ((S.asDocsTry=(S.asDocsTry||0)+1)<=40 ? 12000 : 0) : j.status==="pendente" && conf ? 6000 : j.status==="analise" ? ((S.asAnTry=(S.asAnTry||0)+1)<=60 ? 30000 : 0) : 0;
+    if(prox) window.__asDocsT=setTimeout(asDocsBusca, prox);
+    if(mudou) asRedesenha();
+  }, ()=>{ if(!S.asDocs){ S.asDocs={}; asRedesenha(); } window.__asDocsT=setTimeout(asDocsBusca, 15000); });
+}
 /* "voltou do Asaas": o toque no botão do documento fica guardado no aparelho por 2 min (link abre na mesma aba no app instalado) */
 const asConfKey = () => "as-conf-"+(ses?.user?.id||"");
 const asConfMarca = () => { try{ localStorage.setItem(asConfKey(), String(Date.now())); }catch{} };
 const asConfAtivo = () => { try{ const v=+localStorage.getItem(asConfKey()); return v && Date.now()-v < 120000; }catch{ return false; } };
 const asConfLimpa = () => { try{ localStorage.removeItem(asConfKey()); }catch{} };
 /* redesenha só a parte do Asaas quando não dá para redesenhar a tela toda (formulário em uso): o aviso do topo e a janela */
-function asRedesenha(){ if(!busyTyping()) return bgView(); const a=app.querySelector(".asav"); if(a){ const v=!!S.vend && !S.own?.some(l=>!SEM_REPASSE.includes(l)); const h=asAvisoHTML(v); const d=document.createElement("div"); d.innerHTML=h; a.replaceWith(...(d.childNodes.length?d.childNodes:[document.createTextNode("")])); } asJanela(); }
+/* ocupado = digitando, janela da chave Pix aberta, chat, agenda ou passeio aberto: aí só troca o pedaço do Asaas, sem mexer no resto (Rodrigo 2026-11-12) */
+const asOcupado = () => busyTyping() || !!document.getElementById("pxx") || (typeof chatCid!=="undefined" && !!chatCid) || (typeof sheetDay!=="undefined" && !!sheetDay) || (typeof tripRow!=="undefined" && !!tripRow);
+function asRedesenha(){ if(!asOcupado()){ const y=scrollY; bgView(); if(Math.abs(scrollY-y)>2) scrollTo(0,y); return; } const a=app.querySelector(".asav"); if(a){ const v=!!S.vend && !S.own?.some(l=>!SEM_REPASSE.includes(l)); const h=asAvisoHTML(v); const d=document.createElement("div"); d.innerHTML=h; a.replaceWith(...(d.childNodes.length?d.childNodes:[document.createTextNode("")])); } asJanela(); }
 document.addEventListener("click", e=>{ if(e.target.closest("#as-av-doc,[data-asdoc]")) asConfMarca(); }, true);
 const asVoltou = () => { if(!S.asConta || S.asDocs?.status==="ok") return; S.asDocs=undefined; S.asAnTry=0; asRedesenha(); };
 addEventListener("pageshow", e=>{ if(e.persisted) asVoltou(); }); addEventListener("focus", asVoltou);
