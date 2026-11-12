@@ -78,7 +78,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, status, sinal_valor, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor").eq("id", pid).maybeSingle();
   if (!p) return null;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
@@ -132,8 +132,15 @@ function horaTxt(p: { horario?: string; hora_ini?: string | null; hora_fim?: str
   if (!a) return "-";
   return b ? `${a} ${l === "en" ? "to" : l === "es" ? "a" : "às"} ${b}` : a;
 }
+// chave também pode ficar na tabela segredos_app (só a chave de serviço lê), gravada pela VPS sem passar por ninguém
+async function d360Key() {
+  if (D360) return D360;
+  const { data } = await db.from("segredos_app").select("valor").eq("nome", "D360_API_KEY").maybeSingle();
+  return String(data?.valor || "");
+}
 async function waPagamento(p: { id: number; cliente: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, k: string, lancha: string, valor: string) {
-  if (!WA_ON || (!D360 && (!WA_TOKEN || !WA_PHONE))) return false;
+  const KEY360 = await d360Key().catch(() => "");
+  if (!WA_ON || (!KEY360 && (!WA_TOKEN || !WA_PHONE))) return false;
   const { data: cl } = await db.from("clientes").select("nome, whatsapp").eq("user_id", p.cliente).maybeSingle();
   const to = dig(cl?.whatsapp);
   if (to.length < 10 || to.length > 15) return false;
@@ -143,9 +150,9 @@ async function waPagamento(p: { id: number; cliente: string; data: string; horar
   const { data: pv, error: pe } = await db.from("wa_provas").insert({ tel_dig: to, origem: "pagamento" }).select("token").single();
   if (pe || !pv) { console.error("prova", pe?.message); return false; }
   const link = `${SITE}/pagar/?p=${p.id}&k=${k}&w=${pv.token}&l=${l}`;
-  const r = D360
+  const r = KEY360
     ? await fetch("https://waba-v2.360dialog.io/messages", {
-      method: "POST", headers: { "D360-API-KEY": D360, "content-type": "application/json" },
+      method: "POST", headers: { "D360-API-KEY": KEY360, "content-type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
         template: { name: D360_MODELO, language: { code: WA_LANG[l] }, components: [
           { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), horaTxt(p, l), valor, link].map(text => ({ type: "text", text })) },
@@ -159,10 +166,10 @@ async function waPagamento(p: { id: number; cliente: string; data: string; horar
           { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `?p=${p.id}&k=${k}&w=${pv.token}&l=${l}` }] },
         ] } }),
     });
-  if (!r.ok) { console.error("wa pagamento falhou", p.id, D360 ? "360dialog" : "graph", r.status, (await r.text()).slice(0, 400)); return false; }
+  if (!r.ok) { console.error("wa pagamento falhou", p.id, KEY360 ? "360dialog" : "graph", r.status, (await r.text()).slice(0, 400)); return false; }
   // tira o pedido do cartão "WhatsApp pendente" do administrador (senão um toque lá mandaria de novo)
   await db.from("pedidos").update({ wa_central_em: new Date().toISOString() }).eq("id", p.id).is("wa_central_em", null);
-  console.log("wa pagamento ok", p.id, D360 ? "360dialog" : "graph");
+  console.log("wa pagamento ok", p.id, KEY360 ? "360dialog" : "graph");
   return true;
 }
 
@@ -231,14 +238,8 @@ Deno.serve(async req => {
           em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : (+a?.sinal || +p.sinal_valor || (c.moeda === "BRL" ? +c.valor : 0)) || null,
           valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
       }
-      // trocar 4h <-> 7h antes de pagar (Rodrigo 2026-11-12): opções livres, preço pela tabela
-      let trocas: unknown[] = [];
-      if (p.status === "pendente" && !c.pago_em && !c.captura && !p.comprovante_em && vg === "livre" && !(await tardeCombinado(p))) {
-        const { data: tr, error: te } = await db.rpc("trocas_pedido", { pid: p.id });
-        if (te) console.error("trocas", te.message); else trocas = Array.isArray(tr) ? tr : [];
-      }
-      return json({ trocas, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
-        pedido: p.id, lancha, data: p.data, horario: p.horario, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
+      return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
+        pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor || null, resto_brl: resto, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
     }
@@ -309,12 +310,26 @@ Deno.serve(async req => {
       return json({ pagos, recusados });
     }
 
-    // a página: o cliente troca 4h <-> 7h antes de pagar; a função do banco confere tudo (livre, preço de tabela, sem pagamento)
-    if (b.acao === "trocar") {
-      const x = await carregar(Number(b.p), String(b.k || ""));
-      if (!x) return json({ erro: "link" }, 404);
+    // troca 4h <-> 7h antes do pagamento (Rodrigo 2026-11-12: quem troca é o administrador, no app, ou o Lucas, pela ponte com a chave de serviço;
+    // o cliente pede e a gente troca). A função do banco confere tudo (livre, preço de tabela, sem pagamento).
+    if (b.acao === "trocar" || b.acao === "alterar") {
+      const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk0 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      const servico = !!srk0 && tok === srk0;
+      const uid = servico ? null : tok ? (await db.auth.getUser(tok)).data?.user?.id : null;
+      const adm = !!uid && !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
+      // operador = a sessão do painel que a ponte do Lucas usa na VPS
+      const opr = !adm && !!uid && !!(await db.from("papeis_painel").select("papel").eq("user_id", uid).eq("papel", "operador").maybeSingle()).data;
+      if (!servico && !adm && !opr) return json({ erro: "admin" }, 403);
+      const { data: pd } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id").eq("id", Number(b.pid)).maybeSingle();
+      if (!pd) return json({ erro: "pedido" }, 404);
+      const x = { p: pd, lancha: (await db.from("lanchas").select("nome").eq("slug", pd.lancha).maybeSingle()).data?.nome || pd.lancha,
+        nome: String((await db.from("clientes").select("nome").eq("user_id", pd.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0] };
       if (await tardeCombinado(x.p)) return json({ erro: "passou" }, 409);
-      const { data: r, error: re } = await db.rpc("trocar_horario_pedido", { pid: x.p.id, novo: String(b.h || "") });
+      // alterar (Lucas pela ponte ou administrador): horário livre, duração e valor; o valor vem de quem chama, já com as regras de cotação
+      const hm = (v: unknown) => /^\d{2}:\d{2}$/.test(String(v || "")) ? String(v) : null;
+      const { data: r, error: re } = b.acao === "alterar"
+        ? await db.rpc("alterar_pedido", { pid: x.p.id, p_horario: String(b.horario || ""), p_hi: hm(b.hora_ini), p_hf: hm(b.hora_fim), p_valor: Number(b.valor), p_sinal: b.sinal == null || b.sinal === "" ? null : Number(b.sinal) })
+        : await db.rpc("trocar_horario_pedido", { pid: x.p.id, novo: String(b.h || "") });
       if (re) { console.error("trocar", re.message); return json({ erro: "falhou" }, 500); }
       if (!r?.ok) return json({ erro: r?.erro || "falhou" }, 409);
       // cobrança aberta no Asaas com o sinal antigo: cancela já, para ninguém pagar o valor velho
@@ -324,8 +339,9 @@ Deno.serve(async req => {
       const txt = r.moeda && r.valor ? fmt(r.moeda, +r.valor) : null;
       if (txt) await db.from("pedidos").update({ paypal_valor: txt }).eq("id", x.p.id);
       const H: Record<string, string> = { manha: "manhã (4h)", tarde: "tarde (4h)", dia: "dia todo (7h)" };
-      await pushAdmins({ title: "Cliente trocou o horário 🔁", body: `${x.nome || "Cliente"} trocou o pedido ${x.p.id} (${x.lancha}, ${dataBR(x.p.data)}) de ${H[r.de] || r.de} para ${H[r.para] || r.para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
-      return json({ ok: true });
+      const para = r.hi ? `${String(r.hi).replace(":00", "h")} às ${String(r.hf).replace(":00", "h")}` : H[r.para] || r.para;
+      if (servico || opr) await pushAdmins({ title: "Pedido alterado 🔁", body: `Pedido ${x.p.id} de ${x.nome || "cliente"} (${x.lancha}, ${dataBR(x.p.data)}): agora ${para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
+      return json({ ok: true, ...r });
     }
 
     const x = await carregar(Number(b.p), b.k);
