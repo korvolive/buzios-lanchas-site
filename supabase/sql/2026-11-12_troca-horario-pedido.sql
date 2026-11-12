@@ -104,3 +104,6 @@ begin
     execute replace(s, 'elsif not public.e_admin() then', 'elsif not public.e_admin() and coalesce(current_setting(''buzios.troca'', true), '''') <> ''1'' then');
   end if;
 end $d$;
+
+-- Aplicado em duas partes: as funções pelo Claude; o bloco do gatilho pedido_vendedor (acima) colado pelo Rodrigo no SQL Editor.
+-- Trava extra (aplicada): _troca_ok só libera quando o gatilho já tem 'buzios.troca', e trocar_horario_pedido desfaz se o preço não mudar.
