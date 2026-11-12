@@ -9,7 +9,7 @@
 // POST {acao:"documentos"} (login)          dono/vendedor: link do Asaas para enviar documento e selfie (BaaS), ou a situação da análise
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
 // POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas (+ vendedores com conta)
-// POST {acao:"comissao", pid} (login admin)  depois do passeio: transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
+// POST {acao:"comissao", pid, antecipar?} (login admin)  depois do passeio (ou antes, com antecipar e o sinal pago): transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
 // POST {acao:"repasses", pids?} (login admin) "O PayPal caiu": manda do saldo do Asaas a parte de cada dono dos sinais pagos pelo PayPal (Rodrigo 2026-10-25)
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
@@ -756,8 +756,14 @@ Deno.serve(async req => {
       const { data: p } = await db.from("pedidos").select("id, vendedor, status, data, horario, bloqueio_id, preco_cliente, preco_base, comissao_paga").eq("id", pid).maybeSingle();
       if (!p?.vendedor || p.status !== "aprovado") return json({ erro: "pedido" }, 409);
       if (p.comissao_paga) return json({ erro: "ja" }, 409);
+      // antecipar (Rodrigo 2026-11-12): o administrador paga antes do passeio, mas só com o sinal do cliente já pago (o dinheiro já está na Búzios)
+      const ant = b.antecipar === true;
       const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
-      if (!acabou(p.data, p.horario, fim)) return json({ erro: "depois_do_passeio" }, 409);
+      if (ant) {
+        const pgA = (await db.from("pagamentos_asaas").select("id").eq("pedido", pid).not("pago_em", "is", null).limit(1)).data?.length;
+        const pgP = (await db.from("pagamentos_pp").select("pedido").eq("pedido", pid).not("pago_em", "is", null).limit(1)).data?.length;
+        if (!pgA && !pgP) return json({ erro: "sinal" }, 409);
+      } else if (!acabou(p.data, p.horario, fim)) return json({ erro: "depois_do_passeio" }, 409);
       if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) return json({ erro: "nao_aconteceu" }, 409);
       const { data: vv } = await db.from("vendedores").select("indicado_por, indicacao_pct").eq("user_id", p.vendedor).maybeSingle();
       const bruto = Math.max(+p.preco_cliente - +p.preco_base, 0);
@@ -781,9 +787,10 @@ Deno.serve(async req => {
         return json({ erro: "asaas", detalhe: String(e?.message || e).slice(0, 300) }, 400);
       }
       await db.from("pedidos").update({ comissao_comprovante: "asaas:" + tr.id }).eq("id", pid);
-      // marca paga com o login do administrador (o banco só deixa o administrador marcar)
+      // marca paga com o login do administrador (o banco só deixa o administrador marcar); antecipada: pagar_comissao recusa antes do passeio, então marca pela chave de serviço
       const comAdm = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false }, global: { headers: { Authorization: req.headers.get("authorization") || "" } } });
-      const { error: em } = await comAdm.rpc("pagar_comissao", { pid, sim: true });
+      const agoraC = new Date().toISOString();
+      const { error: em } = ant ? await db.from("pedidos").update({ comissao_paga: agoraC, comissao_antecipada: agoraC }).eq("id", pid) : await comAdm.rpc("pagar_comissao", { pid, sim: true });
       if (em) console.error("pagar_comissao", em.message);
       else await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/aviso-vendedor", { method: "POST", headers: { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" }, body: JSON.stringify({ tipo: "pago", id: pid }) }).catch(e => console.error("aviso-vendedor", e));
       return json({ ok: true, valor: com, status: tr.status || null });
