@@ -34,6 +34,12 @@ ExpiresByType image/jpeg "access plus 7 days"
 ExpiresByType image/png "access plus 7 days"
 ExpiresByType video/mp4 "access plus 7 days"
 </IfModule>
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Botão do WhatsApp: link com "?" codificado (/pagar/%3Fp%3D...) ou link curto (/pagar/p49-...) abre a página de pagamento
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^pagar/(\?.*|p[0-9]+-[0-9A-Za-z-]+)$ pagar/index.html [L]
+</IfModule>
 # END buzios-velocidade
 BLOCO
 rm -f .htaccess.servidor

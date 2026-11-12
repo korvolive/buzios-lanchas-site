@@ -108,7 +108,17 @@ const T={
 const B62="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const u2s=u=>{ let n=BigInt("0x"+u.replace(/-/g,"")), s=""; while(n>0n){ s=B62[Number(n%62n)]+s; n/=62n; } return s.padStart(22,"0"); };
 const s2u=s=>{ s=String(s||""); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return s.toLowerCase(); if(!/^[0-9A-Za-z]{22}$/.test(s)) return ""; let n=0n; for(const ch of s) n=n*62n+BigInt(B62.indexOf(ch)); const h=n.toString(16).padStart(32,"0"); return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`; };
-const q=new URLSearchParams(location.search), P=q.get("p"), K=s2u(q.get("k"))||q.get("k"); /* k curto (22 letras) no link do WhatsApp */
+/* Botão do WhatsApp: a Meta codifica o "?" do link (/pagar/%3Fp%3D...) e o link curto vem no caminho (/pagar/p49-K-W-es).
+   O .htaccess manda esses caminhos para esta página, e aqui eles viram parâmetros normais (2026-11-12, pedido 49). */
+const q=(()=>{ const s=new URLSearchParams(location.search); if(s.get("p")) return s;
+  let t=""; try{ t=decodeURIComponent(location.pathname.replace(/^.*\/pagar\//,"")); }catch(e){}
+  let r=null; if(t.startsWith("?")) r=new URLSearchParams(t.slice(1));
+  else { const m=t.match(/^p(\d+)-([0-9A-Za-z]{22})(?:-([0-9A-Za-z]{22}))?(?:-(pt|en|es))?$/);
+    if(m){ r=new URLSearchParams(); r.set("p",m[1]); r.set("k",m[2]); if(m[3]) r.set("w",s2u(m[3])); if(m[4]) r.set("l",m[4]); } }
+  if(!r||!r.get("p")) return s;
+  try{ history.replaceState(null,"","/pagar/?"+r.toString()); }catch(e){}
+  return r; })();
+const P=q.get("p"), K=s2u(q.get("k"))||q.get("k"); /* k curto (22 letras) no link do WhatsApp */
 let lg=(()=>{ try{ const s=localStorage.getItem("pagar-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[q.get("l")]?q.get("l"):T[n]?n:"pt"; })();
 let D=null, state="wait", sdk=null, A=null, AX={}, rcOpen=q.get("recibo")==="1";
 const AS = true; /* Asaas ligado para todos os clientes em reais (Rodrigo 2026-11-11, BaaS liberado) */
