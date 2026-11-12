@@ -124,6 +124,9 @@ let D=null, state="wait", sdk=null, A=null, AX={}, rcOpen=q.get("recibo")==="1";
 const AS = true; /* Asaas ligado para todos os clientes em reais (Rodrigo 2026-11-11, BaaS liberado) */
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const box=document.getElementById("box");
+/* horário combinado (pedido alterado pelo Lucas ou pelo administrador, ex.: 11h às 18h); sem ele, o turno (2026-11-12) */
+const hrsTxt=L=>{ const h=x=>{ const m=String(x||"").match(/^(\d{1,2}):(\d{2})/); return m ? (m[2]==="00" ? (+m[1])+"h" : (+m[1])+"h"+m[2]) : ""; }, a=h(D.hora_ini), b=h(D.hora_fim);
+  return a&&b ? `${a} ${lg==="en"?"to":lg==="es"?"a":"às"} ${b}` : (L.slot[D.horario]||""); };
 const tf=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>o[k]??m);
 const brl=v=>"R$ "+(+v).toLocaleString("pt-BR",{minimumFractionDigits:Number.isInteger(+v)?0:2,maximumFractionDigits:2});
 const waBtn=()=>`<a class="btn sec" href="https://wa.me/5521999272550" target="_blank" rel="noopener">${T[lg].wa}</a>`;
@@ -160,7 +163,7 @@ function render(){
     box.innerHTML=`<div class="card rc"><h1>${L.rcT} <small>${L.rcN} ${esc(D.pedido)}</small></h1>
       <p class="rctx">${tf(L.rcTxt,{nome:`<b>${esc(R.nome||D.nome||"—")}</b>`, v:`<b>${v}</b>`})}</p>
       <ul class="rows"><li><span>${L.boat}</span><b>${esc(D.lancha)}</b></li><li><span>${L.date}</span><b>${esc(d)}</b></li>
-      <li><span>${L.time}</span><b>${esc(L.slot[D.horario]||"")}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li>
+      <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li>
       <li><span>${L.rcForma}</span><b>${L.rcF[R.forma]||"Pix"}</b></li>${R.em?`<li><span>${L.rcEm}</span><b>${dt(R.em)}</b></li>`:""}</ul>
       <p class="muted" style="margin:0">${L.rcRest}</p><p style="margin:14px 0 0">${tf(L.rcAt,{d:dt(Date.now())})}</p>
       <p class="rcco"><b>BUZIOS LANCHAS LTDA</b><br>CNPJ 32.154.099/0001-72 · Armação dos Búzios, RJ<br>www.lanchaembuzios.com.br</p></div>
@@ -196,8 +199,8 @@ function render(){
   const chats=!D.chat?`<div class="card"><h2>${L.chats}</h2>${waBtn()}${my}</div>`:my?`<div class="card">${my}</div>`:"";
   box.innerHTML=`<div class="card"><p class="muted" style="margin:0">${esc(L.hi(D.nome))}</p><h1>${L.title}</h1>
     <ul class="rows"><li><span>${L.boat}</span><b>${esc(D.lancha)}</b></li><li><span>${L.date}</span><b>${esc(d)}</b></li>
-    <li><span>${L.time}</span><b>${esc(L.slot[D.horario]||"")}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li></ul>
-    <div class="muted">${L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}${open && !paid && !gone && !D.pagando && state!=="paid" ? trHTML(L) : ""}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
+    <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li></ul>
+    <div class="muted">${L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
   if(document.getElementById("pp")) mountPP();
   fabs();
 }
@@ -287,14 +290,6 @@ async function mountPP(){
     onError: ()=>{ if(state!=="paid" && !msg.dataset.vaga) msg.innerHTML=`<p class="msg err">${T[lg].fail}</p>`; }
   }).render(el).catch(()=>{});
 }
-/* trocar 4h <-> 7h antes de pagar (Rodrigo 2026-11-12): o servidor confere se a lancha está livre e recalcula pela tabela */
-function trHTML(L){ const o=(D.trocas||[]); if(!o.length) return "";
-  return `<div class="trbox" style="margin:12px 0 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px"><p class="muted" style="margin:0 0 8px">${L.trT}</p>${o.map(x=>`<button type="button" class="btn sec" data-tr="${esc(x.h)}" style="width:100%">${tf(L.trBtn,{d:L.trD[x.h==="dia"?7:4], s:esc(L.slot[x.h]||"")})}<small style="display:block;font-weight:400">${tf(L.trInfo,{t:brl(+x.preco), v:x.sinal?brl(+x.sinal):"—"})}</small></button>`).join("")}<div id="trmsg"></div></div>`; }
-document.addEventListener("click", async e=>{ const b=e.target.closest("[data-tr]"); if(!b) return; const L=T[lg], x=(D.trocas||[]).find(o=>o.h===b.dataset.tr); if(!x) return;
-  if(!confirm(tf(L.trAsk,{d:L.trD[x.h==="dia"?7:4], s:L.slot[x.h]||"", t:brl(+x.preco), v:x.sinal?brl(+x.sinal):"—"}))) return;
-  b.disabled=true; const j=await post({acao:"trocar", h:x.h}).catch(()=>({}));
-  if(j.ok){ const m=document.getElementById("trmsg"); if(m) m.innerHTML=`<p class="msg ok">${L.trOk}</p>`; setTimeout(()=>location.reload(), 900); }
-  else { b.disabled=false; const m=document.getElementById("trmsg"); if(m) m.innerHTML=`<p class="msg err">${L.trErr}</p>`; } });
 document.addEventListener("click", e=>{ if(e.target.closest("[data-rc]")){ rcOpen=true; render(); scrollTo(0,0); } });
 document.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ lg=b.dataset.lg; try{ localStorage.setItem("pagar-lang",lg); }catch(e){} render(); });
 render();
