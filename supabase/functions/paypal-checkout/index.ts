@@ -120,8 +120,20 @@ const MES: Record<string, string[]> = {
 };
 const dataLonga = (d: string, l: string) => { const [, m, dd] = d.split("-").map(Number); return l === "en" ? `${MES.en[m - 1]} ${dd}` : `${dd} de ${MES[l][m - 1]}`; };
 const nomeOk = (v: unknown) => { const n = String(v || "").trim().split(/\s+/)[0] || ""; return /^[\p{L}'-]{2,20}$/u.test(n) ? n : "-"; };
-async function waPagamento(p: { id: number; cliente: string; data: string }, k: string, lancha: string, valor: string) {
-  if (!WA_ON || !WA_TOKEN || !WA_PHONE) return false;
+// Desde 2026-11-12 (Rodrigo: "passar o aviso de pagamento para o número principal"): sai pelo número principal, o mesmo do Lucas
+// (360dialog, segredo D360_API_KEY), com o modelo de Utilidade pre_reserva_v3, que leva o link no texto. O botão antigo do
+// pagamento_liberado chegava quebrado (a Meta codificava o "?" e o site dava 404). Sem a chave, usa o caminho antigo (0203).
+const D360 = Deno.env.get("D360_API_KEY") || "", D360_MODELO = Deno.env.get("D360_MODELO_PAGAMENTO") || "pre_reserva_v3";
+const SLOT_H: Record<string, [string, string]> = { manha: ["10", "14"], tarde: ["14", "18"], dia: ["10", "17"], noite: ["20", ""] };
+const hh = (x: unknown) => { const m = String(x || "").match(/^(\d{1,2}):(\d{2})/); return m ? (m[2] === "00" ? `${+m[1]}h` : `${+m[1]}h${m[2]}`) : ""; };
+function horaTxt(p: { horario?: string; hora_ini?: string | null; hora_fim?: string | null }, l: string) {
+  let a = hh(p.hora_ini), b = hh(p.hora_fim);
+  if (!a) { const s = SLOT_H[String(p.horario || "")]; if (s) { a = s[0] + "h"; b = s[1] ? s[1] + "h" : ""; } }
+  if (!a) return "-";
+  return b ? `${a} ${l === "en" ? "to" : l === "es" ? "a" : "às"} ${b}` : a;
+}
+async function waPagamento(p: { id: number; cliente: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, k: string, lancha: string, valor: string) {
+  if (!WA_ON || (!D360 && (!WA_TOKEN || !WA_PHONE))) return false;
   const { data: cl } = await db.from("clientes").select("nome, whatsapp").eq("user_id", p.cliente).maybeSingle();
   const to = dig(cl?.whatsapp);
   if (to.length < 10 || to.length > 15) return false;
@@ -130,16 +142,27 @@ async function waPagamento(p: { id: number; cliente: string; data: string }, k: 
   const l = WA_LANG[lg] ? lg : cc === "55" ? "pt" : ES_DDI.includes(cc) ? "es" : "en";
   const { data: pv, error: pe } = await db.from("wa_provas").insert({ tel_dig: to, origem: "pagamento" }).select("token").single();
   if (pe || !pv) { console.error("prova", pe?.message); return false; }
-  const r = await fetch(`https://graph.facebook.com/v21.0/${WA_PHONE}/messages`, {
-    method: "POST", headers: { authorization: `Bearer ${WA_TOKEN}`, "content-type": "application/json" },
-    body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
-      template: { name: WA_MODELO, language: { code: WA_LANG[l] }, components: [
-        { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), valor].map(text => ({ type: "text", text })) },
-        { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `?p=${p.id}&k=${k}&w=${pv.token}&l=${l}` }] },
-      ] } }),
-  });
-  if (!r.ok) { console.error("wa pagamento falhou", p.id, r.status, (await r.text()).slice(0, 400)); return false; }
-  console.log("wa pagamento ok", p.id);
+  const link = `${SITE}/pagar/?p=${p.id}&k=${k}&w=${pv.token}&l=${l}`;
+  const r = D360
+    ? await fetch("https://waba-v2.360dialog.io/messages", {
+      method: "POST", headers: { "D360-API-KEY": D360, "content-type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
+        template: { name: D360_MODELO, language: { code: WA_LANG[l] }, components: [
+          { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), horaTxt(p, l), valor, link].map(text => ({ type: "text", text })) },
+        ] } }),
+    })
+    : await fetch(`https://graph.facebook.com/v21.0/${WA_PHONE}/messages`, {
+      method: "POST", headers: { authorization: `Bearer ${WA_TOKEN}`, "content-type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
+        template: { name: WA_MODELO, language: { code: WA_LANG[l] }, components: [
+          { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), valor].map(text => ({ type: "text", text })) },
+          { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: `?p=${p.id}&k=${k}&w=${pv.token}&l=${l}` }] },
+        ] } }),
+    });
+  if (!r.ok) { console.error("wa pagamento falhou", p.id, D360 ? "360dialog" : "graph", r.status, (await r.text()).slice(0, 400)); return false; }
+  // tira o pedido do cartão "WhatsApp pendente" do administrador (senão um toque lá mandaria de novo)
+  await db.from("pedidos").update({ wa_central_em: new Date().toISOString() }).eq("id", p.id).is("wa_central_em", null);
+  console.log("wa pagamento ok", p.id, D360 ? "360dialog" : "graph");
   return true;
 }
 
@@ -208,7 +231,13 @@ Deno.serve(async req => {
           em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : (+a?.sinal || +p.sinal_valor || (c.moeda === "BRL" ? +c.valor : 0)) || null,
           valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
       }
-      return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      // trocar 4h <-> 7h antes de pagar (Rodrigo 2026-11-12): opções livres, preço pela tabela
+      let trocas: unknown[] = [];
+      if (p.status === "pendente" && !c.pago_em && !c.captura && !p.comprovante_em && vg === "livre" && !(await tardeCombinado(p))) {
+        const { data: tr, error: te } = await db.rpc("trocas_pedido", { pid: p.id });
+        if (te) console.error("trocas", te.message); else trocas = Array.isArray(tr) ? tr : [];
+      }
+      return json({ trocas, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor || null, resto_brl: resto, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
@@ -222,7 +251,7 @@ Deno.serve(async req => {
       if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "admin" }, 403);
       const pid = Number(b.pid), valor = Math.round(Number(b.valor) * 100) / 100, moeda = String(b.moeda || "USD").toUpperCase();
       if (!(valor > 0) || !SYM[moeda]) return json({ erro: "valor" }, 400);
-      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, status, sinal_liberado_em, vendedor").eq("id", pid).maybeSingle();
+      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, status, sinal_liberado_em, vendedor").eq("id", pid).maybeSingle();
       if (!p || p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "pedido" }, 400);
       if (p.vendedor && moeda !== "BRL") return json({ erro: "vendedor" }, 400); // com vendedor: só Pix, sem cobrança automática (Rodrigo, 2026-10-22)
       const { data: old } = await db.from("pagamentos_pp").select("token, pago_em, captura").eq("pedido", pid).maybeSingle();
@@ -278,6 +307,25 @@ Deno.serve(async req => {
         } catch (e) { console.error("pendente", r.pedido, e); }
       }
       return json({ pagos, recusados });
+    }
+
+    // a página: o cliente troca 4h <-> 7h antes de pagar; a função do banco confere tudo (livre, preço de tabela, sem pagamento)
+    if (b.acao === "trocar") {
+      const x = await carregar(Number(b.p), String(b.k || ""));
+      if (!x) return json({ erro: "link" }, 404);
+      if (await tardeCombinado(x.p)) return json({ erro: "passou" }, 409);
+      const { data: r, error: re } = await db.rpc("trocar_horario_pedido", { pid: x.p.id, novo: String(b.h || "") });
+      if (re) { console.error("trocar", re.message); return json({ erro: "falhou" }, 500); }
+      if (!r?.ok) return json({ erro: r?.erro || "falhou" }, 409);
+      // cobrança aberta no Asaas com o sinal antigo: cancela já, para ninguém pagar o valor velho
+      const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas", { method: "POST", headers: { authorization: "Bearer " + srk, apikey: srk, "content-type": "application/json" }, body: JSON.stringify({ acao: "cancelar", pid: x.p.id }) })
+        .then(async q => { if (!q.ok) console.error("asaas cancelar", q.status, (await q.text()).slice(0, 300)); }).catch(e => console.error("asaas cancelar", e));
+      const txt = r.moeda && r.valor ? fmt(r.moeda, +r.valor) : null;
+      if (txt) await db.from("pedidos").update({ paypal_valor: txt }).eq("id", x.p.id);
+      const H: Record<string, string> = { manha: "manhã (4h)", tarde: "tarde (4h)", dia: "dia todo (7h)" };
+      await pushAdmins({ title: "Cliente trocou o horário 🔁", body: `${x.nome || "Cliente"} trocou o pedido ${x.p.id} (${x.lancha}, ${dataBR(x.p.data)}) de ${H[r.de] || r.de} para ${H[r.para] || r.para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
+      return json({ ok: true });
     }
 
     const x = await carregar(Number(b.p), b.k);
