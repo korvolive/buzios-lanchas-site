@@ -9,7 +9,7 @@
 // POST {acao:"documentos"} (login)          dono/vendedor: link do Asaas para enviar documento e selfie (BaaS), ou a situação da análise
 // POST {acao:"minha"} (login)                dono: se já tem conta Asaas
 // POST {acao:"faltam"} (login admin)         lanchas com dono sem conta Asaas (+ vendedores com conta)
-// POST {acao:"comissao", pid} (login admin)  depois do passeio: transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
+// POST {acao:"comissao", pid, antecipar?} (login admin)  depois do passeio (ou antes, com antecipar e o sinal pago): transfere a comissão do vendedor para a conta Asaas dele (Rodrigo 2026-10-25, um toque)
 // POST {acao:"repasses", pids?} (login admin) "O PayPal caiu": manda do saldo do Asaas a parte de cada dono dos sinais pagos pelo PayPal (Rodrigo 2026-10-25)
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
@@ -19,7 +19,10 @@
 // POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site)
 // Pagou: a reserva se confirma sozinha (rpc confirmar_pago), sem o administrador aprovar (Rodrigo, 2026-10-25).
 // Gerou o Pix ou o cartão: a data fica segurada por 2 horas para esse cliente (pp_vaga e datas_seguradas).
-// Chave (Edge Functions > Secrets, colada pelo Rodrigo): ASAAS_API_KEY. A chave da subconta do dono não é guardada.
+// POST {event:"ACCOUNT_STATUS_..."} (do Asaas, webhook da subconta) a análise do documento e da selfie mudou: confere no Asaas e, aprovada, avisa a pessoa
+// Chave (Edge Functions > Secrets, colada pelo Rodrigo): ASAAS_API_KEY. A chave de cada subconta fica em asaas_chaves CIFRADA
+// com o segredo ASAAS_CHAVES_SEGREDO (AES-GCM); sem esse segredo a chave não é guardada (a conta principal gera outra no Asaas).
+// Saídas de dinheiro sem token/SMS: webhook de validação de saques na função asaas-saques.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -36,7 +39,14 @@ const dig = (s: unknown) => String(s ?? "").replace(/\D/g, "");
 const SEGURA_MS = 2 * 36e5; // a data fica segurada por 2 horas depois de gerar o pagamento (Rodrigo, 2026-10-25)
 // pagamento só até 1 hora antes do início do passeio (Rodrigo, 2026-10-25): manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3)
 const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
-const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - 36e5 <= Date.now();
+const ANTES_MS = 40 * 6e4; // pagamento até 40 minutos antes do início (Rodrigo 2026-11-11; era 1 hora)
+const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - ANTES_MS <= Date.now();
+// horário combinado do passeio (Rodrigo 2026-11-11): usa a hora de entrada do pedido ou do passeio na agenda (rpc inicio_combinado); sem ela, o horário padrão acima
+async function tardeCombinado(p: any) {
+  const { data, error } = await db.rpc("inicio_combinado", { d: p.data, h: p.horario, hi: p.hora_ini ?? null, bid: p.bloqueio_id ?? null });
+  if (error || !data) return tarde(p.data, p.horario);
+  return Date.parse(String(data).slice(0, 19) + "-03:00") - ANTES_MS <= Date.now();
+}
 // fim do passeio (Brasília): manhã 14h, dia 17h, tarde 18h, noite no dia seguinte
 const FIM: Record<string, number> = { manha: 14, dia: 17, tarde: 18, noite: 24 };
 // hora_fim do passeio na agenda ('HH:MM'), quando o dono anotou, vale no lugar do fim do horário
@@ -46,6 +56,25 @@ const acabou = (d: string, h: string, fim?: string | null) => { const [fh, fm] =
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
 const cartaoOk = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS;
+// chave da subconta cifrada (revisão de segurança 2026-10-28): no banco só fica "v1:<iv>:<cifra>"
+const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
+const de64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+async function segredo() {
+  const s = Deno.env.get("ASAAS_CHAVES_SEGREDO") || "";
+  if (s.length < 32) throw new Error("sem_segredo");
+  return crypto.subtle.importKey("raw", await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)), "AES-GCM", false, ["encrypt", "decrypt"]);
+}
+async function cifrar(txt: string) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  return `v1:${b64(iv)}:${b64(new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await segredo(), new TextEncoder().encode(txt))))}`;
+}
+async function chaveSub(uid: string) {
+  const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", uid).maybeSingle();
+  const [v, iv, ct] = String(k?.api_key || "").split(":");
+  if (v !== "v1" || !iv || !ct) return "";
+  try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: de64(iv) }, await segredo(), de64(ct))); }
+  catch (e) { console.error("chaveSub", uid, e); return ""; }
+}
 const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
 
 async function asaas(path: string, body?: unknown, method = body === undefined ? "GET" : "POST") {
@@ -109,7 +138,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono").eq("id", pid).maybeSingle();
   return p ? { c, p } : null;
 }
 
@@ -132,17 +161,25 @@ async function vaga(pid: number, segurar = false) {
   return String(data || "livre");
 }
 
-async function cliente(uid: string, cpfNovo: string) {
-  const { data: ja } = await db.from("asaas_clientes").select("customer_id").eq("user_id", uid).maybeSingle();
-  if (ja) return ja.customer_id as string;
+// semDoc: estrangeiro pagando com cartão internacional, cobrança sem CPF/CNPJ (Mayara/Asaas 2026-11-11)
+async function cliente(uid: string, cpfNovo: string, semDoc = false) {
+  const { data: ja } = await db.from("asaas_clientes").select("customer_id, cpf").eq("user_id", uid).maybeSingle();
   const { data: cl } = await db.from("clientes").select("nome, cpf, whatsapp").eq("user_id", uid).maybeSingle();
-  const cpf = dig(cl?.cpf) || cpfNovo;
-  if (!cpfOk(cpf) && !cnpjOk(cpf)) return null;
+  const cpf = dig(cl?.cpf) || cpfNovo, docOk = cpfOk(cpf) || cnpjOk(cpf);
+  if (ja) {
+    if (ja.cpf || semDoc) return ja.customer_id as string;
+    // cliente criado sem documento (pagou como estrangeiro) e agora paga em reais: completa o CPF no Asaas
+    if (!docOk) return null;
+    await asaas(`/customers/${ja.customer_id}`, { cpfCnpj: cpf });
+    await db.from("asaas_clientes").update({ cpf }).eq("user_id", uid);
+    return ja.customer_id as string;
+  }
+  if (!docOk && !semDoc) return null;
   const u = (await db.auth.admin.getUserById(uid)).data?.user;
   const email = u?.email && !/@sem-email\.lanchaembuzios\.com\.br$/.test(u.email) ? u.email : undefined;
   const tel = dig(cl?.whatsapp);
-  const c = await asaas("/customers", { name: String(cl?.nome || u?.user_metadata?.nome || "Cliente").trim(), cpfCnpj: cpf, email, mobilePhone: tel.startsWith("55") ? tel.slice(2) : undefined, externalReference: uid, notificationDisabled: true });
-  await db.from("asaas_clientes").insert({ user_id: uid, customer_id: c.id, cpf });
+  const c = await asaas("/customers", { name: String(cl?.nome || u?.user_metadata?.nome || "Cliente").trim(), ...(docOk ? { cpfCnpj: cpf } : {}), email, mobilePhone: tel.startsWith("55") ? tel.slice(2) : undefined, externalReference: uid, notificationDisabled: true });
+  await db.from("asaas_clientes").insert({ user_id: uid, customer_id: c.id, cpf: docOk ? cpf : null });
   return c.id as string;
 }
 
@@ -172,9 +209,12 @@ const EXP: Record<string, (l: string, d: string) => { title: string; body: strin
 };
 async function avisarExpirou(pid: number) {
   const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, status").eq("id", pid).maybeSingle();
-  if (!p || p.status !== "pendente" || !p.cliente) return;
+  if (!p || p.status !== "pendente") return;
   const { data: ainda } = await db.from("pagamentos_asaas").select("id").eq("pedido", pid).limit(1);
   if (ainda?.length) return; // ainda tem outra cobrança valendo (Pix ou cartão)
+  // marca o prazo vencido (Rodrigo 2026-11-12): o card mostra "Prazo vencido, data liberada" e, sem pagamento em 24 horas, o pedido é cancelado sozinho
+  await db.from("pedidos").update({ prazo_vencido_em: new Date().toISOString() }).eq("id", pid).eq("status", "pendente");
+  if (!p.cliente) return;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
   if (cv) {
@@ -194,16 +234,16 @@ async function avisarExpirou(pid: number) {
 }
 // pedido que venceu sem pagamento (1 hora antes do início): cancelado, e o cliente recebe uma mensagem gentil no chat e no celular (Rodrigo 2026-10-25)
 const PASSOU: Record<string, (l: string, d: string) => { title: string; body: string }> = {
-  pt: (l, d) => ({ title: "Que tal outra data? ⛵", body: `O seu pedido da ${l} em ${d} foi encerrado. Quando quiser, escolha outra data no site: vai ser um prazer levar você para passear!` }),
-  en: (l, d) => ({ title: "How about another date? ⛵", body: `Your request for ${l} on ${d} has been closed. Whenever you like, pick another date on the website: we'd love to take you out on the water!` }),
-  es: (l, d) => ({ title: "¿Qué tal otra fecha? ⛵", body: `Tu pedido de la ${l} el ${d} se cerró. Cuando quieras, elige otra fecha en el sitio: ¡será un placer llevarte a pasear!` }),
+  pt: (l, d) => ({ title: "Que tal outra data?", body: `O seu pedido da ${l} em ${d} foi encerrado. Quando quiser, escolha outra data no site: vai ser um prazer levar você para passear!` }),
+  en: (l, d) => ({ title: "How about another date?", body: `Your request for ${l} on ${d} has been closed. Whenever you like, pick another date on the website: we'd love to take you out on the water!` }),
+  es: (l, d) => ({ title: "¿Qué tal otra fecha?", body: `Tu pedido de la ${l} el ${d} se cerró. Cuando quieras, elige otra fecha en el sitio: ¡será un placer llevarte a pasear!` }),
 };
 async function avisarPassou(p: { id: number; cliente: string; lancha: string; data: string }) {
   if (!p.cliente) return;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
   if (cv) {
-    const tx = `A data do seu pedido da ${lancha} em ${dataBR(p.data)} chegou sem a reserva ser concluída, então encerramos o pedido. Ficamos muito felizes com o seu interesse! Quando quiser, escolha outra data no site ou chame a gente aqui: vai ser um prazer levar você para passear em Búzios. ⛵`;
+    const tx = `A data do seu pedido da ${lancha} em ${dataBR(p.data)} chegou sem a reserva ser concluída, então encerramos o pedido. Ficamos muito felizes com o seu interesse! Quando quiser, escolha outra data no site ou chame a gente aqui: vai ser um prazer levar você para passear em Búzios.`;
     const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "passou:", pedido: p.id }).select("id").maybeSingle();
     if (m) await db.from("conversas").update({ ultima_em: new Date().toISOString(), ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
   }
@@ -306,17 +346,112 @@ async function quem(req: Request) {
 // da Búzios até a pessoa ter a conta de recebimento aprovada. Aprovou, este robô (cron asaas-expirar) envia sozinho.
 // Só com asaas_config.saldo_auto ligado; só enquanto o saldo do Asaas cobre; cada envio travado para nunca sair duas vezes.
 // O PayPal fica de fora: o dinheiro só chega ao Asaas quando o Rodrigo saca, e segue pelo toque "O PayPal caiu".
+// contas esperando aprovação: confere no Asaas (com a chave da subconta) e avisa quem foi aprovado.
+// Roda no robô de 10 em 10 minutos e na hora em que o Asaas avisa (webhook da subconta, eventos ACCOUNT_STATUS_*).
+async function conferirContas() {
+  const { data: esp } = await db.from("asaas_contas").select("user_id").is("aprovada_em", null).limit(20);
+  for (const c of esp || []) {
+    const k = await chaveSub(c.user_id);
+    if (!k) continue;
+    const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+    if (st?.general !== "APPROVED") { await avisarDocsLiberados(c.user_id, k).catch((e) => console.error("docsLiberados", e)); continue; }
+    const { data: foi } = await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", c.user_id).is("aprovada_em", null).select("user_id");
+    if (foi?.length) await avisarAprovada(c.user_id).catch((e) => console.error("avisarAprovada", e));
+  }
+}
+// o link do documento e da selfie só aparece depois que o Asaas confere os dados do cadastro (no sandbox 2026-11-11 onboardingUrl vinha null logo após criar):
+// quando o link fica disponível, avisa a pessoa uma vez para ela enviar
+const DOCS_OK: Record<string, { title: string; body: string }> = {
+  pt: { title: "Agora falta o documento e a selfie", body: "Seu cadastro foi conferido. Abra o app e toque em Enviar documento e selfie para liberar a sua conta." },
+  en: { title: "Now send your ID and selfie", body: "Your details were checked. Open the app and tap Send ID and selfie to unlock your account." },
+  es: { title: "Ahora falta el documento y la selfie", body: "Tus datos fueron revisados. Abre la app y toca Enviar documento y selfie para liberar tu cuenta." },
+};
+async function avisarDocsLiberados(uid: string, k: string) {
+  const { data: ct } = await db.from("asaas_contas").select("docs_avisado_em").eq("user_id", uid).maybeSingle();
+  if (!ct || ct.docs_avisado_em) return;
+  const j: any = await fetch(API() + "/myAccount/documents", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+  if (!(j?.data || []).some((d: any) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl)) return;
+  const { data: foi } = await db.from("asaas_contas").update({ docs_avisado_em: new Date().toISOString() }).eq("user_id", uid).is("docs_avisado_em", null).select("user_id");
+  if (!foi?.length) return;
+  const { data: kk } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!kk) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", kk.publica, kk.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...DOCS_OK[l], url: "/login/", tag: "docs-liberados" }), { TTL: 86400, urgency: "normal" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+const APROVADA: Record<string, { title: string; body: string }> = {
+  pt: { title: "Conta de recebimento aprovada ✅", body: "Seus documentos foram aprovados. A partir de agora, o que é seu cai direto na sua conta." },
+  en: { title: "Payout account approved ✅", body: "Your documents were approved. From now on, your share goes straight to your account." },
+  es: { title: "Cuenta de cobro aprobada ✅", body: "Tus documentos fueron aprobados. Desde ahora, lo tuyo cae directo en tu cuenta." },
+};
+async function avisarAprovada(uid: string, msgs: Record<string, { title: string; body: string }> = APROVADA, tag = "conta-aprovada") {
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return;
+  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msgs[l], url: "/login/", tag }), { TTL: 86400, urgency: "normal" }); }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+
+// comissão antecipada de passeio que foi cancelado ou não aconteceu (Rodrigo 2026-11-12): sem débito nem desconto em comissões futuras.
+// Se o valor ainda está na conta Asaas do vendedor, volta sozinho para a Búzios; se ele já sacou, avisa o administrador para combinar direto.
+const AV_DEV: Record<string, (v: string) => { title: string; body: string }> = {
+  pt: (v) => ({ title: "Comissão devolvida", body: `O passeio não aconteceu, então a comissão antecipada de ${v} voltou para a Búzios Lanchas.` }),
+  en: (v) => ({ title: "Commission returned", body: `The tour did not happen, so the advance commission of ${v} went back to Búzios Lanchas.` }),
+  es: (v) => ({ title: "Comisión devuelta", body: `El paseo no ocurrió, así que la comisión anticipada de ${v} volvió a Búzios Lanchas.` }),
+};
+async function subApi(k: string, path: string, body?: unknown) {
+  const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const j: any = await r.json().catch(() => ({}));
+  if (!r.ok) { console.error("subApi", path, r.status, JSON.stringify(j).slice(0, 500)); throw new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); }
+  return j;
+}
+async function devolverAntecipada(p: any): Promise<number> {
+  const tid = String(p.comissao_comprovante || "").startsWith("asaas:") ? String(p.comissao_comprovante).slice(6) : "";
+  if (!tid || !p.vendedor) return 0;
+  const tr = await asaas(`/transfers/${encodeURIComponent(tid)}`);
+  const valor = Math.round(+tr.value * 100) / 100;
+  if (!(valor > 0)) return 0;
+  const k = await chaveSub(p.vendedor);
+  if (!k) return 0;
+  const saldo = +(await subApi(k, "/finance/balance")).balance || 0;
+  if (saldo < valor) return 0;
+  const wb = (await asaas("/wallets"))?.data?.[0]?.id;
+  if (!wb) return 0;
+  await subApi(k, "/transfers", { value: valor, walletId: wb, description: `Devolução de comissão antecipada (pedido ${p.id})` });
+  return valor;
+}
+async function avisarAntecipadas() {
+  const { data: ps } = await db.from("pedidos").select("id, lancha, data, status, bloqueio_id, vendedor, vendedor_cod, comissao_comprovante").not("comissao_antecipada", "is", null).is("comissao_antecipada_aviso", null).limit(50);
+  for (const p of ps || []) {
+    let ruim = ["cancelado", "recusado"].includes(p.status);
+    if (!ruim && p.bloqueio_id) ruim = (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false;
+    if (!ruim) continue;
+    const { data: foi } = await db.from("pedidos").update({ comissao_antecipada_aviso: new Date().toISOString() }).eq("id", p.id).is("comissao_antecipada_aviso", null).select("id");
+    if (!foi?.length) continue;
+    const nome = String((await db.from("clientes").select("nome").eq("user_id", p.vendedor).maybeSingle()).data?.nome || p.vendedor_cod || "vendedor").trim();
+    const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+    const dev = await devolverAntecipada(p).catch((e) => { console.error("devolver", p.id, e); return 0; });
+    if (dev > 0) {
+      await pushAdmins({ title: "Comissão antecipada devolvida", body: `O passeio de ${nome} (${lancha}, ${dataBR(p.data)}) não aconteceu. Os ${brl(dev)} da comissão antecipada voltaram sozinhos da conta dele para a Búzios.` }, `antecip-${p.id}`).catch((e) => console.error("antecipada", e));
+      await avisarAprovada(p.vendedor, Object.fromEntries(Object.entries(AV_DEV).map(([l, f]) => [l, f(brl(dev))])), `devolvida-${p.id}`).catch((e) => console.error("avDev", e));
+    } else {
+      await pushAdmins({ title: "Comissão antecipada: passeio não aconteceu", body: `Você antecipou a comissão de ${nome} (${lancha}, ${dataBR(p.data)}), mas o passeio foi cancelado ou não aconteceu e o valor já não está na conta dele. Combine a devolução direto com o vendedor.` }, `antecip-${p.id}`).catch((e) => console.error("antecipada", e));
+    }
+  }
+}
+
 async function enviarSaldos() {
   const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
   if (!cfg?.saldo_auto) return { ligado: false };
-  // contas esperando aprovação: confere no Asaas (com a chave da subconta)
-  const { data: esp } = await db.from("asaas_contas").select("user_id").is("aprovada_em", null).limit(20);
-  for (const c of esp || []) {
-    const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", c.user_id).maybeSingle();
-    if (!k?.api_key) continue;
-    const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
-    if (st?.general === "APPROVED") await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", c.user_id).is("aprovada_em", null);
-  }
+  await conferirContas();
   const { data: ok } = await db.from("asaas_contas").select("user_id, wallet_id").not("aprovada_em", "is", null);
   if (!ok?.length) return { ligado: true, enviados: 0 };
   let saldo = +(await asaas("/finance/balance")).balance || 0, n = 0;
@@ -388,7 +523,7 @@ Deno.serve(async req => {
       if (!x) return json({ erro: "link" }, 404);
       const s = +x.p.sinal_valor || 0;
       const { data: cl } = await db.from("clientes").select("cpf").eq("user_id", x.p.cliente).maybeSingle();
-      const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).maybeSingle();
+      const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
         cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c)) || null, cartao_ok: cartaoOk(x.p.data), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
@@ -398,6 +533,11 @@ Deno.serve(async req => {
     // aviso do Asaas: não confia no corpo, confere a cobrança direto no Asaas
     if (b?.event && b?.payment?.id) {
       if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id)).catch(e => console.error("webhook", e));
+      return json({ ok: true });
+    }
+    // aviso da subconta (documento e selfie): também não confia no corpo, só manda conferir no Asaas
+    if (/^ACCOUNT_STATUS_/.test(String(b?.event || ""))) {
+      await conferirContas().catch(e => console.error("conta webhook", e));
       return json({ ok: true });
     }
 
@@ -420,6 +560,9 @@ Deno.serve(async req => {
       // pedidos que venceram (1 hora antes do início) sem pagamento: cancela e avisa o cliente
       const { data: venc, error: ev } = await db.rpc("pedidos_vencidos");
       if (ev) console.error("pedidos_vencidos", ev.message);
+      // prazo vencido há mais de 24 horas sem pagar: cancela em silêncio (o cliente já recebeu o aviso do prazo; Rodrigo 2026-11-12)
+      const { data: semPg, error: ep } = await db.rpc("pedidos_prazo_vencido");
+      if (ep) console.error("pedidos_prazo_vencido", ep.message);
       for (const p of venc || []) await avisarPassou(p).catch(e => console.error("passou", p.id, e));
       // cobrança aberta de pedido que não está mais pendente (recusado, cancelado, vencido) ou cujo sinal mudou: cancela para ninguém pagar à toa
       const { data: abertas } = await db.from("pagamentos_asaas").select("pedido, sinal").is("pago_em", null).limit(200);
@@ -436,7 +579,8 @@ Deno.serve(async req => {
       const ppr = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/paypal-checkout", { method: "POST", headers: { authorization: "Bearer " + srk2, apikey: srk2, "content-type": "application/json" }, body: JSON.stringify({ acao: "pendentes" }) })
         .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
       const saldos = await enviarSaldos().catch(e => (console.error("saldos", e), null));
-      return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora, paypal: ppr, saldos });
+      await avisarAntecipadas().catch(e => console.error("antecipadas", e));
+      return json({ expiradas: n, vencidos: (venc || []).length, prazo_vencido: (semPg || []).length, canceladas: fora, paypal: ppr, saldos });
     }
 
     if (b.acao === "pagar" || b.acao === "conferir") {
@@ -451,9 +595,11 @@ Deno.serve(async req => {
       }
       if (c.pago_em || (cobs || []).some((r: any) => r.pago_em)) return json({ pago: true });
       if (c.captura) return json({ erro: "pendente" }, 409); // PayPal em análise: não cobra de novo
-      if (String(c.moeda || "BRL") !== "BRL") return json({ erro: "moeda" }, 409); // central em dólar/euro: só PayPal
+      // central em dólar/euro (estrangeiro): só cartão internacional, cobrado em reais, à vista e sem CPF (Rodrigo 2026-11-11); o PayPal continua como opção
+      const fora = String(c.moeda || "BRL") !== "BRL";
+      if (fora && b.metodo !== "cartao") return json({ erro: "moeda" }, 409);
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
-      if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
+      if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
@@ -464,7 +610,7 @@ Deno.serve(async req => {
       const rep = wallet ? +(p.repasse_dono ?? -1) : 0;
       if (wallet && rep < 0) return json({ erro: "repasse" }, 409); // o administrador ainda não definiu a parte do dono
       if (rep > sinal) return json({ erro: "repasse" }, 409);
-      const tt = await totais(sinal), np = metodo === "cartao" ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
+      const tt = await totais(sinal), np = metodo === "cartao" && !fora ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
       const op = tt.parcelas[np - 1], tot = metodo === "cartao" ? op.total : tt.pix;
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
       if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
@@ -480,7 +626,7 @@ Deno.serve(async req => {
         if (await conferir(r.asaas_id).catch(() => false)) return json({ pago: true });
         if (await cancelar(r.asaas_id)) await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null);
       }
-      const cus = await cliente(p.cliente, dig(b.cpf));
+      const cus = await cliente(p.cliente, dig(b.cpf), fora);
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const venc = new Date(Date.now() + 2 * 864e5 - 3 * 36e5).toISOString().slice(0, 10);
@@ -495,6 +641,7 @@ Deno.serve(async req => {
         if (metodo === "pix") { const q = await asaas(`/payments/${pg.id}/pixQrCode`); payload = q.payload; img = q.encodedImage; }
         const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: rep, wallet_id: wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
         if (ei) throw new Error(ei.message);
+        await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id); // gerou de novo: volta a valer
       } catch (e) { await cancelar(pg.id); throw e; } // sem registro, a cobrança não pode ficar aberta no Asaas
       return json({ metodo, valor: tot, pix_payload: payload, pix_img: img, url: pg.invoiceUrl });
     }
@@ -514,17 +661,17 @@ Deno.serve(async req => {
     // saque (Rodrigo 2026-10-28): o dono/vendedor tira o dinheiro da conta de recebimento dele pelo nosso app, sem entrar no Asaas.
     // Só para a chave Pix cadastrada por ele na área de vendas (lida aqui do banco, nunca do navegador); um saque por vez.
     if (b.acao === "saque_info" || b.acao === "sacar") {
-      const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", u.id).maybeSingle();
+      const k = await chaveSub(u.id);
       const { data: ct } = await db.from("asaas_contas").select("aprovada_em").eq("user_id", u.id).maybeSingle();
-      if (!k?.api_key || !ct?.aprovada_em) return json({ erro: "sem_conta" }, 409);
+      if (!k || !ct?.aprovada_em) return json({ erro: "sem_conta" }, 409);
       const sub = async (path: string, body?: unknown) => {
-        const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k.api_key, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
+        const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
         const t = await r.text(); let j: any = {}; try { j = JSON.parse(t); } catch (_) { /* vazio */ }
         if (!r.ok) { console.error("saque", path, r.status, t.slice(0, 600)); const e: any = new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); e.status = r.status; throw e; }
         return j;
       };
       const disp = Math.floor((+(await sub("/finance/balance")).balance || 0) * 100) / 100;
-      const { data: hist } = await db.from("saques").select("id, valor, chave, tipo, status, asaas_id, criado_em").eq("user_id", u.id).order("criado_em", { ascending: false }).limit(5);
+      const { data: hist } = await db.from("saques").select("id, valor, chave, tipo, status, motivo, asaas_id, criado_em").eq("user_id", u.id).order("criado_em", { ascending: false }).limit(5);
       for (const h of hist || []) { // saque a caminho: confere se o Pix já caiu
         if (h.status !== "processando" || !h.asaas_id) continue;
         const st = String((await sub("/transfers/" + encodeURIComponent(h.asaas_id)).catch(() => ({})))?.status || "");
@@ -560,7 +707,8 @@ Deno.serve(async req => {
     // administrador: transferências que o Asaas segura até o Rodrigo aprovar (token do app ou SMS), para o app mostrar o botão de aprovar
     if (b.acao === "aprovar") {
       if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
-      const l = (await asaas("/transfers?limit=100")).data || [];
+      // chave sem permissão de transferência (403): responde zero em vez de erro (revisão 2026-11-11)
+      const l = (await asaas("/transfers?limit=100").catch((e: any) => { if (e?.status === 403) return { data: [] }; throw e; })).data || [];
       const pend = l.filter((x: any) => x.status === "PENDING" && x.authorized === false);
       return json({ n: pend.length, valor: Math.round(pend.reduce((a: number, x: any) => a + +x.value, 0) * 100) / 100 });
     }
@@ -593,35 +741,65 @@ Deno.serve(async req => {
       const renda = Number(b.renda);
       if (!(renda > 0)) return json({ erro: "renda" }, 400);
       if (dig(b.cep).length !== 8 || !String(b.rua || "").trim() || !String(b.numero || "").trim() || !String(b.bairro || "").trim()) return json({ erro: "endereco" }, 400);
+      // chave da subconta com permissão de saque (Mayara/Asaas 2026-11-11: accessTokenConfig com TRANSFER READ_WRITE).
+      // Se o Asaas recusar o accessTokenConfig, cria do jeito antigo (sem ele) para o cadastro do dono nunca travar; a conferência abaixo avisa o administrador.
+      // testado no sandbox 2026-11-11: sem ACCOUNT_DOCUMENT/ACCOUNT_INFO/FINANCIAL_TRANSACTION a chave leva 403 em documentos, situação e saldo
+      const ACESSO = { name: "Chave Búzios Lanchas", permissions: [{ name: "PAYMENT", scope: "READ_WRITE" }, { name: "TRANSFER", scope: "READ_WRITE" }, { name: "WEBHOOK", scope: "READ_WRITE" }, { name: "ACCOUNT_DOCUMENT", scope: "READ_WRITE" }, { name: "ACCOUNT_INFO", scope: "READ_WRITE" }, { name: "FINANCIAL_TRANSACTION", scope: "READ" }, { name: "PIX_TRANSACTION", scope: "READ_WRITE" }, { name: "PIX_ADDRESS_KEY", scope: "READ_WRITE" }] };
+      const corpo: any = {
+        name: nome, email, cpfCnpj: doc, mobilePhone: tel, incomeValue: renda,
+        ...(pf ? { birthDate: b.nascimento } : { companyType: b.tipo }),
+        address: String(b.rua).trim(), addressNumber: String(b.numero).trim(), complement: String(b.complemento || "").trim() || undefined,
+        province: String(b.bairro).trim(), postalCode: dig(b.cep),
+        // o Asaas avisa esta função quando a análise do documento e da selfie mudar (aprovada: a pessoa recebe o aviso na hora)
+        webhooks: [{ name: "Situação da conta", url: FN_URL, email: "korvolive@gmail.com", enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY",
+          events: ["ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED", "ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED", "ACCOUNT_STATUS_DOCUMENT_APPROVED", "ACCOUNT_STATUS_DOCUMENT_REJECTED"] }],
+      };
       let a: any;
       try {
-        a = await asaas("/accounts", {
-          name: nome, email, cpfCnpj: doc, mobilePhone: tel, incomeValue: renda,
-          ...(pf ? { birthDate: b.nascimento } : { companyType: b.tipo }),
-          address: String(b.rua).trim(), addressNumber: String(b.numero).trim(), complement: String(b.complemento || "").trim() || undefined,
-          province: String(b.bairro).trim(), postalCode: dig(b.cep),
-        });
+        try { a = await asaas("/accounts", { ...corpo, accessTokenConfig: ACESSO }); }
+        catch (e: any) {
+          if (!(e?.asaas && e.status === 400)) throw e; // recusa por dado errado volta a falhar abaixo e mostra o erro
+          console.error("accounts sem accessTokenConfig", String(e.message).slice(0, 200));
+          a = await asaas("/accounts", corpo);
+        }
       } catch (e: any) { if (e.asaas) return json({ erro: "asaas", detalhe: String(e.message).slice(0, 300) }, 400); throw e; }
       await db.from("asaas_contas").insert({ user_id: u.id, conta_id: a.id, wallet_id: a.walletId, nome, cpf_cnpj: doc, email });
       // a chave da subconta só vem na criação: guardada numa tabela que só esta função lê, para buscar o link do documento e da selfie
-      if (a.apiKey) { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: a.apiKey }); if (error) console.error("asaas_chaves", error.message); }
+      // a chave vem em accessToken.apiKey (visto no sandbox em 2026-10-30; antes vinha em apiKey)
+      const chave = a.accessToken?.apiKey || a.apiKey;
+      // cifrada; se falhar, a conta principal gera outra chave no Asaas (Minhas contas > subconta)
+      if (chave) {
+        try { const { error } = await db.from("asaas_chaves").insert({ user_id: u.id, api_key: await cifrar(chave) }); if (error) console.error("asaas_chaves", error.message); }
+        catch (e) { console.error("asaas_chaves", e); }
+        // confere a chave nova: documentos (selfie) e saque precisam funcionar; se faltar permissão, avisa o administrador para ajustar no Asaas
+        const teste = async (path: string) => (await fetch(API() + path, { headers: { access_token: chave, "user-agent": "buzios-lanchas" } }).catch(() => null))?.status ?? 0;
+        const testes: Record<string, string> = { documentos: "/myAccount/documents", situacao: "/myAccount/status", saldo: "/finance/balance", saque: "/transfers?limit=1" };
+        const sem: string[] = [];
+        for (const [n, path] of Object.entries(testes)) { const r = await teste(path); if (r === 401 || r === 403) sem.push(n); }
+        console.log("subconta chave", a.id, "sem permissao:", sem.join(",") || "nenhuma", "permissoes", JSON.stringify(a.accessToken?.permissions || null).slice(0, 300));
+        if (sem.length) await pushAdmins({ title: "Subconta Asaas sem permissão", body: `A conta de ${nome} foi criada, mas a chave dela não tem permissão para: ${sem.join(", ")}. Avise o suporte técnico.` }, `subperm-${a.id}`).catch((e) => console.error(e));
+      }
       return json({ ok: true });
     }
 
     // BaaS: documento e selfie pelo link do Asaas, sem a pessoa entrar no Asaas (Rodrigo 2026-10-27)
     if (b.acao === "documentos") {
-      const { data: k } = await db.from("asaas_chaves").select("api_key").eq("user_id", u.id).maybeSingle();
-      if (!k?.api_key) return json({ status: "sem" });
-      const r = await fetch(API() + "/myAccount/documents", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } });
+      // conta já aprovada no nosso cadastro é sempre "ok": um documento que o Asaas ainda marca como PENDING não pode esconder o saldo e o Sacar (Rodrigo 2026-11-12)
+      const { data: ap } = await db.from("asaas_contas").select("aprovada_em").eq("user_id", u.id).not("aprovada_em", "is", null).limit(1);
+      if (ap?.length) return json({ status: "ok" });
+      const k = await chaveSub(u.id);
+      if (!k) return json({ status: "sem" });
+      const r = await fetch(API() + "/myAccount/documents", { headers: { access_token: k, "user-agent": "buzios-lanchas" } });
       const j: any = await r.json().catch(() => ({}));
       if (!r.ok) { console.error("documentos", r.status, JSON.stringify(j).slice(0, 400)); return json({ status: "sem" }); }
       const l: any[] = j.data || [];
       const falta = l.find((d) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
       if (falta) return json({ status: "pendente", url: falta.onboardingUrl, rejeitado: falta.status === "REJECTED" });
-      if (l.some((d) => d.status === "PENDING")) return json({ status: "analise" });
+      // documento ainda não enviado, mas o Asaas ainda não liberou o link (está conferindo os dados do cadastro): não é "em análise"
+      if (l.some((d) => ["NOT_SENT", "REJECTED"].includes(d.status))) return json({ status: "aguardando" });
       if (!l.length) return json({ status: "sem" });
-      // documentos conferidos não bastam: a conta só recebe quando o Asaas aprova tudo (status geral APPROVED)
-      const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k.api_key, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
+      // a conta só recebe quando o Asaas aprova tudo (status geral APPROVED); se aprovou, vale mesmo com algum documento ainda PENDING
+      const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
       if (st?.general !== "APPROVED") return json({ status: "analise" });
       await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", u.id).is("aprovada_em", null); // a partir daqui, a parte dele cai na hora
       return json({ status: "ok" });
@@ -634,8 +812,14 @@ Deno.serve(async req => {
       const { data: p } = await db.from("pedidos").select("id, vendedor, status, data, horario, bloqueio_id, preco_cliente, preco_base, comissao_paga").eq("id", pid).maybeSingle();
       if (!p?.vendedor || p.status !== "aprovado") return json({ erro: "pedido" }, 409);
       if (p.comissao_paga) return json({ erro: "ja" }, 409);
+      // antecipar (Rodrigo 2026-11-12): o administrador paga antes do passeio, mas só com o sinal do cliente já pago (o dinheiro já está na Búzios)
+      const ant = b.antecipar === true;
       const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
-      if (!acabou(p.data, p.horario, fim)) return json({ erro: "depois_do_passeio" }, 409);
+      if (ant) {
+        const pgA = (await db.from("pagamentos_asaas").select("id").eq("pedido", pid).not("pago_em", "is", null).limit(1)).data?.length;
+        const pgP = (await db.from("pagamentos_pp").select("pedido").eq("pedido", pid).not("pago_em", "is", null).limit(1)).data?.length;
+        if (!pgA && !pgP) return json({ erro: "sinal" }, 409);
+      } else if (!acabou(p.data, p.horario, fim)) return json({ erro: "depois_do_passeio" }, 409);
       if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) return json({ erro: "nao_aconteceu" }, 409);
       const { data: vv } = await db.from("vendedores").select("indicado_por, indicacao_pct").eq("user_id", p.vendedor).maybeSingle();
       const bruto = Math.max(+p.preco_cliente - +p.preco_base, 0);
@@ -659,9 +843,10 @@ Deno.serve(async req => {
         return json({ erro: "asaas", detalhe: String(e?.message || e).slice(0, 300) }, 400);
       }
       await db.from("pedidos").update({ comissao_comprovante: "asaas:" + tr.id }).eq("id", pid);
-      // marca paga com o login do administrador (o banco só deixa o administrador marcar)
+      // marca paga com o login do administrador (o banco só deixa o administrador marcar); antecipada: pagar_comissao recusa antes do passeio, então marca pela chave de serviço
       const comAdm = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false }, global: { headers: { Authorization: req.headers.get("authorization") || "" } } });
-      const { error: em } = await comAdm.rpc("pagar_comissao", { pid, sim: true });
+      const agoraC = new Date().toISOString();
+      const { error: em } = ant ? await db.from("pedidos").update({ comissao_paga: agoraC, comissao_antecipada: agoraC }).eq("id", pid) : await comAdm.rpc("pagar_comissao", { pid, sim: true });
       if (em) console.error("pagar_comissao", em.message);
       else await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/aviso-vendedor", { method: "POST", headers: { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" }, body: JSON.stringify({ tipo: "pago", id: pid }) }).catch(e => console.error("aviso-vendedor", e));
       return json({ ok: true, valor: com, status: tr.status || null });
