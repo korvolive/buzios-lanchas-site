@@ -728,6 +728,9 @@ Deno.serve(async req => {
 
     // BaaS: documento e selfie pelo link do Asaas, sem a pessoa entrar no Asaas (Rodrigo 2026-10-27)
     if (b.acao === "documentos") {
+      // conta já aprovada no nosso cadastro é sempre "ok": um documento que o Asaas ainda marca como PENDING não pode esconder o saldo e o Sacar (Rodrigo 2026-11-12)
+      const { data: ap } = await db.from("asaas_contas").select("aprovada_em").eq("user_id", u.id).not("aprovada_em", "is", null).limit(1);
+      if (ap?.length) return json({ status: "ok" });
       const k = await chaveSub(u.id);
       if (!k) return json({ status: "sem" });
       const r = await fetch(API() + "/myAccount/documents", { headers: { access_token: k, "user-agent": "buzios-lanchas" } });
@@ -738,9 +741,8 @@ Deno.serve(async req => {
       if (falta) return json({ status: "pendente", url: falta.onboardingUrl, rejeitado: falta.status === "REJECTED" });
       // documento ainda não enviado, mas o Asaas ainda não liberou o link (está conferindo os dados do cadastro): não é "em análise"
       if (l.some((d) => ["NOT_SENT", "REJECTED"].includes(d.status))) return json({ status: "aguardando" });
-      if (l.some((d) => d.status === "PENDING")) return json({ status: "analise" });
       if (!l.length) return json({ status: "sem" });
-      // documentos conferidos não bastam: a conta só recebe quando o Asaas aprova tudo (status geral APPROVED)
+      // a conta só recebe quando o Asaas aprova tudo (status geral APPROVED); se aprovou, vale mesmo com algum documento ainda PENDING
       const st: any = await fetch(API() + "/myAccount/status", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).then((x) => x.json()).catch(() => ({}));
       if (st?.general !== "APPROVED") return json({ status: "analise" });
       await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", u.id).is("aprovada_em", null); // a partir daqui, a parte dele cai na hora
