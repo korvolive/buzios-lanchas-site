@@ -241,7 +241,7 @@ document.addEventListener("click", async e=>{ const b=e.target.closest("[data-as
     if(j.erro==="ocupada"){ D.indisponivel=true; render(); return; }
     if(j.erro==="pagando"||j.erro==="passou"){ msg.innerHTML=`<p class="msg err">${j.erro==="passou"?L.late:L.busy}</p>`; b.disabled=false; return; }
     if(j.erro==="cpf"){ const keep=ci?.value||""; A.cpf=false; render(); const nc=document.getElementById("as-cpf"); if(nc) nc.value=keep; document.getElementById("asmsg").innerHTML=`<p class="msg err">${L.asCpfBad}</p>`; return; }
-    if(j.erro==="cartao_prazo"){ A.cartao_ok=false; render(); document.getElementById("asmsg").innerHTML=`<p class="msg err">${L.asCardPrazo}</p>`; return; }
+    if(j.erro==="cartao_prazo"){ A.cartao_ok=false; render(); const am=document.getElementById("asmsg"); if(am) am.innerHTML=`<p class="msg err">${L.asCardPrazo}</p>`; else box.insertAdjacentHTML("beforeend",`<div class="card"><p class="msg err">${L.asCardPrazo}</p></div>`); /* o bloco do cartão some no render: o aviso não pode sumir junto (revisão 2026-11-12) */ return; }
     if(j.erro==="repasse"){ msg.innerHTML=`<p class="msg err">${L.asRep}</p>`; b.disabled=false; return; }
     if(!r.ok) throw 0;
     A.cpf=true;

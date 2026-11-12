@@ -1249,7 +1249,7 @@ function loginView(){
       store.set("dono-email", em.value.trim()); saveSes(s); loginMsg=""; view="main"; await boot(); bioOffer(bioE, bioP); }
     catch(err){ if(err.status && /confirm/i.test(err.code+err.message)){ /* e-mail ainda não confirmado: manda o código e pede aqui */
         codeEmail=em.value.trim(); codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); emSent(); authCall("resend",{type:"signup", email:codeEmail}).catch(()=>{}); view="code"; return show(); }
-      if(viaBio && err.status){ credDel(); } /* a senha mudou: apaga a guardada, a pessoa entra com a nova e o app oferece de novo */
+      if(viaBio && err.status===400){ credDel(); } /* só senha errada (400); 429/5xx não desligam o Face ID (revisão 2026-11-12) */ /* a senha mudou: apaga a guardada, a pessoa entra com a nova e o app oferece de novo */
       loginErr=true; loginMsg = err.code==="user_banned" ? t("blockedMsg") : err.status ? t("badLogin") : t("netErr"); loginView(); }
   };
   document.getElementById("tosign").onclick = () => { loginMsg=""; view="signup"; show(); };
