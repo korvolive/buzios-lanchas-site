@@ -316,7 +316,10 @@ Deno.serve(async req => {
       const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk0 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
       const servico = !!srk0 && tok === srk0;
       const uid = servico ? null : tok ? (await db.auth.getUser(tok)).data?.user?.id : null;
-      if (!servico && !(uid && (await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data)) return json({ erro: "admin" }, 403);
+      const adm = !!uid && !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
+      // operador = a sessão do painel que a ponte do Lucas usa na VPS
+      const opr = !adm && !!uid && !!(await db.from("papeis_painel").select("papel").eq("user_id", uid).eq("papel", "operador").maybeSingle()).data;
+      if (!servico && !adm && !opr) return json({ erro: "admin" }, 403);
       const { data: pd } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id").eq("id", Number(b.pid)).maybeSingle();
       if (!pd) return json({ erro: "pedido" }, 404);
       const x = { p: pd, lancha: (await db.from("lanchas").select("nome").eq("slug", pd.lancha).maybeSingle()).data?.nome || pd.lancha,
@@ -337,7 +340,7 @@ Deno.serve(async req => {
       if (txt) await db.from("pedidos").update({ paypal_valor: txt }).eq("id", x.p.id);
       const H: Record<string, string> = { manha: "manhã (4h)", tarde: "tarde (4h)", dia: "dia todo (7h)" };
       const para = r.hi ? `${String(r.hi).replace(":00", "h")} às ${String(r.hf).replace(":00", "h")}` : H[r.para] || r.para;
-      if (servico) await pushAdmins({ title: "Pedido alterado 🔁", body: `Pedido ${x.p.id} de ${x.nome || "cliente"} (${x.lancha}, ${dataBR(x.p.data)}): agora ${para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
+      if (servico || opr) await pushAdmins({ title: "Pedido alterado 🔁", body: `Pedido ${x.p.id} de ${x.nome || "cliente"} (${x.lancha}, ${dataBR(x.p.data)}): agora ${para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
       return json({ ok: true, ...r });
     }
 
