@@ -1330,7 +1330,7 @@ function setupGetApp(){
 /* aviso "atualize o app" (2026-11-08): o app do iPhone manda a versão no user agent (BuziosLanchasIOS/1.0.2; sem número = 1.0.0).
    A versão mínima fica no banco (tabela app_versao, plataforma "ios"). Sem linha no banco ou sem app, nada aparece. */
 function checkAppUpdate(){
-  const m = /BuziosLanchasIOS(?:\/([\d.]+))?/.exec(navigator.userAgent); if(!m || IS_BOT) return;
+  const m = /BuziosLanchasIOS(?:\/([\d.]+))?/.exec(navigator.userAgent); if(!m || IS_BOT || checkAppUpdate.done) return; checkAppUpdate.done = 1; /* applyStatic chama mais de uma vez */
   const num = v => String(v||"0").split(".").map(n => parseInt(n,10)||0);
   const menor = (a, b) => { a = num(a); b = num(b); for(let i=0;i<Math.max(a.length,b.length);i++){ const d=(a[i]||0)-(b[i]||0); if(d) return d<0; } return false; };
   fetch(SB_URL+"/rest/v1/app_versao?plataforma=eq.ios&select=minima,obrigatoria,link&limit=1", { headers:{ apikey:AGENDA_KEY } })
@@ -1339,7 +1339,7 @@ function checkAppUpdate(){
       const bar = document.getElementById("updbar"), x = bar.querySelector("button");
       const tx = { pt:["Há uma nova versão do app.","Atualizar"], en:["There is a new version of the app.","Update"], es:["Hay una nueva versión de la app.","Actualizar"] }[lang] || [];
       const [msg, bt] = tx.length ? tx : ["Há uma nova versão do app.","Atualizar"];
-      const link = /^https:\/\//.test(c.link||"") ? ` <a href="${c.link}">${bt}</a>` : "";
+      const link = /^https:\/\//.test(c.link||"") ? ` <a href="${c.link.replace(/["<>']/g, encodeURIComponent)}">${bt}</a>` : "";
       if(!c.obrigatoria){ try{ if(sessionStorage.getItem("upd-off")) return; }catch(e){} x.onclick = () => { bar.hidden = true; try{ sessionStorage.setItem("upd-off","1"); }catch(e){} }; }
       else x.hidden = true;
       bar.querySelector("span").innerHTML = msg + link; bar.hidden = false;
