@@ -385,15 +385,63 @@ const APROVADA: Record<string, { title: string; body: string }> = {
   en: { title: "Payout account approved ✅", body: "Your documents were approved. From now on, your share goes straight to your account." },
   es: { title: "Cuenta de cobro aprobada ✅", body: "Tus documentos fueron aprobados. Desde ahora, lo tuyo cae directo en tu cuenta." },
 };
-async function avisarAprovada(uid: string) {
+async function avisarAprovada(uid: string, msgs: Record<string, { title: string; body: string }> = APROVADA, tag = "conta-aprovada") {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
-    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...APROVADA[l], url: "/login/", tag: "conta-aprovada" }), { TTL: 86400, urgency: "normal" }); }
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msgs[l], url: "/login/", tag }), { TTL: 86400, urgency: "normal" }); }
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+}
+
+// comissão antecipada de passeio que foi cancelado ou não aconteceu (Rodrigo 2026-11-12): sem débito nem desconto em comissões futuras.
+// Se o valor ainda está na conta Asaas do vendedor, volta sozinho para a Búzios; se ele já sacou, avisa o administrador para combinar direto.
+const AV_DEV: Record<string, (v: string) => { title: string; body: string }> = {
+  pt: (v) => ({ title: "Comissão devolvida", body: `O passeio não aconteceu, então a comissão antecipada de ${v} voltou para a Búzios Lanchas.` }),
+  en: (v) => ({ title: "Commission returned", body: `The tour did not happen, so the advance commission of ${v} went back to Búzios Lanchas.` }),
+  es: (v) => ({ title: "Comisión devuelta", body: `El paseo no ocurrió, así que la comisión anticipada de ${v} volvió a Búzios Lanchas.` }),
+};
+async function subApi(k: string, path: string, body?: unknown) {
+  const r = await fetch(API() + path, { method: body === undefined ? "GET" : "POST", headers: { access_token: k, "content-type": "application/json", "user-agent": "buzios-lanchas" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const j: any = await r.json().catch(() => ({}));
+  if (!r.ok) { console.error("subApi", path, r.status, JSON.stringify(j).slice(0, 500)); throw new Error(j?.errors?.[0]?.description || `asaas ${r.status}`); }
+  return j;
+}
+async function devolverAntecipada(p: any): Promise<number> {
+  const tid = String(p.comissao_comprovante || "").startsWith("asaas:") ? String(p.comissao_comprovante).slice(6) : "";
+  if (!tid || !p.vendedor) return 0;
+  const tr = await asaas(`/transfers/${encodeURIComponent(tid)}`);
+  const valor = Math.round(+tr.value * 100) / 100;
+  if (!(valor > 0)) return 0;
+  const k = await chaveSub(p.vendedor);
+  if (!k) return 0;
+  const saldo = +(await subApi(k, "/finance/balance")).balance || 0;
+  if (saldo < valor) return 0;
+  const wb = (await asaas("/wallets"))?.data?.[0]?.id;
+  if (!wb) return 0;
+  await subApi(k, "/transfers", { value: valor, walletId: wb, description: `Devolução de comissão antecipada (pedido ${p.id})` });
+  return valor;
+}
+async function avisarAntecipadas() {
+  const { data: ps } = await db.from("pedidos").select("id, lancha, data, status, bloqueio_id, vendedor, vendedor_cod, comissao_comprovante").not("comissao_antecipada", "is", null).is("comissao_antecipada_aviso", null).limit(50);
+  for (const p of ps || []) {
+    let ruim = ["cancelado", "recusado"].includes(p.status);
+    if (!ruim && p.bloqueio_id) ruim = (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false;
+    if (!ruim) continue;
+    const { data: foi } = await db.from("pedidos").update({ comissao_antecipada_aviso: new Date().toISOString() }).eq("id", p.id).is("comissao_antecipada_aviso", null).select("id");
+    if (!foi?.length) continue;
+    const nome = String((await db.from("clientes").select("nome").eq("user_id", p.vendedor).maybeSingle()).data?.nome || p.vendedor_cod || "vendedor").trim();
+    const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+    const dev = await devolverAntecipada(p).catch((e) => { console.error("devolver", p.id, e); return 0; });
+    if (dev > 0) {
+      await pushAdmins({ title: "Comissão antecipada devolvida", body: `O passeio de ${nome} (${lancha}, ${dataBR(p.data)}) não aconteceu. Os ${brl(dev)} da comissão antecipada voltaram sozinhos da conta dele para a Búzios.` }, `antecip-${p.id}`).catch((e) => console.error("antecipada", e));
+      await avisarAprovada(p.vendedor, Object.fromEntries(Object.entries(AV_DEV).map(([l, f]) => [l, f(brl(dev))])), `devolvida-${p.id}`).catch((e) => console.error("avDev", e));
+    } else {
+      await pushAdmins({ title: "Comissão antecipada: passeio não aconteceu", body: `Você antecipou a comissão de ${nome} (${lancha}, ${dataBR(p.data)}), mas o passeio foi cancelado ou não aconteceu e o valor já não está na conta dele. Combine a devolução direto com o vendedor.` }, `antecip-${p.id}`).catch((e) => console.error("antecipada", e));
+    }
   }
 }
 
@@ -525,6 +573,7 @@ Deno.serve(async req => {
       const ppr = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/paypal-checkout", { method: "POST", headers: { authorization: "Bearer " + srk2, apikey: srk2, "content-type": "application/json" }, body: JSON.stringify({ acao: "pendentes" }) })
         .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
       const saldos = await enviarSaldos().catch(e => (console.error("saldos", e), null));
+      await avisarAntecipadas().catch(e => console.error("antecipadas", e));
       return json({ expiradas: n, vencidos: (venc || []).length, canceladas: fora, paypal: ppr, saldos });
     }
 
