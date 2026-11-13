@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-13)
 
 ## Corpus Check
-- 124 files · ~298,875 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 890 nodes · 1491 edges · 70 communities (38 shown, 32 thin omitted)
@@ -76,11 +74,11 @@
 3. `public.cancelar_pre_reserva()` - 14 edges
 4. `public.cancelar_pre_reserva()` - 14 edges
 5. `X()` - 13 edges
-6. `public.marcar_wa()` - 13 edges
-7. `public.cancelar_pre_reserva()` - 13 edges
-8. `public.marcar_wa()` - 12 edges
-9. `public.lancar_pedido_operador()` - 12 edges
-10. `public.aprovar_consulta()` - 12 edges
+6. `public.cancelar_pre_reserva()` - 13 edges
+7. `public.marcar_wa()` - 13 edges
+8. `public.lancar_pedido_operador()` - 12 edges
+9. `public.aprovar_consulta()` - 12 edges
+10. `public.marcar_wa()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
