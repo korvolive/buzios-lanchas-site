@@ -34,9 +34,16 @@ const PUSH: Record<string, (n: string, v: string, l: string, d: string, ok: bool
   en: (n, v, l, d, ok) => ok ? { title: "Tour booked ✅", body: `${n} paid ${v} with PayPal. ${l}, ${d}: the booking is already confirmed in the calendar.` } : { title: "Deposit paid, but the date is taken ⚠️", body: `${n} paid ${v} with PayPal (${l}, ${d}), but the boat already had another tour. Tap to sort it out.` },
   es: (n, v, l, d, ok) => ok ? { title: "Paseo reservado ✅", body: `${n} pagó ${v} con PayPal. ${l}, ${d}: la reserva ya está confirmada en la agenda.` } : { title: "Seña pagada, pero la fecha está ocupada ⚠️", body: `${n} pagó ${v} con PayPal (${l}, ${d}), pero la lancha ya tenía otro paseo. Toca para resolverlo.` },
 };
-// pagamento só até 1 hora antes do início do passeio (Rodrigo, 2026-10-25): manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3)
+// pagamento só até 40 minutos antes do início combinado do passeio (Rodrigo 2026-11-11; era 1 hora antes do horário fixo)
+// sem horário combinado: manhã e dia 10h, tarde 14h, noite 20h (Brasília, UTC-3); com horário: rpc inicio_combinado (pedido.hora_ini ou anotacoes.hora_ini)
 const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
-const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - 36e5 <= Date.now();
+const ANTES_MS = 40 * 6e4;
+const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - ANTES_MS <= Date.now();
+async function tardeCombinado(p: any) {
+  const { data, error } = await db.rpc("inicio_combinado", { d: p.data, h: p.horario, hi: p.hora_ini ?? null, bid: p.bloqueio_id ?? null });
+  if (error || !data) return tarde(p.data, p.horario);
+  return Date.parse(String(data).slice(0, 19) + "-03:00") - ANTES_MS <= Date.now();
+}
 // mesma confirmação da função asaas: passeio na agenda + os avisos do botão Aprovar
 async function confirmarSozinho(pid: number) {
   const { data, error } = await db.rpc("confirmar_pago", { pid });
@@ -325,6 +332,8 @@ Deno.serve(async req => {
       const x = { p: pd, lancha: (await db.from("lanchas").select("nome").eq("slug", pd.lancha).maybeSingle()).data?.nome || pd.lancha,
         nome: String((await db.from("clientes").select("nome").eq("user_id", pd.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0] };
       if (await tardeCombinado(x.p)) return json({ erro: "passou" }, 409);
+      // revisão 2026-11-13: no alterar, confere também o horário NOVO (40 min antes do início combinado)
+      if (b.acao === "alterar" && await tardeCombinado({ ...x.p, horario: String(b.horario || x.p.horario), hora_ini: /^\d{2}:\d{2}$/.test(String(b.hora_ini || "")) ? String(b.hora_ini) : null })) return json({ erro: "passou" }, 409);
       // alterar (Lucas pela ponte ou administrador): horário livre, duração e valor; o valor vem de quem chama, já com as regras de cotação
       const hm = (v: unknown) => /^\d{2}:\d{2}$/.test(String(v || "")) ? String(v) : null;
       const { data: r, error: re } = b.acao === "alterar"
@@ -352,7 +361,7 @@ Deno.serve(async req => {
 
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
     if (b.acao === "criar") {
-      if (tarde(p.data, p.horario)) return json({ erro: "passou" }, 409);
+      if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       // a ordem anterior pode ter sido paga e a resposta se perdeu (página fechada): confere antes de criar outra
       if (c.order_id) {
         const ant = await pp(`/v2/checkout/orders/${c.order_id}`, undefined, "GET").catch(() => null);
