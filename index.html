@@ -285,7 +285,9 @@ html.is-app #hdr-login{display:none}
   .strip{max-width:100%;justify-self:stretch}
 }
 .gallery .main img.blur{display:none}
-.gallery .main img.fit{position:absolute;inset:0;object-fit:cover;object-position:center} /* galeria: quadro fixo, foto sempre centralizada (2026-10-22) */
+.gallery .main img.fit{position:absolute;inset:0;object-fit:cover;object-position:var(--gd,center)} /* galeria: quadro fixo; corte centralizado ou, com pessoas, o que as mostra inteiras (FOTO_P, 2026-11-13) */
+.strip img{object-position:var(--gm,center)}
+@media (max-width:880px){.gallery .main img.fit{object-position:var(--gm,center)}}
 .strip button{width:60px;height:96px}
 .strip button img{object-fit:cover}@media(max-width:760px){.vid{margin-left:auto;margin-right:auto}}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(6,57,74,.65);color:#fff;font-size:26px;line-height:1;cursor:pointer}
@@ -2487,6 +2489,10 @@ function home(){
    jpg=true para prévias de link e Google (absImg), que continuam em JPG. Fotos do banco (https) seguem como estão */
 /* versão de 800 px das fotos do banco, gerada na publicação (scripts/fotos-db.py); foto nova ainda sem cópia usa a original */
 const FOTO_M = {}; /*FOTO_M*/
+/* enquadramento da galeria (2026-11-13): na publicação, scripts/enquadrar.py acha as pessoas de cada foto e escolhe o corte
+   que as mostra inteiras no quadro fixo (pés incluídos). foto → ["X% Y%" computador, "X% Y%" celular]; foto fora da lista fica centralizada */
+const FOTO_P = {}; /*FOTO_P*/
+const enq = p => { const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
 const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? (thumb==="m"&&!jpg&&FOTO_M[p[0]] ? FOTO_M[p[0]] : p[0] + (thumb===1?"-t":"") + ".jpg") : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
 const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
 const altOf = (b,i) => esc(b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`);
@@ -2495,11 +2501,11 @@ const okPos = p => typeof p==="string" && /^[a-z0-9% .]{1,30}$/.test(p) ? p : "c
 function gallery(b){
   const P=b.photos;
   return `<div class="gallery" data-i="0">
-    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" src="${imgSrc(P[0],"m")}" srcset="${imgSrc(P[0],"m")} 800w, ${imgSrc(P[0])} 1400w" sizes="(max-width:900px) 66vw, 60vw" fetchpriority="high" alt="${altOf(b,0)}">
+    <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" style="${enq(P[0])}" src="${imgSrc(P[0],"m")}" srcset="${imgSrc(P[0],"m")} 800w, ${imgSrc(P[0])} 1400w" sizes="(max-width:900px) 66vw, 60vw" fetchpriority="high" alt="${altOf(b,0)}">
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
       <button type="button" class="nav next" id="g-next" aria-label="${t("nextPhoto")}">›</button>
       <span class="count" id="g-count">1 / ${P.length}</span></div>
-    <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${altOf(b,i)}" ${i?"":'aria-current="true"'}><img ${i?"data-src":"src"}="${imgSrc(p,1)}" alt="" loading="lazy"></button>`).join("")}</div>
+    <div class="strip" id="g-strip">${P.map((p,i)=>`<button type="button" data-g="${i}" aria-label="${altOf(b,i)}" ${i?"":'aria-current="true"'}><img style="${enq(p)}" ${i?"data-src":"src"}="${imgSrc(p,1)}" alt="" loading="lazy"></button>`).join("")}</div>
   </div>`;
 }
 /* vídeo: toca e pausa no toque, sem controles do navegador (sem tela cheia nem picture-in-picture) */
@@ -2527,7 +2533,7 @@ function bindGallery(b){
     if(document.readyState==="complete") setTimeout(fill,400); else addEventListener("load",()=>setTimeout(fill,400),{once:true}); }
   const mm=document.getElementById("g-main");
   const show=n=>{ i=(n+P.length)%P.length; const m=document.getElementById("g-main");
-    m.srcset=`${imgSrc(P[i],"m")} 800w, ${imgSrc(P[i])} 1400w`; m.src=imgSrc(P[i],"m"); m.alt=altOf(b,i); document.getElementById("g-blur").src=imgSrc(P[i],1);
+    m.style.cssText=enq(P[i]); m.srcset=`${imgSrc(P[i],"m")} 800w, ${imgSrc(P[i])} 1400w`; m.src=imgSrc(P[i],"m"); m.alt=altOf(b,i); document.getElementById("g-blur").src=imgSrc(P[i],1);
     document.getElementById("g-count").textContent=`${i+1} / ${P.length}`;
     document.querySelectorAll("#g-strip button").forEach((t,k)=>{ if(k===i){t.setAttribute("aria-current","true"); t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});} else t.removeAttribute("aria-current"); }); };
   document.getElementById("g-prev").onclick=()=>show(i-1);

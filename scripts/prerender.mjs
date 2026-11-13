@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { lanchasDB, precosDB } from "./lanchas-db.mjs";
+import { lanchasDB, precosDB, fotosDB } from "./lanchas-db.mjs";
 import { gerarPaginas, guiaPath } from "./paginas.mjs";
 import { chromium } from "playwright";
 
@@ -92,6 +92,14 @@ try {
   for (const b of llm.guias.boats) { const k = (b.img || "").replace(/\.jpg$/, ""); if (M[k]) b.img = M[k]; }
   console.log(`fotos do banco: ${Object.keys(M).length} de ${urls.length} com versão de celular`);
 } catch (e) { console.error("fotos do banco: usando as originais:", e.message); }
+/* enquadramento da galeria (2026-11-13): corte que mostra as pessoas inteiras (pés incluídos). Se falhar, a galeria fica centralizada */
+try {
+  const fotos = await page.evaluate(() => [...new Set([...BOATS, ...[...HIDDEN.values()].map(x => x.b)].flatMap(b => (b.photos || []).map(p => p[0])).filter(Boolean))]);
+  const E = JSON.parse(execFileSync("python3", ["-I", path.join(ROOT, "scripts/enquadrar.py"), path.join(ROOT, "img"), ...fotos], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"], timeout: 600000 }));
+  if (!SOURCE.includes("const FOTO_P = {}; /*FOTO_P*/")) throw new Error("marcador FOTO_P não encontrado");
+  SOURCE = SOURCE.replace("const FOTO_P = {}; /*FOTO_P*/", () => `const FOTO_P = ${JSON.stringify(E)};`);
+  console.log(`enquadramento: ${Object.keys(E).length} de ${fotos.length} fotos com corte ajustado`);
+} catch (e) { console.error("enquadramento: galeria centralizada:", e.message); }
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
 await browser.close();
 server.close();
@@ -152,5 +160,5 @@ fs.writeFileSync(path.join(ROOT, "llms.txt"), [
 const rows = await lanchasDB(DB, KEY);
 const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
 const ok = rows && ativas === [...dbSlugs].sort().join();
-fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows + (await precosDB(DB, KEY))).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
+fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows + (await precosDB(DB, KEY)) + (await fotosDB(DB, KEY))).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
 console.log(`${pages.length} páginas, sitemap.xml e llms.txt gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);

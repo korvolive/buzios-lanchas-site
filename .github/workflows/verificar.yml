@@ -15,4 +15,6 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
+          python3 -m pip install --quiet --break-system-packages pillow mediapipe==1.2.3
+          sudo apt-get install -y -q libegl1 libgles2 >/dev/null || true
           node scripts/prerender.mjs

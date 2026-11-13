@@ -12,3 +12,7 @@ export async function lanchasDB(DB, KEY) {
 export async function precosDB(DB, KEY) {
   return fetch(DB + "/precos?select=lancha,baixa,baixa7&order=lancha", { headers: { apikey: KEY } }).then(r => (r.ok ? r.text() : "")).catch(() => "");
 }
+/* Fotos e ordem editadas no app (tabela fotos): foto nova também republica, para o enquadramento automático da galeria (2026-11-13) */
+export async function fotosDB(DB, KEY) {
+  return fetch(DB + "/fotos?select=lancha,lista&order=lancha", { headers: { apikey: KEY } }).then(r => (r.ok ? r.text() : "")).catch(() => "");
+}
