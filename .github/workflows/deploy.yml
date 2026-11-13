@@ -24,7 +24,7 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
-          python3 -m pip install --quiet --break-system-packages pillow mediapipe==1.2.3 # mediapipe: enquadramento da galeria (scripts/enquadrar.py)
+          sudo python3 -m pip install --quiet --break-system-packages pillow mediapipe==1.2.3 # sudo: no sistema, porque os scripts rodam com python3 -I (sem a pasta do usuário); mediapipe = enquadramento da galeria
           sudo apt-get install -y -q libegl1 libgles2 >/dev/null || true
           python3 scripts/webp.py
           node scripts/prerender.mjs
