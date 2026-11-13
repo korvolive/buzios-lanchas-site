@@ -4961,6 +4961,8 @@ const eqRole = m => m.papel ? `<span class="eqrole r-${m.papel}">${t("eqR_"+m.pa
 const eqLikeHTML = m => m.apagada || m.curtidas==null ? "" : m.autor===ses.user.id ? (+m.curtidas ? `<span class="eqlk mine"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍 <b>${m.curtidas}</b></span>` : "") : `<button type="button" class="eqlk${m.curti?" on":""}" data-eqlk="${m.id}" aria-pressed="${!!m.curti}" aria-label="${t("eqLike")}"${m.curtiram?` title="${esc(m.curtiram)}"`:""}>👍${+m.curtidas?` <b>${m.curtidas}</b>`:""}</button>`;
 /* alerta automático de mau tempo (Marinha / INMET), mandado pela própria Búzios Lanchas: visual de aviso oficial, sem autor */
 document.addEventListener("click", e=>{ const c=e.target.closest(".chm.clima .cht"); if(c) c.classList.toggle("open"); }); /* alerta compacto: toque no texto abre e fecha (2026-11-06) */
+/* alerta automático some sozinho 6 h depois do "válido até" (Rodrigo 2026-11-13); o fixado fica até alguém desafixar */
+const climaVencido = m => { if(m.tipo!=="auto" || eqPin?.id===m.id) return false; let d={}; try{ d=JSON.parse(m.local||"{}"); }catch(e){} return !!d.fim && Date.now()-new Date(d.fim).getTime() > 6*36e5; };
 function eqClimaHTML(m){
   let d={}; try{ d=JSON.parse(m.local||"{}"); }catch(e){}
   const L=lang, quando=x=>new Date(x).toLocaleString(t("locale"),{weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
@@ -4991,7 +4993,7 @@ function eqMsgHTML(m){
 }
 function eqRender(){
   const l=document.getElementById("chlist"); if(!l) return; const atEnd = !l.dataset.n || l.scrollHeight - l.scrollTop - l.clientHeight < 80; let day="";
-  const vis=eqRows.filter(m=>!m.apagada); // apagada some na hora, para todos (2026-10-24)
+  const vis=eqRows.filter(m=>!m.apagada && !climaVencido(m)); // apagada some na hora, para todos (2026-10-24); alerta vencido também, menos o fixado (2026-11-13)
   l.innerHTML = vis.length ? vis.map(m=>{ const d=new Date(m.criado_em).toLocaleDateString(t("locale"),{day:"numeric",month:"short"}); const sep=d!==day?`<div class="chday muted">${d}</div>`:""; day=d; return sep+eqMsgHTML(m); }).join("") : `<p class="muted" style="text-align:center;margin:auto">${t("eqEmpty")}</p>`;
   l.dataset.n=eqRows.length; if(atEnd) l.scrollTop=l.scrollHeight;
   eqPinBind(l);
