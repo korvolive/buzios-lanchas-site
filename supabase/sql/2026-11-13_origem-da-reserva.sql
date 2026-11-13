@@ -38,7 +38,7 @@ create or replace function public.origem_reserva(p_pedido bigint default null, p
  set search_path to 'public'
 as $function$
 declare
-  pd public.pedidos%rowtype; b public.bloqueios%rowtype; c public.consultas%rowtype; vend uuid; quem uuid; nome text; do_site boolean := false;
+  pd public.pedidos%rowtype; b public.bloqueios%rowtype; c public.consultas%rowtype; vend uuid; quem uuid; v_nome text; do_site boolean := false;
 begin
   if p_consulta is not null then
     select * into c from public.consultas where id = p_consulta;
@@ -63,14 +63,14 @@ begin
   if vend is null and quem is not null and not exists (select 1 from public.admins where user_id = quem)
      and exists (select 1 from public.vendedores where user_id = quem) then vend := quem; end if;
   if vend is not null then
-    nome := coalesce(nullif(trim((select nome from public.perfis where user_id = vend)), ''), nullif(trim((select nome from public.clientes where user_id = vend)), ''), (select codigo from public.vendedores where user_id = vend));
-    return jsonb_build_object('tipo', case when coalesce((select parceiro from public.vendedores where user_id = vend), false) then 'parceiro' else 'vendedor' end, 'nome', nome);
+    v_nome := coalesce(nullif(trim((select nome from public.perfis where user_id = vend)), ''), nullif(trim((select nome from public.clientes where user_id = vend)), ''), (select codigo from public.vendedores where user_id = vend));
+    return jsonb_build_object('tipo', case when coalesce((select parceiro from public.vendedores where user_id = vend), false) then 'parceiro' else 'vendedor' end, 'nome', v_nome);
   end if;
   if quem is not null and exists (select 1 from public.papeis_painel where user_id = quem and papel = 'operador') then return jsonb_build_object('tipo', 'lucas'); end if;
   if quem is not null and exists (select 1 from public.admins where user_id = quem) then return jsonb_build_object('tipo', 'painel'); end if;
   if quem is not null and exists (select 1 from public.donos where user_id = quem) then
-    nome := coalesce(nullif(trim((select nome from public.perfis where user_id = quem)), ''), nullif(trim((select nome from public.clientes where user_id = quem)), ''));
-    return jsonb_build_object('tipo', 'dono', 'nome', nome);
+    v_nome := coalesce(nullif(trim((select nome from public.perfis where user_id = quem)), ''), nullif(trim((select nome from public.clientes where user_id = quem)), ''));
+    return jsonb_build_object('tipo', 'dono', 'nome', v_nome);
   end if;
   if do_site or (pd.id is not null and quem = pd.cliente) then return jsonb_build_object('tipo', 'site'); end if;
   return null;
