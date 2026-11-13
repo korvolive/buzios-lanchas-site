@@ -43,7 +43,7 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteCond %{HTTP_HOST} (^|\.)lanchaembuzios\.com\.br$ [NC]
-RewriteRule ^ https://www.lanchaembuzios.com.br%{REQUEST_URI} [R=301,L]
+RewriteRule ^ https://www.lanchaembuzios.com.br%{REQUEST_URI} [R=301,L,NE]
 # Botão do WhatsApp: link com "?" codificado (/pagar/%3Fp%3D...) ou link curto (/pagar/p49-...) abre a página de pagamento
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^pagar/(\?.*|p[0-9]+-[0-9A-Za-z-]+)$ pagar/index.html [L]
