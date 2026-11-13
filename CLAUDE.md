@@ -1,3 +1,7 @@
+# Segurança
+
+Antes de qualquer mudança, leia e siga `SEGURANCA.md` (regras de desenvolvimento seguro assumidas com o Asaas).
+
 # Mapa do projeto (Graphify)
 
 Este repositório tem um mapa pronto do código em `graphify-out/` (graph.json, GRAPH_REPORT.md, graph.html).
