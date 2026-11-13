@@ -34,8 +34,16 @@ ExpiresByType image/jpeg "access plus 7 days"
 ExpiresByType image/png "access plus 7 days"
 ExpiresByType video/mp4 "access plus 7 days"
 </IfModule>
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
+</IfModule>
 <IfModule mod_rewrite.c>
 RewriteEngine On
+# Sempre HTTPS (questionário de segurança do Asaas, 2026-11-13): http://... vai para https://www...
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTP_HOST} (^|\.)lanchaembuzios\.com\.br$ [NC]
+RewriteRule ^ https://www.lanchaembuzios.com.br%{REQUEST_URI} [R=301,L,NE]
 # Botão do WhatsApp: link com "?" codificado (/pagar/%3Fp%3D...) ou link curto (/pagar/p49-...) abre a página de pagamento
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^pagar/(\?.*|p[0-9]+-[0-9A-Za-z-]+)$ pagar/index.html [L]
