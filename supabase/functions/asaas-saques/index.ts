@@ -47,10 +47,11 @@ async function proprio() { // CNPJ da conta principal da Búzios, lido do Asaas
   return (cnpjProprio = dig(j?.cpfCnpj));
 }
 
+const VAPID_SUB = "https://www.lanchaembuzios.com.br";
 async function pushAdmins(title: string, body: string, tag: string) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails(VAPID_SUB, k.publica, k.privada);
   const { data: adm } = await db.from("admins").select("user_id");
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth").in("user_id", (adm || []).map((a: any) => a.user_id));
   for (const s of subs || []) {
@@ -68,7 +69,7 @@ const RECUSA: Record<string, (v: string) => { title: string; body: string }> = {
 async function avisarRecusa(uid: string, valor: number) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails(VAPID_SUB, k.publica, k.privada);
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
