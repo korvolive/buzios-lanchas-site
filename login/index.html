@@ -4039,9 +4039,11 @@ function saqueHTML(){
 function saldoHTML(vend, dentro){ /* dentro: vai dentro da Área do vendedor/parceiro, junto da chave Pix (Rodrigo 2026-11-12) */
   if(!AS_TESTE || S.admin) return "";
   if(vend ? !S.vend : !S.own?.some(l=>!SEM_REPASSE.includes(l))) return "";
-  sdLoad(); asLoad(); const L=(S.saldo||[]).filter(x=>vend ? x.tipo==="comissao" : x.tipo==="dono");
+  /* dono que também vende: um cartão só, igual nas duas abas, somando a parte do dono e a comissão, com o Sacar (Rodrigo 2026-11-13) */
+  const ambos = S.vend && S.own?.some(l=>!SEM_REPASSE.includes(l));
+  sdLoad(); asLoad(); const L=(S.saldo||[]).filter(x=>ambos ? x.tipo==="comissao" || x.tipo==="dono" : vend ? x.tipo==="comissao" : x.tipo==="dono");
   if(S.asConta) asDocs(); const d=S.asDocs||{};
-  const sq = d.status==="ok" && (vend || !S.vend) ? saqueHTML() : ""; /* quem é dono e vendedor saca pela aba de vendas */
+  const sq = d.status==="ok" && (vend || !S.vend || ambos) ? saqueHTML() : "";
   if(!L.length && !sq) return "";
   const lib=L.filter(x=>x.liberado), tot=lib.reduce((a,x)=>a+(+x.valor||0),0), dep=L.filter(x=>!x.liberado).reduce((a,x)=>a+(+x.valor||0),0);
   const go = !S.asConta ? `<p class="msg err sdmsg">${t("sdSem")}</p><button type="button" class="btn" data-sdgo="${vend?"v":"d"}">${t("sdSemGo")}</button>`
