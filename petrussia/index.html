@@ -4,7 +4,7 @@
 <script>
 /* CONVERSÃO DO GOOGLE ADS: quando a conta de anúncios dela estiver pronta, coloque aqui o ID (AW-...) e o rótulo da conversão "Clique no WhatsApp".
    Sem isso, o clique já vai para o dataLayer como evento "whatsapp_click" (dá para usar no Google Tag Manager). */
-var AW_ID = "", AW_LABEL = "";
+var AW_ID = "AW-18525984365", AW_LABEL = "oGgNCPTOhrcdEO2s8IFF";
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 if (AW_ID) { var g=document.createElement("script"); g.async=true; g.src="https://www.googletagmanager.com/gtag/js?id="+AW_ID; document.head.appendChild(g); gtag("js", new Date()); gtag("config", AW_ID); }
@@ -121,6 +121,29 @@ section.blk{padding:42px 0}.feat,.steps{grid-template-columns:1fr;gap:10px}.feat
 .chips li{font-size:14.5px;padding:9px 14px 9px 11px}
 .vip{padding:22px 18px;border-radius:22px}.fleet{padding:20px 18px}.btn-ghost{width:100%;justify-content:center}.faq{padding:6px 18px}
 footer .cols{grid-template-columns:1fr}.bar{display:block}footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}}
+/* cupom de boas-vindas: faixa na página e janelinha */
+.gift{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;background:linear-gradient(135deg,#1c1a16,#0e0d0b);color:#fff;border:1px solid rgba(217,177,84,.55);border-radius:22px;padding:20px 22px;margin-top:-26px;position:relative;z-index:2;box-shadow:0 24px 50px -30px rgba(14,13,11,.7)}
+.gift .gi{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(160deg,var(--gold-2),var(--gold) 50%,var(--gold-3));color:var(--navy)}
+.gift div{flex:1;min-width:220px}.gift b{display:block;font:700 19px/1.25 var(--display)}.gift span{display:block;color:#cfc5b4;font-size:14.5px;margin-top:3px}
+.btn-gold{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;background:linear-gradient(160deg,var(--gold-2),var(--gold) 50%,var(--gold-3));color:var(--navy);text-decoration:none;font:700 16px/1.2 var(--body);padding:14px 22px;border-radius:999px;box-shadow:0 12px 26px -12px rgba(217,177,84,.7)}
+.btn-gold:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.mbg{position:fixed;inset:0;z-index:20;background:rgba(14,13,11,.62);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px}
+.mbg.on{display:flex}
+.modal{position:relative;width:100%;max-width:420px;background:var(--card);border-radius:24px;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);animation:pop .28s ease}
+@keyframes pop{from{transform:translateY(14px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.modal .top{background:radial-gradient(400px 160px at 80% 0%,rgba(217,177,84,.35),transparent 70%),var(--navy);color:#fff;padding:26px 24px 22px;text-align:center}
+.modal .top .gi{width:60px;height:60px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(160deg,var(--gold-2),var(--gold) 50%,var(--gold-3));color:var(--navy)}
+.modal .kick{font:600 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold-soft);margin:0 0 6px}
+.modal h3{font:700 24px/1.15 var(--display);margin:0}
+.modal .bd{padding:20px 24px 22px;text-align:center}
+.modal .bd p{margin:0 0 16px;color:var(--muted)}
+.modal .btn-gold{width:100%}
+.modal .no{all:unset;cursor:pointer;display:block;margin:12px auto 0;color:var(--muted);font:600 14px var(--body);text-decoration:underline;text-underline-offset:3px}
+.modal .no:focus-visible{outline:2px solid var(--gold-3);outline-offset:3px}
+.modal small{display:block;margin-top:12px;color:#8a8275;font-size:12px;line-height:1.4}
+.modal .x{all:unset;cursor:pointer;position:absolute;top:10px;right:12px;width:34px;height:34px;display:grid;place-items:center;color:#cfc5b4;font-size:22px;border-radius:50%}
+.modal .x:focus-visible{outline:2px solid #fff}
+@media (max-width:640px){.gift{margin-top:-18px;padding:18px 16px}.gift .btn-gold{width:100%}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -148,6 +171,11 @@ footer .cols{grid-template-columns:1fr}.bar{display:block}footer{padding-bottom:
 </div>
 </section>
 
+<div class="wrap"><div class="gift" id="gift">
+<span class="gi"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
+<div><b data-i="gT">Presente da Petrussia: cupom de desconto na Miss Bardot</b><span data-i="gS">Crie seu cadastro grátis em 1 minuto e o cupom fica guardado na sua conta.</span></div>
+<a class="btn-gold js-bv" data-bv="faixa" href="/login/?criar=1&amp;v=PETRUSSIA76"><span data-i="gB">Quero meu cupom</span></a>
+</div></div>
 <section class="blk"><div class="wrap">
 <p class="kicker" data-i="k1">Tudo incluso no passeio</p>
 <h2 data-i="h2a">Você só chega e aproveita</h2>
@@ -241,6 +269,15 @@ footer .cols{grid-template-columns:1fr}.bar{display:block}footer{padding-bottom:
 
 <div class="bar" id="bar" aria-hidden="true"><a class="btn-wa js-wa" data-cta="fixo" href="#" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg><span data-i="cta1">Falar com a Petrussia no WhatsApp</span></a></div>
 
+<div class="mbg" id="mbg" role="dialog" aria-modal="true" aria-labelledby="mT"><div class="modal">
+<button type="button" class="x" id="mX" aria-label="Fechar">×</button>
+<div class="top"><div class="gi"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></div><p class="kick" id="mK">Presente da Petrussia</p><h3 id="mT">Ganhe um cupom de desconto na lancha Miss Bardot</h3></div>
+<div class="bd"><p id="mP">Crie seu cadastro grátis em 1 minuto, com a Petrussia como sua consultora. O cupom fica guardado na sua conta para usar no seu passeio.</p>
+<a class="btn-gold js-bv" id="mGo" data-bv="janela" href="/login/?criar=1&amp;v=PETRUSSIA76">Quero meu cupom</a>
+<button type="button" class="no" id="mNo">Agora não</button>
+<small id="mSm">Para novos cadastros com WhatsApp confirmado. Um cupom por pessoa.</small></div>
+</div></div>
+
 <script>
 var WA = "5522988355214";
 var T = {
@@ -262,6 +299,7 @@ var T = {
   sig:"<b>Petrussia</b> · Rainha das Embarcações, partner consultant of Búzios Lanchas", cta2:"Get a Quick Quote on WhatsApp",
   k4:"How it works", h2c:"Booking is easy", p1:"Message on WhatsApp", p1s:"Tell us the date and how many people are coming.",
   p2:"Get your options", p2s:"Petrussia suggests the right boat for your group, with the price.", p3:"Secure your date", p3s:"Your booking is confirmed with a deposit and the rest is paid at boarding.",
+  gT:"A gift from Petrussia: discount coupon on Miss Bardot", gS:"Create your free account in 1 minute and the coupon is saved in your account.", gB:"Get my coupon",
   fh:"Want to see the boats first?", fhs:"See photos, sizes and prices of the whole fleet on the website, with Petrussia as your consultant.", fb:"See boats and prices",
   h2d:"Frequently asked questions", q1:"What is included in the tour?", a1:"Skipper, fuel, ice, charcoal, mineral water and a cooler. Food and drinks are on you, and the crew grills if you bring the meat.",
   q2:"How many people fit on the boat?", a2:"We have boats for small and large groups. Miss Bardot, for example, is 35 ft and takes up to 16 people. Tell us how many are coming and we suggest the best option.",
@@ -287,6 +325,7 @@ var T = {
   sig:"<b>Petrussia</b> · Rainha das Embarcações, consultora asociada de Búzios Lanchas", cta2:"Pedir Cotización Rápida por WhatsApp",
   k4:"Cómo funciona", h2c:"Reservar es simple", p1:"Escribe por WhatsApp", p1s:"Cuéntanos la fecha y cuántas personas van.",
   p2:"Recibe las opciones", p2s:"Petrussia te indica la lancha adecuada para tu grupo, con el valor.", p3:"Asegura la fecha", p3s:"La reserva se confirma con una seña y el resto se paga al embarcar.",
+  gT:"Regalo de Petrussia: cupón de descuento en la Miss Bardot", gS:"Crea tu registro gratis en 1 minuto y el cupón queda guardado en tu cuenta.", gB:"Quiero mi cupón",
   fh:"¿Quieres ver las lanchas antes?", fhs:"Mira fotos, tamaños y precios de toda la flota en el sitio, con la atención de Petrussia.", fb:"Ver lanchas y precios",
   h2d:"Preguntas frecuentes", q1:"¿Qué incluye el paseo?", a1:"Marinero, combustible, hielo, carbón, agua mineral y cooler. Comidas y bebidas corren por tu cuenta, y el equipo prepara el asado si llevas la carne.",
   q2:"¿Cuántas personas caben en la lancha?", a2:"Tenemos lanchas para grupos pequeños y grandes. La Miss Bardot, por ejemplo, tiene 35 pies y lleva hasta 16 personas. Dinos cuántos van y te indicamos la mejor opción.",
@@ -336,5 +375,53 @@ if("IntersectionObserver" in window){
   new IntersectionObserver(function(es){ heroOut = !es[0].isIntersecting; upd(); }).observe(heroBtn);
   new IntersectionObserver(function(es){ finIn = es[0].isIntersecting; upd(); }).observe(fin);
 }
+/* cupom de boas-vindas (2026-11-13): janelinha para criar a conta ligada à Petrussia; o cupom nasce no banco quando o WhatsApp é confirmado */
+var M = {
+ pt:{k:"Presente da Petrussia", t:"Ganhe um cupom de desconto na lancha Miss Bardot", p:"Crie seu cadastro grátis em 1 minuto, com a Petrussia como sua consultora. O cupom fica guardado na sua conta para usar no seu passeio.", go:"Quero meu cupom", no:"Agora não",
+     xk:"Espere!", xt:"Você vai perder o seu cupom", xp:"O cupom de desconto na Miss Bardot só fica guardado se você fizer o cadastro agora. Leva 1 minuto.", xgo:"Garantir meu cupom", xno:"Sair sem o cupom", sm:"Para novos cadastros com WhatsApp confirmado. Um cupom por pessoa.", cl:"Fechar"},
+ en:{k:"A gift from Petrussia", t:"Get a discount coupon on the Miss Bardot boat", p:"Create your free account in 1 minute, with Petrussia as your consultant. The coupon is saved in your account for your tour.", go:"Get my coupon", no:"Not now",
+     xk:"Wait!", xt:"You are about to lose your coupon", xp:"Your Miss Bardot discount coupon is only saved if you create your account now. It takes 1 minute.", xgo:"Save my coupon", xno:"Leave without the coupon", sm:"For new accounts with a confirmed WhatsApp. One coupon per person.", cl:"Close"},
+ es:{k:"Regalo de Petrussia", t:"Gana un cupón de descuento en la lancha Miss Bardot", p:"Crea tu registro gratis en 1 minuto, con Petrussia como tu consultora. El cupón queda guardado en tu cuenta para usar en tu paseo.", go:"Quiero mi cupón", no:"Ahora no",
+     xk:"¡Espera!", xt:"Vas a perder tu cupón", xp:"El cupón de descuento en la Miss Bardot solo queda guardado si haces tu registro ahora. Toma 1 minuto.", xgo:"Asegurar mi cupón", xno:"Salir sin el cupón", sm:"Para nuevos registros con WhatsApp confirmado. Un cupón por persona.", cl:"Cerrar"}
+};
+function ls(k, v){ try{ if(v === undefined) return localStorage.getItem(k); if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } }
+var logado = !!ls("dono-ses") && ls("dono-ses") !== "null", jaFoi = !!ls("rde-bv-ok"), mbg = document.getElementById("mbg"), lastFocus = null, viuJanela = false, viuSaida = false;
+function bvUrl(){ return "/login/?criar=1&v=PETRUSSIA76"; }
+function abrir(saida){
+  if(logado || jaFoi || mbg.classList.contains("on")) return;
+  if(saida){ if(viuSaida) return; viuSaida = true; } else { if(viuJanela) return; viuJanela = true; try{ var t0 = +ls("rde-bv-t") || 0; if(Date.now() - t0 < 864e5) return; ls("rde-bv-t", String(Date.now())); }catch(e){} }
+  var m = M[LANG] || M.pt;
+  document.getElementById("mK").textContent = saida ? m.xk : m.k;
+  document.getElementById("mT").textContent = saida ? m.xt : m.t;
+  document.getElementById("mP").textContent = saida ? m.xp : m.p;
+  document.getElementById("mGo").textContent = saida ? m.xgo : m.go;
+  document.getElementById("mGo").dataset.bv = saida ? "saida" : "janela";
+  document.getElementById("mNo").textContent = saida ? m.xno : m.no;
+  document.getElementById("mSm").textContent = m.sm;
+  document.getElementById("mX").setAttribute("aria-label", m.cl);
+  lastFocus = document.activeElement; mbg.classList.add("on"); document.getElementById("mGo").focus();
+  dataLayer.push({event:"cupom_janela", pagina:"petrussia", tipo: saida ? "saida" : "entrada", idioma:LANG});
+}
+function fechar(){ mbg.classList.remove("on"); if(lastFocus && lastFocus.focus) lastFocus.focus(); }
+document.getElementById("mX").addEventListener("click", fechar);
+document.getElementById("mNo").addEventListener("click", fechar);
+mbg.addEventListener("click", function(e){ if(e.target === mbg) fechar(); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && mbg.classList.contains("on")) fechar(); });
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest(".js-bv"); if(!b) return;
+  ls("rde-bv-ok", String(Date.now())); jaFoi = true;
+  if(LANG !== "pt" && !ls("dono-lang")) ls("dono-lang", JSON.stringify(LANG)); /* o cadastro abre no mesmo idioma */
+  b.href = bvUrl();
+  dataLayer.push({event:"cupom_click", pagina:"petrussia", botao:b.dataset.bv || "", idioma:LANG});
+});
+if(logado || jaFoi){ var g = document.getElementById("gift"); if(g) g.parentNode.style.display = "none"; }
+/* janelinha: 7 s depois de entrar ou ao passar da metade da página, uma vez por dia */
+var t0 = Date.now();
+setTimeout(function(){ abrir(false); }, 7000);
+window.addEventListener("scroll", function onS(){ if(window.scrollY > (document.body.scrollHeight - innerHeight) * .45){ window.removeEventListener("scroll", onS); abrir(false); } }, {passive:true});
+/* aviso de saída: no computador, o mouse indo para fechar a aba; no celular, quando a pessoa sai para outro app e volta */
+document.addEventListener("mouseout", function(e){ if(!e.relatedTarget && e.clientY <= 0 && Date.now() - t0 > 4000) abrir(true); });
+var saiu = 0;
+document.addEventListener("visibilitychange", function(){ if(document.hidden) saiu = Date.now(); else if(saiu && Date.now() - t0 > 5000) abrir(true); });
 </script>
 </body></html>
