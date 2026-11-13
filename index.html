@@ -1544,7 +1544,7 @@ const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const fmtDate = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(t("locale"),lang==="pt"?{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"}:{weekday:"short",day:"numeric",month:"short",year:"numeric"}); };
 /* temporadas (2026-10-22): alta dezembro, janeiro e fevereiro; média março, abril e novembro; baixa maio a outubro.
-   Réveillon (27/dez a 5/jan) = alta + % do dono (precos.pct_reveillon); Carnaval (sábado a terça) = alta + % do dono só do Carnaval (precos.pct_carnaval, 2026-11-13).
+   Réveillon (27/dez a 5/jan) = alta + % do dono (precos.pct_reveillon); Carnaval (sexta a terça) = alta + % do dono só do Carnaval (precos.pct_carnaval, 2026-11-13).
    Feriadão (sem o dia da volta) = valor da época + % do dono (precos.pct_feriado); todos valem, e o dono pode tirar os que não quer (precos.sem_feriados).
    De segunda a quinta, fora de feriadão, Réveillon e Carnaval, o dono pode dar desconto em % em cada época (precos.desc_semana). */
 const FERIADOS = ["semana_santa","tiradentes","sao_jorge","trabalho","corpus","ferias_julho","independencia","aparecida","finados","republica","consciencia"];
@@ -1558,7 +1558,7 @@ const ferDias = (k, y) => { const t=ferData(k,y), w=new Date(t).getUTCDay(), r =
   return r.map(o=>new Date(t+o*DIA).toISOString().slice(0,10)); };
 const ferOf = (iso, off=[]) => { const y=+iso.slice(0,4); return FERIADOS.find(k=>!off.includes(k) && ferDias(k,y).includes(iso)) || null; };
 const seasonBase = iso => { const y=+iso.slice(0,4), m=+iso.slice(5,7), md=iso.slice(5), t=Date.UTC(y,m-1,+iso.slice(8,10)), p=pascoa(y);
-  if(md>="12-27" || md<="01-05" || (t>=p-50*DIA && t<=p-47*DIA)) return "reveillon";
+  if(md>="12-27" || md<="01-05" || (t>=p-51*DIA && t<=p-47*DIA)) return "reveillon"; /* Carnaval de sexta a terça (2026-11-13, era sábado) */
   return m===12||m===1||m===2 ? "alta" : [3,4,11].includes(m) ? "media" : "baixa"; }; /* fevereiro passou para a alta (2026-10-22) */
 /* Carnaval (2026-11-13): mesma época "reveillon", mas com % próprio do dono (precos.pct_carnaval). Réveillon é dez/jan; Carnaval cai em fev/mar e muda todo ano pela Páscoa */
 const isCarn = iso => { const m=+iso.slice(5,7); return (m===2 || m===3) && seasonBase(iso)==="reveillon"; };

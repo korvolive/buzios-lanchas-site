@@ -1,6 +1,6 @@
 -- Carnaval com % próprio, separado do Réveillon (Rodrigo 2026-11-13)
 -- Antes: Réveillon e Carnaval = alta + precos.pct_reveillon(7).
--- Agora: Réveillon (27/12 a 5/01) continua com pct_reveillon(7); Carnaval (sábado a terça, pela Páscoa, todo ano sozinho)
+-- Agora: Réveillon (27/12 a 5/01) continua com pct_reveillon(7); Carnaval (sexta a terça, pela Páscoa, todo ano sozinho)
 -- usa pct_carnaval(7). Começa com os MESMOS valores de hoje, então nada muda até o dono mexer.
 -- O "Búzios a mais" (bz_reveillon) continua valendo para os dois.
 -- Sem DROP/DELETE.
@@ -199,3 +199,15 @@ begin
 end $function$;
 revoke all on function public.salvar_netos_v3(text, jsonb, text[], integer, numeric, numeric, numeric, numeric, jsonb) from public, anon;
 grant execute on function public.salvar_netos_v3(text, jsonb, text[], integer, numeric, numeric, numeric, numeric, jsonb) to authenticated;
+
+-- Carnaval começa na SEXTA (Rodrigo 2026-11-13: "a galera já vai estar aqui"): sexta a terça = Páscoa -51 a -47, todo ano sozinho
+CREATE OR REPLACE FUNCTION public._epoca(d date)
+ RETURNS text
+ LANGUAGE plpgsql
+ IMMUTABLE
+AS $function$
+declare m int := extract(month from d)::int; md text := to_char(d, 'MM-DD'); p date := public._pascoa(extract(year from d)::int);
+begin
+  if md >= '12-27' or md <= '01-05' or (d >= p - 51 and d <= p - 47) then return 'reveillon'; end if;
+  return case when m in (12,1,2) then 'alta' when m in (3,4,11) then 'media' else 'baixa' end;
+end $function$;
