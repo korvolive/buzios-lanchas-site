@@ -6984,7 +6984,10 @@ async function planSave(el){
 /* ===== janela do dia: um botão grande para cada horário ===== */
 const sheet=document.getElementById("sheet"), sheetBg=document.getElementById("sheet-bg");
 let sheetDay = null;
-function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheetBg.classList.add("on"); }
+/* abre o dia na hora com o que já está na memória e busca de novo no banco: uma reserva editada em outra tela (pedido, lista, Lucas) aparece com o valor novo sem recarregar a página (Rodrigo 2026-11-13) */
+let dayRf=0;
+function openDay(d){ sheetDay=d; renderSheet(); sheet.classList.add("on"); sheetBg.classList.add("on");
+  const my=++dayRf, l=S.cur; loadBlocks().then(()=>{ if(my===dayRf && l===S.cur && sheetDay===d && !noteFor && !tripRow && sheet.classList.contains("on") && !sheet.querySelector(".opt.saving")) renderSheet(); }, ()=>{}); }
 /* campos que salvam sozinhos: fechar a janela ou sair do app tira o foco antes, e o "change" salva (2026-11-04) */
 const flushFocus = () => { const ae=document.activeElement; if(ae?.closest?.(".uemp,#vempw")) ae.blur(); };
 document.addEventListener("visibilitychange", () => { if(document.hidden) flushFocus(); });
