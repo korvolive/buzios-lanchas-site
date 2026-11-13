@@ -5,11 +5,13 @@ Centralizado, uma foto em pé de corpo inteiro perdia os pés. Aqui, na publica�
 mexendo o mínimo possível a partir do centro. Pessoa que não cabe inteira no quadro: fica a cabeça e o máximo do corpo.
 Foto sem pessoa em destaque (ou em que a lancha é o assunto) fica centralizada, como antes. Não altera nenhuma foto nem o banco; o tamanho do quadro não muda.
 Uso: python3 -I enquadrar.py <pasta img> <foto> ...   (foto = nome em img/ sem extensão ou URL do banco sem .jpg)
-Saída: JSON {foto: ["X% Y%" computador, "X% Y%" celular]}; foto que falhar fica de fora (o site usa o centro)."""
+Saída: JSON {foto: ["X% Y%" computador, "X% Y%" celular]}; com --nao-cabe, {foto: [largura, altura]} das fotos em que a pessoa não cabe inteira no computador; foto que falhar fica de fora (o site usa o centro)."""
 import io, json, os, sys, urllib.request
 from PIL import Image, ImageOps
 
-PASTA, FOTOS = sys.argv[1], sys.argv[2:]
+NAO_CABE = "--nao-cabe" in sys.argv  # lista as fotos em que a pessoa não cabe inteira no quadro do computador (rotina das laterais)
+ARGS = [a for a in sys.argv[1:] if a != "--nao-cabe"]
+PASTA, FOTOS = ARGS[0], ARGS[1:]
 PERMITIDO = "https://sqoperylsqcbcjpcrlnp.supabase.co/storage/v1/object/public/lanchas/"
 MODELO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "login", "lancha.tflite")
 QUADROS = (7 / 6, 4 / 5)  # mesmo aspect-ratio de .gallery .main.tall (computador) e do @media (max-width:880px) (celular)
@@ -55,6 +57,13 @@ def eixo(ini, fim, total, janela):
     return min(max(pos / sobra, 0.0), 1.0)
 
 
+def cabe(im, caixas):
+    W, H = im.size
+    m = 0.02 * H
+    alto = min(max(b[3] for b in caixas) + m, H) - max(min(b[1] for b in caixas) - m, 0)
+    return W / H >= QUADROS[0] or alto <= W / QUADROS[0]
+
+
 def corte(im, caixas):
     W, H = im.size
     m = 0.02 * H  # folga para não encostar cabeça e pés na borda
@@ -84,6 +93,10 @@ def main():
             if im.width > 1200:
                 im = im.resize((1200, round(im.height * 1200 / im.width)), Image.LANCZOS)
             cx = pessoas(det, im)
+            if NAO_CABE:
+                if cx and not cabe(im, cx):
+                    saida[f] = im.size
+                continue
             if cx:
                 pos = corte(im, cx)
                 if pos != ["50% 50%", "50% 50%"]:

@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794599491.481347,
-    "seen": 1794599681.3803988,
-    "ast_hash": "4d6ebae7f1477f64aaad12eb10a88c7e",
+    "mtime": 1794600157.0331984,
+    "seen": 1794600214.0184376,
+    "ast_hash": "02fc37b3483bf86a0e23c49454676c6d",
     "semantic_hash": ""
   },
   ".github/workflows/ios.yml": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/verificar.yml": {
-    "mtime": 1794599497.822531,
-    "seen": 1794599681.3804307,
-    "ast_hash": "711f147c60d8f4cc180825d51b7294be",
+    "mtime": 1794600157.0314808,
+    "seen": 1794600214.0184617,
+    "ast_hash": "6ddce1be2c43122275e19bd7de69bd5f",
     "semantic_hash": ""
   },
   ".well-known/assetlinks.json": {
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1794599471.453995,
-    "seen": 1794599681.382971,
-    "ast_hash": "533ac1eac7ab9f18fd1e54449a5d1360",
+    "mtime": 1794600106.6133292,
+    "seen": 1794600107.2820718,
+    "ast_hash": "030f7a5e6f568b1a90e6b46e51096ea7",
     "semantic_hash": ""
   },
   "login/index.html": {
@@ -1566,9 +1566,51 @@
     "semantic_hash": ""
   },
   "scripts/enquadrar.py": {
-    "mtime": 1794599458.797581,
-    "seen": 1794599681.3805628,
-    "ast_hash": "be67a905dc39b853e822fe0d33b32779",
+    "mtime": 1794600179.4516003,
+    "seen": 1794600214.0185814,
+    "ast_hash": "bd36b3186638db6007ccc825761fac70",
+    "semantic_hash": ""
+  },
+  "img/mb-15-t.jpg": {
+    "mtime": 1794600090.366086,
+    "seen": 1794600107.2834802,
+    "ast_hash": "e60fc3bf6e856ef80d3a123e2a1851e0",
+    "semantic_hash": ""
+  },
+  "img/mb-15.jpg": {
+    "mtime": 1794600090.3503985,
+    "seen": 1794600107.2834816,
+    "ast_hash": "ef2911b9b37468437ef823be5c1041ae",
+    "semantic_hash": ""
+  },
+  "img/mb-16-t.jpg": {
+    "mtime": 1794600090.4625502,
+    "seen": 1794600107.2834828,
+    "ast_hash": "264555b32dac5fc0b2480dfbbffc9ab9",
+    "semantic_hash": ""
+  },
+  "img/mb-16.jpg": {
+    "mtime": 1794600090.4503984,
+    "seen": 1794600107.283484,
+    "ast_hash": "c8c16314e170d3fd52500d3081bf61a7",
+    "semantic_hash": ""
+  },
+  "img/mb-17-t.jpg": {
+    "mtime": 1794600090.5472617,
+    "seen": 1794600107.2834847,
+    "ast_hash": "77dbad7af9f8fa0aae1bb5db668b68c1",
+    "semantic_hash": ""
+  },
+  "img/mb-17.jpg": {
+    "mtime": 1794600090.5343986,
+    "seen": 1794600107.283486,
+    "ast_hash": "ed307d6492ff40bf5f1ceb5de8d73024",
+    "semantic_hash": ""
+  },
+  "scripts/estender-laterais.py": {
+    "mtime": 1794600206.7864027,
+    "seen": 1794600214.0185835,
+    "ast_hash": "a99908966d02858f77823fb676f1700b",
     "semantic_hash": ""
   }
 }
