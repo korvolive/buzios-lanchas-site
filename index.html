@@ -2030,18 +2030,18 @@ function openVendLead(force){
   /* fechar pede confirmação (Rodrigo 2026-11-12): quem fecha perde o desconto e o parceiro perde a indicação */
   const pergunta=()=>{ if(!dl.contains($("vl-go"))) return dl.close(); dl.classList.add("q"); dl.querySelector(".vlq").hidden=false; $("vl-qback").focus(); };
   const volta=()=>{ dl.classList.remove("q"); dl.querySelector(".vlq").hidden=true; $("vl-n").focus(); };
-  dl.addEventListener("close",()=>dl.remove(),{once:true});
+  dl.addEventListener("close",()=>{ if(dl.classList.contains("q")) try{ sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} dl.remove(); },{once:true});
   dl.addEventListener("cancel",e=>{ if(dl.contains($("vl-go")) && !dl.classList.contains("q")){ e.preventDefault(); pergunta(); } });
   $("vl-no").onclick=pergunta; dl.querySelector(".lx").onclick=pergunta; dl.onclick=e=>{ if(e.target===dl) pergunta(); };
   $("vl-qback").onclick=volta; $("vl-qx").onclick=skip;
   dl.querySelectorAll("input,select").forEach(x=>x.oninput=()=>{ err.textContent=""; });
   $("vl-go").onclick=async()=>{
-    const v={nome:$("vl-n").value.trim().replace(/\s+/g," "), ddi:$("vl-c").value, tel:$("vl-w").value.trim(), email:""}, d=v.tel.replace(/\D/g,"");
+    const v={nome:$("vl-n").value.trim().replace(/\s+/g," "), ddi:$("vl-c").value, tel:$("vl-w").value.trim(), email:sv.email||""}, d=v.tel.replace(/\D/g,"");
     const w = v.nome.length<2 ? ["vl-n","leadBadName"] : (v.ddi==="55" ? !/^\d{10,11}$/.test(d) : d.length<6||d.length>13) ? ["vl-w","leadBadWa"] : null;
     if(w){ err.textContent=t(w[1]); return $(w[0]).focus(); }
     const b=$("vl-go"); b.disabled=true;
     try{ const r=await fetch(SB_URL+"/rest/v1/rpc/criar_lead_vendedor",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
-        body:JSON.stringify({p_cod:VEND.codigo, p_nome:v.nome, p_tel:"+"+v.ddi+" "+d, p_email:v.email||null, p_lang:lang})});
+        body:JSON.stringify({p_cod:VEND.codigo, p_nome:v.nome, p_tel:"+"+v.ddi+" "+d, p_email:null, p_lang:lang})});
       if(!r.ok){ const j=await r.json().catch(()=>({})); if(/equipe/.test(j.message||"")){ dropVend(); return equipeDlg(); } throw 0; } /* WhatsApp ou e-mail de alguém da equipe */
       try{ localStorage.setItem("vend-lead",VEND.codigo); localStorage.setItem("consulta-dados",JSON.stringify(v)); }catch(e){}
       vlCodigo(dl, "+"+v.ddi+" "+d, v.ddi+d); }

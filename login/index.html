@@ -4112,7 +4112,7 @@ function asJanela(){
 let appTam=0; fetch("/login/?v="+Date.now(),{cache:"no-store"}).then(r=>r.text()).then(x=>{ appTam=x.length; }).catch(()=>{});
 /* versão nova do app (Rodrigo 2026-11-11): sem nada digitado, recarrega sozinho; com formulário em uso, mostra "Atualizar" no topo */
 function appNova(){ if(!appTam || document.getElementById("appnova")) return; fetch("/login/?v="+Date.now(),{cache:"no-store"}).then(r=>r.text()).then(x=>{
-  if(!x.length || x.length===appTam) return; if(!busyTyping()) return location.reload();
+  if(!x.length || x.length===appTam) return; if(!busyTyping() && !document.querySelector("#sheet.on") && ![...document.querySelectorAll("#sheet input:not([type=file]),#sheet textarea")].some(i=>i.value!==i.defaultValue)) return location.reload();
   const w=document.createElement("div"); w.id="appnova"; w.setAttribute("role","status");
   w.style.cssText="position:fixed;top:0;left:0;right:0;z-index:10000;background:var(--sea-deep,#0a2e3b);color:#fff;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 12px calc(10px) 12px;padding-top:calc(10px + env(safe-area-inset-top));font-size:14px";
   w.innerHTML=`<span>${t("appNovaT")}</span><button type="button" class="btn sm" style="width:auto;margin:0">${t("appNovaGo")}</button>`;
@@ -4630,7 +4630,7 @@ function editReq(p, cons){ /* cons = consulta pelo WhatsApp (tabela consultas): 
       const k0e=!cons && p.sinal_liberado_em && +p.sinal_valor>0 && !p.comprovante_em && !ppPaid(p) && !(S.asPg||{})[p.id] ? pedCalc(p) : null, sinAuto = k0e?.tot>0 && Math.abs(+p.sinal_valor-Math.round(k0e.tot/2))<=1;
       try{ await db(`${cons?"consultas":"pedidos"}?id=eq.${p.id}`,{method:"PATCH", body});
         if(irm.length && (d!==p.data || h!==p.horario)) await db(`consultas?grupo=eq.${encodeURIComponent(p.grupo)}&id=neq.${p.id}`,{method:"PATCH", body:{data:d, horario:h}}); /* grupo: data e horário iguais para todas as lanchas */
-        let sinNovo=null; if(sinAuto){ await loadReqs(); const p2=S.reqs.find(x=>x.id===p.id), k2=p2&&pedCalc(p2), v2=k2?.tot>0 ? Math.round(k2.tot/2) : 0; if(v2>0 && v2!==+p2.sinal_valor){ await mudaSinal(p.id, v2).catch(()=>{}); sinNovo=v2; } }
+        let sinNovo=null; if(sinAuto){ await loadReqs(); const p2=S.reqs.find(x=>x.id===p.id), k2=p2&&pedCalc(p2), v2=k2?.tot>0 ? Math.round(k2.tot/2) : 0; if(v2>0 && v2!==+p2.sinal_valor){ if(await mudaSinal(p.id, v2).catch(()=>false)!==false) sinNovo=v2; } }
         toast(sinNovo ? t("edOkSin",{v:brl(sinNovo)}) : t(cons?"csEdOk":"edOk")); closeDay(); await loadReqs(); mainView(); }
       catch(x){ b.disabled=false; toast(t("saveErr")); } };
   };
@@ -6205,7 +6205,7 @@ function bindVpix(){
     catch(e){ sv.disabled=false; toast(/pix_invalida/.test(e.message||"")?t("pxBad"):t("saveErr")); } };
 }
 function bindVsales(){ app.querySelectorAll("[data-vcp]").forEach(b=>b.onclick=()=>verComprovante(+b.dataset.vcp, b)); app.querySelectorAll("[data-vlt]").forEach(b=>b.onclick=()=>{ S.vlt=b.dataset.vlt; const x=document.getElementById("vsales"); if(x){ x.innerHTML=vSalesHTML(); bindVsales(); } }); }
-function bindVend(){ bindVqr(); { const sqg=document.getElementById("sq-go"); if(sqg) sqg.onclick=()=>sqGoClick(sqg); } app.querySelectorAll("[data-sqpix]").forEach(b=>b.onclick=()=>{ S.pxEdit=true; if(S.isClient){ S.ctab="parc"; clientView(); document.getElementById("vpix")?.scrollIntoView({behavior:"smooth",block:"center"}); } });
+function bindVend(){ bindVqr(); app.querySelectorAll("details.sqopen").forEach(d=>d.ontoggle=()=>{ S.sqAberto=d.open; }); { const sqg=document.getElementById("sq-go"); if(sqg) sqg.onclick=()=>sqGoClick(sqg); } app.querySelectorAll("[data-sqpix]").forEach(b=>b.onclick=()=>{ S.pxEdit=true; if(S.isClient){ S.ctab="parc"; clientView(); document.getElementById("vpix")?.scrollIntoView({behavior:"smooth",block:"center"}); } });
   bindVav(); bindVsales(); bindVask(); bindVreq(); bindVpix(); bindSoc();
   bindVemp();
   const c=document.getElementById("vcopy"); if(c) c.onclick=()=>navigator.clipboard?.writeText(vLink()).then(()=>toast(t("vdCopied")),()=>prompt("",vLink()));
@@ -6281,14 +6281,15 @@ async function sqGoClick(sqg){ const disp=+S.saque?.disponivel||0, v=Math.round(
     if(!(v>=1) || v>disp) return toast(t("sqVal",{v:brl2(disp)}));
     if(!confirm(t("sqConf",{v:brl2(v), k:`${t("px_"+m.pix_tipo)} ${pixShow(m.pix_tipo,m.pix_chave)}`}))) return;
     sqg.disabled=true; try{ await asFn({acao:"sacar", valor:v}); toast(t("sqOk")); }catch(e){ toast(e.message==="sem_pix"?t("sqSemPix"):e.message==="andamento"?t("sqAnd"):e.message==="valor"?t("sqVal",{v:brl2(disp)}):t("sqErr")); }
-    S.saque=undefined; S.isClient ? clientView() : mainView(); } /* redesenha direto: o valor digitado não pode travar a tela depois do saque */
+    S.saque=undefined; S.sqAberto=false; S.isClient ? clientView() : mainView(); } /* redesenha direto: o valor digitado não pode travar a tela depois do saque */
 /* muda o sinal de um pedido: cancela a cobrança do Asaas com o valor antigo e a central (Pix ou PayPal) passa a cobrar o novo (revisão 2026-10-25) */
 async function mudaSinal(id, v){
   await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{sinal_valor:v,atualizado_em:new Date().toISOString()}}); const p=S.reqs.find(p=>p.id===id); if(p){ p.sinal_valor=v; saveRep(p); }
   asFn({acao:"cancelar", pid:id}).catch(()=>{}); /* cobrança com o sinal antigo não vale mais */
   if(p && v>0 && (S.ppPay||{})[p.id] && !(S.ppPay[p.id].pago_em)){
-    try{ if(ppPix(p)) await ppLink(p, v, "BRL"); else { const c=cobCur(ppCC(p)), R=await fxRates(); await ppLink(p, niceUp(v*R[c.toLowerCase()]*FX_MARKUP), c); } }catch(e){ toast(t(e.message==="pago" ? "ppLocked" : "cobPpGenErr")); }
+    try{ if(ppPix(p)) await ppLink(p, v, "BRL"); else { const c=cobCur(ppCC(p)), R=await fxRates(); await ppLink(p, niceUp(v*R[c.toLowerCase()]*FX_MARKUP), c); } }catch(e){ toast(t(e.message==="pago" ? "ppLocked" : "cobPpGenErr")); return false; }
   }
+  return true;
 }
 function bindMainRest(){
   app.querySelectorAll("[data-delrv]").forEach(x=>x.onclick=async()=>{ if(!S.admExc) return toast(t("rvNeedSql")); if(!confirm(t("rvDelQ"))) return; const pid=+x.dataset.delrv;
@@ -6331,7 +6332,7 @@ function bindMainRest(){
   const bq=document.getElementById("bq"); if(bq) bq.oninput=()=>{ const q=fold(bq.value.trim()); app.querySelectorAll("#blist [data-b]").forEach(b=>b.hidden=!!q && !b.dataset.q.includes(q)); };
   app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ if(x.dataset.tab==="chat") return openEq(); S.tab=x.dataset.tab; store.set("dono-tab",S.tab); loadBlocks(); });
   app.querySelectorAll("[data-sqpix]").forEach(b=>b.onclick=()=>{ S.pxEdit=true; if(!S.vend) return bgView(); bellTab("vendas","#vpix"); }); if(!S.vend && document.getElementById("vpix")) bindVpix();
-  const sqg=document.getElementById("sq-go"); if(sqg) sqg.onclick=()=>sqGoClick(sqg);
+  const sqg=document.getElementById("sq-go"); if(sqg) sqg.onclick=()=>sqGoClick(sqg); app.querySelectorAll("details.sqopen").forEach(d=>d.ontoggle=()=>{ S.sqAberto=d.open; });
   app.querySelectorAll("[data-sdgo]").forEach(b=>b.onclick=()=>{ if(b.dataset.sdgo==="d") return asGoLancha();
     const f=app.querySelector("#as-f"); if(!f) return; const dd=f.closest("details"); if(dd) dd.open=true; f.closest(".card").scrollIntoView({behavior:"smooth",block:"start"}); });
   setTimeout(asJanela, 800); const asg=document.getElementById("as-av-go"); if(asg) asg.onclick=()=>{ if(!asg.dataset.v) return asGoLancha(); const f=app.querySelector("#as-f"); if(!f) return; const dd=f.closest("details"); if(dd) dd.open=true; f.closest(".card").scrollIntoView({behavior:"smooth",block:"start"}); };
