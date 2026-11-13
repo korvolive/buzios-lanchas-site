@@ -2978,6 +2978,10 @@ document.addEventListener("input", e => { const x=e.target; if(!x.matches?.('inp
   const n=+x.value, mx=+x.max; /* passou do máximo: avisa e volta para o que estava (2026-10-26) */
   if(n<0 || (x.max!=="" && n>mx)){ x.value = x.__ok ?? x.defaultValue; if(n>mx) toast(t("pctMaxT",{n:mx})); } }, true);
 document.addEventListener("focusin", e => { const x=e.target; if(x.matches?.('input[type="number"][data-xp],input[type="number"][data-mpf],input[type="number"][data-apc],input[type="number"][data-bp]')) x.__ok=x.value; }, true);
+/* % vazio = 0 (2026-11-13): apagou o campo de %, vale zero, sem erro */
+const PCT_SEL = 'input[type="number"][data-xp],input[type="number"][data-mpf],input[type="number"][data-apc]';
+const pctZero = root => (root||document).querySelectorAll(PCT_SEL).forEach(x=>{ if(!x.disabled && x.value.trim()==="" && document.activeElement!==x){ x.value="0"; } }); /* o campo em que a pessoa está digitando fica vazio na tela, mas conta como 0 */
+document.addEventListener("focusout", e => { const x=e.target; if(x.matches?.(PCT_SEL) && !x.disabled && x.value.trim()===""){ x.value="0"; x.dispatchEvent(new Event("input",{bubbles:true})); } }, true);
 const VMAX = 9999; /* nenhum valor de passeio passa de R$ 9.999 (2026-10-22; o banco também barra) */
 const PCT_MAX = {get pf(){ return S.cur==="miss-bardot" ? 20 : 10; } /* feriados até 10%, a Miss Bardot até 20% (2026-10-28, era 15%) */, ds:15}; /* Réveillon e Carnaval: revMax() */ /* teto dos % do dono: feriado, Réveillon e Carnaval, desconto de segunda a quinta */
 /* épocas do dono (2026-11-01): média e alta são opcionais. Desligada = mesmo valor da época anterior (média = baixa, alta = média).
@@ -6413,9 +6417,9 @@ function bindMainRest(){
         const was=S.neto[c], nn=n>0?Math.round(n):null; /* referência do dono: muda quando o administrador muda o valor */
         const tp=S.hasTaxa ? prPctSet(c) : null; if(tp!=null && !(tp>=0 && tp<=BZ_MAX)){ return prBack(app.querySelector(`[data-tp="${c}"]`), t("prBlBad")); }
         rows.push({lancha, chave:c, neto:nn, comissao:n>0?Math.round(br):null, ...(S.hasRef?{ref: nn===was?.neto && was?.ref!=null ? was.ref : nn}:{}), ...(S.hasTaxa?{taxa_pct: tp==null || tp===taxaDef(lancha) && was?.taxa_pct==null ? null : Math.round(tp*100)/100}:{}), atualizado_em:body.atualizado_em}); }
-      const apc=[...app.querySelectorAll("[data-apc]")]; if(apc.length){ const dsw={};
-        for(const x of apc){ const n=+x.value; if(x.value.trim()==="" || !(n>=0 && n<=+x.max)){ return prBack(x, t("mnPctBad",{n:x.max})); } body[x.dataset.apc]=n; }
-        for(const x of app.querySelectorAll("[data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(x.value.trim()==="" || !(n>=0 && n<=mx)){ return prBack(x, t("pairBad",{n:mx})); }
+      pctZero(app); const apc=[...app.querySelectorAll("[data-apc]")]; if(apc.length){ const dsw={};
+        for(const x of apc){ const n=+x.value; if(!(n>=0 && n<=+x.max)){ return prBack(x, t("mnPctBad",{n:x.max})); } body[x.dataset.apc]=n; }
+        for(const x of app.querySelectorAll("[data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(!(n>=0 && n<=mx)){ return prBack(x, t("pairBad",{n:mx})); }
           const v=Math.round(n*100)/100; if(kind==="ds"){ dsw[c]=v; if(x.dataset.both) dsw[c+"7"]=v; } else body[(kind==="cv"?"pct_carnaval":"pct_reveillon")+(c.endsWith("7")?"7":"")]=v; }
         if("bz_reveillon" in S.prices) for(const h of ["", ...(S.no7?[]:["7"])]){ const x=app.querySelector(`[data-rx="${h}"]`), v=x && x.value.trim()!=="" ? +x.value : 0; if(!(v>=0 && v<=VMAX)){ return prBack(x, t("prBad")); } body["bz_reveillon"+h] = v>0 ? Math.round(v) : null; }
         body.desc_semana=dsw; body.sem_feriados=[...app.querySelectorAll("[data-afer]")].filter(x=>x.getAttribute("aria-pressed")==="false").map(x=>x.dataset.afer); }
@@ -6481,9 +6485,10 @@ function bindMainRest(){
     { const it=Object.fromEntries((S.mn.itens||[]).map(y=>[y.chave,y])); for(const k of ["media","alta"]) if(!epOn(it,k)) for(const h of ["","7"]) if(v[EP_PREV[k]+h]) v[k+h]=v[EP_PREV[k]+h]; }
     for(const k of ["baixa","media","alta"]) if(v[k] && v[k+"7"] && v[k+"7"]<=v[k]){ return nope(t("mn7")); }
     for(const h of ["","7"]) for(const [a,b] of [["baixa","media"],["media","alta"]]){ const A=v[a+h], B=v[b+h]; if(A && B && B<A){ return nope(t("mnOrder")); } }
-    for(const x of app.querySelectorAll("[data-mpf]")){ const n=+x.value; if(x.value.trim()==="" || !(n>=0 && n<=+x.max) || n%5){ return nope(t("mnPctBad",{n:x.max})); } }
+    pctZero(app.querySelector(".mnet")||app);
+    for(const x of app.querySelectorAll("[data-mpf]")){ const n=+x.value; if(!(n>=0 && n<=+x.max) || n%5){ return nope(t("mnPctBad",{n:x.max})); } }
     const rv={}, cv={};
-    for(const x of app.querySelectorAll(".mnet [data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(x.value.trim()==="" || !(n>=0 && n<=mx)){ return nope(t("pairBad",{n:mx})); }
+    for(const x of app.querySelectorAll(".mnet [data-xp]")){ const [kind,c]=x.dataset.xp.split(":"), n=+x.value, mx=PAIR[kind].max; if(!(n>=0 && n<=mx)){ return nope(t("pairBad",{n:mx})); }
       if(kind==="ds"){ ds[c]=Math.round(n*100)/100; if(x.dataset.both) ds[c+"7"]=ds[c]; } else (kind==="cv" ? cv : rv)[c]=Math.round(n*100)/100; }
     for(const k of ["media","alta"]) for(const h of ["","7"]) if(ds[k+h]==null && ds[EP_PREV[k]+h]!=null) ds[k+h]=ds[EP_PREV[k]+h]; /* época desligada: mesmo desconto de segunda a quinta da anterior */
     mnSt("mnSaving");
