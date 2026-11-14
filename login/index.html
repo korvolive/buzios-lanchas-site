@@ -1391,7 +1391,13 @@ const profileFields = (v={}, nasc=false) => { /* CPF e data de nascimento só em
     <div class="f"><label for="c-tel"><span>${t("whats")}${REQ}</span></label><div class="phone"><select class="in" id="c-ddi" aria-label="${t("country")}">${countryOpts(ph.cc)}</select><input type="tel" id="c-tel" inputmode="tel" autocomplete="tel-national" placeholder="${ph.cc==="55"?t("ph_phone"):""}" value="${esc(ph.num)}"></div></div>
     ${nasc ? nascField(v.nascimento) : ""}`; };
 /* data de nascimento do cliente (o dono: para chamar a pessoa para comemorar o aniversário na lancha) */
-const nascField = (v="") => `<label class="f"><span>${t("nasc")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span><input type="date" id="c-nasc" min="1900-01-01" max="${todayISO()}" autocomplete="bday" value="${esc(v||"")}"></label>`;
+const nascField = (v="") => `<label class="f"><span>${t("nasc")} <small class="muted" style="font-weight:400">(${t("ajOpt")})</small></span><input type="text" class="in" id="c-nasc" data-dmy inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="bday" value="${esc(dmy(v))}"></label>`;
+/* data de nascimento digitada DD/MM/AAAA (2026-11-14): o seletor de data do celular voltava o ano para o ano atual */
+const dmy = iso => /^\d{4}-\d{2}-\d{2}$/.test(iso||"") ? iso.split("-").reverse().join("/") : "";
+const isoDe = txt => { const m=String(txt||"").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(!m) return ""; const iso=`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`, d=new Date(iso+"T12:00:00Z");
+  return !isNaN(d) && d.toISOString().slice(0,10)===iso ? iso : ""; };
+document.addEventListener("input", e=>{ const x=e.target; if(!x?.matches?.("[data-dmy]") || e.inputType?.startsWith("delete")) return;
+  const n=x.value.replace(/\D/g,"").slice(0,8); x.value = n.length>4 ? `${n.slice(0,2)}/${n.slice(2,4)}/${n.slice(4)}` : n.length>2 ? `${n.slice(0,2)}/${n.slice(2)}` : n; });
 const nascOk = d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d>="1900-01-01" && d<=todayISO();
 const idade = d => { if(!d) return null; const n=new Date(), b=dateOf(d); let a=n.getFullYear()-b.getFullYear(); if(n.getMonth()<b.getMonth() || (n.getMonth()===b.getMonth() && n.getDate()<b.getDate())) a--; return a; };
 const fmtNasc = d => dateOf(d).toLocaleDateString(t("locale"),{day:"numeric",month:"short"}).replace(/\./g,"");
@@ -1409,7 +1415,7 @@ function readProfile(){
   if(nome.length<5 || !nome.includes(" ")){ miss.push("c-nome"); msgs.push(t("nameBad")); }
   if((cc==="55"||PT_DEV) && cpf && !cpfOk(cpf)){ miss.push("c-cpf"); msgs.push(t("cpfBad")); } /* CPF opcional; estrangeiro não informa */
   if(!okPhone(cc,d)){ miss.push("c-tel"); msgs.push(t("myPhoneBad")); }
-  const nb=document.getElementById("c-nasc"), nascimento = nb ? nb.value.trim() || null : undefined;
+  const nb=document.getElementById("c-nasc"), nascimento = nb ? (nb.value.trim() ? isoDe(nb.value) || "x" : null) : undefined;
   if(nascimento && !nascOk(nascimento)){ miss.push("c-nasc"); msgs.push(t("nascBad")); }
   miss.forEach(id=>document.getElementById(id).classList.add("miss"));
   return {miss, msg:msgs.join("<br>"), data:{nome, ...(cb ? {cpf:(cc==="55"||PT_DEV) && cpf ? cpf : null} : {}), whatsapp:`+${cc} ${tel}`, ...(nascimento===undefined ? {} : {nascimento})}};
@@ -4211,7 +4217,7 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
   return `<div class="card"><h2>💳 ${T_}</h2><p class="muted" style="margin-top:0">${t(vend?"asVSub":"asSub")}</p>${asSelo()}
     <details class="cob"><summary>＋ ${t("asOpen")}</summary><form id="as-f" novalidate style="margin-top:12px"${prev?" data-asprev=\"1\"":""}><p class="muted" style="margin:0 0 12px;font-size:14px">${t("asAntes")}</p>
     ${f("as-doc",t("asDoc"),`type="text" inputmode="numeric" autocomplete="off" value="${esc(S.asPerf?.cpf||"")}"`)}
-    <div id="as-pf">${f("as-nasc",t("asNasc"),`type="date" value="${esc(S.asPerf?.nasc||"")}"`)}</div>
+    <div id="as-pf">${f("as-nasc",t("asNasc"),`type="text" data-dmy inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="bday" value="${esc(dmy(S.asPerf?.nasc))}"`)}</div>
     <div id="as-pj" hidden><label class="f"><span>${t("asTipo")}</span><select class="in" id="as-tipo"><option value="MEI">MEI</option><option value="LIMITED">${t("asLtda")}</option><option value="INDIVIDUAL">${t("asInd")}</option><option value="ASSOCIATION">${t("asAssoc")}</option></select></label></div>
     ${tudo?`<div class="asmeus"><span><b>${t("asSeus")}</b><br>${esc(nm)} · ${esc(em)} · ${esc(cel)}</span><button type="button" class="btn ghost sm" data-asalt>${t("asAlt")}</button></div>`:""}
     <div id="as-meus"${tudo?" hidden":""}>
@@ -4235,8 +4241,8 @@ document.addEventListener("click", e=>{ const b=e.target.closest("[data-asalt]")
 document.addEventListener("click", async e=>{
   const b=e.target.closest("#as-go"); if(!b || !b.closest("#as-f")) return; e.preventDefault(); if(b.closest("[data-asprev]")) return toast("Prévia: aqui o dono cria a conta dele.");
   const v=id=>(document.getElementById(id)?.value||"").trim(), msg=document.getElementById("as-msg"), doc=v("as-doc").replace(/\D/g,"");
-  const body={acao:"conta", cpfCnpj:doc, nascimento:v("as-nasc"), tipo:v("as-tipo"), nome:v("as-nome"), email:v("as-email"), celular:v("as-cel"), renda:+v("as-renda").replace(",","."), cep:v("as-cep"), rua:v("as-rua"), numero:v("as-num"), complemento:v("as-comp"), bairro:v("as-bairro")};
-  const falta = !(doc.length===11||doc.length===14) ? "as-doc" : doc.length===11&&!body.nascimento ? "as-nasc" : body.nome.length<3 ? "as-nome" : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email) ? "as-email" : body.celular.replace(/\D/g,"").length<10 ? "as-cel" : !(body.renda>0) ? "as-renda" : body.cep.replace(/\D/g,"").length!==8 ? "as-cep" : !body.rua ? "as-rua" : !body.numero ? "as-num" : !body.bairro ? "as-bairro" : "";
+  const body={acao:"conta", cpfCnpj:doc, nascimento:isoDe(v("as-nasc")), tipo:v("as-tipo"), nome:v("as-nome"), email:v("as-email"), celular:v("as-cel"), renda:+v("as-renda").replace(",","."), cep:v("as-cep"), rua:v("as-rua"), numero:v("as-num"), complemento:v("as-comp"), bairro:v("as-bairro")};
+  const falta = !(doc.length===11||doc.length===14) ? "as-doc" : doc.length===11&&!nascOk(body.nascimento) ? "as-nasc" : body.nome.length<3 ? "as-nome" : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email) ? "as-email" : body.celular.replace(/\D/g,"").length<10 ? "as-cel" : !(body.renda>0) ? "as-renda" : body.cep.replace(/\D/g,"").length!==8 ? "as-cep" : !body.rua ? "as-rua" : !body.numero ? "as-num" : !body.bairro ? "as-bairro" : "";
   if(falta){ if(falta==="as-rua"||falta==="as-bairro"){ document.getElementById("as-end").hidden=false; document.getElementById("as-endv").hidden=true; } if(["as-nome","as-email","as-cel"].includes(falta)){ document.getElementById("as-meus").hidden=false; document.querySelector(".asmeus")?.remove(); } document.getElementById(falta).focus(); msg.innerHTML=`<p class="msg err">${t("asFalta")}</p>`; return; }
   b.disabled=true; msg.innerHTML=`<p class="muted">…</p>`;
   const ok=()=>{ try{ localStorage.setItem(asCriadaKey(), JSON.stringify({nome:body.nome, email:body.email, em:Date.now()})); }catch{} S.asConta={nome:body.nome, email:body.email, local:true}; S.asSem=false; S.asDocs=undefined; S.asDocsTry=0; toast(t("asCriada")); S.isClient ? clientView() : mainView(); window.scrollTo(0,0); }; /* desenha direto: o bgView não redesenha com o formulário preenchido (busyTyping) e a tela parecia congelada (2026-11-11) */
