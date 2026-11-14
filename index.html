@@ -1572,9 +1572,9 @@ const descSemana = (iso, k, ds, h7) => { const w=new Date(iso+"T12:00:00Z").getU
 /* período de preço especial (precos.especiais, criado pelo administrador no app; o dono 2026-10-22): qualquer valor, e vale acima de tudo na data */
 const espOf = (iso, esp) => (Array.isArray(esp) ? esp : []).find(e=>e && e.de<=iso && iso<=e.ate) || null;
 const valorNaData = (p, iso, h7, o={}) => { const e=espOf(iso, o.esp), ev=e ? +((h7||o.h7) ? e.v7 : e.v4) : 0; if(ev>0) return ev; const k=seasonKey(iso, o.off||[]), base=k==="reveillon" ? "alta" : k==="pico" ? seasonBase(iso) : k, hh=h7?"7":"", v=+p?.[base+hh] || (base==="alta" ? +p?.["media"+hh] || +p?.["baixa"+hh] : base==="media" ? +p?.["baixa"+hh] : 0); /* valor vazio: usa a temporada anterior (2026-11-04) */
-  if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? (isCarn(iso) && o.pc!=null ? +(s7 ? o.pc7 ?? o.pc : o.pc)||0 : +(s7 ? o.pr7 ?? o.pr : o.pr)||0) : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ const rx = k==="reveillon" ? +(s7 ? o.rx7 : o.rx)||0 : 0; /* Búzios a mais só no Réveillon e Carnaval (2026-10-28) */ return (pc ? Math.round(v*(1+pc/100)/10)*10 : v) + rx; };
+  if(!(v>0)) return null; const s7 = h7 || o.h7, pc = k==="reveillon" ? (isCarn(iso) && o.pc!=null ? +(s7 ? o.pc7 ?? o.pc : o.pc)||0 : +(s7 ? o.pr7 ?? o.pr : o.pr)||0) : k==="pico" ? +o.pf||0 : -descSemana(iso, k, o.ds, s7); /* o.h7: tabela só de 7 horas (site) */ const rx = k==="reveillon" ? (isCarn(iso) && o.cx!==undefined ? +(s7 ? o.cx7 : o.cx)||0 : +(s7 ? o.rx7 : o.rx)||0) : 0; /* Carnaval tem o seu Búzios a mais (2026-11-14) */ /* Búzios a mais só no Réveillon e Carnaval (2026-10-28) */ return (pc ? Math.round(v*(1+pc/100)/10)*10 : v) + rx; };
 const seasonOf = (iso,b) => SEASONS.find(s=>s.key===seasonKey(iso, b?.semFer||[]));
-const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, pc:b.pc, pc7:b.pc7, ds:b.ds, esp:b.esp, rx:b.rx, rx7:b.rx7}); /* % de feriado e de Réveillon da lancha (tabela precos) */
+const valOpts = b => ({off:b.semFer||[], pf:b.pf, pr:b.pr, pr7:b.pr7, pc:b.pc, pc7:b.pc7, cx:b.cx, cx7:b.cx7, ds:b.ds, esp:b.esp, rx:b.rx, rx7:b.rx7}); /* % de feriado e de Réveillon da lancha (tabela precos) */
 const slotOf = k => SLOTS.find(s=>s.key===k);
 /* horário e valor combinados que a Búzios Lanchas mandou no link (?o=código, o dono 2026-10-27): o código vale 3 dias neste aparelho (sobrevive ao cadastro);
    horário e valor vêm do banco (oferta_link), então ninguém muda o valor no link */
@@ -2783,6 +2783,9 @@ Promise.all([fetch(precosURL(",baixa7,media7,alta7,pico7,reveillon7,sem_feriados
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .then(()=>fetch(precosURL(",bz_reveillon,bz_reveillon7"), {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).then(rows=>{ let mudou=false; /* Búzios a mais no Réveillon e Carnaval: busca à parte, para não derrubar os valores se a coluna ainda não existir */
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return; const a=+r.bz_reveillon||0, c=+r.bz_reveillon7||0; if(a!==(b.rx||0) || c!==(b.rx7||0)){ b.rx=a; b.rx7=c; mudou=true; } });
+    if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } }))
+  .then(()=>fetch(precosURL(",bz_carnaval,bz_carnaval7"), {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).then(rows=>{ let mudou=false; /* Búzios a mais do Carnaval (2026-11-14): busca à parte; sem a coluna, o Carnaval usa o do Réveillon */
+    rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return; const a=+r.bz_carnaval||0, c=+r.bz_carnaval7||0; if(a!==b.cx || c!==b.cx7){ b.cx=a; b.cx7=c; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } }))
   .then(()=>fetch(precosURL(",pct_carnaval,pct_carnaval7"), {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).then(rows=>{ let mudou=false; /* % do Carnaval separado do Réveillon (2026-11-13): busca à parte; sem a coluna, o Carnaval usa o % do Réveillon */
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b) return; const a=r.pct_carnaval==null?null:+r.pct_carnaval, c=r.pct_carnaval7==null?null:+r.pct_carnaval7; if(a!==(b.pc??null) || c!==(b.pc7??null)){ b.pc=a; b.pc7=c; mudou=true; } });
