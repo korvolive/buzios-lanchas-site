@@ -541,15 +541,8 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .wx-temp span{display:block;font:600 15px/1.2 var(--body);margin-top:3px}
 .wx-msg{background:var(--wx-glass);margin:0 10px;border-radius:12px;padding:10px 12px;font:400 14px/1.4 var(--body);position:relative;z-index:2;text-wrap:pretty}
 .wx-msg b{display:block;font:700 16px/1.25 var(--display);margin-bottom:2px}
-.wx-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:9px 6px 4px;position:relative;z-index:2}
-.wx-week button{all:unset;cursor:pointer;text-align:center;font:600 11px/1.2 var(--body);color:inherit;opacity:.78;padding:4px 0;border-radius:10px;font-variant-numeric:tabular-nums}
-.wx-week button:hover{opacity:1;background:var(--wx-glass)}
-.wx-week button:focus-visible{outline:2px solid var(--sea);outline-offset:1px;opacity:1}
-.wx-week button[aria-pressed="true"]{opacity:1}
-.wx-week button[aria-pressed="true"] span{background:var(--wx-ink);color:var(--surface);border-radius:99px;padding:1px 6px}
-.wx-week svg{width:24px;height:24px;display:block;margin:3px auto 1px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wx-halo{opacity:.16}}:root[data-theme="dark"] .wx-halo{opacity:.16}
-.wx-src{font:500 10px/1 var(--body);text-align:right;padding:2px 12px 9px;opacity:.6;position:relative;z-index:2}
+.wx-src{font:500 10px/1 var(--body);text-align:right;padding:8px 12px 9px;opacity:.6;position:relative;z-index:2}
 .cal{margin-top:6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
 .cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .cal-h strong{font:600 15px/1 var(--body)}
@@ -1899,18 +1892,9 @@ const WX_T = {
     sol:"Viento suave y mar tranquilo en las playas protegidas.", parcial:"Sol entre nubes y temperatura agradable.", nublado:"Sin sol fuerte: ideal para disfrutar las playas con calma.",
     chuva:"Si llueve, la tripulación ajusta el recorrido y el paseo sigue con comodidad.", vento:"El recorrido se ajusta a las playas más protegidas del día."}
 };
-let wxDias=null, wxReq=null, wxSel=null, wxFor;
+let wxDias=null, wxReq=null;
 const wxLoad = () => wxReq || (wxReq = fetch(AGENDA_URL.replace(/rest\/v1\/.*/,"functions/v1/clima-site")).then(r=>r.ok?r.json():null)
   .then(j=>{ wxDias=((j&&j.dias)||[]).filter(x=>x&&x.ok); }).catch(()=>{ wxDias=[]; }));
-const WX_SUN = '<g stroke="#f2b632" stroke-width="2.6" stroke-linecap="round"><path d="M24 4v5M24 39v5M4 24h5M39 24h5M9.9 9.9l3.5 3.5M34.6 34.6l3.5 3.5M9.9 38.1l3.5-3.5M34.6 13.4l3.5-3.5"/></g><circle cx="24" cy="24" r="10" fill="url(#wxgs)"/>';
-const WX_CLOUD = (d,st) => `<path d="${d}" fill="url(#wxgc)" stroke="${st}" stroke-width="1.6" stroke-linejoin="round"/>`;
-const WXI = {
-  sol: WX_SUN,
-  parcial: '<g stroke="#f2b632" stroke-width="2.4" stroke-linecap="round"><path d="M19 4v4M7 16H3M10.5 7.5l2.8 2.8M27.5 7.5l-2.8 2.8"/></g><circle cx="19" cy="17" r="8" fill="url(#wxgs)"/>'+WX_CLOUD("M15 40h22a8 8 0 0 0 .8-16 10 10 0 0 0-19.3 2.6A6.8 6.8 0 0 0 15 40z","#bcd3dc"),
-  nublado: WX_CLOUD("M13 38h24a9 9 0 0 0 1-17.9A11.5 11.5 0 0 0 16 23a7.5 7.5 0 0 0-3 15z","#a9c4cf"),
-  chuva: WX_CLOUD("M13 32h24a9 9 0 0 0 1-17.9A11.5 11.5 0 0 0 16 17a7.5 7.5 0 0 0-3 15z","#a9c4cf")+'<path d="M18 37l-1.5 4M25 37l-1.5 4M32 37l-1.5 4" stroke="#5fa8c2" stroke-width="2.2" stroke-linecap="round"/>'
-};
-const wxIcon = c => `<svg viewBox="0 0 48 48" aria-hidden="true">${WXI[c]||WXI.sol}</svg>`;
 /* cena grande: céu do dia, mar, morro e a lanchinha */
 function wxScene(c){
   const nuvem = (x,y,s,o) => `<path transform="translate(${x} ${y}) scale(${s})" d="M0 28h54a14 14 0 0 0 1-28 19 19 0 0 0-36 5 12 12 0 0 0-19 23z" fill="#fff" opacity="${o}"/>`;
@@ -1929,14 +1913,13 @@ function wxScene(c){
 function climaRender(){
   const box=document.getElementById("pk-clima"); if(!box) return;
   if(!wxDias){ wxLoad().then(()=>{ if(document.getElementById("pk-clima")===box) climaRender(); }); return; }
-  if(wxFor!==pick.date){ wxFor=pick.date; wxSel=null; } /* trocou a data da reserva: o card volta para ela */
   const L=WX_T[lang]||WX_T.pt, loc=t("locale"), dias=wxDias.slice(0,7);
-  const d = dias.find(x=>x.d===(wxSel||pick.date)) || (pick.date ? null : dias[0]);
-  if(!d){ box.hidden=true; box.innerHTML=""; return; } /* data além de 7 dias ou dia ruim: sem card */
+  /* só depois de escolher a data, e só em dia de sol ou sol entre nuvens (Rodrigo 2026-11-14: nuvem e chuva atrapalham mais que ajudam) */
+  const d = pick.date && dias.find(x=>x.d===pick.date && (x.ceu==="sol" || x.ceu==="parcial"));
+  if(!d){ box.hidden=true; box.innerHTML=""; return; }
   const dt = iso => { const [y,m,n]=iso.split("-").map(Number); return new Date(y,m-1,n); };
   const amanha = new Date(Date.now()+864e5), am = `${amanha.getFullYear()}-${pad(amanha.getMonth()+1)}-${pad(amanha.getDate())}`;
   const nome = iso => iso===todayISO() ? L.hoje : iso===am ? L.amanha : dt(iso).toLocaleDateString(loc,{weekday:"short",day:"2-digit",month:"2-digit"}).replace(/\./g,"").replace(/^./,c=>c.toUpperCase());
-  const curto = iso => dt(iso).toLocaleDateString(loc,{weekday:"short"}).replace(/\./g,"").replace(/^./,c=>c.toUpperCase());
   const head = (d.ceu==="sol" || d.ceu==="parcial") && !d.vento ? L.bom : L.agr;
   const sub = d.vento ? L.vento : L[d.ceu] || L.sol;
   if(!document.getElementById("wx-defs")) document.body.insertAdjacentHTML("beforeend",'<svg id="wx-defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="wxgs" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f4b42a"/></radialGradient><linearGradient id="wxgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e3eef3"/></linearGradient></defs></svg>');
@@ -1944,10 +1927,8 @@ function climaRender(){
   box.innerHTML = `<div class="wx-top"><span class="l">${L.tit}</span><span class="r">${nome(d.d)}</span></div>
     <div class="wx-scene"><div class="wx-temp"><b>${d.t}°</b><span>${L.ceu[d.ceu]||""}</span></div>${wxScene(d.ceu)}</div>
     <div class="wx-msg"><b>${head}</b>${sub}</div>
-    ${dias.length>1?`<div class="wx-week" style="grid-template-columns:repeat(${dias.length},1fr)">${dias.map(x=>`<button type="button" data-wx="${x.d}" aria-pressed="${x.d===d.d}" aria-label="${fmtDate(x.d)}: ${x.t}°, ${L.ceu[x.ceu]||""}"><span>${curto(x.d)}</span>${wxIcon(x.ceu)}${x.t}°</button>`).join("")}</div>`:""}
     <p class="wx-src">${L.src}</p>`;
   box.hidden=false;
-  box.querySelectorAll("[data-wx]").forEach(x=>x.onclick=()=>{ wxSel=x.dataset.wx; climaRender(); });
 }
 let seq = 0;
 /* na data escolhida, os horários já alugados aparecem como indisponíveis */
