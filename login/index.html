@@ -295,6 +295,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 /* chat aberto dentro da página de pagamento (?chat=ID&embed=1 num iframe): só a janela do chat, ocupando tudo */
 html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.chon .sheet{top:0;max-height:none;max-width:none;border-radius:0;transition:none}html.chon .sheet .grab{display:none}
 .sum{margin:12px 0 0;padding:10px 12px;background:var(--chip);border-radius:12px;font-weight:600;font-size:15px}
+.sumrow{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;background:var(--chip);border-radius:12px}.sumrow .sum{flex:1;min-width:0;margin:0;padding:0;background:none}.sumrow .btn.planbtn{flex:none;width:auto;margin:0 0 0 auto;min-height:0;padding:8px 12px;font-size:14px;border-radius:10px;background:var(--surface);border:1px solid var(--line)}
 .sum small{font-weight:400;color:var(--muted)}
 .up li button > span:first-child{min-width:0}
 .origin{border:0;padding:0;margin:0 0 12px}
@@ -2635,7 +2636,7 @@ function calPrev(){ const m=S.month, th=new Date(now.getFullYear(),now.getMonth(
 function calNext(){ const m=S.month, th=new Date(now.getFullYear(),now.getMonth(),1);
   if(m>=th) return new Date(m.getFullYear(),m.getMonth()+1,1);
   const k=ymOf(m), n=(S.pastMonths||[]).find(x=>x>k); return n ? ymDate(n) : th; }
-function calendarHTML(){
+function calendarHTML(comPlan){
   const m=S.month, y=m.getFullYear(), mo=m.getMonth(), first=new Date(y,mo,1).getDay(), days=new Date(y,mo+1,0).getDate(), td=todayISO();
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const wds = Array.from({length:7},(_,i)=>new Date(2026,2,1+i).toLocaleDateString(t("locale"),{weekday:"narrow"}));
@@ -2649,7 +2650,7 @@ function calendarHTML(){
     <div class="cal-head"><button type="button" id="pm" aria-label="${t("prev")}"${calPrev()?"":" disabled"}>‹</button><h2>${cap(m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h2><button type="button" id="nm" aria-label="${t("next")}">›</button></div>
     <div class="cal">${wds.map(w=>`<span class="wd">${w}</span>`).join("")}${cells}</div>
     <div class="legend"><span><i class="free"></i>${t("free")}</span><span><i class="half"></i>${t("half")}</span><span><i class="full"></i>${t("full")}</span>${mntList().length?`<span><i class="mntl"></i>${t("mntLeg")}</span>`:""}</div>
-    ${monthSummaryHTML()}
+    ${(pb=>{ const sm=monthSummaryHTML(); return pb ? `<div class="sumrow">${sm || '<span></span>'}${pb}</div>` : sm; })(comPlan && planOk() ? `<button type="button" class="btn sec planbtn" id="planbtn">📊 ${t("plBtn")}</button>` : "") /* "Modo planilha" pequeno dentro do resumo do mês (Rodrigo 2026-11-14) */}
   </div>`;
 }
 function noteLine(n){
@@ -2860,7 +2861,7 @@ let avSeq=0;
 /* passeio pago por completo, em revenda ou finalizado: não há o que cobrar no embarque */
 const SEM_RECEBER = ["finalizado","pago","revenda"];
 /* calendário dentro de Passeios, logo abaixo de "Valores a receber no embarque" (2026-10-25) */
-const calFoldHTML = () => S.cur==="*" || !S.month ? "" : `<details class="fold calf" data-fold="cal2"${foldOpen("cal2",true)?" open":""} style="margin:6px 0 18px">${foldSum(t("tabCal"))}${isRO() ? "" : `<p class="how muted" style="margin-top:0">${t("how")}</p>`}${calendarHTML()}</details>`;
+const calFoldHTML = () => S.cur==="*" || !S.month ? "" : `<details class="fold calf" data-fold="cal2"${foldOpen("cal2",true)?" open":""} style="margin:6px 0 18px">${foldSum(t("tabCal"))}${isRO() ? "" : `<p class="how muted" style="margin-top:0">${t("how")}</p>`}${calendarHTML(true)}</details>`;
 /* repasse do PayPal (2026-10-25, escondido até a homologação do Asaas): o dono vê a parte dele do sinal e se já foi enviada */
 function rcRep(bid){ const x=S.meuRep?.[bid]; if(!x) return t("rcBz");
   return `${t("rcRepV",{v:brl(+x.valor)})}<br>${x.enviado_em ? t(x.por_fora?"rcRepFora":"rcRepOk",{d:new Date(x.enviado_em).toLocaleDateString(t("locale"),{day:"2-digit",month:"2-digit"})}) : t("rcRepPend")}`; }
@@ -2879,7 +2880,7 @@ function receberHTML(){
 function listHTML(){
   const nw = unseenTrips(); S.unseen = new Set(nw.map(r=>r.id));
   const dconvs=(S.convs||[]).filter(c=>convDono(c) && +c.total);
-  return `${S.vend ? "" : vendAskHTML()}${dconvs.length ? convsCardHTML(dconvs) : ""}${confirmHTML()}${waAvHTML()}${dpgHTML()}${calFoldHTML()}${planOk() ? `<button type="button" class="btn sec planbtn" id="planbtn">📊 ${t("plBtn")}</button>` : ""}${receberHTML() /* ordem: calendário, planilha, valores a receber (2026-10-28) */}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
+  return `${S.vend ? "" : vendAskHTML()}${dconvs.length ? convsCardHTML(dconvs) : ""}${confirmHTML()}${waAvHTML()}${dpgHTML()}${calFoldHTML()}${planOk() && (S.cur==="*" || !S.month) ? `<button type="button" class="btn sec planbtn" id="planbtn">📊 ${t("plBtn")}</button>` : ""}${receberHTML() /* ordem: calendário, planilha, valores a receber (2026-10-28) */}${nw.length ? `<div class="msg newb"><strong>${nw.length===1?t("newBanner1"):t("newBanner",{n:nw.length})}</strong><button type="button" class="link" id="seenall">${t("seenAll")}</button></div>` : ""}
     ${(()=>{ /* Próximos x Anteriores: o passeio finalizado (confirmado que aconteceu) sai de Próximos no mesmo dia */
       const done=r=>stOf(r)==="finalizado", up=S.upcoming.filter(r=>!done(r) && cidOk(r.lancha)), hoje=S.upcoming.filter(r=>done(r) && cidOk(r.lancha)), ant=S.lt==="ant";
       const seg=`<div class="tabs sub ltabs" role="tablist"><button type="button" role="tab" data-lt="prox" aria-selected="${!ant}">${t("ltNext")} <small>${up.length}</small></button><button type="button" role="tab" data-lt="ant" aria-selected="${ant}">${t("ltPast")}${S.pastOk ? ` <small>${hoje.length+S.past.length}</small>` : ""}</button></div>`;
@@ -6667,7 +6668,7 @@ function bindMainRest(){
   app.querySelectorAll("[data-phu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("nhUndoQ"))) return; x.disabled=true;
     try{ await RPC("desfazer_netos",{hid:+x.dataset.phu}); toast(t("nhUndoOk")); S.avPr=null; S.vavPr=null; loadBlocks(); }catch(e){ x.disabled=false; toast(e.code==="P0001"?e.message:t("saveErr")); } });
   const nt=document.getElementById("newtrip"); if(nt) nt.onclick=()=>openTrip(null);
-  const pb=document.getElementById("planbtn"); if(pb) pb.onclick=()=>{ planOpen("planilha", planView); };
+  const pb=document.getElementById("planbtn"); if(pb) pb.onclick=e=>{ e.stopPropagation(); planOpen("planilha", planView); };
   const avd=document.getElementById("avd"); if(avd) avd.onchange=()=>{ S.avD=avd.value||null; S.rlB=null; if(S.avD) loadAv(); else mainView(); };
   const avx=document.getElementById("avx"); if(avx) avx.onclick=()=>{ S.avD=null; S.avRows=null; S.avN=0; S.rlB=null; avSeq++; mainView(); };
   const avn=document.getElementById("avn"); if(avn) avn.onchange=()=>{ S.avN=+avn.value||0; mainView(); };
