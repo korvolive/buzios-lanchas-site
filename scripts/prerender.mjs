@@ -57,7 +57,7 @@ async function snap(l, slug) {
     document.documentElement.dataset.pub = [...BOATS, ...[...HIDDEN.values()].map(x => x.b)].filter(b => b.db).map(b => b.slug).join(",");
     document.documentElement.dataset.hide = HIDE_LIST.join(","); /* ocultas pelo administrador: a página existe, mas não aparece */
     /* dados do banco desta publicação: a visita já abre com eles e não precisa redesenhar a página quando o banco responde */
-    const F = ["name", "feet", "capacity", "tagline", "description", "i18n", "boarding", "db", "prices", "prices7", "semFer", "pf", "pr", "pr7", "pc", "pc7", "ds", "esp", "rx", "rx7", "photos"];
+    const F = ["name", "feet", "capacity", "tagline", "description", "i18n", "boarding", "db", "prices", "prices7", "semFer", "pf", "pr", "pr7", "pc", "pc7", "cx", "cx7", "ds", "esp", "rx", "rx7", "photos"];
     const snapDB = BOATS.map(b => b.dbNew ? b : Object.fromEntries(F.filter(k => b[k] !== undefined).map(k => [k, b[k]]).concat([["slug", b.slug]])));
     const js = document.createElement("script"); js.type = "application/json"; js.id = "dbsnap";
     js.textContent = JSON.stringify(snapDB).replace(/</g, "\\u003c"); document.head.appendChild(js);
