@@ -3310,7 +3310,7 @@ function boatInfoHTML(){
   if(!d) return "";
   const on = b.ativa!==false, live = on && pubSite?.includes(b.slug);
   const st = b.oculta ? t("visHidden") : !on ? t("nbOff") : cityOf(b)!=="buzios" ? t("cidSoon",{c:CIDADES[cityOf(b)]}) : pubSite==null ? "…" : live ? `${t("nbLive")} <a href="/lancha/${b.slug}/" target="_blank" rel="noopener">${t("nbSee")}</a>` : t("nbSoon");
-  return `<div class="card"><h2>${t("nbInfoT")}</h2><p style="margin:0 0 6px"><strong>${esc(b.nome)}</strong> · ${lang==="en"?d.pes:String(d.pes).replace(".",",")} ${t("nbFeetU")} · ${d.capacidade} ${t("people").toLowerCase()}${d.tipo==="escuna"?` · ⛵ ${t("nbTipoE")}`:""} · 📍 ${esc(CIDADES[cityOf(b)]||"")}</p>
+  return `<div class="card"><h2>${t("nbInfoT")}</h2><p style="margin:0 0 6px"><strong>${esc(b.nome)}</strong> ${d.tipo==="escuna" ? "" : ` · ${lang==="en"?d.pes:String(d.pes).replace(".",",")} ${t("nbFeetU")}`} · ${d.capacidade} ${t("people").toLowerCase()}${d.tipo==="escuna"?` · ⛵ ${t("nbTipoE")}`:""} · 📍 ${esc(CIDADES[cityOf(b)]||"")}</p>
     <p class="muted" style="margin:0 0 6px">${esc(d.frase?.[lang]||d.frase?.pt||"")}</p><p style="margin:0 0 12px">${st}</p>
     <button type="button" class="btn" id="nbedit">${t("nbEdit")}</button></div>`;
 }
@@ -3332,7 +3332,7 @@ function autoDesc(nome, pes, cap, its, cid){
     es:`La ${nome} es una lancha de ${pc} pies para hasta ${cap} personas, ideal para que ${who[2]} disfruten las playas de ${cn} con comodidad. Tiene ${list(2)}.`};
 }
 /* escuna: os textos automáticos dizem "escuna" no lugar de "lancha" (2026-11-14) */
-const escTxt = (tipo, o) => tipo!=="escuna" || !o ? o : {...o, pt:(o.pt||"").replace(/\blancha\b/g,"escuna").replace(/\bLancha\b/g,"Escuna"), en:(o.en||"").replace(/\bboat\b/g,"schooner").replace(/\bBoat\b/g,"Schooner"), es:(o.es||"").replace(/\blancha\b/g,"goleta").replace(/\bLancha\b/g,"Goleta")};
+const escTxt = (tipo, o) => tipo!=="escuna" || !o ? o : {...o, pt:(o.pt||"").replace(/ de [\d.,]+ pés/g,"").replace(/\blancha\b/g,"escuna").replace(/\bLancha\b/g,"Escuna"), en:(o.en||"").replace(/[\d.,]+-(foot|feet|ft) /g,"").replace(/\bboat\b/g,"schooner").replace(/\bBoat\b/g,"Schooner"), es:(o.es||"").replace(/ de [\d.,]+ pies/g,"").replace(/\blancha\b/g,"goleta").replace(/\bLancha\b/g,"Goleta")};
 function autoFrase(pes, cap, its){
   const low = x => /^(Wi-Fi|Starlink)/.test(x) ? x : x[0].toLowerCase()+x.slice(1), top=FRASE_TOP.filter(k=>its.includes(k)).slice(0,3);
   const who = cap<=6 ? ["casais e grupos pequenos","couples and small groups","parejas y grupos pequeños"] : cap<=10 ? ["famílias e grupos pequenos","families and small groups","familias y grupos pequeños"]
@@ -3353,7 +3353,7 @@ async function openBoatForm(l){
       <label class="f"><span>${t("nbTipo")}${REQ}</span><select class="in" id="nb-tipo"><option value="lancha">${t("nbTipoL")}</option><option value="escuna"${d.tipo==="escuna"?" selected":""}>${t("nbTipoE")}</option></select><small class="muted">${t("nbTipoHelp")}</small></label>
       <label class="f"><span>${t("nbName")}${REQ}</span><input type="text" id="nb-nome" maxlength="40" autocapitalize="words" autocomplete="off" value="${esc(b?.nome||"")}" placeholder="${t("nbNamePh")}"></label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <label class="f"><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="decimal" min="10" max="200" step="0.5" value="${d.pes||""}" placeholder="30"></label>
+        <label class="f" id="nb-pesw"${d.tipo==="escuna"?" hidden":""}><span>${t("nbFeet")}${REQ}</span><input type="number" id="nb-pes" inputmode="decimal" min="10" max="200" step="0.5" value="${d.pes||""}" placeholder="30"></label>
         <label class="f"><span>${t("nbCap")}${REQ}</span><input type="number" id="nb-cap" inputmode="numeric" min="1" max="${d.tipo==="escuna"?200:80}" value="${d.capacidade||""}" placeholder="10"></label></div>
       <label class="f"><span>📍 ${t("cidL")}${REQ}</span><select class="in" id="nb-cid">${Object.entries(CIDADES).map(([k,v])=>`<option value="${k}"${(d.cidade||"buzios")===k?" selected":""}>${v}</option>`).join("")}</select><small class="muted">${t("cidHint")}</small></label>
       
@@ -3376,12 +3376,12 @@ async function openBoatForm(l){
     <button type="button" class="btn sec" id="nbx" style="margin-top:10px">${t("pwCancel")}</button>`;
   sheet.classList.add("on"); sheetBg.classList.add("on");
   document.getElementById("nbx").onclick = closeDay;
-  document.getElementById("nb-tipo").onchange = e => { const es=e.target.value==="escuna"; document.getElementById("nb-cap").max = es ? 200 : 80; const it=document.getElementById("nb-it"); if(it) it.hidden=es; }; /* escuna: itens marcados depois, na lista de escuna do card Itens */
+  document.getElementById("nb-tipo").onchange = e => { const es=e.target.value==="escuna"; document.getElementById("nb-cap").max = es ? 200 : 80; document.getElementById("nb-pesw").hidden=es; /* escuna sem pés (Rodrigo 2026-11-14) */ const it=document.getElementById("nb-it"); if(it) it.hidden=es; }; /* escuna: itens marcados depois, na lista de escuna do card Itens */
   document.getElementById("nb-cid").onchange = e => { const bz=e.target.value==="buzios"; document.getElementById("nb-embw").hidden=!bz; document.getElementById("nb-embo").hidden=bz; }; /* os píeres da lista são de Búzios */
   const val = id => document.getElementById(id).value.trim();
   const nbIts = () => l ? (S.items||items) : nbPicked("nb-it");
   /* frase curta: o app escreve enquanto a pessoa não editar o campo (apagar tudo volta para a automática) */
-  const autoFr = () => { const pes=+val("nb-pes").replace(",","."), cap=+val("nb-cap"); if(!(pes>=10 && cap>=1)) return;
+  const autoFr = () => { const pes=+val("nb-pes").replace(",",".") || (val("nb-tipo")==="escuna" ? 50 : 0), cap=+val("nb-cap"); if(!(pes>=10 && cap>=1)) return;
     if(l && d.frase?.pt && pes===+d.pes && cap===+d.capacidade) return; /* lancha já cadastrada: a frase só muda se mudar o tamanho ou as pessoas */
     document.getElementById("nb-fr").value=autoFrase(pes, cap, nbIts()).pt; };
   ["nb-pes","nb-cap"].forEach(id=>document.getElementById(id).addEventListener("input", autoFr));
@@ -3403,7 +3403,7 @@ async function openBoatForm(l){
   document.getElementById("nbf").onsubmit = async e => { e.preventDefault();
     const out=document.getElementById("nbmsg"), go=document.getElementById("nbgo");
     const fail = (m, el) => { out.innerHTML=`<p class="msg err">${m}</p>`; (el||out).scrollIntoView({block:"center",behavior:"smooth"}); el?.focus?.(); go.disabled=false; go.textContent=l?t("nbSave"):t("nbCreate"); };
-    const nome=val("nb-nome"), pes=Math.round(+val("nb-pes").replace(",",".")*2)/2 /* meio pé: 27,5 (2026-11-01) */, cap=+val("nb-cap"), slug=l||slugOf(nome);
+    const nome=val("nb-nome"), pes=(p=>val("nb-tipo")==="escuna" && !(p>=10 && p<=200) ? 50 : p)(Math.round(+val("nb-pes").replace(",",".")*2)/2) /* meio pé: 27,5 (2026-11-01); escuna não mostra pés: o banco ainda pede um número, vai 50 */, cap=+val("nb-cap"), slug=l||slugOf(nome);
     if(nome.length<2 || !slug) return fail(t("nbNameBad"), document.getElementById("nb-nome"));
     if(!l && (S.all||[]).some(x=>x.slug===slug)) return fail(t("nbExists"), document.getElementById("nb-nome"));
     if(!(pes>=10 && pes<=200)) return fail(t("nbFeetBad"), document.getElementById("nb-pes"));
