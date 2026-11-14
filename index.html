@@ -1901,8 +1901,11 @@ const ITEM_ICON = {
   "Som Bluetooth":IC('<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>')
 };
 Object.assign(ITEM_ICON, {"Coletes salva-vidas para todos":ITEM_ICON["Coletes para todos"], "Gelo escama (1 caixa)":ITEM_ICON["Gelo escama"], "Carvão (1 saco)":ITEM_ICON["Carvão"], "Som ambiente":ITEM_ICON["Som Bluetooth"]}); /* itens das escunas (2026-11-14) */
-const itemChip = i => `<li${STACK_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${tx(i)}</li>`;
-const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i)), ...CARD_EXTRA.filter(i=>has.includes(i))].map(itemChip).join(""); };
+const CARD_LABEL = {"Televisão":"TV"}; /* nome curto no card da página inicial (2026-11-14) */
+const chipHTML = (i,label) => `<li${STACK_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${label}</li>`;
+const itemChip = i => chipHTML(i, tx(i));
+const cardChip = i => chipHTML(i, CARD_LABEL[i] || tx(i));
+const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i)), ...CARD_EXTRA.filter(i=>has.includes(i))].map(cardChip).join(""); };
 const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t(isEsc(b)?"stBoatTEsc":"stBoatT",{f:ftx(b)})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${t("stRouteP")}</small></div></li>
