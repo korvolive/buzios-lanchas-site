@@ -75,6 +75,15 @@ async function chaveSub(uid: string) {
   try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: de64(iv) }, await segredo(), de64(ct))); }
   catch (e) { console.error("chaveSub", uid, e); return ""; }
 }
+// e-mail de contato (aviso do push e dos webhooks do Asaas): segredo CONTATO_EMAIL ou o e-mail do primeiro administrador; fora do código
+let CONTATO = "";
+async function contato() {
+  if (CONTATO) return CONTATO;
+  let e = Deno.env.get("CONTATO_EMAIL") || "";
+  if (!e) { const { data: a } = await db.from("admins").select("user_id").limit(1).maybeSingle(); if (a) e = (await db.auth.admin.getUserById(a.user_id)).data?.user?.email || ""; }
+  CONTATO = e || "contato@lanchaembuzios.com.br";
+  return CONTATO;
+}
 const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
 
 async function asaas(path: string, body?: unknown, method = body === undefined ? "GET" : "POST") {
@@ -224,7 +233,7 @@ async function avisarExpirou(pid: number) {
   }
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", p.cliente);
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
@@ -249,7 +258,7 @@ async function avisarPassou(p: { id: number; cliente: string; lancha: string; da
   }
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", p.cliente);
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
@@ -260,7 +269,7 @@ async function avisarPassou(p: { id: number; cliente: string; lancha: string; da
 async function pushAdmins(msg: { title: string; body: string }, tag: string) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
   const { data: adm } = await db.from("admins").select("user_id");
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth").in("user_id", (adm || []).map((a: any) => a.user_id));
   for (const s of subs || []) {
@@ -277,7 +286,7 @@ const REP: Record<string, (v: string, l: string, d: string) => { title: string; 
 async function avisarDono(p: { id: number; lancha: string; data: string; repasse_dono: number }) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
   const { data: ds } = await db.from("donos").select("user_id").eq("lancha", p.lancha);
   if (!ds?.length) return;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
@@ -291,7 +300,7 @@ async function avisarDono(p: { id: number; lancha: string; data: string; repasse
 async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
   const { data: adm } = await db.from("admins").select("user_id");
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", (adm || []).map((a: any) => a.user_id));
   for (const s of subs || []) {
@@ -375,7 +384,7 @@ async function avisarDocsLiberados(uid: string, k: string) {
   if (!foi?.length) return;
   const { data: kk } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!kk) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", kk.publica, kk.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), kk.publica, kk.privada);
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
@@ -391,7 +400,7 @@ const APROVADA: Record<string, { title: string; body: string }> = {
 async function avisarAprovada(uid: string, msgs: Record<string, { title: string; body: string }> = APROVADA, tag = "conta-aprovada") {
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
-  webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
@@ -597,7 +606,7 @@ Deno.serve(async req => {
       if (c.captura) return json({ erro: "pendente" }, 409); // PayPal em análise: não cobra de novo
       // central em dólar/euro (estrangeiro): só cartão internacional, cobrado em reais, à vista e sem CPF (Rodrigo 2026-11-11); o PayPal continua como opção
       const fora = String(c.moeda || "BRL") !== "BRL";
-      if (fora && b.metodo !== "cartao") return json({ erro: "moeda" }, 409);
+      // estrangeiro também paga por Pix em reais (Rodrigo 2026-11-14), com o CPF de quem paga; só o cartão internacional vai sem CPF
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
@@ -626,7 +635,7 @@ Deno.serve(async req => {
         if (await conferir(r.asaas_id).catch(() => false)) return json({ pago: true });
         if (await cancelar(r.asaas_id)) await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null);
       }
-      const cus = await cliente(p.cliente, dig(b.cpf), fora);
+      const cus = await cliente(p.cliente, dig(b.cpf), fora && metodo === "cartao");
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const venc = new Date(Date.now() + 2 * 864e5 - 3 * 36e5).toISOString().slice(0, 10);
@@ -751,7 +760,7 @@ Deno.serve(async req => {
         address: String(b.rua).trim(), addressNumber: String(b.numero).trim(), complement: String(b.complemento || "").trim() || undefined,
         province: String(b.bairro).trim(), postalCode: dig(b.cep),
         // o Asaas avisa esta função quando a análise do documento e da selfie mudar (aprovada: a pessoa recebe o aviso na hora)
-        webhooks: [{ name: "Situação da conta", url: FN_URL, email: "korvolive@gmail.com", enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY",
+        webhooks: [{ name: "Situação da conta", url: FN_URL, email: await contato(), enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY",
           events: ["ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED", "ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED", "ACCOUNT_STATUS_DOCUMENT_APPROVED", "ACCOUNT_STATUS_DOCUMENT_REJECTED"] }],
       };
       let a: any;
@@ -930,7 +939,7 @@ Deno.serve(async req => {
       if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
       const lista = await asaas("/webhooks");
       const ja = (lista?.data || []).find((w: any) => w.url === FN_URL);
-      const corpo = { name: "Site Búzios Lanchas", url: FN_URL, email: "korvolive@gmail.com", enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY", events: ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"] };
+      const corpo = { name: "Site Búzios Lanchas", url: FN_URL, email: await contato(), enabled: true, interrupted: false, apiVersion: 3, sendType: "SEQUENTIALLY", events: ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"] };
       const w = ja ? await asaas(`/webhooks/${ja.id}`, corpo, "PUT") : await asaas("/webhooks", corpo);
       return json({ ok: true, id: w.id });
     }

@@ -288,6 +288,7 @@
       "supabase_functions_paypal_checkout_index_mes",
       "supabase_functions_paypal_checkout_index_nomeok",
       "supabase_functions_paypal_checkout_index_pp",
+      "supabase_functions_paypal_checkout_index_ppprazo",
       "supabase_functions_paypal_checkout_index_push",
       "supabase_functions_paypal_checkout_index_pushadmins",
       "supabase_functions_paypal_checkout_index_slot_h",
@@ -720,28 +721,18 @@
     ],
     "25": [
       "ref_npm_supabase",
-      "supabase_functions_alerta_equipe_index",
-      "supabase_functions_alerta_equipe_index_cat",
-      "supabase_functions_alerta_equipe_index_cors",
-      "supabase_functions_alerta_equipe_index_db",
-      "supabase_functions_alerta_equipe_index_json",
       "supabase_functions_aviso_equipe_index",
       "supabase_functions_aviso_equipe_index_cors",
       "supabase_functions_aviso_equipe_index_db",
       "supabase_functions_aviso_equipe_index_json",
-      "supabase_functions_aviso_equipe_index_userbyemail"
-    ],
-    "26": [
-      "ref_npm_web_push_3_6_7",
+      "supabase_functions_aviso_equipe_index_userbyemail",
       "supabase_functions_aviso_preco_index",
       "supabase_functions_aviso_preco_index_cors",
       "supabase_functions_aviso_preco_index_db",
       "supabase_functions_aviso_preco_index_json",
-      "supabase_functions_aviso_preco_index_t",
-      "supabase_functions_chat_inativo_index",
-      "supabase_functions_chat_inativo_index_db",
-      "supabase_functions_chat_inativo_index_lang",
-      "supabase_functions_chat_inativo_index_t",
+      "supabase_functions_aviso_preco_index_t"
+    ],
+    "26": [
       "supabase_functions_pedido_vendedor_index",
       "supabase_functions_pedido_vendedor_index_cors",
       "supabase_functions_pedido_vendedor_index_db",
@@ -795,13 +786,23 @@
       "supabase_functions_central_auto_index_sym"
     ],
     "31": [
+      "ref_npm_web_push_3_6_7",
+      "supabase_functions_alerta_equipe_index",
+      "supabase_functions_alerta_equipe_index_cat",
+      "supabase_functions_alerta_equipe_index_cors",
+      "supabase_functions_alerta_equipe_index_db",
+      "supabase_functions_alerta_equipe_index_json",
       "supabase_functions_aviso_comprovante_index",
       "supabase_functions_aviso_comprovante_index_cors",
       "supabase_functions_aviso_comprovante_index_databr",
       "supabase_functions_aviso_comprovante_index_db",
       "supabase_functions_aviso_comprovante_index_json",
       "supabase_functions_aviso_comprovante_index_slot",
-      "supabase_functions_aviso_comprovante_index_txt"
+      "supabase_functions_aviso_comprovante_index_txt",
+      "supabase_functions_chat_inativo_index",
+      "supabase_functions_chat_inativo_index_db",
+      "supabase_functions_chat_inativo_index_lang",
+      "supabase_functions_chat_inativo_index_t"
     ],
     "32": [
       "supabase_functions_entrar_celular_index",
@@ -1229,7 +1230,7 @@
     "3": 0.08710801393728224,
     "4": 0.06417112299465241,
     "5": 0.1693121693121693,
-    "6": 0.08739495798319327,
+    "6": 0.08412698412698413,
     "7": 0.13852813852813853,
     "8": 0.06666666666666667,
     "9": 0.1978021978021978,
@@ -1249,12 +1250,12 @@
     "23": 0.15384615384615385,
     "24": 0.24242424242424243,
     "25": 0.18181818181818182,
-    "26": 0.13333333333333333,
+    "26": 0.4,
     "27": 0.26666666666666666,
     "28": 0.2222222222222222,
     "29": 0.2222222222222222,
     "30": 0.2222222222222222,
-    "31": 0.2857142857142857,
+    "31": 0.11764705882352941,
     "32": 0.3333333333333333,
     "33": 0.24242424242424243,
     "34": 0.25,
@@ -1422,17 +1423,12 @@
     {
       "type": "bridge_node",
       "question": "Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.anotacoes`?",
-      "why": "High betweenness centrality (0.024) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.027) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
       "question": "Should `vendedores` be split into smaller, more focused modules?",
       "why": "Cohesion score 0.080338266384778 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `public.vendas_manuais_lista()` connect `public.bloqueios` to `vendedores`, `public.consultas`, `public.anotacoes`, `public.anotacoes`?",
-      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -1453,6 +1449,11 @@
       "type": "low_cohesion",
       "question": "Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?",
       "why": "Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `paypal-checkout/index.ts` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08412698412698413 - nodes in this community are weakly interconnected."
     }
   ]
 }
