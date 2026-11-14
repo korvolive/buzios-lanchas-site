@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-14)
 
 ## Corpus Check
-- 135 files · ~311,027 words
+- 136 files · ~311,394 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
 
 ## Summary
-- 1041 nodes · 1700 edges · 85 communities (51 shown, 34 thin omitted)
+- 1042 nodes · 1700 edges · 86 communities (51 shown, 35 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c70a5c75`
+- Built from commit: `b2060f7f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -89,11 +89,11 @@
 3. `public.cancelar_pre_reserva()` - 14 edges
 4. `public.cancelar_pre_reserva()` - 14 edges
 5. `X()` - 13 edges
-6. `public.cancelar_pre_reserva()` - 13 edges
-7. `public.marcar_wa()` - 13 edges
-8. `public.aprovar_consulta()` - 12 edges
+6. `public.marcar_wa()` - 13 edges
+7. `public.cancelar_pre_reserva()` - 13 edges
+8. `public.marcar_wa()` - 12 edges
 9. `public.lancar_pedido_operador()` - 12 edges
-10. `public.marcar_wa()` - 12 edges
+10. `public.aprovar_consulta()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
@@ -110,7 +110,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (85 total, 34 thin omitted)
+## Communities (86 total, 35 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.08
@@ -317,17 +317,17 @@ Cohesion: 0.83
 Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 
 ## Knowledge Gaps
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.bloqueios`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.bloqueios`?**
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.07922705314009662 - nodes in this community are weakly interconnected._
-- **Why does `public._piso_grupo()` connect `vendedores` to `public`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.bloqueios`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**

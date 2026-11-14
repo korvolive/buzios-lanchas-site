@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1041 nodes · 1700 edges · 85 communities (51 shown, 34 thin omitted)
+- 1042 nodes · 1700 edges · 86 communities (51 shown, 35 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c70a5c75`
+- Built from commit: `b2060f7f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -108,7 +108,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (85 total, 34 thin omitted)
+## Communities (86 total, 35 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.08
@@ -315,7 +315,7 @@ Cohesion: 0.83
 Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 
 ## Knowledge Gaps
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
