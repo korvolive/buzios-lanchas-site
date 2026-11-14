@@ -97,7 +97,7 @@ try {
   const fotos = await page.evaluate(() => [...new Set([...BOATS, ...[...HIDDEN.values()].map(x => x.b)].flatMap(b => (b.photos || []).map(p => p[0])).filter(Boolean))]);
   const E = JSON.parse(execFileSync("python3", ["-I", path.join(ROOT, "scripts/enquadrar.py"), path.join(ROOT, "img"), ...fotos], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"], timeout: 600000 }));
   if (!SOURCE.includes("const FOTO_P = {}; /*FOTO_P*/")) throw new Error("marcador FOTO_P não encontrado");
-  SOURCE = SOURCE.replace("const FOTO_P = {}; /*FOTO_P*/", () => `const FOTO_P = ${JSON.stringify(E)};`);
+  SOURCE = SOURCE.replace("const FOTO_P = {}; /*FOTO_P*/", () => `const FOTO_P = ${JSON.stringify(E).replace(/</g, "\\u003c")};`);
   console.log(`enquadramento: ${Object.keys(E).length} de ${fotos.length} fotos com corte ajustado`);
 } catch (e) { console.error("enquadramento: galeria centralizada:", e.message); }
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
