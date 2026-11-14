@@ -2725,7 +2725,7 @@ function foldCards(root){
     d.append(sm, ...c.childNodes); c.replaceWith(d); });
 }
 function waAvHTML(){
-  if(!S.toAskWa?.length) return "";
+  if(!S.toAskWa?.length || !(S.admin || S.papel==="operador")) return ""; /* dono não vê: só confunde (Rodrigo 2026-11-14) */
   return `<details class="card cfm rvpend fold" data-fold="waav"${foldOpen("waav")?" open":""}>${foldSum(t("waAvT",{n:S.toAskWa.length}))}<p class="muted" style="margin-top:0">${t("waAvSub")}</p><ul class="owners">${S.toAskWa.map(b=>{ const n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes;
     return `<li><span class="who">${avatar(b.lancha,"bav")}<span><strong>${esc(boatName(b.lancha))}</strong><br><small class="muted">${fmtLong(b.data)} · ${t("slot_"+b.horario)}${n?.cliente?" · "+esc(n.cliente):""}</small></span></span>
       <span class="cfb">${b.sent ? `<small class="wsent">✓ ${t("waAvSent")}</small><button type="button" class="link" data-wav="${b.id}">${t("waAvAgain")}</button>` : `<button type="button" class="btn wa" data-wav="${b.id}">${WA_ICON} ${t("waAvGo")}</button><button type="button" class="link" data-wavx="${b.id}">${t("waAvDone")}</button>`}</span></li>`; }).join("")}</ul></details>`;
