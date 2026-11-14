@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-14)
 
 ## Corpus Check
-- 136 files · ~312,331 words
+- 138 files · ~313,108 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
 
 ## Summary
-- 1042 nodes · 1700 edges · 86 communities (51 shown, 35 thin omitted)
+- 1046 nodes · 1704 edges · 88 communities (53 shown, 35 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2ec3f566`
+- Built from commit: `5d5770e3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -82,6 +82,8 @@
 - public.creditos
 - 2026-11-13_transferir-saldo.sql
 - public.passeios_marinheiro_v2
+- public.salvar_netos_v2
+- aviso-preco/index.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `public._ligar_passeio()` - 17 edges
@@ -110,11 +112,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 35 thin omitted)
+## Communities (88 total, 35 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.08
-Nodes (15): public.minhas_vendas_v2(), public._confere_valor_op(), public.descontos_grupo, public._piso_grupo(), public.salvar_netos_v2(), public.salvar_netos_v2(), public.pedido_vendedor(), public.vendedor_do_cliente() (+7 more)
+Nodes (15): public.minhas_vendas_v2(), public.oferta_vendedor(), public.salvar_pcts(), public.pedido_vendedor(), public.vendedor_do_cliente(), public.salvar_pcts(), public.meus_clientes_venda(), public.definir_parceiro() (+7 more)
 
 ### Community 1 - "sortable.min.js"
 Cohesion: 0.09
@@ -129,8 +131,8 @@ Cohesion: 0.09
 Nodes (37): apnsToken(), ASSUNTO, autoConfirma(), avisarCredito(), b64u(), brl(), brlCred(), chaves() (+29 more)
 
 ### Community 4 - "2026-10-30_operador-um-toque.sql"
-Cohesion: 0.05
-Nodes (16): public._capacidade(), public._confere_valor_op(), public.lancar_pedido_operador(), public._piso_operador(), public.recusar_alteracao(), public._valor_na_data(), public.oferta_vendedor(), public.salvar_pcts() (+8 more)
+Cohesion: 0.06
+Nodes (11): public._capacidade(), public._confere_valor_op(), public.lancar_pedido_operador(), public._piso_operador(), public.recusar_alteracao(), public._valor_na_data(), precos_cheios, public.tg_precos_cheios() (+3 more)
 
 ### Community 5 - "public.anotacoes"
 Cohesion: 0.22
@@ -185,8 +187,8 @@ Cohesion: 0.19
 Nodes (13): avisarPasseios(), dataLonga(), db, dig(), ES_DDI, hm(), horaTxt(), LANG (+5 more)
 
 ### Community 19 - "public.salvar_netos_v3"
-Cohesion: 0.10
-Nodes (10): public.alterar_pedido(), public.segredos_app, public.pedidos_prazo_vencido(), public.pp_vaga_h(), public._troca_ok(), public.trocar_horario_pedido(), public.trocas_pedido(), public.aplicar_netos() (+2 more)
+Cohesion: 0.08
+Nodes (11): public.alterar_pedido(), public.segredos_app, public.pedidos_prazo_vencido(), public.pp_vaga_h(), public._troca_ok(), public.trocar_horario_pedido(), public.trocas_pedido(), public.aplicar_netos() (+3 more)
 
 ### Community 20 - "pedido-indisponivel/index.ts"
 Cohesion: 0.17
@@ -213,8 +215,8 @@ Cohesion: 0.18
 Nodes (5): CAT, CORS, db, CORS, db
 
 ### Community 26 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.13
-Nodes (8): CORS, db, T, db, T, CORS, db, T
+Cohesion: 0.20
+Nodes (5): db, T, CORS, db, T
 
 ### Community 27 - "aviso-chat/index.ts"
 Cohesion: 0.27
@@ -316,6 +318,14 @@ Nodes (9): public.codigo_convite(), public._credito_chat(), public.creditos, pub
 Cohesion: 0.83
 Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 
+### Community 86 - "public.salvar_netos_v2"
+Cohesion: 0.20
+Nodes (5): public._confere_valor_op(), public.descontos_grupo, public._piso_grupo(), public.salvar_netos_v2(), public.salvar_netos_v2()
+
+### Community 87 - "aviso-preco/index.ts"
+Cohesion: 0.40
+Nodes (3): CORS, db, T
+
 ## Knowledge Gaps
 - **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -323,11 +333,9 @@ Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.bloqueios`?**
-  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
-  _Cohesion score 0.07922705314009662 - nodes in this community are weakly interconnected._
-- **Why does `public.lancar_pedido_operador()` connect `2026-10-30_operador-um-toque.sql` to `public.bloqueios`, `public.consultas`, `public.anotacoes`, `public.anotacoes`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+  _Cohesion score 0.080338266384778 - nodes in this community are weakly interconnected._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
@@ -335,4 +343,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
 - **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
-  _Cohesion score 0.0463768115942029 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected._
+- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.08739495798319327 - nodes in this community are weakly interconnected._
