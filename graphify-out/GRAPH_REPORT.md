@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1051 nodes · 1710 edges · 85 communities (52 shown, 33 thin omitted)
+- 1052 nodes · 1711 edges · 85 communities (52 shown, 33 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bfdd9ee5`
+- Built from commit: `8d594b06`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,12 +40,12 @@
 - convite-email/index.ts
 - cadastro-whatsapp/index.ts
 - ref_npm_supabase
-- ref_npm_web_push_3_6_7
+- pedido-vendedor/index.ts
 - aviso-chat/index.ts
 - consulta-aviso/index.ts
 - avaliacao/index.ts
 - central-auto/index.ts
-- aviso-comprovante/index.ts
+- ref_npm_web_push_3_6_7
 - entrar-celular/index.ts
 - public.clientes
 - whatsapp-codigo/index.ts
@@ -134,7 +134,7 @@ Cohesion: 0.17
 Nodes (15): public.consulta_respondeu(), public.consultas_limpeza(), public.recusar_consulta(), public._pre_pedido_sinal(), public.vencer_pre_pedidos(), public.vencer_pre_pedidos(), public.vencer_pre_pedidos(), public.cancelar_pre_reserva() (+7 more)
 
 ### Community 6 - "paypal-checkout/index.ts"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (32): avisarAdmins(), brlv(), confirmarSozinho(), CORS, d360Key(), dataBR(), dataLonga(), db (+24 more)
 
 ### Community 7 - "public._ligar_passeio"
@@ -211,11 +211,11 @@ Nodes (9): codigoDe(), confere(), CORS, db, dig(), json(), LANG, mandaCodigo() (
 
 ### Community 25 - "ref_npm_supabase"
 Cohesion: 0.18
-Nodes (5): CAT, CORS, db, CORS, db
+Nodes (5): CORS, db, CORS, db, T
 
-### Community 26 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.13
-Nodes (8): CORS, db, T, db, T, CORS, db, T
+### Community 26 - "pedido-vendedor/index.ts"
+Cohesion: 0.40
+Nodes (3): CORS, db, T
 
 ### Community 27 - "aviso-chat/index.ts"
 Cohesion: 0.27
@@ -233,9 +233,9 @@ Nodes (4): CORS, CUP_MSG, db, ES_DDI
 Cohesion: 0.22
 Nodes (5): COB_EUR, CORS, db, PAIS_DDI, SYM
 
-### Community 31 - "aviso-comprovante/index.ts"
-Cohesion: 0.29
-Nodes (4): CORS, db, SLOT, TXT
+### Community 31 - "ref_npm_web_push_3_6_7"
+Cohesion: 0.12
+Nodes (9): CAT, CORS, db, CORS, db, SLOT, TXT, db (+1 more)
 
 ### Community 32 - "entrar-celular/index.ts"
 Cohesion: 0.33
@@ -324,11 +324,9 @@ Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.anotacoes`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.080338266384778 - nodes in this community are weakly interconnected._
-- **Why does `public.vendas_manuais_lista()` connect `public.bloqueios` to `vendedores`, `public.consultas`, `public.anotacoes`, `public.anotacoes`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
@@ -337,3 +335,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
 - **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
   _Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected._
+- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.08412698412698413 - nodes in this community are weakly interconnected._

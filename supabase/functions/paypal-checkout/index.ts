@@ -39,6 +39,10 @@ const PUSH: Record<string, (n: string, v: string, l: string, d: string, ok: bool
 const INICIO: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
 const ANTES_MS = 40 * 6e4;
 const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - ANTES_MS <= Date.now();
+// PayPal (Rodrigo 2026-11-14): na Miss Bardot sempre; nas outras lanchas só com 5 dias ou mais (os donos querem receber antes do passeio),
+// com menos de 5 dias o cliente paga só por Pix. Mesma conta de dias do cartaoOk da função asaas (dia de São Paulo).
+const ppPrazo = (p: { lancha: string; data: string }) => p.lancha === "miss-bardot" ||
+  (Date.parse(`${p.data}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= 5;
 async function tardeCombinado(p: any) {
   const { data, error } = await db.rpc("inicio_combinado", { d: p.data, h: p.horario, hi: p.hora_ini ?? null, bid: p.bloqueio_id ?? null });
   if (error || !data) return tarde(p.data, p.horario);
@@ -222,7 +226,7 @@ Deno.serve(async req => {
         const n = (await db.from(t).select("nome").eq("user_id", p.vendedor).limit(1).maybeSingle()).data?.nome;
         if (n) { vn = String(n).trim().split(/\s+/)[0]; break; }
       }
-      const pp = c.moeda !== "BRL" && !p.vendedor;
+      const pp = c.moeda !== "BRL" && !p.vendedor && ppPrazo(p);
       const vg = p.status === "pendente" && !c.pago_em && !p.comprovante_em ? await vaga(p.id) : "livre";
       // restante que o cliente paga no embarque (Rodrigo 2026-10-25): confirmado = o que está no passeio; antes = valor do pedido − cupom − sinal (igual ao confirmar_pago)
       let resto: number | null = null;
@@ -245,7 +249,7 @@ Deno.serve(async req => {
           em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : (+a?.sinal || +p.sinal_valor || (c.moeda === "BRL" ? +c.valor : 0)) || null,
           valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
       }
-      return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor || null, resto_brl: resto, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
@@ -362,6 +366,7 @@ Deno.serve(async req => {
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
     if (b.acao === "criar") {
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
+      if (!ppPrazo(p)) return json({ erro: "pix" }, 400); // outra lancha com menos de 5 dias: só Pix
       // a ordem anterior pode ter sido paga e a resposta se perdeu (página fechada): confere antes de criar outra
       if (c.order_id) {
         const ant = await pp(`/v2/checkout/orders/${c.order_id}`, undefined, "GET").catch(() => null);
