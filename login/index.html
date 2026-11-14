@@ -3267,17 +3267,18 @@ function siteVisHTML(){
 /* ordem das lanchas na vitrine do site (Rodrigo 2026-11-14): setas para subir e descer; a Miss Bardot fica sempre em primeiro.
    Lista da mesma cidade da lancha aberta, só as que aparecem no site; grava lanchas.posicao (rpc ordenar_lanchas, só administrador) */
 const PRINCIPAL = "miss-bardot";
-const ordemLista = cid => (S.all||[]).filter(x=>x.ativa!==false && !x.oculta && x.dados?.capacidade && !x.dados?.exemplo && cityOf(x)===cid)
+const ordemLista = (cid, e) => (S.all||[]).filter(x=>x.ativa!==false && !x.oculta && x.dados?.capacidade && !x.dados?.exemplo && cityOf(x)===cid && isEscB(x.slug)===!!e) /* lanchas e escunas: cada uma com a sua ordem (2026-11-14) */
   .sort((a,c)=>((a.slug===PRINCIPAL)?-1:0)-((c.slug===PRINCIPAL)?-1:0) || ((a.posicao??1e9)-(c.posicao??1e9)) || ((+c.dados.capacidade||0)-(+a.dados.capacidade||0)) || ((+c.dados.pes||0)-(+a.dados.pes||0)) || a.nome.localeCompare(c.nome));
 function ordemHTML(b){
   if(S.papel || isRO() || !("posicao" in b) || b.oculta) return "";
-  const L=ordemLista(cityOf(b)); if(L.length<2) return "";
-  return `<div class="ordl"><h3>${t("ordT")}</h3><p class="muted">${t("ordHelp")}</p><ol>${L.map((x,i)=>{ const fixa=x.slug===PRINCIPAL, min=L[0].slug===PRINCIPAL?1:0;
+  const e=isEscB(b.slug), L=ordemLista(cityOf(b), e); if(L.length<2) return "";
+  const temEsc=(S.all||[]).some(x=>isEscB(x.slug) && !x.oculta && x.ativa!==false);
+  return `<div class="ordl"><h3>${t("ordT")}${temEsc?` · ${t(e?"grpE":"grpL")}`:""}</h3><p class="muted">${t("ordHelp")}</p><ol>${L.map((x,i)=>{ const fixa=x.slug===PRINCIPAL, min=L[0].slug===PRINCIPAL?1:0;
     return `<li${x.slug===b.slug?' class="cur"':""}><span>${i+1}. ${esc(x.nome)}${fixa?` <small>${t("ordFixa")}</small>`:""}</span>${fixa?"":`<span class="ordb"><button type="button" data-ord="${esc(x.slug)}" data-dir="-1" aria-label="${t("ordUp")}"${i<=min?" disabled":""}>▲</button><button type="button" data-ord="${esc(x.slug)}" data-dir="1" aria-label="${t("ordDown")}"${i===L.length-1?" disabled":""}>▼</button></span>`}</li>`; }).join("")}</ol></div>`;
 }
 let ordBusy = false;
 document.addEventListener("click", async e=>{ const x=e.target.closest("[data-ord]"); if(!x || ordBusy || !S.admin) return;
-  const b=boatRow(x.dataset.ord); if(!b) return; const L=ordemLista(cityOf(b)), i=L.indexOf(b), j=i+(+x.dataset.dir);
+  const b=boatRow(x.dataset.ord); if(!b) return; const L=ordemLista(cityOf(b), isEscB(b.slug)), i=L.indexOf(b), j=i+(+x.dataset.dir);
   if(i<0 || j<0 || j>=L.length || L[j].slug===PRINCIPAL) return;
   [L[i],L[j]]=[L[j],L[i]]; const antes=L.map(y=>[y,y.posicao]); L.forEach((y,k)=>{ y.posicao=k+1; }); ordBusy=true; mainView();
   try{ await db("rpc/ordenar_lanchas",{method:"POST",body:{slugs:L.map(y=>y.slug)}}); toast(t("ordOk")); }
