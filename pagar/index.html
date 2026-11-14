@@ -200,7 +200,7 @@ function render(){
   else if(gone) payArea=`<p class="msg err">${tf(L.gone,{b:esc(D.lancha)})}</p><a class="btn" href="${livres}">${L.goneBtn}</a>`;
   /* com o Asaas na tela, o Pix manual some (dois QR codes diferentes levavam a pagar em dobro); outro cliente pagando: só o aviso (revisão 2026-10-25) */
   else if(open && !paid && D.pagando) payArea=`<p class="msg err">${L.busy}</p>`;
-  else if(open && !paid) payArea = ((h=>h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ, nem para estrangeiro (Rodrigo 2026-11-11) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 5 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
+  else if(open && !paid) payArea = ((h=>foreign ? pix + h + pp : h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ para brasileiro (Rodrigo 2026-11-11); estrangeiro vê o Pix do CNPJ primeiro, porque muitos já estão no Brasil (Rodrigo 2026-11-14) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 5 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
   else if(!open && !conf) payArea=`<p class="msg err">${L.closed}</p>`;
   /* o chat fica só no botão Suporte do canto (2026-10-25); aqui sobra o WhatsApp (sem chat) e Ver meus passeios */
   const my=(R?`<button type="button" class="btn" data-rc="1">${L.rcOpen}</button>`:"")+(conf||paid?`<a class="btn sec" href="/login/">${L.my}</a>`:"");
