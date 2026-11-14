@@ -5918,6 +5918,7 @@ function notifyOwner(p, row, nota){
 /* dono: passeios novos que a Búzios Lanchas marcou e ele ainda não viu (guardado neste celular) */
 const seenKey = () => "vistos-"+(ses?.user?.id||"");
 function unseenTrips(){
+  return []; /* aviso "passeio novo da Búzios Lanchas" + selo novo removidos (Rodrigo 2026-11-14): o dono já recebe notificação e e-mail */
   if(S.admin || isRO() || !S.upcoming) return [];
   const ids=S.upcoming.filter(r=>r.nota?.origem==="buzios").map(r=>r.id); let seen=store.get(seenKey());
   if(!seen){ store.set(seenKey(), ids); return []; } /* primeira vez neste celular: nada é "novo" */
