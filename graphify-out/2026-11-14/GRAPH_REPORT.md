@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-14)
 
 ## Corpus Check
-- 136 files · ~311,394 words
+- 136 files · ~312,331 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b2060f7f`
+- Built from commit: `2ec3f566`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -322,12 +322,12 @@ Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.bloqueios`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
-- **Should `vendedores` be split into smaller, more focused modules?**
-  _Cohesion score 0.07922705314009662 - nodes in this community are weakly interconnected._
 - **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.bloqueios`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Should `vendedores` be split into smaller, more focused modules?**
+  _Cohesion score 0.07922705314009662 - nodes in this community are weakly interconnected._
+- **Why does `public.lancar_pedido_operador()` connect `2026-10-30_operador-um-toque.sql` to `public.bloqueios`, `public.consultas`, `public.anotacoes`, `public.anotacoes`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
