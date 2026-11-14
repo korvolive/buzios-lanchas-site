@@ -4296,14 +4296,15 @@ function startMsg(row, q0, cupV){
    cartão só com 5 dias ou mais (mesma conta do cartaoOk da função asaas, dia de São Paulo), PayPal só para estrangeiro; sem "Olá {nome}" no começo */
 const preKey = tel => { const cc=splitPhone(tel).cc; return cc && cc!=="55" ? "waPreX" : "waPre"; };
 const cardOk = d => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now()-3*36e5).toISOString().slice(0,10)+"T00:00:00Z"))/864e5 >= 5;
-const prePay = (tel, d) => { const p=T[lang]?.prePay || T.pt.prePay; return preKey(tel)==="waPreX" ? (cardOk(d)?p.xc:p.x) : (cardOk(d)?p.pc:p.p); };
+/* PayPal: Miss Bardot sempre; outras lanchas só com 5 dias ou mais, senão só Pix (Rodrigo 2026-11-14) */
+const prePay = (tel, d, boat) => { const p=T[lang]?.prePay || T.pt.prePay; return preKey(tel)==="waPreX" ? (cardOk(d)?p.xc:boat==="miss-bardot"?p.x:p.p) : (cardOk(d)?p.pc:p.p); };
 async function preLink(row){
   const n=row.nota||{}, wa=waOf(n.telefone);
   const [b]=await db(`bloqueios?select=criado_em,anotacoes(sinal_combinado)&id=eq.${row.id}`).catch(()=>[]);
   const ate=Date.parse(b?.criado_em||new Date().toISOString())+holdHrs(row.data)*36e5, sc=+[].concat(b?.anotacoes||[])[0]?.sinal_combinado||0;
   const v=sc>0 ? sc : Math.round((+n.valor||0)/2), url=curto(`${location.origin}/login/?${await convQ(row.id, new URLSearchParams({criar:"1"}))}`);
   const name=(n.cliente||"").split(" ")[0]||"";
-  const msg=inLang(cliLang(n.telefone), ()=>t(preKey(n.telefone),{pay:prePay(n.telefone,row.data), boat:boatName(row.lancha), date:(d=>lang==="en"?d:d.toLowerCase())(fmtLong(row.data)), slot:slotLine(row.horario,n), ate:fmtAte(ate), v:brl(v), url}));
+  const msg=inLang(cliLang(n.telefone), ()=>t(preKey(n.telefone),{pay:prePay(n.telefone,row.data,row.lancha), boat:boatName(row.lancha), date:(d=>lang==="en"?d:d.toLowerCase())(fmtLong(row.data)), slot:slotLine(row.horario,n), ate:fmtAte(ate), v:brl(v), url}));
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>📲 ${t("preT")}</h2><p class="muted" style="margin-top:0">${t("preSub",{name:esc(name||n.cliente||"")})}</p>
     <pre class="wamsg">${esc(msg)}</pre>
     <a class="btn wa"${waAttr("convite",row.id)} style="margin:0 0 10px" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} WhatsApp${waTag("convite",row.id)}</a>
