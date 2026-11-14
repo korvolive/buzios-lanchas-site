@@ -23,3 +23,8 @@ end $function$;
 
 -- Primeira escuna (oculta até o administrador mostrar no app; nome, pés, fotos e valores editados no app):
 -- insert into lanchas (slug, nome, dados, ativa, oculta) values ('escuna-buzios','Escuna Búzios', '{"pes":50,"capacidade":60,"cidade":"buzios","tipo":"escuna",...}', true, true);
+
+-- 2026-11-14 14:20 (pedido do administrador): a escuna virou "Pura Vida" (slug pura-vida), 60 pessoas.
+-- Valores neto: baixa 4h 4200 / 7h 5000; alta 4h 4500 / 7h 6000 (média = baixa). Comissão pelo gatilho taxa_buzios (10%).
+-- 3 horas (baixa 3500 / alta 4000) guardado em lanchas.dados.neto3 até existir o horário de 3h no sistema.
+-- Fotos: img/pv-01..09 (capa por fora, banheiros por último), lista em fotos.
