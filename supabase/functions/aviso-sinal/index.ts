@@ -1,6 +1,6 @@
 // Búzios Lanchas: aviso de sinal pago ao administrador (Rodrigo 2026-11-13: WhatsApp e e-mail).
 // POST { id: <pedido>, email?: false }  com a sessão do operador (a VPS) ou do administrador.
-// Manda o e-mail aos administradores (só se o pagamento tiver menos de 6 horas; a VPS chama uma vez por pagamento)
+// Manda o e-mail aos administradores (só se o pagamento tiver menos de 6 horas e uma vez só por pedido)
 // e devolve { emails, info } com forma, valor e quem trouxe, que a VPS usa no aviso do WhatsApp
 // (o operador não lê pagamentos_asaas nem a rpc origem_reserva).
 // E-mail pelo mesmo caminho do notificar: modelo "Magic Link" do Supabase com user_metadata.msg/assunto.
@@ -55,6 +55,10 @@ Deno.serve(async req => {
       `Valor pago: ${info.valor} por ${info.forma}`, ...(info.repasse ? [`Parte do dono: ${info.repasse}${info.sem_conta_dono ? " (fica no saldo dele até a conta no Asaas ser aprovada)" : ""}`] : []),
       ...(quem ? [`Quem trouxe: ${quem}`] : [])];
     const assunto = `Sinal pago: ${lancha} · ${dataBR(pd.data)}${cli ? " · " + cli : ""}`;
+    // 2026-11-14 (revisão de segurança, OK do Rodrigo): o e-mail sai uma vez só por pedido; repetir a chamada só devolve as informações.
+    const ja = (await db.from("auditoria").select("id").eq("tabela", "pedidos").eq("operacao", "AVISO_SINAL_EMAIL").eq("registro", String(pd.id)).limit(1)).data;
+    if (ja?.length) return json({ emails: 0, info, repetido: true });
+    await db.from("auditoria").insert({ tabela: "pedidos", operacao: "AVISO_SINAL_EMAIL", registro: String(pd.id), quem: uid, depois: { pedido: pd.id } });
     const { data: ads } = await db.from("admins").select("user_id");
     let emails = 0;
     for (const a of ads || []) {

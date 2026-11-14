@@ -35,4 +35,4 @@ Versão 1.0 – 13/11/2026. Responsável: sócio-administrador. Vale para qualqu
 - `public.auditoria`: inclusão, mudança e exclusão em pedidos, pagamentos, repasses, saques, contas Asaas, reservas e papéis. Só aceita inclusão (trigger bloqueia mudar e apagar, até para o administrador); guardada 5 anos. Leitura só do administrador.
 - `public.registro_acessos`: cada login (hora, IP, aparelho), copiado de `auth.sessions` a cada 10 minutos; guardado 1 ano (mínimo legal 6 meses).
 - Limpeza mensal: `limpar_registros_antigos()` (cron dia 1).
-- Troca anual do segredo das chaves das subcontas (`ASAAS_CHAVES_SEGREDO`): função `asaas-chaves-girar`. Passo a passo no topo do arquivo dela: gravar o novo em `ASAAS_CHAVES_SEGREDO_NOVO`, chamar `girar`, gravar o mesmo valor em `ASAAS_CHAVES_SEGREDO`, chamar `conferir` e ver `falhas = 0`.
+- Troca anual do segredo das chaves das subcontas (`ASAAS_CHAVES_SEGREDO`): função `asaas-chaves-girar` (só chave de serviço ou administrador logado). Passo a passo no topo do arquivo dela: gravar o novo em `ASAAS_CHAVES_SEGREDO_NOVO`, chamar `girar`, gravar o mesmo valor em `ASAAS_CHAVES_SEGREDO`, chamar `conferir` e ver `falhas = 0`.
