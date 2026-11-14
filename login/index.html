@@ -4143,6 +4143,11 @@ function saldoHTML(vend, dentro){ /* dentro: vai dentro da Área do vendedor/par
   sdLoad(); asLoad(); const L=(S.saldo||[]).filter(x=>ambos ? x.tipo==="comissao" || x.tipo==="dono" : vend ? x.tipo==="comissao" : x.tipo==="dono");
   if(S.asConta) asDocs(); const d=S.asDocs||{};
   const sq = d.status==="ok" && (vend || !S.vend || ambos) ? saqueHTML(vend) : "";
+  /* ainda carregando a conta, os documentos ou o saque: mostra o cartão já no lugar (sem valor), para a tela não abrir "bugada" e depois pular (Rodrigo 2026-11-14) */
+  const carrConta = S.asConta===0 || (S.asConta && !S.asDocs) || (d.status==="ok" && (vend || !S.vend || ambos) && (S.saque===null || S.saque===undefined || S.mypix===null));
+  if(!sq && carrConta){ S.sqEd=true; S.rbIn=true;
+    return `<div class="${dentro?"sdin":"card"} sdcard"><div class="bk" aria-busy="true"><div class="bk1"><span class="bklogo">⚓ Búzios Lanchas</span><span class="bkchip" aria-hidden="true"></span></div>
+      <p class="bklab">${t("sqNa")}</p><p class="bkval" style="opacity:.5">…</p><div class="bk3"><span class="bknm">${esc((myName()||"").toUpperCase())}</span></div></div></div>`; }
   if(!L.length && !sq) return "";
   const lib=L.filter(x=>x.liberado), tot=lib.reduce((a,x)=>a+(+x.valor||0),0), dep=L.filter(x=>!x.liberado).reduce((a,x)=>a+(+x.valor||0),0);
   const go = !S.asConta ? `<p class="msg err sdmsg">${t("sdSem")}</p><button type="button" class="btn" data-sdgo="${vend?"v":"d"}">${t("sdSemGo")}</button>`
