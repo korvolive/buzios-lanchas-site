@@ -525,6 +525,31 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-dbtn{display:block;width:100%;height:44px;text-align:left;font:500 16px/44px var(--body);color:var(--ink);background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid var(--line);border-radius:8px;padding:0 36px 0 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pk-date.empty .pk-dbtn{color:var(--muted)}
 .pk-dbtn[aria-expanded="true"]{border-color:var(--sea);box-shadow:0 0 0 1px var(--sea)}
+/* card "Clima em Búzios" (Rodrigo 2026-11-14): céu ilustrado, tranquiliza; dia ruim de verdade = card não aparece */
+:root{--wx-ink:#06394a;--wx-sol:linear-gradient(180deg,#bfe3f0 0%,#dff1f6 55%,#f4ecd6 100%);--wx-parcial:linear-gradient(180deg,#c9e2ec 0%,#e3f0f4 55%,#f2ecdc 100%);--wx-nublado:linear-gradient(180deg,#d3e0e6 0%,#e6eef1 55%,#efece3 100%);--wx-chuva:linear-gradient(180deg,#c6d5dc 0%,#dde8ec 55%,#ebe9e2 100%);--wx-glass:rgba(255,255,255,.82);--wx-sea1:#5fb3c9;--wx-sea2:#3e9ab3;--wx-land:#9fc6b6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wx-ink:#e6f4f8;--wx-sol:linear-gradient(180deg,#1d5a72 0%,#174a5e 55%,#3a4a43 100%);--wx-parcial:linear-gradient(180deg,#22566a 0%,#1a4757 55%,#38463f 100%);--wx-nublado:linear-gradient(180deg,#2b4c59 0%,#21404c 55%,#36423d 100%);--wx-chuva:linear-gradient(180deg,#2a4651 0%,#203b45 55%,#333e3a 100%);--wx-glass:rgba(7,26,34,.62);--wx-sea1:#2f7f95;--wx-sea2:#22677b;--wx-land:#3f6458}}
+:root[data-theme="dark"]{--wx-ink:#e6f4f8;--wx-sol:linear-gradient(180deg,#1d5a72 0%,#174a5e 55%,#3a4a43 100%);--wx-parcial:linear-gradient(180deg,#22566a 0%,#1a4757 55%,#38463f 100%);--wx-nublado:linear-gradient(180deg,#2b4c59 0%,#21404c 55%,#36423d 100%);--wx-chuva:linear-gradient(180deg,#2a4651 0%,#203b45 55%,#333e3a 100%);--wx-glass:rgba(7,26,34,.62);--wx-sea1:#2f7f95;--wx-sea2:#22677b;--wx-land:#3f6458}
+.wx{margin-top:12px;border-radius:16px;overflow:hidden;position:relative;color:var(--wx-ink);background:var(--wx-sol)}
+.wx.wx-parcial{background:var(--wx-parcial)}.wx.wx-nublado{background:var(--wx-nublado)}.wx.wx-chuva{background:var(--wx-chuva)}
+.wx-top{display:flex;justify-content:space-between;align-items:center;padding:13px 14px 0;position:relative;z-index:2}
+.wx-top .l{font:600 13px/1.2 var(--body);opacity:.85}
+.wx-top .r{font:600 12px/1 var(--body);background:var(--wx-glass);border-radius:99px;padding:5px 10px}
+.wx-scene{position:relative;height:142px}
+.wx-scene>svg{position:absolute;inset:0;width:100%;height:100%}
+.wx-temp{position:absolute;left:14px;top:4px;z-index:2}
+.wx-temp b{display:block;font:800 54px/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.wx-temp span{display:block;font:600 15px/1.2 var(--body);margin-top:3px}
+.wx-msg{background:var(--wx-glass);margin:0 10px;border-radius:12px;padding:10px 12px;font:400 14px/1.4 var(--body);position:relative;z-index:2;text-wrap:pretty}
+.wx-msg b{display:block;font:700 16px/1.25 var(--display);margin-bottom:2px}
+.wx-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:9px 6px 4px;position:relative;z-index:2}
+.wx-week button{all:unset;cursor:pointer;text-align:center;font:600 11px/1.2 var(--body);color:inherit;opacity:.78;padding:4px 0;border-radius:10px;font-variant-numeric:tabular-nums}
+.wx-week button:hover{opacity:1;background:var(--wx-glass)}
+.wx-week button:focus-visible{outline:2px solid var(--sea);outline-offset:1px;opacity:1}
+.wx-week button[aria-pressed="true"]{opacity:1}
+.wx-week button[aria-pressed="true"] span{background:var(--wx-ink);color:var(--surface);border-radius:99px;padding:1px 6px}
+.wx-week svg{width:24px;height:24px;display:block;margin:3px auto 1px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wx-halo{opacity:.16}}:root[data-theme="dark"] .wx-halo{opacity:.16}
+.wx-src{font:500 10px/1 var(--body);text-align:right;padding:2px 12px 9px;opacity:.6;position:relative;z-index:2}
 .cal{margin-top:6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
 .cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .cal-h strong{font:600 15px/1 var(--body)}
@@ -1816,6 +1841,7 @@ async function statusFor(b,iso,slot){ return isBusy(busyOn(await loadAgenda(),b,
 const pickerHTML = b => `
   <div class="picker">
     <div class="pk-date${pick.date?"":" empty"}"><button type="button" id="pk-date" class="pk-dbtn" aria-expanded="false" aria-controls="pk-cal">${pick.date?fmtDate(pick.date):t("pickDate")}</button><div class="cal" id="pk-cal" hidden></div></div>
+    <div class="wx" id="pk-clima" role="group" hidden></div>
     <div class="pk-slots" role="radiogroup" aria-label="${t("pickSlot")}">
       ${SLOTS.map(s=>`<button type="button" role="radio" data-slot="${s.key}" aria-checked="${pick.slot===s.key}"${s.night?` class="night"${hasNight(pick.date)?"":" hidden"}`:""}><strong>${slotLabel(s.key)}</strong><small>${t("hoursN",{h:s.hours})}</small></button>`).join("")}
     </div>
@@ -1855,6 +1881,73 @@ function bindPicker(onChange, b){
   app.querySelectorAll("[data-slot]").forEach(btn=>btn.onclick=()=>{ pick.slot=btn.dataset.slot;
     app.querySelectorAll("[data-slot]").forEach(x=>x.setAttribute("aria-checked", x===btn)); onChange(); });
   onChange();
+}
+/* ============ Clima em Búzios (Rodrigo 2026-11-14) ============
+   Previsão dos próximos 7 dias (função clima-site, fonte MET Norway + avisos oficiais). Só frases que tranquilizam:
+   sem nós, rajadas ou ondas, sem vermelho. Dia ruim de verdade não vem da função, e o card some. */
+const WX_T = {
+  pt:{tit:"Clima em Búzios", hoje:"Hoje", amanha:"Amanhã", src:"Previsão: MET Norway", ceu:{sol:"Ensolarado",parcial:"Sol entre nuvens",nublado:"Nublado",chuva:"Chuva passageira"},
+    bom:"Dia bom para passeio", agr:"Dia agradável para passeio",
+    sol:"Vento leve e mar tranquilo nas praias protegidas.", parcial:"Sol entre nuvens e temperatura agradável.", nublado:"Sem sol forte: ótimo para curtir as praias com calma.",
+    chuva:"Se chover, a equipe ajusta o roteiro e o passeio segue com conforto.", vento:"O roteiro é ajustado para as praias mais abrigadas do dia."},
+  en:{tit:"Weather in Búzios", hoje:"Today", amanha:"Tomorrow", src:"Forecast: MET Norway", ceu:{sol:"Sunny",parcial:"Sun and clouds",nublado:"Cloudy",chuva:"Passing showers"},
+    bom:"Great day for a boat trip", agr:"Pleasant day for a boat trip",
+    sol:"Light breeze and calm water at the sheltered beaches.", parcial:"Sun and clouds with a pleasant temperature.", nublado:"No harsh sun: perfect to enjoy the beaches at an easy pace.",
+    chuva:"If it rains, the crew adjusts the route and the trip goes on comfortably.", vento:"The route is planned around the most sheltered beaches of the day."},
+  es:{tit:"Clima en Búzios", hoje:"Hoy", amanha:"Mañana", src:"Pronóstico: MET Norway", ceu:{sol:"Soleado",parcial:"Sol entre nubes",nublado:"Nublado",chuva:"Lluvia pasajera"},
+    bom:"Buen día para pasear", agr:"Día agradable para pasear",
+    sol:"Viento suave y mar tranquilo en las playas protegidas.", parcial:"Sol entre nubes y temperatura agradable.", nublado:"Sin sol fuerte: ideal para disfrutar las playas con calma.",
+    chuva:"Si llueve, la tripulación ajusta el recorrido y el paseo sigue con comodidad.", vento:"El recorrido se ajusta a las playas más protegidas del día."}
+};
+let wxDias=null, wxReq=null, wxSel=null, wxFor;
+const wxLoad = () => wxReq || (wxReq = fetch(AGENDA_URL.replace(/rest\/v1\/.*/,"functions/v1/clima-site")).then(r=>r.ok?r.json():null)
+  .then(j=>{ wxDias=((j&&j.dias)||[]).filter(x=>x&&x.ok); }).catch(()=>{ wxDias=[]; }));
+const WX_SUN = '<g stroke="#f2b632" stroke-width="2.6" stroke-linecap="round"><path d="M24 4v5M24 39v5M4 24h5M39 24h5M9.9 9.9l3.5 3.5M34.6 34.6l3.5 3.5M9.9 38.1l3.5-3.5M34.6 13.4l3.5-3.5"/></g><circle cx="24" cy="24" r="10" fill="url(#wxgs)"/>';
+const WX_CLOUD = (d,st) => `<path d="${d}" fill="url(#wxgc)" stroke="${st}" stroke-width="1.6" stroke-linejoin="round"/>`;
+const WXI = {
+  sol: WX_SUN,
+  parcial: '<g stroke="#f2b632" stroke-width="2.4" stroke-linecap="round"><path d="M19 4v4M7 16H3M10.5 7.5l2.8 2.8M27.5 7.5l-2.8 2.8"/></g><circle cx="19" cy="17" r="8" fill="url(#wxgs)"/>'+WX_CLOUD("M15 40h22a8 8 0 0 0 .8-16 10 10 0 0 0-19.3 2.6A6.8 6.8 0 0 0 15 40z","#bcd3dc"),
+  nublado: WX_CLOUD("M13 38h24a9 9 0 0 0 1-17.9A11.5 11.5 0 0 0 16 23a7.5 7.5 0 0 0-3 15z","#a9c4cf"),
+  chuva: WX_CLOUD("M13 32h24a9 9 0 0 0 1-17.9A11.5 11.5 0 0 0 16 17a7.5 7.5 0 0 0-3 15z","#a9c4cf")+'<path d="M18 37l-1.5 4M25 37l-1.5 4M32 37l-1.5 4" stroke="#5fa8c2" stroke-width="2.2" stroke-linecap="round"/>'
+};
+const wxIcon = c => `<svg viewBox="0 0 48 48" aria-hidden="true">${WXI[c]||WXI.sol}</svg>`;
+/* cena grande: céu do dia, mar, morro e a lanchinha */
+function wxScene(c){
+  const nuvem = (x,y,s,o) => `<path transform="translate(${x} ${y}) scale(${s})" d="M0 28h54a14 14 0 0 0 1-28 19 19 0 0 0-36 5 12 12 0 0 0-19 23z" fill="#fff" opacity="${o}"/>`;
+  const sol = c==="sol" ? '<circle class="wx-halo" cx="268" cy="40" r="44" fill="#fff3c4" opacity=".55"/><circle cx="268" cy="40" r="26" fill="url(#wxgs)"/>'
+    : c==="parcial" ? '<circle class="wx-halo" cx="262" cy="38" r="36" fill="#fff3c4" opacity=".45"/><circle cx="262" cy="38" r="22" fill="url(#wxgs)"/>' : "";
+  const ceu = c==="sol" ? nuvem(176,38,1,.95)+nuvem(298,72,.66,.8)
+    : c==="parcial" ? nuvem(232,40,1.25,.97)+nuvem(150,30,.8,.85)
+    : c==="nublado" ? nuvem(150,22,1.1,.95)+nuvem(236,40,1.35,.92)+nuvem(300,18,.8,.8)
+    : nuvem(150,18,1.15,.92)+nuvem(236,32,1.4,.9)+'<path d="M196 76l-3 8M214 76l-3 8M252 84l-3 8M270 84l-3 8M288 84l-3 8" stroke="#7fb6c9" stroke-width="2.2" stroke-linecap="round" opacity=".85"/>';
+  return `<svg viewBox="0 0 356 142" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${sol}${ceu}
+    <path d="M0 112c30-8 52-14 92-12 22 1 30 6 46 6V142H0z" style="fill:var(--wx-land)" opacity=".75"/>
+    <path d="M0 116c40 0 70-4 110-4s80 6 130 6 80-6 116-6v30H0z" style="fill:var(--wx-sea1)"/>
+    <path d="M0 126c40 0 70-3 110-3s80 5 130 5 80-5 116-5v19H0z" style="fill:var(--wx-sea2)"/>
+    <g transform="translate(200 98)"><path d="M0 14h46l-6 8H8z" fill="#fff"/><path d="M12 14l6-8h16l4 8z" fill="#fff" opacity=".9"/><path d="M19 7.5h12" stroke="#0b5c73" stroke-width="1.6"/></g></svg>`;
+}
+function climaRender(){
+  const box=document.getElementById("pk-clima"); if(!box) return;
+  if(!wxDias){ wxLoad().then(()=>{ if(document.getElementById("pk-clima")===box) climaRender(); }); return; }
+  if(wxFor!==pick.date){ wxFor=pick.date; wxSel=null; } /* trocou a data da reserva: o card volta para ela */
+  const L=WX_T[lang]||WX_T.pt, loc=t("locale"), dias=wxDias.slice(0,7);
+  const d = dias.find(x=>x.d===(wxSel||pick.date)) || (pick.date ? null : dias[0]);
+  if(!d){ box.hidden=true; box.innerHTML=""; return; } /* data além de 7 dias ou dia ruim: sem card */
+  const dt = iso => { const [y,m,n]=iso.split("-").map(Number); return new Date(y,m-1,n); };
+  const amanha = new Date(Date.now()+864e5), am = `${amanha.getFullYear()}-${pad(amanha.getMonth()+1)}-${pad(amanha.getDate())}`;
+  const nome = iso => iso===todayISO() ? L.hoje : iso===am ? L.amanha : dt(iso).toLocaleDateString(loc,{weekday:"short",day:"2-digit",month:"2-digit"}).replace(/\./g,"").replace(/^./,c=>c.toUpperCase());
+  const curto = iso => dt(iso).toLocaleDateString(loc,{weekday:"short"}).replace(/\./g,"").replace(/^./,c=>c.toUpperCase());
+  const head = (d.ceu==="sol" || d.ceu==="parcial") && !d.vento ? L.bom : L.agr;
+  const sub = d.vento ? L.vento : L[d.ceu] || L.sol;
+  if(!document.getElementById("wx-defs")) document.body.insertAdjacentHTML("beforeend",'<svg id="wx-defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="wxgs" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f4b42a"/></radialGradient><linearGradient id="wxgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e3eef3"/></linearGradient></defs></svg>');
+  box.className = "wx wx-"+d.ceu; box.setAttribute("aria-label", L.tit);
+  box.innerHTML = `<div class="wx-top"><span class="l">${L.tit}</span><span class="r">${nome(d.d)}</span></div>
+    <div class="wx-scene"><div class="wx-temp"><b>${d.t}°</b><span>${L.ceu[d.ceu]||""}</span></div>${wxScene(d.ceu)}</div>
+    <div class="wx-msg"><b>${head}</b>${sub}</div>
+    ${dias.length>1?`<div class="wx-week" style="grid-template-columns:repeat(${dias.length},1fr)">${dias.map(x=>`<button type="button" data-wx="${x.d}" aria-pressed="${x.d===d.d}" aria-label="${fmtDate(x.d)}: ${x.t}°, ${L.ceu[x.ceu]||""}"><span>${curto(x.d)}</span>${wxIcon(x.ceu)}${x.t}°</button>`).join("")}</div>`:""}
+    <p class="wx-src">${L.src}</p>`;
+  box.hidden=false;
+  box.querySelectorAll("[data-wx]").forEach(x=>x.onclick=()=>{ wxSel=x.dataset.wx; climaRender(); });
 }
 let seq = 0;
 /* na data escolhida, os horários já alugados aparecem como indisponíveis */
@@ -2649,7 +2742,7 @@ function render(toTop=true){
   seo(b);
   if(b && toTop) window.scrollTo(0,0);
   bind(); bindGallery(b); bindVideo();
-  if(b && !isEsc(b)) bindPicker(()=>showBoatStatus(b), b);
+  if(b && !isEsc(b)) bindPicker(()=>{ showBoatStatus(b); climaRender(); }, b);
   if(b) loadGRevs(b);
   loadFx();
   if(!b) cardRatings();
