@@ -3,6 +3,9 @@
    Banco ainda sem a coluna "oculta": volta para a consulta antiga. Sem resposta: null. */
 export async function lanchasDB(DB, KEY) {
   const get = q => fetch(DB + "/lanchas?" + q, { headers: { apikey: KEY } }).then(r => (r.ok ? r.text() : r.status === 400 ? 400 : null)).catch(() => null);
+  /* posicao (ordem na vitrine, 2026-11-14): mudar a ordem no app também republica */
+  const comPos = await get("select=slug,nome,dados,ativa,oculta,posicao&or=(dados.not.is.null,oculta.is.true)&dados->>exemplo=is.null&order=slug");
+  if (comPos !== 400) return comPos;
   const novo = await get("select=slug,nome,dados,ativa,oculta&or=(dados.not.is.null,oculta.is.true)&dados->>exemplo=is.null&order=slug");
   if (novo !== 400) return novo;
   const velho = await get("select=slug,nome,dados,ativa&dados=not.is.null&dados->>exemplo=is.null&order=slug");

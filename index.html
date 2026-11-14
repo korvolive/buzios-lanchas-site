@@ -2420,8 +2420,9 @@ const fmtShort = iso => { const [y,m,d]=iso.split("-").map(Number); return new D
 const firstFree = (busy,b) => periodDays().find(d=>!isBusy(busyOn(busy,b,d),"",d));
 const maxCap = () => Math.max(...BOATS.map(b=>b.capacity));
 function home(){
-  const sorted = [...BOATS].sort((a,b)=>(b.capacity-a.capacity)||((b.feet||0)-(a.feet||0)));
-  /* a lancha destaque (Miss Bardot) vem sempre em primeiro, depois da maior para a menor */
+  /* ordem escolhida pelo administrador no app (posicao, 2026-11-14); lancha sem posição vai depois, da maior para a menor */
+  const sorted = [...BOATS].sort((a,b)=>((a.pos??1e9)-(b.pos??1e9))||(b.capacity-a.capacity)||((b.feet||0)-(a.feet||0)));
+  /* a lancha destaque (Miss Bardot) vem sempre em primeiro */
   const list = [...sorted.filter(b=>b.featured), ...sorted.filter(b=>!b.featured)];
   const q = [when.de&&`data=${when.de}`, when.people&&`pessoas=${when.people}`].filter(Boolean).join("&");
   return `
@@ -2736,12 +2737,15 @@ const ocultas = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug&oc
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
 /* cada cidade mostra só as lanchas dela (CIDADE, lá em cima); lancha sem cidade = Búzios */
-const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome", {headers:{apikey:AGENDA_KEY}})
-  .then(r=>r.ok ? r.json() : Promise.reject(r.status))
-  .then(rows=>rows.forEach(r=>{ const d=r.dados||{};
+/* posicao = ordem na vitrine escolhida pelo administrador no app (2026-11-14); banco sem a coluna: volta para a consulta antiga */
+const lanchasURL = c => AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados"+c+"&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome";
+const dbBoats = fetch(lanchasURL(",posicao"), {headers:{apikey:AGENDA_KEY}})
+  .then(r=>r.ok ? r.json() : r.status===400 ? fetch(lanchasURL(""), {headers:{apikey:AGENDA_KEY}}).then(x=>x.ok?x.json():Promise.reject(x.status)) : Promise.reject(r.status))
+  .then(rows=>rows.forEach(r=>{ const d=r.dados||{}, pos=Number.isInteger(r.posicao)&&r.posicao>0 ? r.posicao : null;
     const tr0 = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, cb=BOATS.find(b=>b.slug===r.slug);
     /* lancha do código (Miss Bardot, Midas...): o que foi editado no app vale por cima do código; fotos, vídeo e avaliações continuam do código (2026-11-04: todas no mesmo padrão) */
     if(cb){ if(!d.capacidade || (d.cidade||"buzios")!==CIDADE) return; const e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[], antes=JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding]);
+      if(pos!==(cb.pos??null)){ cb.pos=pos; dbAdded++; }
       cb.db=true; cb.name=r.nome||cb.name; cb.feet=+d.pes||cb.feet; cb.capacity=d.capacidade;
       cb.tagline=tr0(d.frase,"pt")||cb.tagline; cb.description=tr0(d.descricao,"pt")||cb.description;
       cb.i18n=Object.fromEntries(["en","es"].map(l=>[l,{...(cb.i18n?.[l]||{}), tagline:tr0(d.frase,l)||cb.i18n?.[l]?.tagline, description:tr0(d.descricao,l)||cb.i18n?.[l]?.description}]));
@@ -2749,7 +2753,7 @@ const dbBoats = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,no
       if(antes!==JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding])) dbAdded++; return; }
     if((d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
-    dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true, dbNew:true,
+    dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true, dbNew:true, pos,
       feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
       tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
       i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
