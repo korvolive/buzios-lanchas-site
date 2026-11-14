@@ -4243,8 +4243,17 @@ function asJanela(){
 /* voltou ao app: a faixa reaparece e, se saiu versão nova do app, recarrega (ninguém fica preso na versão velha) */
 let appTam=0; fetch("/login/?v="+Date.now(),{cache:"no-store"}).then(r=>r.text()).then(x=>{ appTam=x.length; }).catch(()=>{});
 /* versão nova do app (Rodrigo 2026-11-11): sem nada digitado, recarrega sozinho; com formulário em uso, mostra "Atualizar" no topo */
+/* versão nova só recarrega sozinha com a pessoa parada (Rodrigo 2026-11-14: não perder nada do que alguém está fazendo).
+   Qualquer campo mexido em qualquer lugar, campo em foco, passeio, chat, planilha, janela ou cadastro aberto: só mostra "Atualizar" no topo. */
+const appVisivel = el => !el.hidden && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+const appOcupado = () => busyTyping() || !!document.querySelector("#sheet.on,#plan,#pxx,#rcprint,#asjan")
+  || [...document.querySelectorAll("[role=dialog]:not(#sheet)")].some(appVisivel)
+  || (typeof chatCid!=="undefined" && !!chatCid) || (typeof sheetDay!=="undefined" && !!sheetDay) || (typeof tripRow!=="undefined" && !!tripRow)
+  || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||"")
+  || [...document.querySelectorAll("input:not([type=file]):not([type=search]):not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea")].some(i=>i.value!==i.defaultValue)
+  || [...document.querySelectorAll("input[type=file]")].some(i=>i.files?.length);
 function appNova(){ if(!appTam || document.getElementById("appnova")) return; fetch("/login/?v="+Date.now(),{cache:"no-store"}).then(r=>r.text()).then(x=>{
-  if(!x.length || x.length===appTam) return; if(!busyTyping() && !document.querySelector("#sheet.on") && ![...document.querySelectorAll("#sheet input:not([type=file]),#sheet textarea")].some(i=>i.value!==i.defaultValue)) return location.reload();
+  if(!x.length || x.length===appTam) return; if(!appOcupado()) return location.reload();
   const w=document.createElement("div"); w.id="appnova"; w.setAttribute("role","status");
   w.style.cssText="position:fixed;top:0;left:0;right:0;z-index:10000;background:var(--sea-deep,#0a2e3b);color:#fff;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 12px calc(10px) 12px;padding-top:calc(10px + env(safe-area-inset-top));font-size:14px";
   w.innerHTML=`<span>${t("appNovaT")}</span><button type="button" class="btn sm" style="width:auto;margin:0">${t("appNovaGo")}</button>`;
