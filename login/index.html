@@ -3545,10 +3545,11 @@ function fotoPendHTML(){
 }
 const loadFotoPend = () => S.admin ? db("fotos_pendentes?select=id,lancha,f,criado_em&order=id").then(r=>{ S.fotoPend=r; }, ()=>{ S.fotoPend=[]; }) : Promise.resolve();
 function setCover(l, L){ if(L?.[0]) PHOTO[l]=[L[0].f, L[0].p||"center"]; }
+const phLim = p => Promise.race([p, new Promise((_,no)=>setTimeout(()=>no({status:0}), 15000))]); /* rede travada (app voltando do fundo): em 15 s vira erro com "tentar de novo", não fica em "…" (2026-11-14) */
 async function loadPhotos(l){
-  try{ const r=await db(`fotos?select=lista&lancha=eq.${encodeURIComponent(l)}`); S.photos=r[0]?.lista||[]; setCover(l,S.photos); }
-  catch(e){ S.photos = (e.status===404||e.status===400) ? false : "err"; } /* erro: mostra a mensagem com "tentar de novo", nunca fica carregando */
-  S.pend = await db(`fotos_pendentes?select=id,f&lancha=eq.${encodeURIComponent(l)}&order=id`).catch(()=>[]);
+  try{ const r=await phLim(db(`fotos?select=lista&lancha=eq.${encodeURIComponent(l)}`)); if(l!==S.cur) return; S.photos=r[0]?.lista||[]; setCover(l,S.photos); }
+  catch(e){ if(l!==S.cur) return; S.photos = (e.status===404||e.status===400) ? false : "err"; } /* erro: mostra a mensagem com "tentar de novo", nunca fica carregando */
+  const pd = await phLim(db(`fotos_pendentes?select=id,f&lancha=eq.${encodeURIComponent(l)}&order=id`)).catch(()=>[]); if(l===S.cur) S.pend=pd;
 }
 /* capa: precisa mostrar a lancha inteira (detector de objetos no aparelho, modelo /login/lancha.tflite).
    Se a lancha couber no recorte 4:3 do card do site, devolve o enquadramento (p) que centraliza a lancha. */
@@ -6801,7 +6802,8 @@ async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o con
     if(S.admin) db(`precos?select=*&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.no7=false; return r; }, e=>{ if(e.status!==400) throw e; S.no7=true; /* colunas de 7 horas ainda não criadas */ return db(`precos?select=baixa,media,alta,pico,reveillon&lancha=eq.${encodeURIComponent(l)}`); })
       .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     S.neto=null; if(S.admin) db(`precos_neto?select=chave,neto,comissao,ref,taxa_pct&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.hasTaxa=true; return r; }, e=>{ if(e.status!==400) throw e; S.hasTaxa=false; /* sem a coluna taxa_pct ainda */ return db(`precos_neto?select=chave,neto,comissao,ref&lancha=eq.${encodeURIComponent(l)}`); }).catch(e=>{ if(e.status!==400) throw e; return db(`precos_neto?select=chave,neto,comissao&lancha=eq.${encodeURIComponent(l)}`); /* sem a coluna ref ainda */ }).then(r=>{ S.neto=Object.fromEntries(r.map(x=>[x.chave,x])); S.hasRef=r.some(x=>"ref" in x); }, e=>{ S.neto=false; /* tabela ainda não criada: editor antigo */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
-    S.photos=null; S.pend=[]; loadPhotos(l).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
+    if(S.photosOf!==l || S.photos==="err"){ S.photos=null; S.pend=[]; } S.photosOf=l; /* mesma lancha: mantém as fotos na tela enquanto recarrega, sem voltar para "…" */
+    loadPhotos(l).then(()=>{ if(l===S.cur && S.tab==="lancha" && view==="main") bgView(); }); /* desenha quando chegam, mesmo se outra recarga começou no meio (antes ficava preso em "…") (2026-11-14) */
     S.cupDono=undefined; if(S.admin || S.own?.includes(l)) db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(r=>{ S.cupDono=r.find(x=>x.lancha===l)||null; } /* a tabela não tem leitura direta: a rpc devolve todas */, e=>{ S.cupDono=(e.status===404||e.status===400) ? false : undefined; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     try{ const r=await db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`); if(my!==loadSeq) return; S.items = r[0]?.opcionais || []; S.err=""; }
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
