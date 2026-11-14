@@ -14,13 +14,18 @@ const dig = (x: unknown) => String(x || "").replace(/\D/g, "");
 const mascara = (e: string) => { const [u, d] = e.split("@"); return `${u.slice(0, 2)}•••@${d}`; };
 const SEM = "@sem-email.lanchaembuzios.com.br";
 
-// contas com esse celular: clientes (WhatsApp do cadastro) e equipe (perfis)
+// contas com esse celular: clientes (WhatsApp do cadastro) e equipe (perfis, marinheiros, freelancers)
 async function contas(d: string) {
   const ids = new Set<string>();
   const { data: cs } = await db.from("clientes").select("user_id, whatsapp");
   (cs || []).forEach(c => { if (dig(c.whatsapp) === d) ids.add(c.user_id); });
   const { data: ps } = await db.from("perfis").select("user_id, telefone");
   (ps || []).forEach(p => { if (dig(p.telefone) === d) ids.add(p.user_id); });
+  // marinheiros fixos e freelancers: o celular que o dono cadastrou fica só nessas tabelas (2026-11-14)
+  for (const t of ["marinheiros", "freelancers"]) {
+    const { data: ms } = await db.from(t).select("user_id, telefone");
+    (ms || []).forEach(m => { if (m.user_id && dig(m.telefone) === d) ids.add(m.user_id); });
+  }
   const emails: string[] = [];
   for (const id of [...ids].slice(0, 3)) {
     const { data } = await db.auth.admin.getUserById(id);
