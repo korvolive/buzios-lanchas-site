@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-14)
 
 ## Corpus Check
-- 141 files · ~317,837 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1061 nodes · 1730 edges · 84 communities (51 shown, 33 thin omitted)
@@ -90,21 +88,21 @@
 5. `X()` - 13 edges
 6. `public.cancelar_pre_reserva()` - 13 edges
 7. `public.marcar_wa()` - 13 edges
-8. `public.aprovar_consulta()` - 12 edges
-9. `public.lancar_pedido_operador()` - 12 edges
+8. `public.lancar_pedido_operador()` - 12 edges
+9. `public.aprovar_consulta()` - 12 edges
 10. `public.marcar_wa()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
   supabase/sql/2026-11-05_revisao-diaria.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
-- `public.aprovar_alteracao()` --writes_to--> `public.alteracoes_pedidas`  [EXTRACTED]
-  supabase/sql/2026-10-30_ajustes-alteracao.sql → supabase/sql/2026-10-30_operador-um-toque.sql
 - `public.aprovar_consulta()` --writes_to--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-10-31_vendedor-lanca-pedido.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
 - `public._aprovar_consulta()` --writes_to--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-11-04_pedido-de-grupo.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
 - `public._convite_manual_marca_aviso()` --reads_from--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-11-04_venda-vendedor-aviso-oficial-sempre.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
+- `public.aprovar_alteracao()` --writes_to--> `public.alteracoes_pedidas`  [EXTRACTED]
+  supabase/sql/2026-10-30_ajustes-alteracao.sql → supabase/sql/2026-10-30_operador-um-toque.sql
 
 ## Import Cycles
 - None detected.
@@ -322,11 +320,11 @@ Nodes (7): public.alteracoes_pedidas, public.marcar_wa(), public.solicitar_alter
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
 - **Why does `public._valor_na_data()` connect `2026-10-30_operador-um-toque.sql` to `vendedores`, `public.anotacoes`, `public.aprovar_foto`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
