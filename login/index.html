@@ -35,7 +35,7 @@ html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body);min-height:100vh;-webkit-tap-highlight-color:transparent}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
-.top{position:sticky;top:0;z-index:5;background:var(--sea-deep);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:flex;align-items:center;gap:12px}
+.top{position:sticky;top:0;z-index:5;background:var(--sea-deep);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:flex;align-items:center;gap:12px}.top[hidden]{display:none}
 .top .me{position:relative;flex:none;border:0;background:none;padding:0;cursor:pointer;border-radius:50%}
 .top .me .face{width:40px;height:40px;font-size:15px;box-shadow:0 0 0 2px rgba(255,255,255,.55)}
 .top .me i{position:absolute;right:-4px;bottom:-3px;font-style:normal;font-size:11px;line-height:1;background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
@@ -821,9 +821,9 @@ Object.assign(T.es, {ctDono:"Dueño · {n}", ctMar:"Marinero · {n}", ctHi:"¡Ho
 Object.assign(T.pt, {socT:"Convidar sócio", socSub:"Convide alguém para vender com você. A comissão de cada venda dele é dividida meio a meio entre vocês dois. O preço para o cliente não muda.", socGo:"Convidar pelo WhatsApp", socNote:"Quem você convidar não pode convidar outras pessoas.", socMsg:"Oi! Te convidei para ser meu sócio na Búzios Lanchas: você indica passeios de lancha e a gente divide a comissão por igual. Crie sua conta:\n{url}", socList:"Seus sócios", socRow:"Comissão meio a meio", socEarn:"Sua parte nas vendas dos sócios", socRec:"A receber: {v}", socPaid:"Recebido: {v}", socNone:"Você ainda não convidou ninguém.", socSign:"{n} te convidou para ser sócio na Búzios Lanchas. Crie sua conta para começar a vender.", socSign0:"Você foi convidado para ser sócio na Búzios Lanchas. Crie sua conta para começar a vender.", socOk:"Pronto! Agora você também vende passeios. Veja o seu painel de vendas.", socJa:"Você já é vendedor, então o convite de sócio não vale para a sua conta.", socInv:"Esse convite de sócio não vale mais. Peça um novo para quem te convidou.", socQ:"Você abriu um convite para ser sócio na venda de passeios. Aceitar?", socErr:"Não deu para criar o convite. Tente de novo.", socSent:"Convite aberto no WhatsApp. Escolha a pessoa e envie.", vvMiss:"Para receber as suas comissões, confirme {o}. Você já pode vender normalmente.", vvEm:"o seu e-mail", vvWa:"o seu WhatsApp", vvBoth:"o seu WhatsApp e o seu e-mail", cmpFalta:"Falta confirmar {o}: a comissão fica liberada depois.", cmpFEm:"e-mail", cmpFWa:"WhatsApp", cmpFBoth:"WhatsApp e e-mail", cmpInd:"parte da venda de {m}", vlInd:"{n}: {v}", vlFalta:"Esse vendedor ainda não confirmou o WhatsApp e o e-mail."});
 Object.assign(T.en, {socT:"Invite a partner", socSub:"Invite someone to sell with you. The commission on each of their sales is split 50/50 between you. The client price doesn't change.", socGo:"Invite on WhatsApp", socNote:"People you invite can't invite others.", socMsg:"Hi! I invited you to be my partner at Búzios Lanchas: you recommend boat tours and we split the commission 50/50. Create your account:\n{url}", socList:"Your partners", socRow:"50/50 commission", socEarn:"Your share of your partners' sales", socRec:"To receive: {v}", socPaid:"Received: {v}", socNone:"You haven't invited anyone yet.", socSign:"{n} invited you to be a partner at Búzios Lanchas. Create your account to start selling.", socSign0:"You were invited to be a partner at Búzios Lanchas. Create your account to start selling.", socOk:"Done! You can now sell tours too. Check your sales panel.", socJa:"You're already a seller, so the partner invite doesn't apply to your account.", socInv:"This partner invite is no longer valid. Ask the person who invited you for a new one.", socQ:"You opened an invite to become a partner selling boat tours. Accept?", socErr:"Couldn't create the invite. Try again.", socSent:"Invite opened in WhatsApp. Pick the person and send it.", vvMiss:"To get your commissions, confirm {o}. You can already sell as usual.", vvEm:"your email", vvWa:"your WhatsApp", vvBoth:"your WhatsApp and your email", cmpFalta:"Still needs to confirm {o}: the commission is released after that.", cmpFEm:"email", cmpFWa:"WhatsApp", cmpFBoth:"WhatsApp and email", cmpInd:"share of {m}'s sale", vlInd:"{n}: {v}", vlFalta:"This seller hasn't confirmed WhatsApp and email yet."});
 Object.assign(T.es, {socT:"Invitar socio", socSub:"Invita a alguien a vender contigo. La comisión de cada venta suya se divide mitad y mitad entre ustedes dos. El precio para el cliente no cambia.", socGo:"Invitar por WhatsApp", socNote:"Quien invites no puede invitar a otras personas.", socMsg:"¡Hola! Te invité a ser mi socio en Búzios Lanchas: recomiendas paseos en lancha y dividimos la comisión mitad y mitad. Crea tu cuenta:\n{url}", socList:"Tus socios", socRow:"Comisión mitad y mitad", socEarn:"Tu parte en las ventas de tus socios", socRec:"Por recibir: {v}", socPaid:"Recibido: {v}", socNone:"Todavía no invitaste a nadie.", socSign:"{n} te invitó a ser socio en Búzios Lanchas. Crea tu cuenta para empezar a vender.", socSign0:"Te invitaron a ser socio en Búzios Lanchas. Crea tu cuenta para empezar a vender.", socOk:"¡Listo! Ahora tú también vendes paseos. Mira tu panel de ventas.", socJa:"Ya eres vendedor, así que la invitación de socio no vale para tu cuenta.", socInv:"Esta invitación de socio ya no es válida. Pide una nueva a quien te invitó.", socQ:"Abriste una invitación para ser socio en la venta de paseos. ¿Aceptar?", socErr:"No se pudo crear la invitación. Inténtalo de nuevo.", socSent:"Invitación abierta en WhatsApp. Elige a la persona y envíala.", vvMiss:"Para recibir tus comisiones, confirma {o}. Ya puedes vender normalmente.", vvEm:"tu correo", vvWa:"tu WhatsApp", vvBoth:"tu WhatsApp y tu correo", cmpFalta:"Falta confirmar {o}: la comisión se libera después.", cmpFEm:"correo", cmpFWa:"WhatsApp", cmpFBoth:"WhatsApp y correo", cmpInd:"parte de la venta de {m}", vlInd:"{n}: {v}", vlFalta:"Este vendedor todavía no confirmó el WhatsApp y el correo."});
-Object.assign(T.pt, {asFNome:"Escreva o seu nome completo.", asFEmail:"Confira o e-mail. Exemplo: nome@gmail.com", asFCel:"Confira o celular, com DDD.", asFCep:"Confira o CEP: são 8 números.", asFRua:"Escreva o nome da rua.", asFNum:"Escreva o número da casa. Se não tiver, escreva S/N.", asFBairro:"Escreva o bairro.", asFNasc:"Escreva a data de nascimento assim: 25/03/1980.", asNumPh:"Ex.: 120 ou S/N", asEnviando:"Criando a sua conta… não feche o app.", asSeus:"Seus dados", asAlt:"Alterar", asEnd:"Endereço", asDocsGo:"Enviar documento e selfie", asDocsPrep:"Conta criada. O Asaas está preparando o envio do documento e da selfie: o botão aparece aqui em instantes, sem precisar fazer nada. Se demorar, feche e abra o app.", asAntes:"Antes de começar, tenha em mãos: CPF, data de nascimento, CEP e um documento com foto (RG, CNH ou a CNH digital do app Carteira Digital de Trânsito). Leva uns 3 minutos.", asDicas:"Documento inteiro na foto, sem cortar as bordas e sem reflexo de flash.|CNH digital: pode enviar o arquivo ou o print do app Carteira Digital de Trânsito.|Selfie com o rosto descoberto (sem óculos escuros nem boné), em lugar claro.", asDocsRej:"O Asaas pediu para enviar o documento de novo.", asDocsAnal:"Concluído com sucesso! Seus documentos foram enviados. O Asaas está conferindo e você recebe um aviso quando a conta for aprovada.", asConfT:"Conferindo seu envio...", asConfSub:"Só um instante: estamos confirmando com o Asaas que o documento e a selfie chegaram.", asDocsOk:"Conta aprovada ✓"});
-Object.assign(T.en, {asFNome:"Write your full name.", asFEmail:"Check the email. Example: name@gmail.com", asFCel:"Check the mobile number, with area code.", asFCep:"Check the CEP (postal code): 8 digits.", asFRua:"Write the street name.", asFNum:"Write the house number. If there is none, write S/N.", asFBairro:"Write the neighborhood.", asFNasc:"Write the date of birth like this: 25/03/1980 (day/month/year).", asNumPh:"E.g. 120 or S/N", asEnviando:"Creating your account… don't close the app.", asSeus:"Your details", asAlt:"Change", asEnd:"Address", asDocsGo:"Send ID and selfie", asDocsPrep:"Account created. Asaas is preparing the ID and selfie step: the button shows up here in a moment, no action needed. If it takes long, close and reopen the app.", asAntes:"Before you start, have at hand: CPF, date of birth, postcode (CEP) and a photo ID (RG, CNH or the digital CNH from the Carteira Digital de Trânsito app). It takes about 3 minutes.", asDicas:"The whole document in the photo, no cropped edges and no flash glare.|Digital CNH: you can send the file or a screenshot from the Carteira Digital de Trânsito app.|Selfie with your face uncovered (no sunglasses or cap), in a well-lit place.", asDocsRej:"Asaas asked you to send your ID again.", asDocsAnal:"Done! Your documents were sent. Asaas is checking them and you will get a notice when your account is approved.", asConfT:"Checking your submission...", asConfSub:"Just a moment: we are confirming with Asaas that your ID and selfie arrived.", asDocsOk:"Account approved ✓"});
-Object.assign(T.es, {asFNome:"Escribe tu nombre completo.", asFEmail:"Revisa el e-mail. Ejemplo: nombre@gmail.com", asFCel:"Revisa el celular, con código de área.", asFCep:"Revisa el CEP (código postal): 8 números.", asFRua:"Escribe el nombre de la calle.", asFNum:"Escribe el número de la casa. Si no tiene, escribe S/N.", asFBairro:"Escribe el barrio.", asFNasc:"Escribe la fecha de nacimiento así: 25/03/1980 (día/mes/año).", asNumPh:"Ej.: 120 o S/N", asEnviando:"Creando tu cuenta… no cierres la app.", asSeus:"Tus datos", asAlt:"Cambiar", asEnd:"Dirección", asDocsGo:"Enviar documento y selfie", asDocsPrep:"Cuenta creada. Asaas está preparando el envío del documento y la selfie: el botón aparece aquí en unos instantes, sin hacer nada. Si tarda, cierra y abre la app.", asAntes:"Antes de empezar, ten a mano: CPF, fecha de nacimiento, código postal (CEP) y un documento con foto (RG, CNH o la CNH digital de la app Carteira Digital de Trânsito). Lleva unos 3 minutos.", asDicas:"El documento entero en la foto, sin cortar los bordes y sin reflejo del flash.|CNH digital: puedes enviar el archivo o una captura de la app Carteira Digital de Trânsito.|Selfie con la cara descubierta (sin lentes de sol ni gorra), en un lugar con buena luz.", asDocsRej:"Asaas pidió enviar el documento de nuevo.", asDocsAnal:"¡Listo! Tus documentos fueron enviados. Asaas los está revisando y recibirás un aviso cuando tu cuenta sea aprobada.", asConfT:"Revisando tu envío...", asConfSub:"Un momento: estamos confirmando con Asaas que el documento y la selfie llegaron.", asDocsOk:"Cuenta aprobada ✓"});
+Object.assign(T.pt, {asCompOpt:"Complemento (apto, bloco) - opcional", asEndFix:"Corrigir endereço", authWait:"Muitas tentativas. Espere 1 minuto e tente de novo.", pwWeak:"Essa senha é fácil demais. Use outra, misturando letras e números.", pwSame:"A senha nova precisa ser diferente da antiga.", authFail:"Não deu certo agora. Confira os dados e tente de novo.", preGuardada:"Sua pré-reserva está guardada. Crie sua conta (ou entre, se já tiver) para ver o passeio e pagar o sinal.", asFNome:"Escreva o seu nome completo.", asFEmail:"Confira o e-mail. Exemplo: nome@gmail.com", asFCel:"Confira o celular, com DDD.", asFCep:"Confira o CEP: são 8 números.", asFRua:"Escreva o nome da rua.", asFNum:"Escreva o número da casa. Se não tiver, escreva S/N.", asFBairro:"Escreva o bairro.", asFNasc:"Escreva a data de nascimento assim: 25/03/1980.", asNumPh:"Ex.: 120 ou S/N", asEnviando:"Criando a sua conta… não feche o app.", asSeus:"Seus dados", asAlt:"Alterar", asEnd:"Endereço", asDocsGo:"Enviar documento e selfie", asDocsPrep:"Conta criada. O Asaas está preparando o envio do documento e da selfie: o botão aparece aqui em instantes, sem precisar fazer nada. Se demorar, feche e abra o app.", asAntes:"Antes de começar, tenha em mãos: CPF, data de nascimento, CEP e um documento com foto (RG, CNH ou a CNH digital do app Carteira Digital de Trânsito). Leva uns 3 minutos.", asDicas:"Documento inteiro na foto, sem cortar as bordas e sem reflexo de flash.|CNH digital: pode enviar o arquivo ou o print do app Carteira Digital de Trânsito.|Selfie com o rosto descoberto (sem óculos escuros nem boné), em lugar claro.", asDocsRej:"O Asaas pediu para enviar o documento de novo.", asDocsAnal:"Concluído com sucesso! Seus documentos foram enviados. O Asaas está conferindo e você recebe um aviso quando a conta for aprovada.", asConfT:"Conferindo seu envio...", asConfSub:"Só um instante: estamos confirmando com o Asaas que o documento e a selfie chegaram.", asDocsOk:"Conta aprovada ✓"});
+Object.assign(T.en, {asCompOpt:"Address line 2 (apt, block) - optional", asEndFix:"Fix address", authWait:"Too many tries. Wait 1 minute and try again.", pwWeak:"That password is too easy to guess. Choose another one, mixing letters and numbers.", pwSame:"The new password must be different from the old one.", authFail:"That didn't work. Check your details and try again.", preGuardada:"Your pre-booking is on hold. Create your account (or sign in if you have one) to see the trip and pay the deposit.", asFNome:"Write your full name.", asFEmail:"Check the email. Example: name@gmail.com", asFCel:"Check the mobile number, with area code.", asFCep:"Check the CEP (postal code): 8 digits.", asFRua:"Write the street name.", asFNum:"Write the house number. If there is none, write S/N.", asFBairro:"Write the neighborhood.", asFNasc:"Write the date of birth like this: 25/03/1980 (day/month/year).", asNumPh:"E.g. 120 or S/N", asEnviando:"Creating your account… don't close the app.", asSeus:"Your details", asAlt:"Change", asEnd:"Address", asDocsGo:"Send ID and selfie", asDocsPrep:"Account created. Asaas is preparing the ID and selfie step: the button shows up here in a moment, no action needed. If it takes long, close and reopen the app.", asAntes:"Before you start, have at hand: CPF, date of birth, postcode (CEP) and a photo ID (RG, CNH or the digital CNH from the Carteira Digital de Trânsito app). It takes about 3 minutes.", asDicas:"The whole document in the photo, no cropped edges and no flash glare.|Digital CNH: you can send the file or a screenshot from the Carteira Digital de Trânsito app.|Selfie with your face uncovered (no sunglasses or cap), in a well-lit place.", asDocsRej:"Asaas asked you to send your ID again.", asDocsAnal:"Done! Your documents were sent. Asaas is checking them and you will get a notice when your account is approved.", asConfT:"Checking your submission...", asConfSub:"Just a moment: we are confirming with Asaas that your ID and selfie arrived.", asDocsOk:"Account approved ✓"});
+Object.assign(T.es, {asCompOpt:"Complemento (depto, bloque) - opcional", asEndFix:"Corregir dirección", authWait:"Demasiados intentos. Espera 1 minuto y vuelve a intentarlo.", pwWeak:"Esa contraseña es demasiado fácil. Usa otra, mezclando letras y números.", pwSame:"La contraseña nueva tiene que ser distinta de la anterior.", authFail:"No funcionó. Revisa los datos y vuelve a intentarlo.", preGuardada:"Tu prerreserva está guardada. Crea tu cuenta (o entra si ya tienes una) para ver el paseo y pagar la seña.", asFNome:"Escribe tu nombre completo.", asFEmail:"Revisa el e-mail. Ejemplo: nombre@gmail.com", asFCel:"Revisa el celular, con código de área.", asFCep:"Revisa el CEP (código postal): 8 números.", asFRua:"Escribe el nombre de la calle.", asFNum:"Escribe el número de la casa. Si no tiene, escribe S/N.", asFBairro:"Escribe el barrio.", asFNasc:"Escribe la fecha de nacimiento así: 25/03/1980 (día/mes/año).", asNumPh:"Ej.: 120 o S/N", asEnviando:"Creando tu cuenta… no cierres la app.", asSeus:"Tus datos", asAlt:"Cambiar", asEnd:"Dirección", asDocsGo:"Enviar documento y selfie", asDocsPrep:"Cuenta creada. Asaas está preparando el envío del documento y la selfie: el botón aparece aquí en unos instantes, sin hacer nada. Si tarda, cierra y abre la app.", asAntes:"Antes de empezar, ten a mano: CPF, fecha de nacimiento, código postal (CEP) y un documento con foto (RG, CNH o la CNH digital de la app Carteira Digital de Trânsito). Lleva unos 3 minutos.", asDicas:"El documento entero en la foto, sin cortar los bordes y sin reflejo del flash.|CNH digital: puedes enviar el archivo o una captura de la app Carteira Digital de Trânsito.|Selfie con la cara descubierta (sin lentes de sol ni gorra), en un lugar con buena luz.", asDocsRej:"Asaas pidió enviar el documento de nuevo.", asDocsAnal:"¡Listo! Tus documentos fueron enviados. Asaas los está revisando y recibirás un aviso cuando tu cuenta sea aprobada.", asConfT:"Revisando tu envío...", asConfSub:"Un momento: estamos confirmando con Asaas que el documento y la selfie llegaron.", asDocsOk:"Cuenta aprobada ✓"});
 /* conta aprovada compacta e botão de saque sempre visível (Rodrigo 2026-11-12) */
 Object.assign(T.pt, {asAtiva:"Conta Asaas ativa", sqAbrir:"Sacar para o meu Pix", sqVazio:"Quando cair dinheiro na sua conta, é só tocar aqui para sacar."});
 Object.assign(T.en, {asAtiva:"Asaas account active", sqAbrir:"Withdraw to my Pix", sqVazio:"When money lands in your account, just tap here to withdraw."});
@@ -1181,7 +1181,7 @@ function checkWa(){
   cwFn({acao:"status"}).then(j=>{ const on=j.ativo===true; store.set("wa-on",on); if(on!==waOn){ waOn=on; if((view==="login"||view==="signup") && !app.querySelector("input:focus")) show(); } });
 }
 /* ===== telas ===== */
-let view = "login", loginMsg = "", loginErr = false, typedEmail = "", loginBy = store.get("dono-by")==="tel" ? "tel" : "email";
+let view = "login", loginMsg = "", loginErr = false, typedEmail = "", typedTel = "", loginBy = store.get("dono-by")==="tel" ? "tel" : "email";
 function show(){
   document.title = "Buzios Lanchas"; /* nome do app na tela de início: sem acento ( */ checkGoogle();
   checkWa();
@@ -1239,13 +1239,13 @@ function loginView(){
   top_.hidden = true;
   app.innerHTML = `<div class="login">
     <div style="display:flex;justify-content:space-between;align-items:flex-start"><img class="logo" src="/login/icon-192.png" alt=""><span class="top-lang" style="background:var(--sea-deep);border-radius:999px">${langSel()}</span></div>
-    <h1>${t("loginTitle")}</h1><p class="muted">${pendRes() ? t("resLoginSub",{boat:esc(pendRes().nome)}) : t("loginSub")}</p>
+    <h1>${t("loginTitle")}</h1><p class="muted">${pendRes() ? t("resLoginSub",{boat:esc(pendRes().nome)}) : t("loginSub")}</p>${preBox()}
     <h2 class="haveacc">${t("haveAccT")}</h2>
     <form class="card" id="lf" novalidate>
       ${bioLoginBtn()}
       ${loginMsg?`<p class="msg ${loginErr?"err":"ok"}">${loginMsg}</p>`:""}
       <div class="lgby" role="group"><button type="button" data-by="email" aria-pressed="${loginBy==="email"}">✉ ${t("email")}</button><button type="button" data-by="tel" aria-pressed="${loginBy==="tel"}">📱 ${t("byPhone")}</button>${googleOn ? `<a class="lgg" href="${googleHref()}">${GOOGLE_ICON}<span>Google</span></a>` : ""}</div>
-      ${loginBy==="tel" ? phoneField("lg", t("whats"), store.get("dono-tel")||"") : `<label class="f"><span>${t("email")}</span><input type="email" id="em" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(typedEmail||store.get("dono-email")||"")}" required></label>`}
+      ${loginBy==="tel" ? phoneField("lg", t("whats"), typedTel||store.get("dono-tel")||"") : `<label class="f"><span>${t("email")}</span><input type="email" id="em" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(typedEmail||store.get("dono-email")||"")}" required></label>`}
       <label class="f"><span>${t("password")}</span><div class="pw"><input type="password" id="pw" autocomplete="current-password" required><button type="button" id="eye">${t("show")}</button></div></label>
       <button class="btn" id="go">${t("enter")}</button>
       <button type="button" class="link" id="forgot">${t("forgot")}</button>${loginBy==="tel" ? `<p class="muted" style="font-size:13px;margin:6px 0 0">${t(waOn?"forgotTelHintWa":"forgotTelHint")}</p>` : ""}
@@ -1263,7 +1263,7 @@ function loginView(){
   { const bb=document.getElementById("biologin"); if(bb){ bb.onclick=()=>bioLogin(); } }
   document.getElementById("lf").onsubmit = async e => { e.preventDefault(); if(em) typedEmail = em.value;
     const go=document.getElementById("go");
-    if(loginBy==="tel"){ const ph=readPhone("lg");
+    if(loginBy==="tel"){ const ph=readPhone("lg"); typedTel=ph.raw;
       if(!ph.ok){ loginErr=true; loginMsg=t("telBad"); return loginView(); }
       store.set("dono-tel", ph.tel); go.disabled=true; go.textContent=t("entering");
       try{ const j = await telFn({tel:ph.tel, senha:pw.value});
@@ -1283,8 +1283,8 @@ function loginView(){
       loginErr=true; loginMsg = err.code==="user_banned" ? t("blockedMsg") : err.status ? t("badLogin") : t("netErr"); loginView(); }
   };
   document.getElementById("tosign").onclick = () => { loginMsg=""; view="signup"; show(); };
-  document.getElementById("forgot").onclick = async () => {
-    if(loginBy==="tel"){ const ph=readPhone("lg"); if(!ph.ok){ loginErr=true; loginMsg=t("telBad"); return loginView(); }
+  document.getElementById("forgot").onclick = async e => { const fb=e.currentTarget; if(fb.disabled) return; fb.disabled=true; setTimeout(()=>{ fb.disabled=false; }, 8000); /* sem toque duplo enquanto envia (o servidor recusa o 2º e-mail) */
+    if(loginBy==="tel"){ const ph=readPhone("lg"); typedTel=ph.raw; if(!ph.ok){ loginErr=true; loginMsg=t("telBad"); return loginView(); }
       if(waOn){ /* cliente com o WhatsApp confirmado: código no WhatsApp e senha nova aqui mesmo; os outros seguem pelo e-mail */
         const j = await cwFn({acao:"enviar", tel:ph.tel.replace(/\D/g,""), lang, para:"senha"});
         if(j.ok){ waFlow={mode:"senha", tel:ph.tel.replace(/\D/g,""), show:ph.tel}; pendSet({k:"wa", mode:"senha", tel:waFlow.tel, show:waFlow.show}); wcMsg=""; view="wacode"; return show(); }
@@ -1294,7 +1294,7 @@ function loginView(){
       return loginView(); }
     const email=em.value.trim(); if(!email){ loginErr=true; loginMsg=t("needEmail"); return loginView(); }
     try{ await authCall("recover?redirect_to="+encodeURIComponent(location.origin+"/login/"), {email}); store.set("dono-email",email); loginErr=false; loginMsg=t("forgotSent",{email:esc(email)}); }
-    catch(err){ loginErr=true; loginMsg = err.status ? esc(err.message) : t("netErr"); }
+    catch(err){ loginErr=true; loginMsg = authErr(err); }
     loginView();
   };
 }
@@ -1332,7 +1332,7 @@ function codeView(){
   kc.oninput=()=>{ kc.value=kc.value.replace(/\D/g,""); };
   document.getElementById("kb").onclick=()=>{ codeMsg=""; pendSet(null); if(vf){ codeMode="signup"; return logout(); } view="login"; show(); };
   document.getElementById("kr").onclick=async()=>{ try{ if(vf) await sendVerify(true); else { await authCall("resend",{type:"signup", email:codeEmail}); emSent(); } codeErr=false; codeMsg=t("codeSent",{email:esc(codeEmail)}); }
-    catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : err.status ? esc(err.message) : t("netErr"); } codeView(); };
+    catch(err){ codeErr=true; codeMsg = err.status===429 ? t("codeWait") : authErr(err); } codeView(); };
   document.getElementById("kf").onsubmit=async e=>{ e.preventDefault(); const go=document.getElementById("go"), token=kc.value.trim();
     if(token.length<6){ codeErr=true; codeMsg=t("codeBad"); return codeView(); }
     go.disabled=true;
@@ -1378,7 +1378,7 @@ function newPwView(){
   document.getElementById("nf").onsubmit = async e => { e.preventDefault();
     if(pw.value.length<6){ loginMsg=t("pwShort"); return newPwView(); }
     try{ await authCall("user", {password:pw.value}, "PUT", await fresh()); loginMsg=""; view="main"; toast(t("pwSaved")); await boot(); }
-    catch(err){ loginMsg = err.status ? esc(err.message) : t("netErr"); newPwView(); }
+    catch(err){ loginMsg = authErr(err); newPwView(); }
   };
 }
 
@@ -1434,11 +1434,13 @@ async function saveProfile(data){
   try{ await db("clientes",{method:"POST", body:data, prefer:"return=minimal"}); S.me=data; store.set("cli-draft",null); return ""; }
   catch(e){ return e.code==="23505" ? t(/whatsapp/i.test(e.message) ? "telTaken" : "cpfTaken") : e.status===400 && /check/i.test(e.message) ? t("cpfBad") : t("saveErr"); }
 }
+/* link da pré-reserva (?c=) aberto por quem ainda não entrou: explica por que criar a conta (2026-11-14) */
+const preBox = () => store.get("conv-c") ? `<p class="msg ok">${t("preGuardada")}</p>` : "";
 function loginShell(title, sub, form){
   top_.hidden = true;
   app.innerHTML = `<div class="login">
     <div style="display:flex;justify-content:space-between;align-items:flex-start"><img class="logo" src="/login/icon-192.png" alt=""><span class="top-lang" style="background:var(--sea-deep);border-radius:999px">${langSel()}</span></div>
-    <h1>${title}</h1><p class="muted">${sub}</p>${form}</div>`;
+    <h1>${title}</h1><p class="muted">${sub}</p>${preBox()}${form}</div>`;
   const s=document.querySelector(".top-lang select"); if(s){ s.style.border="0"; s.style.background="transparent"; s.style.color="#fff"; s.style.padding="8px 12px"; }
   bindLang();
 }
@@ -1506,7 +1508,7 @@ function signupView(){
       if(!s.access_token){ codeEmail=email; codePw=pw.value; codeMsg=""; pendSet({k:"email", email:codeEmail}); emSent(); view="code"; return show(); } /* confirmação do e-mail por código */
       saveSes(s); view="main"; await boot(); }
     catch(err){ go.disabled=false; go.textContent=t("createAcc");
-      out.innerHTML=`<p class="msg err">${err.status===422 || /registered|exists/i.test(err.code+err.message) ? t("emailTaken") : err.status ? esc(err.message) : t("netErr")}</p>`; }
+      out.innerHTML=`<p class="msg err">${authErr(err)}</p>`; }
   };
 }
 /* conta sem os dados de cliente (ou o CPF deu problema): completa aqui */
@@ -4245,6 +4247,7 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
     <div class="asgrid">${f("as-cep","CEP",'type="text" inputmode="numeric" autocomplete="postal-code" placeholder="28950-000" maxlength="9"')}${f("as-num",t("asNum"),`type="text" autocomplete="off" placeholder="${t("asNumPh")}" maxlength="10"`)}</div>
     <p class="muted" id="as-endv" hidden style="margin:-4px 0 10px;font-size:14px"></p>
     <div id="as-end" hidden>${f("as-rua",t("asRua"),'autocomplete="address-line1"')}${f("as-bairro",t("asBairro"))}</div>
+    ${f("as-comp",t("asCompOpt"),'autocomplete="address-line2" maxlength="60"')}
     <p class="muted" style="font-size:14px">${t("asHow")}</p>
     <div id="as-msg"></div><button class="btn" id="as-go">${t("asGo")}</button></form></details>${adm}</div>`;
 }
@@ -4253,9 +4256,10 @@ document.addEventListener("input", e=>{ const x=e.target; if(x?.closest?.("#as-f
 document.addEventListener("input", e=>{ if(e.target.id==="as-doc"){ const pj=e.target.value.replace(/\D/g,"").length>11; document.getElementById("as-pj").hidden=!pj; document.getElementById("as-pf").hidden=pj; }
   if(e.target.id==="as-cep"){ const c=e.target.value.replace(/\D/g,""), r=document.getElementById("as-rua"), b=document.getElementById("as-bairro"), v=document.getElementById("as-endv"), box=document.getElementById("as-end");
     const abre=()=>{ box.hidden=false; v.hidden=true; };
-    if(c.length===8) fetch(`https://viacep.com.br/ws/${c}/json/`).then(r=>r.json()).then(j=>{ if(j.erro || !j.logradouro || !j.bairro) return abre(); r.value=j.logradouro; b.value=j.bairro; if(box.hidden){ v.textContent=`📍 ${j.logradouro}, ${j.bairro} · ${j.localidade||""}/${j.uf||""}`; v.hidden=false; } }).catch(abre); } });
+    if(c.length===8) fetch(`https://viacep.com.br/ws/${c}/json/`).then(r=>r.json()).then(j=>{ if(j.erro || !j.logradouro || !j.bairro) return abre(); r.value=j.logradouro; b.value=j.bairro; if(box.hidden){ v.innerHTML=`📍 ${esc(j.logradouro)}, ${esc(j.bairro)} · ${esc(j.localidade||"")}/${esc(j.uf||"")} <button type="button" class="link" data-asendfix>${t("asEndFix")}</button>`; v.hidden=false; } }).catch(abre); } });
 /* renda por faixa (Rodrigo 2026-11-11): um toque, o valor vai no campo escondido as-renda */
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-asrenda]"); if(!b) return; document.getElementById("as-renda").value=b.dataset.asrenda; b.parentNode.querySelectorAll("[data-asrenda]").forEach(x=>{ x.classList.toggle("sec", x!==b); x.setAttribute("aria-pressed", String(x===b)); }); });
+document.addEventListener("click", e=>{ if(!e.target.closest("[data-asendfix]")) return; document.getElementById("as-end").hidden=false; document.getElementById("as-endv").hidden=true; document.getElementById("as-rua").focus(); });
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-asalt]"); if(!b) return; document.getElementById("as-meus").hidden=false; b.closest(".asmeus").remove(); });
 document.addEventListener("click", async e=>{
   const b=e.target.closest("#as-go"); if(!b || !b.closest("#as-f")) return; e.preventDefault(); if(b.closest("[data-asprev]")) return toast("Prévia: aqui o dono cria a conta dele.");
@@ -4823,7 +4827,7 @@ const phoneField = (id, label, v) => { const ph=splitPhone(v); return `<div clas
 const bindPhone = id => { const dd=document.getElementById(id+"ddi"), tl=document.getElementById(id+"tel");
   dd.onchange=()=>{ tl.placeholder = dd.value==="55" ? t("ph_phone") : ""; if(dd.value==="55") tl.value=fmtBR(tl.value); };
   tl.oninput=()=>{ if(dd.value==="55") tl.value=fmtBR(tl.value); }; };
-const readPhone = id => { const cc=document.getElementById(id+"ddi").value, v=document.getElementById(id+"tel").value.trim(); return {ok:okPhone(cc,v.replace(/\D/g,"")), tel:`+${cc} ${v}`}; };
+const readPhone = id => { const cc=document.getElementById(id+"ddi").value, raw=document.getElementById(id+"tel").value.trim(), v=cc==="55" ? fmtBR(raw) : raw; return {ok:okPhone(cc,v.replace(/\D/g,"")), tel:`+${cc} ${v}`, raw:cc==="55" ? `+55 ${v}` : `+${cc} ${raw}`}; };
 function openOwner(o){
   if(!o) return;
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>${t("ownerProfT",{boat:esc(boatName(o.lancha))})}</h2><p class="muted" style="margin-top:0">${esc(o.email)}</p>
@@ -6708,7 +6712,7 @@ function bindMainRest(){
       document.getElementById("smsg").innerHTML=`<p class="msg ok">${created?t("created")+" ":""}${t("staffLinked",{email:esc(email), boat:esc(boat)})}</p>
         ${pw?`<a class="btn sec" style="margin:0 0 14px" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${t("sendWa")}</a>`:""}`;
       document.getElementById("smsg").scrollIntoView({block:"center"});
-    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+    }catch(err){ fail(authErr(err)); }
   };
   app.querySelectorAll("[data-refuse]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("cantGoQ"))) return; x.disabled=true;
     try{ await db("rpc/recusar_passeio",{method:"POST",body:{bid:+x.dataset.refuse}}); callFn({tipo:"recusou", id:+x.dataset.refuse}).catch(()=>{}); /* avisa o dono no celular e por e-mail */ S.myTrips = await sailorTrips(); toast(t("refusedOk")); mainView(); }
@@ -6756,7 +6760,7 @@ function bindMainRest(){
       if(r!=="ok"){ if(pw.length<6) return fail(t("needPw")); await authCall("signup", {email, password:pw}); r = await add(); if(r!=="ok") return fail(t("notFound")); created=true; }
       await reloadFree(); toast(t("freeLinked",{name:nome}));
       avisoEquipe({nome, email, tel, tipo:"freelancer", pw: created ? pw : ""});
-    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+    }catch(err){ fail(authErr(err)); }
   };
   const mf=document.getElementById("mf");
   if(mf){ const dd=document.getElementById("mddi"), tl=document.getElementById("mtel");
@@ -6785,7 +6789,7 @@ function bindMainRest(){
       S.staff = await db("rpc/lista_visualizadores",{method:"POST",body:{}}).catch(()=>S.staff);
       await reloadSailors(); toast(t("marLinked",{name:nome, boat:boatName(l)}));
       avisoEquipe({nome, email, tel, tipo:"fixo", lancha:l, pw: created ? pw : ""});
-    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+    }catch(err){ fail(authErr(err)); }
   };
   const af=document.getElementById("af");
   if(af){ const dd=document.getElementById("addi"), tl=document.getElementById("atel");
@@ -6838,7 +6842,7 @@ function bindMainRest(){
         ${needConfirm?`<p class="msg err">${t("confirmOn")}</p>`:""}
         ${pw?`<a class="btn sec" style="margin:0 0 14px" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${t("sendWa")}</a>`:""}`;
       document.getElementById("amsg").scrollIntoView({block:"center"});
-    }catch(err){ fail(err.status ? esc(err.message) : t("netErr")); }
+    }catch(err){ fail(authErr(err)); }
   };
 }
 
@@ -7205,7 +7209,17 @@ function splitPhone(v){
   if(v.startsWith("+")){ const d=v.replace(/\D/g,""), c=COUNTRIES.map(x=>x[1]).sort((a,b)=>b.length-a.length).find(c=>d.startsWith(c)); return c ? {cc:c, num:d.slice(c.length)} : {cc:d.slice(0,2), num:d.slice(2)}; }
   return {cc:"55", num:v};
 }
-function fmtBR(v){ const d=v.replace(/\D/g,"").slice(0,11); if(d.length<3) return d.length?`(${d}`:""; const a=d.slice(0,2), b=d.slice(2);
+/* erros do login em linguagem simples (2026-11-14): nunca mostra o texto técnico em inglês do servidor */
+const authErr = err => { const x=String((err?.code||"")+" "+(err?.message||"")); if(!err?.status) return t("netErr");
+  if(err.status===429 || /rate.?limit|after \d+ seconds|over_.*limit/i.test(x)) return t("authWait");
+  if(/weak_password|password.*(weak|short|least|characters|pwned)/i.test(x)) return t("pwWeak");
+  if(/same_password|different from the old/i.test(x)) return t("pwSame");
+  if(/user_already_exists|email_exists|already (registered|exists)/i.test(x)) return t("emailTaken");
+  if(/email_address_invalid|invalid.*email|validate email/i.test(x)) return t("emailBad");
+  return t("authFail"); };
+/* número brasileiro colado com +55 ou com 0 antes do DDD (2026-11-14): tira o 55 e os zeros antes de formatar e conferir */
+const brDig = v => { const r=String(v||"").trim(); let d=r.replace(/\D/g,"").replace(/^0+/,""); if((/^\+\s*55/.test(r) || d.length>11) && d.startsWith("55")) d=d.slice(2).replace(/^0+/,""); return d; };
+function fmtBR(v){ const d=brDig(v).slice(0,11); if(d.length<3) return d.length?`(${d}`:""; const a=d.slice(0,2), b=d.slice(2);
   return `(${a}) ` + (b.length>(d.length===11?5:4) ? b.slice(0,d.length===11?5:4)+"-"+b.slice(d.length===11?5:4) : b); }
 /* capacidade de cada lancha (a mesma do site, campo capacity em /index.html) */
 const CAPACITY = {"miss-bardot":16, "les-zuzu":8, "midas":12, "compostela":6, "bubbles":11};
@@ -7244,7 +7258,7 @@ function renderTripRO(){
 }
 /* WhatsApp válido: Brasil = DDD (11 a 99) + 8 dígitos (fixo, 2 a 5) ou 9 + 8 dígitos (celular); outros países = 6 a 15 dígitos no total */
 function okPhone(cc, d){
-  if(cc==="55") return /^[1-9][1-9](?:9\d{8}|[2-5]\d{7})$/.test(d);
+  if(cc==="55") return /^[1-9][1-9](?:9\d{8}|[2-5]\d{7})$/.test(brDig(d));
   return d.length>=6 && (cc+d).length<=15;
 }
 const REQ = `<b class="req" aria-hidden="true">*</b>`;
