@@ -948,6 +948,14 @@ function bindRoute(){
 /* Itens curtos do catálogo (incluso, legendas, tripulação): português → [inglês, espanhol].
    Ao incluir um item novo no catálogo, acrescente a tradução aqui; sem tradução, aparece em português. */
 const PHRASES = {
+  "Comandante e marinheiro habilitados":["Licensed captain and deckhand","Capitán y marinero habilitados"],
+  "Coletes salva-vidas para todos":["Life jackets for everyone","Chalecos salvavidas para todos"],
+  "Boias e bote de salvatagem":["Life rings and rescue boat","Boyas y bote salvavidas"],
+  "Extintores de incêndio":["Fire extinguishers","Extintores de incendio"],
+  "Gelo escama (1 caixa)":["Flake ice (1 box)","Hielo en escamas (1 caja)"],
+  "Carvão (1 saco)":["Charcoal (1 bag)","Carbón (1 bolsa)"],
+  "Som ambiente":["Sound system","Sonido ambiente"],
+
   "Marinheiro experiente":["Experienced skipper","Marinero experimentado"],
   "Marinheiro":["Skipper","Marinero"],
   "Combustível":["Fuel","Combustible"],
@@ -1779,7 +1787,10 @@ function loadItens(){
     .catch(()=>null);
 }
 const incItems = b => boatItems(b).map(i=>(b.highlight||[]).includes(i)?`<li class="hl">★ ${tx(i)}</li>`:`<li>${tx(i)}</li>`).join("");
+/* itens de escuna (2026-11-14): padrão próprio, diferente do das lanchas; a escuna mostra só o que está marcado no app */
+const ESC_ITEMS = ["Comandante e marinheiro habilitados","Coletes salva-vidas para todos","Boias e bote de salvatagem","Extintores de incêndio","Banheiro","Toldo com sombra","Churrasqueira","Gelo escama (1 caixa)","Carvão (1 saco)","Macarrão flutuante","Som ambiente","Água mineral","Cooler","Máscaras de mergulho"];
 function boatItems(b){
+  if(isEsc(b)){ const o=(itens && itens.get(b.slug))||[]; return ESC_ITEMS.filter(k=>o.includes(k)); }
   const opt = itens && itens.get(b.slug); if(!opt) return b.included;
   const lab = b.itemLabel||{}, optional = new Set([...ITEM_ORDER, ...Object.values(lab)]);
   const l=[...b.included.filter(i=>!optional.has(i)), ...ITEM_ORDER.filter(k=>opt.includes(k)).map(k=>lab[k]||k)];
@@ -1889,7 +1900,7 @@ const ITEM_ICON = {
   "Som Bluetooth":IC('<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>')
 };
 const itemChip = i => `<li${STACK_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${tx(i)}</li>`;
-const cardItems = b => { const has=boatItems(b); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i))].map(itemChip).join(""); };
+const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i))].map(itemChip).join(""); };
 const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t("stBoatT",{f:ftx(b)})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${t("stRouteP")}</small></div></li>
@@ -2481,7 +2492,7 @@ function home(){
           ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
             <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>
-            ${isEsc(b)?"":`<ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>`}
+            <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
             <div class="price-from">${isEsc(b)?`<div><strong>${t("escCard")}</strong></div>`:precoTrancado()?`<div><strong>${t(VEND?.parceiro?"lockCardP":"lockCard")}</strong></div>`:showPrice()?`<div><span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t(isEsc(b)?"seeEsc":"seeBoat")}</span></div>
           </div>
         </a>`).join("")}
@@ -2583,7 +2594,7 @@ function boatPage(b){
             <div><b>${isEsc(b)?"3h / 4h / 7h":"4h / 7h"}</b><span>${t("specTours")}</span></div>
           </div>
         </div>
-        ${isEsc(b)?"":`<div class="block b-inc"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>`}
+        <div class="block b-inc"><h2>${t("included")}</h2><ul class="included" id="inc-list">${incItems(b)}</ul></div>
       </div>
       <div class="b-media">
         <div class="block b-gal"><div>${b.photos?gallery(b):`<div class="gallery"><div class="main">${ph(t("mainPhoto"))}</div><div class="thumbs">${[1,2,3,4].map(i=>ph(""+i)).join("")}</div></div>`}</div></div>
