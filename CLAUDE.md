@@ -11,5 +11,6 @@ Este repositório tem um mapa pronto do código em `graphify-out/` (graph.json, 
 - Se o comando `graphify` não existir na sessão, instale com `pip install "graphifyy[sql]"`.
 - Depois de mudar código, atualize o mapa (é rápido e não gasta token) e inclua no mesmo commit:
   `graphify update . && graphify cluster-only . --no-label`
+- Rede de segurança: o workflow `.github/workflows/mapa-graphify.yml` atualiza o mapa sozinho a cada push no `main` (se alguém esquecer).
 - Limite: o código JavaScript dentro dos arquivos `.html` (index.html, login/index.html etc.) não entra no mapa. Para essas páginas, use busca normal.
 - `graphify-out/` e `CLAUDE.md` não vão para o site (excluídos no deploy).
