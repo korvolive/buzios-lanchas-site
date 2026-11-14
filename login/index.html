@@ -308,7 +308,7 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--chip);border-radius:14px;padding:4px;margin:0 0 14px}
 .tabs button{border:0;background:none;border-radius:10px;padding:10px;font-weight:700;color:var(--muted)}
 .tabs button[aria-selected=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.newtrip{margin:0 0 14px}
+.btn.newtrip{width:auto;margin:0 0 0 auto;flex:none;min-height:40px;padding:8px 14px;font-size:15px;border-radius:12px}.bhead h1{min-width:0;overflow:hidden;text-overflow:ellipsis}.bprow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}.bprow>.bsel{flex:1;min-width:0;margin:0}.bprow>.blist{flex-basis:100%}
 .avq{margin:0 0 14px;padding:12px 14px}
 .avq .avh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:600;font-size:15px}
 .avq .avh .dpb{flex:1;min-width:150px}.avq .avh input{flex:1;min-width:150px;font:inherit;font-weight:400;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
@@ -5956,12 +5956,14 @@ function mainView(){
   const chips = [...(S.admin && S.boats.length>1 && S.tab==="lista" ? [{slug:"*",nome:t("allBoats")}] : []), ...S.boats.filter(b=>!exOut(b))];
   /* abas sempre no topo; em Passeios vêm "Lancha livre em", o chat da equipe e o aviso do Asaas; depois a escolha da lancha (2026-10-25) */
   S.rbIn=false; /* o cartão da conta marca quando os recebimentos já foram para dentro de "Últimos saques" */
+  /* "+ Novo passeio" pequeno ao lado do nome da embarcação, em vez do botão grande no topo (Rodrigo 2026-11-14) */
+  const avH = S.tab==="lista" ? avHTML() : "", ntBtn = S.tab==="lista" && !isRO() && !avH ? `<button type="button" class="btn newtrip" id="newtrip">${t("newTrip")}</button>` : "";
   app.innerHTML = `${tabsHTML()}`
-    + (S.tab==="lista" ? cidFilterHTML() + (av=>av + (isRO() || av ? "" : `<button class="btn newtrip" id="newtrip">${t("newTrip")}</button>`))(avHTML()) : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (2026-10-25) */
+    + (S.tab==="lista" ? cidFilterHTML() + avH : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (2026-10-25) */
     + fotoPendHTML() + installHTML() + pushHTML() + (S.tab==="lista" ? teamVerHTML() : "")
     + (S.tab==="lista" ? asAvisoHTML() + recebHTML(false) : "")
     + (S.tab==="lancha" ? nbNewHTML() : "") /* "Cadastrar lancha nova" acima do seletor da lancha (2026-10-25) */
-    + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 ? boatPicker(chips) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1></div>`)
+    + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 ? (ntBtn ? `<div class="bprow">${boatPicker(chips)}${ntBtn}</div>` : boatPicker(chips)) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1>${ntBtn}</div>`)
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") + (S.tab==="lista" && S.isAjud ? ajudHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
