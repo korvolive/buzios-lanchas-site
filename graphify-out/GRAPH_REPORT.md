@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1053 nodes · 1719 edges · 87 communities (53 shown, 34 thin omitted)
+- 1057 nodes · 1726 edges · 84 communities (52 shown, 32 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9f3af861`
+- Built from commit: `d56b2110`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,7 +40,6 @@
 - convite-email/index.ts
 - cadastro-whatsapp/index.ts
 - ref_npm_supabase
-- pedido-vendedor/index.ts
 - aviso-chat/index.ts
 - consulta-aviso/index.ts
 - avaliacao/index.ts
@@ -74,7 +73,6 @@
 - 2026-11-05_revisao-diaria.sql
 - 2026-11-08_app-versao-minima.sql
 - asaas-transferir/index.ts
-- alerta-equipe/index.ts
 - public.cupons
 - asaas-chaves-girar/index.ts
 - public.creditos
@@ -109,7 +107,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (87 total, 34 thin omitted)
+## Communities (84 total, 32 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.06
@@ -184,11 +182,11 @@ Cohesion: 0.19
 Nodes (13): avisarPasseios(), dataLonga(), db, dig(), ES_DDI, hm(), horaTxt(), LANG (+5 more)
 
 ### Community 18 - "public.aprovar_foto"
-Cohesion: 0.10
-Nodes (5): public.salvar_lancha(), public.aprovar_foto(), public.lancar_pedido_operador(), public.salvar_lancha(), public.ordenar_lanchas()
+Cohesion: 0.07
+Nodes (7): public.salvar_lancha(), public.aprovar_foto(), public.lancar_pedido_operador(), public._teto_cheio(), public._valor_na_data(), public.salvar_lancha(), public.ordenar_lanchas()
 
 ### Community 19 - "public.salvar_netos_v3"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (11): public.alterar_pedido(), public.segredos_app, public.pedidos_prazo_vencido(), public.pp_vaga_h(), public._troca_ok(), public.trocar_horario_pedido(), public.trocas_pedido(), public.aplicar_netos() (+3 more)
 
 ### Community 20 - "pedido-indisponivel/index.ts"
@@ -211,9 +209,9 @@ Nodes (8): CORS, db, ES_DDI, LIGA, MAPA, SLOT, TAXA, TAXA_TXT
 Cohesion: 0.24
 Nodes (9): codigoDe(), confere(), CORS, db, dig(), json(), LANG, mandaCodigo() (+1 more)
 
-### Community 26 - "pedido-vendedor/index.ts"
-Cohesion: 0.40
-Nodes (3): CORS, db, T
+### Community 25 - "ref_npm_supabase"
+Cohesion: 0.18
+Nodes (5): CAT, CORS, db, CORS, db
 
 ### Community 27 - "aviso-chat/index.ts"
 Cohesion: 0.27
@@ -284,8 +282,8 @@ Cohesion: 0.33
 Nodes (5): Búzios Lanchas Ltda – Regras de Desenvolvimento Seguro, Checklist antes de abrir um pull request, Falhas de segurança encontradas, Registros e troca de segredos (2026-11-13), Regras
 
 ### Community 62 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.20
-Nodes (5): CORS, db, T, db, T
+Cohesion: 0.13
+Nodes (8): CORS, db, T, db, T, CORS, db, T
 
 ### Community 65 - "2026-11-13_auditoria-e-registro-de-acessos.sql"
 Cohesion: 0.21
@@ -302,10 +300,6 @@ Nodes (5): public.apagar_avaliacao_google(), public.trava_cond_aviso(), public.t
 ### Community 76 - "asaas-transferir/index.ts"
 Cohesion: 0.25
 Nodes (8): API(), asaas(), avisar(), AVISO, brl(), CORS, db, KEY()
-
-### Community 77 - "alerta-equipe/index.ts"
-Cohesion: 0.40
-Nodes (3): CAT, CORS, db
 
 ### Community 78 - "public.cupons"
 Cohesion: 0.36
@@ -324,17 +318,17 @@ Cohesion: 0.83
 Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 
 ## Knowledge Gaps
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **32 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.pedidos`, `public.marcar_wa`, `public.salvar_netos_v3`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
-- **Why does `public.vendas_manuais` connect `public.pedidos` to `vendedores`, `public.marcar_wa`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public._teto_cheio()` connect `public.aprovar_foto` to `2026-10-30_operador-um-toque.sql`?**
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
