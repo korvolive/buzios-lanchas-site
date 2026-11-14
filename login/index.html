@@ -295,7 +295,7 @@ ol.steps{margin:0 0 14px;padding-left:20px;font-size:15px}
 /* chat aberto dentro da página de pagamento (?chat=ID&embed=1 num iframe): só a janela do chat, ocupando tudo */
 html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.chon .sheet{top:0;max-height:none;max-width:none;border-radius:0;transition:none}html.chon .sheet .grab{display:none}
 .sum{margin:12px 0 0;padding:10px 12px;background:var(--chip);border-radius:12px;font-weight:600;font-size:15px}
-.sumrow{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;background:var(--chip);border-radius:12px}.sumrow .sum{flex:1;min-width:0;margin:0;padding:0;background:none}.sumrow .btn.planbtn{flex:none;width:auto;margin:0 0 0 auto;min-height:0;padding:8px 12px;font-size:14px;border-radius:10px;background:var(--surface);border:1px solid var(--line)}
+.sumrow{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;background:var(--chip);border-radius:12px}.sumrow .sum{flex:1;min-width:0;margin:0;padding:0;background:none}.sumrow .btn.planbtn{flex:none;width:auto;margin:0 0 0 auto;min-height:0;padding:6px 10px;font-size:13px;line-height:1.15;border-radius:10px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:6px;text-align:left}.sumrow .btn.planbtn>span:first-child{font-size:18px}
 .sum small{font-weight:400;color:var(--muted)}
 .up li button > span:first-child{min-width:0}
 .origin{border:0;padding:0;margin:0 0 12px}
@@ -2650,7 +2650,7 @@ function calendarHTML(comPlan){
     <div class="cal-head"><button type="button" id="pm" aria-label="${t("prev")}"${calPrev()?"":" disabled"}>‹</button><h2>${cap(m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h2><button type="button" id="nm" aria-label="${t("next")}">›</button></div>
     <div class="cal">${wds.map(w=>`<span class="wd">${w}</span>`).join("")}${cells}</div>
     <div class="legend"><span><i class="free"></i>${t("free")}</span><span><i class="half"></i>${t("half")}</span><span><i class="full"></i>${t("full")}</span>${mntList().length?`<span><i class="mntl"></i>${t("mntLeg")}</span>`:""}</div>
-    ${(pb=>{ const sm=monthSummaryHTML(); return pb ? `<div class="sumrow">${sm || '<span></span>'}${pb}</div>` : sm; })(comPlan && planOk() ? `<button type="button" class="btn sec planbtn" id="planbtn">📊 ${t("plBtn")}</button>` : "") /* "Modo planilha" pequeno dentro do resumo do mês (Rodrigo 2026-11-14) */}
+    ${(pb=>{ const sm=monthSummaryHTML(); return pb ? `<div class="sumrow">${sm || '<span></span>'}${pb}</div>` : sm; })(comPlan && planOk() ? `<button type="button" class="btn sec planbtn pl2" id="planbtn"><span aria-hidden="true">📊</span><span>${esc(t("plBtn")).replace(" ","<br>")}</span></button>` : "") /* em duas linhas, para o quadro não crescer (Rodrigo 2026-11-14) */ /* "Modo planilha" pequeno dentro do resumo do mês (Rodrigo 2026-11-14) */}
   </div>`;
 }
 function noteLine(n){
