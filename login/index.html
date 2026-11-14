@@ -2650,7 +2650,7 @@ function calendarHTML(comPlan){
     <div class="cal-head"><button type="button" id="pm" aria-label="${t("prev")}"${calPrev()?"":" disabled"}>‹</button><h2>${cap(m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"}))}</h2><button type="button" id="nm" aria-label="${t("next")}">›</button></div>
     <div class="cal">${wds.map(w=>`<span class="wd">${w}</span>`).join("")}${cells}</div>
     <div class="legend"><span><i class="free"></i>${t("free")}</span><span><i class="half"></i>${t("half")}</span><span><i class="full"></i>${t("full")}</span>${mntList().length?`<span><i class="mntl"></i>${t("mntLeg")}</span>`:""}</div>
-    ${(pb=>{ const sm=monthSummaryHTML(); return pb ? `<div class="sumrow">${sm || '<span></span>'}${pb}</div>` : sm; })(comPlan && planOk() ? `<button type="button" class="btn sec planbtn pl2" id="planbtn"><span aria-hidden="true">📊</span><span>${esc(t("plBtn")).replace(" ","<br>")}</span></button>` : "") /* em duas linhas, para o quadro não crescer (Rodrigo 2026-11-14) */ /* "Modo planilha" pequeno dentro do resumo do mês (Rodrigo 2026-11-14) */}
+    ${(pb=>{ const sm=monthSummaryHTML(); return pb ? `<div class="sumrow">${sm || '<span></span>'}${pb}</div>` : sm; })(comPlan && planOk() ? `<button type="button" class="btn sec planbtn pl2" id="planbtn"><span aria-hidden="true">📊</span><span>${({pt:"Planilha",en:"Spreadsheet",es:"Planilla"})[lang]||"Planilha"}</span></button>` : "") /* só "Planilha" e o ícone, para o quadro não crescer (Rodrigo 2026-11-14) */ /* "Modo planilha" pequeno dentro do resumo do mês (Rodrigo 2026-11-14) */}
   </div>`;
 }
 function noteLine(n){
