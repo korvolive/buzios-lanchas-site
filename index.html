@@ -2589,7 +2589,7 @@ function boatPage(b){
           <div class="b-head"><span class="eyebrow">${t(isEsc(b)?"esc":"boat")}</span>
           <div class="b-title${b.featured?" sel":""}"><h1>${b.name}</h1><button type="button" class="b-share" data-share="${b.slug}" aria-label="${t("shareL")}">${SHARE_ICO}<span>${t("shareB")}</span></button>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
           </div>
-          <div class="spec-row">
+          <div class="spec-row"${isEsc(b)?' style="grid-template-columns:repeat(2,1fr)"':""}>
             ${isEsc(b) ? "" : `<div><b>${ftx(b)??"—"}</b><span>${t("specFeet")}</span></div>`}${"" /* escuna sem pés (Rodrigo 2026-11-14) */}
             <div><b>${b.capacity}</b><span>${t("specPeople")}</span></div>
             <div><b>${isEsc(b)?"3h / 4h / 7h":"4h / 7h"}</b><span>${t("specTours")}</span></div>
