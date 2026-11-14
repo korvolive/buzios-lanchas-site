@@ -36,6 +36,10 @@ ExpiresByType video/mp4 "access plus 7 days"
 </IfModule>
 <IfModule mod_headers.c>
 Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
+# HTML sempre conferido no servidor: o Safari guardava a página de pagamento antiga e o cliente não via mudança publicada (María, 2026-11-14)
+<FilesMatch "\.html?$">
+Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
 </IfModule>
 <IfModule mod_rewrite.c>
 RewriteEngine On
