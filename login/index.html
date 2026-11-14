@@ -110,7 +110,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .unr{background:#1e9e5a;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:1px 7px;min-width:20px;text-align:center;flex:none}
 .chtr{display:block;background:none;border:0;padding:2px 0 0;font:inherit;font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline}.chtrb[aria-pressed=false]{opacity:.7}.chhead{display:flex;gap:10px;align-items:center;margin:4px 0 6px}.chhead .chact{margin-left:auto;margin-right:52px;display:flex;gap:6px;align-items:center;flex:none}.chhead .chend{margin:0;padding:6px 10px;font-size:13px;width:auto;flex:none;white-space:nowrap}.ocup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .mnet .pseason,.pnet .pseason{margin-bottom:10px}.dsb{margin:8px 0 2px}.dsl{display:block;font-weight:600;font-size:12.5px;color:var(--muted);margin-bottom:4px}.dsg{display:grid;grid-template-columns:auto 76px 92px;justify-content:start;gap:4px 8px;align-items:center}.dsg>b{font-size:11px;color:var(--muted);font-weight:600}.dsg .pl{font-size:12px;font-weight:700}.dsg input{width:100%;box-sizing:border-box;min-width:0;min-height:0;padding:5px 8px;font-size:14px;border-radius:8px;border-width:1px}.dsg .mnpi{display:flex;align-items:center;gap:3px}.dsg .mnpi i{font-size:12px;font-style:normal;color:var(--muted)}.dsg .mnpi input{width:100%}.pprev{display:block;color:var(--muted);font-size:12.5px;line-height:1.5;margin:2px 0 6px}.pprev b{color:var(--ink,inherit);font-weight:600}.pnet .psh{flex-wrap:wrap}.pnet .apct span:first-child{font-size:14px}
-.mnet .psh{flex-wrap:wrap}.msec>summary{list-style:none;cursor:pointer;position:relative;padding-right:24px}.msec>summary::-webkit-details-marker,.mferc>summary::-webkit-details-marker,.mrul>summary::-webkit-details-marker{display:none}.msec>summary b{display:block;font-size:15px}.msv{display:block;color:var(--muted);font-size:13px;margin-top:2px}.msec>summary::after{content:"›";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--muted);transition:transform .15s}.msec[open]>summary::after{transform:translateY(-50%) rotate(90deg)}.msec[open]>summary{margin-bottom:6px}.mmo{color:var(--muted);font-size:12.5px;margin:0 0 6px}.mferc>summary,.mrul>summary{list-style:none;cursor:pointer;color:var(--sea);font-size:13px;font-weight:600;margin:6px 0}.mrul{margin-top:4px}.mrul small{display:block;line-height:1.5}.mnet .pfer .fsub:first-child{border-top:0;padding-top:0;margin-top:0}
+.mnet .psh{flex-wrap:wrap}.msec>summary{list-style:none;cursor:pointer;position:relative;padding-right:24px}.msec>summary::-webkit-details-marker,.mferc>summary::-webkit-details-marker,.mrul>summary::-webkit-details-marker{display:none}.msec>summary b{display:block;font-size:15px}.msv{display:block;color:var(--muted);font-size:13px;margin-top:2px}.msec>summary::after{content:"›";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--muted);transition:transform .15s}.msec[open]>summary::after{transform:translateY(-50%) rotate(90deg)}.msec[open]>summary{margin-bottom:6px}.mmo{color:var(--muted);font-size:12.5px;margin:0 0 6px}.mferc>summary,.mrul>summary{list-style:none;cursor:pointer;color:var(--sea);font-size:13px;font-weight:600;margin:6px 0}.mrul{margin-top:4px}.mrul small{display:block;line-height:1.5}.pfer .fsub:first-child{border-top:0;padding-top:0;margin-top:0}
 .mng{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .prhd{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .prhd h2{margin:0}.prchev{flex:none;width:40px;height:40px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;transition:transform .2s}.prchev svg{width:22px;height:22px}
@@ -2886,12 +2886,14 @@ const SEASON3 = ["baixa","media","alta"]; /* épocas com valor próprio; feriado
 const PRICE_KEYS = ["baixa","media","alta","pico","reveillon"]; /* cada temporada tem o valor de 4 horas (k) e o de 7 horas (k+"7") */
 /* cards de valores começam fechados; um toque no título abre ou fecha (2026-10-22: ocupavam a tela toda) */
 const prWrap = (cls, title, sub, body) => `<div class="card prc ${cls}"><button type="button" class="prhd" data-prt aria-expanded="${!!S.prOpen}"><h2>${title}</h2><i class="chev prchev" aria-hidden="true">›</i></button>
-  <p class="muted prsub"${S.prOpen?"":" hidden"}>${sub}</p><div class="prbody"${S.prOpen?"":" hidden"} data-sub="${esc(sub)}">${body}</div></div>`;
+  <p class="muted prsub"${S.prOpen && sub?"":" hidden"}>${sub}</p><div class="prbody"${S.prOpen?"":" hidden"} data-sub="${esc(sub)}">${body}</div></div>`;
 /* desenhando o card: os campos na tela ainda são da lancha anterior, então o cálculo usa só S.neto (2026-11-09: Búzios e Total saíam com os netos da outra lancha) */
 let prRender=false;
 /* Réveillon e Carnaval dentro do card Feriados, mais compacto (Rodrigo 2026-11-14). Só layout: pct_reveillon/pct_carnaval/pct_feriado continuam iguais */
 const ferHead = () => `<div class="psh"><b>${t("pr_pico").split(" · ")[0]}</b><small>${t("prm_ferAll")}</small></div>`;
 const ferSubH = k => `<div class="fsub"><div class="fsh"><b>${k==="pico" ? t("fer_sub") : t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>`;
+/* admin: mesmo modelo enxuto do dono (Rodrigo 2026-11-14). A contagem "Vale em X de Y" é a salva; os chips mudam o texto na hora (afer) */
+const aFerChips = () => { const off=S.prices.sem_feriados||[], on=FERIADOS.filter(k=>ferProx(k).length); return `<details class="mferc" data-mo="a_ferc"${S.mnOpen?.a_ferc?" open":""}><summary>${t("ferN",{n:on.filter(k=>!off.includes(k)).length, m:on.length})}</summary>${ferChips(off, "data-afer", "")}</details>`; };
 function pricesHTML(){ prRender=true; try{ return pricesBody(); } finally{ prRender=false; } }
 function pricesBody(){
   if(!S.admin) return "";
@@ -2906,15 +2908,15 @@ function pricesBody(){
   /* % do feriado, do Réveillon e Carnaval e desconto de segunda a quinta: cada um dentro da sua época (2026-10-22) */
   const pc = "pct_feriado" in S.prices;
   const apc = (c, lab, mx, v, pp) => `<div class="apct"><span>${lab}</span><span class="mnpi"><input type="number" class="in" inputmode="numeric" min="0" max="${mx}" step="5" data-apc="${c}" value="${v ?? 0}"><i>%</i></span></div>${pp?`<small class="pprev" data-pp="${pp}"></small>`:""}`;
-  return prWrap("", "💰 "+t("pricesT"), t("pricesSub2"), `
+  return prWrap("", "💰 "+t("pricesT"), "", `
     <div class="pnet">${SEASON3.map(k=>{ const on=aepOn(k), pv=EP_PREV[k] && !aepOn(EP_PREV[k]) ? EP_PREV[EP_PREV[k]] || EP_PREV[k] : EP_PREV[k];
-      return `<div class="pseason"><div class="psh"><b>${t("pr_"+k).split(" · ")[0]}</b><small>${t("prm_"+k)}</small></div>
+      return `<details class="pseason msec" data-mo="a_${k}"${S.mnOpen?.["a_"+k]?" open":""}><summary class="msum"><b>${t("pr_"+k).split(" · ")[0]}</b><span class="msv" data-msum="${k}"></span></summary><p class="mmo">${t("prm_"+k)}</p>
       ${EP_PREV[k] ? `<button type="button" class="epsw" data-aep="${k}" aria-pressed="${on}"><i></i><span>${t("aep_"+k)}</span></button>
       <p class="muted epoff" data-aepo="${k}"${on?" hidden":""}>${t("epOff",{s:t("pr_"+pv).split(" · ")[0]})} ${t("aepHow")}</p>` : ""}
       <div data-aepb="${k}"${on?"":" hidden"}><div class="pg"><span></span><b>${t("prNet")}</b><b>${t("prBl")}${S.hasTaxa?"":` ${S.cur===SEM_TAXA?"0":TAXA_BUZIOS}%`}</b><b>${t("prTotal")}</b>
       ${[...(isEscB(S.cur)?[k+"3"]:[]), k, ...(S.no7?[]:[k+"7"])].map(cols).join("")}</div>
-      ${pc ? dsHTML(k, dsGet(S.prices.desc_semana)) : ""}</div></div>`; }).join("")}
-    ${pc ? `<div class="pseason pfer">${ferHead()}` + ["reveillon", ...("pct_carnaval" in S.prices ? ["carnaval"] : []), "pico"].map(k=>`${ferSubH(k)}${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + ferChips(S.prices.sem_feriados||[], "data-afer", "") : k==="carnaval" ? pairHTML("cv", "alta", rvGet(S.prices.pct_carnaval ?? S.prices.pct_reveillon, S.prices.pct_carnaval==null ? S.prices.pct_reveillon7 : S.prices.pct_carnaval7)) + `<div class="pg rvbr" data-rvbr="cv"></div>` + rxHTML("cv") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7)) + `<div class="pg rvbr" data-rvbr="rv"></div>` + rxHTML()}</div>`).join("") + `</div>` : ""}</div>
+      ${pc ? dsHTML(k, dsGet(S.prices.desc_semana)) : ""}</div></details>`; }).join("")}
+    ${pc ? `<details class="pseason msec" data-mo="a_fer"${S.mnOpen?.a_fer?" open":""}><summary class="msum"><b>${t("pr_pico").split(" · ")[0]}</b><span class="msv" data-msum="fer"></span></summary><div class="pfer">` + ["reveillon", ...("pct_carnaval" in S.prices ? ["carnaval"] : []), "pico"].map(k=>`${ferSubH(k)}${k==="pico" ? apc("pct_feriado", t("mnPf"), PCT_MAX.pf, S.prices.pct_feriado, "pf") + aFerChips() : k==="carnaval" ? pairHTML("cv", "alta", rvGet(S.prices.pct_carnaval ?? S.prices.pct_reveillon, S.prices.pct_carnaval==null ? S.prices.pct_reveillon7 : S.prices.pct_carnaval7)) + `<div class="pg rvbr" data-rvbr="cv"></div>` + rxHTML("cv") : pairHTML("rv", "alta", rvGet(S.prices.pct_reveillon, S.prices.pct_reveillon7)) + `<div class="pg rvbr" data-rvbr="rv"></div>` + rxHTML()}</div>`).join("") + `</div></details>` : ""}</div>
     <button class="btn" id="prsave" hidden style="display:none">${t("pricesSave")}</button><p class="mnst" id="prst" aria-live="polite">${t("mnAuto")}</p>${espHTML()}${dgHTML()}`); /* salva sozinho, como o do dono (2026-10-24) */
 }
 /* Búzios a mais no Réveillon e Carnaval (2026-10-28): R$ somado só à parte da Búzios; o neto do dono não muda. Digita a % (sobre o neto do Réveillon) ou o R$ */
@@ -2979,17 +2981,21 @@ const ferChips = (off, attr, dis) => `<p class="mnh">${t("mnFerHow")}</p><div cl
   return `<button type="button" class="ferc" ${attr}="${k}" aria-pressed="${on}"${dis}><b>${on?"✓":"✕"} ${t("fer_"+k)}</b><small>${d.length>1?t("ferDays",{a:ws(d[0]), b:ws(d.at(-1))}):d.length?ws(d[0]):""}</small></button>`; }).join("")}</div>`;
 /* embaixo de cada %: quanto fica o 4h e o 7h (2026-10-22). Administrador: valor do cliente; dono: o neto dele */
 /* resumo de cada parte recolhida da tela do dono: atualiza enquanto ele digita */
-function mnSumPaint(box){
+function mnSumPaint(box, own=true){
   const v = sel => box.querySelector(sel)?.value, nm = k => t("pr_"+k).split(" · ")[0], pc = (a,b) => { a=+a||0; b=b==null?a:+b||0; return a===b ? `+${pctTxt(a)}%` : `+${pctTxt(a)}/${pctTxt(b)}%`; };
-  for(const k of SEASON3){ const x=box.querySelector(`[data-msum="${k}"]`); if(!x) continue; let p=k; while(!box.querySelector(`input[data-mn="${p}"]`) && EP_PREV[p]) p=EP_PREV[p];
+  if(!own){ for(const k of SEASON3){ const x=box.querySelector(`[data-msum="${k}"]`); if(!x) continue; let p=k; while(!aepOn(p) && EP_PREV[p]) p=EP_PREV[p];
+      if(p!==k){ x.textContent=t("msEq",{s:nm(p)}); continue; }
+      const d=+v(`[data-xp="ds:${k}"]`)||0, c=h=>{ const n=prNetOf(k+h), tt=prTotVal(k+h); return n>0 ? `${h?"7h":"4h"} ${brl(n)} → ${brl(tt)}` : ""; };
+      x.textContent=[c(""), S.no7?"":c("7"), d>0?t("msDs",{p:pctTxt(d)}):""].filter(Boolean).join(" · "); } }
+  else for(const k of SEASON3){ const x=box.querySelector(`[data-msum="${k}"]`); if(!x) continue; let p=k; while(!box.querySelector(`input[data-mn="${p}"]`) && EP_PREV[p]) p=EP_PREV[p];
     if(p!==k){ x.textContent=t("msEq",{s:nm(p)}); continue; }
     const a=+v(`[data-mn="${k}"]`), b=+v(`[data-mn="${k}7"]`), d=+v(`[data-xp="ds:${k}"]`)||0;
     x.textContent=[a>0?"4h "+brl(a):"", b>0?"7h "+brl(b):"", d>0?t("msDs",{p:pctTxt(d)}):""].filter(Boolean).join(" · "); }
-  const f=box.querySelector('[data-msum="fer"]'); if(f) f.textContent=[`${nm("reveillon")} ${pc(v('[data-xp="rv:alta"]'), v('[data-xp="rv:alta7"]'))}`, box.querySelector('[data-xp="cv:alta"]') ? `${nm("carnaval")} ${pc(v('[data-xp="cv:alta"]'), v('[data-xp="cv:alta7"]'))}` : "", `${t("fer_sub")} +${+v("[data-mpf]")||0}%`].filter(Boolean).join(" · ");
+  const f=box.querySelector('[data-msum="fer"]'); if(f) f.textContent=[`${nm("reveillon")} ${pc(v('[data-xp="rv:alta"]'), v('[data-xp="rv:alta7"]'))}`, box.querySelector('[data-xp="cv:alta"]') ? `${nm("carnaval")} ${pc(v('[data-xp="cv:alta"]'), v('[data-xp="cv:alta7"]'))}` : "", `${t("fer_sub")} +${+v(own ? "[data-mpf]" : '[data-apc="pct_feriado"]')||0}%`].filter(Boolean).join(" · ");
 }
 function ppPaint(e){
   const own=!!app.querySelector(".mnet"), box=own ? app.querySelector(".mnet") : app.querySelector("#prsave")?.closest(".card"); if(!box) return;
-  if(own) mnSumPaint(box);
+  mnSumPaint(box, own);
   const val = c => { if(!own) return +prTotVal(c) || 0; let k=c.replace("7",""); const h=c.endsWith("7")?"7":""; while(!box.querySelector(`[data-mn="${k+h}"]`) && EP_PREV[k]) k=EP_PREV[k]; return +(box.querySelector(`[data-mn="${k+h}"]`)?.value) || 0; };
   const pcOf = () => +(box.querySelector(own ? "[data-mpf]" : '[data-apc="pct_feriado"]')?.value) || 0;
   const r = (v, p) => v>0 ? brl(Math.round(v*(1+p/100)/10)*10) : "—", r10 = (v, p) => Math.round(v*(1+p/100)/10)*10;
@@ -3067,7 +3073,7 @@ function ownPricesHTML(){
   const sec = (k, name, body) => `<details class="pseason msec" data-mo="${k}"${S.mnOpen?.[k]?" open":""}><summary class="msum"><b>${name}</b><span class="msv" data-msum="${k}"></span></summary>${body}</details>`;
   const season = k => `<p class="mmo">${t("prm_"+k)}</p>`;
   const ferOn = FERIADOS.filter(k=>ferProx(k).length), ferN = ferOn.filter(k=>!off.includes(k)).length;
-  return prWrap("mnet", "💰 "+t("mnT"), t("mnSub"), `
+  return prWrap("mnet", "💰 "+t("mnT"), "", `
     ${lock?`<p class="msg">${t("mnLock",{d:dm(S.mn.prox)})}</p>`:""}
     ${["baixa","media","alta"].map(k=>{ const ep=EP_PREV[k] && epCan(it,k), on=!ep || epOn(it,k), pv=ep && !epOn(it,EP_PREV[k]) ? EP_PREV[EP_PREV[k]] || EP_PREV[k] : EP_PREV[k];
       const sw = ep ? `<button type="button" class="epsw" data-ep="${k}" aria-pressed="${on}"${dis}><i></i><span>${t("ep_"+k)}</span></button>` : "";
@@ -6507,7 +6513,7 @@ function bindMainRest(){
     try{ await db("itens",{method:"POST", body:{lancha, opcionais:(isEscB(lancha)?ESC_ITEMS:ITEMS).map(i=>i[0]).filter(i=>next.includes(i)), atualizado_em:new Date().toISOString()}, prefer:"resolution=merge-duplicates,return=minimal"}); toast(t("itemsSaved")); }
     catch(e){ if(S.cur===lancha){ S.items = was ? [...next,k] : next.filter(i=>i!==k); x.setAttribute("aria-pressed", was); } toast(t("saveErr")); } });
   app.querySelectorAll("[data-prt]").forEach(b=>b.onclick=()=>{ S.prOpen=!S.prOpen; const c=b.closest(".prc"), body=c.querySelector(".prbody");
-    body.hidden=!S.prOpen; b.setAttribute("aria-expanded",S.prOpen); c.querySelector(".prsub").hidden=!S.prOpen; /* fechado não mostra frase (2026-10-24) */ });
+    body.hidden=!S.prOpen; b.setAttribute("aria-expanded",S.prOpen); c.querySelector(".prsub").hidden=!S.prOpen || !c.querySelector(".prsub").textContent.trim(); /* fechado não mostra frase (2026-10-24) */ });
   const prs=document.getElementById("prsave");
   /* rascunho dos valores: tudo o que é digitado fica guardado no aparelho até salvar (sair da tela ou do app não apaga) */
   const PRF="[data-nt],[data-pr]", prKey="dono-prdraft:"+S.cur, prCard=prs?.closest(".card");
@@ -6535,7 +6541,7 @@ function bindMainRest(){
     app.querySelectorAll("[data-aep]").forEach(x=>x.onclick=()=>{ const k=x.dataset.aep, on=x.getAttribute("aria-pressed")!=="true";
       S.aEp={...(S.aEp?.l===S.cur?S.aEp:{l:S.cur}), [k]:on}; x.setAttribute("aria-pressed", on);
       app.querySelector(`[data-aepb="${k}"]`).hidden=!on; app.querySelector(`[data-aepo="${k}"]`).hidden=on;
-      if(!on){ aepCopy(); rxSync(); ppPaint(); prAuto(); } });
+      if(!on){ aepCopy(); rxSync(); ppPaint(); prAuto(); } else ppPaint(); });
     app.querySelector(".pnet")?.addEventListener("input", e=>{ if(!e.target.matches("[data-aep]")) aepCopy(); if(!e.target.matches("[data-rxp]")) rxSync(); }); rxSync();
     app.querySelectorAll("[data-tv]").forEach(x=>x.oninput=()=>{ const c=x.dataset.tv, n=prNetOf(c), p=app.querySelector(`[data-tp="${c}"]`); if(n>0 && +x.value>n*BZ_MAX/100){ x.value=x.defaultValue; toast(t("prBlBad")+" "+t("mnBack")); } if(n>0 && x.value.trim()!==""){ p.value=+(+x.value/n*100).toFixed(2); p.dataset.ed="1"; } sync(c); });
     if(document.getElementById("prdn")) app.querySelectorAll("[data-nt]").forEach(x=>{ const c=x.dataset.nt; sync(c); const k=c.replace("7",""); const pv=app.querySelector(`[data-pv="${k}"]`); if(pv) pv.textContent=prVend(k); });
@@ -6591,7 +6597,7 @@ function bindMainRest(){
     ea.disabled=true; try{ await espSave([...L, ...rs.map(r=>({nome, de:r.de, ate:r.ate, v4:v4>0?Math.round(v4):null, v7:v7>0?Math.round(v7):null, ...(gid?{g:gid}:{})}))], "espOk"); }catch(e){ toast(t("saveErr")); ea.disabled=false; } };
   app.querySelectorAll("[data-espdel]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("espDelQ"))) return; const k=x.dataset.espdel; x.disabled=true;
     try{ await espSave(espList().filter(e=>espKey(e)!==k), "espDelOk"); }catch(e){ toast(t("saveErr")); x.disabled=false; } });
-  ppPaint(); app.querySelectorAll(".mnet, .pnet").forEach(x=>x.addEventListener("input", ppPaint)); app.querySelectorAll(".mnet details[data-mo]").forEach(d=>d.addEventListener("toggle", ()=>{ (S.mnOpen ||= {})[d.dataset.mo]=d.open; })); app.querySelectorAll(".mnet").forEach(x=>x.addEventListener("input", ()=>{ S.mnDirty=true; })); app.querySelectorAll("[data-xv]").forEach(x=>x.addEventListener("blur", ()=>ppPaint()));
+  ppPaint(); app.querySelectorAll(".mnet, .pnet").forEach(x=>x.addEventListener("input", ppPaint)); app.querySelectorAll(".mnet details[data-mo], .pnet details[data-mo]").forEach(d=>d.addEventListener("toggle", ()=>{ (S.mnOpen ||= {})[d.dataset.mo]=d.open; })); app.querySelectorAll(".mnet").forEach(x=>x.addEventListener("input", ()=>{ S.mnDirty=true; })); app.querySelectorAll("[data-xv]").forEach(x=>x.addEventListener("blur", ()=>ppPaint()));
   app.querySelectorAll("[data-afer]").forEach(x=>x.onclick=()=>{ const on=x.getAttribute("aria-pressed")!=="true"; x.setAttribute("aria-pressed", on); x.querySelector("b").textContent=`${on?"✓":"✕"} ${t("fer_"+x.dataset.afer)}`; });
     app.querySelectorAll("[data-mfer]").forEach(x=>x.onclick=()=>{ const k=x.dataset.mfer, off=[...(S.mnOff ?? (S.mn.sem_feriados||[]))]; S.mnOff = off.includes(k) ? off.filter(f=>f!==k) : [...off, k]; S.mnDirty=true; mnKeep(); mainView(); });
   /* liga/desliga média e alta do dono: desligada copia a época anterior e salva em seguida; ligada volta com o valor dentro da faixa */
