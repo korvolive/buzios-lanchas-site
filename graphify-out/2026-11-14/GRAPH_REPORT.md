@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-14)
 
 ## Corpus Check
-- 139 files · ~314,417 words
+- 139 files · ~314,536 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `64636bde`
+- Built from commit: `9f3af861`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -92,9 +92,9 @@
 5. `X()` - 13 edges
 6. `public.cancelar_pre_reserva()` - 13 edges
 7. `public.marcar_wa()` - 13 edges
-8. `public.marcar_wa()` - 12 edges
+8. `public.aprovar_consulta()` - 12 edges
 9. `public.lancar_pedido_operador()` - 12 edges
-10. `public.aprovar_consulta()` - 12 edges
+10. `public.marcar_wa()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
@@ -332,9 +332,11 @@ Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.pedidos`, `public.marcar_wa`, `public.salvar_netos_v3`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
+- **Why does `public._piso_grupo()` connect `vendedores` to `public.consultas`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
@@ -343,5 +345,3 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
 - **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
   _Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected._
-- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.08412698412698413 - nodes in this community are weakly interconnected._
