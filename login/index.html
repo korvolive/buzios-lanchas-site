@@ -7753,7 +7753,10 @@ function renderTrip(){
       } else if(canMove && (nd!==r.data || nslot!==r.horario || nboat!==r.lancha)){
         if(!nd || nd<todayISO() || !nslot){ out.innerHTML=`<p class="msg err">${t("needDateSlot")}</p>`; b.disabled=false; return; }
         if((nd!==r.data || nboat!==r.lancha) && !(await mntFree(nboat,nd))){ b.disabled=false; return; }
-        await db("rpc/mover_passeio",{method:"POST",body:{bid:r.id, nova_lancha:nboat, nova_data:nd, novo_horario:nslot}});
+        /* confere o marinheiro escolhido na tela, não o que estava salvo: sem marinheiro, não trava (2026-11-15). Sem o SQL novo, usa a antiga */
+        const mvB={bid:r.id, nova_lancha:nboat, nova_data:nd, novo_horario:nslot};
+        if("marinheiro" in nota) await db("rpc/mover_passeio_v2",{method:"POST",body:{...mvB, marinheiro_tela:nota.marinheiro||null}}).catch(e=>{ if(e.status===404) return db("rpc/mover_passeio",{method:"POST",body:mvB}); throw e; });
+        else await db("rpc/mover_passeio",{method:"POST",body:mvB});
         row = {...r, lancha:nboat, data:nd, horario:nslot}; toast(t("moved"));
       }
       if(pedidoFor) nota.cliente_conta = pedidoFor.cliente; else if(n.cliente_conta) nota.cliente_conta = n.cliente_conta; /* não perde o vínculo ao editar */
