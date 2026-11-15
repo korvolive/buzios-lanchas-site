@@ -6,14 +6,15 @@ Fase 1: página de entrada. Búzios já tem embarque aberto (leva ao lanchaembuz
 o número de pessoas escolhidos no bilhete); os outros destinos aparecem "Em breve" e o visitante pode
 pedir aviso pelo WhatsApp. Donos de barco pedem o cadastro pelo WhatsApp.
 
-Identidade própria (não repetir a cara do site de Búzios): o site é um bilhete de embarque.
-Fontes Besley + Libre Franklin, azul do mar, papel branco e tinta quase preta.
+Identidade própria, diferente do site de Búzios: fonte Urbanist, azul vivo, coral e azul-marinho,
+cantos arredondados e botões redondos (Rodrigo 2026-11-15 achou a 1ª versão, em bilhete, "pré-histórica").
+Capa com foto grande e barra de busca (destino, data, pessoas), como nos sites de viagem.
 
 Uso: python3 scripts/bordazul-gerar.py   (reescreve bordazul/index.html, bordazul/en/, bordazul/es/,
 bordazul/robots.txt e bordazul/sitemap.xml). Texto novo vale para as três línguas: edite T e rode de novo.
 Destino novo com barco no ar: mude "aberto" para a URL do site do destino em DEST.
 """
-import html, json, os
+import html, json, os, re
 
 RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "bordazul")
 DOM = "https://www.bordazul.com.br"
@@ -37,7 +38,7 @@ DEST = [
 SLIPS = ["buzios", "arraial", "cabo-frio", "rio", "angra", "paraty"]
 COORD = {"buzios": "22°45′S 41°53′O", "arraial": "22°58′S 42°02′O", "cabo-frio": "22°53′S 42°01′O",
          "rio": "22°54′S 43°10′O", "angra": "23°00′S 44°18′O", "paraty": "23°13′S 44°43′O"}
-HERO_FOTOS = [("barco-1", 960, 1280), ("barco-2", 960, 1280), ("barco-4", 1080, 1236), ("barco-3", 1400, 1050)]
+HERO_FOTOS = [("mar-buzios", 1600, 1080), ("barco-3", 1400, 1050), ("barco-1", 960, 1280), ("barco-4", 1080, 1236)]
 
 T = {
  "pt": dict(
@@ -52,7 +53,7 @@ T = {
   r_breve="{c} ainda não abriu. Quer saber primeiro quando tiver barco lá?", r_breve_btn="Me avise pelo WhatsApp",
   wa_breve="Olá! Quero ser avisado quando a Bordazul abrir em {c}.",
   links=[("#destinos", "Todos os destinos"), ("#como", "Como funciona"), ("#barco", "Anuncie seu barco")],
-  foto_alt=["Lancha ancorada em águas verdes de Búzios", "Proa de lancha a caminho das praias", "Lancha na proa diante de uma ilha", "Lancha ao pôr do sol em Búzios"],
+  foto_alt=["Vista aérea de Búzios e suas ilhas", "Lancha ao pôr do sol em Búzios", "Lancha ancorada em águas verdes de Búzios", "Na proa da lancha diante de uma ilha"],
   s_p1="Começamos por Búzios, onde a primeira frota já leva grupos às praias.",
   s_p2="Depois vêm o mar do Rio e o Brasil inteiro, um destino de cada vez.",
   s_alt="Vista aérea da península de Búzios e suas ilhas",
@@ -108,7 +109,7 @@ T = {
   r_breve="{c} is not open yet. Want to hear first when it has boats?", r_breve_btn="Tell me on WhatsApp",
   wa_breve="Hi! Please let me know when Bordazul opens in {c}.",
   links=[("#destinos", "All destinations"), ("#como", "How it works"), ("#barco", "List your boat")],
-  foto_alt=["Motorboat anchored in the green waters of Búzios", "Bow of a boat heading to the beaches", "On the bow in front of an island", "Motorboat at sunset in Búzios"],
+  foto_alt=["Aerial view of Búzios and its islands", "Motorboat at sunset in Búzios", "Motorboat anchored in the green waters of Búzios", "On the bow in front of an island"],
   s_p1="We start in Búzios, where the first fleet already takes groups to the beaches.",
   s_p2="Then the rest of Rio's coast and all of Brazil, one destination at a time.",
   s_alt="Aerial view of the Búzios peninsula and its islands",
@@ -164,7 +165,7 @@ T = {
   r_breve="{c} todavía no abrió. ¿Quieres saberlo primero cuando tenga barcos?", r_breve_btn="Avísame por WhatsApp",
   wa_breve="¡Hola! Quiero que me avisen cuando Bordazul abra en {c}.",
   links=[("#destinos", "Todos los destinos"), ("#como", "Cómo funciona"), ("#barco", "Anuncia tu barco")],
-  foto_alt=["Lancha anclada en las aguas verdes de Búzios", "Proa de una lancha rumbo a las playas", "En la proa frente a una isla", "Lancha al atardecer en Búzios"],
+  foto_alt=["Vista aérea de Búzios y sus islas", "Lancha al atardecer en Búzios", "Lancha anclada en las aguas verdes de Búzios", "En la proa frente a una isla"],
   s_p1="Empezamos por Búzios, donde la primera flota ya lleva grupos a las playas.",
   s_p2="Después vienen el mar de Río y todo Brasil, un destino a la vez.",
   s_alt="Vista aérea de la península de Búzios y sus islas",
@@ -210,6 +211,43 @@ T = {
  ),
 }
 
+
+# Textos do visual novo (2026-11-15, Rodrigo achou o bilhete "pré-histórico": cantos arredondados, botões redondos, mais espaço)
+EXTRA = {
+ "pt": dict(
+  dest_h="Para onde você quer ir?", dest_p="Começamos por Búzios. Os outros mares do Brasil abrem um de cada vez, sempre com barcos bons.",
+  passos_h="Como funciona", passos=[("Escolha o destino", "Diga onde, quando e quantas pessoas vão a bordo."),
+     ("Compare os barcos", "Fotos, tamanho, o que vem incluso e o preço de cada um."),
+     ("Garanta a data", "Um sinal de 50% segura o dia. O restante é pago no embarque."),
+     ("Embarque", "O marinheiro espera seu grupo no píer, na hora marcada.")],
+  dono_h="Tem um barco parado?", dono_btn2="Saiba como funciona",
+  faq_p="Não achou sua dúvida? Fale com a gente pelo WhatsApp.", cta_btn2="Falar no WhatsApp",
+  passo="Passo"),
+ "en": dict(
+  dest_h="Where do you want to go?", dest_p="We start in Búzios. Brazil's other waters open one at a time, always with good boats.",
+  passos_h="How it works", passos=[("Pick a destination", "Tell us where, when and how many people are coming."),
+     ("Compare boats", "Photos, size, what is included and the price of each one."),
+     ("Secure the date", "A 50% deposit holds the day. The rest is paid at boarding."),
+     ("Get on board", "Your skipper meets the group at the pier, right on time.")],
+  dono_h="Own a boat?", dono_btn2="See how it works",
+  faq_p="Didn't find your question? Message us on WhatsApp.", cta_btn2="Chat on WhatsApp",
+  passo="Step"),
+ "es": dict(
+  dest_h="¿A dónde quieres ir?", dest_p="Empezamos por Búzios. Los otros mares de Brasil abren uno a la vez, siempre con buenos barcos.",
+  passos_h="Cómo funciona", passos=[("Elige el destino", "Dinos dónde, cuándo y cuántas personas van a bordo."),
+     ("Compara barcos", "Fotos, tamaño, qué incluye y el precio de cada uno."),
+     ("Asegura la fecha", "Una seña del 50% reserva el día. El resto se paga al embarcar."),
+     ("Embarca", "El marinero espera a tu grupo en el muelle, a la hora acordada.")],
+  dono_h="¿Tienes un barco parado?", dono_btn2="Mira cómo funciona",
+  faq_p="¿No encontraste tu duda? Escríbenos por WhatsApp.", cta_btn2="Hablar por WhatsApp",
+  passo="Paso"),
+}
+for _l in T:
+    T[_l].update(EXTRA[_l])
+
+# cor de fundo de cada cartão de destino sem foto (tons do mar)
+TOM = {"arraial": "#0a7f8f", "cabo-frio": "#1172c9", "rio": "#16365c", "angra": "#0d6b5a", "paraty": "#2a4f7a"}
+
 def e(s):
     return html.escape(s, quote=True)
 
@@ -217,169 +255,152 @@ def wa(msg):
     from urllib.parse import quote
     return f"https://wa.me/{WA}?text={quote(msg)}"
 
+ICON_BUSCA = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
+ICON_WA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>'
+
 CSS = r"""
-:root{--bg:#0b5cc4;--surface:#0a52b0;--deep:#062f66;--ink:#04121c;--paper:#ffffff;--paper-2:#eef3fa;--soft:#3d4c5c;
---step-small:clamp(.8125rem,.79rem + .1vw,.875rem);--step-body:clamp(1.0625rem,1.02rem + .2vw,1.1875rem);--step-lead:clamp(1.25rem,1.1rem + .7vw,1.625rem);
---step-head:clamp(2.25rem,1.3rem + 3.4vw,4.25rem);--step-giant:clamp(4.5rem,2rem + 11vw,12rem);--m:clamp(16px,2.2vw,32px);
---disp:"Besley",Georgia,serif;--text:"Libre Franklin",Arial,sans-serif;--ease:cubic-bezier(.2,.7,.2,1)}
+:root{--bg:#f4f7fb;--white:#fff;--ink:#0a1e33;--soft:#51657a;--line:#dfe7f0;--blue:#0a63e8;--blue-d:#0750c2;--navy:#071c35;--coral:#ff6b4a;--coral-d:#e95536;--chip:#e8f0fd;
+--r:22px;--r-lg:32px;--m:clamp(16px,3vw,40px);--max:1240px;--f:"Urbanist",system-ui,sans-serif;--ease:cubic-bezier(.2,.7,.2,1)}
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--paper);font-family:var(--text);font-size:var(--step-body);line-height:1.5;-webkit-font-smoothing:antialiased}
-img{display:block;max-width:100%;height:auto}
-a{color:inherit}
-:focus-visible{outline:3px solid #ffd23f;outline-offset:3px}
-::selection{background:var(--ink);color:var(--paper)}
-h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:-.02em;line-height:.95;margin:0}
-p{margin:0}
-.skip{position:absolute;left:-999px}.skip:focus{left:var(--m);top:8px;z-index:20;background:var(--paper);color:var(--ink);padding:8px 14px}
-/* barra */
-.bar{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;gap:28px;padding:14px var(--m)}
-.mark{font-family:var(--disp);font-weight:800;font-size:1.6rem;letter-spacing:-.02em;text-decoration:none;line-height:1}
-.bar nav{display:flex;gap:24px;margin-left:auto}
-.bar nav a,.langs a{text-decoration:none;font-size:var(--step-small);font-weight:600}
-.bar nav a:hover,.langs a:hover{text-decoration:underline;text-underline-offset:4px}
-.langs{display:flex;gap:10px}.langs a{opacity:.72}.langs a[aria-current]{opacity:1}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;background:var(--ink);color:var(--paper);font-weight:600;font-size:var(--step-small);text-decoration:none;border:0;border-radius:0;cursor:pointer;font-family:var(--text);transition:transform .25s var(--ease),background-color .25s var(--ease)}
-.btn:hover{transform:translateY(-2px);background:#0d2536}.btn:active{transform:translateY(0)}
-.btn.light{background:var(--paper);color:var(--ink)}.btn.light:hover{background:var(--paper-2)}
-/* hero: bilhete ao lado da foto */
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:0 12px 12px}
-.card{min-width:0;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;min-height:calc(100svh - 76px)}
-.stripe{display:flex;height:56px;overflow:hidden;flex:none}
-.stripe i{flex:0 0 28px;height:100%}.stripe i:nth-child(odd){background:var(--ink)}
-.card-in{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:clamp(28px,4vw,56px) clamp(20px,4vw,64px) 28px}
-.bigmark{font-family:var(--disp);font-weight:800;font-size:clamp(3rem,1.6rem + 5vw,6.5rem);letter-spacing:-.03em;line-height:.9;color:var(--bg)}
-.card h1{font-size:clamp(1.9rem,1.1rem + 2.6vw,3.25rem);margin-top:22px}
-.card .lead{max-width:38ch;margin-top:18px;color:var(--ink)}
-.ticket{width:100%;max-width:560px;margin-top:30px;background:var(--paper-2);text-align:left;position:relative;
- clip-path:polygon(0 0,100% 0,100% calc(50% - 12px),calc(100% - 12px) 50%,100% calc(50% + 12px),100% 100%,0 100%,0 calc(50% + 12px),12px 50%,0 calc(50% - 12px))}
-.t-row{display:grid;grid-template-columns:1.4fr 1fr .9fr;gap:14px;padding:22px 26px 12px}
-.ticket label{display:block;font-size:var(--step-small);font-weight:600;margin-bottom:6px}
-.ticket select,.ticket input{width:100%;height:46px;font:inherit;font-size:1rem;color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:0;padding:0 10px}
-.step{display:flex}.step button{flex:0 0 38px;height:46px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);font-size:1.25rem;cursor:pointer;border-radius:0;transition:background-color .2s}
-.step button:hover{background:var(--bg)}.step input{text-align:center;border-left:0;border-right:0;-moz-appearance:textfield;padding:0}
-.step input::-webkit-inner-spin-button{-webkit-appearance:none}
-.perf{height:6px;margin:6px 26px;background-image:radial-gradient(circle,var(--ink) 2px,transparent 2.5px);background-size:12px 6px;opacity:.35}/* taste-skill-ignore: pontos redondos de picote, pedidos pela direção */
-.t-foot{padding:12px 26px 22px}
-.t-foot .btn{width:100%;min-height:54px;font-size:1rem}
-.result{padding:0 26px 22px;font-size:1rem}.result:empty{display:none}
-.result a{font-weight:600;color:var(--bg)}
-.card-links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:auto;padding-top:28px;font-size:.9375rem}
-.card-links a{text-decoration:none;font-weight:600}.card-links a:hover{text-decoration:underline;text-underline-offset:4px}
-.room{position:sticky;top:76px;height:calc(100svh - 88px);overflow:hidden;background:var(--deep)}
-.room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.6s ease}
-.room img.on{opacity:1}
-/* faixa de bilhetes sobre a foto */
-.show{position:relative;height:96svh;min-height:640px;overflow:hidden;background:var(--deep)}
-.show>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 8s linear}
-.show.vis>img{transform:scale(1.12)}
-.show .copy{position:absolute;left:18%;top:10%;max-width:min(560px,70vw);padding:26px 28px;background:rgba(4,18,28,.55)}
-.show .copy p{font-size:clamp(1.375rem,1rem + 1vw,2rem);line-height:1.25;color:var(--paper)}
-.show .copy p+p{margin-top:16px}
-.slips{position:absolute;left:0;right:0;bottom:0;display:flex;gap:12px;padding:0 12px;align-items:flex-end}
-.slip{flex:1;min-width:0;background:var(--paper);color:var(--ink);padding:18px 18px 0;font-size:.9375rem;text-decoration:none;display:block;transition:transform .35s var(--ease)}
-.slip:nth-child(1){height:44svh}.slip:nth-child(2){height:34svh;transform:rotate(-1.5deg)}.slip:nth-child(3){height:39svh}
-.slip:nth-child(4){height:29svh;transform:rotate(1.2deg)}.slip:nth-child(5){height:36svh}.slip:nth-child(6){height:31svh;transform:rotate(-1deg)}
-a.slip:hover{transform:translateY(-10px)}
-.slip b{display:block;font-family:var(--disp);font-size:1.5rem;line-height:1;letter-spacing:-.02em}
-.slip .dash{letter-spacing:.2em;opacity:.5;margin:8px 0;white-space:nowrap;overflow:hidden}
-.slip .st{display:inline-block;margin-top:10px;font-weight:600}
-.slip.open{background:var(--ink);color:var(--paper)}
-/* como funciona */
-.como{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:clamp(120px,14vw,200px) var(--m)}
-.como .txt{grid-column:1/6}.como h2{font-size:var(--step-head)}.como .txt p{margin-top:20px;max-width:30ch;font-size:var(--step-lead);line-height:1.35}
-.itin{grid-column:7/12;max-width:480px;background:var(--paper);color:var(--ink);padding:30px 28px 56px;font-variant-numeric:tabular-nums;
- clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),95% 100%,90% calc(100% - 16px),85% 100%,80% calc(100% - 16px),75% 100%,70% calc(100% - 16px),65% 100%,60% calc(100% - 16px),55% 100%,50% calc(100% - 16px),45% 100%,40% calc(100% - 16px),35% 100%,30% calc(100% - 16px),25% 100%,20% calc(100% - 16px),15% 100%,10% calc(100% - 16px),5% 100%,0 calc(100% - 16px))}
-.itin h3{font-family:var(--text);font-weight:600;font-size:1rem;letter-spacing:0;line-height:1.3;margin-top:28px}.itin h3:first-child{margin-top:0}
-.itin ul{list-style:none;margin:10px 0 0;padding:0}
-.itin li{display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:1rem}
-.itin li span:nth-child(2){flex:1;min-width:20px;height:4px;background-image:radial-gradient(circle,var(--ink) 1.6px,transparent 2px);background-size:8px 4px;opacity:.45;transform:translateY(-3px)}/* taste-skill-ignore: pontos redondos de picote, pedidos pela direção */
-.itin li span:last-child{text-align:right;white-space:nowrap}
-.itin .fim{margin:28px -28px 0;background:var(--ink);color:var(--paper);height:48px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-weight:600}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:1.0625rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%;height:auto}a{color:inherit}
+:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:8px}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{margin:0}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--m)}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;z-index:30;background:#fff;padding:8px 14px;border-radius:999px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 26px;border-radius:999px;border:0;background:var(--blue);color:#fff;font:700 1rem var(--f);text-decoration:none;cursor:pointer;transition:transform .25s var(--ease),background-color .25s,box-shadow .25s}
+.btn:hover{background:var(--blue-d);transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(10,99,232,.6)}
+.btn.coral{background:var(--coral)}.btn.coral:hover{background:var(--coral-d);box-shadow:0 10px 24px -10px rgba(255,107,74,.6)}
+.btn.ghost{background:rgba(255,255,255,.14);color:#fff}.btn.ghost:hover{background:rgba(255,255,255,.24);box-shadow:none}
+.btn.white{background:#fff;color:var(--ink)}.btn.white:hover{background:#eef3fa}
+/* topo */
+.top{position:sticky;top:0;z-index:20;background:rgba(244,247,251,.92);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:72px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:1.5rem;letter-spacing:-.03em}
+.logo svg{flex:none}
+.top nav{display:flex;gap:26px;margin-left:auto}
+.top nav a{text-decoration:none;font-weight:600;font-size:.98rem;color:var(--soft);transition:color .2s}.top nav a:hover{color:var(--ink)}
+.langs{display:flex;background:var(--white);border-radius:999px;padding:4px}
+.langs a{text-decoration:none;font-weight:700;font-size:.82rem;padding:6px 10px;border-radius:999px;color:var(--soft)}
+.langs a[aria-current]{background:var(--ink);color:#fff}
+.top .btn{min-height:44px;padding:0 20px;font-size:.95rem}
+/* capa */
+.hero{position:relative;margin:4px var(--m) 0;border-radius:var(--r-lg);overflow:hidden;height:min(84svh,800px);min-height:560px;background:var(--navy);color:#fff}
+.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:opacity 1.6s ease,transform 7s linear}
+.hero .ph img.on{opacity:1;transform:scale(1)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
+.hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
+.hero h1{font-size:clamp(2.6rem,1.4rem + 4.6vw,5.4rem)}
+.hero .lead{margin-top:18px;font-size:clamp(1.1rem,1rem + .4vw,1.35rem);max-width:46ch;color:rgba(255,255,255,.92)}
+/* busca */
+.search{position:relative;z-index:5;max-width:980px;margin:-56px auto 0;padding:0 var(--m)}
+.sbar{display:flex;align-items:stretch;background:#fff;border-radius:999px;padding:8px 8px 8px 12px;box-shadow:0 24px 60px -24px rgba(7,28,53,.35)}
+.sf{flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 22px;border-radius:999px;position:relative;transition:background-color .2s}
+.sf:hover{background:#f2f6fb}
+.sf+.sf::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:1px;background:var(--line)}
+.sf label{font-size:.8rem;font-weight:700;color:var(--ink)}
+.sf select,.sf input{border:0;background:transparent;font:500 1.02rem var(--f);color:var(--ink);padding:2px 0;width:100%;outline:none;-webkit-appearance:none;appearance:none}
+.sf select{cursor:pointer}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font:700 1.05rem var(--f);color:var(--ink);cursor:pointer;line-height:1;transition:border-color .2s,background-color .2s}
+.step button:hover{border-color:var(--ink)}
+.step input{width:34px;text-align:center;-moz-appearance:textfield}.step input::-webkit-inner-spin-button{-webkit-appearance:none}
+.sbar .btn{min-height:60px;padding:0 30px;font-size:1.05rem;flex:none}
+.result{max-width:980px;margin:14px auto 0;text-align:center;font-weight:500;color:var(--soft)}.result:empty{display:none}
+.result a{display:inline-flex;align-items:center;gap:6px;margin-left:8px;color:var(--blue);font-weight:700}
+/* seções */
+section{scroll-margin-top:80px}
+.sec{padding:clamp(80px,10vw,130px) 0 0}
+.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:36px}
+.sec-h h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}
+.sec-h p{max-width:46ch;color:var(--soft);margin-top:12px}
+/* destinos */
+.dests{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.dest{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:4/5;color:#fff;text-decoration:none;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;transition:transform .35s var(--ease),box-shadow .35s}
+.dest img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.dest::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(7,28,53,.8))}
+.dest>*:not(img){position:relative;z-index:1}
+a.dest:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(7,28,53,.55)}a.dest:hover img{transform:scale(1.05)}
+.dest .chip{position:absolute;top:20px;left:20px;z-index:2;background:rgba(255,255,255,.18);color:#fff;padding:7px 14px;border-radius:999px;font-size:.85rem;font-weight:700}
+.dest.open .chip{background:var(--coral)}
+.dest h3{font-size:clamp(1.6rem,1.2rem + 1vw,2.1rem)}
+.dest .uf{font-weight:600;opacity:.8;font-size:.95rem;margin-top:4px}
+.dest p{margin-top:10px;font-size:.98rem;color:rgba(255,255,255,.9)}
+.dest .go{margin-top:16px;display:inline-flex;align-items:center;gap:8px;font-weight:700}
+.dest.soon::after{background:linear-gradient(180deg,transparent,rgba(0,0,0,.18))}
+.wave{position:absolute;right:-30px;top:30%;width:120%;opacity:.12}
+/* passos */
+.passos{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:p}
+.passo{background:var(--white);border-radius:var(--r);padding:30px 26px 34px;transition:transform .3s var(--ease)}
+.passo:hover{transform:translateY(-4px)}
+.passo .n{width:46px;height:46px;border-radius:50%;background:var(--chip);color:var(--blue);display:grid;place-items:center;font-weight:800;font-size:1.15rem}
+.passo h3{font-size:1.3rem;margin-top:22px;letter-spacing:-.015em}
+.passo p{margin-top:8px;color:var(--soft)}
 /* mares */
-.mares{background:var(--paper);color:var(--ink);padding:clamp(120px,14vw,200px) var(--m)}
-.mares .col{max-width:640px;margin:0 auto;container-type:inline-size}
-.mares h2{font-size:31cqw;line-height:.8;letter-spacing:-.04em;color:var(--bg)}
-.mares .col>p{margin:22px 0 26px;max-width:46ch}
-details{background:var(--paper-2);margin-bottom:6px}
-summary{list-style:none;cursor:pointer;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:600;transition:background-color .2s}
+.mares{display:grid;grid-template-columns:5fr 7fr;gap:clamp(24px,5vw,72px);background:var(--white);border-radius:var(--r-lg);padding:clamp(28px,5vw,64px)}
+.mares h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}.mares .txt p{margin-top:14px;color:var(--soft);max-width:38ch}
+.mares .count{margin-top:28px;display:flex;gap:28px}.mares .count b{display:block;font-size:2.4rem;line-height:1;letter-spacing:-.03em;color:var(--blue)}.mares .count span{color:var(--soft);font-size:.95rem}
+details{border-radius:16px;background:var(--bg);margin-bottom:10px;transition:background-color .2s}
+details[open]{background:#eef3fa}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:18px 22px;font-weight:700;font-size:1.05rem}
 summary::-webkit-details-marker{display:none}
-summary:hover{background:#e2eaf5}
-summary::after{content:"+";font-size:1.5rem;font-weight:400;transition:transform .3s var(--ease)}
-details[open] summary::after{transform:rotate(45deg)}
-details ul{list-style:none;margin:0;padding:4px 18px 20px}
-details li{display:flex;justify-content:space-between;gap:16px;padding:7px 0}
-details li a{font-weight:600;color:var(--bg)}
-details li .uf{opacity:.65;margin-left:6px;font-size:var(--step-small)}
-.tag-soon{color:var(--soft)}
-/* carta para donos */
-.carta{padding:clamp(140px,14vw,200px) var(--m);display:flex;justify-content:center}
-.sheet{width:min(640px,100%);background:var(--paper);color:var(--ink)}
-.sheet-in{padding:60px 60px 72px;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),97.5% 100%,95% calc(100% - 12px),92.5% 100%,90% calc(100% - 12px),87.5% 100%,85% calc(100% - 12px),82.5% 100%,80% calc(100% - 12px),77.5% 100%,75% calc(100% - 12px),72.5% 100%,70% calc(100% - 12px),67.5% 100%,65% calc(100% - 12px),62.5% 100%,60% calc(100% - 12px),57.5% 100%,55% calc(100% - 12px),52.5% 100%,50% calc(100% - 12px),47.5% 100%,45% calc(100% - 12px),42.5% 100%,40% calc(100% - 12px),37.5% 100%,35% calc(100% - 12px),32.5% 100%,30% calc(100% - 12px),27.5% 100%,25% calc(100% - 12px),22.5% 100%,20% calc(100% - 12px),17.5% 100%,15% calc(100% - 12px),12.5% 100%,10% calc(100% - 12px),7.5% 100%,5% calc(100% - 12px),2.5% 100%,0 calc(100% - 12px));background:var(--paper)}
-.sheet{background:transparent}
-.portrait{width:44px;height:44px;border-radius:50%;object-fit:cover}
-.sheet p{font-size:1.0625rem;line-height:1.55;margin-top:22px}
-.sheet p strong{font-weight:600;background:#cfe1ff;padding:0 3px}
-.sign{margin-top:30px}.sign em{display:block;font-size:1.375rem}.sign span{font-size:var(--step-small);color:var(--soft)}
-.dots{height:6px;margin:0 6px;background-image:radial-gradient(circle,var(--paper) 2.5px,transparent 3px);background-size:14px 6px}/* taste-skill-ignore: pontos redondos de picote, pedidos pela direção */
-.stub{background:var(--paper);color:var(--ink);min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px}
-.stub span{font-weight:600}
+summary .plus{width:30px;height:30px;border-radius:50%;background:#fff;display:grid;place-items:center;font-weight:600;transition:transform .3s var(--ease)}
+details[open] summary .plus{transform:rotate(45deg)}
+summary small{font-weight:600;color:var(--soft);font-size:.85rem;margin-left:auto;margin-right:14px}
+details ul{list-style:none;margin:0;padding:0 22px 16px}
+details li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0}
+details li+li{border-top:1px solid var(--line)}
+details li .uf{color:var(--soft);font-size:.85rem;margin-left:6px}
+.tag{font-size:.82rem;font-weight:700;padding:5px 12px;border-radius:999px;background:#fff;color:var(--soft);white-space:nowrap}
+a.tag{background:var(--coral);color:#fff;text-decoration:none}
+/* donos */
+.dono{display:grid;grid-template-columns:1.1fr 1fr;background:var(--navy);color:#fff;border-radius:var(--r-lg);overflow:hidden}
+.dono .txt{padding:clamp(32px,5vw,72px)}
+.dono h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}
+.dono p{margin-top:16px;color:rgba(255,255,255,.85);max-width:52ch}.dono p strong{color:#fff}
+.dono .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.dono .ph{position:relative;min-height:420px}.dono .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sign{margin-top:24px;font-weight:700}.sign span{display:block;font-weight:500;color:rgba(255,255,255,.65);font-size:.92rem}
 /* perguntas */
-.faq{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:clamp(120px,14vw,200px) var(--m);background:var(--deep)}
-.faq h2{grid-column:1/4;font-size:clamp(1.75rem,1.4rem + 1vw,2rem)}
-.faq .cols{grid-column:5/13;columns:2;column-gap:56px}
-.faq .cols p{break-inside:avoid;margin-bottom:20px;font-size:1.0625rem;line-height:1.55}
-.faq .cols b{font-weight:600}
-/* chamada final */
-.cta{position:relative;background:var(--ink);min-height:80svh;display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:120px var(--m) 0;overflow:hidden}
-.cta>p{grid-column:1/5;align-self:end;margin-bottom:64px;font-size:clamp(1.25rem,1rem + .6vw,1.5rem);line-height:1.35}
-.reply{grid-column:6/13;align-self:end;background:var(--paper);color:var(--ink);aspect-ratio:7/5;transform:rotate(2deg) translateY(60px);padding:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:transform .5s var(--ease)}
-.reply:hover{transform:rotate(1deg) translateY(48px)}
-.reply h2{font-size:clamp(2rem,1.4rem + 1.6vw,3rem)}
-.reply p{margin:16px 0 28px;max-width:40ch}
-.reply .btn{width:100%;min-height:56px;font-size:1rem}
-/* rodapé: verso do cartão */
-.pe{padding:120px var(--m) 32px}
-.post{max-width:1100px;margin:0 auto;background:var(--paper);color:var(--ink);padding:72px 56px 28px;position:relative;
- -webkit-mask:radial-gradient(circle 50px at 50px 0,transparent 98%,#000) 0 0/100px 100% repeat-x;mask:radial-gradient(circle 50px at 50px 0,transparent 98%,#000) 0 0/100px 100% repeat-x}/* taste-skill-ignore: pontos redondos de picote, pedidos pela direção */
-.post-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
-.post h2{font-size:2rem}.post-grid>div:first-child p{margin-top:14px;max-width:38ch}
-.addr{position:relative;padding-top:8px}
-.addr ul{list-style:none;margin:0;padding:0}.addr li+li{margin-top:12px}
-.addr a{font-size:1.125rem;text-decoration:none;font-weight:600}.addr a:hover{text-decoration:underline;text-underline-offset:4px}
-.stamp{position:absolute;right:0;top:-24px;width:88px;padding:6px;background:var(--paper);transform:rotate(3deg)}
-.stamp img{aspect-ratio:3/4;object-fit:cover;width:100%}
-.imp{text-align:center;font-size:var(--step-small);margin-top:56px;color:var(--soft)}
-.wordfoot{font-family:var(--disp);font-weight:800;font-size:clamp(4rem,1rem + 15vw,15rem);letter-spacing:-.04em;line-height:.8;text-align:center;margin-top:48px;color:var(--paper)}
+.faq{display:grid;grid-template-columns:4fr 8fr;gap:clamp(24px,5vw,72px)}
+.faq h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}.faq .side p{margin-top:14px;color:var(--soft)}.faq .side .btn{margin-top:22px}
+.faq details{background:var(--white)}.faq details[open]{background:var(--white)}
+.faq details p{padding:0 22px 20px;color:var(--soft)}
+/* chamada */
+.cta{margin-top:clamp(80px,10vw,130px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
+.cta h2{font-size:clamp(2.2rem,1.4rem + 2.6vw,3.8rem)}.cta p{margin-top:12px;max-width:44ch;color:rgba(255,255,255,.9)}
+.cta .btns{display:flex;gap:12px;flex-wrap:wrap;flex:none}
+/* rodapé */
+.pe{margin-top:clamp(80px,10vw,130px);background:var(--navy);color:#fff;padding:64px 0 36px}
+.pe .row{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
+.pe .logo{color:#fff}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
+.pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
+.pe .imp{margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);font-size:.9rem}
 /* entradas */
-.js .rv{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.js .rv{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .js .rv.in{opacity:1;transform:none}
-.js .show .slip{translate:0 60px;opacity:0;transition:translate .9s var(--ease),opacity .9s var(--ease),transform .35s var(--ease)}
-.show.vis .slip{translate:0 0;opacity:1}
-.show .slip:nth-child(2){transition-delay:80ms}.show .slip:nth-child(3){transition-delay:160ms}.show .slip:nth-child(4){transition-delay:240ms}.show .slip:nth-child(5){transition-delay:320ms}.show .slip:nth-child(6){transition-delay:400ms}
-@keyframes up{from{opacity:0;translate:0 24px}to{opacity:1;translate:0 0}}
-.js .card-in>*{animation:up .8s var(--ease) both}.js .card-in>:nth-child(2){animation-delay:.08s}.js .card-in>:nth-child(3){animation-delay:.16s}.js .card-in>:nth-child(4){animation-delay:.24s}.js .card-in>:nth-child(5){animation-delay:.32s}
-.js .stripe i{animation:up .6s var(--ease) both}
-@media (max-width:960px){
- .bar nav{display:none}.bar .btn{margin-left:auto}
- .hero{grid-template-columns:minmax(0,1fr)}.room{position:relative;top:0;height:48svh;order:-1}
- .card{min-height:0;margin-top:-24px;position:relative;z-index:1;margin-left:12px;margin-right:12px}
- .stripe{height:40px}.t-row{grid-template-columns:1fr 1fr}.t-row>div:first-child{grid-column:1/-1}
- .como{grid-template-columns:1fr}.como .txt,.itin{grid-column:1/-1}.itin{max-width:none}
- .faq{grid-template-columns:1fr}.faq h2,.faq .cols{grid-column:1/-1}.faq .cols{columns:1}
- .cta{grid-template-columns:1fr;padding-top:96px}.cta>p,.reply{grid-column:1/-1}.cta>p{margin-bottom:24px}
- .reply{width:90%;justify-self:center;transform:rotate(1deg) translateY(40px);aspect-ratio:auto;padding:36px 24px 48px}
- .post-grid{grid-template-columns:1fr}
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.js .hero-txt>*,.js .sbar{animation:up .9s var(--ease) both}.js .hero-txt>:nth-child(2){animation-delay:.1s}.js .sbar{animation-delay:.2s}
+@media (max-width:1000px){
+ .top nav{display:none}.top .btn{margin-left:auto}
+ .dests{grid-template-columns:repeat(2,1fr)}.passos{grid-template-columns:repeat(2,1fr)}
+ .mares,.faq,.dono{grid-template-columns:1fr}.dono .ph{min-height:300px;order:-1}
+ .cta{flex-direction:column;align-items:flex-start}
 }
-@media (max-width:640px){
- .show{height:100svh}.show .copy{left:16px;right:16px;top:6%;max-width:none;padding:18px}.show .copy p{font-size:1.375rem}
- .slips{overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:0}.slip{flex:0 0 42vw;scroll-snap-align:start;font-size:.875rem}
- .sheet-in{padding:36px 24px 56px}.stub{flex-direction:column;align-items:stretch;text-align:center;padding:16px 24px 20px}
- .post{padding:64px 24px 24px;-webkit-mask-size:60px 100%;mask-size:60px 100%;-webkit-mask-image:radial-gradient(circle 30px at 30px 0,transparent 98%,#000);mask-image:radial-gradient(circle 30px at 30px 0,transparent 98%,#000)}/* taste-skill-ignore: pontos redondos de picote, pedidos pela direção */
- .stamp{width:64px;top:-40px}
- .langs{display:none}
+@media (max-width:720px){
+ .langs{display:none}.top .wrap{height:64px}.logo{font-size:1.3rem}
+ .hero{margin:0 10px;border-radius:26px;height:auto;min-height:0;aspect-ratio:auto}.hero{height:74svh;min-height:480px}
+ .hero-txt{left:22px;right:22px;bottom:200px}
+ .search{margin-top:-120px;padding:0 20px}
+ .sbar{flex-direction:column;border-radius:26px;padding:10px;gap:2px}
+ .sf{padding:12px 16px;border-radius:16px}.sf+.sf::before{left:16px;right:16px;top:0;bottom:auto;width:auto;height:1px}
+ .sbar .btn{min-height:56px;margin-top:8px;width:100%}
+ .dests{grid-template-columns:1fr;gap:14px}.dest{aspect-ratio:16/11}
+ .passos{grid-template-columns:1fr}.sec-h{display:block}
+ .cta .btns .btn{width:100%}.cta .btns{width:100%}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .rv{opacity:1;transform:none}.js .show .slip{opacity:1;translate:none}.show>img{transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .rv{opacity:1;transform:none}}
 """
 
 JS = r"""
@@ -392,16 +413,19 @@ function show(){var o=s.options[s.selectedIndex];out.innerHTML="";if(!o)return;
  if(o.dataset.url){out.textContent=f.dataset.aberto;}else{var c=o.dataset.nome,m=f.dataset.wa.replace("{c}",c);
   out.innerHTML=f.dataset.breve.replace("{c}",c)+' <a href="https://wa.me/'+f.dataset.num+'?text='+encodeURIComponent(m)+'" rel="noopener">'+f.dataset.btn+'</a>';}}
 s.addEventListener("change",show);
-f.addEventListener("submit",function(ev){var o=s.options[s.selectedIndex];if(!o.dataset.url){ev.preventDefault();show();out.querySelector("a")&&out.querySelector("a").focus();return;}
- ev.preventDefault();var q=[];if(d.value&&d.value>=iso)q.push("data="+d.value);var n=+p.value;if(n>=1&&n<=99)q.push("pessoas="+n);
+document.querySelectorAll("[data-pick]").forEach(function(a){a.addEventListener("click",function(ev){ev.preventDefault();s.value=a.dataset.pick;show();document.getElementById("busca").scrollIntoView({behavior:"smooth",block:"center"});});});
+f.addEventListener("submit",function(ev){var o=s.options[s.selectedIndex];ev.preventDefault();if(!o.dataset.url){show();var a=out.querySelector("a");a&&a.focus();return;}
+ var q=[];if(d.value&&d.value>=iso)q.push("data="+d.value);var n=+p.value;if(n>=1&&n<=99)q.push("pessoas="+n);
  location.href=o.dataset.url+(q.length?"?"+q.join("&"):"");});
-var imgs=[].slice.call(document.querySelectorAll(".room img")),i=0,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
+var imgs=[].slice.call(document.querySelectorAll(".hero .ph img")),i=0,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(imgs.length>1&&!red){setInterval(function(){if(document.hidden)return;imgs[i].classList.remove("on");i=(i+1)%imgs.length;imgs[i].classList.add("on");},5600);}
-var io="IntersectionObserver" in window?new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add(x.target.classList.contains("show")?"vis":"in");io.unobserve(x.target);}});},{threshold:.15}):null;
-document.querySelectorAll(".rv,.show").forEach(function(el,k){if(!io){el.classList.add("in","vis");return;}
- if(el.classList.contains("rv")){var sib=[].slice.call(el.parentNode.children).filter(function(c){return c.classList.contains("rv");});el.style.transitionDelay=(sib.indexOf(el)*75)+"ms";}io.observe(el);});
+var io="IntersectionObserver" in window?new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target);}});},{threshold:.12}):null;
+document.querySelectorAll(".rv").forEach(function(el){if(!io){el.classList.add("in");return;}
+ var sib=[].slice.call(el.parentNode.children).filter(function(c){return c.classList.contains("rv");});el.style.transitionDelay=(Math.min(sib.indexOf(el),6)*70)+"ms";io.observe(el);});
 })();
 """
+
+LOGO = '<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#ff6b4a" stroke-width="2.4" stroke-linecap="round"/></svg>'
 
 def destino_options(t, lang):
     out = []
@@ -421,30 +445,36 @@ def pagina(lang):
     langs = "".join(f'<a href="{PATH[l] if lang == "pt" else ("../" if l == "pt" else "../" + l + "/")}" hreflang="{HL[l]}" lang="{HL[l]}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in T)
     nav = "".join(f'<a href="{h}">{e(x)}</a>' for h, x in t["nav"])
     bz = BZ + PATH[lang]
-    stripe = "<i></i>" * 40
     fotos = "".join(f'<img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{" class=on" if i == 0 else " loading=lazy"}>' for i, (n, w, h) in enumerate(HERO_FOTOS))
     cid = {k: (nome, uf, u) for _, cs in DEST for k, nome, uf, u in cs}
-    slips = []
+    cards = []
     for k in SLIPS:
         nome, uf, u = cid[k]
-        inner = (f'<b>{e(nome)}</b><div class="dash" aria-hidden="true">- - - - - - - - - - - - - - - -</div>'
-                 f'<div>{e(COORD[k])}</div><div>{e(t["slip"][k])}</div><span class="st">{e(t["aberto"] if u else t["breve"])}</span>')
-        slips.append(f'<a class="slip open" href="{e(bz)}">{inner}</a>' if u else f'<div class="slip">{inner}</div>')
-    como = "".join(f'<h3>{e(g)}</h3><ul>' + "".join(f'<li><span>{e(a)}</span><span aria-hidden="true"></span><span>{e(b)}</span></li>' for a, b in rows) + "</ul>" for g, rows in t["como"])
+        if u:
+            cards.append(f'<a class="dest open rv" href="{e(bz)}"><img src="{pre}img/barco-1.jpg" width="960" height="1280" alt="{e(t["foto_alt"][2])}" loading="lazy">'
+                         f'<span class="chip">{e(t["aberto"])}</span><h3>{e(nome)}</h3><div class="uf">{e(uf)}</div>'
+                         f'<p>{e(t["slip"][k])}</p><span class="go">{e(t["ver"])} →</span></a>')
+        else:
+            cards.append(f'<a class="dest soon rv" href="#busca" data-pick="{k}" style="background:{TOM[k]}">'
+                         f'<svg class="wave" viewBox="0 0 400 120" aria-hidden="true"><path d="M0 60c33 0 33-30 67-30s33 30 66 30 34-30 67-30 33 30 67 30 33-30 66-30 34 30 67 30" fill="none" stroke="#fff" stroke-width="10"/><path d="M0 100c33 0 33-30 67-30s33 30 66 30 34-30 67-30 33 30 67 30 33-30 66-30 34 30 67 30" fill="none" stroke="#fff" stroke-width="10"/></svg>'
+                         f'<span class="chip">{e(t["breve"])}</span><h3>{e(nome)}</h3><div class="uf">{e(uf)}</div>'
+                         f'<p>{e(t["slip"][k])}</p></a>')
+    passos = "".join(f'<div class="passo rv"><div class="n" aria-label="{e(t["passo"])} {i+1}">{i+1}</div><h3>{e(a)}</h3><p>{e(b)}</p></div>' for i, (a, b) in enumerate(t["passos"]))
     regs = []
+    total = sum(len(c) for _, c in DEST)
     for i, (reg, cidades) in enumerate(DEST):
-        abertos = sum(1 for c in cidades if c[3])
         lis = "".join(
             f'<li><span>{e(nome)}<span class="uf">{uf}</span></span>'
-            + (f'<a href="{e(u + PATH[lang])}">{e(t["aberto"])}</a>' if u else f'<span class="tag-soon">{e(t["breve"])}</span>')
+            + (f'<a class="tag" href="{e(u + PATH[lang])}">{e(t["aberto"])}</a>' if u else f'<span class="tag">{e(t["breve"])}</span>')
             + "</li>" for k, nome, uf, u in cidades)
-        regs.append(f'<details class="rv"{" open" if i == 0 else ""}><summary>{e(t["reg"][reg])}</summary><ul>{lis}</ul></details>')
-    carta = "".join(f"<p>{p}</p>" for p in t["carta"])
-    faq = "".join(f'<p class="rv"><b>{e(q)}</b> {e(a)}</p>' for q, a in t["faq"])
+        regs.append(f'<details{" open" if i == 0 else ""}><summary>{e(t["reg"][reg])}<small>{len(cidades)}</small><span class="plus" aria-hidden="true">+</span></summary><ul>{lis}</ul></details>')
+    carta = "".join(f"<p>{p}</p>" for p in t["carta"][1:])
+    faq = "".join(f'<details><summary>{e(q)}<span class="plus" aria-hidden="true">+</span></summary><p>{e(a)}</p></details>' for q, a in t["faq"])
     ld = {"@context": "https://schema.org", "@type": "Organization", "name": "Bordazul", "url": DOM + "/",
           "description": t["desc"], "parentOrganization": {"@type": "Organization", "name": "Búzios Lanchas", "url": BZ + "/"},
           "contactPoint": {"@type": "ContactPoint", "telephone": "+55-21-99927-2550", "contactType": "customer service", "availableLanguage": ["Portuguese", "English", "Spanish"]}}
     ldf = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in t["faq"]]}
+    home = PATH[lang] if lang == "pt" else "./"
     return f"""<!doctype html>
 <html lang="{HL[lang]}">
 <head>
@@ -455,111 +485,92 @@ def pagina(lang):
 <link rel="canonical" href="{url}">{alt}
 <meta property="og:type" content="website"><meta property="og:url" content="{url}"><meta property="og:title" content="{e(t["title"])}">
 <meta property="og:description" content="{e(t["desc"])}"><meta property="og:image" content="{DOM}/img/barco-3.jpg">
-<meta name="theme-color" content="#0b5cc4">
+<meta name="theme-color" content="#f4f7fb">
 <link rel="icon" href="{pre}favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Besley:wght@800&family=Libre+Franklin:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <script type="application/ld+json">{json.dumps(ldf, ensure_ascii=False)}</script>
 <style>{CSS}</style>
 </head>
 <body>
-<a class="skip" href="#bilhete">{e(t["f_btn"])}</a>
-<header class="bar">
-<a class="mark" href="{PATH[lang] if lang == "pt" else "./"}">Bordazul</a>
+<a class="skip" href="#busca">{e(t["f_btn"])}</a>
+<header class="top"><div class="wrap">
+<a class="logo" href="{home}">{LOGO}bordazul</a>
 <nav aria-label="Bordazul">{nav}</nav>
 <div class="langs" aria-label="{e(t["lang"])}">{langs}</div>
-<a class="btn light" href="{e(bz)}">{e(t["navcta"])}</a>
-</header>
+<a class="btn" href="{e(bz)}">{e(t["navcta"])}</a>
+</div></header>
 <main>
 <section class="hero">
-<div class="card">
-<div class="stripe" aria-hidden="true">{stripe}</div>
-<div class="card-in">
-<div class="bigmark" aria-hidden="true">Bordazul</div>
-<h1>{t["h1"]}</h1>
-<p class="lead">{e(t["lead"])}</p>
-<form class="ticket" id="bilhete" action="{e(bz)}" method="get" data-aberto="{e(t["r_aberto"])}" data-breve="{e(t["r_breve"])}" data-btn="{e(t["r_breve_btn"])}" data-wa="{e(t["wa_breve"])}" data-num="{WA}">
-<div class="t-row">
-<div><label for="f-dest">{e(t["f_dest"])}</label><select id="f-dest" name="destino">{destino_options(t, lang)}</select></div>
-<div><label for="f-data">{e(t["f_data"])}</label><input id="f-data" name="data" type="date"></div>
-<div><label for="f-pes">{e(t["f_pes"])}</label><div class="step"><button type="button" data-step="-1" aria-label="{e(t["menos"])}">−</button><input id="f-pes" name="pessoas" type="number" inputmode="numeric" min="1" max="60" value="2"><button type="button" data-step="1" aria-label="{e(t["mais"])}">+</button></div></div>
-</div>
-<div class="perf" aria-hidden="true"></div>
-<div class="t-foot"><button class="btn" type="submit">{e(t["f_btn"])}</button></div>
-<p class="result" id="res" aria-live="polite"></p>
+<div class="ph">{fotos}</div>
+<div class="hero-txt"><h1>{t["h1"]}</h1><p class="lead">{e(t["lead"])}</p></div>
+</section>
+<div class="search" id="busca">
+<form class="sbar" id="bilhete" action="{e(bz)}" method="get" data-aberto="{e(t["r_aberto"])}" data-breve="{e(t["r_breve"])}" data-btn="{e(t["r_breve_btn"])}" data-wa="{e(t["wa_breve"])}" data-num="{WA}">
+<div class="sf"><label for="f-dest">{e(t["f_dest"])}</label><select id="f-dest" name="destino">{destino_options(t, lang)}</select></div>
+<div class="sf"><label for="f-data">{e(t["f_data"])}</label><input id="f-data" name="data" type="date"></div>
+<div class="sf"><label for="f-pes">{e(t["f_pes"])}</label><div class="step"><button type="button" data-step="-1" aria-label="{e(t["menos"])}">−</button><input id="f-pes" name="pessoas" type="number" inputmode="numeric" min="1" max="60" value="2"><button type="button" data-step="1" aria-label="{e(t["mais"])}">+</button></div></div>
+<button class="btn" type="submit">{ICON_BUSCA}{e(t["f_btn"])}</button>
 </form>
-<div class="card-links">{"".join(f'<a href="{h}">{e(x)}</a>' for h, x in t["links"])}</div>
+<p class="result" id="res" aria-live="polite"></p>
 </div>
-</div>
-<div class="room">{fotos}</div>
-</section>
 
-<section class="show" id="destinos">
-<img src="{pre}img/mar-buzios.jpg" width="1600" height="1080" alt="{e(t["s_alt"])}" loading="lazy">
-<div class="copy rv"><p>{e(t["s_p1"])}</p><p>{e(t["s_p2"])}</p></div>
-<div class="slips">{"".join(slips)}</div>
-</section>
+<section class="sec" id="destinos"><div class="wrap">
+<div class="sec-h"><div><h2 class="rv">{e(t["dest_h"])}</h2><p class="rv">{e(t["dest_p"])}</p></div></div>
+<div class="dests">{"".join(cards)}</div>
+</div></section>
 
-<section class="como" id="como">
-<div class="txt"><h2 class="rv">{e(t["como_h"])}</h2><p class="rv">{e(t["como_p"])}</p></div>
-<div class="itin rv">{como}<div class="fim"><span>{e(t["como_fim"][0])}</span><span>{e(t["como_fim"][1])}</span></div></div>
-</section>
+<section class="sec" id="como"><div class="wrap">
+<div class="sec-h"><div><h2 class="rv">{e(t["passos_h"])}</h2><p class="rv">{e(t["como_p"])}</p></div></div>
+<div class="passos">{passos}</div>
+</div></section>
 
-<section class="mares" aria-labelledby="mares-h">
-<div class="col">
-<h2 id="mares-h" class="rv">{e(t["mares"])}</h2>
-<p class="rv">{e(t["mares_p"])}</p>
+<section class="sec"><div class="wrap">
+<div class="mares rv">
+<div class="txt"><h2>{e(t["mares"])}</h2><p>{e(t["mares_p"])}</p>
+<div class="count"><div><b>{total}</b><span>{"destinos" if lang != "en" else "destinations"}</span></div><div><b>{len(DEST)}</b><span>{"regiões" if lang=="pt" else "regions" if lang=="en" else "regiones"}</span></div></div></div>
 <div>{"".join(regs)}</div>
 </div>
-</section>
+</div></section>
 
-<section class="carta" id="barco">
-<div class="sheet rv">
-<div class="sheet-in">
-{carta}
-<div class="sign"><em>{e(t["carta_ass"])}</em><span>{e(t["carta_cargo"])}</span></div>
+<section class="sec" id="barco"><div class="wrap">
+<div class="dono rv">
+<div class="txt"><h2>{e(t["dono_h"])}</h2><p>{re.sub(r"^<strong>.*?</strong>\s*", "", t["carta"][0])}</p>{carta}
+<div class="sign">{e(t["carta_ass"])}<span>{e(t["carta_cargo"])}</span></div>
+<div class="btns"><a class="btn coral" href="{e(wa(t["wa_dono"]))}" rel="noopener">{ICON_WA}{e(t["carta_btn"])}</a></div></div>
+<div class="ph"><img src="{pre}img/barco-3.jpg" width="1400" height="1050" alt="{e(t["foto_alt"][1])}" loading="lazy"></div>
 </div>
-<div class="dots" aria-hidden="true"></div>
-<div class="stub"><span>WhatsApp (21) 99927-2550</span><a class="btn" href="{e(wa(t["wa_dono"]))}" rel="noopener">{e(t["carta_btn"])}</a></div>
+</div></section>
+
+<section class="sec" id="perguntas"><div class="wrap">
+<div class="faq">
+<div class="side"><h2 class="rv">{e(t["faq_h"])}</h2><p class="rv">{e(t["faq_p"])}</p><a class="btn rv" href="{e(wa(t["wa_geral"]))}" rel="noopener">{ICON_WA}{e(t["cta_btn2"])}</a></div>
+<div class="rv">{faq}</div>
 </div>
-</section>
-
-<section class="faq" id="perguntas">
-<h2 class="rv">{e(t["faq_h"])}</h2>
-<div class="cols">{faq}</div>
-</section>
-
-<section class="cta">
-<p class="rv">{e(t["cta_p"])}</p>
-<div class="reply"><h2>{e(t["cta_h"])}</h2><p>{e(t["cta_l"])}</p><a class="btn" href="{e(bz)}">{e(t["cta_btn"])}</a></div>
-</section>
+<div class="cta rv"><div><h2>{e(t["cta_h"])}</h2><p>{e(t["cta_l"])} {e(t["cta_p"])}</p></div>
+<div class="btns"><a class="btn white" href="{e(bz)}">{e(t["cta_btn"])} →</a></div></div>
+</div></section>
 </main>
 
-<footer class="pe">
-<div class="post">
-<div class="post-grid">
-<div><h2>{e(t["pe_h"])}</h2><p>{e(t["pe_p"])}</p></div>
-<div class="addr">
-<div class="stamp"><img src="{pre}img/selo.jpg" width="960" height="1280" alt="{e(t["pe_selo"])}" loading="lazy"></div>
+<footer class="pe"><div class="wrap">
+<div class="row">
+<div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="about">{e(t["pe_p"])}</p></div>
 <ul>
 <li><a href="{e(wa(t["wa_geral"]))}" rel="noopener">WhatsApp (21) 99927-2550</a></li>
 <li><a href="{e(bz)}">lanchaembuzios.com.br</a></li>
 <li><a href="https://www.instagram.com/missbardotbuzios/" rel="noopener">@missbardotbuzios</a></li>
-<li><a href="{DOM}/">bordazul.com.br</a></li>
 </ul>
-</div>
+<ul>{nav.replace("<a ", "<li><a ").replace("</a>", "</a></li>")}</ul>
 </div>
 <p class="imp">{e(t["pe_imp"])}</p>
-</div>
-<div class="wordfoot" aria-hidden="true">Bordazul</div>
-</footer>
+</div></footer>
 <script>{JS}</script>
 </body>
 </html>
 """
 
-FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#0b5cc4"/><text x="32" y="47" font-family="Georgia,serif" font-weight="800" font-size="44" text-anchor="middle" fill="#fff">B</text></svg>'
+FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#ff6b4a" stroke-width="2.4" stroke-linecap="round"/></svg>'
 
 def main():
     for lang in T:

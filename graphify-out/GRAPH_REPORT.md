@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1219 nodes · 2016 edges · 94 communities (57 shown, 37 thin omitted)
+- 1219 nodes · 2018 edges · 94 communities (57 shown, 37 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8a2f93ad`
+- Built from commit: `9c67045e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -271,7 +271,7 @@ Cohesion: 0.22
 Nodes (4): CORS, db, HOR, QUEM
 
 ### Community 41 - "fotos-db.py"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (20): destino_options(), e(), main(), pagina(), wa(), abre(), cabe(), corte() (+12 more)
 
 ### Community 42 - "whatsapp-webhook/index.ts"
