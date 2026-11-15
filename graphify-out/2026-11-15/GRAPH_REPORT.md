@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-15)
 
 ## Corpus Check
-- 150 files · ~336,410 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1166 nodes · 1897 edges · 96 communities (59 shown, 37 thin omitted)
@@ -99,23 +97,23 @@
 3. `public.cancelar_pre_reserva()` - 14 edges
 4. `public._ligar_passeio()` - 14 edges
 5. `X()` - 13 edges
-6. `public.marcar_wa()` - 13 edges
-7. `public.cancelar_pre_reserva()` - 13 edges
-8. `public.marcar_wa()` - 12 edges
-9. `public.jetski_usos` - 12 edges
+6. `public.cancelar_pre_reserva()` - 13 edges
+7. `public.marcar_wa()` - 13 edges
+8. `public.jetski_usos` - 12 edges
+9. `public.marcar_wa()` - 12 edges
 10. `public.aprovar_consulta()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
   supabase/sql/2026-11-05_revisao-diaria.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
-- `public.tg_pedido_jetski()` --reads_from--> `public.jetskis`  [EXTRACTED]
-  supabase/sql/2026-11-15_jetski-pedido.sql → supabase/sql/2026-11-15_jetski.sql
+- `public.aprovar_consulta()` --writes_to--> `public.vendas_manuais`  [EXTRACTED]
+  supabase/sql/2026-10-31_vendedor-lanca-pedido.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
+- `public._convite_manual_marca_aviso()` --reads_from--> `public.vendas_manuais`  [EXTRACTED]
+  supabase/sql/2026-11-04_venda-vendedor-aviso-oficial-sempre.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
 - `public.tg_pedido_jetski_uso()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
   supabase/sql/2026-11-15_jetski-pedido.sql → supabase/sql/2026-11-15_jetski.sql
 - `public.tg_pedido_jetski()` --reads_from--> `public.jetskis`  [EXTRACTED]
-  supabase/sql/2026-11-15_jetski-revisao.sql → supabase/sql/2026-11-15_jetski.sql
-- `public.marcar_wa()` --writes_to--> `public.alteracoes_pedidas`  [EXTRACTED]
-  supabase/sql/2026-10-30_papeis-operador-auditor.sql → supabase/sql/2026-10-30_operador-um-toque.sql
+  supabase/sql/2026-11-15_jetski-pedido.sql → supabase/sql/2026-11-15_jetski.sql
 
 ## Import Cycles
 - None detected.
@@ -364,17 +362,17 @@ Nodes (3): public.mb_libera_sinal_sozinho(), passeio_sem_manutencao, public._pas
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public.mb_libera_sinal_sozinho()` connect `public.mb_libera_sinal_sozinho` to `public._teto_cheio`, `public.liberar_sinal`, `public.mover_passeio_v2`, `2026-11-15_jetski-pedido.sql`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `public._pre_pedido_fim()` connect `public.pedidos` to `public.pedidos`, `public.salvar_netos_v3`, `public.bloqueios`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
-- **Why does `public.auto_confirmar_fora()` connect `public.mover_passeio_v2` to `public.clientes`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `public.resolver_condicionais()` connect `public.pedidos` to `public.pedidos`, `public.bloqueios`, `public.mb_libera_sinal_sozinho`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.jetski_usos` connect `2026-11-15_jetski.sql` to `public.mover_passeio_v2`, `public.lanchas`, `2026-11-15_jetski-pedido.sql`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06093189964157706 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
+- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.07439024390243902 - nodes in this community are weakly interconnected._
