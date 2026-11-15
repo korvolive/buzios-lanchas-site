@@ -5733,8 +5733,9 @@ function openUser(uid, msg=""){
   /* pedir cadastro no Asaas (Rodrigo 2026-11-11): liga o aviso no topo para um vendedor que ainda não vendeu */
   const uasv=document.getElementById("uasav");
   /* quem já criou a conta no Asaas não precisa da chave (Rodrigo 2026-11-14): no lugar, mostra se a conta está ativa ou esperando o Asaas aprovar */
-  if(uasv) db("asaas_contas?select=aprovada_em,wallet_id&user_id=eq."+uid).then(r=>{ const c=r?.[0], w=document.getElementById("uasavw"); if(!c?.wallet_id || !w) return;
-    w.innerHTML = c.aprovada_em ? `<p style="margin:0 0 10px;font-size:14px;color:var(--ok,#1a7f4b);font-weight:600">✓ ${t("asAdmAtiva")}</p>` : `<p class="muted" style="margin:0 0 10px;font-size:14px">⏳ ${t("asAdmAnalise")}</p>`; }).catch(()=>{});
+  /* a tabela asaas_contas não é lida direto pelo app: pergunta à função do Transferir Saldo (doc preenchido = conta criada; pode = aprovada) */
+  if(uasv) tsFn({acao:"info", user_id:uid}).then(c=>{ const w=document.getElementById("uasavw"); if(!(c?.pode || c?.doc) || !w) return;
+    w.innerHTML = c.pode ? `<p style="margin:0 0 10px;font-size:14px;color:var(--ok,#1a7f4b);font-weight:600">✓ ${t("asAdmAtiva")}</p>` : `<p class="muted" style="margin:0 0 10px;font-size:14px">⏳ ${t("asAdmAnalise")}</p>`; }).catch(()=>{});
   if(uasv){ db("vendedores?select=aviso_asaas&user_id=eq."+uid).then(r=>{ uasv.checked=!!r?.[0]?.aviso_asaas; uasv.disabled=false; }).catch(()=>{ uasv.disabled=false; });
     uasv.onchange=async()=>{ const ligado=uasv.checked; uasv.disabled=true; try{ await RPC("definir_aviso_asaas",{uid, ligado}); toast(t(ligado?"asAvAdmOn":"asAvAdmOff")); }catch(e){ uasv.checked=!ligado; toast(errMsg(e)); } uasv.disabled=false; }; }
   /* Transferir Saldo (Rodrigo 2026-11-13): só o administrador; só aparece para quem tem conta Asaas aprovada */
