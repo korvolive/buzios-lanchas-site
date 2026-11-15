@@ -147,10 +147,12 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor").eq("id", pid).maybeSingle();
   return p ? { c, p } : null;
 }
 
+// o que o cliente paga online: sinal da lancha + jetski inteiro (Rodrigo 2026-11-15); o sinal_valor continua só da lancha
+const online = (p: any) => (+p.sinal_valor || 0) > 0 ? Math.round(((+p.sinal_valor || 0) + (+p.jetski_valor || 0)) * 100) / 100 : 0;
 // lanchas da própria Búzios Lanchas: o dono cadastrado não recebe parte nenhuma, tudo fica na conta da Búzios (Rodrigo 2026-10-25)
 const SEM_REPASSE = ["miss-bardot"];
 // conta Asaas do dono da lancha (um dono por lancha)
@@ -534,6 +536,34 @@ async function enviarSaldos() {
     if (em) console.error("comissao_paga", p.id, em.message);
     saldo -= com; n++;
   }
+  // 3. jetski (Rodrigo 2026-11-15): depois do passeio, o líquido do jetski vai para o dono do jetski (pago online junto com o sinal)
+  const { data: js } = await db.from("pedidos").select("id, data, horario, bloqueio_id, jetski, jetski_neto")
+    .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse", null).order("data").limit(30);
+  for (const p of js || []) {
+    const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
+    if (!acabou(p.data, p.horario, fim)) continue;
+    if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) continue;
+    // só com o dinheiro do cliente já na Búzios (Asaas ou PayPal)
+    const pagoAs = (await db.from("pagamentos_asaas").select("id").eq("pedido", p.id).not("pago_em", "is", null).limit(1)).data?.length;
+    const pagoPp = (await db.from("pagamentos_pp").select("pedido").eq("pedido", p.id).not("pago_em", "is", null).limit(1)).data?.length;
+    if (!pagoAs && !pagoPp) continue;
+    const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono;
+    const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue; // dono do jetski sem conta aprovada: a Búzios paga por Pix
+    const v = Math.round(+p.jetski_neto * 100) / 100;
+    if (!(v > 0) || v > saldo) continue;
+    const { data: trava } = await db.from("pedidos").update({ jetski_repasse: "asaas:enviando" }).eq("id", p.id).is("jetski_repasse", null).select("id");
+    if (!trava?.length) continue;
+    let tr: any;
+    try { tr = await asaas("/transfers", { value: v, walletId: w }); }
+    catch (e: any) {
+      console.error("saldo jetski", p.id, e?.status, e?.message);
+      if (e?.status >= 400 && e?.status < 500) await db.from("pedidos").update({ jetski_repasse: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
+      continue; // sem resposta clara: fica travado para conferir no Asaas, nunca manda duas vezes
+    }
+    const { error: ej } = await db.from("pedidos").update({ jetski_repasse: "asaas:" + tr.id, jetski_repasse_em: new Date().toISOString() }).eq("id", p.id);
+    if (ej) console.error("jetski_repasse", p.id, ej.message);
+    saldo -= v; n++;
+  }
   return { ligado: true, enviados: n };
 }
 
@@ -544,7 +574,7 @@ Deno.serve(async req => {
       const u = new URL(req.url);
       const x = await carregar(Number(u.searchParams.get("p")), u.searchParams.get("k") || "");
       if (!x) return json({ erro: "link" }, 404);
-      const s = +x.p.sinal_valor || 0;
+      const s = online(x.p);
       const { data: cl } = await db.from("clientes").select("cpf").eq("user_id", x.p.cliente).maybeSingle();
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
@@ -590,11 +620,11 @@ Deno.serve(async req => {
       // cobrança aberta de pedido que não está mais pendente (recusado, cancelado, vencido) ou cujo sinal mudou: cancela para ninguém pagar à toa
       const { data: abertas } = await db.from("pagamentos_asaas").select("pedido, sinal").is("pago_em", null).limit(200);
       const ids = [...new Set((abertas || []).map((r: any) => r.pedido))];
-      const { data: ps } = ids.length ? await db.from("pedidos").select("id, status, sinal_valor").in("id", ids) : { data: [] };
+      const { data: ps } = ids.length ? await db.from("pedidos").select("id, status, sinal_valor, jetski_valor").in("id", ids) : { data: [] };
       let fora = 0;
       for (const pid of ids) {
         const p = (ps || []).find((x: any) => x.id === pid);
-        const ruim = !p || p.status !== "pendente" || (abertas || []).some((r: any) => r.pedido === pid && +r.sinal !== +p.sinal_valor);
+        const ruim = !p || p.status !== "pendente" || (abertas || []).some((r: any) => r.pedido === pid && +r.sinal !== online(p));
         if (ruim) fora += await cancelarAbertas(pid).catch(e => (console.error("fora", pid, e), 0));
       }
       // PayPal em análise: confere se o PayPal já liberou (ou recusou)
@@ -626,7 +656,7 @@ Deno.serve(async req => {
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
-      const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = +p.sinal_valor || 0;
+      const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = online(p); // sinal da lancha + jetski
       if (metodo === "cartao" && !cartaoOk(p.data)) return json({ erro: "cartao_prazo" }, 409);
       if (!(sinal > 0)) return json({ erro: "valor" }, 400);
       const wallet = await carteira(p.lancha);
@@ -656,7 +686,7 @@ Deno.serve(async req => {
       const pg = await asaas("/payments", {
         customer: cus, billingType: metodo === "pix" ? "PIX" : "CREDIT_CARD", dueDate: venc,
         ...(np > 1 ? { installmentCount: np, installmentValue: op.parcela } : { value: tot }),
-        description: `Sinal da reserva · ${lancha} · ${dataBR(p.data)}${np > 1 ? ` · ${np}x` : ""}`.slice(0, 500), externalReference: `PED${p.id}`,
+        description: `Sinal da reserva · ${lancha}${+p.jetski_valor > 0 ? " + jetski" : ""} · ${dataBR(p.data)}${np > 1 ? ` · ${np}x` : ""}`.slice(0, 500), externalReference: `PED${p.id}`,
         ...(wallet && rep > 0 ? { split: [{ walletId: wallet, ...(np > 1 ? { totalFixedValue: rep } : { fixedValue: rep }) }] } : {}),
       });
       let payload = null, img = null;

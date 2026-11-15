@@ -91,7 +91,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em").eq("id", pid).maybeSingle();
   if (!p) return null;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
@@ -262,12 +262,15 @@ Deno.serve(async req => {
         const a = p.bloqueio_id ? (await db.from("anotacoes").select("sinal").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data : null;
         const forma = pa ? (pa.metodo === "cartao" ? "cartao" : "pix") : c.pago_em && c.moeda !== "BRL" ? "paypal" : "pix";
         recibo = { nome: String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().slice(0, 80), forma,
-          em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : (+a?.sinal || +p.sinal_valor || (c.moeda === "BRL" ? +c.valor : 0)) || null,
+          em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : ((+a?.sinal || +p.sinal_valor) ? (+a?.sinal || +p.sinal_valor) + (+p.jetski_valor || 0) : (c.moeda === "BRL" ? +c.valor : 0)) || null,
           valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
       }
       return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
-        sinal_brl: +p.sinal_valor || null, resto_brl: resto, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
+        sinal_brl: +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto,
+        // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha
+        lancha_sinal: +p.sinal_valor || null, lancha_total: resto !== null && +p.sinal_valor > 0 ? resto + +p.sinal_valor : null,
+        jetski: +p.jetski_valor > 0 ? { min: p.jetski_min, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor } : null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
     }
     const b = await req.json().catch(() => ({}));

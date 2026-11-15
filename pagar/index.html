@@ -163,6 +163,15 @@ function fecharChat(){ CW.hidden=true; CI.src="about:blank"; }
 CX.onclick=fecharChat;
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-chat]"); if(b){ e.preventDefault(); abrirChat(+b.dataset.chat); } });
 addEventListener("message", e=>{ if(e.origin!==location.origin) return; if(e.data==="chat-fechar") fecharChat(); else if(e.data==="chat-aberto") CX.hidden=true; });
+/* jetski junto com a lancha (Rodrigo 2026-11-15): lancha e jetski em linhas separadas, cada um com o valor cheio; paga online o sinal da lancha + o jetski inteiro */
+const JL={pt:{boat:"Lancha (valor do passeio)",jet:"Jetski {d}, das {a} às {b}",tot:"Total",dep:"Pague agora: sinal da lancha (50%) + jetski"},
+  en:{boat:"Boat (tour price)",jet:"Jet ski {d}, from {a} to {b}",tot:"Total",dep:"Pay now: boat deposit (50%) + jet ski"},
+  es:{boat:"Lancha (precio del paseo)",jet:"Moto de agua {d}, de {a} a {b}",tot:"Total",dep:"Paga ahora: seña de la lancha (50%) + moto de agua"}};
+const jDur=m=>{ const h=Math.floor(m/60); return lg==="en" ? (m%60?`${h} h 30`:`${h} h`) : `${h}h${m%60?"30":""}`; };
+const jHr=s=>{ const [h,m]=String(s).split(":").map(Number); return lg==="en" ? `${h%12||12}${m?":"+String(m).padStart(2,"0"):""}${h<12?"am":"pm"}` : `${h}h${m?String(m).padStart(2,"0"):""}`; };
+function jetRows(L){ const J=D.jetski; if(!J) return ""; const W=JL[lg], fim=(()=>{ const [h,m]=J.ini.split(":").map(Number), t=h*60+m+J.min; return `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`; })();
+  const lt=+D.lancha_total||0;
+  return (lt?`<li><span>${W.boat}</span><b>${brl(lt)}</b></li>`:"")+`<li><span>${tf(W.jet,{d:jDur(J.min),a:jHr(J.ini),b:jHr(fim)})}</span><b>${brl(J.valor)}</b></li>`+(lt?`<li><span>${W.tot}</span><b>${brl(lt+J.valor)}</b></li>`:""); }
 function render(){
   const L=T[lg]; document.documentElement.lang=lg; document.title=L.title+" · Búzios Lanchas";
   document.querySelectorAll("[data-lg]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lg===lg));
@@ -220,8 +229,8 @@ function render(){
   const chats=!D.chat?`<div class="card"><h2>${L.chats}</h2>${waBtn()}${my}</div>`:my?`<div class="card">${my}</div>`:"";
   box.innerHTML=`<div class="card"><p class="muted" style="margin:0">${esc(L.hi(D.nome))}</p><h1>${L.title}</h1>
     <ul class="rows"><li><span>${L.boat}</span><b>${esc(D.lancha)}</b></li><li><span>${L.date}</span><b>${esc(d)}</b></li>
-    <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li></ul>
-    <div class="muted">${L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
+    <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li>${jetRows(L)}</ul>
+    <div class="muted">${D.jetski?JL[lg].dep:L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
   if(document.getElementById("pp")) mountPP();
   fabs();
 }
