@@ -5976,7 +5976,8 @@ function mainView(){
   document.getElementById("out").onclick = logout;
   if(S.needProf) return profView();
   if(!S.boats.length && S.isAjud && !S.sailorOf.length && !S.isFree){ /* só ajudante: só os passeios dele */
-    app.innerHTML = installHTML() + ajudHTML() + PW_LINK();
+    /* ajudante que também é vendedor (Rodrigo 2026-11-15, caso Caíque): vê o aviso e o cadastro do Asaas e a parte de vendas, além dos passeios dele */
+    app.innerHTML = installHTML() + (S.vend ? pushHTML() + asAvisoHTML(true) + eqCardHTML() + vendHTML() + asContaHTML(true) : "") + ajudHTML() + PW_LINK();
     return bindMain();
   }
   if(!S.boats.length && (S.sailorOf.length || S.isFree)){
