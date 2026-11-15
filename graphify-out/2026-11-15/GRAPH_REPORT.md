@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-15)
 
 ## Corpus Check
-- 144 files · ~324,471 words
+- 145 files · ~324,298 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
 
 ## Summary
-- 1105 nodes · 1795 edges · 86 communities (54 shown, 32 thin omitted)
+- 1107 nodes · 1795 edges · 88 communities (54 shown, 34 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a20a78c4`
+- Built from commit: `77a6e503`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -92,26 +92,26 @@
 5. `X()` - 13 edges
 6. `public.cancelar_pre_reserva()` - 13 edges
 7. `public.marcar_wa()` - 13 edges
-8. `public.marcar_wa()` - 12 edges
-9. `public.lancar_pedido_operador()` - 12 edges
+8. `public.lancar_pedido_operador()` - 12 edges
+9. `public.marcar_wa()` - 12 edges
 10. `public.aprovar_consulta()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
   supabase/sql/2026-11-05_revisao-diaria.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
-- `public.lancar_pedido_vendedor()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
-  supabase/sql/2026-11-04_vendedor-lancar-e-limpa-avaliacoes.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
 - `public.aprovar_consulta()` --writes_to--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-10-31_vendedor-lanca-pedido.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
 - `public._aprovar_consulta()` --writes_to--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-11-04_pedido-de-grupo.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
 - `public._convite_manual_marca_aviso()` --reads_from--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-11-04_venda-vendedor-aviso-oficial-sempre.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
+- `public.lancar_pedido_vendedor()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
+  supabase/sql/2026-11-04_vendedor-lancar-e-limpa-avaliacoes.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
 
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 32 thin omitted)
+## Communities (88 total, 34 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.06
@@ -330,17 +330,15 @@ Cohesion: 0.29
 Nodes (3): public.auto_confirmar_fora(), passeio_sem_manutencao, public._passeio_sem_manutencao()
 
 ## Knowledge Gaps
-- **32 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public._valor_na_data()` connect `2026-10-30_operador-um-toque.sql` to `vendedores`, `b`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+- **Why does `public._pre_pedido_fim()` connect `public.pedidos` to `public.bloqueios`, `public.salvar_netos_v3`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
-- **Why does `public._teto_cheio()` connect `public.aprovar_foto` to `2026-10-30_operador-um-toque.sql`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
@@ -349,3 +347,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
 - **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
   _Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected._
+- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.07439024390243902 - nodes in this community are weakly interconnected._

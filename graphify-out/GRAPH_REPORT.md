@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1105 nodes · 1795 edges · 86 communities (54 shown, 32 thin omitted)
+- 1107 nodes · 1795 edges · 88 communities (54 shown, 34 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a20a78c4`
+- Built from commit: `77a6e503`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -109,7 +109,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 32 thin omitted)
+## Communities (88 total, 34 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.06
@@ -328,7 +328,7 @@ Cohesion: 0.29
 Nodes (3): public.auto_confirmar_fora(), passeio_sem_manutencao, public._passeio_sem_manutencao()
 
 ## Knowledge Gaps
-- **32 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
