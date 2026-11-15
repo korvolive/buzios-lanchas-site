@@ -1077,6 +1077,9 @@
       "seguranca_registros_e_troca_de_segredos_2026_11_13",
       "seguranca_regras"
     ],
+    "62": [
+      "public_pedidos"
+    ],
     "63": [
       "claude",
       "claude_mapa_do_projeto_graphify",
@@ -1276,6 +1279,9 @@
       "supabase_sql_2026_10_31_seguranca_travas",
       "supabase_sql_2026_10_31_seguranca_travas_public_trava_campos_buzios",
       "supabase_sql_2026_10_31_seguranca_travas_trava_campos_buzios"
+    ],
+    "87": [
+      "supabase_sql_2026_11_15_teto_comissao_buzios_30"
     ]
   },
   "cohesion": {
@@ -1341,6 +1347,7 @@
     "59": 0.2857142857142857,
     "60": 0.06722689075630252,
     "61": 0.3333333333333333,
+    "62": 1.0,
     "63": 0.6666666666666666,
     "64": 1.0,
     "65": 0.2087912087912088,
@@ -1364,7 +1371,8 @@
     "83": 0.2857142857142857,
     "84": 1.0,
     "85": 1.0,
-    "86": 1.0
+    "86": 1.0,
+    "87": 1.0
   },
   "gods": [
     {

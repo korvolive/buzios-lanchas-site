@@ -286,9 +286,9 @@ html.is-app #hdr-login{display:none}
   .strip{max-width:100%;justify-self:stretch}
 }
 .gallery .main img.blur{display:none}
-.gallery .main img.fit{position:absolute;inset:0;object-fit:cover;object-position:var(--gd,center)} /* galeria: quadro fixo; corte centralizado ou, com pessoas, o que as mostra inteiras (FOTO_P, 2026-11-13) */
+.gallery .main img.fit{position:absolute;inset:0;object-fit:cover;object-position:var(--gd,center);transform:scale(var(--zd,1));transform-origin:var(--gd,center)} /* galeria: quadro fixo; corte que mostra a lancha e as pessoas inteiras (FOTO_P, 2026-11-13/15); foto que não cabe usa a versão completada (FOTO_C) */
 .strip img{object-position:var(--gm,center)}
-@media (max-width:880px){.gallery .main img.fit{object-position:var(--gm,center)}}
+@media (max-width:880px){.gallery .main img.fit{object-position:var(--gm,center);transform:scale(var(--zm,1));transform-origin:var(--gm,center)}}
 .strip button{width:60px;height:96px}
 .strip button img{object-fit:cover}@media(max-width:760px){.vid{margin-left:auto;margin-right:auto}}
 .nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(6,57,74,.65);color:#fff;font-size:26px;line-height:1;cursor:pointer}
@@ -2601,14 +2601,22 @@ const FOTO_M = {}; /*FOTO_M*/
 /* enquadramento da galeria (2026-11-13): na publicação, scripts/enquadrar.py acha as pessoas de cada foto e escolhe o corte
    que as mostra inteiras no quadro fixo (pés incluídos). foto → ["X% Y%" computador, "X% Y%" celular]; foto fora da lista fica centralizada */
 const FOTO_P = {}; /*FOTO_P*/
-const enq = p => { const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
+/* fotos completadas (2026-11-15): na galeria, a foto que não cabia inteira no quadro é trocada pela versão com as bordas completadas
+   (foto real intacta no meio; scripts/estender-laterais.py e img/completas.json). Capa do card continua a original */
+const FOTO_C = {}; /*FOTO_C*/
+const galP = b => b.photos.map(p => FOTO_C[p[0]] ? [FOTO_C[p[0]], ...p.slice(1)] : p);
+/* ajuste manual do administrador (2026-11-15): item da lista com g = {d:"X% Y%", m:"X% Y%", zd, zm} vale acima do automático */
+const okZ = z => { z=+z; return z>=1 && z<=3 ? Math.round(z*100)/100 : 1; };
+const okG = g => g && typeof g==="object" && typeof g.d==="string" && typeof g.m==="string" ? {d:okPos(g.d), m:okPos(g.m), zd:okZ(g.zd), zm:okZ(g.zm)} : null;
+const enq = p => { const g=okG(p[3]); if(g) return `--gd:${g.d};--gm:${g.m};--zd:${g.zd};--zm:${g.zm}`;
+  const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
 const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? (thumb==="m"&&!jpg&&FOTO_M[p[0]] ? FOTO_M[p[0]] : p[0] + (thumb===1?"-t":"") + ".jpg") : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
 const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
 const altOf = (b,i) => esc(b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`);
 const okFoto = f => typeof f==="string" && (/^https:\/\/sqoperylsqcbcjpcrlnp\.supabase\.co\/storage\/v1\/object\/public\/[\w\/.\-]+$/.test(f) || /^[\w\-]+$/.test(f));
 const okPos = p => typeof p==="string" && /^[a-z0-9% .]{1,30}$/.test(p) ? p : "center 50%";
 function gallery(b){
-  const P=b.photos;
+  const P=galP(b);
   return `<div class="gallery" data-i="0">
     <div class="main tall"><img class="blur" id="g-blur" src="${imgSrc(P[0],1)}" alt="" aria-hidden="true"><img id="g-main" class="fit" style="${enq(P[0])}" src="${imgSrc(P[0],"m")}" srcset="${imgSrc(P[0],"m")} 800w, ${imgSrc(P[0])} 1400w" sizes="(max-width:900px) 66vw, 60vw" fetchpriority="high" alt="${altOf(b,0)}">
       <button type="button" class="nav prev" id="g-prev" aria-label="${t("prevPhoto")}">‹</button>
@@ -2636,7 +2644,7 @@ function bindVideo(){ if(window.__vidLock){ window.__vidLock=0; document.body.st
   sk.onchange=()=>{ drag=false; };
   bar.querySelectorAll("[data-sk]").forEach(x=>x.onclick=()=>{ if(v.duration) v.currentTime=Math.min(Math.max(v.currentTime+ +x.dataset.sk,0),v.duration-0.2); }); }
 function bindGallery(b){
-  if(!b||!b.photos) return; let i=0; const P=b.photos;
+  if(!b||!b.photos) return; let i=0; const P=galP(b);
   /* miniaturas (2026-11-09): só a principal carrega de imediato; as outras entram depois que a página terminou de abrir */
   if(!window.PRERENDER){ const fill=()=>document.querySelectorAll("#g-strip img[data-src]").forEach(m=>{ m.src=m.dataset.src; m.removeAttribute("data-src"); });
     if(document.readyState==="complete") setTimeout(fill,400); else addEventListener("load",()=>setTimeout(fill,400),{once:true}); }
@@ -2915,7 +2923,7 @@ Promise.all([fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista
   .then(([rows])=>{ let mudou=false;
     rows.forEach(r=>{ const b=BOATS.find(x=>x.slug===r.lancha); if(!b || !Array.isArray(r.lista) || !r.lista.length) return;
       /* só aceita foto do Storage do projeto (ou nome de arquivo local) e enquadramento simples: nada do banco vira código na página */
-      const P=r.lista.filter(x=>okFoto(x.f)).map(x=>[x.f, typeof x.a==="string"?x.a:"", okPos(x.p)]); if(!P.length) return;
+      const P=r.lista.filter(x=>okFoto(x.f)).map(x=>{ const g=okG(x.g); return g ? [x.f, typeof x.a==="string"?x.a:"", okPos(x.p), g] : [x.f, typeof x.a==="string"?x.a:"", okPos(x.p)]; }); if(!P.length) return;
       if(JSON.stringify(P)!==JSON.stringify(b.photos)){ b.photos=P; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .catch(()=>{}).finally(()=>window.fotosDone=true);

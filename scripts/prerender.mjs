@@ -92,12 +92,21 @@ try {
   for (const b of llm.guias.boats) { const k = (b.img || "").replace(/\.jpg$/, ""); if (M[k]) b.img = M[k]; }
   console.log(`fotos do banco: ${Object.keys(M).length} de ${urls.length} com versão de celular`);
 } catch (e) { console.error("fotos do banco: usando as originais:", e.message); }
-/* enquadramento da galeria (2026-11-13): corte que mostra as pessoas inteiras (pés incluídos). Se falhar, a galeria fica centralizada */
+/* fotos completadas (2026-11-15): original -> versão com as bordas completadas, para aparecer inteira no quadro (scripts/estender-laterais.py) */
+let FC = {};
 try {
-  const fotos = await page.evaluate(() => [...new Set([...BOATS, ...[...HIDDEN.values()].map(x => x.b)].flatMap(b => (b.photos || []).map(p => p[0])).filter(Boolean))]);
+  FC = JSON.parse(fs.readFileSync(path.join(ROOT, "img/completas.json"), "utf8"));
+  for (const [k, v] of Object.entries(FC)) if (!/^[\w\-]+$/.test(v) || !fs.existsSync(path.join(ROOT, "img", v + ".jpg"))) delete FC[k];
+} catch (e) { console.error("fotos completas: nenhuma:", e.message); }
+if (!SOURCE.includes("const FOTO_C = {}; /*FOTO_C*/")) throw new Error("marcador FOTO_C não encontrado");
+SOURCE = SOURCE.replace("const FOTO_C = {}; /*FOTO_C*/", () => `const FOTO_C = ${JSON.stringify(FC).replace(/</g, "\\u003c")};`);
+/* enquadramento da galeria (2026-11-13; lancha centralizada desde 2026-11-15). Se falhar, a galeria fica centralizada */
+try {
+  const fotos = await page.evaluate(() => [...new Set([...BOATS, ...[...HIDDEN.values()].map(x => x.b)].flatMap(b => (b.photos || []).map(p => p[0])).filter(Boolean))]).then(l => [...new Set(l.map(f => FC[f] || f))]);
   const E = JSON.parse(execFileSync("python3", ["-I", path.join(ROOT, "scripts/enquadrar.py"), path.join(ROOT, "img"), ...fotos], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"], timeout: 600000 }));
   if (!SOURCE.includes("const FOTO_P = {}; /*FOTO_P*/")) throw new Error("marcador FOTO_P não encontrado");
   SOURCE = SOURCE.replace("const FOTO_P = {}; /*FOTO_P*/", () => `const FOTO_P = ${JSON.stringify(E).replace(/</g, "\\u003c")};`);
+  fs.writeFileSync(path.join(ROOT, "img/enquadramento.json"), JSON.stringify(E)); /* o editor de enquadramento do app parte do automático */
   console.log(`enquadramento: ${Object.keys(E).length} de ${fotos.length} fotos com corte ajustado`);
 } catch (e) { console.error("enquadramento: galeria centralizada:", e.message); }
 for (const slug of [null, ...slugs]) for (const l of LANGS) await snap(l, slug);
