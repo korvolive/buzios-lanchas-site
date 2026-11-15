@@ -7,6 +7,7 @@
 // POST {acao:"link", pid, valor, moeda, email?}  só administrador: cria ou muda a cobrança e manda o e-mail
 // POST {acao:"criar", p, k}                       a página: cria a ordem no PayPal
 // POST {acao:"capturar", p, k, order}             a página: captura, confere e marca como pago
+// POST {acao:"aceite", p, k}                      a página: grava o aceite da política de cancelamento (uma vez)
 // POST {acao:"wa", p, k, w}                        a página aberta pelo botão do WhatsApp oficial: confirma o WhatsApp do cliente
 // Ao liberar (primeira vez), também manda pelo WhatsApp oficial o modelo de Utilidade pagamento_liberado com o botão
 // "Pagar a reserva" (/pagar/?p&k&w). w = wa_provas.token, só foi para aquele número, então tocar confirma o WhatsApp (Rodrigo 2026-10-29).
@@ -19,6 +20,7 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const API = Deno.env.get("PAYPAL_ENV") === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
 const SITE = "https://www.lanchaembuzios.com.br";
+const POLITICA_VERSAO = "2026-11-15"; // versão da /cancelamento/ que o cliente aceita na página de pagamento
 const SYM: Record<string, string> = { USD: "US$", EUR: "€", GBP: "£", BRL: "R$" };
 const fmt = (m: string, v: number) => `${SYM[m] || m} ${Number(v).toLocaleString(m === "BRL" ? "pt-BR" : "en-US", { minimumFractionDigits: Number.isInteger(+v) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "en");
@@ -89,7 +91,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em").eq("id", pid).maybeSingle();
   if (!p) return null;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
@@ -196,7 +198,21 @@ async function pushAdmins(msg: { title: string; body: string }, tag: string) {
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
+// quem trouxe a reserva (Rodrigo 2026-11-13): mesmo texto do notificar; rpc origem_reserva, sem ela o aviso sai igual
+const QUEM_ROT: Record<string, string> = { pt: "Quem trouxe", en: "Brought by", es: "Quién lo trajo" };
+const QUEM_T: Record<string, Record<string, (n: string) => string>> = {
+  pt: { vendedor: n => n ? `vendedor ${n}` : "vendedor", parceiro: n => n ? `parceiro ${n}` : "parceiro", lucas: () => "Lucas, pelo WhatsApp", dono: n => n ? `dono da lancha ${n}` : "dono da lancha", painel: () => "painel da Búzios Lanchas", site: () => "site, cliente direto" },
+  en: { vendedor: n => n ? `seller ${n}` : "seller", parceiro: n => n ? `partner ${n}` : "partner", lucas: () => "Lucas, via WhatsApp", dono: n => n ? `boat owner ${n}` : "boat owner", painel: () => "Búzios Lanchas panel", site: () => "website, direct client" },
+  es: { vendedor: n => n ? `vendedor ${n}` : "vendedor", parceiro: n => n ? `socio ${n}` : "socio", lucas: () => "Lucas, por WhatsApp", dono: n => n ? `dueño de la lancha ${n}` : "dueño de la lancha", painel: () => "panel de Búzios Lanchas", site: () => "sitio, cliente directo" },
+};
+const quemTxt = (o: any, l: string) => o?.tipo && QUEM_T[l]?.[o.tipo] ? QUEM_T[l][o.tipo](String(o.nome || "").trim()) : "";
+async function origem(q: Record<string, number>) {
+  try { const { data, error } = await db.rpc("origem_reserva", q); if (error) { console.error("origem", error.message); return null; } return data; }
+  catch (e) { console.error("origem", e); return null; }
+}
+const comQuem = (m: { title: string; body: string }, o: any, l: string) => { const t = quemTxt(o, l); return t ? { ...m, body: `${m.body} ${QUEM_ROT[l]}: ${t}.` } : m; };
 async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
+  const o = await origem({ p_pedido: pid });
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return 0;
   webpush.setVapidDetails("mailto:korvolive@gmail.com", k.publica, k.privada);
@@ -205,7 +221,7 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
   let n = 0;
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
-    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PUSH[l](nome || "—", valor, lancha, dataBR(dia), ok), url: "/login/", tag: `pp-${pid}` }), { TTL: 86400, urgency: "high" }); n++; }
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...comQuem(PUSH[l](nome || "—", valor, lancha, dataBR(dia), ok), o, l), url: "/login/", tag: `pp-${pid}` }), { TTL: 86400, urgency: "high" }); n++; }
     catch (e: any) { console.error("push falhou", e?.statusCode); if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
   return n;
@@ -252,7 +268,7 @@ Deno.serve(async req => {
       return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor || null, resto_brl: resto, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
-        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null });
+        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -355,6 +371,17 @@ Deno.serve(async req => {
       const para = r.hi ? `${String(r.hi).replace(":00", "h")} às ${String(r.hf).replace(":00", "h")}` : H[r.para] || r.para;
       if (servico || opr) await pushAdmins({ title: "Pedido alterado 🔁", body: `Pedido ${x.p.id} de ${x.nome || "cliente"} (${x.lancha}, ${dataBR(x.p.data)}): agora ${para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
       return json({ ok: true, ...r });
+    }
+
+    // aceite da política de cancelamento (Rodrigo 2026-11-15): a página grava quando o cliente marca "Li e aceito"; só a primeira vez, só pedido pendente
+    if (b.acao === "aceite") {
+      const xa = await carregar(Number(b.p), String(b.k || ""));
+      if (!xa) return json({ erro: "link" }, 404);
+      if (xa.p.politica_aceita_em) return json({ ok: true, em: xa.p.politica_aceita_em });
+      if (xa.p.status !== "pendente") return json({ erro: "status" }, 409);
+      const em = new Date().toISOString();
+      await db.from("pedidos").update({ politica_aceita_em: em, politica_versao: POLITICA_VERSAO }).eq("id", xa.p.id).is("politica_aceita_em", null);
+      return json({ ok: true, em });
     }
 
     const x = await carregar(Number(b.p), b.k);
