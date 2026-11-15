@@ -119,6 +119,16 @@ const q=(()=>{ const s=new URLSearchParams(location.search); if(s.get("p")) retu
   try{ history.replaceState(null,"","/pagar/?"+r.toString()); }catch(e){}
   return r; })();
 const P=q.get("p"), K=s2u(q.get("k"))||q.get("k"); /* k curto (22 letras) no link do WhatsApp */
+/* política de cancelamento (Rodrigo 2026-11-15, caso de desistência sem regra escrita): o cliente marca "Li e aceito" antes de ver as formas de pagamento */
+const POL={pt:{t:"Política de cancelamento",r:["Mar ruim: remarcamos sem custo. Marinha proíbe a navegação: você remarca ou recebe o sinal de volta.","Se a desistência for sua: crédito de 100% do sinal por 1 ano, em qualquer lancha; ou reembolso. Com 7 dias ou mais de antecedência, devolvemos o sinal inteiro. Com menos de 7 dias, a data volta à venda: se outra pessoa reservar, devolvemos tudo; se não, retemos 20% do valor do passeio e devolvemos o resto do sinal."],ver:"Ler a política completa",ok:"Li e aceito a política de cancelamento"},
+ en:{t:"Cancellation policy",r:["Bad sea: we reschedule at no cost. Navy closes the sea: reschedule or get your deposit back.","If you cancel: 100% of the deposit as credit for 1 year, on any boat; or a refund. With 7+ days' notice, full deposit back. With less than 7 days, the date goes back on sale: if someone else books it, full refund; if not, we keep 20% of the tour price and refund the rest of the deposit."],ver:"Read the full policy",ok:"I have read and accept the cancellation policy"},
+ es:{t:"Política de cancelación",r:["Mar malo: reprogramamos sin costo. La Marina prohíbe navegar: reprogramas o recibes la seña de vuelta.","Si cancelas tú: crédito del 100% de la seña por 1 año, en cualquier lancha; o devolución. Con 7 días o más de aviso, devolvemos toda la seña. Con menos de 7 días, la fecha vuelve a la venta: si otra persona la reserva, devolvemos todo; si no, retenemos el 20% del valor del paseo y devolvemos el resto de la seña."],ver:"Leer la política completa",ok:"Leí y acepto la política de cancelación"}};
+const polKey=()=>"pol-ok-"+P;
+let polOk=(()=>{ try{ return localStorage.getItem(polKey())==="1"; }catch(e){ return false; } })();
+function polHTML(){ const X=POL[lg]||POL.pt; return `<div class="pay" data-m="politica"><h3>${X.t}</h3>${X.r.map(x=>`<p class="muted" style="margin:0 0 8px">${x}</p>`).join("")}
+  <p style="margin:0 0 10px"><a href="/cancelamento/?l=${lg}" target="_blank" rel="noopener">${X.ver}</a></p>
+  <label style="display:flex;gap:10px;align-items:flex-start;font-weight:700;cursor:pointer"><input type="checkbox" id="pol-ok" style="width:22px;height:22px;margin:2px 0 0;flex:none"> <span>${X.ok}</span></label></div>`; }
+document.addEventListener("change", e=>{ if(e.target.id==="pol-ok" && e.target.checked){ polOk=true; try{ localStorage.setItem(polKey(),"1"); }catch(x){} render(); } });
 let lg=(()=>{ try{ const s=localStorage.getItem("pagar-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[q.get("l")]?q.get("l"):T[n]?n:"pt"; })();
 let D=null, state="wait", sdk=null, A=null, AX={}, rcOpen=q.get("recibo")==="1";
 const AS = true; /* Asaas ligado para todos os clientes em reais (Rodrigo 2026-11-11, BaaS liberado) */
@@ -200,6 +210,7 @@ function render(){
   else if(gone) payArea=`<p class="msg err">${tf(L.gone,{b:esc(D.lancha)})}</p><a class="btn" href="${livres}">${L.goneBtn}</a>`;
   /* com o Asaas na tela, o Pix manual some (dois QR codes diferentes levavam a pagar em dobro); outro cliente pagando: só o aviso (revisão 2026-10-25) */
   else if(open && !paid && D.pagando) payArea=`<p class="msg err">${L.busy}</p>`;
+  else if(open && !paid && !polOk) payArea = polHTML();
   else if(open && !paid) payArea = ((h=>foreign ? (h.includes('data-m="as-pix"') ? h + pp : pix + h + pp) : h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ para brasileiro (Rodrigo 2026-11-11); estrangeiro vê o Pix do CNPJ primeiro, porque muitos já estão no Brasil (Rodrigo 2026-11-14) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 5 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
   else if(!open && !conf) payArea=`<p class="msg err">${L.closed}</p>`;
   /* o chat fica só no botão Suporte do canto (2026-10-25); aqui sobra o WhatsApp (sem chat) e Ver meus passeios */
