@@ -13,7 +13,6 @@
   "12": "steps",
   "14": "clima-site/index.ts",
   "15": "clima-alertas/index.ts",
-  "16": "public.pedidos",
   "17": "consulta-resgate/index.ts",
   "18": "2026-11-15_jetski.sql",
   "19": "public.salvar_netos_v3",
@@ -22,7 +21,7 @@
   "22": "steps",
   "23": "convite-email/index.ts",
   "24": "cadastro-whatsapp/index.ts",
-  "26": "b",
+  "25": "aviso-equipe/index.ts",
   "27": "aviso-chat/index.ts",
   "28": "consulta-aviso/index.ts",
   "29": "avaliacao/index.ts",
@@ -57,6 +56,7 @@
   "59": "aviso-lucas/index.ts",
   "60": "steps",
   "61": "Búzios Lanchas Ltda – Regras de Desenvolvimento Seguro",
+  "62": "public.cancelar_pre_reserva",
   "63": "CLAUDE.md",
   "64": "htaccess.sh",
   "65": "2026-11-13_auditoria-e-registro-de-acessos.sql",
@@ -79,7 +79,9 @@
   "84": "public.vendedores",
   "85": "2026-11-14_buzios-a-mais-carnaval.sql",
   "87": "2026-11-15_teto-comissao-buzios-30.sql",
+  "88": "public.tg_pedido_jetski",
   "92": "public.lanchas",
   "93": "public.mover_passeio_v2",
-  "94": "public.mb_libera_sinal_sozinho"
+  "94": "public.mb_libera_sinal_sozinho",
+  "95": "public.repasses_asaas_pendentes"
 }
