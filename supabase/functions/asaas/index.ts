@@ -544,9 +544,14 @@ async function enviarSaldos() {
     if (!acabou(p.data, p.horario, fim)) continue;
     if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) continue;
     // só com o dinheiro do cliente já na Búzios (Asaas ou PayPal)
-    const pagoAs = (await db.from("pagamentos_asaas").select("id").eq("pedido", p.id).not("pago_em", "is", null).limit(1)).data?.length;
-    const pagoPp = (await db.from("pagamentos_pp").select("pedido").eq("pedido", p.id).not("pago_em", "is", null).limit(1)).data?.length;
-    if (!pagoAs && !pagoPp) continue;
+    // e o valor pago tem de cobrir o jetski (revisão 2026-11-15): cobrança do Asaas com o sinal + jetski; PayPal em reais com o valor certo
+    const { data: pq } = await db.from("pedidos").select("sinal_valor, jetski_valor").eq("id", p.id).maybeSingle();
+    const deve = online(pq || {});
+    const pas = (await db.from("pagamentos_asaas").select("sinal").eq("pedido", p.id).not("pago_em", "is", null)).data || [];
+    const pp = (await db.from("pagamentos_pp").select("moeda, valor").eq("pedido", p.id).not("pago_em", "is", null).maybeSingle()).data;
+    if (!pas.length && !pp) continue; // pago fora do site (Pix com comprovante): a Búzios repassa à mão
+    const cobre = deve > 0 && (pas.some((r: any) => +r.sinal >= deve - 0.005) || (!!pp && (pp.moeda !== "BRL" || +pp.valor >= deve - 0.005)));
+    if (!cobre) { console.error("saldo jetski: pagamento não cobre o jetski", p.id); continue; }
     const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono;
     const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue; // dono do jetski sem conta aprovada: a Búzios paga por Pix
     const v = Math.round(+p.jetski_neto * 100) / 100;

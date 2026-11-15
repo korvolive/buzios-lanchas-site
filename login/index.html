@@ -2167,8 +2167,9 @@ async function ppLink(p, fx, cur){
 }
 async function ppAuto(p){ /* ao liberar: cria a central (Pix em reais; estrangeiro sem vendedor: PayPal no câmbio do dia + 10%) e manda o e-mail */
   try{ let j;
-    if(ppPix(p)) j=await ppLink(p, +p.sinal_valor, "BRL");
-    else { const c=cobCur(ppCC(p)), R=await fxRates(); j=await ppLink(p, niceUp(+p.sinal_valor*R[c.toLowerCase()]*FX_MARKUP), c); }
+    const v=+p.sinal_valor+(+p.jetski_valor||0); /* sinal da lancha + jetski inteiro (revisão 2026-11-15) */
+    if(ppPix(p)) j=await ppLink(p, v, "BRL");
+    else { const c=cobCur(ppCC(p)), R=await fxRates(); j=await ppLink(p, niceUp(v*R[c.toLowerCase()]*FX_MARKUP), c); }
     toast(t(j.wa?"ctSentWa":j.email?"ctSentMail":ppPix(p)?"ctMadeT":"ppMadeT")); }catch(e){ toast(t("cobPpGenErr")); }
 }
 function admPay(p){
@@ -6678,7 +6679,8 @@ async function mudaSinal(id, v){
   await db(`pedidos?id=eq.${id}`,{method:"PATCH",body:{sinal_valor:v,atualizado_em:new Date().toISOString()}}); const p=S.reqs.find(p=>p.id===id); if(p){ p.sinal_valor=v; saveRep(p); }
   asFn({acao:"cancelar", pid:id}).catch(()=>{}); /* cobrança com o sinal antigo não vale mais */
   if(p && v>0 && (S.ppPay||{})[p.id] && !(S.ppPay[p.id].pago_em)){
-    try{ if(ppPix(p)) await ppLink(p, v, "BRL"); else { const c=cobCur(ppCC(p)), R=await fxRates(); await ppLink(p, niceUp(v*R[c.toLowerCase()]*FX_MARKUP), c); } }catch(e){ toast(t(e.message==="pago" ? "ppLocked" : "cobPpGenErr")); return false; }
+    const vt=v+(+p.jetski_valor||0); /* sinal da lancha + jetski inteiro (revisão 2026-11-15) */
+    try{ if(ppPix(p)) await ppLink(p, vt, "BRL"); else { const c=cobCur(ppCC(p)), R=await fxRates(); await ppLink(p, niceUp(vt*R[c.toLowerCase()]*FX_MARKUP), c); } }catch(e){ toast(t(e.message==="pago" ? "ppLocked" : "cobPpGenErr")); return false; }
   }
   return true;
 }

@@ -280,10 +280,13 @@ Deno.serve(async req => {
       const uid = (await db.auth.getUser(auth)).data?.user?.id;
       if (!uid) return json({ erro: "login" }, 401);
       if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "admin" }, 403);
-      const pid = Number(b.pid), valor = Math.round(Number(b.valor) * 100) / 100, moeda = String(b.moeda || "USD").toUpperCase();
+      const pid = Number(b.pid), moeda = String(b.moeda || "USD").toUpperCase();
+      let valor = Math.round(Number(b.valor) * 100) / 100;
       if (!(valor > 0) || !SYM[moeda]) return json({ erro: "valor" }, 400);
-      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, status, sinal_liberado_em, vendedor").eq("id", pid).maybeSingle();
+      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, status, sinal_liberado_em, vendedor, sinal_valor, jetski_valor").eq("id", pid).maybeSingle();
       if (!p || p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "pedido" }, 400);
+      // em reais o valor vem do banco, não da tela: sinal da lancha + jetski inteiro (revisão de segurança 2026-11-15)
+      if (moeda === "BRL" && +p.sinal_valor > 0) valor = Math.round((+p.sinal_valor + (+p.jetski_valor || 0)) * 100) / 100;
       if (p.vendedor && moeda !== "BRL") return json({ erro: "vendedor" }, 400); // com vendedor: só Pix, sem cobrança automática (Rodrigo, 2026-10-22)
       const { data: old } = await db.from("pagamentos_pp").select("token, pago_em, captura").eq("pedido", pid).maybeSingle();
       if (old?.pago_em || old?.captura) return json({ erro: "pago" }, 409); // pago ou em análise no PayPal: o valor não muda mais
