@@ -4,7 +4,11 @@
 - cluster-only mode — file stats not available
 
 ## Summary
+<<<<<<< HEAD
 - 1122 nodes · 1818 edges · 88 communities (54 shown, 34 thin omitted)
+=======
+- 1139 nodes · 1852 edges · 93 communities (56 shown, 37 thin omitted)
+>>>>>>> origin/main
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -39,7 +43,7 @@
 - steps
 - convite-email/index.ts
 - cadastro-whatsapp/index.ts
-- aviso-equipe/index.ts
+- ref_npm_supabase
 - b
 - aviso-chat/index.ts
 - consulta-aviso/index.ts
@@ -81,7 +85,16 @@
 - 2026-11-13_transferir-saldo.sql
 - public.creditos
 - public.pedidos
+<<<<<<< HEAD
 - pedido-vendedor/index.ts
+=======
+- public.lancar_pedido_operador
+- public._valor_na_data
+- public._teto_cheio
+- public.lancar_pedido_operador
+- public.aprovar_foto
+- public.precos
+>>>>>>> origin/main
 
 ## God Nodes (most connected - your core abstractions)
 1. `public._ligar_passeio()` - 17 edges
@@ -92,8 +105,8 @@
 6. `public.marcar_wa()` - 13 edges
 7. `public.cancelar_pre_reserva()` - 13 edges
 8. `public.marcar_wa()` - 12 edges
-9. `public.lancar_pedido_operador()` - 12 edges
-10. `public.aprovar_consulta()` - 12 edges
+9. `public.aprovar_consulta()` - 12 edges
+10. `public.lancar_pedido_operador()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
@@ -110,7 +123,11 @@
 ## Import Cycles
 - None detected.
 
+<<<<<<< HEAD
 ## Communities (88 total, 34 thin omitted)
+=======
+## Communities (93 total, 37 thin omitted)
+>>>>>>> origin/main
 
 ### Community 0 - "vendedores"
 Cohesion: 0.06
@@ -129,8 +146,13 @@ Cohesion: 0.09
 Nodes (37): apnsToken(), ASSUNTO, autoConfirma(), avisarCredito(), b64u(), brl(), brlCred(), chaves() (+29 more)
 
 ### Community 4 - "2026-10-30_operador-um-toque.sql"
+<<<<<<< HEAD
 Cohesion: 0.06
 Nodes (11): public._capacidade(), public._confere_valor_op(), public.lancar_pedido_operador(), public._piso_operador(), public.recusar_alteracao(), public._valor_na_data(), precos_cheios, public.tg_precos_cheios() (+3 more)
+=======
+Cohesion: 0.15
+Nodes (3): public._capacidade(), public._confere_valor_op(), public.recusar_alteracao()
+>>>>>>> origin/main
 
 ### Community 5 - "public.pedidos"
 Cohesion: 0.22
@@ -149,8 +171,13 @@ Cohesion: 0.06
 Nodes (33): m, web, SOURCE, web, fotosDB(), lanchasDB(), precosDB(), boatPath() (+25 more)
 
 ### Community 9 - "ref_npm_web_push_3_6_7"
+<<<<<<< HEAD
 Cohesion: 0.14
 Nodes (8): CAT, CORS, db, CORS, db, T, db, T
+=======
+Cohesion: 0.13
+Nodes (8): CORS, db, T, db, T, CORS, db, T
+>>>>>>> origin/main
 
 ### Community 10 - "steps"
 Cohesion: 0.08
@@ -181,8 +208,8 @@ Cohesion: 0.19
 Nodes (13): avisarPasseios(), dataLonga(), db, dig(), ES_DDI, hm(), horaTxt(), LANG (+5 more)
 
 ### Community 18 - "public.aprovar_foto"
-Cohesion: 0.05
-Nodes (11): public.salvar_lancha(), public.aprovar_foto(), public.lancar_pedido_operador(), public.auto_confirmar_fora(), public._teto_cheio(), public._valor_na_data(), public.salvar_lancha(), public.ordenar_lanchas() (+3 more)
+Cohesion: 0.07
+Nodes (19): public.salvar_lancha(), public.auto_confirmar_fora(), public.salvar_lancha(), public.ordenar_lanchas(), jetski_uso_confere, jetski_usos_dia, public.jetski_choca(), public.jetski_desmarcar() (+11 more)
 
 ### Community 19 - "public.salvar_netos_v3"
 Cohesion: 0.09
@@ -207,6 +234,10 @@ Nodes (8): CORS, db, ES_DDI, LIGA, MAPA, SLOT, TAXA, TAXA_TXT
 ### Community 24 - "cadastro-whatsapp/index.ts"
 Cohesion: 0.24
 Nodes (9): codigoDe(), confere(), CORS, db, dig(), json(), LANG, mandaCodigo() (+1 more)
+
+### Community 25 - "ref_npm_supabase"
+Cohesion: 0.18
+Nodes (5): CAT, CORS, db, CORS, db
 
 ### Community 26 - "b"
 Cohesion: 0.22
@@ -324,27 +355,51 @@ Nodes (9): public.codigo_convite(), public._credito_chat(), public.creditos, pub
 Cohesion: 0.18
 Nodes (11): public.definir_condicional(), public.resolver_condicionais(), public.venda_manual_paga(), public.venda_manual_salvar(), public.vendas_manuais, public.vendas_manuais_lista(), public.aprovar_consulta(), public.lancar_pedido_vendedor() (+3 more)
 
+<<<<<<< HEAD
 ### Community 86 - "pedido-vendedor/index.ts"
 Cohesion: 0.40
 Nodes (3): CORS, db, T
+=======
+### Community 88 - "public._valor_na_data"
+Cohesion: 0.25
+Nodes (4): public._valor_na_data(), public._valor_na_data(), public.lancar_grupo_operador(), public._valor_na_data()
+
+### Community 92 - "public.precos"
+Cohesion: 0.50
+Nodes (3): public._piso_operador(), precos_cheios, public.tg_precos_cheios()
+>>>>>>> origin/main
 
 ## Knowledge Gaps
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+<<<<<<< HEAD
 - **Why does `public._pre_pedido_fim()` connect `public.pedidos` to `public.bloqueios`, `public.pedidos`, `public.salvar_netos_v3`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
 - **Why does `public.auto_confirmar_fora()` connect `public.aprovar_foto` to `public.clientes`?**
   _High betweenness centrality (0.018) - this node is a cross-community bridge._
+=======
+- **Why does `public.auto_confirmar_fora()` connect `public.aprovar_foto` to `public.clientes`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+- **Should `vendedores` be split into smaller, more focused modules?**
+  _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
+- **Why does `public._pre_pedido_fim()` connect `public.pedidos` to `public.bloqueios`, `public.pedidos`, `public.salvar_netos_v3`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+>>>>>>> origin/main
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06041986687147977 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
+<<<<<<< HEAD
 - **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
   _Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected._
+=======
+- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.07439024390243902 - nodes in this community are weakly interconnected._
+>>>>>>> origin/main
