@@ -82,8 +82,8 @@ async function montar() {
 
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
-  const ver = new URL(req.url).searchParams.has("ver");
-  if (!ver && cache && Date.now() - cache.t < 30 * 60e3) return new Response(cache.body, { headers: CORS });
+  // sem "?ver" (revisão de segurança 2026-11-15): ninguém de fora força buscas novas na MET Norway, Marinha e INMET
+  if (cache && Date.now() - cache.t < 30 * 60e3) return new Response(cache.body, { headers: CORS });
   try {
     const b = JSON.stringify(await montar());
     cache = { t: Date.now(), body: b };

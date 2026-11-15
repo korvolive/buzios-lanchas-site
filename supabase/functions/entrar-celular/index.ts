@@ -15,14 +15,15 @@ const mascara = (e: string) => { const [u, d] = e.split("@"); return `${u.slice(
 const SEM = "@sem-email.lanchaembuzios.com.br";
 
 // contas com esse celular: clientes (WhatsApp do cadastro) e equipe (perfis, marinheiros, freelancers)
-async function contas(d: string) {
+async function contas(d: string, equipe = true) {
   const ids = new Set<string>();
   const { data: cs } = await db.from("clientes").select("user_id, whatsapp");
   (cs || []).forEach(c => { if (dig(c.whatsapp) === d) ids.add(c.user_id); });
   const { data: ps } = await db.from("perfis").select("user_id, telefone");
   (ps || []).forEach(p => { if (dig(p.telefone) === d) ids.add(p.user_id); });
   // marinheiros fixos e freelancers: o celular que o dono cadastrou fica só nessas tabelas (2026-11-14)
-  for (const t of ["marinheiros", "freelancers"]) {
+  // só para entrar com senha: o e-mail de nova senha não sai pelo celular que o dono digitou (revisão de segurança 2026-11-15)
+  if (equipe) for (const t of ["marinheiros", "freelancers"]) {
     const { data: ms } = await db.from(t).select("user_id, telefone");
     (ms || []).forEach(m => { if (m.user_id && dig(m.telefone) === d) ids.add(m.user_id); });
   }
@@ -50,7 +51,7 @@ Deno.serve(async req => {
     const { tel, senha, recuperar, volta } = await req.json().catch(() => ({}));
     const d = dig(tel);
     if (d.length < 10 || d.length > 15) return json({ erro: "tel" }, 400);
-    const emails = await contas(d);
+    const emails = await contas(d, !recuperar);
     if (!emails.length) return json({ erro: "sem_conta" });
     if (recuperar) {
       const reais = emails.filter(e => !e.endsWith(SEM));
