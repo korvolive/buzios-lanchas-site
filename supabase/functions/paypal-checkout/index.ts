@@ -268,9 +268,9 @@ Deno.serve(async req => {
       return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto,
-        // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha
+        // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
         lancha_sinal: +p.sinal_valor || null, lancha_total: resto !== null && +p.sinal_valor > 0 ? resto + +p.sinal_valor : null,
-        jetski: (+p.jetski_valor > 0 || +p.jetski_cortesia > 0) && p.jetski_ini ? { min: +p.jetski_min || 0, cort: +p.jetski_cortesia || 0, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor || 0 } : null, // cortesia opcional (2026-11-15) pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
+        jetski: (+p.jetski_valor > 0 || +p.jetski_cortesia > 0) && p.jetski_ini ? { min: +p.jetski_min || 0, cort: +p.jetski_cortesia || 0, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor || 0 } : null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
     }
     const b = await req.json().catch(() => ({}));
