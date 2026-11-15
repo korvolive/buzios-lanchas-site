@@ -4766,7 +4766,7 @@ const jetLinha = p => { const c=+p.jetski_cortesia||0, m=+p.jetski_min||0; if(!p
 /* administrador tira o jetski de um pedido ainda não pago (revisão 2026-11-15): o banco recusa se já pagou e acerta a cobrança da central */
 document.addEventListener("click", async e=>{ const x=e.target.closest("[data-jettira]"); if(!x || !S.admin) return;
   if(!confirm(t("jetTiraQ"))) return; x.disabled=true;
-  try{ await RPC("tirar_jetski",{pid:+x.dataset.jettira}); toast(t("jetTiraOk")); await loadReqs().catch(()=>{}); mainView(); }
+  try{ await RPC("tirar_jetski",{pid:+x.dataset.jettira}); asFn({acao:"cancelar", pid:+x.dataset.jettira}).catch(()=>{}); /* cobrança aberta com o jetski não vale mais (revisão de segurança 2026-11-15) */ toast(t("jetTiraOk")); await loadReqs().catch(()=>{}); mainView(); }
   catch(err){ x.disabled=false; toast(errMsg(err)); } });
 /* ficha do passeio: a equipe da lancha vê que o jetski vai encontrar a lancha (revisão 2026-11-15) */
 new MutationObserver(()=>{ const el=document.getElementById("sheet")?.querySelector("#trjet:not([data-ok])"); if(!el) return; el.dataset.ok="1";

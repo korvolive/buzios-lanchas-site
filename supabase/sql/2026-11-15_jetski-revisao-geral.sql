@@ -168,10 +168,29 @@ $$;
 revoke all on function public.jetski_do_passeio(bigint) from public, anon;
 grant execute on function public.jetski_do_passeio(bigint) to authenticated;
 
+-- (6) conflito: o jetski de um pedido pago (ou com comprovante) foi para outro no meio tempo (caso raro):
+--     mensagem no chat de suporte do cliente (sistema 'jetski-conflito'), que a equipe vê na lista de conversas do app
+create or replace function public.jetski_avisa_conflito(pid bigint)
+returns void language plpgsql security definer set search_path to 'public' as $$
+declare p public.pedidos; cid bigint; tx text;
+begin
+  select * into p from public.pedidos where id = pid;
+  if p.id is null or p.cliente is null then return; end if;
+  select id into cid from public.conversas where tipo = 'suporte' and cliente = p.cliente;
+  if cid is null then return; end if;
+  tx := format('O horário do jetski que você escolheu (%s, às %s) foi reservado por outro cliente enquanto o prazo de pagamento estava vencido. A Búzios Lanchas vai falar com você aqui para combinar outro horário do jetski ou devolver o valor dele.',
+               to_char(p.data, 'DD/MM'), replace(left(p.jetski_ini::text, 5), ':', 'h'));
+  insert into public.mensagens(conversa, autor, texto, sistema, pedido) values (cid, null, tx, 'jetski-conflito', p.id);
+  update public.conversas set ultima_em = now(), ultima_msg = left(tx, 80), encerrada_em = null where id = cid;
+exception when others then null; -- o aviso nunca derruba o pagamento
+end $$;
+revoke all on function public.jetski_avisa_conflito(bigint) from public, anon, authenticated;
+
 -- (6) prazo vencido: pedido pendente com prazo_vencido_em não segura o jetski; pago (aprovado) sempre segura
 create or replace function public.tg_pedido_jetski_uso()
 returns trigger language plpgsql security definer set search_path to 'public' as $$
-declare vivo boolean := new.status = 'aprovado' or (new.status = 'pendente' and new.prazo_vencido_em is null); u bigint; a time; f time; tot int;
+declare vivo boolean := new.status = 'aprovado' or (new.status = 'pendente' and (new.prazo_vencido_em is null or new.comprovante_em is not null));
+  u bigint; a time; f time; tot int; tolera boolean;
 begin
   select id into u from public.jetski_usos where pedido_id = new.id and removido_em is null limit 1;
   if new.jetski is null or not vivo then
@@ -181,13 +200,16 @@ begin
   tot := coalesce(new.jetski_min, 0) + coalesce(new.jetski_cortesia, 0);
   a := new.jetski_ini; f := new.jetski_ini + make_interval(mins => tot);
   if u is null then
-    if new.status = 'aprovado' and tg_op = 'UPDATE' then
-      -- pagamento já confirmado: nunca derruba a confirmação; se o jetski foi para outro nesse meio tempo, fica o aviso no log
+    -- pagamento já confirmado ou comprovante mandado depois do prazo: nunca derruba isso; se o jetski foi para outro nesse meio tempo,
+    -- o administrador recebe um aviso no chat do cliente (revisão de segurança 2026-11-15)
+    tolera := tg_op = 'UPDATE' and (new.status = 'aprovado' or new.prazo_vencido_em is not null);
+    if tolera then
       begin
         insert into public.jetski_usos (jetski, data, ini, fim, tipo, lancha, pedido_id, bloqueio_id, minutos, valor, neto, criado_por)
           values (new.jetski, new.data, a, f, 'uso', new.lancha, new.id, new.bloqueio_id, tot, new.jetski_valor, new.jetski_neto, new.cliente);
       exception when raise_exception then
         raise warning 'JETSKI_CONFLITO pedido % pago mas o jetski ficou ocupado', new.id;
+        perform public.jetski_avisa_conflito(new.id);
       end;
     else
       insert into public.jetski_usos (jetski, data, ini, fim, tipo, lancha, pedido_id, bloqueio_id, minutos, valor, neto, criado_por)

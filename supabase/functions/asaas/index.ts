@@ -703,8 +703,8 @@ Deno.serve(async req => {
         // gerou de novo: volta a valer, e o horário do jetski volta para este cliente (o banco recusa se outro pegou no meio tempo)
         const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id);
         if (ev && /JETSKI_/.test(ev.message)) {
-          await cancelar(pg.id);
-          await db.from("pagamentos_asaas").delete().eq("asaas_id", pg.id).is("pago_em", null);
+          // só apaga o registro se o Asaas cancelou mesmo; senão a cobrança fica registrada e o cron confere/cancela depois
+          if (await cancelar(pg.id)) await db.from("pagamentos_asaas").delete().eq("asaas_id", pg.id).is("pago_em", null);
           return json({ erro: "jetski" }, 409);
         }
         if (ev) console.error("prazo_vencido_em", p.id, ev.message);

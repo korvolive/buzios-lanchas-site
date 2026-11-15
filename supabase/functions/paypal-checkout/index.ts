@@ -407,6 +407,10 @@ Deno.serve(async req => {
       }
       const v = await vaga(p.id, true);
       if (v !== "livre") return json({ erro: v }, 409);
+      // prazo vencido (Rodrigo 2026-11-15): pagar de novo volta a valer e o horário do jetski volta para este cliente; se outro pegou, não cobra
+      const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id).not("prazo_vencido_em", "is", null);
+      if (ev && /JETSKI_/.test(ev.message)) return json({ erro: "jetski" }, 409);
+      if (ev) console.error("prazo_vencido_em", p.id, ev.message);
       const o = await pp("/v2/checkout/orders", {
         intent: "CAPTURE",
         purchase_units: [{ reference_id: `PED${p.id}`, custom_id: String(p.id), description: `Búzios Lanchas · ${lancha} · ${dataBR(p.data)}`.slice(0, 127),
