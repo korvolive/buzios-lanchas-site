@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1115 nodes · 1808 edges · 87 communities (53 shown, 34 thin omitted)
+- 1121 nodes · 1817 edges · 85 communities (51 shown, 34 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `095f5587`
+- Built from commit: `ee87e9e0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -39,7 +39,7 @@
 - steps
 - convite-email/index.ts
 - cadastro-whatsapp/index.ts
-- ref_npm_supabase
+- aviso-equipe/index.ts
 - b
 - aviso-chat/index.ts
 - consulta-aviso/index.ts
@@ -79,7 +79,6 @@
 - public.consultas
 - 2026-11-13_transferir-saldo.sql
 - public.codigo_convite
-- public.auto_confirmar_fora
 
 ## God Nodes (most connected - your core abstractions)
 1. `public._ligar_passeio()` - 17 edges
@@ -108,7 +107,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (87 total, 34 thin omitted)
+## Communities (85 total, 34 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.06
@@ -127,7 +126,7 @@ Cohesion: 0.09
 Nodes (37): apnsToken(), ASSUNTO, autoConfirma(), avisarCredito(), b64u(), brl(), brlCred(), chaves() (+29 more)
 
 ### Community 4 - "2026-10-30_operador-um-toque.sql"
-Cohesion: 0.06
+Cohesion: 0.07
 Nodes (11): public._capacidade(), public._confere_valor_op(), public.lancar_pedido_operador(), public._piso_operador(), public.recusar_alteracao(), public._valor_na_data(), precos_cheios, public.tg_precos_cheios() (+3 more)
 
 ### Community 5 - "public.pedidos"
@@ -147,8 +146,8 @@ Cohesion: 0.06
 Nodes (33): m, web, SOURCE, web, fotosDB(), lanchasDB(), precosDB(), boatPath() (+25 more)
 
 ### Community 9 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.13
-Nodes (8): CORS, db, T, db, T, CORS, db, T
+Cohesion: 0.11
+Nodes (11): CAT, CORS, db, CORS, db, T, db, T (+3 more)
 
 ### Community 10 - "steps"
 Cohesion: 0.08
@@ -183,11 +182,11 @@ Cohesion: 0.19
 Nodes (13): avisarPasseios(), dataLonga(), db, dig(), ES_DDI, hm(), horaTxt(), LANG (+5 more)
 
 ### Community 18 - "public.aprovar_foto"
-Cohesion: 0.08
-Nodes (7): public.salvar_lancha(), public.aprovar_foto(), public.lancar_pedido_operador(), public._teto_cheio(), public._valor_na_data(), public.salvar_lancha(), public.ordenar_lanchas()
+Cohesion: 0.05
+Nodes (11): public.salvar_lancha(), public.aprovar_foto(), public.lancar_pedido_operador(), public.auto_confirmar_fora(), public._teto_cheio(), public._valor_na_data(), public.salvar_lancha(), public.ordenar_lanchas() (+3 more)
 
 ### Community 19 - "public.salvar_netos_v3"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (11): public.alterar_pedido(), public.segredos_app, public.pedidos_prazo_vencido(), public.pp_vaga_h(), public._troca_ok(), public.trocar_horario_pedido(), public.trocas_pedido(), public.aplicar_netos() (+3 more)
 
 ### Community 20 - "pedido-indisponivel/index.ts"
@@ -209,10 +208,6 @@ Nodes (8): CORS, db, ES_DDI, LIGA, MAPA, SLOT, TAXA, TAXA_TXT
 ### Community 24 - "cadastro-whatsapp/index.ts"
 Cohesion: 0.24
 Nodes (9): codigoDe(), confere(), CORS, db, dig(), json(), LANG, mandaCodigo() (+1 more)
-
-### Community 25 - "ref_npm_supabase"
-Cohesion: 0.18
-Nodes (5): CAT, CORS, db, CORS, db
 
 ### Community 26 - "b"
 Cohesion: 0.15
@@ -318,18 +313,14 @@ Nodes (10): public.lancar_pedido_operador(), public.lancar_pedido_operador(), pu
 Cohesion: 0.83
 Nodes (3): public.transferencias_saldo, transferencias_saldo_user, zz_auditar
 
-### Community 83 - "public.auto_confirmar_fora"
-Cohesion: 0.29
-Nodes (3): public.auto_confirmar_fora(), passeio_sem_manutencao, public._passeio_sem_manutencao()
-
 ## Knowledge Gaps
 - **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.pedidos`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `public.auto_confirmar_fora()` connect `public.aprovar_foto` to `public`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
@@ -339,6 +330,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
 - **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
-  _Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06628787878787878 - nodes in this community are weakly interconnected._
 - **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07439024390243902 - nodes in this community are weakly interconnected._
