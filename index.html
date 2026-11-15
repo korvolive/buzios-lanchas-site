@@ -40,7 +40,11 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <title>Aluguel de Lancha em Búzios | Búzios Lanchas - Passeios Privativos</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>
 /* jetski (2026-11-15) */
 .jet-box{margin:18px 0 6px;padding:14px;border:1.5px solid var(--line,#e2ddd2);border-radius:14px}.jet-box h2{margin-top:0}
-.jet-top{display:flex;gap:12px;align-items:center;margin:0 0 8px}.jet-ph{position:relative;border:0;padding:0;background:none;cursor:pointer;flex:0 0 auto}.jet-ph img{width:84px;height:64px;object-fit:cover;border-radius:10px;display:block}.jet-ph span{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;border-radius:8px;padding:1px 6px}
+.jet-cards{display:grid;gap:10px;margin:0 0 10px}.jet-cards.many{grid-auto-flow:column;grid-auto-columns:minmax(220px,78%);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px}
+.jet-card{border:1.5px solid var(--line,#e2ddd2);border-radius:12px;overflow:hidden;scroll-snap-align:start;background:var(--card,transparent)}.jet-cards.many .jet-card{cursor:pointer}.jet-card.on{border-color:var(--brass,#b8860b)}.jet-cards.many .jet-card.on{box-shadow:0 0 0 2px rgba(184,134,11,.35)}
+.jet-gal2{position:relative}.jet-trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;aspect-ratio:16/10}.jet-trk::-webkit-scrollbar{display:none}.jet-trk img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:center;cursor:zoom-in;display:block}
+.jet-nv{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;font-size:22px;line-height:1;cursor:pointer}.jet-pv{left:6px}.jet-nx{right:6px}.jet-ct{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;border-radius:8px;padding:1px 7px}
+.jet-cb{padding:10px 12px;display:grid;gap:2px}.jet-md{font-size:14px;opacity:.8}.jet-pr{font-size:14px;font-weight:600}.jet-key{justify-self:start;margin-top:4px;font-size:12px;border-radius:999px;padding:2px 8px;background:rgba(184,134,11,.14)}
 .jet-safe{font-size:14px;margin:0 0 10px;opacity:.85}.jet-muted{font-size:14px;opacity:.75;margin:0}.jet-q{font-weight:600;margin:10px 0 6px}
 .jet-chips{display:flex;flex-wrap:wrap;gap:6px}.jet-chips button{border:1.5px solid var(--line,#d8d2c4);background:none;border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer;color:inherit}.jet-chips button[aria-checked=true]{border-color:var(--brass,#b8860b);background:rgba(184,134,11,.12);font-weight:600}
 .jet-sum{margin:10px 0 0;font-weight:600}.jet-cort{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:rgba(184,134,11,.12);font-weight:600}.jet-cort small{display:block;font-weight:400}
@@ -1656,9 +1660,9 @@ let agenda = null;
    Só nas lanchas (nunca nas escunas). O dono do jetski leva até a lancha e vai junto (chave aprendiz).
    Aluguel de meia em meia hora, do mínimo do dono (1 h) até 3 h. Começa no mínimo 1 h depois da saída e termina até 1 h antes da volta.
    Uso em outra lancha no mesmo dia pede 15 min livres antes e depois (deslocamento). Os valores vêm prontos do banco (jetskis_site). */
-Object.assign(UI.pt, {jetT:"Adicione um jetski ao passeio", jetSafe:"O dono do jetski leva até a sua lancha e vai junto com você. Chave aprendiz, com velocidade limitada. Quem tem habilitação de motonauta pode pilotar sozinho, combinando com o dono.", jetSafeNoKey:"O dono do jetski leva até a sua lancha e vai junto com você. Quem tem habilitação de motonauta pode pilotar sozinho, combinando com o dono.", jetFrom:"a partir de {v} por {d}", jetPick:"Escolha a data e o horário do passeio para ver os horários livres do jetski.", jetNight:"O jetski não está disponível no passeio noturno.", jetDur:"Quanto tempo?", jetStart:"Que horas?", jetNone:"Sem jetski", jetNoTime:"O jetski já está ocupado nesse passeio. Escolha outro horário ou outra data.", jetSum:"Jetski {d}, das {a} às {b}: {v}", jetCort:"Este passeio ganha {m} de jetski de cortesia", jetCortSub:"Quer mais tempo? Escolha abaixo.", jetPhotos:"Ver fotos do jetski", jetWa:" Quero também jetski: {d}, das {a} às {b} ({v}).", jetClose:"Fechar", jetPeople:"até {n} pessoas", jetBusyErr:"O jetski acabou de ser reservado nesse horário. Escolha outro horário do jetski ou envie sem ele.", jetPed:"Jetski: {d}, das {a} às {b} ({v})"});
-Object.assign(UI.en, {jetT:"Add a jet ski to your tour", jetSafe:"The jet ski owner brings it to your boat and rides along with you. Learning key, with limited speed. If you hold a jet ski license, you can ride alone, agreed with the owner.", jetSafeNoKey:"The jet ski owner brings it to your boat and rides along with you. If you hold a jet ski license, you can ride alone, agreed with the owner.", jetFrom:"from {v} for {d}", jetPick:"Choose the tour date and time to see the jet ski's free times.", jetNight:"The jet ski is not available on the night tour.", jetDur:"How long?", jetStart:"What time?", jetNone:"No jet ski", jetNoTime:"The jet ski is already booked during this tour. Choose another time or date.", jetSum:"Jet ski {d}, from {a} to {b}: {v}", jetCort:"This tour comes with {m} of jet ski as a courtesy", jetCortSub:"Want more time? Choose below.", jetPhotos:"See jet ski photos", jetWa:" I also want a jet ski: {d}, from {a} to {b} ({v}).", jetClose:"Close", jetPeople:"up to {n} people", jetBusyErr:"The jet ski was just booked at that time. Choose another jet ski time or send without it.", jetPed:"Jet ski: {d}, from {a} to {b} ({v})"});
-Object.assign(UI.es, {jetT:"Agrega una moto de agua al paseo", jetSafe:"El dueño de la moto de agua la lleva hasta tu lancha y va contigo. Llave de aprendiz, con velocidad limitada. Quien tiene licencia de moto de agua puede manejar solo, de acuerdo con el dueño.", jetSafeNoKey:"El dueño de la moto de agua la lleva hasta tu lancha y va contigo. Quien tiene licencia de moto de agua puede manejar solo, de acuerdo con el dueño.", jetFrom:"desde {v} por {d}", jetPick:"Elige la fecha y el horario del paseo para ver los horarios libres de la moto de agua.", jetNight:"La moto de agua no está disponible en el paseo nocturno.", jetDur:"¿Cuánto tiempo?", jetStart:"¿A qué hora?", jetNone:"Sin moto de agua", jetNoTime:"La moto de agua ya está ocupada en este paseo. Elige otro horario u otra fecha.", jetSum:"Moto de agua {d}, de {a} a {b}: {v}", jetCort:"Este paseo incluye {m} de moto de agua de cortesía", jetCortSub:"¿Quieres más tiempo? Elige abajo.", jetPhotos:"Ver fotos de la moto de agua", jetWa:" También quiero moto de agua: {d}, de {a} a {b} ({v}).", jetClose:"Cerrar", jetPeople:"hasta {n} personas", jetBusyErr:"La moto de agua acaba de reservarse en ese horario. Elige otro horario o envía sin ella.", jetPed:"Moto de agua: {d}, de {a} a {b} ({v})"});
+Object.assign(UI.pt, {jetT:"Adicione um jetski ao passeio", jetSafe:"O dono do jetski leva até a sua lancha e vai junto com você. Chave aprendiz, com velocidade limitada. Quem tem habilitação de motonauta pode pilotar sozinho, combinando com o dono.", jetSafeNoKey:"O dono do jetski leva até a sua lancha e vai junto com você. Quem tem habilitação de motonauta pode pilotar sozinho, combinando com o dono.", jetFrom:"a partir de {v} por {d}", jetPick:"Escolha a data e o horário do passeio para ver os horários livres do jetski.", jetNight:"O jetski não está disponível no passeio noturno.", jetDur:"Quanto tempo?", jetStart:"Que horas?", jetNone:"Sem jetski", jetNoTime:"O jetski já está ocupado nesse passeio. Escolha outro horário ou outra data.", jetSum:"Jetski {d}, das {a} às {b}: {v}", jetCort:"Este passeio ganha {m} de jetski de cortesia", jetCortSub:"Quer mais tempo? Escolha abaixo.", jetPhotos:"Ver fotos do jetski", jetWa:" Quero também jetski: {d}, das {a} às {b} ({v}).", jetClose:"Fechar", jetPeople:"até {n} pessoas", jetBusyErr:"O jetski acabou de ser reservado nesse horário. Escolha outro horário do jetski ou envie sem ele.", jetPed:"Jetski: {d}, das {a} às {b} ({v})", jetKeyTag:"Chave aprendiz"});
+Object.assign(UI.en, {jetT:"Add a jet ski to your tour", jetSafe:"The jet ski owner brings it to your boat and rides along with you. Learning key, with limited speed. If you hold a jet ski license, you can ride alone, agreed with the owner.", jetSafeNoKey:"The jet ski owner brings it to your boat and rides along with you. If you hold a jet ski license, you can ride alone, agreed with the owner.", jetFrom:"from {v} for {d}", jetPick:"Choose the tour date and time to see the jet ski's free times.", jetNight:"The jet ski is not available on the night tour.", jetDur:"How long?", jetStart:"What time?", jetNone:"No jet ski", jetNoTime:"The jet ski is already booked during this tour. Choose another time or date.", jetSum:"Jet ski {d}, from {a} to {b}: {v}", jetCort:"This tour comes with {m} of jet ski as a courtesy", jetCortSub:"Want more time? Choose below.", jetPhotos:"See jet ski photos", jetWa:" I also want a jet ski: {d}, from {a} to {b} ({v}).", jetClose:"Close", jetPeople:"up to {n} people", jetBusyErr:"The jet ski was just booked at that time. Choose another jet ski time or send without it.", jetPed:"Jet ski: {d}, from {a} to {b} ({v})", jetKeyTag:"Learning key"});
+Object.assign(UI.es, {jetT:"Agrega una moto de agua al paseo", jetSafe:"El dueño de la moto de agua la lleva hasta tu lancha y va contigo. Llave de aprendiz, con velocidad limitada. Quien tiene licencia de moto de agua puede manejar solo, de acuerdo con el dueño.", jetSafeNoKey:"El dueño de la moto de agua la lleva hasta tu lancha y va contigo. Quien tiene licencia de moto de agua puede manejar solo, de acuerdo con el dueño.", jetFrom:"desde {v} por {d}", jetPick:"Elige la fecha y el horario del paseo para ver los horarios libres de la moto de agua.", jetNight:"La moto de agua no está disponible en el paseo nocturno.", jetDur:"¿Cuánto tiempo?", jetStart:"¿A qué hora?", jetNone:"Sin moto de agua", jetNoTime:"La moto de agua ya está ocupada en este paseo. Elige otro horario u otra fecha.", jetSum:"Moto de agua {d}, de {a} a {b}: {v}", jetCort:"Este paseo incluye {m} de moto de agua de cortesía", jetCortSub:"¿Quieres más tiempo? Elige abajo.", jetPhotos:"Ver fotos de la moto de agua", jetWa:" También quiero moto de agua: {d}, de {a} a {b} ({v}).", jetClose:"Cerrar", jetPeople:"hasta {n} personas", jetBusyErr:"La moto de agua acaba de reservarse en ese horario. Elige otro horario o envía sin ella.", jetPed:"Moto de agua: {d}, de {a} a {b} ({v})", jetKeyTag:"Llave de aprendiz"});
 const JET_HORAS = {manha:[600,840], tarde:[840,1080], dia:[600,1020]}; /* minutos do dia: 10h–14h, 14h–18h, 10h–17h (mesmos horários do site) */
 let JETS = null, JETS_L = []; const JET_OC = new Map();
 const jetRpc = (n, b) => fetch(SB_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify(b||{})}).then(r=>r.ok?r.json():[]).catch(()=>[]);
@@ -1676,11 +1680,23 @@ function jetInicios(j, b, d, oc){
   return out;
 }
 const jetCortOf = (j,b) => j.cortesia_lancha===b.slug && j.cortesia_min>0 ? j.cortesia_min : 0;
+/* card de cada jetski: galeria pequena (setas ou deslizar), nome, modelo, preço e chave aprendiz; com mais de um, toca no card para escolher (Rodrigo 2026-11-15) */
+const JET_GI = new Map(); let JET_SEL = null;
+function jetCardHTML(j, on, many){
+  const f=j.fotos||[], de=(j.tabela||[])[0];
+  const gal=f.length ? `<div class="jet-gal2"><div class="jet-trk" data-jtrk="${esc(j.id)}">${f.map((u,i)=>`<img src="${esc(u)}" alt="${esc(j.nome)} ${i+1}" loading="lazy" data-jfull="${esc(j.id)}">`).join("")}</div>${f.length>1?`<button type="button" class="jet-nv jet-pv" data-jnv="-1" aria-label="‹">‹</button><button type="button" class="jet-nv jet-nx" data-jnv="1" aria-label="›">›</button><span class="jet-ct">1/${f.length}</span>`:""}</div>` : "";
+  return `<div class="jet-card${on?" on":""}"${many?` role="radio" aria-checked="${on}" tabindex="0" data-jsel="${esc(j.id)}"`:""}>${gal}
+    <div class="jet-cb"><strong>${esc(j.nome)}</strong>${j.modelo?`<span class="jet-md">${esc(j.modelo)}</span>`:""}
+      ${de?`<span class="jet-pr">${t("jetFrom",{v:brl(de.valor), d:jDur(de.min)})}</span>`:""}
+      ${j.chave_aprendiz?`<span class="jet-key">${t("jetKeyTag")}</span>`:""}</div></div>`;
+}
 async function jetRender(b){
   const box=document.getElementById("jet-box"); if(!box || isEsc(b)) return;
   const L=await loadJets(); if(!L.length || !box.isConnected){ box.hidden=true; return; }
-  const j=L[0]; /* por enquanto um jetski; com mais de um, o primeiro livre */
-  const cort=jetCortOf(j,b), tab=j.tabela||[], de=tab[0];
+  if(pick.jet && L.some(x=>x.id===pick.jet.id)) JET_SEL=pick.jet.id;
+  if(!L.some(x=>x.id===JET_SEL)) JET_SEL=(L.find(x=>jetCortOf(x,b))||L[0]).id; /* começa no jetski da cortesia desta lancha */
+  const j=L.find(x=>x.id===JET_SEL), many=L.length>1;
+  const cj=L.find(x=>jetCortOf(x,b)), cort=cj?jetCortOf(cj,b):0, tab=j.tabela||[];
   const w=JET_HORAS[pick.slot], night=pick.slot==="noite";
   let corpo="";
   if(!pick.date || !pick.slot) corpo=`<p class="jet-muted">${t("jetPick")}</p>`;
@@ -1697,16 +1713,22 @@ async function jetRender(b){
         if(sel.ini!=null) corpo+=`<p class="jet-sum">✓ ${t("jetSum",{d:jDur(sel.min), a:jHr(sel.ini), b:jHr(sel.ini+sel.min), v:brl(v)})}</p>`; }
     }
   }
-  const fotos=(j.fotos||[]);
   box.innerHTML=`<h2 class="pk-h">${t("jetT")}</h2>
     ${cort?`<p class="jet-cort">🎁 ${t("jetCort",{m:jDur(cort)})}<small>${t("jetCortSub")}</small></p>`:""}
-    <div class="jet-top">${fotos.length?`<button type="button" class="jet-ph" id="jet-ph" aria-label="${t("jetPhotos")}"><img src="${esc(fotos[0])}" alt="" loading="lazy">${fotos.length>1?`<span>+${fotos.length-1}</span>`:""}</button>`:""}
-      <div><strong>${esc(j.nome)}</strong>${j.modelo?` · ${esc(j.modelo)}`:""}<br><small>${de?t("jetFrom",{v:brl(de.valor), d:jDur(de.min)}):""}</small></div></div>
+    <div class="jet-cards${many?" many":""}"${many?` role="radiogroup" aria-label="${t("jetT")}"`:""}>${L.map(x=>jetCardHTML(x, x.id===j.id, many)).join("")}</div>
     <p class="jet-safe">${t(j.chave_aprendiz?"jetSafe":"jetSafeNoKey")}</p>${corpo}`;
   box.hidden=false;
+  { const st=box.querySelector(".jet-cards.many"), on=st?.querySelector(".jet-card.on"); if(on) st.scrollLeft=Math.max(0, on.offsetLeft-st.offsetLeft-8); } /* card escolhido sempre à vista */
+  box.querySelectorAll("[data-jtrk]").forEach(tr=>{ const id=tr.dataset.jtrk, n=tr.children.length, ct=tr.parentNode.querySelector(".jet-ct");
+    const gi=Math.min(JET_GI.get(id)||0, n-1); if(gi) tr.scrollLeft=gi*tr.clientWidth; if(ct) ct.textContent=`${gi+1}/${n}`;
+    tr.onscroll=()=>{ const i=Math.round(tr.scrollLeft/Math.max(1,tr.clientWidth)); JET_GI.set(id,i); if(ct) ct.textContent=`${Math.min(i,n-1)+1}/${n}`; };
+    tr.parentNode.querySelectorAll("[data-jnv]").forEach(bt=>bt.onclick=e=>{ e.stopPropagation(); const i=(JET_GI.get(id)||0)+(+bt.dataset.jnv), k=(i+n)%n; tr.scrollTo({left:k*tr.clientWidth, behavior:"smooth"}); });
+  });
+  box.querySelectorAll("[data-jfull]").forEach(im=>im.onclick=e=>{ if(im.dataset.jfull!==JET_SEL) return; /* card não escolhido: o toque na foto escolhe o card */ e.stopPropagation(); const x=L.find(y=>y.id===im.dataset.jfull); if(x) jetFotos(x, [...im.parentNode.children].indexOf(im)); });
+  box.querySelectorAll("[data-jsel]").forEach(c=>{ const go=()=>{ if(JET_SEL===c.dataset.jsel) return; JET_SEL=c.dataset.jsel; pick.jet=null; jetRender(b).then(()=>jetTouch(b)); };
+    c.onclick=go; c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
   box.querySelectorAll("[data-jdur]").forEach(x=>x.onclick=()=>{ const m=+x.dataset.jdur; pick.jet = m ? {id:j.id, min:m, ini:null} : null; jetRender(b).then(()=>jetTouch(b)); });
   box.querySelectorAll("[data-jini]").forEach(x=>x.onclick=()=>{ pick.jet={...pick.jet, ini:+x.dataset.jini}; jetRender(b).then(()=>jetTouch(b)); });
-  const pb=document.getElementById("jet-ph"); if(pb) pb.onclick=()=>jetFotos(j);
 }
 /* escolha mudou: o link do WhatsApp passa a levar o jetski */
 function jetTouch(b){ const bt=document.getElementById("book-btn"); if(bt?.dataset.ready) bt.href=waBook(b,pick.date,pick.slot,pick.people,pick.board); }
@@ -1719,11 +1741,12 @@ Object.assign(UI.pt, {jetCard:"🎁 Ganhe {m} de jetski"}); Object.assign(UI.en,
 function jetCards(){ const E=document.querySelectorAll("[data-jetc]:not([data-jok])"); if(!E.length || IS_BOT) return;
   loadJets().then(L=>E.forEach(el=>{ el.dataset.jok=1; const j=L.find(x=>x.cortesia_lancha===el.dataset.jetc && x.cortesia_min>0); if(j){ el.textContent=t("jetCard",{m:jDur(j.cortesia_min)}); el.hidden=false; } })); }
 { let jq=0; new MutationObserver(()=>{ if(!jq) jq=requestAnimationFrame(()=>{ jq=0; jetCards(); }); }).observe(document.documentElement,{childList:true,subtree:true}); }
-function jetFotos(j){
+function jetFotos(j, at){
   document.getElementById("jet-dlg")?.remove();
   const dl=document.createElement("dialog"); dl.id="jet-dlg"; dl.className="stop-dlg jet-dlg";
   dl.innerHTML=`<button type="button" class="jet-x" aria-label="${t("jetClose")}">✕</button><h3>${esc(j.nome)}</h3><div class="jet-gal">${(j.fotos||[]).map(f=>`<img src="${esc(f)}" alt="${esc(j.nome)}" loading="lazy">`).join("")}</div>`;
   document.body.appendChild(dl); dl.querySelector(".jet-x").onclick=()=>dl.close(); dl.onclick=e=>{ if(e.target===dl) dl.close(); }; dl.showModal();
+  if(at>0) dl.querySelectorAll(".jet-gal img")[at]?.scrollIntoView({block:"start"});
 }
 /* cliente com conta (o login fica guardado pelo app /login/): o pedido também vai para a Búzios Lanchas aprovar */
 const SB_URL = AGENDA_URL.replace("/rest/v1/bloqueios","");
