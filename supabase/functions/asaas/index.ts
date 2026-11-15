@@ -297,7 +297,21 @@ async function avisarDono(p: { id: number; lancha: string; data: string; repasse
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
+// quem trouxe a reserva (Rodrigo 2026-11-13): mesmo texto do notificar; rpc origem_reserva, sem ela o aviso sai igual
+const QUEM_ROT: Record<string, string> = { pt: "Quem trouxe", en: "Brought by", es: "Quién lo trajo" };
+const QUEM_T: Record<string, Record<string, (n: string) => string>> = {
+  pt: { vendedor: n => n ? `vendedor ${n}` : "vendedor", parceiro: n => n ? `parceiro ${n}` : "parceiro", lucas: () => "Lucas, pelo WhatsApp", dono: n => n ? `dono da lancha ${n}` : "dono da lancha", painel: () => "painel da Búzios Lanchas", site: () => "site, cliente direto" },
+  en: { vendedor: n => n ? `seller ${n}` : "seller", parceiro: n => n ? `partner ${n}` : "partner", lucas: () => "Lucas, via WhatsApp", dono: n => n ? `boat owner ${n}` : "boat owner", painel: () => "Búzios Lanchas panel", site: () => "website, direct client" },
+  es: { vendedor: n => n ? `vendedor ${n}` : "vendedor", parceiro: n => n ? `socio ${n}` : "socio", lucas: () => "Lucas, por WhatsApp", dono: n => n ? `dueño de la lancha ${n}` : "dueño de la lancha", painel: () => "panel de Búzios Lanchas", site: () => "sitio, cliente directo" },
+};
+const quemTxt = (o: any, l: string) => o?.tipo && QUEM_T[l]?.[o.tipo] ? QUEM_T[l][o.tipo](String(o.nome || "").trim()) : "";
+async function origem(q: Record<string, number>) {
+  try { const { data, error } = await db.rpc("origem_reserva", q); if (error) { console.error("origem", error.message); return null; } return data; }
+  catch (e) { console.error("origem", e); return null; }
+}
+const comQuem = (m: { title: string; body: string }, o: any, l: string) => { const t = quemTxt(o, l); return t ? { ...m, body: `${m.body} ${QUEM_ROT[l]}: ${t}.` } : m; };
 async function avisarAdmins(nome: string, valor: string, lancha: string, dia: string, pid: number, ok: boolean) {
+  const o = await origem({ p_pedido: pid });
   const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
   if (!k) return;
   webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
@@ -305,7 +319,7 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
   const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", (adm || []).map((a: any) => a.user_id));
   for (const s of subs || []) {
     const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
-    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...PUSH[l](nome || "—", valor, lancha, dataBR(dia), ok), url: "/login/", tag: `as-${pid}` }), { TTL: 86400, urgency: "high" }); }
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...comQuem(PUSH[l](nome || "—", valor, lancha, dataBR(dia), ok), o, l), url: "/login/", tag: `as-${pid}` }), { TTL: 86400, urgency: "high" }); }
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
@@ -548,6 +562,26 @@ Deno.serve(async req => {
     if (/^ACCOUNT_STATUS_/.test(String(b?.event || ""))) {
       await conferirContas().catch(e => console.error("conta webhook", e));
       return json({ ok: true });
+    }
+
+    // suporte confere o que falta na conta Asaas de uma pessoa (Rodrigo 2026-11-15): situação geral e de cada documento
+    if (b.acao === "docs_pessoa") {
+      // o robô (chave interna do resgate_config), a chave de serviço ou o administrador
+      const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      const adm = !ch && tok && tok !== srk ? (await db.auth.getUser(tok)).data?.user?.id : null; // ou o administrador logado no app
+      const ehAdm = adm ? !!(await db.from("admins").select("user_id").eq("user_id", adm).maybeSingle()).data : false;
+      if (!((cfg?.chave && ch === cfg.chave) || (srk && tok === srk) || ehAdm)) return json({ erro: "chave" }, 403);
+      const alvo = String(b.user_id || "");
+      if (!/^[0-9a-f-]{36}$/.test(alvo)) return json({ erro: "pessoa" }, 400);
+      const k = await chaveSub(alvo);
+      if (!k) return json({ status: "sem_conta" });
+      const h = { headers: { access_token: k, "user-agent": "buzios-lanchas" } };
+      const st: any = await fetch(API() + "/myAccount/status", h).then((x) => x.json()).catch(() => ({}));
+      const dc: any = await fetch(API() + "/myAccount/documents", h).then((x) => x.json()).catch(() => ({}));
+      const docs = (dc?.data || []).map((d: any) => ({ tipo: d.type, status: d.status, link: !!d.onboardingUrl }));
+      if (st?.general === "APPROVED") await conferirContas().catch(() => {});
+      return json({ geral: st?.general || null, dados: st?.commercialInfo || null, documentos: st?.documentation || null, conta_bancaria: st?.bankAccountInfo || null, docs });
     }
 
     if (b.acao === "expirar") {
