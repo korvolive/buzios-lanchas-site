@@ -661,6 +661,7 @@ Deno.serve(async req => {
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
+      if (vg === "jetski") return json({ erro: "jetski" }, 409); // prazo vencido e o jetski foi para outro cliente: não cobra (Rodrigo 2026-11-15)
       const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = online(p); // sinal da lancha + jetski
       if (metodo === "cartao" && !cartaoOk(p.data)) return json({ erro: "cartao_prazo" }, 409);
       if (!(sinal > 0)) return json({ erro: "valor" }, 400);
@@ -699,7 +700,14 @@ Deno.serve(async req => {
         if (metodo === "pix") { const q = await asaas(`/payments/${pg.id}/pixQrCode`); payload = q.payload; img = q.encodedImage; }
         const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: rep, wallet_id: wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
         if (ei) throw new Error(ei.message);
-        await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id); // gerou de novo: volta a valer
+        // gerou de novo: volta a valer, e o horário do jetski volta para este cliente (o banco recusa se outro pegou no meio tempo)
+        const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id);
+        if (ev && /JETSKI_/.test(ev.message)) {
+          // só apaga o registro se o Asaas cancelou mesmo; senão a cobrança fica registrada e o cron confere/cancela depois
+          if (await cancelar(pg.id)) await db.from("pagamentos_asaas").delete().eq("asaas_id", pg.id).is("pago_em", null);
+          return json({ erro: "jetski" }, 409);
+        }
+        if (ev) console.error("prazo_vencido_em", p.id, ev.message);
       } catch (e) { await cancelar(pg.id); throw e; } // sem registro, a cobrança não pode ficar aberta no Asaas
       return json({ metodo, valor: tot, pix_payload: payload, pix_img: img, url: pg.invoiceUrl });
     }

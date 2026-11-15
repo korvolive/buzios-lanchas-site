@@ -271,7 +271,7 @@ Deno.serve(async req => {
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
         lancha_sinal: +p.sinal_valor || null, lancha_total: resto !== null && +p.sinal_valor > 0 ? resto + +p.sinal_valor : null,
         jetski: (+p.jetski_valor > 0 || +p.jetski_cortesia > 0) && p.jetski_ini ? { min: +p.jetski_min || 0, cort: +p.jetski_cortesia || 0, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor || 0 } : null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
-        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
+        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", jetski_fora: vg === "jetski" /* prazo vencido e o jetski foi para outro (2026-11-15) */, chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -422,6 +422,10 @@ Deno.serve(async req => {
       if (!oid || oid !== c.order_id) return json({ erro: "ordem" }, 400);
       const v = await vaga(p.id, true); // confere de novo antes de cobrar: se outro cliente pagou antes, não cobra nada
       if (v !== "livre") return json({ erro: v }, 409);
+      // prazo vencido (Rodrigo 2026-11-15): na hora de cobrar, o pedido volta a valer e o horário do jetski volta para este cliente; se outro pegou, não cobra
+      const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id).not("prazo_vencido_em", "is", null);
+      if (ev && /JETSKI_/.test(ev.message)) return json({ erro: "jetski" }, 409);
+      if (ev) console.error("prazo_vencido_em", p.id, ev.message);
       let o: any;
       try { o = await pp(`/v2/checkout/orders/${oid}/capture`, {}); }
       catch (e) { // já capturada (página recarregada): confere a ordem

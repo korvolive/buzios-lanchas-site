@@ -167,6 +167,10 @@ addEventListener("message", e=>{ if(e.origin!==location.origin) return; if(e.dat
 const JL={pt:{boat:"Lancha (valor do passeio)",jet:"Jetski {d}, das {a} às {b}",jetCP:"Jetski {d} + {c} de cortesia, das {a} às {b}",jetC:"Jetski de cortesia {c}, das {a} às {b}",free:"Cortesia",tot:"Total",dep:"Pague agora: sinal da lancha (50%) + jetski"},
   en:{boat:"Boat (tour price)",jet:"Jet ski {d}, from {a} to {b}",jetCP:"Jet ski {d} + {c} free, from {a} to {b}",jetC:"Free jet ski {c}, from {a} to {b}",free:"Free",tot:"Total",dep:"Pay now: boat deposit (50%) + jet ski"},
   es:{boat:"Lancha (precio del paseo)",jet:"Moto de agua {d}, de {a} a {b}",jetCP:"Moto de agua {d} + {c} de cortesía, de {a} a {b}",jetC:"Moto de agua de cortesía {c}, de {a} a {b}",free:"Cortesía",tot:"Total",dep:"Paga ahora: seña de la lancha (50%) + moto de agua"}};
+/* prazo vencido e o jetski foi para outro cliente: não dá para pagar (Rodrigo 2026-11-15) */
+JL.pt.gone="O jetski deste pedido não está mais disponível nesse horário, porque o prazo para pagar venceu e outro cliente reservou. Fale com a gente no chat para trocar o horário do jetski ou seguir só com a lancha.";
+JL.en.gone="The jet ski in this request is no longer available at that time, because the payment deadline passed and another client booked it. Talk to us in the chat to change the jet ski time or go ahead with the boat only.";
+JL.es.gone="La moto de agua de este pedido ya no está disponible en ese horario, porque venció el plazo para pagar y otro cliente la reservó. Habla con nosotros en el chat para cambiar el horario de la moto de agua o seguir solo con la lancha.";
 const jDur=m=>{ if(m<60) return `${m} min`; const h=Math.floor(m/60); return lg==="en" ? (m%60?`${h} h 30`:`${h} h`) : `${h}h${m%60?"30":""}`; };
 const jHr=s=>{ const [h,m]=String(s).split(":").map(Number); return lg==="en" ? `${h%12||12}${m?":"+String(m).padStart(2,"0"):""}${h<12?"am":"pm"}` : `${h}h${m?String(m).padStart(2,"0"):""}`; };
 function jetRows(L){ const J=D.jetski; if(!J) return ""; const W=JL[lg], fim=(()=>{ const [h,m]=J.ini.split(":").map(Number), t=h*60+m+(J.min||0)+(J.cort||0); return `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`; })();
@@ -220,6 +224,7 @@ function render(){
   if(state==="paid") payArea=`<p class="msg ok">✓ ${L.paid}</p>`;
   else if(gone) payArea=`<p class="msg err">${tf(L.gone,{b:esc(D.lancha)})}</p><a class="btn" href="${livres}">${L.goneBtn}</a>`;
   /* com o Asaas na tela, o Pix manual some (dois QR codes diferentes levavam a pagar em dobro); outro cliente pagando: só o aviso (revisão 2026-10-25) */
+  else if(open && !paid && D.jetski_fora) payArea=`<p class="msg err">${JL[lg].gone}</p>${D.chat?`<button type="button" class="btn" data-chat="${D.chat}">💬 ${L.chats}</button>`:""}`;
   else if(open && !paid && D.pagando) payArea=`<p class="msg err">${L.busy}</p>`;
   else if(open && !paid && !polOk && !D.aceite) payArea = polHTML(); /* já aceitou neste pedido (em outro aparelho): não pergunta de novo */
   else if(open && !paid) payArea = ((h=>foreign ? (h.includes('data-m="as-pix"') ? h + pp : pix + h + pp) : h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ para brasileiro (Rodrigo 2026-11-11); estrangeiro vê o Pix do CNPJ primeiro, porque muitos já estão no Brasil (Rodrigo 2026-11-14) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 5 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
@@ -293,6 +298,7 @@ document.addEventListener("click", async e=>{ const b=e.target.closest("[data-as
   try{ const r=await fetch(FN_AS,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({acao:"pagar",p:P,k:K,metodo:b.dataset.as,cpf,n:b.dataset.as==="cartao"?(AX.n||1):1})}); const j=await r.json().catch(()=>({}));
     if(j.pago){ state="paid"; render(); return; }
     if(j.erro==="ocupada"){ D.indisponivel=true; render(); return; }
+    if(j.erro==="jetski"){ D.jetski_fora=true; render(); return; }
     if(j.erro==="pagando"||j.erro==="passou"){ msg.innerHTML=`<p class="msg err">${j.erro==="passou"?L.late:L.busy}</p>`; b.disabled=false; return; }
     if(j.erro==="cpf"){ const keep=ci?.value||""; A.cpf=false; render(); const nc=document.getElementById("as-cpf"); if(nc) nc.value=keep; document.getElementById("asmsg").innerHTML=`<p class="msg err">${L.asCpfBad}</p>`; return; }
     if(j.erro==="cartao_prazo"){ A.cartao_ok=false; render(); const am=document.getElementById("asmsg"); if(am) am.innerHTML=`<p class="msg err">${L.asCardPrazo}</p>`; else box.insertAdjacentHTML("beforeend",`<div class="card"><p class="msg err">${L.asCardPrazo}</p></div>`); /* o bloco do cartão some no render: o aviso não pode sumir junto (revisão 2026-11-12) */ return; }
@@ -318,7 +324,7 @@ function loadSdk(){
   return sdk;
 }
 /* o servidor não cobra se a lancha já foi para outro cliente ("ocupada") ou se alguém está pagando agora ("pagando") */
-function vagaErr(j, msg){ if(j.erro==="ocupada"){ D.indisponivel=true; render(); return true; } if(j.erro==="passou"){ msg.dataset.vaga="1"; msg.innerHTML=`<p class="msg err">${T[lg].late}</p>`; return true; } if(j.erro==="pagando"){ msg.dataset.vaga="1"; msg.innerHTML=`<p class="msg err">${T[lg].busy}</p>`; return true; } return false; }
+function vagaErr(j, msg){ if(j.erro==="ocupada"){ D.indisponivel=true; render(); return true; } if(j.erro==="jetski"){ D.jetski_fora=true; render(); return true; } if(j.erro==="passou"){ msg.dataset.vaga="1"; msg.innerHTML=`<p class="msg err">${T[lg].late}</p>`; return true; } if(j.erro==="pagando"){ msg.dataset.vaga="1"; msg.innerHTML=`<p class="msg err">${T[lg].busy}</p>`; return true; } return false; }
 async function mountPP(){
   const el=document.getElementById("pp"), msg=document.getElementById("ppmsg");
   try{ await loadSdk(); }catch(e){ msg.innerHTML=`<p class="msg err">${T[lg].keys}</p>`; return; }
@@ -335,7 +341,7 @@ document.addEventListener("click", e=>{ if(e.target.closest("[data-rc]")){ rcOpe
 document.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ lg=b.dataset.lg; try{ localStorage.setItem("pagar-lang",lg); }catch(e){} render(); });
 render();
 /* a página se atualiza sozinha (2026-10-22): a cada 20 s e ao voltar para a aba, até a reserva ser confirmada; só redesenha se o andamento mudou */
-const sig=d=>d?[d.pago_em,d.comprovante_em,d.confirmada,d.status,d.indisponivel,d.pagando].join("|"):"";
+const sig=d=>d?[d.pago_em,d.comprovante_em,d.confirmada,d.status,d.indisponivel,d.pagando,d.jetski_fora].join("|"):"";
 async function refresh(){ if(!D || state==="bad" || D.confirmada || document.hidden) return;
   try{ const r=await fetch(`${FN}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}); if(!r.ok) return; const n=await r.json(); if(sig(n)!==sig(D)){ D=n; render(); } }catch(e){} }
 setInterval(refresh, 20000); document.addEventListener("visibilitychange", refresh);

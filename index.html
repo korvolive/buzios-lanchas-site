@@ -1580,7 +1580,7 @@ function takePending(b){
   let r=null; try{ r=JSON.parse(localStorage.getItem("reserva-pendente")); }catch(e){}
   if(!r || r.slug!==b.slug || Date.now()-r.t>7200000) return;
   try{ localStorage.removeItem("reserva-pendente"); }catch(e){}
-  Object.assign(pick,{date:r.date, slot:r.slot, people:r.people, board:r.board||""}); autoBook = isClient();
+  Object.assign(pick,{date:r.date, slot:r.slot, people:r.people, board:r.board||""}); if(r.jet?.id && (r.jet.min || r.jet.c)) pick.jet={id:String(r.jet.id), min:r.jet.min?+r.jet.min:null, c:+r.jet.c||0, ini:r.jet.ini==null?null:+r.jet.ini}; /* jetski escolhido antes de criar a conta volta junto (revisão 2026-11-15); o jetRender confere se ainda está livre */ autoBook = isClient();
 }
 const pad = n => String(n).padStart(2,"0");
 const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
@@ -1809,10 +1809,10 @@ async function showCup(out,b){
 /* pedido enviado (2026-10-24): uma janela clara no meio da tela, para o cliente ter certeza e não tocar de novo,
    com o WhatsApp da Búzios Lanchas em destaque para continuar a conversa (ou do vendedor, se veio pelo link dele) */
 let sentKey="";
-const pickKey = () => [location.pathname, pick.date, pick.slot, pick.people].join("|");
+const pickKey = () => [location.pathname, pick.date, pick.slot, pick.people, pick.jet?.ini!=null ? [pick.jet.id,pick.jet.min,pick.jet.c,pick.jet.ini].join(":") : ""].join("|"); /* trocar o jetski também libera pedir de novo */
 function sentDlg(b,cid){
   document.getElementById("sent-dlg")?.remove();
-  const msg=t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)});
+  const msg=t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}) + jetWaTxt(); /* jetski do pedido vai junto na mensagem (revisão 2026-11-15) */
   const dl=document.createElement("dialog"); dl.id="sent-dlg"; dl.className="stop-dlg lead-dlg sent-dlg"; dl.setAttribute("aria-labelledby","sent-t");
   dl.innerHTML=`<div class="sent-ok" aria-hidden="true">✓</div><h3 id="sent-t">${t("sentT")}</h3>
     <p class="lsum"><b>${b.name}</b><span>${[fmtDate(pick.date), slotLabel(pick.slot), peopleLabel(pick.people), pick.board].filter(Boolean).join(" · ")}</span></p>
@@ -1826,7 +1826,7 @@ function sentDlg(b,cid){
 async function sendPedido(b){
   const body={lancha:b.slug, data:pick.date, horario:pick.slot, pessoas:+pick.people, embarque:pick.board||null}, base=priceFor(b,pick.date,pick.slot);
   if(pick.cup) body.cupom=pick.cup;
-  if(pick.jet?.ini!=null){ const h=Math.floor(pick.jet.ini/60), m=pick.jet.ini%60; body.jetski=pick.jet.id; if(pick.jet.min) body.jetski_min=pick.jet.min; if(pick.jet.c) body.jetski_cortesia=pick.jet.c; body.jetski_ini=`${pad(h)}:${pad(m)}`; } /* jetski escolhido: o banco confere e põe o valor (2026-11-15) */
+  if(pick.jet?.ini!=null && JETS_L.some(x=>x.id===pick.jet.id)){ const h=Math.floor(pick.jet.ini/60), m=pick.jet.ini%60; body.jetski=pick.jet.id; if(pick.jet.min) body.jetski_min=pick.jet.min; if(pick.jet.c) body.jetski_cortesia=pick.jet.c; body.jetski_ini=`${pad(h)}:${pad(m)}`; } /* jetski escolhido: o banco confere e põe o valor (2026-11-15) */
   if(ofMatch(b.slug,pick.date,pick.slot)){ body.oferta=OFERTA.id; if(+OFERTA.valor>0) body.preco_base=+OFERTA.valor; } /* o banco confere a oferta e põe horário e valor */
   if(VEND){ body.vendedor_cod=VEND.codigo; if(base){ const bz=Math.max(base-await bzExato(b,pick.date,pick.slot),0); body.preco_base=bz; body.preco_cliente=cliPrice(bz,pctKey(seasonOf(pick.date,b).key,pick.date),VEND,b); } } /* o banco confere o vendedor e o teto */
   const key=JSON.stringify(body);
@@ -2464,10 +2464,10 @@ async function showBoatStatus(b){
   const ob=document.getElementById("book-online");
   if(ob) ob.onclick = () => { if(!btn.dataset.ready){ if(!pick.date || !pick.slot || !pick.people) missing(); return; } /* lancha ocupada nesse horário: o aviso já está na tela */
     if(!isClient()){
-      try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, t:Date.now()})); }catch(e){}
+      try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, jet:pick.jet||null, t:Date.now()})); }catch(e){}
       location.href="/login/?criar=1"; return; }
     ob.disabled=true; lastReq="";
-    sendPedido(b).then(async()=>{ track("pedido_reserva",b); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}))}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
+    sendPedido(b).then(async()=>{ track("pedido_reserva",b); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt()) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt())}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
       e=>{ out.innerHTML=`<p class="pk-res busy">${t(typeof e==="string" ? e : "bookErr")}</p>`; }).finally(()=>{ ob.disabled=!!ob.dataset.sent; }); };
   if(ob && ob.dataset.sent && sentKey!==pickKey()){ delete ob.dataset.sent; ob.disabled=false; ob.textContent=t("bookOnline"); } /* mudou data, horário ou pessoas: pode pedir de novo */
   if(pick.date) document.getElementById("pk-date").classList.remove("pk-missing");
