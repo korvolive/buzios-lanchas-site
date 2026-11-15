@@ -2848,6 +2848,8 @@ const ocultas = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug&oc
   .then(r=>r.ok ? r.json() : null).then(r=>r && r.map(x=>x.slug)).catch(()=>null);
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
+/* vídeo das lanchas cadastradas pelo app (o arquivo fica no site, em video/): slug -> [vídeo, capa] */
+const VIDEO_DB = { spartana:["video/spartana.mp4","img/spartana-video.jpg"] };
 /* cada cidade mostra só as lanchas dela (CIDADE, lá em cima); lancha sem cidade = Búzios */
 /* posicao = ordem na vitrine escolhida pelo administrador no app (2026-11-14); banco sem a coluna: volta para a consulta antiga */
 const lanchasURL = c => AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados"+c+"&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome";
@@ -2866,7 +2868,7 @@ const dbBoats = fetch(lanchasURL(",posicao"), {headers:{apikey:AGENDA_KEY}})
     if((d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
     dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true, dbNew:true, pos, kind:d.tipo==="escuna"?"escuna":"lancha",
-      feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:null, photos:null,
+      feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:VIDEO_DB[r.slug]?.[0]||null, videoCapa:VIDEO_DB[r.slug]?.[1], photos:null,
       tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
       i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
       included:[...BASICS_NEW], prices:{}, price7h:null,
