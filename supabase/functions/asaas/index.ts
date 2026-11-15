@@ -564,26 +564,6 @@ Deno.serve(async req => {
       return json({ ok: true });
     }
 
-    // suporte confere o que falta na conta Asaas de uma pessoa (Rodrigo 2026-11-15): situação geral e de cada documento
-    if (b.acao === "docs_pessoa") {
-      // o robô (chave interna do resgate_config), a chave de serviço ou o administrador
-      const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
-      const adm = !ch && tok && tok !== srk ? (await db.auth.getUser(tok)).data?.user?.id : null; // ou o administrador logado no app
-      const ehAdm = adm ? !!(await db.from("admins").select("user_id").eq("user_id", adm).maybeSingle()).data : false;
-      if (!((cfg?.chave && ch === cfg.chave) || (srk && tok === srk) || ehAdm)) return json({ erro: "chave" }, 403);
-      const alvo = String(b.user_id || "");
-      if (!/^[0-9a-f-]{36}$/.test(alvo)) return json({ erro: "pessoa" }, 400);
-      const k = await chaveSub(alvo);
-      if (!k) return json({ status: "sem_conta" });
-      const h = { headers: { access_token: k, "user-agent": "buzios-lanchas" } };
-      const st: any = await fetch(API() + "/myAccount/status", h).then((x) => x.json()).catch(() => ({}));
-      const dc: any = await fetch(API() + "/myAccount/documents", h).then((x) => x.json()).catch(() => ({}));
-      const docs = (dc?.data || []).map((d: any) => ({ tipo: d.type, status: d.status, link: !!d.onboardingUrl }));
-      if (st?.general === "APPROVED") await conferirContas().catch(() => {});
-      return json({ geral: st?.general || null, dados: st?.commercialInfo || null, documentos: st?.documentation || null, conta_bancaria: st?.bankAccountInfo || null, docs });
-    }
-
     if (b.acao === "expirar") {
       // só o robô (chave interna do resgate_config) ou a chave de serviço
       const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
