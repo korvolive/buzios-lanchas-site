@@ -22,7 +22,7 @@ Deno.serve(async req => {
     const auth = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     const uid = auth ? (await db.auth.getUser(auth)).data?.user?.id : null;
     if (!uid) return json({ erro: "login" }, 401);
-    const { data: ps } = await db.from("pedidos").select("id, lancha, data, sinal_valor, vendedor")
+    const { data: ps } = await db.from("pedidos").select("id, lancha, data, sinal_valor, jetski_valor, vendedor")
       .eq("cliente", uid).eq("status", "pendente").not("sinal_liberado_em", "is", null).is("paypal_link", null).gt("sinal_valor", 0).limit(5);
     if (!ps?.length) return json({ n: 0 });
     const { data: cl } = await db.from("clientes").select("pais, whatsapp").eq("user_id", uid).maybeSingle();
@@ -30,7 +30,7 @@ Deno.serve(async req => {
     let n = 0;
     for (const p of ps) {
       if ((await db.from("pagamentos_pp").select("pedido").eq("pedido", p.id).maybeSingle()).data) continue;
-      let moeda = "BRL", valor = +p.sinal_valor;
+      let moeda = "BRL", valor = +p.sinal_valor + (+p.jetski_valor || 0); // sinal da lancha + jetski (2026-11-15)
       if (cc !== "55" && !p.vendedor) { // com vendedor: só Pix (Rodrigo, 2026-10-22)
         moeda = cc === "34" || COB_EUR.has(cc) ? "EUR" : cc === "44" ? "GBP" : "USD";
         const fx = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/cambio").then(r => r.json()).catch(() => null);
