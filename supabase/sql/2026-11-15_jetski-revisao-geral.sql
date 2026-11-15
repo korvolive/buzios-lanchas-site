@@ -176,6 +176,7 @@ declare p public.pedidos; cid bigint; tx text;
 begin
   select * into p from public.pedidos where id = pid;
   if p.id is null or p.cliente is null then return; end if;
+  if exists (select 1 from public.mensagens m where m.pedido = pid and m.sistema = 'jetski-conflito') then return; end if; -- avisa uma vez só
   select id into cid from public.conversas where tipo = 'suporte' and cliente = p.cliente;
   if cid is null then return; end if;
   tx := format('O horário do jetski que você escolheu (%s, às %s) foi reservado por outro cliente enquanto o prazo de pagamento estava vencido. A Búzios Lanchas vai falar com você aqui para combinar outro horário do jetski ou devolver o valor dele.',

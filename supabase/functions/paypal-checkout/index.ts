@@ -407,10 +407,6 @@ Deno.serve(async req => {
       }
       const v = await vaga(p.id, true);
       if (v !== "livre") return json({ erro: v }, 409);
-      // prazo vencido (Rodrigo 2026-11-15): pagar de novo volta a valer e o horário do jetski volta para este cliente; se outro pegou, não cobra
-      const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id).not("prazo_vencido_em", "is", null);
-      if (ev && /JETSKI_/.test(ev.message)) return json({ erro: "jetski" }, 409);
-      if (ev) console.error("prazo_vencido_em", p.id, ev.message);
       const o = await pp("/v2/checkout/orders", {
         intent: "CAPTURE",
         purchase_units: [{ reference_id: `PED${p.id}`, custom_id: String(p.id), description: `Búzios Lanchas · ${lancha} · ${dataBR(p.data)}`.slice(0, 127),
@@ -426,6 +422,10 @@ Deno.serve(async req => {
       if (!oid || oid !== c.order_id) return json({ erro: "ordem" }, 400);
       const v = await vaga(p.id, true); // confere de novo antes de cobrar: se outro cliente pagou antes, não cobra nada
       if (v !== "livre") return json({ erro: v }, 409);
+      // prazo vencido (Rodrigo 2026-11-15): na hora de cobrar, o pedido volta a valer e o horário do jetski volta para este cliente; se outro pegou, não cobra
+      const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id).not("prazo_vencido_em", "is", null);
+      if (ev && /JETSKI_/.test(ev.message)) return json({ erro: "jetski" }, 409);
+      if (ev) console.error("prazo_vencido_em", p.id, ev.message);
       let o: any;
       try { o = await pp(`/v2/checkout/orders/${oid}/capture`, {}); }
       catch (e) { // já capturada (página recarregada): confere a ordem
