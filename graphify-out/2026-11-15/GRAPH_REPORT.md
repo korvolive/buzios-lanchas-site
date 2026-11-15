@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-15)
 
 ## Corpus Check
-- 143 files · ~321,808 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 6 file(s) not represented in the graph (top: .tflite 2, .webmanifest 2, (none) 1)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1096 nodes · 1782 edges · 91 communities (55 shown, 36 thin omitted)
@@ -98,8 +96,8 @@
 6. `public.cancelar_pre_reserva()` - 13 edges
 7. `public.marcar_wa()` - 13 edges
 8. `public.aprovar_consulta()` - 12 edges
-9. `public.lancar_pedido_operador()` - 12 edges
-10. `public.marcar_wa()` - 12 edges
+9. `public.marcar_wa()` - 12 edges
+10. `public.lancar_pedido_operador()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
@@ -345,16 +343,16 @@ Nodes (3): public.salvar_lancha(), public.salvar_lancha(), public.ordenar_lancha
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public._valor_na_data()` connect `public._valor_na_data` to `vendedores`, `b`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.05807622504537205 - nodes in this community are weakly interconnected._
-- **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.pedidos`, `public.bloqueios`, `public.salvar_netos_v3`?**
+- **Why does `public._teto_cheio()` connect `public._teto_cheio` to `public._valor_na_data`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
+- **Why does `public.aprovar_foto()` connect `public.aprovar_foto` to `public._teto_cheio`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06187202538339503 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.08710801393728224 - nodes in this community are weakly interconnected._
-- **Should `paypal-checkout/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.08412698412698413 - nodes in this community are weakly interconnected._
