@@ -1,5 +1,5 @@
 // Búzios Lanchas: troca anual do segredo que cifra as chaves das subcontas do Asaas (compromisso 4.1.4 com o Asaas, 2026-11-13).
-// Só o robô (chave interna do resgate_config, mandada pelo próprio banco com net.http_post) ou a chave de serviço.
+// Só a chave de serviço ou um administrador logado (desde 2026-11-14).
 // POST { acao: "conferir" }  conta quantas chaves abrem com o segredo atual (ASAAS_CHAVES_SEGREDO). Não muda nada.
 // POST { acao: "girar" }     recifra com ASAAS_CHAVES_SEGREDO_NOVO todas as chaves que abrem com o atual.
 // Passo a passo anual (também no SEGURANCA.md):
@@ -32,9 +32,12 @@ async function fechar(txt: string, k: CryptoKey) {
 Deno.serve(async req => {
   if (req.method !== "POST") return json({ erro: "método" }, 405);
   try {
-    const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
-    if (!((cfg?.chave && ch === cfg.chave) || (srk && tok === srk))) return json({ erro: "chave" }, 403);
+    // 2026-11-14 (revisão de segurança, OK do Rodrigo): só a chave de serviço ou um administrador logado; a chave compartilhada dos robôs não serve mais.
+    const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const igual = (a: string, b: string) => a.length === b.length && [...a].reduce((d, c, i) => d | (c.charCodeAt(0) ^ b.charCodeAt(i)), 0) === 0;
+    let ok_ = !!srk && !!tok && igual(tok, srk);
+    if (!ok_ && tok) { const uid = (await db.auth.getUser(tok)).data?.user?.id; ok_ = !!uid && !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data; }
+    if (!ok_) return json({ erro: "chave" }, 403);
     const b = await req.json().catch(() => ({}));
     const atual = await chave("ASAAS_CHAVES_SEGREDO"), novo = await chave("ASAAS_CHAVES_SEGREDO_NOVO");
     if (!atual) return json({ erro: "sem_segredo" }, 500);

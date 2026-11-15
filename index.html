@@ -1925,7 +1925,7 @@ function climaRender(){
   if(!document.getElementById("wx-defs")) document.body.insertAdjacentHTML("beforeend",'<svg id="wx-defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="wxgs" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f4b42a"/></radialGradient><linearGradient id="wxgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e3eef3"/></linearGradient></defs></svg>');
   box.className = "wx wx-"+d.ceu; box.setAttribute("aria-label", L.tit);
   box.innerHTML = `<div class="wx-top"><span class="l">${L.tit}</span><span class="r">${nome(d.d)}</span></div>
-    <div class="wx-scene"><div class="wx-temp"><b>${d.t}°</b><span>${L.ceu[d.ceu]||""}</span></div>${wxScene(d.ceu)}</div>
+    <div class="wx-scene"><div class="wx-temp"><b>${esc(d.t)}°</b><span>${L.ceu[d.ceu]||""}</span></div>${wxScene(d.ceu)}</div>
     <div class="wx-msg"><b>${head}</b>${sub}</div>
     <p class="wx-src">${L.src}</p>`;
   box.hidden=false;
@@ -2660,7 +2660,7 @@ const escBoxHTML = b => `<h2>${t("escPriceT")}</h2><p class="pr-incl" style="mar
 function boatPage(b){
   return `
   <div class="wrap">
-    <div class="crumb"><a href="${pathFor(lang)}${isEsc(b)?"#escunas":"#frota"}">${t(isEsc(b)?"crumbEsc":"crumbFleet")}</a> / ${b.name}</div>
+    <div class="crumb"><a href="${pathFor(lang)}${isEsc(b)?"#escunas":"#frota"}">${t(isEsc(b)?"crumbEsc":"crumbFleet")}</a> / ${esc(b.name)}</div>
     <div class="boat">
       <div class="b-info">
         <div>
