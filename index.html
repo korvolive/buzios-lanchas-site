@@ -2623,6 +2623,8 @@ const TRUST_ICONS = [
 let when = {de:"", ate:"", people:""};
 /* ?data= na vitrine (aviso de lancha já reservada): já abre filtrando as lanchas livres nesse dia */
 if(pick.date && pick.date>=todayISO()) when.de = when.ate = pick.date;
+/* ?pessoas= na vitrine (vem do bilhete do bordazul.com.br): já abre filtrando as lanchas que cabem o grupo */
+if(pick.people) when.people = pick.people;
 const maxISO = () => { const d=new Date(); d.setFullYear(d.getFullYear()+2); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const addDay = (iso,k=1) => { const [y,m,d]=iso.split("-").map(Number), x=new Date(y,m-1,d+k); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; };
 const MAX_DAYS = 15; /* regra do o dono: o período tem no máximo 15 dias */
@@ -2884,6 +2886,7 @@ document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
 async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
+  if(+when.people>maxCap()) when.people=""; /* grupo maior que a maior lancha (veio pelo endereço): mostra todas em vez de nenhuma */
   const cards=[...app.querySelectorAll(".card[data-boat]")], d=when.de, np=+when.people, key=when.de+when.ate+when.people;
   if(!d && !np){ cards.forEach(c=>c.hidden=false); res.textContent=""; carSync(true); return; }
   if(d) res.textContent=t("checking");

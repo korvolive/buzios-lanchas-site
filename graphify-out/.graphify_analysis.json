@@ -2,8 +2,10 @@
   "communities": {
     "0": [
       "consultas",
+      "novo",
       "ofertas",
       "pg_namespace",
+      "public_ofertas",
       "quem",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_minhas_vendas_v2",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_sql_anotacoes",
@@ -22,6 +24,10 @@
       "supabase_sql_2026_11_01_reveillon_27_e_teto_25",
       "supabase_sql_2026_11_01_reveillon_27_e_teto_25_public_epoca",
       "supabase_sql_2026_11_01_reveillon_27_e_teto_25_public_salvar_netos_v2",
+      "supabase_sql_2026_11_02_comissao_manual_ate_1000",
+      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_oferta_vendedor",
+      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_salvar_pcts",
+      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_teto_comissao_manual",
       "supabase_sql_2026_11_02_comissao_manual_ate_1000_sql_v",
       "supabase_sql_2026_11_02_parceiro_desconto_so_no_primeiro",
       "supabase_sql_2026_11_02_parceiro_desconto_so_no_primeiro_public_pedido_vendedor",
@@ -208,14 +214,6 @@
       "supabase_functions_notificar_index_vencerpre"
     ],
     "4": [
-      "a_hora_fim",
-      "a_hora_ini",
-      "a_pessoas",
-      "a_valor",
-      "b_data",
-      "b_horario",
-      "b_lancha",
-      "e",
       "supabase_sql_2026_10_30_operador_um_toque",
       "supabase_sql_2026_10_30_operador_um_toque_public_capacidade",
       "supabase_sql_2026_10_30_operador_um_toque_public_carnaval",
@@ -225,23 +223,10 @@
       "supabase_sql_2026_10_30_operador_um_toque_public_feriadao",
       "supabase_sql_2026_10_30_operador_um_toque_public_hora_ok",
       "supabase_sql_2026_10_30_operador_um_toque_public_horario_ok",
-      "supabase_sql_2026_10_30_operador_um_toque_public_lancar_pedido_operador",
       "supabase_sql_2026_10_30_operador_um_toque_public_pascoa",
-      "supabase_sql_2026_10_30_operador_um_toque_public_piso_operador",
       "supabase_sql_2026_10_30_operador_um_toque_public_preco_neto_tabela",
       "supabase_sql_2026_10_30_operador_um_toque_public_preco_tabela",
-      "supabase_sql_2026_10_30_operador_um_toque_public_recusar_alteracao",
-      "supabase_sql_2026_10_30_operador_um_toque_public_valor_na_data",
-      "supabase_sql_2026_10_30_operador_um_toque_sql_public_precos",
-      "supabase_sql_2026_10_30_operador_um_toque_sql_public_precos_neto",
-      "supabase_sql_2026_11_04_precos_sempre_cheios",
-      "supabase_sql_2026_11_04_precos_sempre_cheios_precos_cheios",
-      "supabase_sql_2026_11_04_precos_sempre_cheios_public_tg_precos_cheios",
-      "supabase_sql_2026_11_04_reveillon_noturno_preco",
-      "supabase_sql_2026_11_04_reveillon_noturno_preco_public_valor_na_data",
-      "supabase_sql_2026_11_05_grupo_sinal_e_neto_por_temporada",
-      "supabase_sql_2026_11_05_grupo_sinal_e_neto_por_temporada_public_lancar_grupo_operador",
-      "supabase_sql_2026_11_05_grupo_sinal_e_neto_por_temporada_public_valor_na_data"
+      "supabase_sql_2026_10_30_operador_um_toque_public_recusar_alteracao"
     ],
     "5": [
       "public_pedidos",
@@ -303,19 +288,26 @@
     ],
     "7": [
       "princ",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_pre_pedido_fim",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_pre_pedido_sinal",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_aprovar_consulta",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_aprovar_pre_pedido",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_cancela_pedido_do_passeio",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_ligar_passeio",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_pre_pedido_fim",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_pre_pedido_sinal",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_cid",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_conversas",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_mensagens",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_n",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_nm",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_pb",
+      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_pid",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_public_passeio_preco_base",
       "supabase_sql_2026_10_30_prazo_pre_reserva",
       "supabase_sql_2026_10_30_prazo_pre_reserva_public_ligar_passeio",
       "supabase_sql_2026_10_30_prazo_pre_reserva_public_prazo_pre",
-      "supabase_sql_2026_11_04_pedido_de_grupo_public_lancar_grupo_operador",
       "supabase_sql_2026_11_04_pedido_de_grupo_public_ligar_passeio",
       "sv"
     ],
@@ -472,29 +464,17 @@
       "github_workflows_ios_with_node_version"
     ],
     "13": [
-      "information_schema_tables",
-      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_bloqueios",
-      "supabase_sql_2026_10_30_operador_um_toque_public_marcar_wa",
-      "supabase_sql_2026_10_30_operador_um_toque_public_registrar_alteracao",
-      "supabase_sql_2026_10_30_operador_um_toque_sql_lch",
-      "supabase_sql_2026_10_30_operador_um_toque_sql_public_donos",
-      "supabase_sql_2026_10_30_operador_um_toque_sql_public_vendedor_leads",
-      "supabase_sql_2026_10_30_papeis_operador_auditor",
-      "supabase_sql_2026_10_30_papeis_operador_auditor_public_marcar_wa",
-      "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le",
-      "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le_atend",
-      "supabase_sql_2026_10_30_papeis_operador_auditor_public_papeis_painel",
-      "supabase_sql_2026_10_30_papeis_operador_auditor_public_papel_painel",
       "supabase_sql_2026_10_30_papeis_operador_auditor_sql_auth_users",
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat",
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_pre_reserva_volta",
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_public_pre_reserva_volta",
-      "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_marcar_wa",
-      "supabase_sql_2026_10_31_lembrete_do_sinal",
-      "supabase_sql_2026_10_31_lembrete_do_sinal_public_marcar_wa",
+      "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_sql_anon",
+      "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_sql_authenticated",
+      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica",
+      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_aprovar_consulta",
       "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_convidar_cliente",
-      "supabase_sql_2026_10_31_operador_pede_avaliacao",
-      "supabase_sql_2026_10_31_operador_pede_avaliacao_public_marcar_wa_aval"
+      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_lancar_reserva_operador",
+      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_trava_valor_buzios"
     ],
     "14": [
       "supabase_functions_clima_site_index",
@@ -529,17 +509,39 @@
       "supabase_functions_clima_alertas_index_validade"
     ],
     "16": [
-      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_pedidos",
+      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_bloqueios",
+      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_lanchas",
+      "supabase_sql_2026_10_30_operador_lanca_pedido_sql_nid",
+      "supabase_sql_2026_10_30_operador_um_toque_public_registrar_alteracao",
+      "supabase_sql_2026_10_30_operador_um_toque_sql_public_donos",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_definir_condicional",
+      "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_marcar_wa",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_resolver_condicionais",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_venda_manual_paga",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_venda_manual_salvar",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_vendas_manuais",
       "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_public_vendas_manuais_lista",
+      "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_sql_public_vendedores",
+      "supabase_sql_2026_10_31_lembrete_do_sinal",
+      "supabase_sql_2026_10_31_lembrete_do_sinal_public_marcar_wa",
+      "supabase_sql_2026_10_31_operador_pede_avaliacao",
+      "supabase_sql_2026_10_31_operador_pede_avaliacao_public_marcar_wa_aval",
+      "supabase_sql_2026_10_31_seguranca_travas_public_lancar_pedido_operador",
+      "supabase_sql_2026_10_31_vendedor_comissao_por_cima",
+      "supabase_sql_2026_10_31_vendedor_comissao_por_cima_public_lancar_pedido_vendedor",
+      "supabase_sql_2026_10_31_vendedor_comissao_por_cima_sql_vd",
+      "supabase_sql_2026_10_31_vendedor_lanca_pedido_public_lancar_pedido_vendedor",
+      "supabase_sql_2026_11_01_vendedor_valor_da_tabela",
+      "supabase_sql_2026_11_01_vendedor_valor_da_tabela_public_lancar_pedido_vendedor",
+      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_lancar_pedido_vendedor",
       "supabase_sql_2026_11_04_socio_nas_vendas_do_app_public_vendas_manuais_lista",
       "supabase_sql_2026_11_04_venda_vendedor_aviso_oficial_sempre",
       "supabase_sql_2026_11_04_venda_vendedor_aviso_oficial_sempre_public_convite_manual_marca_aviso",
+      "supabase_sql_2026_11_04_vendedor_email_opcional",
+      "supabase_sql_2026_11_04_vendedor_email_opcional_public_lancar_pedido_vendedor",
+      "supabase_sql_2026_11_04_vendedor_lancar_e_limpa_avaliacoes",
+      "supabase_sql_2026_11_04_vendedor_lancar_e_limpa_avaliacoes_public_lancar_pedido_vendedor",
       "vendido"
     ],
     "17": [
@@ -579,27 +581,13 @@
       "supabase_sql_2026_11_15_jetski_public_tg_jetski_uso_confere"
     ],
     "19": [
-      "atual",
       "bloqueios",
       "g",
-      "information_schema_columns",
       "manutencoes",
-      "nid",
       "precos",
       "precos_hist",
       "precos_neto",
-      "public_consultas",
-      "public_fotos",
-      "public_fotos_pendentes",
-      "public_precos",
-      "public_precos_neto",
-      "r",
       "rf",
-      "supabase_sql_2026_11_05_dono_publica_fotos",
-      "supabase_sql_2026_11_05_dono_publica_fotos_public_aprovar_foto",
-      "supabase_sql_2026_11_05_dono_publica_fotos_sql_pg_proc",
-      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas",
-      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas_public_lancar_pedido_operador",
       "supabase_sql_2026_11_12_alterar_pedido",
       "supabase_sql_2026_11_12_alterar_pedido_public_alterar_pedido",
       "supabase_sql_2026_11_12_alterar_pedido_public_segredos_app",
@@ -620,11 +608,7 @@
       "supabase_sql_2026_11_13_carnaval_separado_public_epoca",
       "supabase_sql_2026_11_13_carnaval_separado_public_meus_netos",
       "supabase_sql_2026_11_13_carnaval_separado_public_salvar_netos_v3",
-      "supabase_sql_2026_11_13_carnaval_separado_public_valor_na_data",
-      "supabase_sql_2026_11_14_escunas_3h_funcoes",
-      "supabase_sql_2026_11_14_escunas_3h_funcoes_public_confere_valor_op",
-      "supabase_sql_2026_11_14_escunas_3h_funcoes_public_teto_cheio",
-      "supabase_sql_2026_11_14_escunas_3h_funcoes_public_valor_na_data"
+      "supabase_sql_2026_11_13_carnaval_separado_public_valor_na_data"
     ],
     "20": [
       "supabase_functions_pedido_indisponivel_index",
@@ -717,14 +701,28 @@
       "supabase_sql_2026_10_30_ajustes_alteracao_sql_a",
       "supabase_sql_2026_10_30_ajustes_alteracao_sql_b",
       "supabase_sql_2026_10_30_ajustes_alteracao_sql_outro",
+      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_anotacoes",
+      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_manutencoes",
       "supabase_sql_2026_10_30_ajustes_alteracao_sql_r",
+      "supabase_sql_2026_10_30_comprovante_no_passeio",
+      "supabase_sql_2026_10_30_comprovante_no_passeio_a_comprovante_segura",
+      "supabase_sql_2026_10_30_comprovante_no_passeio_public_anexar_comprovante_passeio",
+      "supabase_sql_2026_10_30_comprovante_no_passeio_public_comprovante_segura",
       "supabase_sql_2026_10_30_mover_passeio_atual",
       "supabase_sql_2026_10_30_mover_passeio_atual_public_mover_passeio",
       "supabase_sql_2026_10_30_operador_um_toque_public_alteracoes_pedidas",
       "supabase_sql_2026_10_30_operador_um_toque_public_aprovar_alteracao",
       "supabase_sql_2026_10_30_operador_um_toque_public_solicitar_alteracao",
+      "supabase_sql_2026_10_31_periodos_pelo_horario",
+      "supabase_sql_2026_10_31_periodos_pelo_horario_public_periodos_extra",
       "supabase_sql_2026_11_01_alteracao_guarda_embarque",
-      "supabase_sql_2026_11_01_alteracao_guarda_embarque_public_registrar_alteracao"
+      "supabase_sql_2026_11_01_alteracao_guarda_embarque_public_registrar_alteracao",
+      "supabase_sql_2026_11_04_pedido_de_grupo",
+      "supabase_sql_2026_11_04_pedido_de_grupo_anotacoes_grupo_idx",
+      "supabase_sql_2026_11_04_pedido_de_grupo_public_anexar_comprovante_passeio",
+      "supabase_sql_2026_11_04_pedido_de_grupo_public_aprovar_consulta",
+      "supabase_sql_2026_11_04_pedido_de_grupo_public_lancar_grupo_operador",
+      "supabase_sql_2026_11_04_pedido_de_grupo_public_pre_pedido_fim"
     ],
     "27": [
       "supabase_functions_aviso_chat_index",
@@ -791,14 +789,18 @@
       "supabase_functions_entrar_celular_index_mascara"
     ],
     "33": [
+      "i",
       "public_google_convites",
       "public_realizados",
-      "supabase_sql_2026_10_30_papeis_operador_auditor_sql_public_admins",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_public_clientes",
-      "supabase_sql_2026_11_01_recibo_admin",
-      "supabase_sql_2026_11_01_recibo_admin_public_recibo_admin",
+      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha",
+      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_apagar_avaliacao_google",
+      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_avaliacoes_google",
       "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_passeios_para_google",
-      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_salvar_avaliacao_google"
+      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_pode_avaliacao_google",
+      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_salvar_avaliacao_google",
+      "supabase_sql_2026_11_04_avaliacoes_google_salvar_ao_vivo",
+      "supabase_sql_2026_11_04_avaliacoes_google_salvar_ao_vivo_public_salvar_avaliacao_google"
     ],
     "34": [
       "supabase_functions_whatsapp_codigo_index",
@@ -881,6 +883,13 @@
       "os",
       "pil",
       "re",
+      "scripts_bordazul_gerar",
+      "scripts_bordazul_gerar_destino_options",
+      "scripts_bordazul_gerar_e",
+      "scripts_bordazul_gerar_main",
+      "scripts_bordazul_gerar_pagina",
+      "scripts_bordazul_gerar_rationale_2",
+      "scripts_bordazul_gerar_wa",
       "scripts_enquadrar",
       "scripts_enquadrar_abre",
       "scripts_enquadrar_cabe",
@@ -1039,6 +1048,8 @@
       "seguranca_regras"
     ],
     "62": [
+      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_pedidos",
+      "supabase_sql_2026_10_30_papeis_operador_auditor_sql_public_admins",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_vencer_pre_pedidos",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_public_pagamentos_asaas",
       "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_public_pagamentos_pp",
@@ -1053,6 +1064,9 @@
       "supabase_sql_2026_10_31_comprovante_sem_chat_sql_em",
       "supabase_sql_2026_10_31_lembrete_do_sinal_public_cancelar_pre_reserva",
       "supabase_sql_2026_10_31_seguranca_travas_public_cancelar_pre_reserva",
+      "supabase_sql_2026_11_01_recibo_admin",
+      "supabase_sql_2026_11_01_recibo_admin_public_recibo_admin",
+      "supabase_sql_2026_11_04_pedido_de_grupo_public_aprovar_pre_pedido",
       "supabase_sql_2026_11_04_pedido_de_grupo_public_vencer_pre_pedidos"
     ],
     "63": [
@@ -1093,20 +1107,8 @@
     "67": [
       "public_freelancers",
       "public_marinheiros",
-      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_anotacoes",
-      "supabase_sql_2026_10_30_comprovante_no_passeio",
-      "supabase_sql_2026_10_30_comprovante_no_passeio_a_comprovante_segura",
-      "supabase_sql_2026_10_30_comprovante_no_passeio_public_anexar_comprovante_passeio",
-      "supabase_sql_2026_10_30_comprovante_no_passeio_public_comprovante_segura",
-      "supabase_sql_2026_10_31_periodos_pelo_horario",
-      "supabase_sql_2026_10_31_periodos_pelo_horario_public_periodos_extra",
       "supabase_sql_2026_11_03_marinheiro_ve_telefone_do_cliente",
-      "supabase_sql_2026_11_03_marinheiro_ve_telefone_do_cliente_public_passeios_marinheiro_v2",
-      "supabase_sql_2026_11_04_pedido_de_grupo",
-      "supabase_sql_2026_11_04_pedido_de_grupo_anotacoes_grupo_idx",
-      "supabase_sql_2026_11_04_pedido_de_grupo_public_anexar_comprovante_passeio",
-      "supabase_sql_2026_11_04_pedido_de_grupo_public_aprovar_pre_pedido",
-      "supabase_sql_2026_11_04_pedido_de_grupo_public_pre_pedido_fim"
+      "supabase_sql_2026_11_03_marinheiro_ve_telefone_do_cliente_public_passeios_marinheiro_v2"
     ],
     "68": [
       "supabase_sql_2026_11_05_avisar_dono_e_cliente",
@@ -1192,12 +1194,9 @@
       "supabase_functions_asaas_chaves_girar_index_json"
     ],
     "80": [
-      "i",
-      "novo",
+      "information_schema_tables",
       "pg_tables",
-      "public_ofertas",
       "supabase_sql_2026_10_30_ajustes_alteracao_sql_public",
-      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_lanchas",
       "supabase_sql_2026_10_30_consultas_recusadas",
       "supabase_sql_2026_10_30_consultas_recusadas_public_consulta_respondeu",
       "supabase_sql_2026_10_30_consultas_recusadas_public_consultas_limpeza",
@@ -1206,45 +1205,22 @@
       "supabase_sql_2026_10_30_consultas_recusadas_sql_public_consultas",
       "supabase_sql_2026_10_30_operador_lanca_pedido",
       "supabase_sql_2026_10_30_operador_lanca_pedido_public_lancar_pedido_operador",
-      "supabase_sql_2026_10_30_operador_lanca_pedido_sql_nid",
-      "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_sql_anon",
-      "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_sql_authenticated",
-      "supabase_sql_2026_10_30_whatsapp_condicional_vendedor_sql_public_vendedores",
+      "supabase_sql_2026_10_30_operador_lanca_pedido_sql_information_schema_columns",
+      "supabase_sql_2026_10_30_operador_lanca_pedido_sql_pg_proc",
+      "supabase_sql_2026_10_30_operador_um_toque_public_aprovar_consulta",
+      "supabase_sql_2026_10_30_operador_um_toque_public_marcar_wa",
+      "supabase_sql_2026_10_30_operador_um_toque_sql_bid",
+      "supabase_sql_2026_10_30_operador_um_toque_sql_lch",
+      "supabase_sql_2026_10_30_operador_um_toque_sql_public_vendedor_leads",
+      "supabase_sql_2026_10_30_papeis_operador_auditor_public_marcar_wa",
       "supabase_sql_2026_10_31_desconto_grupo_pequeno",
       "supabase_sql_2026_10_31_desconto_grupo_pequeno_public_confere_valor_op",
       "supabase_sql_2026_10_31_desconto_grupo_pequeno_public_descontos_grupo",
       "supabase_sql_2026_10_31_desconto_grupo_pequeno_public_lancar_pedido_operador",
       "supabase_sql_2026_10_31_desconto_grupo_pequeno_public_piso_grupo",
-      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica",
-      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_aprovar_consulta",
-      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_lancar_reserva_operador",
-      "supabase_sql_2026_10_31_miss_bardot_pre_reserva_automatica_public_trava_valor_buzios",
-      "supabase_sql_2026_10_31_seguranca_travas",
-      "supabase_sql_2026_10_31_seguranca_travas_public_lancar_pedido_operador",
-      "supabase_sql_2026_10_31_seguranca_travas_public_trava_campos_buzios",
-      "supabase_sql_2026_10_31_seguranca_travas_trava_campos_buzios",
-      "supabase_sql_2026_10_31_vendedor_comissao_por_cima",
-      "supabase_sql_2026_10_31_vendedor_comissao_por_cima_public_lancar_pedido_vendedor",
-      "supabase_sql_2026_10_31_vendedor_comissao_por_cima_sql_vd",
       "supabase_sql_2026_10_31_vendedor_lanca_pedido",
-      "supabase_sql_2026_10_31_vendedor_lanca_pedido_public_lancar_pedido_vendedor",
-      "supabase_sql_2026_11_01_vendedor_valor_da_tabela",
-      "supabase_sql_2026_11_01_vendedor_valor_da_tabela_public_lancar_pedido_vendedor",
-      "supabase_sql_2026_11_02_comissao_manual_ate_1000",
-      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_lancar_pedido_vendedor",
-      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_oferta_vendedor",
-      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_salvar_pcts",
-      "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_teto_comissao_manual",
-      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha",
-      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_apagar_avaliacao_google",
-      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_avaliacoes_google",
-      "supabase_sql_2026_11_04_avaliacoes_google_por_lancha_public_pode_avaliacao_google",
-      "supabase_sql_2026_11_04_avaliacoes_google_salvar_ao_vivo",
-      "supabase_sql_2026_11_04_avaliacoes_google_salvar_ao_vivo_public_salvar_avaliacao_google",
-      "supabase_sql_2026_11_04_vendedor_email_opcional",
-      "supabase_sql_2026_11_04_vendedor_email_opcional_public_lancar_pedido_vendedor",
-      "supabase_sql_2026_11_04_vendedor_lancar_e_limpa_avaliacoes",
-      "supabase_sql_2026_11_04_vendedor_lancar_e_limpa_avaliacoes_public_lancar_pedido_vendedor"
+      "supabase_sql_2026_10_31_vendedor_lanca_pedido_public_aprovar_consulta",
+      "supabase_sql_2026_11_04_pedido_de_grupo_public_aprovar_grupo"
     ],
     "81": [
       "supabase_sql_2026_11_13_transferir_saldo",
@@ -1254,16 +1230,9 @@
     ],
     "82": [
       "pg_trigger",
-      "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_manutencoes",
-      "supabase_sql_2026_10_30_operador_lanca_pedido_sql_information_schema_columns",
-      "supabase_sql_2026_10_30_operador_lanca_pedido_sql_pg_proc",
-      "supabase_sql_2026_10_30_operador_um_toque_public_aprovar_consulta",
-      "supabase_sql_2026_10_30_operador_um_toque_sql_bid",
       "supabase_sql_2026_10_30_operador_um_toque_sql_c",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_sql_pid",
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_public_codigo_convite",
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_sql_l",
-      "supabase_sql_2026_10_31_vendedor_lanca_pedido_public_aprovar_consulta",
       "supabase_sql_2026_11_02_credito_do_cliente",
       "supabase_sql_2026_11_02_credito_do_cliente_public_credito_chat",
       "supabase_sql_2026_11_02_credito_do_cliente_public_creditos",
@@ -1273,9 +1242,7 @@
       "supabase_sql_2026_11_02_credito_do_cliente_public_usar_credito",
       "supabase_sql_2026_11_02_credito_do_cliente_public_virar_credito",
       "supabase_sql_2026_11_04_credito_guarda_o_passeio",
-      "supabase_sql_2026_11_04_credito_guarda_o_passeio_public_virar_credito",
-      "supabase_sql_2026_11_04_pedido_de_grupo_public_aprovar_consulta",
-      "supabase_sql_2026_11_04_pedido_de_grupo_public_aprovar_grupo"
+      "supabase_sql_2026_11_04_credito_guarda_o_passeio_public_virar_credito"
     ],
     "83": [
       "cid",
@@ -1292,13 +1259,14 @@
       "supabase_sql_2026_11_14_buzios_a_mais_carnaval"
     ],
     "86": [
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_pre_pedido_fim",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_pre_pedido_sinal",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_aprovar_pre_pedido",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_cancela_pedido_do_passeio",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_pre_pedido_fim",
-      "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_pre_pedido_sinal"
+      "a_hora_fim",
+      "a_hora_ini",
+      "a_pessoas",
+      "a_valor",
+      "b_data",
+      "b_horario",
+      "b_lancha",
+      "supabase_sql_2026_10_30_operador_um_toque_public_lancar_pedido_operador"
     ],
     "87": [
       "supabase_sql_2026_11_15_teto_comissao_buzios_30"
@@ -1309,6 +1277,33 @@
       "supabase_sql_2026_11_15_jetski_cortesia_opcional",
       "supabase_sql_2026_11_15_jetski_cortesia_opcional_public_tg_pedido_jetski",
       "supabase_sql_2026_11_15_jetski_cortesia_opcional_public_tg_pedido_jetski_uso"
+    ],
+    "89": [
+      "e",
+      "supabase_sql_2026_10_30_operador_um_toque_public_valor_na_data",
+      "supabase_sql_2026_10_30_operador_um_toque_sql_public_precos_neto",
+      "supabase_sql_2026_11_04_reveillon_noturno_preco",
+      "supabase_sql_2026_11_04_reveillon_noturno_preco_public_valor_na_data",
+      "supabase_sql_2026_11_05_grupo_sinal_e_neto_por_temporada",
+      "supabase_sql_2026_11_05_grupo_sinal_e_neto_por_temporada_public_lancar_grupo_operador",
+      "supabase_sql_2026_11_05_grupo_sinal_e_neto_por_temporada_public_valor_na_data"
+    ],
+    "90": [
+      "public_precos",
+      "public_precos_neto",
+      "r",
+      "supabase_sql_2026_11_14_escunas_3h_funcoes",
+      "supabase_sql_2026_11_14_escunas_3h_funcoes_public_confere_valor_op",
+      "supabase_sql_2026_11_14_escunas_3h_funcoes_public_teto_cheio",
+      "supabase_sql_2026_11_14_escunas_3h_funcoes_public_valor_na_data"
+    ],
+    "91": [
+      "information_schema_columns",
+      "nid",
+      "public_consultas",
+      "supabase_sql_2026_11_05_dono_publica_fotos_sql_pg_proc",
+      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas",
+      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas_public_lancar_pedido_operador"
     ],
     "92": [
       "lanchas",
@@ -1356,43 +1351,69 @@
       "supabase_sql_2026_11_15_jetski_revisao",
       "supabase_sql_2026_11_15_jetski_revisao_public_alterar_pedido",
       "supabase_sql_2026_11_15_jetski_revisao_public_trocar_horario_pedido"
+    ],
+    "96": [
+      "atual",
+      "public_fotos",
+      "public_fotos_pendentes",
+      "supabase_sql_2026_11_05_dono_publica_fotos",
+      "supabase_sql_2026_11_05_dono_publica_fotos_public_aprovar_foto"
+    ],
+    "97": [
+      "supabase_sql_2026_10_30_operador_um_toque_public_piso_operador",
+      "supabase_sql_2026_10_30_operador_um_toque_sql_public_precos",
+      "supabase_sql_2026_11_04_precos_sempre_cheios",
+      "supabase_sql_2026_11_04_precos_sempre_cheios_precos_cheios",
+      "supabase_sql_2026_11_04_precos_sempre_cheios_public_tg_precos_cheios"
+    ],
+    "98": [
+      "supabase_sql_2026_10_30_papeis_operador_auditor",
+      "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le",
+      "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le_atend",
+      "supabase_sql_2026_10_30_papeis_operador_auditor_public_papeis_painel",
+      "supabase_sql_2026_10_30_papeis_operador_auditor_public_papel_painel"
+    ],
+    "99": [
+      "supabase_sql_2026_10_31_seguranca_travas",
+      "supabase_sql_2026_10_31_seguranca_travas_public_trava_campos_buzios",
+      "supabase_sql_2026_10_31_seguranca_travas_trava_campos_buzios"
     ]
   },
   "cohesion": {
-    "0": 0.07446808510638298,
+    "0": 0.06359189378057302,
     "1": 0.0927536231884058,
     "2": 0.06093189964157706,
     "3": 0.08710801393728224,
-    "4": 0.06417112299465241,
+    "4": 0.15384615384615385,
     "5": 0.21794871794871795,
     "6": 0.07439024390243902,
-    "7": 0.2,
+    "7": 0.13043478260869565,
     "8": 0.0647342995169082,
     "9": 0.10952380952380952,
     "10": 0.08333333333333333,
     "11": 0.06896551724137931,
     "12": 0.09090909090909091,
-    "13": 0.1383399209486166,
+    "13": 0.21818181818181817,
     "14": 0.42857142857142855,
     "15": 0.1523809523809524,
-    "16": 0.2727272727272727,
+    "16": 0.1140819964349376,
     "17": 0.19166666666666668,
     "18": 0.21666666666666667,
-    "19": 0.05603864734299517,
+    "19": 0.10582010582010581,
     "20": 0.17142857142857143,
     "21": 0.15384615384615385,
     "22": 0.15384615384615385,
     "23": 0.15384615384615385,
     "24": 0.24242424242424243,
     "25": 0.4,
-    "26": 0.26373626373626374,
+    "26": 0.1402116402116402,
     "27": 0.26666666666666666,
     "28": 0.2222222222222222,
     "29": 0.2222222222222222,
     "30": 0.2222222222222222,
     "31": 0.2857142857142857,
     "32": 0.3333333333333333,
-    "33": 0.32142857142857145,
+    "33": 0.24242424242424243,
     "34": 0.25,
     "35": 0.3333333333333333,
     "36": 0.3333333333333333,
@@ -1400,7 +1421,7 @@
     "38": 0.19607843137254902,
     "39": 0.5,
     "40": 0.2222222222222222,
-    "41": 0.08194905869324474,
+    "41": 0.07428571428571429,
     "42": 0.3333333333333333,
     "43": 0.6666666666666666,
     "44": 1.0,
@@ -1421,12 +1442,12 @@
     "59": 0.2857142857142857,
     "60": 0.06722689075630252,
     "61": 0.3333333333333333,
-    "62": 0.3238095238095238,
+    "62": 0.2578947368421053,
     "63": 0.6666666666666666,
     "64": 1.0,
     "65": 0.2087912087912088,
     "66": 0.25,
-    "67": 0.15833333333333333,
+    "67": 0.5,
     "68": 0.4,
     "69": 0.38095238095238093,
     "70": 1.0,
@@ -1439,19 +1460,26 @@
     "77": 0.24242424242424243,
     "78": 0.35714285714285715,
     "79": 0.32142857142857145,
-    "80": 0.06748911465892599,
+    "80": 0.1282051282051282,
     "81": 0.8333333333333334,
-    "82": 0.1541501976284585,
+    "82": 0.25274725274725274,
     "83": 0.3333333333333333,
     "84": 1.0,
     "85": 1.0,
-    "86": 0.3333333333333333,
+    "86": 0.25,
     "87": 1.0,
     "88": 0.4,
+    "89": 0.25,
+    "90": 0.2857142857142857,
+    "91": 0.3333333333333333,
     "92": 0.2,
     "93": 0.2222222222222222,
     "94": 0.2857142857142857,
-    "95": 0.2222222222222222
+    "95": 0.2222222222222222,
+    "96": 0.4,
+    "97": 0.5,
+    "98": 0.5,
+    "99": 1.0
   },
   "gods": [
     {
@@ -1480,11 +1508,6 @@
       "degree": 13
     },
     {
-      "id": "supabase_sql_2026_10_30_papeis_operador_auditor_public_marcar_wa",
-      "label": "public.marcar_wa()",
-      "degree": 13
-    },
-    {
       "id": "supabase_sql_2026_11_15_jetski_public_jetski_usos",
       "label": "public.jetski_usos",
       "degree": 13
@@ -1495,13 +1518,18 @@
       "degree": 13
     },
     {
+      "id": "supabase_sql_2026_10_30_papeis_operador_auditor_public_marcar_wa",
+      "label": "public.marcar_wa()",
+      "degree": 13
+    },
+    {
       "id": "supabase_sql_2026_10_30_operador_um_toque_public_marcar_wa",
       "label": "public.marcar_wa()",
       "degree": 12
     },
     {
-      "id": "supabase_sql_2026_10_30_operador_um_toque_public_lancar_pedido_operador",
-      "label": "public.lancar_pedido_operador()",
+      "id": "supabase_sql_2026_10_31_vendedor_lanca_pedido_public_aprovar_consulta",
+      "label": "public.aprovar_consulta()",
       "degree": 12
     }
   ],
@@ -1529,17 +1557,6 @@
       "why": "bridges separate communities; peripheral node `public.apagar_avaliacao_google()` unexpectedly reaches hub `public.avaliacoes_google`"
     },
     {
-      "source": "public.marcar_wa()",
-      "target": "public.alteracoes_pedidas",
-      "source_files": [
-        "supabase/sql/2026-10-30_papeis-operador-auditor.sql",
-        "supabase/sql/2026-10-30_operador-um-toque.sql"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "writes_to",
-      "why": "bridges separate communities"
-    },
-    {
       "source": "public.aprovar_consulta()",
       "target": "public.vendas_manuais",
       "source_files": [
@@ -1560,23 +1577,34 @@
       "confidence": "EXTRACTED",
       "relation": "writes_to",
       "why": "bridges separate communities"
+    },
+    {
+      "source": "public._convite_manual_marca_aviso()",
+      "target": "public.vendas_manuais",
+      "source_files": [
+        "supabase/sql/2026-11-04_venda-vendedor-aviso-oficial-sempre.sql",
+        "supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "reads_from",
+      "why": "peripheral node `public._convite_manual_marca_aviso()` unexpectedly reaches hub `public.vendas_manuais`"
     }
   ],
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `public.mb_libera_sinal_sozinho()` connect `public.mb_libera_sinal_sozinho` to `public.salvar_netos_v3`, `public.liberar_sinal`, `public.mover_passeio_v2`, `2026-11-15_jetski-pedido.sql`?",
-      "why": "High betweenness centrality (0.030) - this node is a cross-community bridge."
+      "question": "Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.cancelar_pre_reserva`?",
+      "why": "High betweenness centrality (0.028) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
       "question": "Should `vendedores` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.07446808510638298 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.06359189378057302 - nodes in this community are weakly interconnected."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.pedidos`, `public.salvar_netos_v3`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.027) - this node is a cross-community bridge."
+      "question": "Why does `public.mb_libera_sinal_sozinho()` connect `public.mb_libera_sinal_sozinho` to `public._teto_cheio`, `public.liberar_sinal`, `public.mover_passeio_v2`, `2026-11-15_jetski-pedido.sql`?",
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -1595,8 +1623,8 @@
     },
     {
       "type": "low_cohesion",
-      "question": "Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected."
+      "question": "Should `paypal-checkout/index.ts` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07439024390243902 - nodes in this community are weakly interconnected."
     }
   ]
 }
