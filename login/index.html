@@ -1399,7 +1399,8 @@ function cpfOk(c){
 }
 /* máscaras do cadastro Asaas (2026-11-14): CPF/CNPJ, celular e CEP se formatam sozinhos enquanto a pessoa digita */
 const fmtDoc = v => { const d=String(v||"").replace(/\D/g,"").slice(0,14); return d.length<=11 ? fmtCPF(d) : d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/,(m,a,b,c,e,f)=>`${a}.${b}.${c}/${e}${f?"-"+f:""}`); };
-const fmtCel = v => { const d=String(v||"").replace(/\D/g,"").replace(/^55(?=\d{10,11}$)/,"").slice(0,11); return d.length<3 ? d : d.length<7 ? `(${d.slice(0,2)}) ${d.slice(2)}` : `(${d.slice(0,2)}) ${d.slice(2,d.length-4)}-${d.slice(-4)}`; };
+const celDig = v => { const r=String(v||"").trim(); let d=r.replace(/\D/g,"").replace(/^0+/,""); if((/^\+\s*55/.test(r) || d.length>11) && d.startsWith("55")) d=d.slice(2).replace(/^0+/,""); return d; }; /* +55, 0 antes do DDD e número colado (igual ao brDig do login) */
+const fmtCel = v => { const d=celDig(v).slice(0,11); return d.length<3 ? d : d.length<7 ? `(${d.slice(0,2)}) ${d.slice(2)}` : `(${d.slice(0,2)}) ${d.slice(2,d.length-4)}-${d.slice(-4)}`; };
 const fmtCep = v => { const d=String(v||"").replace(/\D/g,"").slice(0,8); return d.length>5 ? `${d.slice(0,5)}-${d.slice(5)}` : d; };
 const emailOk = e => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(e) && !/@(gmial|gmal|gamil|gmai|gnail|hotmal|hotmai|hotmial|outlok|yahooo?\.con)\.|\.(con|cmo|om|co)$|\.com\.$|@gmail\.com\.br$/i.test(e);
 const fmtCPF = v => { const d=String(v||"").replace(/\D/g,"").slice(0,11); return d.replace(/^(\d{3})(\d)/,"$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3").replace(/\.(\d{3})(\d{1,2})$/,".$1-$2"); };
@@ -4293,7 +4294,7 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
     <div id="as-meus"${tudo?" hidden":""}>
     ${f("as-nome",t("asNome"),`autocapitalize="words" value="${esc(nm)}"`)}
     ${f("as-email",t("asEmail"),`type="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="email" placeholder="nome@gmail.com" value="${esc(em)}"`)}
-    ${f("as-cel",t("asCel"),`type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(22) 99999-9999" maxlength="16" value="${esc(fmtCel(cel))}"`)}</div>
+    ${f("as-cel",t("asCel"),`type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(22) 99999-9999" maxlength="22" value="${esc(fmtCel(cel))}"`)}</div>
     <label class="f"><span>${t("asRenda")}</span><select class="in" id="as-renda" required><option value="">${t("asREsc")}</option>${[[5000,"asR1"],[10000,"asR2"],[20000,"asR3"],[30000,"asR4"]].map(([v,k])=>`<option value="${v}">${t(k)}</option>`).join("")}</select></label>
     <div class="asgrid">${f("as-cep","CEP",'type="text" inputmode="numeric" autocomplete="postal-code" placeholder="28950-000" maxlength="9"')}${f("as-num",t("asNum"),`type="text" autocomplete="off" placeholder="${t("asNumPh")}" maxlength="10"`)}</div>
     <p class="muted" id="as-endv" hidden style="margin:-4px 0 10px;font-size:14px"></p>
@@ -4316,7 +4317,7 @@ document.addEventListener("click", async e=>{
   const b=e.target.closest("#as-go"); if(!b || !b.closest("#as-f")) return; e.preventDefault(); if(b.closest("[data-asprev]")) return toast("Prévia: aqui o dono cria a conta dele.");
   const v=id=>(document.getElementById(id)?.value||"").trim(), msg=document.getElementById("as-msg"), doc=v("as-doc").replace(/\D/g,"");
   const body={acao:"conta", cpfCnpj:doc, nascimento:isoDe(v("as-nasc")), tipo:v("as-tipo"), nome:v("as-nome"), email:v("as-email"), celular:v("as-cel"), renda:+v("as-renda").replace(",","."), cep:v("as-cep"), rua:v("as-rua"), numero:v("as-num"), complemento:v("as-comp"), bairro:v("as-bairro")};
-  const cep=body.cep.replace(/\D/g,""), cel=body.celular.replace(/\D/g,"").replace(/^55(?=\d{10,11}$)/,"");
+  const cep=body.cep.replace(/\D/g,""), cel=celDig(body.celular);
   body.cep=cep; body.celular=cel; body.email=body.email.toLowerCase();
   /* conferência campo a campo (2026-11-14): diz exatamente o que falta e marca o campo em vermelho */
   const falta = !(doc.length===11 ? cpfOk(doc) : doc.length===14 && cnpjOk(doc)) ? ["as-doc","asDocBad"] : doc.length===11&&!nascOk(body.nascimento) ? ["as-nasc", v("as-nasc") ? "asErrNasc" : "asFNasc"]
@@ -5734,7 +5735,8 @@ function openUser(uid, msg=""){
   const uasv=document.getElementById("uasav");
   /* quem já criou a conta no Asaas não precisa da chave (Rodrigo 2026-11-14): no lugar, mostra se a conta está ativa ou esperando o Asaas aprovar */
   /* a tabela asaas_contas não é lida direto pelo app: pergunta à função do Transferir Saldo (doc preenchido = conta criada; pode = aprovada) */
-  if(document.getElementById("uasavw")) tsFn({acao:"info", user_id:uid}).then(c=>{ const w=document.getElementById("uasavw"); if(!(c?.pode || c?.doc) || !w) return;
+  const uasw=document.getElementById("uasavw"); /* guarda o bloco desta ficha: a resposta atrasada de outra ficha não escreve aqui */
+  if(uasw) tsFn({acao:"info", user_id:uid}).then(c=>{ const w=uasw; if(!(c?.pode || c?.doc) || !w.isConnected) return;
     w.innerHTML = c.pode ? `<p style="margin:0 0 10px;font-size:14px;color:var(--ok,#1a7f4b);font-weight:600">✓ ${t("asAdmAtiva")}</p>` : `<p class="muted" style="margin:0 0 10px;font-size:14px">⏳ ${t("asAdmAnalise")}</p>`; }).catch(()=>{});
   if(uasv){ db("vendedores?select=aviso_asaas&user_id=eq."+uid).then(r=>{ uasv.checked=!!r?.[0]?.aviso_asaas; uasv.disabled=false; }).catch(()=>{ uasv.disabled=false; });
     uasv.onchange=async()=>{ const ligado=uasv.checked; uasv.disabled=true; try{ await RPC("definir_aviso_asaas",{uid, ligado}); toast(t(ligado?"asAvAdmOn":"asAvAdmOff")); }catch(e){ uasv.checked=!ligado; toast(errMsg(e)); } uasv.disabled=false; }; }
