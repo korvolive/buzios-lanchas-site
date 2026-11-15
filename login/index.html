@@ -13,6 +13,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
+/* jetski (2026-11-15) */
+.jetrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:0 0 10px}.jetrow>label{flex:1 1 140px}.jetrow input,.jetrow select{width:100%}
+.jettab{width:100%;border-collapse:collapse;margin:8px 0}.jettab th,.jettab td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line,#e5e5e5);font-size:14px}.jettab input{width:100%;max-width:120px}
+.jetph{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}.jetph span{position:relative}.jetph img{width:96px;height:72px;object-fit:cover;border-radius:8px;display:block}.jetph span button{position:absolute;top:2px;right:2px;border:0;border-radius:50%;width:24px;height:24px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer}
+.jetcal{max-width:340px}.jetmh{display:flex;justify-content:space-between;align-items:center;margin:0 0 6px}.jetmh span::first-letter{text-transform:uppercase}.jetmh button{border:0;background:none;font-size:20px;padding:2px 10px;cursor:pointer;color:inherit}
+.jetgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}.jetgrid i{font-style:normal;font-size:11px;opacity:.6}.jetgrid button{border:1px solid var(--line,#ddd);background:none;border-radius:6px;padding:5px 0;font-size:13px;cursor:pointer;color:inherit}
+.jetgrid button:disabled{opacity:.35;cursor:default}.jetgrid button.has{background:#fde8c8;border-color:#e0a050}.jetgrid button.full{background:#f3c4c4;border-color:#c66}.jetgrid button.sel{outline:2px solid var(--brass,#b8860b)}
+.jetday{margin:10px 0 0;padding:10px;border:1px solid var(--line,#ddd);border-radius:10px}.jetday ul{margin:6px 0 10px;padding-left:18px}.jetnew{margin-top:14px}.jetnew summary{cursor:pointer;margin-bottom:8px}
 /* App dos donos: login, calendário da lancha (toque no dia para marcar o horário alugado) e, para o administrador, cadastro de donos */
 :root{
   --bg:#f3f7f8; --surface:#ffffff; --ink:#0c2430; --muted:#55707b; --line:#d6e2e6;
@@ -957,6 +965,9 @@ Object.assign(T.es, {"newAccT": "🆕 ¿Primera vez? Crea tu cuenta gratis", "ne
 Object.assign(T.pt, {"visT": "🌐 No site", "raT": "Reserva automática", "raOn": "Reserva automática (sem aprovação)", "raHelpOn": "Ligada: os pedidos do site e do Lucas para esta embarcação viram pré-reserva na hora e se confirmam assim que o cliente paga. Você não precisa aprovar.", "raHelpOff": "Desligada: cada pedido desta embarcação espera a sua aprovação antes de o cliente poder pagar.", "raOnOk": "Reserva automática ligada para esta embarcação.", "raOffOk": "Reserva automática desligada. Os pedidos novos esperam a sua aprovação.", "visOn": "Mostrar esta embarcação no site", "visHelpOn": "Ligado: a embarcação aparece no site e nas buscas dos vendedores. Desligue enquanto o cadastro não estiver pronto.", "visHelpOff": "Oculta: a embarcação não aparece no site nem nas buscas dos vendedores, e ninguém consegue pedir reserva dela. Passeios já marcados, agenda e app continuam funcionando normalmente.", "visOffOk": "Embarcação oculta do site.", "visOnOk": "Pronto! Ela já aparece no site.", "visHidden": "🙈 Oculta do site"});
 Object.assign(T.en, {"visT": "🌐 On the website", "raT": "Automatic booking", "raOn": "Automatic booking (no approval)", "raHelpOn": "On: website and Lucas requests for this boat become a pre-booking right away and are confirmed as soon as the client pays. You do not need to approve.", "raHelpOff": "Off: every request for this boat waits for your approval before the client can pay.", "raOnOk": "Automatic booking turned on for this boat.", "raOffOk": "Automatic booking turned off. New requests wait for your approval.", "visOn": "Show this boat on the website", "visHelpOn": "On: the boat shows on the website and in sellers' searches. Turn it off while the listing is not ready.", "visHelpOff": "Hidden: the boat does not show on the website or in sellers' searches, and nobody can request a booking for it. Trips already booked, the calendar and the app keep working as usual.", "visOffOk": "Boat hidden from the website.", "visOnOk": "Done! It already shows on the website.", "visHidden": "🙈 Hidden from the website"});
 Object.assign(T.es, {"visT": "🌐 En el sitio", "raT": "Reserva automática", "raOn": "Reserva automática (sin aprobación)", "raHelpOn": "Activada: los pedidos del sitio y de Lucas para esta embarcación se vuelven prerreserva al instante y se confirman en cuanto el cliente paga. No necesitas aprobar.", "raHelpOff": "Desactivada: cada pedido de esta embarcación espera tu aprobación antes de que el cliente pueda pagar.", "raOnOk": "Reserva automática activada para esta embarcación.", "raOffOk": "Reserva automática desactivada. Los pedidos nuevos esperan tu aprobación.", "visOn": "Mostrar esta embarcación en el sitio", "visHelpOn": "Activado: la embarcación aparece en el sitio y en las búsquedas de los vendedores. Desactívalo mientras el registro no esté listo.", "visHelpOff": "Oculta: la embarcación no aparece en el sitio ni en las búsquedas de los vendedores, y nadie puede pedir una reserva. Los paseos ya marcados, la agenda y la app siguen funcionando normalmente.", "visOffOk": "Embarcación oculta del sitio.", "visOnOk": "¡Listo! Ya aparece en el sitio.", "visHidden": "🙈 Oculta del sitio"});
+Object.assign(T.pt, {"jetT": "Jetski", "jetNone": "Nenhum jetski cadastrado ainda.", "jetNew": "+ Cadastrar jetski", "jetName": "Nome do jetski", "jetOwner": "Dono do jetski", "jetCreate": "Cadastrar", "jetNewNeed": "Escreva o nome e escolha o dono.", "jetHelp": "O jetski aparece nas páginas das lanchas como adicional do passeio. Você leva o jetski até a lancha e vai junto com o cliente. O valor que o cliente vê já tem a parte da Búzios Lanchas.", "jetVis": "Mostrar no site", "jetVisOn": "O jetski está no site.", "jetVisOff": "O jetski saiu do site.", "jetVisNeed": "Para mostrar no site, coloque pelo menos uma foto e o valor por hora.", "jetModel": "Modelo", "jetPeople": "Pessoas no jetski", "jetMinT": "Tempo mínimo de aluguel", "jetKey": "Usa chave aprendiz (velocidade limitada)", "jetPriceT": "Valores", "jetHour": "Quanto você recebe por hora (R$)", "jetTime": "Tempo", "jetYou": "Você recebe", "jetClient": "Cliente paga", "jetPriceHelp": "Os outros tempos são calculados na mesma proporção da hora. Se quiser um valor diferente em algum tempo, escreva na coluna \"Você recebe\".", "jetPriceErr": "Valor inválido.", "jetCortT": "Cortesia na sua lancha", "jetCortBoat": "Lancha", "jetCortNone": "Sem cortesia", "jetCortMin": "Tempo grátis", "jetCortErr": "A cortesia só pode ser numa lancha sua.", "jetPhotos": "Fotos", "jetPhAdd": "Adicionar fotos", "jetPhRm": "Tirar foto", "jetPhRmQ": "Tirar esta foto?", "jetPhOk": "Fotos salvas.", "jetCalT": "Calendário do jetski", "jetCalHelp": "Toque no dia para ver os horários e bloquear. Os passeios vendidos entram aqui sozinhos.", "jetBlocked": "Bloqueado", "jetUse": "Uso", "jetCourtesy": "cortesia", "jetUnblock": "Liberar", "jetFree": "Dia livre.", "jetFrom": "Das", "jetTo": "Às", "jetBlock": "Bloquear este horário", "jetBlockDay": "Bloquear o dia todo", "jetBlockOk": "Bloqueado.", "jetUnOk": "Liberado.", "jetBusy": "Já tem uso nesse horário (contando 15 min de deslocamento).", "jetTimeErr": "Confira os horários.", "jetSaved": "Salvo."}); /* jetski (2026-11-15) */
+Object.assign(T.en, {"jetT": "Jet ski", "jetNone": "No jet ski registered yet.", "jetNew": "+ Add jet ski", "jetName": "Jet ski name", "jetOwner": "Jet ski owner", "jetCreate": "Add", "jetNewNeed": "Type the name and pick the owner.", "jetHelp": "The jet ski shows on the boat pages as a tour add-on. You bring the jet ski to the boat and ride along with the client. The price the client sees already includes Búzios Lanchas' share.", "jetVis": "Show on the website", "jetVisOn": "The jet ski is on the website.", "jetVisOff": "The jet ski is off the website.", "jetVisNeed": "To show it on the website, add at least one photo and the hourly price.", "jetModel": "Model", "jetPeople": "People on the jet ski", "jetMinT": "Minimum rental time", "jetKey": "Uses a learning key (limited speed)", "jetPriceT": "Prices", "jetHour": "What you get per hour (R$)", "jetTime": "Time", "jetYou": "You get", "jetClient": "Client pays", "jetPriceHelp": "Other times are calculated in proportion to the hour. To set a different value for a time, type it in the \"You get\" column.", "jetPriceErr": "Invalid value.", "jetCortT": "Courtesy on your boat", "jetCortBoat": "Boat", "jetCortNone": "No courtesy", "jetCortMin": "Free time", "jetCortErr": "The courtesy can only be on one of your boats.", "jetPhotos": "Photos", "jetPhAdd": "Add photos", "jetPhRm": "Remove photo", "jetPhRmQ": "Remove this photo?", "jetPhOk": "Photos saved.", "jetCalT": "Jet ski calendar", "jetCalHelp": "Tap a day to see the times and block them. Sold tours show up here automatically.", "jetBlocked": "Blocked", "jetUse": "Use", "jetCourtesy": "courtesy", "jetUnblock": "Free up", "jetFree": "Free day.", "jetFrom": "From", "jetTo": "To", "jetBlock": "Block this time", "jetBlockDay": "Block the whole day", "jetBlockOk": "Blocked.", "jetUnOk": "Freed up.", "jetBusy": "There is already a use at this time (counting 15 min to get there).", "jetTimeErr": "Check the times.", "jetSaved": "Saved."}); /* jetski (2026-11-15) */
+Object.assign(T.es, {"jetT": "Moto de agua", "jetNone": "Todavía no hay motos de agua.", "jetNew": "+ Agregar moto de agua", "jetName": "Nombre de la moto de agua", "jetOwner": "Dueño de la moto de agua", "jetCreate": "Agregar", "jetNewNeed": "Escribe el nombre y elige el dueño.", "jetHelp": "La moto de agua aparece en las páginas de las lanchas como adicional del paseo. Llevas la moto hasta la lancha y vas junto con el cliente. El precio que ve el cliente ya incluye la parte de Búzios Lanchas.", "jetVis": "Mostrar en el sitio", "jetVisOn": "La moto de agua está en el sitio.", "jetVisOff": "La moto de agua salió del sitio.", "jetVisNeed": "Para mostrarla en el sitio, agrega al menos una foto y el precio por hora.", "jetModel": "Modelo", "jetPeople": "Personas en la moto", "jetMinT": "Tiempo mínimo de alquiler", "jetKey": "Usa llave de aprendiz (velocidad limitada)", "jetPriceT": "Precios", "jetHour": "Lo que recibes por hora (R$)", "jetTime": "Tiempo", "jetYou": "Recibes", "jetClient": "Cliente paga", "jetPriceHelp": "Los otros tiempos se calculan en proporción a la hora. Si quieres otro valor en algún tiempo, escríbelo en la columna \"Recibes\".", "jetPriceErr": "Valor inválido.", "jetCortT": "Cortesía en tu lancha", "jetCortBoat": "Lancha", "jetCortNone": "Sin cortesía", "jetCortMin": "Tiempo gratis", "jetCortErr": "La cortesía solo puede ser en una lancha tuya.", "jetPhotos": "Fotos", "jetPhAdd": "Agregar fotos", "jetPhRm": "Quitar foto", "jetPhRmQ": "¿Quitar esta foto?", "jetPhOk": "Fotos guardadas.", "jetCalT": "Calendario de la moto", "jetCalHelp": "Toca el día para ver los horarios y bloquear. Los paseos vendidos aparecen aquí solos.", "jetBlocked": "Bloqueado", "jetUse": "Uso", "jetCourtesy": "cortesía", "jetUnblock": "Liberar", "jetFree": "Día libre.", "jetFrom": "De", "jetTo": "A", "jetBlock": "Bloquear este horario", "jetBlockDay": "Bloquear el día entero", "jetBlockOk": "Bloqueado.", "jetUnOk": "Liberado.", "jetBusy": "Ya hay un uso en ese horario (contando 15 min de traslado).", "jetTimeErr": "Revisa los horarios.", "jetSaved": "Guardado."}); /* jetski (2026-11-15) */
 Object.assign(T.pt, {"ordT": "Ordem no site", "ordHelp": "Use as setas para escolher em que ordem as embarcações aparecem no site. A busca por data e pessoas continua filtrando, nesta mesma ordem.", "ordFixa": "sempre a primeira", "ordUp": "Subir", "ordDown": "Descer", "ordOk": "Ordem salva. O site já mostra assim."});
 Object.assign(T.en, {"ordT": "Order on the website", "ordHelp": "Use the arrows to choose the order in which boats show on the website. The date and people search still filters, in this same order.", "ordFixa": "always first", "ordUp": "Move up", "ordDown": "Move down", "ordOk": "Order saved. The website already shows it this way."});
 Object.assign(T.es, {"ordT": "Orden en el sitio", "ordHelp": "Usa las flechas para elegir en qué orden aparecen las embarcaciones en el sitio. La búsqueda por fecha y personas sigue filtrando, en este mismo orden.", "ordFixa": "siempre la primera", "ordUp": "Subir", "ordDown": "Bajar", "ordOk": "Orden guardado. El sitio ya lo muestra así."});
@@ -2753,7 +2764,7 @@ document.addEventListener("toggle", e=>{ const d=e.target; if(!d.matches?.("deta
   try{ const L=foldGet(); L[d.dataset.fold]=d.open; localStorage.setItem("dobra", JSON.stringify(L)); }catch(x){} }, true);
 const foldSum = h => `<summary class="foldh"><h2>${h}</h2><i class="chev" aria-hidden="true">›</i></summary>`;
 /* aba Lancha (2026-10-24): cada cartão abre e fecha pelo título; Fotos e "O que a lancha oferece" começam fechados */
-const LANCHA_FECHADOS = ["ph","it","mar","frl","mnt","dono","nosite","info"]; /* "Informações no site" começa fechado (2026-11-04) */ /* "No site" também começa fechado (chave nova: ignora quem já tinha aberto) (2026-10-25) */ /* dono da lancha, marinheiro fixo, freelancers e manutenção também começam fechados (2026-10-25) */
+const LANCHA_FECHADOS = ["jet","ph","it","mar","frl","mnt","dono","nosite","info"]; /* "Informações no site" começa fechado (2026-11-04) */ /* "No site" também começa fechado (chave nova: ignora quem já tinha aberto) (2026-10-25) */ /* dono da lancha, marinheiro fixo, freelancers e manutenção também começam fechados (2026-10-25) */
 const foldCard = (k, html) => html.replace(/^(\s*<div class="card(?![^"]*\bprc\b)[^"]*")/, `$1 data-fold="${k}"`);
 function foldCards(root){
   root.querySelectorAll(":scope > div.card[data-fold]").forEach(c=>{ const h=c.querySelector(":scope > h2"); if(!h) return;
@@ -3312,6 +3323,113 @@ function autoResHTML(){
 document.addEventListener("change", async e=>{ const x=e.target; if(x.id!=="ra-on") return; const ligado=x.checked, l=S.cur; x.disabled=true;
   try{ await db("rpc/definir_reserva_auto",{method:"POST",body:{s:l,ligado}}); const b=boatRow(l); if(b) b.reserva_auto=ligado; toast(t(ligado?"raOnOk":"raOffOk")); mainView(); }
   catch(err){ x.checked=!ligado; x.disabled=false; toast(t("saveErr")); } });
+/* ===== Jetski (Rodrigo 2026-11-15): adicional do passeio de lancha, com dono próprio ======
+   Cartão "Jetski" na aba Embarcação: o dono do jetski (ou o administrador) marca nome, fotos, tempo mínimo, valor por hora (líquido dele),
+   a cortesia numa lancha dele e um calendário pequeno para bloquear horários. O cliente vê o líquido + 15% da Búzios (calculado no banco). */
+const JET_PASSOS = [60,90,120,150,180]; /* venda de meia em meia hora, mínimo 1 h; 15 min só como cortesia (Rodrigo 2026-11-15) */
+const jetMin = m => m<60 ? `${m} min` : `${Math.floor(m/60)}h${m%60?String(m%60).padStart(2,"0"):""}`;
+const jetCli = n => !(+n>0) ? 0 : +n + Math.round(+n*0.15/10)*10; /* mesma conta do banco (jetski_valor) */
+const jetNeto = (j,m) => { const p=j.precos?.[m]; return p!=null && p!=="" ? +p : j.neto_hora ? Math.round(+j.neto_hora*m/600)*10 : 0; }; /* proporcional, de 10 em 10 (igual ao banco) */
+const jetCur = () => (S.jets||[]).find(j=>j.id===S.jetCur) || (S.jets||[])[0] || null;
+async function loadJets(){
+  S.jets = await db("jetskis?select=*&order=criado_em").catch(()=>null);
+  if(S.jets && !S.jets.some(j=>j.id===S.jetCur)) S.jetCur = S.jets[0]?.id || null;
+  if(S.jetCur) await loadJetUsos();
+}
+async function loadJetUsos(){
+  const j=jetCur(); if(!j){ S.jetUsos=[]; return; }
+  S.jetUsos = await db(`jetski_usos?select=id,data,ini,fim,tipo,lancha,pedido_id,bloqueio_id,minutos,cortesia_min,obs&jetski=eq.${j.id}&removido_em=is.null&data=gte.${todayISO()}&order=data,ini`).catch(()=>[]);
+}
+function jetHTML(){
+  if(S.jets==null || S.papel || isRO()) return "";
+  if(!S.admin && !S.jets.length) return "";
+  const j=jetCur();
+  const novo = S.admin ? `<details class="jetnew"><summary class="link">${t("jetNew")}</summary><div class="jetrow"><input id="jet-nn" maxlength="60" placeholder="${t("jetName")}"><select id="jet-nd"><option value="">${t("jetOwner")}</option>${[...new Map((S.owners||[]).map(o=>[o.user_id,o])).values()].map(o=>`<option value="${o.user_id}">${esc(o.nome||o.email||"")}</option>`).join("")}</select><button type="button" class="btn" id="jet-nb">${t("jetCreate")}</button></div></details>` : "";
+  if(!j) return `<div class="card"><h2>🚤 ${t("jetT")}</h2><p class="muted">${t("jetNone")}</p>${novo}</div>`;
+  const pick = S.jets.length>1 ? `<div class="items" style="margin-bottom:10px">${S.jets.map(x=>`<button type="button" data-jetsel="${x.id}" aria-pressed="${x.id===j.id}">${esc(x.nome)}</button>`).join("")}</div>` : "";
+  const meus = S.admin ? (S.all||[]) : (S.all||[]).filter(b=>(S.own||[]).includes(b.slug));
+  const lanchas = meus.filter(b=>!isEscB(b.slug));
+  const tab = JET_PASSOS.filter(m=>m>=j.min_minutos).map(m=>{ const p=j.precos?.[m]; const n=jetNeto(j,m);
+    return `<tr><td>${jetMin(m)}</td><td><input type="number" inputmode="numeric" min="1" step="10" data-jetp="${m}" value="${p!=null?p:""}" placeholder="${n||""}"></td><td>${n?brl(jetCli(n)):"–"}</td></tr>`; }).join("");
+  return `<div class="card jetc"><h2>🚤 ${t("jetT")}</h2>${pick}
+    <p class="muted" style="margin-top:0">${t("jetHelp")}</p>
+    <label class="nbon" style="margin:0 0 10px"><input type="checkbox" id="jet-vis"${j.oculto?"":" checked"}> ${t("jetVis")}</label>
+    <div class="jetrow"><label>${t("jetName")}<input data-jetf="nome" maxlength="60" value="${esc(j.nome)}"></label><label>${t("jetModel")}<input data-jetf="modelo" maxlength="60" value="${esc(j.modelo||"")}" placeholder="Sea-Doo Spark"></label></div>
+    <div class="jetrow"><label>${t("jetPeople")}<select data-jetf="pessoas">${[1,2,3].map(n=>`<option${n===j.pessoas?" selected":""}>${n}</option>`).join("")}</select></label>
+      <label>${t("jetMinT")}<select data-jetf="min_minutos">${JET_PASSOS.map(m=>`<option value="${m}"${m===j.min_minutos?" selected":""}>${jetMin(m)}</option>`).join("")}</select></label></div>
+    <label class="nbon" style="margin:4px 0 10px"><input type="checkbox" data-jetf="chave_aprendiz"${j.chave_aprendiz?" checked":""}> ${t("jetKey")}</label>
+    <h3>${t("jetPriceT")}</h3>
+    <label>${t("jetHour")}<input type="number" inputmode="numeric" min="1" step="10" data-jetf="neto_hora" value="${j.neto_hora??""}" placeholder="400"></label>
+    <table class="jettab"><thead><tr><th>${t("jetTime")}</th><th>${t("jetYou")}</th><th>${t("jetClient")}</th></tr></thead><tbody>${tab}</tbody></table>
+    <p class="muted">${t("jetPriceHelp")}</p>
+    <h3>${t("jetCortT")}</h3>
+    <div class="jetrow"><label>${t("jetCortBoat")}<select data-jetf="cortesia_lancha"><option value="">${t("jetCortNone")}</option>${lanchas.map(b=>`<option value="${esc(b.slug)}"${b.slug===j.cortesia_lancha?" selected":""}>${esc(b.nome)}</option>`).join("")}</select></label>
+      <label>${t("jetCortMin")}<select data-jetf="cortesia_min">${[0,15,30,45,60].map(m=>`<option value="${m}"${m===j.cortesia_min?" selected":""}>${m?jetMin(m):"–"}</option>`).join("")}</select></label></div>
+    <h3>${t("jetPhotos")}</h3>
+    <div class="jetph">${(j.fotos||[]).map((f,i)=>`<span><img src="${esc(f)}" alt="" loading="lazy"><button type="button" data-jetrm="${i}" aria-label="${t("jetPhRm")}">✕</button></span>`).join("")}<label class="btn sec">📷 ${t("jetPhAdd")}<input type="file" id="jet-ph" accept="image/*" multiple hidden></label></div>
+    <h3>${t("jetCalT")}</h3>${jetCalHTML(j)}${novo}</div>`;
+}
+/* calendário pequeno: mês com os dias marcados; tocando no dia, a lista do dia e o bloqueio */
+function jetCalHTML(j){
+  const m=S.jetMes || (S.jetMes=new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const dias=new Map(); (S.jetUsos||[]).forEach(u=>{ if(!dias.has(u.data)) dias.set(u.data,[]); dias.get(u.data).push(u); });
+  const first=(m.getDay()+6)%7, n=new Date(m.getFullYear(), m.getMonth()+1, 0).getDate(), hoje=todayISO();
+  const cells=[...Array(first).fill(`<span></span>`), ...Array.from({length:n},(_,i)=>{ const d=iso(new Date(m.getFullYear(), m.getMonth(), i+1)), L=dias.get(d)||[];
+    const cls = L.some(u=>u.tipo==="bloqueio" && u.ini<="00:00:00" && u.fim>="23:59:00") ? "full" : L.length ? "has" : "";
+    return `<button type="button" data-jetday="${d}" class="${cls}${d===S.jetDia?" sel":""}"${d<hoje?" disabled":""}>${i+1}</button>`; })];
+  const nomeMes=m.toLocaleDateString(t("locale"),{month:"long",year:"numeric"});
+  let dia="";
+  if(S.jetDia){ const L=dias.get(S.jetDia)||[];
+    dia=`<div class="jetday"><strong>${fmtLong(S.jetDia)}</strong>${L.length?`<ul>${L.map(u=>`<li>${u.ini.slice(0,5)}–${u.fim.slice(0,5)} · ${u.tipo==="bloqueio"?t("jetBlocked"):esc(boatName(u.lancha)||t("jetUse"))}${u.cortesia_min?` · ${t("jetCourtesy")}`:""}${u.obs?` · ${esc(u.obs)}`:""}${(u.pedido_id||u.bloqueio_id)&&!S.admin?"":` <button type="button" class="link" data-jetun="${u.id}">${t("jetUnblock")}</button>`}</li>`).join("")}</ul>`:`<p class="muted">${t("jetFree")}</p>`}
+      <div class="jetrow"><label>${t("jetFrom")}<input type="time" id="jet-bi" step="900" value="08:00"></label><label>${t("jetTo")}<input type="time" id="jet-bf" step="900" value="18:00"></label></div>
+      <div class="jetrow"><button type="button" class="btn sec" id="jet-bl">${t("jetBlock")}</button><button type="button" class="btn sec" id="jet-bd">${t("jetBlockDay")}</button></div></div>`; }
+  return `<div class="jetcal"><div class="jetmh"><button type="button" data-jetmes="-1" aria-label="‹">‹</button><span>${nomeMes}</span><button type="button" data-jetmes="1" aria-label="›">›</button></div>
+    <div class="jetgrid">${["S","T","Q","Q","S","S","D"].map(x=>`<i>${x}</i>`).join("")}${cells.join("")}</div><p class="muted" style="font-size:13px">${t("jetCalHelp")}</p>${dia}</div>`;
+}
+async function jetSave(body, okMsg){
+  const j=jetCur(); if(!j) return false;
+  try{ await RPC("jetski_salvar",{p:{id:j.id, ...body}}); Object.assign(j, body); if(okMsg!==false) toast(okMsg||t("jetSaved")); return true; }
+  catch(e){ toast(/CORTESIA/.test(e.message) ? t("jetCortErr") : /PRECOS|neto_hora/.test(e.message) ? t("jetPriceErr") : t("saveErr")); return false; }
+}
+const jetView = () => { if(view==="main" && S.tab==="lancha" && !sheetDay && !tripRow) mainView(); };
+document.addEventListener("change", async e=>{ const x=e.target;
+  if(x.dataset?.jetf){ const k=x.dataset.jetf; let v = x.type==="checkbox" ? x.checked : x.value;
+    if(["pessoas","min_minutos","cortesia_min"].includes(k)) v=+v;
+    if(k==="neto_hora") v = v==="" ? null : +v;
+    if(k==="cortesia_lancha" && !v){ if(await jetSave({cortesia_lancha:null, cortesia_min:0})) jetView(); return; }
+    if(k==="cortesia_lancha" && !(jetCur()?.cortesia_min)){ if(await jetSave({cortesia_lancha:v, cortesia_min:15})) jetView(); return; }
+    if(await jetSave({[k]:v})) jetView(); return; }
+  if(x.dataset?.jetp){ const j=jetCur(); if(!j) return; const P={...(j.precos||{})}; if(x.value==="") delete P[x.dataset.jetp]; else P[x.dataset.jetp]=+x.value;
+    if(await jetSave({precos:P})) jetView(); return; }
+  if(x.id==="jet-vis"){ const j=jetCur(); if(!j) return;
+    if(x.checked && (!(j.fotos||[]).length || !(j.neto_hora || Object.keys(j.precos||{}).length))){ x.checked=false; return toast(t("jetVisNeed")); }
+    if(await jetSave({oculto:!x.checked}, t(x.checked?"jetVisOn":"jetVisOff"))) jetView(); return; }
+  if(x.id==="jet-ph"){ const j=jetCur(); const files=[...x.files]; x.value=""; if(!j || !files.length) return;
+    const room=15-(j.fotos||[]).length; if(room<=0) return toast(t("phMax",{max:15}));
+    const novas=[]; const tk=await fresh();
+    for(const f of files.slice(0,room)){ let b; try{ b=await fitJpeg(f,1400,1400,.82); }catch(err){ toast(t("phBadFile")); continue; }
+      const name=`jetski-${j.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
+      const r=await fetch(`${SB}/storage/v1/object/lanchas/${name}`,{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+tk, "content-type":"image/jpeg", "cache-control":"max-age=31536000"}, body:b});
+      if(!r.ok){ toast(t("saveErr")); break; } novas.push(phBase+name); }
+    if(novas.length && await jetSave({fotos:[...(j.fotos||[]), ...novas]}, t("jetPhOk"))) jetView(); }
+});
+document.addEventListener("click", async e=>{ const x=e.target.closest("[data-jetsel],[data-jetrm],[data-jetday],[data-jetmes],[data-jetun],#jet-bl,#jet-bd,#jet-nb"); if(!x) return;
+  if(x.dataset.jetsel){ S.jetCur=x.dataset.jetsel; S.jetDia=null; await loadJetUsos(); return jetView(); }
+  if(x.dataset.jetrm){ const j=jetCur(); if(!j || !confirm(t("jetPhRmQ"))) return; const F=(j.fotos||[]).filter((_,i)=>i!==+x.dataset.jetrm);
+    if(F.length===0 && !j.oculto) return toast(t("jetVisNeed"));
+    if(await jetSave({fotos:F})) jetView(); return; }
+  if(x.dataset.jetmes){ const m=S.jetMes; S.jetMes=new Date(m.getFullYear(), m.getMonth()+(+x.dataset.jetmes), 1); return jetView(); }
+  if(x.dataset.jetday){ S.jetDia = S.jetDia===x.dataset.jetday ? null : x.dataset.jetday; return jetView(); }
+  if(x.dataset.jetun){ try{ await RPC("jetski_desmarcar",{p_id:+x.dataset.jetun}); toast(t("jetUnOk")); await loadJetUsos(); jetView(); }catch(err){ toast(t("saveErr")); } return; }
+  if(x.id==="jet-bl" || x.id==="jet-bd"){ const j=jetCur(); if(!j || !S.jetDia) return;
+    const ini = x.id==="jet-bd" ? "00:00" : document.getElementById("jet-bi").value, fim = x.id==="jet-bd" ? "23:59" : document.getElementById("jet-bf").value;
+    if(!ini || !fim || fim<=ini) return toast(t("jetTimeErr"));
+    try{ await RPC("jetski_marcar",{p_jetski:j.id, p_data:S.jetDia, p_ini:ini, p_fim:fim, p_tipo:"bloqueio"}); toast(t("jetBlockOk")); await loadJetUsos(); jetView(); }
+    catch(err){ toast(/OCUPADO/.test(err.message) ? t("jetBusy") : t("saveErr")); } return; }
+  if(x.id==="jet-nb"){ const nome=document.getElementById("jet-nn").value.trim(), dono=document.getElementById("jet-nd").value;
+    if(!nome || !dono) return toast(t("jetNewNeed"));
+    try{ const id=await RPC("jetski_salvar",{p:{nome, dono}}); S.jetCur=id; await loadJets(); toast(t("jetSaved")); jetView(); }catch(err){ toast(t("saveErr")); } }
+});
 /* "Cadastrar lancha nova" fica no topo da aba Lancha, acima do seletor da lancha (2026-10-25) */
 const nbNewHTML = () => S.admin ? `<button type="button" class="btn sec" id="nbnew" style="margin:0 0 14px">${t("nbNew")}</button>` : "";
 function boatInfoHTML(){
@@ -6067,7 +6185,7 @@ function mainView(){
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") + (S.tab==="lista" && S.isAjud ? ajudHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (S.tab==="lista" && isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="vendas" ? (v=>asAvisoHTML(true) + recebHTML(true) + v)(vendHTML()) + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("nosite",siteVisHTML()) + foldCard("rauto",autoResHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* desconto de grupo pequeno também fica dentro de "Valores da lancha", no fim (2026-10-31) */ /* períodos especiais ficam dentro de "Valores da lancha" (2026-10-23) */ /* "Mudanças feitas pelo dono" saiu (2026-10-26: os valores já têm limites) */ + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + (S.asConta && S.asDocs?.status==="ok" ? "" : foldCard("as",asContaHTML())) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + rankHTML() + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (2026-10-23) */ + (S.asConta && S.asDocs?.status==="ok" ? foldCard("as",asContaHTML()) : "") /* conta aprovada: o selo vai no fim, como rodapé (Rodrigo 2026-11-14) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="vendas" ? (v=>asAvisoHTML(true) + recebHTML(true) + v)(vendHTML()) + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("nosite",siteVisHTML()) + foldCard("rauto",autoResHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* desconto de grupo pequeno também fica dentro de "Valores da lancha", no fim (2026-10-31) */ /* períodos especiais ficam dentro de "Valores da lancha" (2026-10-23) */ /* "Mudanças feitas pelo dono" saiu (2026-10-26: os valores já têm limites) */ + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + (S.asConta && S.asDocs?.status==="ok" ? "" : foldCard("as",asContaHTML())) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + rankHTML() + foldCard("jet",jetHTML()) /* jetski do dono (2026-11-15) */ + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (2026-10-23) */ + (S.asConta && S.asDocs?.status==="ok" ? foldCard("as",asContaHTML()) : "") /* conta aprovada: o selo vai no fim, como rodapé (Rodrigo 2026-11-14) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   if(S.tab==="lancha") foldCards(app);
   bindMain();
@@ -7876,6 +7994,7 @@ async function boot(){
     S.ro = {}; vis.forEach(v=>{ if(!mine.some(m=>m.lancha===v.lancha)) S.ro[v.lancha]={valores:v.ver_valores}; });
     S.boats = S.admin ? all : all.filter(b=>mine.some(m=>m.lancha===b.slug) || S.ro[b.slug]);
     S.own = mine.map(m=>m.lancha); /* lanchas em que é dono (confirma os passeios de fora) */
+    await loadJets(); /* jetskis do dono (ou todos, para o administrador) (2026-11-15) */
     S.staff = [];
     /* marinheiros: o dono vê os da lancha dele; quem é marinheiro vê os passeios em que foi escalado. Sem as tabelas, segue sem eles */
     const owner = S.admin || mine.length>0;

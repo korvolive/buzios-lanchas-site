@@ -224,7 +224,6 @@
       "b_data",
       "b_horario",
       "b_lancha",
-      "e",
       "supabase_sql_2026_10_30_operador_um_toque",
       "supabase_sql_2026_10_30_operador_um_toque_public_capacidade",
       "supabase_sql_2026_10_30_operador_um_toque_public_carnaval",
@@ -393,7 +392,13 @@
       "scripts_prerender_types"
     ],
     "9": [
+      "ref_npm_supabase",
       "ref_npm_web_push_3_6_7",
+      "supabase_functions_alerta_equipe_index",
+      "supabase_functions_alerta_equipe_index_cat",
+      "supabase_functions_alerta_equipe_index_cors",
+      "supabase_functions_alerta_equipe_index_db",
+      "supabase_functions_alerta_equipe_index_json",
       "supabase_functions_aviso_preco_index",
       "supabase_functions_aviso_preco_index_cors",
       "supabase_functions_aviso_preco_index_db",
@@ -591,16 +596,26 @@
       "supabase_functions_consulta_resgate_index_slot"
     ],
     "18": [
+      "a",
+      "anon",
       "atual",
+      "b",
+      "e",
       "information_schema_columns",
       "lanchas",
       "nid",
+      "outro",
       "public",
+      "public_anotacoes",
+      "public_bloqueios",
       "public_consultas",
       "public_fotos",
       "public_fotos_pendentes",
       "public_lanchas",
+      "public_manutencoes",
+      "public_pedidos",
       "public_precos",
+      "public_precos_neto",
       "r",
       "supabase_sql_2026_11_01_lancha_meio_pe",
       "supabase_sql_2026_11_01_lancha_meio_pe_public_salvar_lancha",
@@ -609,6 +624,8 @@
       "supabase_sql_2026_11_05_dono_publica_fotos_sql_pg_proc",
       "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas",
       "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas_public_lancar_pedido_operador",
+      "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono",
+      "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono_public_auto_confirmar_fora",
       "supabase_sql_2026_11_14_escunas_3h_funcoes",
       "supabase_sql_2026_11_14_escunas_3h_funcoes_public_confere_valor_op",
       "supabase_sql_2026_11_14_escunas_3h_funcoes_public_teto_cheio",
@@ -616,7 +633,12 @@
       "supabase_sql_2026_11_14_escunas_categoria",
       "supabase_sql_2026_11_14_escunas_categoria_public_salvar_lancha",
       "supabase_sql_2026_11_14_lanchas_posicao_no_site",
-      "supabase_sql_2026_11_14_lanchas_posicao_no_site_public_ordenar_lanchas"
+      "supabase_sql_2026_11_14_lanchas_posicao_no_site_public_ordenar_lanchas",
+      "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela",
+      "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela_public_mover_passeio_v2",
+      "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao",
+      "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_passeio_sem_manutencao",
+      "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_public_passeio_sem_manutencao"
     ],
     "19": [
       "asaas_contas",
@@ -628,7 +650,6 @@
       "precos",
       "precos_hist",
       "precos_neto",
-      "public_precos_neto",
       "rf",
       "supabase_sql_2026_11_12_alterar_pedido",
       "supabase_sql_2026_11_12_alterar_pedido_public_alterar_pedido",
@@ -732,12 +753,6 @@
       "supabase_functions_cadastro_whatsapp_index_sha"
     ],
     "25": [
-      "ref_npm_supabase",
-      "supabase_functions_alerta_equipe_index",
-      "supabase_functions_alerta_equipe_index_cat",
-      "supabase_functions_alerta_equipe_index_cors",
-      "supabase_functions_alerta_equipe_index_db",
-      "supabase_functions_alerta_equipe_index_json",
       "supabase_functions_aviso_equipe_index",
       "supabase_functions_aviso_equipe_index_cors",
       "supabase_functions_aviso_equipe_index_db",
@@ -1103,9 +1118,6 @@
       "seguranca_registros_e_troca_de_segredos_2026_11_13",
       "seguranca_regras"
     ],
-    "62": [
-      "public_pedidos"
-    ],
     "63": [
       "claude",
       "claude_mapa_do_projeto_graphify",
@@ -1270,16 +1282,6 @@
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_public_codigo_convite",
       "supabase_sql_2026_10_30_pre_reserva_volta_e_comprovante_chat_sql_l"
     ],
-    "83": [
-      "public_anotacoes",
-      "public_bloqueios",
-      "public_manutencoes",
-      "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono",
-      "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono_public_auto_confirmar_fora",
-      "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao",
-      "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_passeio_sem_manutencao",
-      "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_public_passeio_sem_manutencao"
-    ],
     "84": [
       "public_vendedores"
     ],
@@ -1295,12 +1297,12 @@
     "1": 0.0927536231884058,
     "2": 0.06187202538339503,
     "3": 0.08710801393728224,
-    "4": 0.06417112299465241,
+    "4": 0.06628787878787878,
     "5": 0.24285714285714285,
     "6": 0.07439024390243902,
     "7": 0.12681159420289856,
     "8": 0.0647342995169082,
-    "9": 0.13333333333333333,
+    "9": 0.10952380952380952,
     "10": 0.08333333333333333,
     "11": 0.06896551724137931,
     "12": 0.09090909090909091,
@@ -1309,14 +1311,14 @@
     "15": 0.1523809523809524,
     "16": 0.13333333333333333,
     "17": 0.19166666666666668,
-    "18": 0.07692307692307693,
-    "19": 0.08199643493761141,
+    "18": 0.048726467331118496,
+    "19": 0.08522727272727272,
     "20": 0.17142857142857143,
     "21": 0.15384615384615385,
     "22": 0.15384615384615385,
     "23": 0.15384615384615385,
     "24": 0.24242424242424243,
-    "25": 0.18181818181818182,
+    "25": 0.4,
     "26": 0.15076923076923077,
     "27": 0.26666666666666666,
     "28": 0.2222222222222222,
@@ -1353,7 +1355,6 @@
     "59": 0.2857142857142857,
     "60": 0.06722689075630252,
     "61": 0.3333333333333333,
-    "62": 1.0,
     "63": 0.6666666666666666,
     "64": 1.0,
     "65": 0.2087912087912088,
@@ -1374,7 +1375,6 @@
     "80": 0.17753623188405798,
     "81": 0.8333333333333334,
     "82": 0.4,
-    "83": 0.2857142857142857,
     "84": 1.0,
     "85": 1.0,
     "87": 1.0
@@ -1491,8 +1491,8 @@
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.bloqueios`, `public.salvar_netos_v3`, `public.pedidos`?",
-      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
+      "question": "Why does `public.auto_confirmar_fora()` connect `public.aprovar_foto` to `public`?",
+      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -1517,7 +1517,7 @@
     {
       "type": "low_cohesion",
       "question": "Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.06417112299465241 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.06628787878787878 - nodes in this community are weakly interconnected."
     },
     {
       "type": "low_cohesion",
