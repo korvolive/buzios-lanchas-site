@@ -3640,10 +3640,12 @@ function fotoPendHTML(){
 }
 const loadFotoPend = () => S.admin ? db("fotos_pendentes?select=id,lancha,f,criado_em&order=id").then(r=>{ S.fotoPend=r; }, ()=>{ S.fotoPend=[]; }) : Promise.resolve();
 function setCover(l, L){ if(L?.[0]) PHOTO[l]=[L[0].f, L[0].p||"center"]; }
-const phLim = p => Promise.race([p, new Promise((_,no)=>setTimeout(()=>no({status:0}), 15000))]); /* rede travada (app voltando do fundo): em 15 s vira erro com "tentar de novo", não fica em "…" (2026-11-14) */
-async function loadPhotos(l){
+const phLim = p => Promise.race([p, new Promise((_,no)=>setTimeout(()=>no({status:0}), 12000))]); /* rede travada (app voltando do fundo): vira erro com "tentar de novo", não fica em "…" (2026-11-14) */
+async function loadPhotos(l, again=1){
   try{ const r=await phLim(db(`fotos?select=lista&lancha=eq.${encodeURIComponent(l)}`)); if(l!==S.cur) return; S.photos=r[0]?.lista||[]; setCover(l,S.photos); }
-  catch(e){ if(l!==S.cur) return; S.photos = (e.status===404||e.status===400) ? false : "err"; } /* erro: mostra a mensagem com "tentar de novo", nunca fica carregando */
+  catch(e){ if(l!==S.cur) return;
+    if(again && e.status!==404 && e.status!==400){ await new Promise(z=>setTimeout(z,1500)); if(l!==S.cur) return; return loadPhotos(l, 0); } /* falhou: tenta de novo sozinho uma vez antes de mostrar o botão (2026-11-15) */
+    S.photos = (e.status===404||e.status===400) ? false : "err"; } /* erro: mostra a mensagem com "tentar de novo", nunca fica carregando */
   const pd = await phLim(db(`fotos_pendentes?select=id,f&lancha=eq.${encodeURIComponent(l)}&order=id`)).catch(()=>[]); if(l===S.cur) S.pend=pd;
 }
 /* capa: precisa mostrar a embarcação inteira (detector de objetos no aparelho, modelo /login/lancha.tflite).
@@ -3732,6 +3734,13 @@ async function phApprove(id){
 async function phReject(x){
   try{ await db(`fotos_pendentes?id=eq.${x.id}`,{method:"DELETE"}); await phRmFiles(x.f); toast(t("phRejected")); }catch(e){ toast(t("saveErr")); }
 }
+/* redesenha só o card das fotos, no lugar (não depende de redesenhar a tela toda, que espera a pessoa terminar de digitar) (2026-11-15) */
+function phPaint(){
+  const cur=app.querySelector('details[data-fold="ph"]'); if(!cur || S.tab!=="lancha" || view!=="main") return false;
+  const tmp=document.createElement("div"); tmp.innerHTML=foldCard("ph",photosHTML()); foldCards(tmp);
+  const nw=tmp.querySelector('details[data-fold="ph"]'); if(!nw) return false;
+  nw.open=cur.open; cur.replaceWith(nw); bindPhotos(); return true;
+}
 function bindPhotos(){
   const g=document.getElementById("phgrid");
   if(g){ const go=()=>window.Sortable.create(g,{animation:150, delay:180, delayOnTouchOnly:true, filter:".phdel", preventOnFilter:false, onStart:()=>{ g.__drag=Date.now(); }, onEnd:()=>{
@@ -3755,7 +3764,7 @@ function bindPhotos(){
   app.querySelectorAll("[data-phenq]").forEach(x=>x.addEventListener("click", e=>{ if(e.target.closest(".phdel")) return; if(Date.now()-(g?.__drag||0)<500) return; openEnq(+x.dataset.phenq); })); /* soltar depois de arrastar (mudar a ordem) não abre o ajuste */
   const fi=document.getElementById("phfile"); if(fi) fi.onchange=()=>{ const fs=[...fi.files]; fi.value=""; if(fs.length) phUpload(fs); };
   const pg=document.getElementById("phpendgo"); if(pg) pg.onclick=openFotoPend;
-  const pr=document.getElementById("phretry"); if(pr) pr.onclick=async()=>{ S.photos=null; mainView(); await loadPhotos(S.cur); mainView(); };
+  const pr=document.getElementById("phretry"); if(pr) pr.onclick=async()=>{ S.photos=null; phPaint() || mainView(); await loadPhotos(S.cur); phPaint() || mainView(); };
 }
 /* lista de fotos para aprovar (todas as lanchas), aprovação em 1 toque */
 /* ajuste manual do enquadramento na galeria do site (administrador, 2026-11-15). O site já enquadra sozinho (lancha e pessoas
@@ -6006,8 +6015,11 @@ function unseenTrips(){
 }
 const markSeen = ids => store.set(seenKey(), [...new Set([...(store.get(seenKey())||[]), ...ids])].slice(-500));
 /* atualização em segundo plano (pedido novo, chat, voltar ao app) não apaga o que a pessoa está digitando: espera ela sair do campo */
-const busyTyping=()=>[...app.querySelectorAll("#vavq,input:not([type=file]):not([type=search]):not([type=checkbox]):not([type=radio]),textarea")].some(x=>x.value!==x.defaultValue)
-  || [...app.querySelectorAll("#grf select")].some(x=>x.value!==([...x.options].find(o=>o.defaultSelected)||x.options[0])?.value);
+/* só conta campo que a pessoa mexeu (evento input/change): campos que o próprio app preenche por código (ex.: valores do Réveillon e do Carnaval no card Valores)
+   ficavam "diferentes do original" para sempre e travavam toda atualização da aba Embarcação, deixando as fotos em "…" até recarregar (2026-11-15) */
+const TYPED=new WeakSet(); ["input","change"].forEach(ev=>document.addEventListener(ev, e=>{ if(e.target?.matches?.("input,textarea,select")) TYPED.add(e.target); }, true));
+const busyTyping=()=>[...app.querySelectorAll("#vavq,input:not([type=file]):not([type=search]):not([type=checkbox]):not([type=radio]),textarea")].some(x=>TYPED.has(x) && x.value!==x.defaultValue)
+  || [...app.querySelectorAll("#grf select")].some(x=>TYPED.has(x) && x.value!==([...x.options].find(o=>o.defaultSelected)||x.options[0])?.value);
 function bgView(){ if(busyTyping()){ S.needRender=true; return; } S.isClient ? (S.me && clientView()) : mainView(); }
 document.addEventListener("focusout", ()=>setTimeout(()=>{ if(S.needRender && view==="main" && !sheetDay && !tripRow && !chatCid && !app.contains(document.activeElement) && !busyTyping()) bgView(); }, 300));
 function mainView(){
@@ -7012,7 +7024,7 @@ async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o con
       .then(r=>{ S.prices=r[0]||{}; }, e=>{ S.prices = (e.status===404||e.status===400) ? false : null; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     S.neto=null; if(S.admin) db(`precos_neto?select=chave,neto,comissao,ref,taxa_pct&lancha=eq.${encodeURIComponent(l)}`).then(r=>{ S.hasTaxa=true; return r; }, e=>{ if(e.status!==400) throw e; S.hasTaxa=false; /* sem a coluna taxa_pct ainda */ return db(`precos_neto?select=chave,neto,comissao,ref&lancha=eq.${encodeURIComponent(l)}`); }).catch(e=>{ if(e.status!==400) throw e; return db(`precos_neto?select=chave,neto,comissao&lancha=eq.${encodeURIComponent(l)}`); /* sem a coluna ref ainda */ }).then(r=>{ S.neto=Object.fromEntries(r.map(x=>[x.chave,x])); S.hasRef=r.some(x=>"ref" in x); }, e=>{ S.neto=false; /* tabela ainda não criada: editor antigo */ }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     if(S.photosOf!==l || S.photos==="err"){ S.photos=null; S.pend=[]; } S.photosOf=l; /* mesma lancha: mantém as fotos na tela enquanto recarrega, sem voltar para "…" */
-    loadPhotos(l).then(()=>{ if(l===S.cur && S.tab==="lancha" && view==="main") bgView(); }); /* desenha quando chegam, mesmo se outra recarga começou no meio (antes ficava preso em "…") (2026-11-14) */
+    loadPhotos(l).then(()=>{ if(l===S.cur && S.tab==="lancha" && view==="main"){ if(busyTyping()) phPaint(); bgView(); } }); /* pessoa digitando em outro card: as fotos aparecem mesmo assim, sem apagar o que ela digita (2026-11-15) */ /* desenha quando chegam, mesmo se outra recarga começou no meio (antes ficava preso em "…") (2026-11-14) */
     S.cupDono=undefined; if(S.admin || S.own?.includes(l)) db("rpc/lanchas_cupom_dono_v2",{method:"POST",body:{}}).then(r=>{ S.cupDono=r.find(x=>x.lancha===l)||null; } /* a tabela não tem leitura direta: a rpc devolve todas */, e=>{ S.cupDono=(e.status===404||e.status===400) ? false : undefined; }).then(()=>{ if(my===loadSeq && S.tab==="lancha") bgView(); });
     try{ const r=await db(`itens?select=opcionais&lancha=eq.${encodeURIComponent(l)}`); if(my!==loadSeq) return; S.items = r[0]?.opcionais || []; S.err=""; }
     catch(e){ if(my!==loadSeq || !ses) return; S.items = (e.status===404||e.status===400) ? false : null; if(S.items===null) S.err="load"; }
