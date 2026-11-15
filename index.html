@@ -1701,7 +1701,7 @@ async function jetRender(b){
   box.innerHTML=`<h2 class="pk-h">${t("jetT")}</h2>
     ${cort?`<p class="jet-cort">🎁 ${t("jetCort",{m:jDur(cort)})}<small>${t("jetCortSub")}</small></p>`:""}
     <div class="jet-top">${fotos.length?`<button type="button" class="jet-ph" id="jet-ph" aria-label="${t("jetPhotos")}"><img src="${esc(fotos[0])}" alt="" loading="lazy">${fotos.length>1?`<span>+${fotos.length-1}</span>`:""}</button>`:""}
-      <div><strong>${esc(j.nome)}</strong>${j.modelo?` · ${esc(j.modelo)}`:""}<br><small>${t("jetPeople",{n:j.pessoas})}${de?` · ${t("jetFrom",{v:brl(de.valor), d:jDur(de.min)})}`:""}</small></div></div>
+      <div><strong>${esc(j.nome)}</strong>${j.modelo?` · ${esc(j.modelo)}`:""}<br><small>${de?t("jetFrom",{v:brl(de.valor), d:jDur(de.min)}):""}</small></div></div>
     <p class="jet-safe">${t(j.chave_aprendiz?"jetSafe":"jetSafeNoKey")}</p>${corpo}`;
   box.hidden=false;
   box.querySelectorAll("[data-jdur]").forEach(x=>x.onclick=()=>{ const m=+x.dataset.jdur; pick.jet = m ? {id:j.id, min:m, ini:null} : null; jetRender(b).then(()=>jetTouch(b)); });

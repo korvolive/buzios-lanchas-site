@@ -3356,8 +3356,7 @@ function jetHTML(){
     <p class="muted" style="margin-top:0">${t("jetHelp")}</p>
     <label class="nbon" style="margin:0 0 10px"><input type="checkbox" id="jet-vis"${j.oculto?"":" checked"}> ${t("jetVis")}</label>
     <div class="jetrow"><label>${t("jetName")}<input data-jetf="nome" maxlength="60" value="${esc(j.nome)}"></label><label>${t("jetModel")}<input data-jetf="modelo" maxlength="60" value="${esc(j.modelo||"")}" placeholder="Sea-Doo Spark"></label></div>
-    <div class="jetrow"><label>${t("jetPeople")}<select data-jetf="pessoas">${[1,2,3].map(n=>`<option${n===j.pessoas?" selected":""}>${n}</option>`).join("")}</select></label>
-      <label>${t("jetMinT")}<select data-jetf="min_minutos">${JET_PASSOS.map(m=>`<option value="${m}"${m===j.min_minutos?" selected":""}>${jetMin(m)}</option>`).join("")}</select></label></div>
+    <div class="jetrow"><label>${t("jetMinT")}<select data-jetf="min_minutos">${JET_PASSOS.map(m=>`<option value="${m}"${m===j.min_minutos?" selected":""}>${jetMin(m)}</option>`).join("")}</select></label></div>
     <label class="nbon" style="margin:4px 0 10px"><input type="checkbox" data-jetf="chave_aprendiz"${j.chave_aprendiz?" checked":""}> ${t("jetKey")}</label>
     <h3>${t("jetPriceT")}</h3>
     <label>${t("jetHour")}<input type="number" inputmode="numeric" min="1" step="10" data-jetf="neto_hora" value="${j.neto_hora??""}" placeholder="400"></label>
