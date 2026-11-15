@@ -4230,9 +4230,15 @@ function asAvisoHTML(vend){
 let asBarX=false; /* "Agora não" fecha só até a pessoa sair e voltar ao app */
 /* janela do cadastro no Asaas (Rodrigo 2026-11-11): cartão no meio da tela, aparece ao abrir ou voltar ao app enquanto houver algo a fazer; segue o aviso do topo */
 function asJanela(){
-  const go=document.getElementById("as-av-go"), doc=document.getElementById("as-av-doc"), prep=document.getElementById("as-av-prep"), old=document.getElementById("asjan");
+  let go=document.getElementById("as-av-go"), doc=document.getElementById("as-av-doc"), prep=document.getElementById("as-av-prep"), fora=false;
+  const old=document.getElementById("asjan"), dono=S.own?.some(l=>!SEM_REPASSE.includes(l));
+  /* o aviso do dono só é desenhado na aba Passeios: aberto em Embarcação ou Vendas (dono que também vende), a janela não aparecia (Rodrigo 2026-11-15).
+     Calcula o aviso fora da tela, sem mexer no que está aberto, e a janela aparece em qualquer aba */
+  if(!S.admin && dono && !go && !doc && !prep && !asBarX && typeof view!=="undefined" && view==="main"){
+    const sq=S.sqEd, rb=S.rbIn, x=document.createElement("div"); x.innerHTML=asAvisoHTML(false); S.sqEd=sq; S.rbIn=rb;
+    go=x.querySelector("#as-av-go"); doc=x.querySelector("#as-av-doc"); prep=x.querySelector("#as-av-prep"); fora=true; }
   if(S.admin || (!go && !doc && !prep) || asBarX){ if(old) old.remove(); return; }
-  const dono=S.own?.some(l=>!SEM_REPASSE.includes(l)), w=old || document.createElement("div");
+  const w=old || document.createElement("div");
   w.id="asjan"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true");
   w.style.cssText="position:fixed;inset:0;z-index:9999;background:rgba(4,16,22,.45);display:flex;align-items:center;justify-content:center;padding:16px";
   const corpo = doc ? t("asJanDoc") : prep ? t("asJanPrep") : t(dono?"asJanCorpoD":"asJanCorpo");
@@ -4240,7 +4246,7 @@ function asJanela(){
   w.innerHTML=`<div class="card" style="max-width:380px;width:100%;margin:0;text-align:center;border:2px solid var(--brass)"><h2 style="margin-top:0">${t(dono?"asJanTD":"asJanT")}</h2><p class="muted" style="margin:0 0 14px">${corpo}</p>${botao}<button type="button" class="link" id="asjan-x" style="margin-top:12px">${t("asJanX")}</button></div>`;
   if(!old) document.body.appendChild(w);
   document.getElementById("asjan-x").onclick=()=>{ asBarX=true; w.remove(); };
-  const b=document.getElementById("asjan-go"); if(b) b.onclick=()=>{ const d=document.getElementById("as-av-doc"); if(d){ asConfMarca(); location.href=d.href; return; } w.remove(); asBarX=true; document.getElementById("as-av-go")?.click(); }; /* link na mesma aba: funciona no app instalado (iOS/Android) */
+  const b=document.getElementById("asjan-go"); if(b) b.onclick=()=>{ const d=document.getElementById("as-av-doc") || doc; if(d){ asConfMarca(); location.href=d.href; return; } w.remove(); asBarX=true; const g=document.getElementById("as-av-go"); if(g) return g.click(); if(fora || dono) asGoLancha(); }; /* link na mesma aba: funciona no app instalado (iOS/Android) */
 }
 /* voltou ao app: a faixa reaparece e, se saiu versão nova do app, recarrega (ninguém fica preso na versão velha) */
 let appTam=0; fetch("/login/?v="+Date.now(),{cache:"no-store"}).then(r=>r.text()).then(x=>{ appTam=x.length; }).catch(()=>{});
