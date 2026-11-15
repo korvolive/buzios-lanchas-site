@@ -37,7 +37,16 @@ n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,'script','https://connect.facebook.net/en_US/fbevents.js');
 if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
-<title>Aluguel de Lancha em Búzios | Búzios Lanchas - Passeios Privativos</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Aluguel de Lancha em Búzios | Búzios Lanchas - Passeios Privativos</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>
+/* jetski (2026-11-15) */
+.jet-box{margin:18px 0 6px;padding:14px;border:1.5px solid var(--line,#e2ddd2);border-radius:14px}.jet-box h2{margin-top:0}
+.jet-top{display:flex;gap:12px;align-items:center;margin:0 0 8px}.jet-ph{position:relative;border:0;padding:0;background:none;cursor:pointer;flex:0 0 auto}.jet-ph img{width:84px;height:64px;object-fit:cover;border-radius:10px;display:block}.jet-ph span{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;border-radius:8px;padding:1px 6px}
+.jet-safe{font-size:14px;margin:0 0 10px;opacity:.85}.jet-muted{font-size:14px;opacity:.75;margin:0}.jet-q{font-weight:600;margin:10px 0 6px}
+.jet-chips{display:flex;flex-wrap:wrap;gap:6px}.jet-chips button{border:1.5px solid var(--line,#d8d2c4);background:none;border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer;color:inherit}.jet-chips button[aria-checked=true]{border-color:var(--brass,#b8860b);background:rgba(184,134,11,.12);font-weight:600}
+.jet-sum{margin:10px 0 0;font-weight:600}.jet-cort{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:rgba(184,134,11,.12);font-weight:600}.jet-cort small{display:block;font-weight:400}
+.c-jet{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--brass,#8a6508)}
+.jet-dlg{max-width:min(720px,94vw)}.jet-gal{display:grid;gap:8px}.jet-gal img{width:100%;border-radius:10px}.jet-x{float:right;border:0;background:none;font-size:20px;cursor:pointer;color:inherit}
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1672637870274530&ev=PageView&noscript=1"></noscript>
 <link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#06394a"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Buzios Lanchas">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1636,13 +1645,86 @@ const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 const boardFee = x => /porto veleiro/i.test(x||"") ? 10 : /golfinho/i.test(x||"") ? 5 : 0;
 const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
 const waBook = (b,iso,slot,n,bd) => { const v=VEND && cliPrice(bzBase(b,iso,slot,priceFor(b,iso,slot)), pctKey(seasonOf(iso,b).key,iso), VEND, b);
-  return wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (v?t("waPrice",{p:brl(v)}):"") + (VEND?` (ref. ${VEND.codigo})`:"")); };
+  return wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (v?t("waPrice",{p:brl(v)}):"") + jetWaTxt() + (VEND?` (ref. ${VEND.codigo})`:"")); }; /* jetski escolhido vai junto (2026-11-15) */
 
 /* Agenda das lanchas: os donos marcam no app /login/ os horários já alugados (banco Supabase).
    A chave é a pública: só lê lancha, data e horário. Se o banco não responder, tudo aparece livre. */
 const AGENDA_URL = "https://sqoperylsqcbcjpcrlnp.supabase.co/rest/v1/bloqueios";
 const AGENDA_KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
 let agenda = null;
+/* ===== Jetski como adicional do passeio (Rodrigo 2026-11-15) =====
+   Só nas lanchas (nunca nas escunas). O dono do jetski leva até a lancha e vai junto (chave aprendiz).
+   Aluguel de meia em meia hora, do mínimo do dono (1 h) até 3 h. Começa no mínimo 1 h depois da saída e termina até 1 h antes da volta.
+   Uso em outra lancha no mesmo dia pede 15 min livres antes e depois (deslocamento). Os valores vêm prontos do banco (jetskis_site). */
+Object.assign(UI.pt, {jetT:"Adicione um jetski ao passeio", jetSafe:"O dono do jetski leva até a sua lancha e vai junto com você. Chave aprendiz, com velocidade limitada. Quem tem habilitação de motonauta pode pilotar sozinho, combinando com o dono.", jetSafeNoKey:"O dono do jetski leva até a sua lancha e vai junto com você. Quem tem habilitação de motonauta pode pilotar sozinho, combinando com o dono.", jetFrom:"a partir de {v} por {d}", jetPick:"Escolha a data e o horário do passeio para ver os horários livres do jetski.", jetNight:"O jetski não está disponível no passeio noturno.", jetDur:"Quanto tempo?", jetStart:"Que horas?", jetNone:"Sem jetski", jetNoTime:"O jetski já está ocupado nesse passeio. Escolha outro horário ou outra data.", jetSum:"Jetski {d}, das {a} às {b}: {v}", jetCort:"Este passeio ganha {m} de jetski de cortesia", jetCortSub:"Quer mais tempo? Escolha abaixo.", jetPhotos:"Ver fotos do jetski", jetWa:" Quero também jetski: {d}, das {a} às {b} ({v}).", jetClose:"Fechar", jetPeople:"até {n} pessoas"});
+Object.assign(UI.en, {jetT:"Add a jet ski to your tour", jetSafe:"The jet ski owner brings it to your boat and rides along with you. Learning key, with limited speed. If you hold a jet ski license, you can ride alone, agreed with the owner.", jetSafeNoKey:"The jet ski owner brings it to your boat and rides along with you. If you hold a jet ski license, you can ride alone, agreed with the owner.", jetFrom:"from {v} for {d}", jetPick:"Choose the tour date and time to see the jet ski's free times.", jetNight:"The jet ski is not available on the night tour.", jetDur:"How long?", jetStart:"What time?", jetNone:"No jet ski", jetNoTime:"The jet ski is already booked during this tour. Choose another time or date.", jetSum:"Jet ski {d}, from {a} to {b}: {v}", jetCort:"This tour comes with {m} of jet ski as a courtesy", jetCortSub:"Want more time? Choose below.", jetPhotos:"See jet ski photos", jetWa:" I also want a jet ski: {d}, from {a} to {b} ({v}).", jetClose:"Close", jetPeople:"up to {n} people"});
+Object.assign(UI.es, {jetT:"Agrega una moto de agua al paseo", jetSafe:"El dueño de la moto de agua la lleva hasta tu lancha y va contigo. Llave de aprendiz, con velocidad limitada. Quien tiene licencia de moto de agua puede manejar solo, de acuerdo con el dueño.", jetSafeNoKey:"El dueño de la moto de agua la lleva hasta tu lancha y va contigo. Quien tiene licencia de moto de agua puede manejar solo, de acuerdo con el dueño.", jetFrom:"desde {v} por {d}", jetPick:"Elige la fecha y el horario del paseo para ver los horarios libres de la moto de agua.", jetNight:"La moto de agua no está disponible en el paseo nocturno.", jetDur:"¿Cuánto tiempo?", jetStart:"¿A qué hora?", jetNone:"Sin moto de agua", jetNoTime:"La moto de agua ya está ocupada en este paseo. Elige otro horario u otra fecha.", jetSum:"Moto de agua {d}, de {a} a {b}: {v}", jetCort:"Este paseo incluye {m} de moto de agua de cortesía", jetCortSub:"¿Quieres más tiempo? Elige abajo.", jetPhotos:"Ver fotos de la moto de agua", jetWa:" También quiero moto de agua: {d}, de {a} a {b} ({v}).", jetClose:"Cerrar", jetPeople:"hasta {n} personas"});
+const JET_HORAS = {manha:[600,840], tarde:[840,1080], dia:[600,1020]}; /* minutos do dia: 10h–14h, 14h–18h, 10h–17h (mesmos horários do site) */
+let JETS = null, JETS_L = []; const JET_OC = new Map();
+const jetRpc = (n, b) => fetch(SB_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify(b||{})}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+const loadJets = () => JETS ||= jetRpc("jetskis_site").then(L=>(JETS_L=Array.isArray(L)?L:[]));
+const jetOcup = d => { if(!JET_OC.has(d)) JET_OC.set(d, jetRpc("jetski_ocupado",{p_data:d})); return JET_OC.get(d); };
+const jDur = m => m<60 ? `${m} min` : lang==="en" ? `${m/60} h`.replace(".5 h"," h 30") : `${Math.floor(m/60)}h${m%60?"30":""}`;
+const jHr = m => { const h=Math.floor(m/60), mm=m%60; return lang==="en" ? `${h%12||12}${mm?":"+pad(mm):""}${h<12?"am":"pm"}` : `${h}h${mm?pad(mm):""}`; };
+const tMin = s => { const [h,m]=String(s).split(":").map(Number); return h*60+(m||0); };
+/* inícios livres para d minutos, conferindo os usos do dia (mesma lancha encosta; outra lancha ou bloqueio: 15 min de folga) */
+function jetInicios(j, b, d, oc){
+  const w=JET_HORAS[pick.slot]; if(!w) return [];
+  const a=w[0]+60, z=w[1]-60, L=(oc||[]).filter(u=>u.jetski===j.id), out=[];
+  for(let s=a; s+d<=z; s+=30){ const e=s+d;
+    if(!L.some(u=>{ const ui=tMin(u.ini), uf=tMin(u.fim), f=(u.tipo==="uso" && u.lancha===b.slug) ? 0 : 15; return ui < e+f && uf+f > s; })) out.push(s); }
+  return out;
+}
+const jetCortOf = (j,b) => j.cortesia_lancha===b.slug && j.cortesia_min>0 ? j.cortesia_min : 0;
+async function jetRender(b){
+  const box=document.getElementById("jet-box"); if(!box || isEsc(b)) return;
+  const L=await loadJets(); if(!L.length || !box.isConnected){ box.hidden=true; return; }
+  const j=L[0]; /* por enquanto um jetski; com mais de um, o primeiro livre */
+  const cort=jetCortOf(j,b), tab=j.tabela||[], de=tab[0];
+  const w=JET_HORAS[pick.slot], night=pick.slot==="noite";
+  let corpo="";
+  if(!pick.date || !pick.slot) corpo=`<p class="jet-muted">${t("jetPick")}</p>`;
+  else if(night || !w) corpo=`<p class="jet-muted">${t("jetNight")}</p>`;
+  else{
+    const oc=await jetOcup(pick.date), max=w[1]-w[0]-120;
+    const durs=tab.filter(x=>x.min<=max && jetInicios(j,b,x.min,oc).length);
+    if(pick.jet && (pick.jet.id!==j.id || !durs.some(x=>x.min===pick.jet.min) || (pick.jet.ini!=null && !jetInicios(j,b,pick.jet.min,oc).includes(pick.jet.ini)))) pick.jet=null;
+    if(!durs.length) corpo=`<p class="jet-muted">${t("jetNoTime")}</p>`;
+    else{ const sel=pick.jet;
+      corpo=`<p class="jet-q">${t("jetDur")}</p><div class="jet-chips" role="radiogroup"><button type="button" role="radio" data-jdur="0" aria-checked="${!sel}">${t("jetNone")}</button>${durs.map(x=>`<button type="button" role="radio" data-jdur="${x.min}" aria-checked="${sel?.min===x.min}">${jDur(x.min)} · ${brl(x.valor)}</button>`).join("")}</div>`;
+      if(sel){ const ins=jetInicios(j,b,sel.min,oc), v=tab.find(x=>x.min===sel.min)?.valor;
+        corpo+=`<p class="jet-q">${t("jetStart")}</p><div class="jet-chips" role="radiogroup">${ins.map(s=>`<button type="button" role="radio" data-jini="${s}" aria-checked="${sel.ini===s}">${jHr(s)}</button>`).join("")}</div>`;
+        if(sel.ini!=null) corpo+=`<p class="jet-sum">✓ ${t("jetSum",{d:jDur(sel.min), a:jHr(sel.ini), b:jHr(sel.ini+sel.min), v:brl(v)})}</p>`; }
+    }
+  }
+  const fotos=(j.fotos||[]);
+  box.innerHTML=`<h2 class="pk-h">${t("jetT")}</h2>
+    ${cort?`<p class="jet-cort">🎁 ${t("jetCort",{m:jDur(cort)})}<small>${t("jetCortSub")}</small></p>`:""}
+    <div class="jet-top">${fotos.length?`<button type="button" class="jet-ph" id="jet-ph" aria-label="${t("jetPhotos")}"><img src="${esc(fotos[0])}" alt="" loading="lazy">${fotos.length>1?`<span>+${fotos.length-1}</span>`:""}</button>`:""}
+      <div><strong>${esc(j.nome)}</strong>${j.modelo?` · ${esc(j.modelo)}`:""}<br><small>${t("jetPeople",{n:j.pessoas})}${de?` · ${t("jetFrom",{v:brl(de.valor), d:jDur(de.min)})}`:""}</small></div></div>
+    <p class="jet-safe">${t(j.chave_aprendiz?"jetSafe":"jetSafeNoKey")}</p>${corpo}`;
+  box.hidden=false;
+  box.querySelectorAll("[data-jdur]").forEach(x=>x.onclick=()=>{ const m=+x.dataset.jdur; pick.jet = m ? {id:j.id, min:m, ini:null} : null; jetRender(b).then(()=>jetTouch(b)); });
+  box.querySelectorAll("[data-jini]").forEach(x=>x.onclick=()=>{ pick.jet={...pick.jet, ini:+x.dataset.jini}; jetRender(b).then(()=>jetTouch(b)); });
+  const pb=document.getElementById("jet-ph"); if(pb) pb.onclick=()=>jetFotos(j);
+}
+/* escolha mudou: o link do WhatsApp passa a levar o jetski */
+function jetTouch(b){ const bt=document.getElementById("book-btn"); if(bt?.dataset.ready) bt.href=waBook(b,pick.date,pick.slot,pick.people,pick.board); }
+function jetWaTxt(){
+  const sel=pick.jet, j=sel && JETS_L.find(x=>x.id===sel.id); if(!j || sel.ini==null) return "";
+  const v=(j.tabela||[]).find(x=>x.min===sel.min)?.valor; return v ? t("jetWa",{d:jDur(sel.min), a:jHr(sel.ini), b:jHr(sel.ini+sel.min), v:brl(v)}) : "";
+}
+/* selo no card da vitrine: lancha que dá cortesia de jetski (Rodrigo 2026-11-15) */
+Object.assign(UI.pt, {jetCard:"🎁 Ganhe {m} de jetski"}); Object.assign(UI.en, {jetCard:"🎁 Get {m} of jet ski free"}); Object.assign(UI.es, {jetCard:"🎁 Gana {m} de moto de agua"});
+function jetCards(){ const E=document.querySelectorAll("[data-jetc]:not([data-jok])"); if(!E.length || IS_BOT) return;
+  loadJets().then(L=>E.forEach(el=>{ el.dataset.jok=1; const j=L.find(x=>x.cortesia_lancha===el.dataset.jetc && x.cortesia_min>0); if(j){ el.textContent=t("jetCard",{m:jDur(j.cortesia_min)}); el.hidden=false; } })); }
+{ let jq=0; new MutationObserver(()=>{ if(!jq) jq=requestAnimationFrame(()=>{ jq=0; jetCards(); }); }).observe(document.documentElement,{childList:true,subtree:true}); }
+function jetFotos(j){
+  document.getElementById("jet-dlg")?.remove();
+  const dl=document.createElement("dialog"); dl.id="jet-dlg"; dl.className="stop-dlg jet-dlg";
+  dl.innerHTML=`<button type="button" class="jet-x" aria-label="${t("jetClose")}">✕</button><h3>${esc(j.nome)}</h3><div class="jet-gal">${(j.fotos||[]).map(f=>`<img src="${esc(f)}" alt="${esc(j.nome)}" loading="lazy">`).join("")}</div>`;
+  document.body.appendChild(dl); dl.querySelector(".jet-x").onclick=()=>dl.close(); dl.onclick=e=>{ if(e.target===dl) dl.close(); }; dl.showModal();
+}
 /* cliente com conta (o login fica guardado pelo app /login/): o pedido também vai para a Búzios Lanchas aprovar */
 const SB_URL = AGENDA_URL.replace("/rest/v1/bloqueios","");
 const lsGet = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
@@ -2309,6 +2391,7 @@ const cdRpc = n => fetch(SB_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{apikey
 const loadCdSet = () => CD_SET ||= cdRpc("lanchas_cupom_dono_v2").then(r=>r.ok ? r.json().then(a=>new Map(a.map(x=>[x.lancha,x.valor])))
   : cdRpc("lanchas_cupom_dono").then(r=>r.ok?r.json():[]).then(a=>new Map(a.map(x=>[typeof x==="string"?x:x.lanchas_cupom_dono,0])))).catch(()=>new Map());
 async function showBoatStatus(b){
+  if(!IS_BOT) jetRender(b); /* jetski como adicional (2026-11-15) */
   if(!IS_BOT) loadCdSet().then(M=>{ const el=document.getElementById("cd-tag"); if(!el || !M.has(b.slug)) return; /* sem o valor: o cliente só vê quanto é depois de ganhar (2026-10-30) */ el.hidden=false; });
   /* o noturno só aparece no Réveillon; trocou a data, some e desmarca */
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
@@ -2570,7 +2653,7 @@ function home(){
           <span class="c-rw" data-rate="${b.slug}" hidden><span class="c-rate" role="button" tabindex="0" aria-expanded="false"></span><span class="c-rev"></span></span>
           ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
           <div class="body">
-            <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>
+            <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>${isEsc(b)?"":`<p class="c-jet" data-jetc="${b.slug}" hidden></p>`}
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
             <div class="price-from">${isEsc(b)?`<div><strong>${t("escCard")}</strong></div>`:precoTrancado()?`<div><strong>${t(VEND?.parceiro?"lockCardP":"lockCard")}</strong></div>`:showPrice()?`<div><span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t(isEsc(b)?"seeEsc":"seeBoat")}</span></div>
           </div>
@@ -2699,6 +2782,7 @@ function boatPage(b){
         ${stackHTML(b)}
         <h2 class="pk-h">${t("pickTitle")}</h2>
         ${pickerHTML(b)}<div id="pk-out" aria-live="polite"></div>
+        <div class="jet-box" id="jet-box" hidden></div>
         <div class="pr-val" id="pr-val" aria-live="polite"></div>
         ${b.example?`<div class="example-banner">${t("exampleBanner")}</div>`:""}
         ${viaVend(b) ? `<a class="btn" id="book-btn" href="#" hidden></a>
