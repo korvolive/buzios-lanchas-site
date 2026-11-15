@@ -52,9 +52,15 @@ const SLOT: Record<string, Record<string, string>> = {
 const dataBR = (d: string) => d.split("-").reverse().join("/");
 const TXT: Record<string, Record<string, (p: any) => { title: string; body: string }>> = {
   aprovado: {
-    pt: p => ({ title: "Passeio novo na sua agenda", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. A Búzios Lanchas confirmou o passeio.${p.semMar ? " Escolha quem vai pilotar." : ""}` }),
-    en: p => ({ title: "New trip in your schedule", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. Búzios Lanchas confirmed the trip.${p.semMar ? " Choose who will drive." : ""}` }),
-    es: p => ({ title: "Paseo nuevo en tu agenda", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. Búzios Lanchas confirmó el paseo.${p.semMar ? " Elige quién va a pilotar." : ""}` }),
+    pt: p => ({ title: "Passeio novo na sua agenda", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. A Búzios Lanchas confirmou o passeio.${p.jet ? ` Com jetski das ${p.jet}.` : ""}${p.semMar ? " Escolha quem vai pilotar." : ""}` }),
+    en: p => ({ title: "New trip in your schedule", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. Búzios Lanchas confirmed the trip.${p.jet ? ` With a jet ski from ${p.jetEn}.` : ""}${p.semMar ? " Choose who will drive." : ""}` }),
+    es: p => ({ title: "Paseo nuevo en tu agenda", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. Búzios Lanchas confirmó el paseo.${p.jet ? ` Con moto de agua de ${p.jetEs}.` : ""}${p.semMar ? " Elige quién va a pilotar." : ""}` }),
+  },
+  // dono do jetski (revisão 2026-11-15): passeio confirmado com o jetski dele
+  jetski: {
+    pt: p => ({ title: "Jetski reservado", body: `${p.lancha} · ${dataBR(p.data)} · jetski das ${p.jet}. Leve o jetski até a lancha nesse horário.` }),
+    en: p => ({ title: "Jet ski booked", body: `${p.lancha} · ${dataBR(p.data)} · jet ski from ${p.jetEn}. Take the jet ski to the boat at that time.` }),
+    es: p => ({ title: "Moto de agua reservada", body: `${p.lancha} · ${dataBR(p.data)} · moto de agua de ${p.jetEs}. Lleva la moto hasta la lancha en ese horario.` }),
   },
   pedido: {
     pt: p => ({ title: "Pedido novo pelo site", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas` }),
@@ -701,7 +707,17 @@ Deno.serve(async req => {
       const lancha = await nomeLancha(b.lancha);
       // o restante, que o cliente paga ao responsável pela lancha na hora do embarque (Rodrigo, 2026-10-22)
       const restoN = Math.max(0, (+an?.valor || 0) - (+an?.sinal || 0)), resto = restoN ? "R$ " + restoN.toLocaleString("pt-BR") : "";
-      const enviados = await enviar(alvo, "aprovado", { ...b, semMar: !an?.marinheiro, lancha }, "/login/");
+      // jetski do pedido (revisão 2026-11-15): a equipe da lancha e o dono do jetski ficam sabendo
+      const { data: pj } = await db.from("pedidos").select("jetski, jetski_min, jetski_ini").eq("bloqueio_id", b.id).in("status", ["aprovado", "pendente"]).not("jetski", "is", null).limit(1).maybeSingle();
+      let jt: any = {};
+      if (pj?.jetski && pj.jetski_min && pj.jetski_ini) {
+        const [h0, m0] = String(pj.jetski_ini).split(":").map(Number), a0 = h0 * 60 + m0, f0 = a0 + Number(pj.jetski_min);
+        const hh = (x: number) => `${Math.floor(x / 60)}h${x % 60 ? String(x % 60).padStart(2, "0") : ""}`;
+        jt = { jet: `${hh(a0)} às ${hh(f0)}`, jetEn: `${hh(a0)} to ${hh(f0)}`, jetEs: `${hh(a0)} a ${hh(f0)}` };
+        const jd = (await db.from("jetskis").select("dono").eq("id", pj.jetski).maybeSingle()).data?.dono;
+        if (jd && jd !== uid) await enviar([jd], "jetski", { ...b, lancha, ...jt }, "/login/").catch(e => console.error("push jetski", e));
+      }
+      const enviados = await enviar(alvo, "aprovado", { ...b, semMar: !an?.marinheiro, lancha, ...jt }, "/login/");
       const { data: ps } = await db.from("perfis").select("user_id, nome").in("user_id", alvo.length ? alvo : ["00000000-0000-0000-0000-000000000000"]);
       const nomes = Object.fromEntries((ps || []).map(x => [x.user_id, x.nome]));
       const p = { b, a: an, lancha, data: dataBR(b.data), pessoas: an?.pessoas ? String(an.pessoas) : "", embarque: an?.embarque || "", cliente: an?.cliente || "", semMar: !an?.marinheiro, nomes };
@@ -722,7 +738,7 @@ Deno.serve(async req => {
         const { data: ped } = await db.from("pedidos").select("id").eq("bloqueio_id", b.id).maybeSingle();
         const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", an.cliente_conta).maybeSingle();
         if (cv && ped) { // só pedido do site (o sinal passou pela Búzios Lanchas)
-          const tx = `Pagamento do sinal confirmado: sua reserva na ${lancha} em ${dataBR(b.data)} está confirmada! ✅` + (resto ? ` Na hora do embarque, você paga o restante (${resto}) direto ao responsável pela lancha.` : "");
+          const tx = `Pagamento do sinal confirmado: sua reserva na ${lancha} em ${dataBR(b.data)} está confirmada! ✅` + (resto ? ` Na hora do embarque, você paga o restante (${resto}) direto ao responsável pela lancha.` : "") + (jt.jet ? ` O jetski (das ${jt.jet}) já está pago e o dono dele leva até a lancha.` : "");
           const { data: m } = await db.from("mensagens").insert({ conversa: cv.id, autor: null, texto: tx, sistema: "ok:" + restoN, pedido: ped?.id || null }).select("id").maybeSingle();
           if (m) await db.from("conversas").update({ ultima_em: new Date().toISOString(), ultima_msg: tx.slice(0, 80), encerrada_em: null }).eq("id", cv.id);
         }
