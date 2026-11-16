@@ -38,6 +38,9 @@ verify_jwt = true
 [functions.aviso-preco]
 verify_jwt = true
 
+[functions.aviso-aprovacao]
+verify_jwt = false
+
 [functions.aviso-sinal]
 verify_jwt = true
 
