@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script src="/marca.js"></script><script>/* toque seguro (2026-11-04): se a tela mudou debaixo do dedo (botão apareceu ou mudou de lugar há menos de 0,4 s), o toque vai para o botão que estava naquele ponto antes da mudança, nunca para o que apareceu no lugar dele */
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script src="/marca.js"></script><script>/* mesmas cores em todo aparelho: o modo escuro do celular deixava a página toda azul e sem a troca de cor entre as seções (2026-11-16) */document.documentElement.setAttribute("data-theme","light")</script><script>/* toque seguro (2026-11-04): se a tela mudou debaixo do dedo (botão apareceu ou mudou de lugar há menos de 0,4 s), o toque vai para o botão que estava naquele ponto antes da mudança, nunca para o que apareceu no lugar dele */
 (function(){ var SEL="button,a.btn,[role=button],label.btn,.rm", MS=400, born=new WeakMap(), pos=new WeakMap(), pend=false, hist=[], cur=[], VIU=300, now=function(){ return performance.now(); };
   function key(el){ var x=0,y=0,e=el; while(e){ x+=e.offsetLeft; y+=e.offsetTop; e=e.offsetParent; } return x+","+y+","+el.offsetWidth; }
   function sig(el){ var d=""; for(var k in el.dataset) d+=k+"="+el.dataset[k]+";"; return el.id ? "#"+el.id : el.tagName+"|"+d+"|"+(el.textContent||"").trim().slice(0,60); }
@@ -749,6 +749,13 @@ h1,h2,h3{line-height:1.15}
 .fx-st{color:#e0a92e;letter-spacing:1px}
 @keyframes rola{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.fx-tr{animation:none;flex-wrap:wrap;width:auto;justify-content:center;row-gap:10px}.fx-dup{display:none}.hero-ph img{animation:none}.hero .ctas .btn::before,.barra .btn::before{animation:none}}
+/* seções da página inicial com fundo alternado, também no modo escuro do celular (pedido 2026-11-16) */
+:root{--alt:#e1edf1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--alt:#123544}}
+:root[data-theme="dark"]{--alt:#123544}
+#roteiro,#duvidas{background:var(--alt)}
+#roteiro,#como,#duvidas{padding-top:56px!important}
+@media (max-width:600px){#roteiro,#como,#duvidas{padding-top:48px!important}}
 @media (min-width:761px){.barra{display:none}}
 html.is-app .barra{display:none}
 @media (prefers-reduced-motion:reduce){.btn,.card,.barra{transition:none}.btn:active,.card:active{transform:none}}
