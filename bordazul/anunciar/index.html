@@ -76,13 +76,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
 .itens{list-style:none;padding:0;margin:14px 0 0;text-align:left}
 .itens li{padding:8px 0;border-top:1px solid var(--line);font-size:.95rem}
 .oculto{display:none!important}
+.barcos{display:grid;gap:10px;margin-top:16px}
+.barco{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:10px;cursor:pointer;font:inherit;color:inherit}
+.barco:hover{border-color:var(--blue)}
+.barco .ft{width:64px;height:64px;border-radius:12px;background:var(--chip);flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:800}
+.barco .ft img{width:100%;height:100%;object-fit:cover}
+.barco b{display:block;font-size:1.05rem}.barco small{color:var(--soft)}
+.st{display:inline-block;margin-top:4px;padding:2px 10px;border-radius:999px;font-size:.8rem;font-weight:700;background:var(--chip);color:var(--blue)}
+.st.aprovado{background:#e6f5ec;color:var(--ok)}.st.correcao{background:#fff4d6;color:#7a5600}.st.recusado{background:#fdecea;color:var(--err)}
+.top .meus{margin-left:auto;color:#fff;background:rgba(255,255,255,.12);border:0;border-radius:999px;padding:8px 14px;font:700 .9rem var(--f);cursor:pointer;display:none}
+.top .meus[style*="block"] + .sai{margin-left:12px}
 .cod{letter-spacing:.4em;font-size:1.4rem;text-align:center;font-weight:800}
 </style>
 </head>
 <body>
 <header class="top"><div class="in">
 <a class="logo" href="/"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#f5b82e" stroke-width="2.4" stroke-linecap="round"/></svg>bordazul</a>
-<button class="sai" id="sair" type="button">Sair</button>
+<button class="meus" id="meus" type="button">Meus barcos</button><button class="sai" id="sair" type="button">Sair</button>
 </div></header>
 <main>
 <div class="passos" id="passos" aria-hidden="true"></div>
@@ -206,10 +216,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
   <div class="msg" id="m5"></div>
 </section>
 
+<!-- 7: meus barcos -->
+<section class="card oculto" data-passo="7">
+  <p class="etq">Seu WhatsApp</p>
+  <h1>Meus barcos</h1>
+  <p class="lead">Todos os barcos cadastrados com este WhatsApp. Toque em um para continuar ou ver a situação.</p>
+  <div class="barcos" id="barcos"></div>
+  <div class="acoes"><button class="btn sun" id="btnNovo2" type="button">Anunciar outro barco</button></div>
+  <div class="msg" id="m7"></div>
+</section>
+
 <!-- 6: situação -->
 <section class="card oculto" data-passo="6">
   <div class="situacao" id="situacao"></div>
-  <div class="acoes"><button class="btn claro oculto" id="btnCorrigir" type="button">Corrigir o cadastro</button><button class="btn claro" id="btnNovo" type="button">Anunciar outro barco</button></div>
+  <div class="acoes"><button class="btn claro oculto" id="btnCorrigir" type="button">Corrigir o cadastro</button><button class="btn claro" id="btnLista" type="button">Meus barcos</button><button class="btn claro" id="btnNovo" type="button">Anunciar outro barco</button></div>
   <div class="msg" id="m6"></div>
 </section>
 </main>
@@ -256,7 +276,7 @@ function mostrar(n){
   document.querySelectorAll("[data-passo]").forEach(function(s){ s.classList.toggle("oculto", +s.dataset.passo !== n); });
   var p = $("passos"); p.innerHTML = "";
   if(n >= 1 && n <= 5) for(var i = 1; i <= 5; i++){ var b = document.createElement("i"); b.className = i < n ? "ok" : i === n ? "on" : ""; p.appendChild(b); }
-  $("sair").style.display = tk ? "block" : "none";
+  $("sair").style.display = tk ? "block" : "none"; $("meus").style.display = tk && n !== 7 && n !== 0 ? "block" : "none";
   window.scrollTo(0, 0);
   if(n === 3) desenharArquivos();
   if(n === 4) desenharFaixa();
@@ -271,7 +291,8 @@ $("cidade").addEventListener("change", function(){ $("boxOutra").classList.toggl
 
 function preencher(){
   var d = (cad && cad.dados) || {};
-  CAMPOS.forEach(function(k){ var el = $(k); if(el && d[k] != null) el.value = d[k]; });
+  CAMPOS.forEach(function(k){ var el = $(k); if(el) el.value = d[k] != null ? d[k] : (k === "tipo" ? "lancha" : ""); });
+  $("assNome").value = ""; $("assCpf").value = ""; $("codAss").value = "";
   if(d.doc_dono) $("doc_dono").value = d.doc_dono;
   $("boxOutra").classList.toggle("oculto", $("cidade").value !== "outra");
   var it = d.itens || [];
@@ -352,17 +373,42 @@ $("tel").addEventListener("input", function(){ if(codPedido){ codPedido = false;
 function sair(){ guardar(null); cad = null; codPedido = false; $("boxCod").classList.add("oculto"); $("btnEntrar").textContent = "Receber código no WhatsApp"; mostrar(0); }
 $("sair").addEventListener("click", sair);
 
+function entrarNo(r){
+  cad = r.cadastro; fx = r.faixa; termoAtual = r.termo; links = r.links || {}; locais = {}; codAssPedido = false;
+  $("boxCodAss").classList.add("oculto"); $("btnAssinar").textContent = "Receber código para assinar"; $("aceites").innerHTML = "";
+  preencher();
+  if(cad.status === "rascunho"){
+    var d = cad.dados || {};
+    mostrar(!d.nome_dono ? 1 : !d.tie ? 2 : conferePasso(3).length ? 3 : !d.alta7 ? 4 : 5);
+  } else situacao();
+}
 function abrir(){
   return api({acao:"abrir", token:tk}).then(function(r){
     if(r.erro){ if(r.erro === "token") sair(); else msg(0, erroTxt(r)); return; }
-    cad = r.cadastro; fx = r.faixa; termoAtual = r.termo; links = r.links || {};
-    preencher();
-    if(cad.status === "rascunho"){
-      var d = cad.dados || {};
-      mostrar(!d.nome_dono ? 1 : !d.tie ? 2 : conferePasso(3).length ? 3 : !d.alta7 ? 4 : 5);
-    } else situacao();
+    /* quem tem mais de um barco começa pela lista */
+    api({acao:"lista", token:tk}).then(function(l){ if(l.barcos && l.barcos.length > 1) desenharLista(l); else entrarNo(r); });
   });
 }
+var ST = {rascunho:"Em preenchimento", em_analise:"Em análise", correcao:"Correção pedida", aprovado:"Aprovado", recusado:"Não aprovado"};
+function desenharLista(l){
+  var box = $("barcos"); box.innerHTML = "";
+  l.barcos.forEach(function(b){
+    var bt = document.createElement("button"); bt.type = "button"; bt.className = "barco";
+    var ft = document.createElement("span"); ft.className = "ft";
+    if(b.foto){ var im = document.createElement("img"); im.src = b.foto; im.alt = ""; ft.appendChild(im); } else ft.textContent = "⚓";
+    var tx = document.createElement("span"), nm = document.createElement("b"), sm = document.createElement("small"), st = document.createElement("span");
+    nm.textContent = b.nome || "Barco sem nome"; sm.textContent = [b.pes ? b.pes + " pés" : "", b.cidade].filter(Boolean).join(" · ");
+    st.className = "st " + b.status; st.textContent = ST[b.status] || b.status;
+    tx.appendChild(nm); tx.appendChild(sm); tx.appendChild(document.createElement("br")); tx.appendChild(st);
+    bt.appendChild(ft); bt.appendChild(tx);
+    bt.onclick = function(){ bt.disabled = true; api({acao:"trocar", token:tk, id:b.id}).then(function(r){ bt.disabled = false; if(r.erro){ msg(7, erroTxt(r)); return; } entrarNo(r); }); };
+    box.appendChild(bt);
+  });
+  mostrar(7);
+}
+function verLista(){ return api({acao:"lista", token:tk}).then(function(l){ if(l.erro){ if(l.erro === "token") sair(); return; } desenharLista(l); }); }
+$("meus").addEventListener("click", verLista);
+$("btnLista").addEventListener("click", verLista);
 
 /* arquivos */
 var EXT = {"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/heic":"heic","image/heif":"heic","application/pdf":"pdf"};
@@ -507,15 +553,17 @@ function situacao(){
   mostrar(6);
 }
 $("btnCorrigir").addEventListener("click", function(){ codAssPedido = false; $("boxCodAss").classList.add("oculto"); $("btnAssinar").textContent = "Receber código para assinar"; mostrar(1); });
-$("btnNovo").addEventListener("click", function(){
-  var b = this; b.disabled = true;
+function novoBarco(){
+  var b = this, de = passoAtual; b.disabled = true;
   api({acao:"novo", token:tk}).then(function(r){
     b.disabled = false;
-    if(r.erro){ msg(6, erroTxt(r)); return; }
+    if(r.erro){ msg(de, erroTxt(r)); return; }
     cad = r.cadastro; fx = null; links = {}; locais = {}; termoAtual = null; codAssPedido = false;
     $("aceites").innerHTML = ""; preencher(); mostrar(2);
   });
-});
+}
+$("btnNovo").addEventListener("click", novoBarco);
+$("btnNovo2").addEventListener("click", novoBarco);
 
 api({acao:"termo"}).then(function(r){ if(r && r.aceites){ info = r; if(passoAtual === 5) desenharTermo(); } });
 if(tk) abrir(); else mostrar(0);
