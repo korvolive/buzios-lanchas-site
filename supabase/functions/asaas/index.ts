@@ -705,7 +705,8 @@ Deno.serve(async req => {
       const tt = await totais(sinal), np = metodo === "cartao" && !fora ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
       const op = tt.parcelas[np - 1], tot = metodo === "cartao" ? op.total : tt.pix;
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
-      if (velha && vale(velha, p.pagar_ate) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
+      // sem divisão (split desligado no Asaas): a cobrança velha sem divisão continua valendo, a parte do dono sai depois pelo saldo
+      if (velha && vale(velha, p.pagar_ate) && +velha.valor === tot && ((+velha.repasse === rep && velha.wallet_id === (wallet || null)) || (!velha.wallet_id && !(+velha.repasse > 0)))) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
       if (velha) {
@@ -722,16 +723,27 @@ Deno.serve(async req => {
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const venc = new Date(Math.max(Date.now() + 2 * 864e5, p.pagar_ate ? new Date(p.pagar_ate).getTime() + 864e5 : 0) - 3 * 36e5).toISOString().slice(0, 10); // nunca vence antes do prazo da pré-reserva
-      const pg = await asaas("/payments", {
+      const corpo: any = {
         customer: cus, billingType: metodo === "pix" ? "PIX" : "CREDIT_CARD", dueDate: venc,
         ...(np > 1 ? { installmentCount: np, installmentValue: op.parcela } : { value: tot }),
         description: `Sinal da reserva · ${lancha}${+p.jetski_valor > 0 ? " + jetski" : ""} · ${dataBR(p.data)}${np > 1 ? ` · ${np}x` : ""}`.slice(0, 500), externalReference: `PED${p.id}`,
         ...(wallet && rep > 0 ? { split: [{ walletId: wallet, ...(np > 1 ? { totalFixedValue: rep } : { fixedValue: rep }) }] } : {}),
-      });
+      };
+      // Split desligado na conta Asaas (2026-11-16, caso Rafaella): o cliente nunca fica sem pagar. Cobra sem divisão,
+      // registra sem carteira/repasse e a parte do dono vai pelo saldo (enviarSaldos, "pago sem divisão"), como dono sem conta aprovada.
+      let semSplit = false, pg: any;
+      try { pg = await asaas("/payments", corpo); }
+      catch (e: any) {
+        if (!corpo.split || !(e?.asaas && e?.status === 400 && /split/i.test(String(e?.message || "")))) throw e;
+        console.error("split desligado no Asaas: cobrando sem divisão", p.id, e?.message);
+        delete corpo.split; semSplit = true;
+        pg = await asaas("/payments", corpo);
+        pushAdmins({ title: "Asaas: split desligado", body: `A cobrança do pedido ${p.id} saiu sem divisão; a parte do dono vai pelo saldo. Ative o split em Integrações > Segurança no Asaas.` }, `split-off-${new Date().toISOString().slice(0, 10)}`).catch((x) => console.error("push split", x));
+      }
       let payload = null, img = null;
       try {
         if (metodo === "pix") { const q = await asaas(`/payments/${pg.id}/pixQrCode`); payload = q.payload; img = q.encodedImage; }
-        const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: rep, wallet_id: wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
+        const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: semSplit ? 0 : rep, wallet_id: semSplit ? null : wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
         if (ei) throw new Error(ei.message);
         // gerou de novo: volta a valer, e o horário do jetski volta para este cliente (o banco recusa se outro pegou no meio tempo)
         const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id);
