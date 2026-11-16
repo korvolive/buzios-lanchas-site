@@ -204,7 +204,8 @@ html.is-app #hdr-login{display:none}
 /* celular: lanchas lado a lado, arrastando ou pelas setas (2026-10-24) */
 .cat-tabs,.section-head > div.cat-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(127,127,127,.12);margin-top:10px}.cat-tabs button{border:0;background:transparent;color:inherit;font:inherit;font-weight:600;padding:8px 18px;border-radius:999px;cursor:pointer}.cat-tabs button[aria-selected=true]{background:var(--gold,#c99a2e);color:#fff}
 .fleet-car{position:relative}.car-btn,.car-count,.car-hint,.car-nav{display:none}
-@media (max-width:700px){
+/* carrossel em todas as telas (2026-11-16): no computador mostra 4 lanchas por vez (3 em tela média) e as setas passam um grupo inteiro */
+@media all{
   .fleet-car .grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -16px;padding:4px 16px 14px;scroll-padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .fleet-car .grid::-webkit-scrollbar{display:none}
   .fleet-car .card{flex:0 0 86%;scroll-snap-align:start}
@@ -753,9 +754,17 @@ h1,h2,h3{line-height:1.15}
 :root{--alt:#e1edf1}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--alt:#123544}}
 :root[data-theme="dark"]{--alt:#123544}
-#roteiro,#duvidas{background:var(--alt)}
+#roteiro{background:#06394a;color:var(--ink);--ink:#eaf4f6;--muted:#b4cdd5;--surface:#0c4557;--line:#2a5f71;--sea:#8fd6e8;--sea-deep:#0a2a36;--chip:#124a5c}
+#duvidas{background:#0b5c73;color:var(--ink);--ink:#eef7f9;--muted:#cfe3e9;--surface:#0f6a83;--line:#3a8199;--sea:#bfe9f3;--sea-deep:#06394a;--chip:#13708a} /* seções invertidas: fundo azul escuro, texto claro */
 #roteiro,#como,#duvidas{padding-top:56px!important}
 @media (max-width:600px){#roteiro,#como,#duvidas{padding-top:48px!important}}
+@media (min-width:701px){
+  .fleet-car .grid{margin:0;padding:4px 0 14px;gap:22px;scroll-padding:0}
+  .fleet-car .card{flex:0 0 calc((100% - 22px)/2)}
+  .car-nav:not([hidden]){max-width:560px;margin:0 auto 16px}
+}
+@media (min-width:1000px){.fleet-car .card{flex:0 0 calc((100% - 44px)/3)}}
+@media (min-width:1200px){.fleet-car .card{flex:0 0 calc((100% - 66px)/4)}}
 @media (min-width:761px){.barra{display:none}}
 html.is-app .barra{display:none}
 @media (prefers-reduced-motion:reduce){.btn,.card,.barra{transition:none}.btn:active,.card:active{transform:none}}
@@ -3009,7 +3018,8 @@ document.addEventListener("scroll",e=>{ if(e.target.classList&&e.target.matches(
 addEventListener("resize",()=>carSync());
 document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if(!bt) return;
   const g=app.querySelector(".fleet-car .grid"), c=g.querySelector(".card:not([hidden])");
-  g.scrollBy({left:+bt.dataset.car*(c?c.offsetWidth+14:300),behavior:"smooth"}); }); /* só as setas passam; a faixa do meio é só aviso (2026-10-30) */
+  const st=c?c.offsetWidth+parseFloat(getComputedStyle(g).columnGap||14):300, por=Math.max(1,Math.floor((g.clientWidth+8)/st));
+  g.scrollBy({left:+bt.dataset.car*st*por,behavior:"smooth"}); }); /* só as setas passam; no computador passam o grupo visível inteiro (2026-11-16) */
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
 async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
