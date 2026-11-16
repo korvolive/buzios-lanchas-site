@@ -45,17 +45,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .hero{position:relative;margin:4px var(--m) 0;border-radius:var(--r-lg);overflow:hidden;height:min(84svh,800px);min-height:560px;background:var(--navy);color:#fff}
 .hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
 .hero .ph .sl.on{opacity:1}
-.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* enquadramento que o Rodrigo aprovou (2026-11-16): cada foto inteira, sem ampliar; o resto do topo é a mesma foto ao fundo, só levemente desfocada */
-.hero .ph .sl::before{content:"";position:absolute;inset:-20px;background:var(--src) center/cover;filter:blur(6px) brightness(.72)}
-@media (max-width:720px){
- .hero .ph .sl.cm::before{display:none}
- .hero .ph .sl:not(.cm) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
- .hero .ph .sl.up img{transform:translateY(-30%)} /* Miss Bardot: corta o céu, o barco fica acima do título */
-}
-@media (min-width:721px){
- .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
-}
+.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--pos,center)}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
 .hero h1{font-size:clamp(2.6rem,1.4rem + 4.6vw,5.4rem)}
@@ -78,8 +68,8 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .result a{display:inline-flex;align-items:center;gap:6px;margin-left:8px;color:var(--blue);font-weight:700}
 /* seções */
 section{scroll-margin-top:80px}
-.sec{padding:clamp(80px,10vw,130px) 0 0}
-.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:36px}
+.sec{padding:clamp(48px,6vw,80px) 0 0}
+.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}
 .sec-h h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}
 .sec-h p{max-width:46ch;color:var(--soft);margin-top:12px}
 /* destinos */
@@ -99,9 +89,9 @@ a.dest:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(7,28,5
 .wave{position:absolute;right:-30px;top:30%;width:120%;opacity:.12}
 /* passos */
 /* seções com fundo alternado, como na página da Búzios (Rodrigo 2026-11-16): claro, azul-marinho, claro, azul-claro, azul */
-#como,#perguntas{padding-bottom:clamp(80px,10vw,130px)}
-#como{background:var(--navy);color:#fff;margin-top:clamp(80px,10vw,130px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
-#barco{background:var(--chip);padding-bottom:clamp(80px,10vw,130px);margin-top:clamp(80px,10vw,130px)}
+#como,#perguntas{padding-bottom:clamp(48px,6vw,80px)}
+#como{background:var(--navy);color:#fff;margin-top:clamp(48px,6vw,80px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
+#barco{background:var(--chip);padding-bottom:clamp(48px,6vw,80px)}
 #perguntas{background:#0b3f91;color:#fff}#perguntas .side p{color:rgba(255,255,255,.8)}#perguntas .side .btn{background:#fff;color:#0b3f91}
 #perguntas details{color:var(--ink)}
 #perguntas .cta{background:var(--coral);color:var(--navy)}#perguntas .cta p{color:rgba(7,28,53,.82)}#perguntas .cta .btn.white{background:var(--navy);color:#fff}
@@ -142,11 +132,11 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 .faq details{background:var(--white)}.faq details[open]{background:var(--white)}
 .faq details p{padding:0 22px 20px;color:var(--soft)}
 /* chamada */
-.cta{margin-top:clamp(80px,10vw,130px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
+.cta{margin-top:clamp(48px,6vw,80px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
 .cta h2{font-size:clamp(2.2rem,1.4rem + 2.6vw,3.8rem)}.cta p{margin-top:12px;max-width:44ch;color:rgba(255,255,255,.9)}
 .cta .btns{display:flex;gap:12px;flex-wrap:wrap;flex:none}
 /* rodapé */
-.pe{margin-top:clamp(80px,10vw,130px);background:var(--navy);color:#fff;padding:64px 0 36px}
+.pe{margin-top:clamp(48px,6vw,80px);background:var(--navy);color:#fff;padding:64px 0 36px}
 .pe .row{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
 .pe .logo{color:#fff}.pe .lema{margin-top:10px;font-weight:700;color:var(--coral);letter-spacing:.01em}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
 .pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
@@ -187,7 +177,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 </div></header>
 <main>
 <section class="hero">
-<div class="ph"><div class="sl on cv cm" style="--src:url(../img/mar-buzios.jpg)"><img src="../img/mar-buzios.jpg" width="1600" height="1080" alt="Aerial view of Búzios and its islands"></div><div class="sl cv" style="--src:url(../img/barco-3.jpg)"><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Motorboat at sunset in Búzios" loading=lazy></div><div class="sl up" style="--src:url(../img/barco-1.jpg)"><img src="../img/barco-1.jpg" width="960" height="1280" alt="Motorboat anchored in the green waters of Búzios" loading=lazy></div><div class="sl" style="--src:url(../img/barco-4.jpg)"><img src="../img/barco-4.jpg" width="1080" height="1236" alt="On the bow in front of an island" loading=lazy></div></div>
+<div class="ph"><div class="sl on" style="--pos:center"><img src="../img/mar-buzios.jpg" width="1600" height="1080" alt="Aerial view of Búzios and its islands"></div><div class="sl" style="--pos:center 55%"><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Motorboat at sunset in Búzios" loading=lazy></div><div class="sl" style="--pos:center 62%"><img src="../img/barco-1.jpg" width="960" height="1280" alt="Motorboat anchored in the green waters of Búzios" loading=lazy></div></div>
 <div class="hero-txt"><h1>Your day at sea,<br>all over Brazil.</h1><p class="lead">Boats with a skipper, just for your group. Choose the destination, the date and how many people are coming aboard.</p></div>
 </section>
 <div class="search" id="busca">
@@ -210,17 +200,10 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 <div class="passos"><div class="passo rv"><div class="n" aria-label="Step 1">1</div><h3>Pick a destination</h3><p>Tell us where, when and how many people are coming.</p></div><div class="passo rv"><div class="n" aria-label="Step 2">2</div><h3>Compare boats</h3><p>Photos, size, what is included and the price of each one.</p></div><div class="passo rv"><div class="n" aria-label="Step 3">3</div><h3>Secure the date</h3><p>A 50% deposit holds the day. The rest is paid at boarding.</p></div><div class="passo rv"><div class="n" aria-label="Step 4">4</div><h3>Get on board</h3><p>Your skipper meets the group at the pier, right on time.</p></div></div>
 </div></section>
 
-<section class="sec"><div class="wrap">
-<div class="mares rv">
-<div class="txt"><h2>Seas</h2><p>The destinations Bordazul will cover. We open each one once it has good boats to rent.</p>
-<div class="count"><div><b>21</b><span>destinations</span></div><div><b>6</b><span>regions</span></div></div></div>
-<div><details open><summary>Rio de Janeiro<small>6</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Búzios<span class="uf">RJ</span></span><a class="tag" href="/buzios/en/">Boarding now</a></li><li><span>Arraial do Cabo<span class="uf">RJ</span></span><span class="tag">Coming soon</span></li><li><span>Cabo Frio<span class="uf">RJ</span></span><span class="tag">Coming soon</span></li><li><span>Rio de Janeiro<span class="uf">RJ</span></span><span class="tag">Coming soon</span></li><li><span>Angra dos Reis<span class="uf">RJ</span></span><span class="tag">Coming soon</span></li><li><span>Paraty<span class="uf">RJ</span></span><span class="tag">Coming soon</span></li></ul></details><details><summary>São Paulo<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Ilhabela<span class="uf">SP</span></span><span class="tag">Coming soon</span></li><li><span>Ubatuba<span class="uf">SP</span></span><span class="tag">Coming soon</span></li><li><span>Guarujá<span class="uf">SP</span></span><span class="tag">Coming soon</span></li></ul></details><details><summary>Santa Catarina<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Florianópolis<span class="uf">SC</span></span><span class="tag">Coming soon</span></li><li><span>Bombinhas<span class="uf">SC</span></span><span class="tag">Coming soon</span></li><li><span>Balneário Camboriú<span class="uf">SC</span></span><span class="tag">Coming soon</span></li></ul></details><details><summary>Bahia<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Salvador<span class="uf">BA</span></span><span class="tag">Coming soon</span></li><li><span>Morro de São Paulo<span class="uf">BA</span></span><span class="tag">Coming soon</span></li><li><span>Porto Seguro<span class="uf">BA</span></span><span class="tag">Coming soon</span></li></ul></details><details><summary>Alagoas and Pernambuco<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Maragogi<span class="uf">AL</span></span><span class="tag">Coming soon</span></li><li><span>Porto de Galinhas<span class="uf">PE</span></span><span class="tag">Coming soon</span></li><li><span>Fernando de Noronha<span class="uf">PE</span></span><span class="tag">Coming soon</span></li></ul></details><details><summary>Lakes and rivers<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Capitólio<span class="uf">MG</span></span><span class="tag">Coming soon</span></li><li><span>Lago Paranoá, Brasília<span class="uf">DF</span></span><span class="tag">Coming soon</span></li><li><span>Rio Negro, Manaus<span class="uf">AM</span></span><span class="tag">Coming soon</span></li></ul></details></div>
-</div>
-</div></section>
 
 <section class="sec" id="barco"><div class="wrap">
 <div class="dono rv">
-<div class="txt"><h2>Own a boat?</h2><p>It can become tours and income, without you handling listings, customer service or payments.</p><p>Bordazul was born from a boat tour company in Búzios that already does this every day: it welcomes the client, answers questions, confirms the date and collects the deposit. The owner only takes care of the boat and the tour.</p><p>Now we are taking this way of working to other seas in Brazil. Sign-ups open step by step, one destination at a time, so each city starts with good boats.</p><p>If you own a motorboat, yacht, sailboat, catamaran or schooner with a licensed skipper, talk to us. You set the price you want to receive, and the boat is on the calendar only when you want.</p>
+<div class="txt"><h2>Own a boat?</h2><p>It can become tours and income, without you handling listings, customer service or payments.</p>
 <div class="sign">The Bordazul team<span>Boat sign-ups</span></div>
 <div class="btns"><a class="btn coral" href="/anunciar/">I want to list my boat</a></div></div>
 <div class="ph"><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Motorboat at sunset in Búzios" loading="lazy"></div>
@@ -230,7 +213,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 <section class="sec" id="perguntas"><div class="wrap">
 <div class="faq">
 <div class="side"><h2 class="rv">Questions</h2><p class="rv">Didn&#x27;t find your question? Message us on WhatsApp.</p><a class="btn rv" href="https://wa.me/5521999272550?text=Hi%21%20I%20found%20you%20on%20the%20Bordazul%20website." rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>Chat on WhatsApp</a></div>
-<div class="rv"><details><summary>What is Bordazul?<span class="plus" aria-hidden="true">+</span></summary><p>A platform to rent boats with a skipper in Brazil&#x27;s nautical destinations, with boats from many owners in one place.</p></details><details><summary>Where are boats available now?<span class="plus" aria-hidden="true">+</span></summary><p>In Búzios, Rio de Janeiro. There you can see every boat, photos and seasonal prices and book online. Other destinations open step by step.</p></details><details><summary>Does every boat come with a skipper?<span class="plus" aria-hidden="true">+</span></summary><p>Yes. Every tour has a licensed skipper, and the boat is for your group only.</p></details><details><summary>What is included in Búzios?<span class="plus" aria-hidden="true">+</span></summary><p>Fuel, ice, charcoal, mineral water and a cooler. Food and drinks are not included, and the crew grills for you if you bring the meat.</p></details><details><summary>How do I book?<span class="plus" aria-hidden="true">+</span></summary><p>Choose the boat, the date and the number of people. The date is secured with a 50% deposit and the rest is paid on the day of the tour.</p></details><details><summary>How can I pay?<span class="plus" aria-hidden="true">+</span></summary><p>The deposit can be paid by Pix for any date, and by card when the tour is 5 or more days away.</p></details><details><summary>What if I need to cancel?<span class="plus" aria-hidden="true">+</span></summary><p>You can keep a credit of 100% of the deposit for 1 year. With 7 or more days&#x27; notice, you can also ask for the full deposit back.</p></details><details><summary>What if the sea is rough?<span class="plus" aria-hidden="true">+</span></summary><p>The tour is moved to another date at no cost.</p></details><details><summary>When will my city open?<span class="plus" aria-hidden="true">+</span></summary><p>As soon as it has good boats to rent. Ask on WhatsApp to be told first.</p></details><details><summary>Can I list my boat?<span class="plus" aria-hidden="true">+</span></summary><p>Yes. Sign-up is online at bordazul.com.br/anunciar (in Portuguese): boat details, documents, photos, your price and the partnership terms signed via WhatsApp. The team reviews every boat before it goes live.</p></details><details><summary>Who is behind Bordazul?<span class="plus" aria-hidden="true">+</span></summary><p>Búzios Lanchas, a registered company that already takes groups on boat tours in Búzios.</p></details></div>
+<div class="rv"><details><summary>What is Bordazul?<span class="plus" aria-hidden="true">+</span></summary><p>A platform to rent boats with a skipper in Brazil&#x27;s nautical destinations, with boats from many owners in one place.</p></details><details><summary>Where are boats available now?<span class="plus" aria-hidden="true">+</span></summary><p>In Búzios, Rio de Janeiro. There you can see every boat, photos and seasonal prices and book online. Other destinations open step by step.</p></details><details><summary>Does every boat come with a skipper?<span class="plus" aria-hidden="true">+</span></summary><p>Yes. Every tour has a licensed skipper, and the boat is for your group only.</p></details><details><summary>How do I book?<span class="plus" aria-hidden="true">+</span></summary><p>Choose the boat, the date and the number of people. The date is secured with a 50% deposit and the rest is paid on the day of the tour.</p></details><details><summary>How can I pay?<span class="plus" aria-hidden="true">+</span></summary><p>The deposit can be paid by Pix for any date, and by card when the tour is 5 or more days away.</p></details><details><summary>Can I list my boat?<span class="plus" aria-hidden="true">+</span></summary><p>Yes. Sign-up is online at bordazul.com.br/anunciar (in Portuguese): boat details, documents, photos, your price and the partnership terms signed via WhatsApp. The team reviews every boat before it goes live.</p></details></div>
 </div>
 <div class="cta rv"><div><h2>Off to Búzios?</h2><p>Boats from 22 to 35 feet, for up to 16 people, on 4 or 7 hour tours. The first fleet is already on the water. The rest of Brazil is right behind.</p></div>
 <div class="btns"><a class="btn white" href="/buzios/en/">See boats in Búzios →</a></div></div>
