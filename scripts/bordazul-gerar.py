@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Gera o site da Bordazul (bordazul.com.br, pasta bordazul/) em PT, EN e ES, em HTML estático.
+"""Gera o site do Bordazul (bordazul.com.br, pasta bordazul/) em PT, EN e ES, em HTML estático.
 
 2026-11-15: marca nacional de aluguel de barcos (donos anunciam os barcos, como um marketplace).
 Fase 1: página de entrada. Búzios já tem embarque aberto (leva ao lanchaembuzios.com.br, com a data e
 o número de pessoas escolhidos no bilhete); os outros destinos aparecem "Em breve" e o visitante pode
 pedir aviso pelo WhatsApp. Donos de barco pedem o cadastro pelo WhatsApp.
 
-Identidade própria, diferente do site de Búzios: fonte Urbanist, azul vivo, coral e azul-marinho,
+Identidade própria, diferente do site de Búzios: fonte Urbanist, azul vivo, amarelo e azul-marinho (coral trocado por amarelo a pedido, 2026-11-16),
 cantos arredondados e botões redondos (Rodrigo 2026-11-15 achou a 1ª versão, em bilhete, "pré-histórica").
 Capa com foto grande e barra de busca (destino, data, pessoas), como nos sites de viagem.
 
@@ -54,7 +54,7 @@ T = {
   f_dest="Destino", f_data="Data", f_pes="Pessoas", f_btn="Ver barcos", menos="Menos uma pessoa", mais="Mais uma pessoa",
   r_aberto="Búzios tem embarque aberto. Levamos você às lanchas com a sua data e o seu grupo.",
   r_breve="{c} ainda não abriu. Quer saber primeiro quando tiver barco lá?", r_breve_btn="Me avise pelo WhatsApp",
-  wa_breve="Olá! Quero ser avisado quando a Bordazul abrir em {c}.",
+  wa_breve="Olá! Quero ser avisado quando o Bordazul abrir em {c}.",
   links=[("#destinos", "Todos os destinos"), ("#como", "Como funciona"), ("#barco", "Anuncie seu barco")],
   foto_alt=["Vista aérea de Búzios e suas ilhas", "Lancha ao pôr do sol em Búzios", "Lancha ancorada em águas verdes de Búzios", "Na proa da lancha diante de uma ilha"],
   s_p1="Começamos por Búzios, onde a primeira frota já leva grupos às praias.",
@@ -72,16 +72,16 @@ T = {
         ("Na reserva", [("Tire dúvidas com a gente", "WhatsApp"), ("Garanta a data com o sinal", "50%")]),
         ("No dia", [("Encontre o marinheiro no píer", "na hora marcada"), ("Pague o restante", "no embarque")])],
   como_fim=("Você no mar", "4 ou 7 horas"),
-  mares="Mares", mares_p="Os destinos que a Bordazul vai cobrir. Abrimos cada um quando tiver barcos bons para alugar lá.",
+  mares="Mares", mares_p="Os destinos que o Bordazul vai cobrir. Abrimos cada um quando tiver barcos bons para alugar lá.",
   reg={"rj": "Rio de Janeiro", "sp": "São Paulo", "sul": "Santa Catarina", "ba": "Bahia", "ne": "Alagoas e Pernambuco", "lagos": "Lagos e rios"},
   carta=["<strong>Tem um barco parado na marina?</strong> Ele pode virar passeio e renda, sem você precisar cuidar de anúncio, atendimento ou cobrança.",
-         "A Bordazul nasceu de uma empresa de passeios de lancha em Búzios que já faz isso todos os dias: recebe o cliente, tira as dúvidas, confirma a data e cobra o sinal. O dono só cuida do barco e do passeio.",
+         "O Bordazul nasceu de uma empresa de passeios de lancha em Búzios que já faz isso todos os dias: recebe o cliente, tira as dúvidas, confirma a data e cobra o sinal. O dono só cuida do barco e do passeio.",
          "Agora vamos levar esse jeito de trabalhar para outros mares do Brasil. Estamos abrindo os cadastros aos poucos, destino por destino, para cada cidade já começar com barcos bons.",
          "Se você tem lancha, iate, veleiro, catamarã ou escuna com marinheiro habilitado, fale com a gente. Você define o preço que quer receber, e o barco fica na agenda só quando você quiser."],
   carta_ass="Equipe Bordazul", carta_cargo="Cadastro de barcos", carta_btn="Quero anunciar meu barco",
-  wa_dono="Olá! Tenho um barco e quero anunciar na Bordazul.",
+  wa_dono="Olá! Tenho um barco e quero anunciar no Bordazul.",
   faq_h="Perguntas",
-  faq=[("O que é a Bordazul?", "Uma plataforma para alugar barcos com marinheiro nos destinos náuticos do Brasil, com os barcos de vários donos reunidos em um só lugar."),
+  faq=[("O que é o Bordazul?", "Uma plataforma para alugar barcos com marinheiro nos destinos náuticos do Brasil, com os barcos de vários donos reunidos em um só lugar."),
        ("Onde já tem barcos?", "Em Búzios, no Rio de Janeiro. Lá você vê todas as lanchas, fotos e preços por temporada e reserva online. Os outros destinos abrem aos poucos."),
        ("Todo barco tem marinheiro?", "Sim. Todos os passeios são feitos com marinheiro habilitado, e o barco é só do seu grupo."),
        ("O que vem incluso em Búzios?", "Combustível, gelo, carvão, água mineral e cooler. Comidas e bebidas não estão inclusas, e a equipe prepara o churrasco se você levar as carnes."),
@@ -91,13 +91,13 @@ T = {
        ("E se o mar não estiver bom?", "O passeio é remarcado para outra data, sem custo."),
        ("Quando abre a minha cidade?", "Assim que tiver barcos bons para alugar lá. Peça aviso pelo WhatsApp e você fica sabendo primeiro."),
        ("Posso anunciar meu barco?", "Pode. Fale com a gente pelo WhatsApp: os cadastros estão abrindo destino por destino."),
-       ("Quem está por trás da Bordazul?", "A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.")],
+       ("Quem está por trás do Bordazul?", "A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.")],
   cta_p="A primeira frota já está na água. O resto do Brasil vem logo atrás.",
   cta_h="Partiu Búzios?", cta_l="Lanchas de 22 a 35 pés, para até 16 pessoas, com passeios de 4 ou 7 horas.", cta_btn="Ver lanchas em Búzios",
-  pe_h="Até a bordo.", pe_p="Escreva para a gente quando quiser: sobre um passeio, sobre o seu barco ou para saber quando a sua cidade abre.",
+  pe_lema="Bordazul: a bordo do azul.", pe_h="Até a bordo.", pe_p="Escreva para a gente quando quiser: sobre um passeio, sobre o seu barco ou para saber quando a sua cidade abre.",
   pe_selo="Lancha em Búzios",
   pe_imp="© 2026 Bordazul, uma marca da Búzios Lanchas · CNPJ 32.154.099/0001-72",
-  wa_geral="Olá! Vim pelo site da Bordazul.",
+  wa_geral="Olá! Vim pelo site do Bordazul.",
   noscript="Para ver as lanchas, abra o site de Búzios.",
  ),
  "en": dict(
@@ -150,7 +150,7 @@ T = {
        ("Who is behind Bordazul?", "Búzios Lanchas, a registered company that already takes groups on boat tours in Búzios.")],
   cta_p="The first fleet is already on the water. The rest of Brazil is right behind.",
   cta_h="Off to Búzios?", cta_l="Boats from 22 to 35 feet, for up to 16 people, on 4 or 7 hour tours.", cta_btn="See boats in Búzios",
-  pe_h="See you aboard.", pe_p="Write to us any time: about a tour, about your boat or to hear when your city opens.",
+  pe_lema="Bordazul: aboard the blue.", pe_h="See you aboard.", pe_p="Write to us any time: about a tour, about your boat or to hear when your city opens.",
   pe_selo="Motorboat in Búzios",
   pe_imp="© 2026 Bordazul, a Búzios Lanchas brand · CNPJ 32.154.099/0001-72",
   wa_geral="Hi! I found you on the Bordazul website.",
@@ -206,7 +206,7 @@ T = {
        ("¿Quién está detrás de Bordazul?", "Búzios Lanchas, empresa registrada que ya lleva grupos a pasear en lancha en Búzios.")],
   cta_p="La primera flota ya está en el agua. El resto de Brasil viene justo detrás.",
   cta_h="¿Vamos a Búzios?", cta_l="Lanchas de 22 a 35 pies, para hasta 16 personas, con paseos de 4 o 7 horas.", cta_btn="Ver lanchas en Búzios",
-  pe_h="Nos vemos a bordo.", pe_p="Escríbenos cuando quieras: sobre un paseo, sobre tu barco o para saber cuándo abre tu ciudad.",
+  pe_lema="Bordazul: a bordo del azul.", pe_h="Nos vemos a bordo.", pe_p="Escríbenos cuando quieras: sobre un paseo, sobre tu barco o para saber cuándo abre tu ciudad.",
   pe_selo="Lancha en Búzios",
   pe_imp="© 2026 Bordazul, una marca de Búzios Lanchas · CNPJ 32.154.099/0001-72",
   wa_geral="¡Hola! Llegué por el sitio de Bordazul.",
@@ -262,7 +262,7 @@ ICON_BUSCA = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke
 ICON_WA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>'
 
 CSS = r"""
-:root{--bg:#f4f7fb;--white:#fff;--ink:#0a1e33;--soft:#51657a;--line:#dfe7f0;--blue:#0a63e8;--blue-d:#0750c2;--navy:#071c35;--coral:#ff6b4a;--coral-d:#e95536;--chip:#e8f0fd;
+:root{--bg:#f4f7fb;--white:#fff;--ink:#0a1e33;--soft:#51657a;--line:#dfe7f0;--blue:#0a63e8;--blue-d:#0750c2;--navy:#071c35;--coral:#f5b82e;--coral-d:#e6a512;--chip:#e8f0fd;
 --r:22px;--r-lg:32px;--m:clamp(16px,3vw,40px);--max:1240px;--f:"Urbanist",system-ui,sans-serif;--ease:cubic-bezier(.2,.7,.2,1)}
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -274,7 +274,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;z-index:30;background:#fff;padding:8px 14px;border-radius:999px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 26px;border-radius:999px;border:0;background:var(--blue);color:#fff;font:700 1rem var(--f);text-decoration:none;cursor:pointer;transition:transform .25s var(--ease),background-color .25s,box-shadow .25s}
 .btn:hover{background:var(--blue-d);transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(10,99,232,.6)}
-.btn.coral{background:var(--coral)}.btn.coral:hover{background:var(--coral-d);box-shadow:0 10px 24px -10px rgba(255,107,74,.6)}
+.btn.coral{background:var(--coral);color:var(--navy)}.btn.coral:hover{background:var(--coral-d);box-shadow:0 10px 24px -10px rgba(245,184,46,.6)}
 .btn.ghost{background:rgba(255,255,255,.14);color:#fff}.btn.ghost:hover{background:rgba(255,255,255,.24);box-shadow:none}
 .btn.white{background:#fff;color:var(--ink)}.btn.white:hover{background:#eef3fa}
 /* topo */
@@ -326,7 +326,7 @@ section{scroll-margin-top:80px}
 .dest>*:not(img){position:relative;z-index:1}
 a.dest:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(7,28,53,.55)}a.dest:hover img{transform:scale(1.05)}
 .dest .chip{position:absolute;top:20px;left:20px;z-index:2;background:rgba(255,255,255,.18);color:#fff;padding:7px 14px;border-radius:999px;font-size:.85rem;font-weight:700}
-.dest.open .chip{background:var(--coral)}
+.dest.open .chip{background:var(--coral);color:var(--navy)}
 .dest h3{font-size:clamp(1.6rem,1.2rem + 1vw,2.1rem)}
 .dest .uf{font-weight:600;opacity:.8;font-size:.95rem;margin-top:4px}
 .dest p{margin-top:10px;font-size:.98rem;color:rgba(255,255,255,.9)}
@@ -356,7 +356,7 @@ details li{display:flex;justify-content:space-between;align-items:center;gap:12p
 details li+li{border-top:1px solid var(--line)}
 details li .uf{color:var(--soft);font-size:.85rem;margin-left:6px}
 .tag{font-size:.82rem;font-weight:700;padding:5px 12px;border-radius:999px;background:#fff;color:var(--soft);white-space:nowrap}
-a.tag{background:var(--coral);color:#fff;text-decoration:none}
+a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 /* donos */
 .dono{display:grid;grid-template-columns:1.1fr 1fr;background:var(--navy);color:#fff;border-radius:var(--r-lg);overflow:hidden}
 .dono .txt{padding:clamp(32px,5vw,72px)}
@@ -377,7 +377,7 @@ a.tag{background:var(--coral);color:#fff;text-decoration:none}
 /* rodapé */
 .pe{margin-top:clamp(80px,10vw,130px);background:var(--navy);color:#fff;padding:64px 0 36px}
 .pe .row{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
-.pe .logo{color:#fff}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
+.pe .logo{color:#fff}.pe .lema{margin-top:10px;font-weight:700;color:var(--coral);letter-spacing:.01em}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
 .pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
 .pe .imp{margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);font-size:.9rem}
 /* entradas */
@@ -429,7 +429,7 @@ document.querySelectorAll(".rv").forEach(function(el){if(!io){el.classList.add("
 })();
 """
 
-LOGO = '<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#ff6b4a" stroke-width="2.4" stroke-linecap="round"/></svg>'
+LOGO = '<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#f5b82e" stroke-width="2.4" stroke-linecap="round"/></svg>'
 
 def destino_options(t, lang):
     out = []
@@ -559,7 +559,7 @@ def pagina(lang):
 
 <footer class="pe"><div class="wrap">
 <div class="row">
-<div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="about">{e(t["pe_p"])}</p></div>
+<div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="lema">{e(t["pe_lema"])}</p><p class="about">{e(t["pe_p"])}</p></div>
 <ul>
 <li><a href="{e(wa(t["wa_geral"]))}" rel="noopener">WhatsApp (21) 99927-2550</a></li>
 <li><a href="{e(bz)}">Búzios, RJ</a></li>
@@ -574,7 +574,7 @@ def pagina(lang):
 </html>
 """
 
-FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#ff6b4a" stroke-width="2.4" stroke-linecap="round"/></svg>'
+FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#f5b82e" stroke-width="2.4" stroke-linecap="round"/></svg>'
 
 def main():
     for lang in T:
