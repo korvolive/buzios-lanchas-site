@@ -240,7 +240,10 @@ async function avisarExpirou(pid: number) {
   const { data: ainda } = await db.from("pagamentos_asaas").select("id").eq("pedido", pid).limit(1);
   if (ainda?.length) return; // ainda tem outra cobrança valendo (Pix ou cartão)
   // marca o prazo vencido (Rodrigo 2026-11-12): o card mostra "Prazo vencido, data liberada" e, sem pagamento em 24 horas, o pedido é cancelado sozinho
-  await db.from("pedidos").update({ prazo_vencido_em: new Date().toISOString() }).eq("id", pid).eq("status", "pendente");
+  const { data: mk } = await db.from("pedidos").update({ prazo_vencido_em: new Date().toISOString() }).eq("id", pid).eq("status", "pendente").select("prazo_vencido_em").maybeSingle();
+  // pré-reserva com prazo combinado (pagar_ate) ainda valendo: o banco não marca o prazo vencido (a_pre_reserva_prazo_vale)
+  // e aqui também não sai aviso nenhum (nem chat, nem celular) dizendo que a lancha foi liberada (revisão 2026-11-16)
+  if (!mk?.prazo_vencido_em) return;
   if (!p.cliente) return;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const { data: cv } = await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle();
