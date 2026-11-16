@@ -46,15 +46,14 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
 .hero .ph .sl.on{opacity:1}
 .hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* celular: as fotos de barco aparecem inteiras no alto, o título fica sobre o fundo desfocado (a vista aérea continua cobrindo tudo) */
+/* fotos em pé (Rodrigo 2026-11-16, sem desfoque): aparecem inteiras e nítidas, e a borda some no azul-marinho do fundo; fotos deitadas cobrem o topo todo */
+.hero .ph .sl{background:var(--navy)}
 @media (max-width:720px){
- .hero .ph .sl:not(.cv)::before{content:"";position:absolute;inset:-60px;background:var(--src) center/cover;filter:blur(32px) brightness(.6) saturate(1.15)}
- .hero .ph .sl:not(.cv) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
+ .hero .ph .sl:not(.cm) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
+ .hero .ph .sl.up img{transform:translateY(-30%)} /* Miss Bardot: corta o céu, o barco fica acima do título */
 }
-/* computador (Rodrigo 2026-11-16): a foto inteira na altura do topo, sem ampliar, com as laterais sumindo num fundo desfocado da mesma foto */
 @media (min-width:721px){
- .hero .ph .sl::before{content:"";position:absolute;inset:-60px;background:var(--src) center/cover;filter:blur(32px) brightness(.6) saturate(1.15)}
- .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+ .hero .ph .sl:not(.cv) img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 }
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
@@ -187,7 +186,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 </div></header>
 <main>
 <section class="hero">
-<div class="ph"><div class="sl on cv" style="--src:url(../img/mar-buzios.jpg)"><img src="../img/mar-buzios.jpg" width="1600" height="1080" alt="Aerial view of Búzios and its islands"></div><div class="sl" style="--src:url(../img/barco-3.jpg)"><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Motorboat at sunset in Búzios" loading=lazy></div><div class="sl" style="--src:url(../img/barco-1.jpg)"><img src="../img/barco-1.jpg" width="960" height="1280" alt="Motorboat anchored in the green waters of Búzios" loading=lazy></div><div class="sl" style="--src:url(../img/barco-4.jpg)"><img src="../img/barco-4.jpg" width="1080" height="1236" alt="On the bow in front of an island" loading=lazy></div></div>
+<div class="ph"><div class="sl on cv cm" style="--src:url(../img/mar-buzios.jpg)"><img src="../img/mar-buzios.jpg" width="1600" height="1080" alt="Aerial view of Búzios and its islands"></div><div class="sl cv" style="--src:url(../img/barco-3.jpg)"><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Motorboat at sunset in Búzios" loading=lazy></div><div class="sl up" style="--src:url(../img/barco-1.jpg)"><img src="../img/barco-1.jpg" width="960" height="1280" alt="Motorboat anchored in the green waters of Búzios" loading=lazy></div><div class="sl" style="--src:url(../img/barco-4.jpg)"><img src="../img/barco-4.jpg" width="1080" height="1236" alt="On the bow in front of an island" loading=lazy></div></div>
 <div class="hero-txt"><h1>Your day at sea,<br>all over Brazil.</h1><p class="lead">Boats with a skipper, just for your group. Choose the destination, the date and how many people are coming aboard.</p></div>
 </section>
 <div class="search" id="busca">
