@@ -90,7 +90,7 @@ T = {
        ("E se eu precisar desistir?", "Você pode ficar com crédito de 100% do sinal por 1 ano. Com 7 dias ou mais de antecedência, também pode pedir o sinal inteiro de volta."),
        ("E se o mar não estiver bom?", "O passeio é remarcado para outra data, sem custo."),
        ("Quando abre a minha cidade?", "Assim que tiver barcos bons para alugar lá. Peça aviso pelo WhatsApp e você fica sabendo primeiro."),
-       ("Posso anunciar meu barco?", "Pode. Fale com a gente pelo WhatsApp: os cadastros estão abrindo destino por destino."),
+       ("Posso anunciar meu barco?", "Pode. O cadastro é online, em bordazul.com.br/anunciar: você manda os dados, os documentos e as fotos, escolhe quanto quer receber e assina o termo pelo WhatsApp. A equipe analisa antes de o barco ir para o ar."),
        ("Quem está por trás do Bordazul?", "A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.")],
   cta_p="A primeira frota já está na água. O resto do Brasil vem logo atrás.",
   cta_h="Partiu Búzios?", cta_l="Lanchas de 22 a 35 pés, para até 16 pessoas, com passeios de 4 ou 7 horas.", cta_btn="Ver lanchas em Búzios",
@@ -146,7 +146,7 @@ T = {
        ("What if I need to cancel?", "You can keep a credit of 100% of the deposit for 1 year. With 7 or more days' notice, you can also ask for the full deposit back."),
        ("What if the sea is rough?", "The tour is moved to another date at no cost."),
        ("When will my city open?", "As soon as it has good boats to rent. Ask on WhatsApp to be told first."),
-       ("Can I list my boat?", "Yes. Message us on WhatsApp: sign-ups are opening destination by destination."),
+       ("Can I list my boat?", "Yes. Sign-up is online at bordazul.com.br/anunciar (in Portuguese): boat details, documents, photos, your price and the partnership terms signed via WhatsApp. The team reviews every boat before it goes live."),
        ("Who is behind Bordazul?", "Búzios Lanchas, a registered company that already takes groups on boat tours in Búzios.")],
   cta_p="The first fleet is already on the water. The rest of Brazil is right behind.",
   cta_h="Off to Búzios?", cta_l="Boats from 22 to 35 feet, for up to 16 people, on 4 or 7 hour tours.", cta_btn="See boats in Búzios",
@@ -202,7 +202,7 @@ T = {
        ("¿Y si necesito cancelar?", "Puedes quedarte con un crédito del 100% de la seña por 1 año. Con 7 días o más de anticipación, también puedes pedir la seña completa de vuelta."),
        ("¿Y si el mar no está bueno?", "El paseo se pasa a otra fecha, sin costo."),
        ("¿Cuándo abre mi ciudad?", "En cuanto tenga buenos barcos para alquilar. Pide aviso por WhatsApp y te enteras primero."),
-       ("¿Puedo anunciar mi barco?", "Sí. Escríbenos por WhatsApp: los registros se abren destino por destino."),
+       ("¿Puedo anunciar mi barco?", "Sí. El registro es online en bordazul.com.br/anunciar (en portugués): datos del barco, documentos, fotos, tu precio y el término firmado por WhatsApp. El equipo revisa cada barco antes de publicarlo."),
        ("¿Quién está detrás de Bordazul?", "Búzios Lanchas, empresa registrada que ya lleva grupos a pasear en lancha en Búzios.")],
   cta_p="La primera flota ya está en el agua. El resto de Brasil viene justo detrás.",
   cta_h="¿Vamos a Búzios?", cta_l="Lanchas de 22 a 35 pies, para hasta 16 personas, con paseos de 4 o 7 horas.", cta_btn="Ver lanchas en Búzios",
@@ -542,7 +542,7 @@ def pagina(lang):
 <div class="dono rv">
 <div class="txt"><h2>{e(t["dono_h"])}</h2><p>{re.sub(r"^<strong>.*?</strong>\s*", "", t["carta"][0])}</p>{carta}
 <div class="sign">{e(t["carta_ass"])}<span>{e(t["carta_cargo"])}</span></div>
-<div class="btns"><a class="btn coral" href="{e(wa(t["wa_dono"]))}" rel="noopener">{ICON_WA}{e(t["carta_btn"])}</a></div></div>
+<div class="btns"><a class="btn coral" href="/anunciar/">{e(t["carta_btn"])}</a></div></div>
 <div class="ph"><img src="{pre}img/barco-3.jpg" width="1400" height="1050" alt="{e(t["foto_alt"][1])}" loading="lazy"></div>
 </div>
 </div></section>

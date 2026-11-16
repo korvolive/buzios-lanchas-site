@@ -5343,6 +5343,51 @@ async function loadEq(){ try{ const r=await RPC("equipe_estado",{}); S.eq=r[0]||
 /* chat da equipe: cartão inteiro como antes, com o nome "Chat Náutico" (2026-10-25) */
 const eqCardHTML = () => S.eq?.membro ? `<button type="button" class="card eqcard" data-eqgo><span class="eqi" aria-hidden="true">👥</span><span class="eqt"><b>${t("eqT")}</b><small>${S.eq.nao_lidas ? t(S.eq.nao_lidas===1?"eqNew1":"eqNewN",{n:S.eq.nao_lidas}) : t("eqSub")}</small></span>${S.eq.nao_lidas?`<b class="cnt ch">${S.eq.nao_lidas}</b>`:""}<span aria-hidden="true">›</span></button>` : "";
 document.addEventListener("click", e=>{ if(e.target.closest("[data-eqgo]")) openEq(); });
+/* Bordazul (2026-11-16): barcos que os donos cadastraram em bordazul.com.br/anunciar, com o termo assinado.
+   O administrador vê os dados, os documentos, as fotos e a primeira análise, e aprova, pede correção ou recusa (o dono vê o motivo na página). */
+async function loadBz(){ if(!S.admin) return; S.bz = await RPC("bz_cadastros_admin",{p_status:null}).catch(()=>null); }
+const bzPend = () => (S.bz||[]).filter(c=>c.status==="em_analise").length;
+const bzCardHTML = () => S.admin && S.bz && S.bz.length ? `<button type="button" class="card eqcard" data-bzgo><span class="eqi" aria-hidden="true">⚓</span><span class="eqt"><b>Bordazul: barcos cadastrados</b><small>${bzPend() ? (bzPend()===1 ? "1 barco esperando análise" : bzPend()+" barcos esperando análise") : "Nenhum esperando análise"}</small></span></button>` : "";
+const BZ_ST = {em_analise:"Esperando análise", correcao:"Correção pedida", aprovado:"Aprovado", recusado:"Recusado"};
+const BZ_ARQ = {tie:"TIE", dpem:"Seguro DPEM", habilitacao:"Habilitação", foto:"Foto"};
+async function openBz(){
+  closeDay(); await loadBz();
+  const L = S.bz||[], brl = n => n ? "R$ "+Math.round(+n).toLocaleString("pt-BR") : "-";
+  sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button>
+    <h2 style="margin:0 0 6px">⚓ Bordazul: barcos cadastrados</h2><p class="muted" style="margin-top:0">Donos que preencheram tudo e assinaram o termo em bordazul.com.br/anunciar.</p>
+    ${L.length ? L.map(c=>{ const d=c.dados||{}, an=c.analise||{}, as=c.assinatura||{}, dc=c.decisao||{};
+      return `<div class="card" style="margin:12px 0" data-bzid="${esc(c.id)}">
+        <h3 style="margin:0">${esc(d.nome_lancha||"Sem nome")} <small class="muted">· ${esc(BZ_ST[c.status]||c.status)}</small></h3>
+        <p class="muted" style="margin:4px 0 8px">${esc(d.tipo||"")} · ${esc(d.pes||"?")} pés · ${esc(d.cap||"?")} pessoas · ${esc(d.cidade_nome||"")} · embarque: ${esc(d.embarque||"")}</p>
+        <p style="margin:4px 0">Dono: <b>${esc(d.nome_dono||"")}</b> · doc ${esc(d.doc_dono||"")} · WhatsApp <a href="https://wa.me/${esc(c.tel)}" target="_blank" rel="noopener">${esc(c.tel)}</a>${d.email?" · "+esc(d.email):""}</p>
+        <p style="margin:4px 0">Modelo: ${esc(d.modelo||"-")} ${d.ano?"("+esc(d.ano)+")":""} · TIE nº ${esc(d.tie||"-")} · Marinheiro: ${esc(d.marinheiro||"-")} (${esc(d.categoria||"-")})</p>
+        <p style="margin:4px 0">Neto 4h/7h: baixa ${brl(d.baixa)} / ${brl(d.baixa7)} · alta ${brl(d.alta)} / ${brl(d.alta7)}</p>
+        ${(d.itens||[]).length ? `<p class="muted" style="margin:4px 0">A bordo: ${esc((d.itens||[]).join(", "))}</p>` : ""}
+        ${d.descricao ? `<p style="margin:6px 0;white-space:pre-wrap">${esc(d.descricao)}</p>` : ""}
+        ${(an.itens||[]).length ? `<ul style="margin:8px 0;padding-left:18px">${an.itens.map(i=>`<li>${i.ok?"✅":"⚠️"} ${esc(i.item)}${i.obs?` <span class="muted">(${esc(i.obs)})</span>`:""}</li>`).join("")}</ul>` : ""}
+        ${as.em ? `<p class="muted" style="margin:4px 0">Termo ${esc(as.termo_versao||"")} assinado por ${esc(as.nome||"")} em ${esc(new Date(as.em).toLocaleString("pt-BR"))} (IP ${esc(as.ip||"-")})</p>` : ""}
+        ${dc.acao ? `<p class="muted" style="margin:4px 0">Decisão: ${esc(BZ_ST[dc.acao]||dc.acao)}${dc.motivo?" · "+esc(dc.motivo):""}</p>` : ""}
+        <div class="bzarq" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">${(c.arquivos||[]).map(a=>`<a class="btn sec" style="width:auto;min-height:36px;padding:0 12px" data-bzpath="${esc(a.path)}" target="_blank" rel="noopener">${esc(BZ_ARQ[a.tipo]||a.tipo)}</a>`).join("")}</div>
+        <textarea class="bzmot" rows="2" maxlength="600" placeholder="Motivo (o dono vê na página; obrigatório para correção ou recusa)" style="width:100%;margin:6px 0"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-bzac="aprovado">Aprovar</button><button type="button" class="btn sec" data-bzac="correcao">Pedir correção</button><button type="button" class="btn sec" data-bzac="recusado">Recusar</button></div>
+      </div>`; }).join("") : `<p class="muted">Nenhum cadastro enviado ainda.</p>`}`;
+  sheet.classList.add("on"); sheetBg.classList.add("on");
+  sheet.querySelector(".shx").onclick = closeDay;
+  /* links temporários dos arquivos (a pasta é privada) */
+  const tok = await fresh().catch(()=>null);
+  sheet.querySelectorAll("[data-bzid]").forEach(async box=>{
+    const r = await fetch(SB+"/functions/v1/bordazul-anunciar", {method:"POST", headers:{apikey:KEY, authorization:"Bearer "+tok, "content-type":"application/json"}, body:JSON.stringify({acao:"admin_links", id:box.dataset.bzid})}).then(x=>x.json()).catch(()=>({}));
+    box.querySelectorAll("[data-bzpath]").forEach(a=>{ const u=r.links?.[a.dataset.bzpath]; if(u) a.href=u; });
+  });
+  sheet.querySelectorAll("[data-bzac]").forEach(b=>b.onclick = async()=>{
+    const box=b.closest("[data-bzid]"), ac=b.dataset.bzac, mot=box.querySelector(".bzmot").value.trim();
+    if(ac!=="aprovado" && !mot){ toast("Escreva o motivo para o dono."); box.querySelector(".bzmot").focus(); return; }
+    b.disabled=true;
+    try{ await RPC("bz_cadastro_decidir",{p_id:box.dataset.bzid, p_acao:ac, p_motivo:mot||null}); toast(BZ_ST[ac]); await openBz(); }
+    catch(e){ toast(t("loadErr")); b.disabled=false; }
+  });
+}
+document.addEventListener("click", e=>{ if(e.target.closest("[data-bzgo]")) openBz(); });
 const eqAte = d => !d ? "" : /^infinity$/i.test(d) || new Date(d).getFullYear()>9000 ? t("eqForever") : t("eqUntil",{d:new Date(d).toLocaleString(t("locale"),{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})});
 /* etiqueta: papel + lancha (ex.: "Dono Midas", "Marinheiro Bubbles") */
 const eqRole = m => m.papel ? `<span class="eqrole r-${m.papel}">${t("eqR_"+m.papel)}${m.lancha?" "+esc(m.lancha):""}</span>` : "";
@@ -6254,7 +6299,7 @@ function mainView(){
   const avH = S.tab==="lista" ? avHTML() : "", ntBtn = S.tab==="lista" && !isRO() && !avH ? `<button type="button" class="btn newtrip" id="newtrip">${t("newTrip")}</button>` : "";
   app.innerHTML = `${tabsHTML()}`
     + (S.tab==="lista" ? cidFilterHTML() + avH : "") /* com a busca "Lancha livre em", o passeio novo sai de tocar na lancha livre: sem "+ Novo passeio" (2026-10-25) */ /* "+ Novo passeio" logo abaixo de "Lancha livre em" (2026-10-25) */
-    + fotoPendHTML() + installHTML() + pushHTML() + (S.tab==="lista" ? teamVerHTML() : "")
+    + fotoPendHTML() + installHTML() + pushHTML() + (S.tab==="lista" ? teamVerHTML() : "") + (S.tab==="pedidos" || S.tab==="lista" ? bzCardHTML() : "")
     + (S.tab==="lista" ? asAvisoHTML() + recebHTML(false) : "")
     + (S.tab==="lancha" ? nbNewHTML() : "") /* "Cadastrar lancha nova" acima do seletor da lancha (2026-10-25) */
     + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 ? (ntBtn ? `<div class="bprow">${boatPicker(chips)}${ntBtn}</div>` : boatPicker(chips)) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1>${ntBtn}</div>`)
@@ -8064,6 +8109,7 @@ async function boot(){
     S.vend = (await db("rpc/meu_vendedor",{method:"POST",body:{}}).catch(()=>[]))[0] || null; await loadVendIds();
     S.vcid = S.vend ? await db(`vendedores?select=cidades&user_id=eq.${ses.user.id}`).then(r=>r?.[0]?.cidades||null, ()=>null) : null; /* cidades em que vende (2026-11-03) */
     await loadEq(); /* chat da equipe: quem é da equipe vê o card */
+    await loadBz(); if(S.admin && new URLSearchParams(location.search).get("bordazul")){ history.replaceState(null,"",location.pathname); setTimeout(openBz, 600); } /* toque no aviso de barco novo do Bordazul */
     if(S.eq?.membro && new URLSearchParams(location.search).get("equipe")){ history.replaceState(null,"",location.pathname); setTimeout(openEq, 600); } /* toque no aviso de alerta */
     if(!window.bootPollsOn) setInterval(()=>{ if(document.visibilityState==="visible" && !eqOn && S.eq?.membro) loadEq().then(eqRefresh); }, 30000);
     /* chat do pedido: conversas de quem está logado; ?chat=ID (toque na notificação) abre a conversa */
