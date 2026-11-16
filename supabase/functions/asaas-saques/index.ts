@@ -135,7 +135,7 @@ async function procurar(id: string): Promise<Achado | null> {
   return null;
 }
 
-async function decidir(b: any): Promise<{ ok: boolean; motivo?: string; id?: string; valor?: number }> {
+async function decidir(b: any): Promise<{ ok: boolean; motivo?: string; id?: string; valor?: number; aviso?: string }> {
   const tipo = String(b?.type || "");
   if (tipo === "PIX_REFUND") return { ok: true, motivo: "devolução ao cliente", id: b?.pixRefund?.id, valor: +b?.pixRefund?.value || undefined };
   if (tipo === "PAYMENT_SPLIT") { // liquidação de split: só das cobranças que o site criou
@@ -150,13 +150,17 @@ async function decidir(b: any): Promise<{ ok: boolean; motivo?: string; id?: str
   if (!id) return { ok: false, motivo: "Transferência sem id" };
   const a = await procurar(id);
   if (a?.origem === "saque") {
-    const s = a.saque, { data: ct } = await db.from("asaas_contas").select("cpf_cnpj").eq("user_id", s.user_id).maybeSingle();
+    const s = a.saque, { data: ct } = await db.from("asaas_contas").select("cpf_cnpj, nome").eq("user_id", s.user_id).maybeSingle();
     if (!igual(valor, a.valor)) return { ok: false, motivo: "Valor diferente do pedido de saque", id, valor };
     if (chave && dig(chave) !== dig(s.chave) && chave.trim().toLowerCase() !== String(s.chave).trim().toLowerCase()) return { ok: false, motivo: "Chave Pix diferente da cadastrada", id, valor };
     if (!ct?.cpf_cnpj || !mesmoDoc(doc, ct.cpf_cnpj)) {
       await db.from("saques").update({ status: "falhou", motivo: "cpf" }).eq("id", s.id);
       await avisarRecusa(s.user_id, valor).catch((e) => console.error("avisarRecusa", e));
-      return { ok: false, motivo: "A chave Pix não é do mesmo CPF/CNPJ da conta", id, valor };
+      // aviso aos administradores em linguagem clara: é o próprio dono/vendedor sacando para chave de outro CPF/CNPJ (ex.: o CNPJ da própria empresa),
+      // a proteção barrou e a pessoa já recebeu o aviso para trocar a chave. Não é pedido de liberação (Rodrigo 2026-11-16, "que isso???").
+      const quem = String(ct?.nome || "").trim().split(/\s+/)[0] || "um parceiro";
+      return { ok: false, motivo: "A chave Pix não é do mesmo CPF/CNPJ da conta", id, valor,
+        aviso: `Saque de ${brl(valor)} de ${quem} barrado: a chave Pix é de outro CPF/CNPJ. Proteção contra fraude; o parceiro já recebeu aviso para usar chave no próprio nome. Nada a fazer.` };
     }
     return { ok: true, id, valor };
   }
@@ -175,13 +179,13 @@ Deno.serve(async (req) => {
   if (!tokenOk(req.headers.get("asaas-access-token") || "")) return json({ erro: "token" }, 401);
   const b = await req.json().catch(() => null);
   if (!b) return json({ status: "REFUSED", refuseReason: "Corpo inválido" });
-  let d: { ok: boolean; motivo?: string; id?: string; valor?: number };
+  let d: { ok: boolean; motivo?: string; id?: string; valor?: number; aviso?: string };
   try { d = await decidir(b); }
   catch (e) { console.error("validar", e); d = { ok: false, motivo: "Erro ao conferir" }; }
   const tipo = String(b?.type || "?");
   await db.from("asaas_validacoes").insert({ tipo, asaas_id: d.id || null, valor: Number.isFinite(d.valor) ? d.valor : null, decisao: d.ok ? "APPROVED" : "REFUSED", motivo: d.motivo || null, corpo: b })
     .then(({ error }) => error && console.error("asaas_validacoes", error.message));
-  if (!d.ok) await pushAdmins("🚫 Saída recusada no Asaas", `${d.valor ? brl(d.valor) + ": " : ""}${d.motivo}. Se foi você, peça para liberar esse tipo de saída.`, "asaas-recusa-" + (d.id || Date.now()))
+  if (!d.ok) await pushAdmins(d.aviso ? "Saque de parceiro barrado" : "🚫 Saída recusada no Asaas", d.aviso || `${d.valor ? brl(d.valor) + ": " : ""}${d.motivo}. Se foi você, peça para liberar esse tipo de saída.`, "asaas-recusa-" + (d.id || Date.now()))
     .catch((e) => console.error("push", e));
   return json(d.ok ? { status: "APPROVED" } : { status: "REFUSED", refuseReason: String(d.motivo || "Recusado").slice(0, 200) });
 });

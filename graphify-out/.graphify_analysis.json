@@ -871,19 +871,19 @@
       "supabase_functions_aviso_equipe_index_db",
       "supabase_functions_aviso_equipe_index_json",
       "supabase_functions_aviso_equipe_index_userbyemail",
-      "supabase_functions_pedido_vendedor_index",
-      "supabase_functions_pedido_vendedor_index_cors",
-      "supabase_functions_pedido_vendedor_index_db",
-      "supabase_functions_pedido_vendedor_index_json",
-      "supabase_functions_pedido_vendedor_index_t"
-    ],
-    "36": [
       "supabase_functions_traduzir_chat_index",
       "supabase_functions_traduzir_chat_index_cors",
       "supabase_functions_traduzir_chat_index_db",
       "supabase_functions_traduzir_chat_index_google",
       "supabase_functions_traduzir_chat_index_json",
       "supabase_functions_traduzir_chat_index_participa"
+    ],
+    "36": [
+      "supabase_functions_pedido_vendedor_index",
+      "supabase_functions_pedido_vendedor_index_cors",
+      "supabase_functions_pedido_vendedor_index_db",
+      "supabase_functions_pedido_vendedor_index_json",
+      "supabase_functions_pedido_vendedor_index_t"
     ],
     "37": [
       "supabase_functions_traduzir_index",
@@ -1730,10 +1730,10 @@
     "32": 0.18681318681318682,
     "33": 0.18095238095238095,
     "34": 0.25,
-    "35": 0.13333333333333333,
-    "36": 0.3333333333333333,
+    "35": 0.125,
+    "36": 0.4,
     "37": 0.4666666666666667,
-    "38": 0.19607843137254902,
+    "38": 0.20261437908496732,
     "39": 0.5,
     "40": 0.2222222222222222,
     "41": 0.07164404223227752,
