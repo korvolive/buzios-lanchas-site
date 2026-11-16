@@ -121,7 +121,7 @@ jobs:
       - uses: supabase/setup-cli@v1
         if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.funcoes != ''
         with:
-          version: latest
+          version: 3.1.0 # fixa: "latest" falhou por limite da API do GitHub (2026-11-16)
 
       - name: Publicar funções
         if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.funcoes != ''
