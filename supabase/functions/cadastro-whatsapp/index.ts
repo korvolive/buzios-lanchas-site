@@ -139,6 +139,55 @@ Deno.serve(async req => {
       return json(await sessao(email, senha));
     }
 
+    // ----- link da pré-reserva que o Lucas mandou pelo WhatsApp (?c=, Rodrigo 2026-11-16, caso Elka): o link só chegou naquele
+    // WhatsApp, então o número já está confirmado. Quem já tem conta vai direto para o pagamento; quem não tem só cria a senha.
+    // O e-mail que o Lucas anotou fica em email_informado e só é confirmado se a pessoa tentar entrar por ele (acao "email_login").
+    if (b.acao === "convite_info" || b.acao === "convite_criar") {
+      const c = String(b.c || "").toLowerCase();
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(c)) return json({ erro: "link" }, 400);
+      const { data: r0, error: e0 } = await db.rpc("_convite_pagar", { p_codigo: c });
+      if (e0) { console.error("convite_pagar", e0.message); return json({ erro: "falhou" }, 500); }
+      const r = r0 as { link?: string; erro?: string; precisa_conta?: boolean; nome?: string; tel?: string; wa?: string; email?: string };
+      if (r.erro) return json({ erro: r.erro }, 400);
+      if (r.link) return json({ ok: true, link: r.link });
+      if (b.acao === "convite_info") return json({ ok: true, conta: false, nome: String(r.nome || "").split(/\s+/)[0] || "" });
+      const senha = String(b.senha || ""), tl = dig(r.tel);
+      if (senha.length < 6 || senha.length > 72) return json({ erro: "senha" }, 400);
+      if (tl.length < 10 || tl.length > 15) return json({ erro: "tel" }, 400);
+      if ((await contas(tl)).length) return json({ erro: "ja_tem" });
+      let nome = String(r.nome || "").replace(/\s+/g, " ").trim().slice(0, 80);
+      if (nome.length < 2) nome = "Cliente";
+      const informado = String(r.email || "").trim().toLowerCase();
+      const email = `wa${tl}${SEM}`;
+      const { data: nu, error } = await db.auth.admin.createUser({ email, password: senha, email_confirm: true,
+        user_metadata: { lang: b.lang || "pt", full_name: nome, sem_email: true, ...(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(informado) ? { email_informado: informado } : {}) } });
+      if (error || !nu?.user) return json({ erro: /already|registered|exists/i.test(error?.message || "") ? "ja_tem" : "falhou" }, 400);
+      const { error: ce } = await db.from("clientes").insert({ user_id: nu.user.id, nome, whatsapp: r.wa || `+${tl.slice(0, 2)} ${tl.slice(2)}`, whatsapp_ok_em: new Date().toISOString(), pais: tl.startsWith("55") ? "BR" : null });
+      if (ce) { await db.auth.admin.deleteUser(nu.user.id); return json({ erro: ce.code === "23505" ? "ja_tem" : "falhou" }, 400); }
+      const { data: r1, error: e1 } = await db.rpc("_convite_pagar", { p_codigo: c, p_uid: nu.user.id });
+      const link = (r1 as { link?: string } | null)?.link || "";
+      if (e1 || !link) console.error("convite_pagar depois da conta", e1?.message, JSON.stringify(r1));
+      return json({ ...(await sessao(email, senha)), link });
+    }
+
+    // ----- entrar com o e-mail que o Lucas anotou numa conta criada pelo link (ainda sem e-mail confirmado): confere a senha,
+    // põe o e-mail na conta como pendente e manda o código de confirmação. A tela de código do login termina a confirmação.
+    if (b.acao === "email_login") {
+      const e = String(b.email || "").trim().toLowerCase(), senha = String(b.senha || "");
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || !senha) return json({ erro: "senha" }, 400);
+      const { data: uid } = await db.rpc("_uid_email_informado", { e });
+      if (!uid) return json({ erro: "senha" }, 400);
+      const { data: ud } = await db.auth.admin.getUserById(String(uid));
+      const u = ud?.user; if (!u?.email) return json({ erro: "senha" }, 400);
+      const s0 = await sessao(u.email, senha);
+      if (!s0?.access_token) return json({ erro: "senha" }, 400);
+      const { error } = await db.auth.admin.updateUserById(u.id, { email: e, email_confirm: false, user_metadata: { email_pendente: true, email_informado: null } });
+      if (error) return json({ erro: /already|registered|exists/i.test(error.message) ? "usado" : "falhou" }, 400);
+      await db.rpc("email_desconfirmar", { u: u.id });
+      await fetch(`${URL_SB}/auth/v1/resend`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ type: "signup", email: e }) });
+      return json({ erro: "confirmar", email: e });
+    }
+
     if (!ATIVO) return json({ erro: "nao_configurado" }, 503);
     const t = dig(b.tel);
     if (t.length < 10 || t.length > 15) return json({ erro: "tel" }, 400);
