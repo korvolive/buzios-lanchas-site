@@ -722,18 +722,19 @@ h1,h2,h3{line-height:1.15}
 }
 /* ideia B escolhida (2026-11-16): fundo escuro com a foto do grupo na boia da Miss Bardot */
 .hero.hero-foto{background:#04212c}
-.hero-foto .hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
-.hero-foto .hero-text{align-content:center}
-.hero-ph{margin:0;border-radius:28px;overflow:hidden;min-height:520px;position:relative;background:#0a3443}
+.hero-foto .hero-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);grid-template-areas:"tx ph" "tx tr";grid-template-rows:auto 1fr;row-gap:0;align-items:stretch}
+.hero-foto .hero-text{grid-area:tx;align-content:center}
+.hero-foto .trust{grid-area:tr;border-radius:0 0 20px 20px;align-self:start}
+.hero-ph{grid-area:ph;margin:0;border-radius:20px 20px 0 0;overflow:hidden;min-height:250px;position:relative;background:#0a3443}
 .hero-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;animation:phin 1.4s cubic-bezier(.2,.8,.2,1) both}
 @keyframes phin{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
 @media (max-width:760px){
   .hero-foto .wrap{padding-top:0!important}
-  .hero-foto .hero-grid{grid-template-columns:1fr;gap:0}
+  .hero-foto .hero-grid{grid-template-columns:1fr;grid-template-areas:"ph" "tx" "tr";grid-template-rows:auto;gap:0}
+  .hero-foto .trust{border-radius:20px;margin-top:28px}
   .hero-ph{order:-1;min-height:0;aspect-ratio:4/3;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));border-radius:0}
   .hero-ph::after{content:"";position:absolute;inset:auto 0 0;height:45%;background:linear-gradient(180deg,rgba(4,33,44,0),#04212c);pointer-events:none}
   .hero-foto .hero-text{margin-top:-64px;position:relative;z-index:1}
-  .hero-foto .hero-text .guar{display:block}
 }
 /* botão principal com brilho passando e seta (ideia dos links do amigo, em CSS puro) */
 .hero .ctas .btn:not(.wa-btn):not(.ghost),.barra .btn{position:relative;overflow:hidden;isolation:isolate}
@@ -2783,7 +2784,7 @@ function home(){
       ${guarHTML(false)}
     </div>
     ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c02.webp" srcset="/img/mb-c02-m.webp 800w, /img/mb-c02.webp 1600w" sizes="(max-width:760px) 100vw, 50vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
-    <aside class="trust"${CID?"":" hidden"} aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
+    <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
     </ul>${guarHTML(false)}</aside>
     </div>
