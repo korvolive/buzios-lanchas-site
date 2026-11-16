@@ -91,7 +91,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, prazo_vencido_em").eq("id", pid).maybeSingle();
   if (!p) return null;
   const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
   const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
@@ -227,6 +227,27 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
   return n;
 }
 
+// Prazo vencido com preço novo do dono (Rodrigo 2026-11-15): enquanto o cliente não concordar com o valor exato, devolve "preco_novo" (409).
+// Concordou: atualiza o pedido pelo alterar_pedido (sinal e PayPal acompanham), cancela cobrança aberta no Asaas e devolve null.
+async function aceitarPreco(p: any, k: string, aceito: unknown): Promise<Response | null> {
+  const { data: pn, error: epn } = await db.rpc("preco_novo_pedido", { pid: p.id });
+  if (epn) { console.error("preco_novo_pedido", p.id, epn.message); return null; }
+  if (!pn?.mudou) return null;
+  if (Math.round(+(aceito as number) || 0) !== Math.round(+pn.valor)) return json({ erro: "preco_novo", antigo: pn.antigo, valor: pn.valor }, 409);
+  const { data: al, error: ea } = await db.rpc("alterar_pedido", { pid: p.id, p_horario: p.horario, p_hi: p.hora_ini || null, p_hf: p.hora_fim || null, p_valor: pn.valor });
+  if (ea || !al?.ok) {
+    console.error("preco_novo alterar", p.id, ea?.message || al?.erro);
+    const e = String(al?.erro || "");
+    return json({ erro: ["ocupada", "pagando", "jetski"].includes(e) ? e : "preco_novo_falhou" }, 409);
+  }
+  const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas", { method: "POST", headers: { authorization: "Bearer " + srk, apikey: srk, "content-type": "application/json" }, body: JSON.stringify({ acao: "cancelar", pid: p.id }) })
+    .then(async q => { if (!q.ok) console.error("asaas cancelar", q.status, (await q.text()).slice(0, 300)); }).catch(e => console.error("asaas cancelar", e));
+  if (al.moeda && al.valor) await db.from("pedidos").update({ paypal_valor: fmt(al.moeda, +al.valor) }).eq("id", p.id);
+  await pushAdmins({ title: "Cliente aceitou o valor novo 🔁", body: `Pedido ${p.id} (${dataBR(p.data)}): prazo vencido e o dono tinha mudado o preço. Novo total ${brlv(+al.preco)}, sinal ${brlv(+al.sinal)}.` }, `preco-${p.id}`).catch(e => console.error(e));
+  return null;
+}
+
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
@@ -265,7 +286,14 @@ Deno.serve(async req => {
           em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : ((+a?.sinal || +p.sinal_valor) ? (+a?.sinal || +p.sinal_valor) + (+p.jetski_valor || 0) : (c.moeda === "BRL" ? +c.valor : 0)) || null,
           valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
       }
-      return json({ recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      // prazo vencido e o dono mudou o preço: a página mostra o valor novo e pede o "concordo" antes de pagar (Rodrigo 2026-11-15)
+      let preco_novo: unknown = null;
+      if (p.status === "pendente" && p.prazo_vencido_em && !c.pago_em && !c.captura && !p.comprovante_em) {
+        const { data: pn, error: epn } = await db.rpc("preco_novo_pedido", { pid: p.id });
+        if (epn) console.error("preco_novo_pedido", p.id, epn.message);
+        else if (pn?.mudou) preco_novo = { antigo: +pn.antigo, valor: +pn.valor };
+      }
+      return json({ preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto,
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
@@ -379,6 +407,17 @@ Deno.serve(async req => {
       return json({ ok: true, ...r });
     }
 
+    // o cliente concordou com o valor novo na página (prazo vencido e o dono mudou o preço)
+    if (b.acao === "aceitar_preco") {
+      const xa = await carregar(Number(b.p), String(b.k || ""));
+      if (!xa) return json({ erro: "link" }, 404);
+      if (xa.c.pago_em || xa.c.captura) return json({ erro: "pendente" }, 409);
+      if (xa.p.status !== "pendente" || !xa.p.prazo_vencido_em) return json({ ok: true });
+      if (await tardeCombinado(xa.p)) return json({ erro: "passou" }, 409);
+      const r = await aceitarPreco(xa.p, String(b.k), b.aceito);
+      return r || json({ ok: true });
+    }
+
     // aceite da política de cancelamento (Rodrigo 2026-11-15): a página grava quando o cliente marca "Li e aceito"; só a primeira vez, só pedido pendente
     if (b.acao === "aceite") {
       const xa = await carregar(Number(b.p), String(b.k || ""));
@@ -392,7 +431,8 @@ Deno.serve(async req => {
 
     const x = await carregar(Number(b.p), b.k);
     if (!x) return json({ erro: "link" }, 404);
-    const { c, p, lancha, nome } = x;
+    let { c, p } = x;
+    const { lancha, nome } = x;
     if (c.pago_em) return json({ pago: true });
     if (p.status !== "pendente") return json({ erro: p.status === "recusado" ? "ocupada" : "status" }, 409);
 
@@ -404,6 +444,14 @@ Deno.serve(async req => {
       if (c.order_id) {
         const ant = await pp(`/v2/checkout/orders/${c.order_id}`, undefined, "GET").catch(() => null);
         if (ant?.status === "COMPLETED") return await fechar(ant, c, p, lancha, nome);
+      }
+      // prazo vencido e o dono subiu o preço (Rodrigo 2026-11-15): só cria a ordem com o valor novo, depois de o cliente concordar
+      if (p.prazo_vencido_em) {
+        const r = await aceitarPreco(p, String(b.k), b.aceito);
+        if (r) return r;
+        const y = await carregar(p.id, b.k);
+        if (!y) return json({ erro: "link" }, 404);
+        ({ c, p } = y);
       }
       const v = await vaga(p.id, true);
       if (v !== "livre") return json({ erro: v }, 409);

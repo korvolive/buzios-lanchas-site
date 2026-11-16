@@ -147,8 +147,24 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor, prazo_vencido_em").eq("id", pid).maybeSingle();
   return p ? { c, p } : null;
+}
+
+// Prazo vencido com preço novo do dono: devolve a resposta de "preço novo" (409) enquanto o cliente não concordar com o valor exato;
+// concordou, atualiza o pedido pelo alterar_pedido (o sinal acompanha) e devolve null para a cobrança seguir com o valor novo.
+async function precoNovo(p: any, aceito: unknown): Promise<Response | null> {
+  const { data: pn, error } = await db.rpc("preco_novo_pedido", { pid: p.id });
+  if (error) { console.error("preco_novo_pedido", p.id, error.message); return null; }
+  if (!pn?.mudou) return null;
+  if (Math.round(+(aceito as number) || 0) !== Math.round(+pn.valor)) return json({ erro: "preco_novo", antigo: pn.antigo, valor: pn.valor }, 409);
+  const { data: al, error: ea } = await db.rpc("alterar_pedido", { pid: p.id, p_horario: p.horario, p_hi: p.hora_ini || null, p_hf: p.hora_fim || null, p_valor: pn.valor });
+  if (ea || !al?.ok) {
+    console.error("preco_novo alterar", p.id, ea?.message || al?.erro);
+    const e = String(al?.erro || "");
+    return json({ erro: ["ocupada", "pagando", "jetski", "pago"].includes(e) ? (e === "pago" ? "pendente" : e) : "preco_novo_falhou" }, 409);
+  }
+  return null;
 }
 
 // o que o cliente paga online: sinal da lancha + jetski inteiro (Rodrigo 2026-11-15); o sinal_valor continua só da lancha
@@ -644,7 +660,7 @@ Deno.serve(async req => {
     if (b.acao === "pagar" || b.acao === "conferir") {
       const x = await carregar(Number(b.p), b.k);
       if (!x) return json({ erro: "link" }, 404);
-      const { p, c } = x;
+      let { p, c } = x;
       const { data: cobs } = await db.from("pagamentos_asaas").select("*").eq("pedido", p.id);
       if (b.acao === "conferir") {
         let pago = !!c.pago_em;
@@ -658,6 +674,14 @@ Deno.serve(async req => {
       // estrangeiro também paga por Pix em reais (Rodrigo 2026-11-14), com o CPF de quem paga; só o cartão internacional vai sem CPF
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
+      // prazo vencido e o dono subiu o preço (Rodrigo 2026-11-15): mostra o valor novo e só cobra depois de o cliente concordar
+      if (p.prazo_vencido_em) {
+        const r = await precoNovo(p, b.aceito);
+        if (r) return r;
+        const y = await carregar(Number(b.p), b.k);
+        if (!y) return json({ erro: "link" }, 404);
+        ({ p, c } = y);
+      }
       const vg = await vaga(p.id, true); // segura a data por 10 min já agora, com trava, para dois clientes não gerarem cobrança juntos
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada

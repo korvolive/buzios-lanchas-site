@@ -12,8 +12,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794783268.3720598,
-    "seen": 1794788445.8150532,
+    "mtime": 1794786688.2614007,
+    "seen": 1794789957.0279014,
     "ast_hash": "02fc37b3483bf86a0e23c49454676c6d",
     "semantic_hash": ""
   },
@@ -24,8 +24,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/verificar.yml": {
-    "mtime": 1794783268.3720598,
-    "seen": 1794788445.8150635,
+    "mtime": 1794786688.2614007,
+    "seen": 1794789957.0279274,
     "ast_hash": "6ddce1be2c43122275e19bd7de69bd5f",
     "semantic_hash": ""
   },
@@ -66,8 +66,8 @@
     "semantic_hash": ""
   },
   "scripts/db-mudou.mjs": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8150892,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.028037,
     "ast_hash": "847bebb42b1be6dcc9e43040f324036b",
     "semantic_hash": ""
   },
@@ -78,14 +78,14 @@
     "semantic_hash": ""
   },
   "scripts/lanchas-db.mjs": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8151097,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0281003,
     "ast_hash": "d53b43e601eb0b9c291357ae0467f84d",
     "semantic_hash": ""
   },
   "scripts/prerender.mjs": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8151145,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0281203,
     "ast_hash": "f9ccbbbe5cb2682d2e8649d17c5a9866",
     "semantic_hash": ""
   },
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "supabase/functions/asaas/index.ts": {
-    "mtime": 1794786515.5848432,
-    "seen": 1794788445.8151362,
-    "ast_hash": "b1fd456b9d17966806fdfdcf4e274acd",
+    "mtime": 1794788708.7756982,
+    "seen": 1794789957.0281956,
+    "ast_hash": "5c0001bc9e5bcd199e6bad7eac385b20",
     "semantic_hash": ""
   },
   "supabase/functions/avaliacao/index.ts": {
@@ -138,9 +138,9 @@
     "semantic_hash": ""
   },
   "supabase/functions/cadastro-whatsapp/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794788445.8151565,
-    "ast_hash": "890526ceacbb8d366036a02bf2ca3099",
+    "mtime": 1794789715.2512023,
+    "seen": 1794789957.0283363,
+    "ast_hash": "06419e056ac539293d024b26d5f67c74",
     "semantic_hash": ""
   },
   "supabase/functions/cambio/index.ts": {
@@ -180,21 +180,21 @@
     "semantic_hash": ""
   },
   "supabase/functions/entrar-celular/index.ts": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8151784,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0284467,
     "ast_hash": "564fc6a4c306c51329020fc21c1d5374",
     "semantic_hash": ""
   },
   "supabase/functions/notificar/index.ts": {
-    "mtime": 1794786515.588843,
-    "seen": 1794788445.8151808,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0284483,
     "ast_hash": "e28e1b175641dc9a5049d6e7da90e9a0",
     "semantic_hash": ""
   },
   "supabase/functions/paypal-checkout/index.ts": {
-    "mtime": 1794786515.588843,
-    "seen": 1794788445.8151834,
-    "ast_hash": "a6319a01d0b697109f78fba09e87c864",
+    "mtime": 1794788708.7760642,
+    "seen": 1794789957.0284495,
+    "ast_hash": "f2eb23d75129fa7265d785095e73e444",
     "semantic_hash": ""
   },
   "supabase/functions/paypal-fatura/index.ts": {
@@ -264,26 +264,26 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1794786515.576843,
-    "seen": 1794788445.8155015,
+    "mtime": 1794786688.3639772,
+    "seen": 1794789957.0299506,
     "ast_hash": "d4e4a8385144dac14cb0f815f77b53e4",
     "semantic_hash": ""
   },
   "login/index.html": {
-    "mtime": 1794786515.5848432,
-    "seen": 1794788445.8155038,
-    "ast_hash": "49e8ed0c4c563b6079955f7dda381088",
+    "mtime": 1794789657.789647,
+    "seen": 1794789957.0299525,
+    "ast_hash": "7205bf43dfd9ee859ac558fb68d73ec6",
     "semantic_hash": ""
   },
   "pagar/index.html": {
-    "mtime": 1794786515.5848432,
-    "seen": 1794788445.8155067,
-    "ast_hash": "5f884f0324eedcc13a5e747262c899a3",
+    "mtime": 1794788739.9806504,
+    "seen": 1794789957.0299537,
+    "ast_hash": "fbba64023a1854c417c21142136b3ece",
     "semantic_hash": ""
   },
   "privacidade/index.html": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.815511,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0299563,
     "ast_hash": "9381f2896fe225cf855fdff9ff1e7547",
     "semantic_hash": ""
   },
@@ -1338,8 +1338,8 @@
     "semantic_hash": ""
   },
   "scripts/htaccess.sh": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8151019,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0280604,
     "ast_hash": "96a0d8ba6fd06d9393d6c21f88e98c14",
     "semantic_hash": ""
   },
@@ -1368,14 +1368,14 @@
     "semantic_hash": ""
   },
   "supabase/functions/central-auto/index.ts": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8151608,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0283558,
     "ast_hash": "9c963d9df5024c87713cb22ef9f0a301",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794783268.3720598,
-    "seen": 1794788445.8154233,
+    "mtime": 1794786688.2614007,
+    "seen": 1794789957.0298755,
     "ast_hash": "ebc0060d4be99aeee787678c34e2d579",
     "semantic_hash": ""
   },
@@ -1542,8 +1542,8 @@
     "semantic_hash": ""
   },
   "petrussia/index.html": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8155093,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0299554,
     "ast_hash": "5d6b205f40552b9b1a531a121a720bac",
     "semantic_hash": ""
   },
@@ -1554,98 +1554,98 @@
     "semantic_hash": ""
   },
   "supabase/functions/aviso-sinal/index.ts": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.815152,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0283172,
     "ast_hash": "4d4cb205bb7461b66dda90117c5ec43a",
     "semantic_hash": ""
   },
   "SEGURANCA.md": {
-    "mtime": 1794783268.3720598,
-    "seen": 1794788445.8154275,
+    "mtime": 1794786688.2614007,
+    "seen": 1794789957.0298915,
     "ast_hash": "d3925d61448cfc39a61a11636d214852",
     "semantic_hash": ""
   },
   "scripts/enquadrar.py": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8150926,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.02804,
     "ast_hash": "3ab2deaffd21d4ff203594b232aaaa65",
     "semantic_hash": ""
   },
   "img/mb-15-t.jpg": {
-    "mtime": 1794783268.44006,
-    "seen": 1794788445.8158846,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.0314329,
     "ast_hash": "e60fc3bf6e856ef80d3a123e2a1851e0",
     "semantic_hash": ""
   },
   "img/mb-15.jpg": {
-    "mtime": 1794783268.44006,
-    "seen": 1794788445.8158865,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.031435,
     "ast_hash": "ef2911b9b37468437ef823be5c1041ae",
     "semantic_hash": ""
   },
   "img/mb-16-t.jpg": {
-    "mtime": 1794783268.44006,
-    "seen": 1794788445.8158884,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.0314364,
     "ast_hash": "264555b32dac5fc0b2480dfbbffc9ab9",
     "semantic_hash": ""
   },
   "img/mb-16.jpg": {
-    "mtime": 1794783268.4440598,
-    "seen": 1794788445.8158898,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.0314384,
     "ast_hash": "c8c16314e170d3fd52500d3081bf61a7",
     "semantic_hash": ""
   },
   "img/mb-17-t.jpg": {
-    "mtime": 1794783268.4440598,
-    "seen": 1794788445.8158917,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.0314398,
     "ast_hash": "77dbad7af9f8fa0aae1bb5db668b68c1",
     "semantic_hash": ""
   },
   "img/mb-17.jpg": {
-    "mtime": 1794783268.4440598,
-    "seen": 1794788445.8158934,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.0314415,
     "ast_hash": "ed307d6492ff40bf5f1ceb5de8d73024",
     "semantic_hash": ""
   },
   "scripts/estender-laterais.py": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8150957,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0280426,
     "ast_hash": "e00072cbda8c80a600e30e0fbd981fde",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-chaves-girar/index.ts": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8151252,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0281873,
     "ast_hash": "6a467fae7b37209e506bea6ae3fbda1a",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-saques/index.ts": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.815131,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0281923,
     "ast_hash": "5b446a0252c2c4555de73bf3775128a9",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-transferir/index.ts": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.815134,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0281937,
     "ast_hash": "a12aac6262920aabe2e2ff81a392cc60",
     "semantic_hash": ""
   },
   "regiao/google044473d8c1714a05.html": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8155131,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0299578,
     "ast_hash": "30d4f5f368285ed156b4f9a47b48ed36",
     "semantic_hash": ""
   },
   "rj/google044473d8c1714a05.html": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8155217,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0300107,
     "ast_hash": "30d4f5f368285ed156b4f9a47b48ed36",
     "semantic_hash": ""
   },
   ".github/workflows/mapa-graphify.yml": {
-    "mtime": 1794783268.3720598,
-    "seen": 1794788445.8150604,
+    "mtime": 1794786688.2614007,
+    "seen": 1794789957.0279253,
     "ast_hash": "91a70e8c532d6fa6bfab73f4e25cc7d8",
     "semantic_hash": ""
   },
@@ -1668,1202 +1668,1202 @@
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_auditoria-e-registro-de-acessos.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153605,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.02982,
     "ast_hash": "2d59c3ccc4f2063a7d7a6b801ecde3f8",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_carnaval-separado.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.815363,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298219,
     "ast_hash": "96a01056c3772252b2dc354122eeddc2",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_cupom-boas-vindas-vendedor.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153646,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298235,
     "ast_hash": "1c408cf42d9521fcc10175fc3d9c816a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_transferir-saldo.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153672,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298252,
     "ast_hash": "158bb7834e6b4ccd152ae6cc0efddb2d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_buzios-a-mais-carnaval.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153718,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298297,
     "ast_hash": "076da07cb70f248e3dbd91a9561ce371",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_repasse-asaas-pendentes.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.815381,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298383,
     "ast_hash": "6aee24344f4db6f4195c4e177310c788",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_lanchas-posicao-no-site.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153791,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298367,
     "ast_hash": "11dd6ed495bf3eab0e92817418a474c3",
     "semantic_hash": ""
   },
   "img/sp-01-t.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.816066,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0319533,
     "ast_hash": "61234405cc76ace9e08743d938d4a694",
     "semantic_hash": ""
   },
   "img/sp-01.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.8160682,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.031955,
     "ast_hash": "8f2750bf8e31ae1fa390e16f92cba449",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_escunas-categoria.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.815377,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298338,
     "ast_hash": "b5fe777edd18bdc706d78841f5a73526",
     "semantic_hash": ""
   },
   "img/pv-01-t.jpg": {
-    "mtime": 1794783268.4680598,
-    "seen": 1794788445.8159864,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0317414,
     "ast_hash": "b1a0be977c4b62d05167163c6b2b10de",
     "semantic_hash": ""
   },
   "img/pv-01.jpg": {
-    "mtime": 1794783268.4680598,
-    "seen": 1794788445.8159893,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.031743,
     "ast_hash": "bde1fd5e5f0a98b87fe0e128b0e7fd24",
     "semantic_hash": ""
   },
   "img/pv-02-t.jpg": {
-    "mtime": 1794783268.4680598,
-    "seen": 1794788445.8159914,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.031745,
     "ast_hash": "445939b88ee59c11203427f0d31b2633",
     "semantic_hash": ""
   },
   "img/pv-02.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8159935,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.031747,
     "ast_hash": "045a1b7ed1bfd6e82ba2d57fb8bd0843",
     "semantic_hash": ""
   },
   "img/pv-03-t.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8159955,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.0317483,
     "ast_hash": "97d39a61b45e05bd637b9d559a45c0f8",
     "semantic_hash": ""
   },
   "img/pv-03.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8159974,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.0317502,
     "ast_hash": "2c54723665a4007e1f12e4794e007791",
     "semantic_hash": ""
   },
   "img/pv-04-t.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8159995,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.0317512,
     "ast_hash": "0c93e9ce980a46ab3e335c64ef2f9fa1",
     "semantic_hash": ""
   },
   "img/pv-04.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8160012,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.031752,
     "ast_hash": "2c61c01333653f34e5baf57864f636fb",
     "semantic_hash": ""
   },
   "img/pv-05-t.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8160028,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.0317538,
     "ast_hash": "17a1918183aed256bbdfe145159b2ac2",
     "semantic_hash": ""
   },
   "img/pv-05.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8160043,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.031755,
     "ast_hash": "180b39722f3ec44831fe7a86039baec3",
     "semantic_hash": ""
   },
   "img/pv-06-t.jpg": {
-    "mtime": 1794783268.4720597,
-    "seen": 1794788445.8160057,
+    "mtime": 1794786688.3439772,
+    "seen": 1794789957.0317564,
     "ast_hash": "f06d1ce5b30099c780751ec86cee6068",
     "semantic_hash": ""
   },
   "img/pv-06.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.8160071,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.0317574,
     "ast_hash": "348278c2934568edcaeb155c91b88f9e",
     "semantic_hash": ""
   },
   "img/pv-07-t.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.8160088,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.031758,
     "ast_hash": "08132442424794469a90fb58d9a2fba2",
     "semantic_hash": ""
   },
   "img/pv-07.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.8160102,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.031759,
     "ast_hash": "016cedac1945cc52c76cd293e6a7d56a",
     "semantic_hash": ""
   },
   "img/pv-08-t.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.8160114,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.03176,
     "ast_hash": "6bc18ed5a10fcfcf9e9af415c56c018f",
     "semantic_hash": ""
   },
   "img/pv-08.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.816013,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.031761,
     "ast_hash": "c0fae4545b123a27bb40647927ca3d27",
     "semantic_hash": ""
   },
   "img/pv-09-t.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.816015,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.0317626,
     "ast_hash": "b78b769b1c8e6dfebca723fbe1ea352d",
     "semantic_hash": ""
   },
   "img/pv-09.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.816017,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.0317638,
     "ast_hash": "124572c728a358e096c0fdfdd696b50a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_escunas-3h-funcoes.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153744,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298316,
     "ast_hash": "70d0de2752f9c4513e8bc0ad013ebbf0",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_auto-confirmar-passeios-do-dono.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8153691,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.029827,
     "ast_hash": "452328dcbe4646f75bdf338124feb886",
     "semantic_hash": ""
   },
   "supabase/functions/clima-site/index.ts": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8151681,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0283928,
     "ast_hash": "2e741f6257ca692bfb9d39e1c042a642",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-docs/index.ts": {
-    "mtime": 1794783268.5120597,
-    "seen": 1794788445.8151286,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0281897,
     "ast_hash": "2a02184ae3eecdca0dafc3e67376c563",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_passeio-bloqueado-em-manutencao.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8154132,
+    "mtime": 1794786688.3759773,
+    "seen": 1794789957.0298543,
     "ast_hash": "7cc17ee153fc3caf737ced96320ccab8",
     "semantic_hash": ""
   },
   "cancelamento/index.html": {
-    "mtime": 1794783268.3720598,
-    "seen": 1794788445.8154945,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.029916,
     "ast_hash": "162c6b60588f5c8b6d21e0c7fdf1d941",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_teto-comissao-buzios-30.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8154159,
+    "mtime": 1794786688.3759773,
+    "seen": 1794789957.029856,
     "ast_hash": "9aba69f7b4caeafb20e36c457dae41db",
     "semantic_hash": ""
   },
   "img/spartana-video.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.816085,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319698,
     "ast_hash": "1988dcc2f9bdd95726202021bc1fd0bf",
     "semantic_hash": ""
   },
   "video/spartana.mp4": {
-    "mtime": 1794783268.5400598,
-    "seen": 1794788445.8161213,
+    "mtime": 1794786688.391977,
+    "seen": 1794789957.0321834,
     "ast_hash": "62410fe5c424319f9d7ba4abdcc36856",
     "semantic_hash": ""
   },
   "img/completas.json": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.8150718,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.0279639,
     "ast_hash": "ad750e13e0049e828ee2c20ece8e0d51",
     "semantic_hash": ""
   },
   "img/an-c01-t.jpg": {
-    "mtime": 1794783268.3920598,
-    "seen": 1794788445.8155696,
+    "mtime": 1794786688.2839773,
+    "seen": 1794789957.0302026,
     "ast_hash": "08b685f589f7969c816ec2ea4334a12c",
     "semantic_hash": ""
   },
   "img/an-c01.jpg": {
-    "mtime": 1794783268.3920598,
-    "seen": 1794788445.815572,
+    "mtime": 1794786688.2839773,
+    "seen": 1794789957.0302048,
     "ast_hash": "0ab2e9a2fa10bf112e75ce0564ece21a",
     "semantic_hash": ""
   },
   "img/an-c02-t.jpg": {
-    "mtime": 1794783268.3920598,
-    "seen": 1794788445.8155742,
+    "mtime": 1794786688.2839773,
+    "seen": 1794789957.0302064,
     "ast_hash": "e405be5006031d0c0399f23af68dd435",
     "semantic_hash": ""
   },
   "img/an-c02.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8155766,
+    "mtime": 1794786688.2839773,
+    "seen": 1794789957.030208,
     "ast_hash": "44915d561881dc272ce8a50061c13336",
     "semantic_hash": ""
   },
   "img/an-c03-t.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8155794,
+    "mtime": 1794786688.2839773,
+    "seen": 1794789957.0302095,
     "ast_hash": "a43958383b69f3b1fa6fdccc49d0556b",
     "semantic_hash": ""
   },
   "img/an-c03.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8155813,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.030211,
     "ast_hash": "ff2662d4ed3d5181b3388e7263cf1dec",
     "semantic_hash": ""
   },
   "img/bb-c01-t.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8156226,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304403,
     "ast_hash": "4d1a32a3a12262acab1bf36521e6e8f1",
     "semantic_hash": ""
   },
   "img/bb-c01.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8156252,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304422,
     "ast_hash": "83efe35e75bd25f1304d9f4a9d0bd1da",
     "semantic_hash": ""
   },
   "img/bb-c02-t.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8156276,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304437,
     "ast_hash": "6657065fcf246450c097913d18e55c06",
     "semantic_hash": ""
   },
   "img/bb-c02.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8156295,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304458,
     "ast_hash": "a4b1160561b25c71e9b3712d89d20658",
     "semantic_hash": ""
   },
   "img/bb-c03-t.jpg": {
-    "mtime": 1794783268.3960598,
-    "seen": 1794788445.8156323,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304477,
     "ast_hash": "8c5631e5945e8bd774f6cd88d45783f5",
     "semantic_hash": ""
   },
   "img/bb-c03.jpg": {
-    "mtime": 1794783268.4000597,
-    "seen": 1794788445.8156345,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304499,
     "ast_hash": "ea1e9fc374dfe808e53f5231fb8c1152",
     "semantic_hash": ""
   },
   "img/bb-c04-t.jpg": {
-    "mtime": 1794783268.4000597,
-    "seen": 1794788445.8156364,
+    "mtime": 1794786688.2879772,
+    "seen": 1794789957.0304518,
     "ast_hash": "6ccc7b293aaeb03f15cc47989e4cf1f3",
     "semantic_hash": ""
   },
   "img/bb-c04.jpg": {
-    "mtime": 1794783268.4000597,
-    "seen": 1794788445.8156385,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.030479,
     "ast_hash": "990daa07c46c88b299579c44efa52188",
     "semantic_hash": ""
   },
   "img/bb-c05-t.jpg": {
-    "mtime": 1794783268.4000597,
-    "seen": 1794788445.8156407,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.0304818,
     "ast_hash": "6f7e283188991e633118e2243d87c5af",
     "semantic_hash": ""
   },
   "img/bb-c05.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.8156424,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.030484,
     "ast_hash": "5a7fb4732ac2beefaa8085a994712e58",
     "semantic_hash": ""
   },
   "img/bb-c06-t.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.8156443,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.030486,
     "ast_hash": "abfa7cb9ae7332f4df681f2241c5c863",
     "semantic_hash": ""
   },
   "img/bb-c06.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.815646,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.0304875,
     "ast_hash": "1506feedb5bd157dba9fa48121570168",
     "semantic_hash": ""
   },
   "img/bb-c07-t.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.8156483,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.0304894,
     "ast_hash": "c70a78851f7f021298f610a9e8be2b68",
     "semantic_hash": ""
   },
   "img/bb-c07.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.8156507,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.030491,
     "ast_hash": "22f2828f84d27045714c1a2c78344ecb",
     "semantic_hash": ""
   },
   "img/cp-c01-t.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.815697,
+    "mtime": 1794786688.2919772,
+    "seen": 1794789957.0307734,
     "ast_hash": "d54e3bd937687b2668a9ed37e8e18c37",
     "semantic_hash": ""
   },
   "img/cp-c01.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.8156989,
+    "mtime": 1794786688.295977,
+    "seen": 1794789957.0307758,
     "ast_hash": "af1ab57638f71a8fc38c0fcf29e6887f",
     "semantic_hash": ""
   },
   "img/cp-c02-t.jpg": {
-    "mtime": 1794783268.40406,
-    "seen": 1794788445.815702,
+    "mtime": 1794786688.295977,
+    "seen": 1794789957.0307777,
     "ast_hash": "f5a3790dad1634dea76950c9f54b6d43",
     "semantic_hash": ""
   },
   "img/cp-c02.jpg": {
-    "mtime": 1794783268.4080598,
-    "seen": 1794788445.8157046,
+    "mtime": 1794786688.295977,
+    "seen": 1794789957.0307798,
     "ast_hash": "ece029b77ac742d9e60c00a2215d193e",
     "semantic_hash": ""
   },
   "img/cp-c03-t.jpg": {
-    "mtime": 1794783268.4080598,
-    "seen": 1794788445.815707,
+    "mtime": 1794786688.295977,
+    "seen": 1794789957.0307817,
     "ast_hash": "c3dcabe8e7b8af1be71fd6f9d8ae8ea6",
     "semantic_hash": ""
   },
   "img/cp-c03.jpg": {
-    "mtime": 1794783268.4080598,
-    "seen": 1794788445.8157089,
+    "mtime": 1794786688.295977,
+    "seen": 1794789957.0307832,
     "ast_hash": "6a0799ddf296e2988f5d2b8b3d969d05",
     "semantic_hash": ""
   },
   "img/cp-c04-t.jpg": {
-    "mtime": 1794783268.4080598,
-    "seen": 1794788445.8157113,
+    "mtime": 1794786688.295977,
+    "seen": 1794789957.0307848,
     "ast_hash": "fbcd9811208127d11431c711130edca9",
     "semantic_hash": ""
   },
   "img/cp-c04.jpg": {
-    "mtime": 1794783268.4080598,
-    "seen": 1794788445.8157136,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.030786,
     "ast_hash": "59c02a5cf8eedc26298e0d8b512b292a",
     "semantic_hash": ""
   },
   "img/cp-c05-t.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.8157158,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.030787,
     "ast_hash": "e0e452a40ced0e169e47e870412b18af",
     "semantic_hash": ""
   },
   "img/cp-c05.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.815718,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307884,
     "ast_hash": "72c90d5ec116e7c2242038b86c583f2d",
     "semantic_hash": ""
   },
   "img/cp-c06-t.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.8157198,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307894,
     "ast_hash": "e1a9de06e89472d2297056f59db86446",
     "semantic_hash": ""
   },
   "img/cp-c06.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.8157225,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307908,
     "ast_hash": "0a81745351ab70c44c48d64129daa67e",
     "semantic_hash": ""
   },
   "img/cp-c07-t.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.8157244,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307918,
     "ast_hash": "9e24f9a0b30775e565875d45cb438a81",
     "semantic_hash": ""
   },
   "img/cp-c07.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.8157263,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.030793,
     "ast_hash": "727bc81194593220b0b74496be4292dc",
     "semantic_hash": ""
   },
   "img/cp-c08-t.jpg": {
-    "mtime": 1794783268.4120598,
-    "seen": 1794788445.8157287,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307941,
     "ast_hash": "93cf368b6fc72b03dc84990aaab67fdb",
     "semantic_hash": ""
   },
   "img/cp-c08.jpg": {
-    "mtime": 1794783268.4160597,
-    "seen": 1794788445.8157303,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307953,
     "ast_hash": "c0662774d15f33f98dc622ae155c5443",
     "semantic_hash": ""
   },
   "img/gr-c01-t.jpg": {
-    "mtime": 1794783268.4160597,
-    "seen": 1794788445.8157318,
+    "mtime": 1794786688.299977,
+    "seen": 1794789957.0307968,
     "ast_hash": "7839ad9d9f7869bc08debf666eac4074",
     "semantic_hash": ""
   },
   "img/gr-c01.jpg": {
-    "mtime": 1794783268.4160597,
-    "seen": 1794788445.8157332,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.0307977,
     "ast_hash": "88e75309d7e89bc102f0223823f0112b",
     "semantic_hash": ""
   },
   "img/gr-c02-t.jpg": {
-    "mtime": 1794783268.4160597,
-    "seen": 1794788445.8157349,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.0307992,
     "ast_hash": "742ed576971d330878732571e7ee312e",
     "semantic_hash": ""
   },
   "img/gr-c02.jpg": {
-    "mtime": 1794783268.4160597,
-    "seen": 1794788445.8157365,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.0308006,
     "ast_hash": "cb2606d5c04fbffc73dbd651636b90ed",
     "semantic_hash": ""
   },
   "img/gr-c03-t.jpg": {
-    "mtime": 1794783268.4160597,
-    "seen": 1794788445.8157382,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.030802,
     "ast_hash": "bb2e6c7ccf62b09273a428575f34e924",
     "semantic_hash": ""
   },
   "img/gr-c03.jpg": {
-    "mtime": 1794783268.4200597,
-    "seen": 1794788445.8157396,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.030803,
     "ast_hash": "417c42c2a00988a2e05e8ddb1383f639",
     "semantic_hash": ""
   },
   "img/gr-c04-t.jpg": {
-    "mtime": 1794783268.4200597,
-    "seen": 1794788445.8157413,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.0308046,
     "ast_hash": "1abee20b1a048247a4fba2651c0f9e53",
     "semantic_hash": ""
   },
   "img/gr-c04.jpg": {
-    "mtime": 1794783268.4200597,
-    "seen": 1794788445.815743,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.030806,
     "ast_hash": "37a10acd7288cef51f6a73d8a2db0572",
     "semantic_hash": ""
   },
   "img/gr-c05-t.jpg": {
-    "mtime": 1794783268.4200597,
-    "seen": 1794788445.815744,
+    "mtime": 1794786688.3039773,
+    "seen": 1794789957.0308073,
     "ast_hash": "2e5150cbb02d8c0fa7a7bafb8228b1a5",
     "semantic_hash": ""
   },
   "img/gr-c05.jpg": {
-    "mtime": 1794783268.4200597,
-    "seen": 1794788445.8157458,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.030808,
     "ast_hash": "658355ad498f6e22e68e8cce5d879cf2",
     "semantic_hash": ""
   },
   "img/gr-c06-t.jpg": {
-    "mtime": 1794783268.4200597,
-    "seen": 1794788445.8157473,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.030809,
     "ast_hash": "ce19624de34c851749896b527799178c",
     "semantic_hash": ""
   },
   "img/gr-c06.jpg": {
-    "mtime": 1794783268.4240599,
-    "seen": 1794788445.8157492,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.0308099,
     "ast_hash": "c981ef6eae4397b5577ed8cc6a1c36e1",
     "semantic_hash": ""
   },
   "img/gr-c07-t.jpg": {
-    "mtime": 1794783268.4240599,
-    "seen": 1794788445.8157504,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.030811,
     "ast_hash": "5f9b29f77a6588587afc16513bb7b7c4",
     "semantic_hash": ""
   },
   "img/gr-c07.jpg": {
-    "mtime": 1794783268.4240599,
-    "seen": 1794788445.8157525,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.0308125,
     "ast_hash": "5602355ac9e6db2dd47ac76ea3a4c7db",
     "semantic_hash": ""
   },
   "img/jc-c01-t.jpg": {
-    "mtime": 1794783268.4240599,
-    "seen": 1794788445.8157628,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.0308728,
     "ast_hash": "f927c9ab725eca204387b242f32bdb8d",
     "semantic_hash": ""
   },
   "img/jc-c01.jpg": {
-    "mtime": 1794783268.4240599,
-    "seen": 1794788445.8157642,
+    "mtime": 1794786688.3079772,
+    "seen": 1794789957.030874,
     "ast_hash": "7f7dc687dec448954de2bacde39ff11c",
     "semantic_hash": ""
   },
   "img/jc-c02-t.jpg": {
-    "mtime": 1794783268.4240599,
-    "seen": 1794788445.8157659,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308757,
     "ast_hash": "2a119638ae864293242622f2d2b7ff5d",
     "semantic_hash": ""
   },
   "img/jc-c02.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.8157673,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308764,
     "ast_hash": "ab1946d4649c1714ed91682f05262bf9",
     "semantic_hash": ""
   },
   "img/jc-c03-t.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.8157687,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308776,
     "ast_hash": "de1a87f879051b46ddf162a70d443767",
     "semantic_hash": ""
   },
   "img/jc-c03.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.8157701,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308788,
     "ast_hash": "006e963b81027f7ac9482960d25b852b",
     "semantic_hash": ""
   },
   "img/jc-c04-t.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.8157713,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308797,
     "ast_hash": "dbde4160a70cf46d34c7646e11970511",
     "semantic_hash": ""
   },
   "img/jc-c04.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.815773,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.030881,
     "ast_hash": "6d1b2aae30102d85c2b37ef92a923701",
     "semantic_hash": ""
   },
   "img/jc-c05-t.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.8157747,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.030882,
     "ast_hash": "7f48f20614bda9fac60caa8962813b02",
     "semantic_hash": ""
   },
   "img/jc-c05.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.815777,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308833,
     "ast_hash": "a4d014b81d6a50c129dabf8070a509c4",
     "semantic_hash": ""
   },
   "img/jc-c06-t.jpg": {
-    "mtime": 1794783268.4280598,
-    "seen": 1794788445.8157787,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308843,
     "ast_hash": "a11e8b25a9e6645018dc4fe7421f5cda",
     "semantic_hash": ""
   },
   "img/jc-c06.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.815781,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308855,
     "ast_hash": "8b73ae6afe6f015efaf4105d2c675d42",
     "semantic_hash": ""
   },
   "img/jc-c07-t.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.815783,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308867,
     "ast_hash": "76b36fd39cea0efcc585ab728cc51c83",
     "semantic_hash": ""
   },
   "img/jc-c07.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.8157847,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.0308874,
     "ast_hash": "17d5f5a143ca412459a8079fba51dc07",
     "semantic_hash": ""
   },
   "img/jc-c08-t.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.8157866,
+    "mtime": 1794786688.3119771,
+    "seen": 1794789957.030889,
     "ast_hash": "312622121e16554ac0fa72a46bda4eb0",
     "semantic_hash": ""
   },
   "img/jc-c08.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.815788,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.03089,
     "ast_hash": "5878dd32d11cd217e82aa9f9231edc59",
     "semantic_hash": ""
   },
   "img/jc-c09-t.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.81579,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.0308912,
     "ast_hash": "795b0d02268a1cd6fc2fdaee0b557a64",
     "semantic_hash": ""
   },
   "img/jc-c09.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.8157914,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.0308926,
     "ast_hash": "a8c5bb9837b74f722aaa720729a830ed",
     "semantic_hash": ""
   },
   "img/jc-c10-t.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.815793,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.030894,
     "ast_hash": "3ce43882ca835c8e6b21c1897cc0c74c",
     "semantic_hash": ""
   },
   "img/jc-c10.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.8157952,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.030895,
     "ast_hash": "643abff3971d097f4d51b840c517cf83",
     "semantic_hash": ""
   },
   "img/lz-c01-t.jpg": {
-    "mtime": 1794783268.4320598,
-    "seen": 1794788445.8158128,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.0310109,
     "ast_hash": "0f922787c085cd36c3c208bafdee33cb",
     "semantic_hash": ""
   },
   "img/lz-c01.jpg": {
-    "mtime": 1794783268.4360597,
-    "seen": 1794788445.815815,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.031012,
     "ast_hash": "27f40102f216ad2291b757ee35a757f8",
     "semantic_hash": ""
   },
   "img/lz-c02-t.jpg": {
-    "mtime": 1794783268.4360597,
-    "seen": 1794788445.8158169,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.0310137,
     "ast_hash": "d597506cc505b64074310b09d73b5535",
     "semantic_hash": ""
   },
   "img/lz-c02.jpg": {
-    "mtime": 1794783268.4360597,
-    "seen": 1794788445.8158193,
+    "mtime": 1794786688.315977,
+    "seen": 1794789957.0310152,
     "ast_hash": "ee4ba662ed821d6a369bc5d7fa3ca5bb",
     "semantic_hash": ""
   },
   "img/lz-c03-t.jpg": {
-    "mtime": 1794783268.4360597,
-    "seen": 1794788445.8158212,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.0310163,
     "ast_hash": "c49c5d9bbf540bb815a892617dda74c9",
     "semantic_hash": ""
   },
   "img/lz-c03.jpg": {
-    "mtime": 1794783268.4360597,
-    "seen": 1794788445.8158233,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.031018,
     "ast_hash": "cb67b311e239ad50a4105f4785379a50",
     "semantic_hash": ""
   },
   "img/lz-c04-t.jpg": {
-    "mtime": 1794783268.44006,
-    "seen": 1794788445.8158255,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.0310194,
     "ast_hash": "97dd7b13a1c30cf125b2ddc7e36e4160",
     "semantic_hash": ""
   },
   "img/lz-c04.jpg": {
-    "mtime": 1794783268.44006,
-    "seen": 1794788445.8158276,
+    "mtime": 1794786688.3199773,
+    "seen": 1794789957.0310209,
     "ast_hash": "634318cc6c5e32f8573e5a0c15bf51e2",
     "semantic_hash": ""
   },
   "img/mb-c01-t.jpg": {
-    "mtime": 1794783268.4440598,
-    "seen": 1794788445.815896,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.031443,
     "ast_hash": "646a750c0cf2ec3aa3e95f98af9e2917",
     "semantic_hash": ""
   },
   "img/mb-c01.jpg": {
-    "mtime": 1794783268.4440598,
-    "seen": 1794788445.8158982,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.0314448,
     "ast_hash": "42a6547a71e13c06ed59bc7ff58a5b80",
     "semantic_hash": ""
   },
   "img/mb-c02-t.jpg": {
-    "mtime": 1794783268.4440598,
-    "seen": 1794788445.8158996,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.0314465,
     "ast_hash": "bfe8a86250fce37ae2ed42f215600c38",
     "semantic_hash": ""
   },
   "img/mb-c02.jpg": {
-    "mtime": 1794783268.4480598,
-    "seen": 1794788445.8159015,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.031448,
     "ast_hash": "ce6d6d24dae76d727b1a7113d678a9c6",
     "semantic_hash": ""
   },
   "img/mb-c03-t.jpg": {
-    "mtime": 1794783268.4480598,
-    "seen": 1794788445.8159037,
+    "mtime": 1794786688.3239772,
+    "seen": 1794789957.0314493,
     "ast_hash": "740445a5dbb628da56a30c03a93c8603",
     "semantic_hash": ""
   },
   "img/mb-c03.jpg": {
-    "mtime": 1794783268.4480598,
-    "seen": 1794788445.815906,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.0314512,
     "ast_hash": "81ace6bf39ba8193933315caaed3b9a7",
     "semantic_hash": ""
   },
   "img/mb-c04-t.jpg": {
-    "mtime": 1794783268.4480598,
-    "seen": 1794788445.8159087,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.031468,
     "ast_hash": "1b22dfca4b3fae7837c15850833f837f",
     "semantic_hash": ""
   },
   "img/mb-c04.jpg": {
-    "mtime": 1794783268.4480598,
-    "seen": 1794788445.8159103,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.0314717,
     "ast_hash": "c091ccb7048857ae48cf22348ddf9dea",
     "semantic_hash": ""
   },
   "img/mb-c05-t.jpg": {
-    "mtime": 1794783268.4480598,
-    "seen": 1794788445.8159122,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.0314734,
     "ast_hash": "89f5ae07545c8a8c572fde755ef559e6",
     "semantic_hash": ""
   },
   "img/mb-c05.jpg": {
-    "mtime": 1794783268.4520597,
-    "seen": 1794788445.815914,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.0314748,
     "ast_hash": "6162f1ae81dbb53e08bb7e95f94d39e8",
     "semantic_hash": ""
   },
   "img/mb-c06-t.jpg": {
-    "mtime": 1794783268.4520597,
-    "seen": 1794788445.8159153,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.0314767,
     "ast_hash": "baab3f89658caed29e82617558e81d49",
     "semantic_hash": ""
   },
   "img/mb-c06.jpg": {
-    "mtime": 1794783268.4520597,
-    "seen": 1794788445.8159168,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.031478,
     "ast_hash": "b205e726dc5a16ec4faaeba5abf36413",
     "semantic_hash": ""
   },
   "img/mb-c07-t.jpg": {
-    "mtime": 1794783268.4520597,
-    "seen": 1794788445.8159187,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.03148,
     "ast_hash": "12b9f7b1758cb63a8f1c5bae75d3cd4f",
     "semantic_hash": ""
   },
   "img/mb-c07.jpg": {
-    "mtime": 1794783268.4520597,
-    "seen": 1794788445.81592,
+    "mtime": 1794786688.3279772,
+    "seen": 1794789957.0314813,
     "ast_hash": "0c5ece26f09770de36e8b9c5f0701276",
     "semantic_hash": ""
   },
   "img/mb-c08-t.jpg": {
-    "mtime": 1794783268.4520597,
-    "seen": 1794788445.8159223,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.031483,
     "ast_hash": "479d3c057df8799ded04b5470dfe318b",
     "semantic_hash": ""
   },
   "img/mb-c08.jpg": {
-    "mtime": 1794783268.4560597,
-    "seen": 1794788445.815924,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.031484,
     "ast_hash": "51da305b9e01f4444b3d4b03bf95703a",
     "semantic_hash": ""
   },
   "img/mb-c09-t.jpg": {
-    "mtime": 1794783268.4560597,
-    "seen": 1794788445.8159263,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.031485,
     "ast_hash": "a2ea2261f13bed8ed4c5293b762d4449",
     "semantic_hash": ""
   },
   "img/mb-c09.jpg": {
-    "mtime": 1794783268.4560597,
-    "seen": 1794788445.8159275,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.0314863,
     "ast_hash": "538736331546d464358485fe35371061",
     "semantic_hash": ""
   },
   "img/mb-c10-t.jpg": {
-    "mtime": 1794783268.4560597,
-    "seen": 1794788445.815929,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.0314875,
     "ast_hash": "9be44c31010357c9190ae67cd94169d2",
     "semantic_hash": ""
   },
   "img/mb-c10.jpg": {
-    "mtime": 1794783268.4560597,
-    "seen": 1794788445.8159306,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.0314887,
     "ast_hash": "dc314e66640b0c6f7977daf1eb98a373",
     "semantic_hash": ""
   },
   "img/mb-c11-t.jpg": {
-    "mtime": 1794783268.4560597,
-    "seen": 1794788445.8159318,
+    "mtime": 1794786688.3319771,
+    "seen": 1794789957.0314898,
     "ast_hash": "1f983771b7eefa2c6deacced2511f126",
     "semantic_hash": ""
   },
   "img/mb-c11.jpg": {
-    "mtime": 1794783268.46006,
-    "seen": 1794788445.8159335,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.031491,
     "ast_hash": "65fceb01d4d4a4344e737120e73e9a47",
     "semantic_hash": ""
   },
   "img/mb-c12-t.jpg": {
-    "mtime": 1794783268.46006,
-    "seen": 1794788445.8159347,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.031492,
     "ast_hash": "0f85c6647ce9ad5e55bc382080e316cd",
     "semantic_hash": ""
   },
   "img/mb-c12.jpg": {
-    "mtime": 1794783268.46006,
-    "seen": 1794788445.8159363,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0314932,
     "ast_hash": "cd14906fcad35010c526a9d23514efbf",
     "semantic_hash": ""
   },
   "img/md-c01-t.jpg": {
-    "mtime": 1794783268.46006,
-    "seen": 1794788445.8159525,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0316446,
     "ast_hash": "dd8db957ec0af4bb67548bfadcebd820",
     "semantic_hash": ""
   },
   "img/md-c01.jpg": {
-    "mtime": 1794783268.46006,
-    "seen": 1794788445.8159544,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.031646,
     "ast_hash": "217da7679d7fc8ef9d6872c0f9849c26",
     "semantic_hash": ""
   },
   "img/md-c02-t.jpg": {
-    "mtime": 1794783268.46006,
-    "seen": 1794788445.8159556,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0316472,
     "ast_hash": "0bf920c2fece503c67332d50537be675",
     "semantic_hash": ""
   },
   "img/md-c02.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.815957,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0316482,
     "ast_hash": "857b9d40bcaa0317c44288dc67d7ae9a",
     "semantic_hash": ""
   },
   "img/md-c03-t.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.8159587,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0316494,
     "ast_hash": "d37a896f586ba1a02276faeb0bb6b730",
     "semantic_hash": ""
   },
   "img/md-c03.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.8159606,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0316505,
     "ast_hash": "4e19beb1082998df87af6500099b3e63",
     "semantic_hash": ""
   },
   "img/md-c04-t.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.815962,
+    "mtime": 1794786688.335977,
+    "seen": 1794789957.0316517,
     "ast_hash": "127c69d1528f45ed29a26c74455d5249",
     "semantic_hash": ""
   },
   "img/md-c04.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.815964,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316527,
     "ast_hash": "807e6a9cfa109480fd2e55f04c35e8e2",
     "semantic_hash": ""
   },
   "img/md-c05-t.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.8159657,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316536,
     "ast_hash": "557563d7e43b3398f8e34c54a7ce4791",
     "semantic_hash": ""
   },
   "img/md-c05.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.815968,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316546,
     "ast_hash": "9e706dcaa16cbf2204e43e1eb91346e8",
     "semantic_hash": ""
   },
   "img/md-c06-t.jpg": {
-    "mtime": 1794783268.4640598,
-    "seen": 1794788445.8159697,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316563,
     "ast_hash": "e990f9472e7d9e2191d56a2e1b2e7907",
     "semantic_hash": ""
   },
   "img/md-c06.jpg": {
-    "mtime": 1794783268.4680598,
-    "seen": 1794788445.8159719,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316575,
     "ast_hash": "5c987d3abb7123f25c57b161aa1b119b",
     "semantic_hash": ""
   },
   "img/md-c07-t.jpg": {
-    "mtime": 1794783268.4680598,
-    "seen": 1794788445.8159735,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316586,
     "ast_hash": "67cfbdf51ac39f9c0e337b637b417d0a",
     "semantic_hash": ""
   },
   "img/md-c07.jpg": {
-    "mtime": 1794783268.4680598,
-    "seen": 1794788445.8159754,
+    "mtime": 1794786688.3399773,
+    "seen": 1794789957.0316608,
     "ast_hash": "d8aa3401d0ca2614c8cb80b5c8a324a7",
     "semantic_hash": ""
   },
   "img/pv-c01-t.jpg": {
-    "mtime": 1794783268.47606,
-    "seen": 1794788445.8160186,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.031765,
     "ast_hash": "4dfdaf14ab2c648236e8286d35a13564",
     "semantic_hash": ""
   },
   "img/pv-c01.jpg": {
-    "mtime": 1794783268.4800599,
-    "seen": 1794788445.8160205,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.0317662,
     "ast_hash": "d3458855854d5330985989f8f0c4fb32",
     "semantic_hash": ""
   },
   "img/pv-c02-t.jpg": {
-    "mtime": 1794783268.4800599,
-    "seen": 1794788445.8160222,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.0317678,
     "ast_hash": "e1511ce93142571d987a6ed08ed06246",
     "semantic_hash": ""
   },
   "img/pv-c02.jpg": {
-    "mtime": 1794783268.4800599,
-    "seen": 1794788445.8160245,
+    "mtime": 1794786688.3479772,
+    "seen": 1794789957.0317693,
     "ast_hash": "d6eed2c1498f5fce2c03b19525b7cbae",
     "semantic_hash": ""
   },
   "img/pv-c03-t.jpg": {
-    "mtime": 1794783268.4800599,
-    "seen": 1794788445.8160272,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317712,
     "ast_hash": "1176879650d0763272e3d06fd42bbc81",
     "semantic_hash": ""
   },
   "img/pv-c03.jpg": {
-    "mtime": 1794783268.4800599,
-    "seen": 1794788445.8160288,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317724,
     "ast_hash": "41270d7d064ed5b23ddd99286d41f1c8",
     "semantic_hash": ""
   },
   "img/pv-c04-t.jpg": {
-    "mtime": 1794783268.4800599,
-    "seen": 1794788445.816031,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317733,
     "ast_hash": "9af679565dec27ee6132cbfae42df3a8",
     "semantic_hash": ""
   },
   "img/pv-c04.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.8160331,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317748,
     "ast_hash": "80fff5ec3b01647fc4744d3745c0c000",
     "semantic_hash": ""
   },
   "img/pv-c05-t.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.816035,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317757,
     "ast_hash": "e93fd05ef6b9526edacb8496decbcd45",
     "semantic_hash": ""
   },
   "img/pv-c05.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.8160372,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317767,
     "ast_hash": "c8e07c08db06f515cedc1234f95a67c6",
     "semantic_hash": ""
   },
   "img/pv-c06-t.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.816039,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.031778,
     "ast_hash": "7bf15f6c3d512cbf2ddca76832a92cab",
     "semantic_hash": ""
   },
   "img/pv-c06.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.8160415,
+    "mtime": 1794786688.351977,
+    "seen": 1794789957.0317793,
     "ast_hash": "663149462256101cd9be13f7b9cf495c",
     "semantic_hash": ""
   },
   "img/sp-c01-t.jpg": {
-    "mtime": 1794783268.4840598,
-    "seen": 1794788445.81607,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319564,
     "ast_hash": "620d1fcace39725e01e8edcbdd4c90db",
     "semantic_hash": ""
   },
   "img/sp-c01.jpg": {
-    "mtime": 1794783268.4880598,
-    "seen": 1794788445.8160717,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.031958,
     "ast_hash": "0508e6738438e3a10de1f44600eefc76",
     "semantic_hash": ""
   },
   "img/sp-c02-t.jpg": {
-    "mtime": 1794783268.4880598,
-    "seen": 1794788445.8160734,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319595,
     "ast_hash": "b7d784db52c3d5344efdb25fe38c296d",
     "semantic_hash": ""
   },
   "img/sp-c02.jpg": {
-    "mtime": 1794783268.4880598,
-    "seen": 1794788445.8160753,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319614,
     "ast_hash": "cbaee64de506c198595959141d099f5d",
     "semantic_hash": ""
   },
   "img/sp-c03-t.jpg": {
-    "mtime": 1794783268.4880598,
-    "seen": 1794788445.8160775,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.031963,
     "ast_hash": "f411b648c752e7f60bb42626a2f7210a",
     "semantic_hash": ""
   },
   "img/sp-c03.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.8160794,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319648,
     "ast_hash": "0b411162e660f900f387d8458f5847c7",
     "semantic_hash": ""
   },
   "img/sp-c04-t.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.8160815,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319662,
     "ast_hash": "b23aad09e465f9d4b357dc67d5257b88",
     "semantic_hash": ""
   },
   "img/sp-c04.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.8160832,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.0319674,
     "ast_hash": "bae52bd4b7e9be1793e1e44813cad946",
     "semantic_hash": ""
   },
   "img/vv-c01-t.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.8160908,
+    "mtime": 1794786688.3559773,
+    "seen": 1794789957.032007,
     "ast_hash": "7121fb637ab0b5110b63cf13166be41c",
     "semantic_hash": ""
   },
   "img/vv-c01.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.8160925,
+    "mtime": 1794786688.3599772,
+    "seen": 1794789957.0320086,
     "ast_hash": "248e5b5a70161e59007f213a6637a3fb",
     "semantic_hash": ""
   },
   "img/vv-c02-t.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.8160944,
+    "mtime": 1794786688.3599772,
+    "seen": 1794789957.0320106,
     "ast_hash": "a63e125bb06998834c71729c790d220f",
     "semantic_hash": ""
   },
   "img/vv-c02.jpg": {
-    "mtime": 1794783268.4920597,
-    "seen": 1794788445.816096,
+    "mtime": 1794786688.3599772,
+    "seen": 1794789957.0320125,
     "ast_hash": "bb00bef6f3d946ee40e19639f79f2104",
     "semantic_hash": ""
   },
   "img/vv-c03-t.jpg": {
-    "mtime": 1794783268.49606,
-    "seen": 1794788445.8160977,
+    "mtime": 1794786688.3599772,
+    "seen": 1794789957.0320144,
     "ast_hash": "5f9016febaa11b2de5d648286abf5518",
     "semantic_hash": ""
   },
   "img/vv-c03.jpg": {
-    "mtime": 1794783268.49606,
-    "seen": 1794788445.8160994,
+    "mtime": 1794786688.3599772,
+    "seen": 1794789957.0320156,
     "ast_hash": "9814491c8f1f635382a33e598010b839",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_mover-passeio-marinheiro-da-tela.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8154109,
+    "mtime": 1794786688.3759773,
+    "seen": 1794789957.0298522,
     "ast_hash": "c60992eb8eb4842032f7805e01b41321",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8154087,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298505,
     "ast_hash": "62908150be53603d8d3f5ae8ab38860f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-pedido.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.8154018,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298448,
     "ast_hash": "805bc232ba3b917109995ddf23f7a938",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-revisao.sql": {
-    "mtime": 1794783268.5160599,
-    "seen": 1794788445.815406,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298479,
     "ast_hash": "b3c333d4e62178004e6ed66bc60846f6",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-cortesia-opcional.sql": {
-    "mtime": 1794784871.860155,
-    "seen": 1794788445.8153834,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298405,
     "ast_hash": "6a2407ce404771f8e0a3b4fd8a288a86",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-revisao-geral.sql": {
-    "mtime": 1794786515.5916288,
-    "seen": 1794788445.8154042,
+    "mtime": 1794786688.371977,
+    "seen": 1794789957.0298464,
     "ast_hash": "8e9274b5bf5e42c05c8d3f1bbfe9e195",
     "semantic_hash": ""
   },
   "scripts/bordazul-gerar.py": {
-    "mtime": 1794788443.412355,
-    "seen": 1794788445.8150866,
+    "mtime": 1794789946.4760938,
+    "seen": 1794789957.028035,
     "ast_hash": "d0415ee5652c19aa1f29f3030b1093bf",
     "semantic_hash": ""
   },
   "bordazul/en/index.html": {
-    "mtime": 1794788443.3947327,
-    "seen": 1794788445.8154836,
+    "mtime": 1794789946.4560938,
+    "seen": 1794789957.0299098,
     "ast_hash": "a3e54ffba1082b91944a7364b3cc91e4",
     "semantic_hash": ""
   },
   "bordazul/es/index.html": {
-    "mtime": 1794788443.3973234,
-    "seen": 1794788445.815487,
+    "mtime": 1794789946.4560938,
+    "seen": 1794789957.0299113,
     "ast_hash": "f801123265a2c7203f700996c8d22595",
     "semantic_hash": ""
   },
   "bordazul/index.html": {
-    "mtime": 1794788443.398016,
-    "seen": 1794788445.8154902,
+    "mtime": 1794789946.4560938,
+    "seen": 1794789957.0299132,
     "ast_hash": "d84802e9a2fb3f583cc826da4bd0eb89",
     "semantic_hash": ""
   },
   "bordazul/robots.txt": {
-    "mtime": 1794786496.2929673,
-    "seen": 1794788445.8154929,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.0299146,
     "ast_hash": "efde3b9dd1c76e3a39a99db9ed1898f6",
     "semantic_hash": ""
   },
   "bordazul/favicon.svg": {
-    "mtime": 1794788443.397679,
-    "seen": 1794788445.8155434,
+    "mtime": 1794789946.4560938,
+    "seen": 1794789957.03013,
     "ast_hash": "1ba2920b818de9c269323331d782683b",
     "semantic_hash": ""
   },
   "bordazul/img/barco-1.jpg": {
-    "mtime": 1794784872.0250547,
-    "seen": 1794788445.8155458,
+    "mtime": 1794786688.2648752,
+    "seen": 1794789957.030132,
     "ast_hash": "eb9a5ba2ba50c29f08a35dc181b78777",
     "semantic_hash": ""
   },
   "bordazul/img/barco-2.jpg": {
-    "mtime": 1794784872.026221,
-    "seen": 1794788445.8155487,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.0301335,
     "ast_hash": "f7af4609447a42fa6ea0eb7647b71e36",
     "semantic_hash": ""
   },
   "bordazul/img/barco-3.jpg": {
-    "mtime": 1794784872.0267692,
-    "seen": 1794788445.815551,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.0301354,
     "ast_hash": "a06c1471cc55ae0e10452a69b9f802fa",
     "semantic_hash": ""
   },
   "bordazul/img/barco-4.jpg": {
-    "mtime": 1794784872.028155,
-    "seen": 1794788445.8155527,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.0301366,
     "ast_hash": "987b15f5d21fef53d40c07f7e33944dd",
     "semantic_hash": ""
   },
   "bordazul/img/mar-buzios.jpg": {
-    "mtime": 1794784872.0292246,
-    "seen": 1794788445.8155553,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.0301387,
     "ast_hash": "4bc2cae8a64a14365d5f9291318e8974",
     "semantic_hash": ""
   },
   "bordazul/img/selo.jpg": {
-    "mtime": 1794784872.0297968,
-    "seen": 1794788445.8155577,
+    "mtime": 1794786688.2660303,
+    "seen": 1794789957.0301406,
     "ast_hash": "0c2926d9858ad1b24a31aced4951ec96",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-lucas.sql": {
-    "mtime": 1794788443.2867327,
-    "seen": 1794788445.8153985,
+    "mtime": 1794789946.4815853,
+    "seen": 1794789957.0298426,
     "ast_hash": "233696943c495c4999b345cf15f28bcb",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_jetski-lucas-revisao-seguranca.sql": {
-    "mtime": 1794788443.2867327,
-    "seen": 1794788445.815418,
+    "mtime": 1794789946.4815853,
+    "seen": 1794789957.0298574,
     "ast_hash": "b1101d3a18e28900ec6dd479e16bf3c2",
     "semantic_hash": ""
   }
