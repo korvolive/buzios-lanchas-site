@@ -8,7 +8,7 @@ Regra ampliada (2026-11-15, pedido do dono: "centralizar sempre a lancha, sem pe
 (a maior, categoria "boat") e o corte a centraliza inteira junto com as pessoas. Quando o que importa (lancha ou pessoas) não cabe no quadro,
 ou quando a foto não tem nada detectado mas o corte perderia mais de 20% dela (cabine, banheiro, sofá fotografados em pé), o --relatorio
 marca a foto como "inteira": a rotina completa as bordas dela com estender-laterais.py (foto real intacta no meio) e registra em
-img/completas.json. Faixa nos lados e quadro de tamanho diferente foram recusados pelo dono; até a rotina passar, fica o melhor corte.
+img/completas.json (DESATIVADO 16/11/2026: o dono proibiu completar fotos com IA; só zoom e posição). Faixa nos lados e quadro de tamanho diferente foram recusados pelo dono; até a rotina passar, fica o melhor corte.
 Uso: python3 -I enquadrar.py <pasta img> <foto> ...   (foto = nome em img/ sem extensão ou URL do banco sem .jpg)
 Saída: JSON {foto: ["X% Y%" computador, "X% Y%" celular]};
 com --relatorio, {foto: {"computador": "corte"/"inteira", "celular": ..., "lancha": bool, "pessoas": n}} de todas as fotos; com --nao-cabe, {foto: [largura, altura]} das fotos em que a pessoa não cabe inteira no computador; foto que falhar fica de fora (o site usa o centro)."""

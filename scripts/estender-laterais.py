@@ -9,6 +9,11 @@ entra pelo proxy). Custa cerca de 20 créditos por foto. A foto nova entra em im
 Uso: python3 -I estender-laterais.py <foto (nome em img/ ou URL do banco sem .jpg)> <nome novo em img/, ex.: sp-02> [interior|exterior]
 Saída: img/<nome>.jpg (até 1600 px) e img/<nome>-t.jpg (miniatura). CONFIRA a imagem antes de usar (a IA às vezes inventa)."""
 import base64, io, json, os, sys, time, urllib.request
+
+# PROIBIDO desde 16/11/2026: o dono recusou as fotos completadas com IA (ficaram falsas, criaram ambiente que não existe).
+# Regra final: nada de editar foto com IA; só zoom e posição (enquadrar.py ou o ajuste manual do app). Só roda com --autorizado-pelo-dono.
+if "--autorizado-pelo-dono" not in sys.argv:
+    sys.exit("estender-laterais.py desativado: o dono proibiu completar fotos com IA (16/11/2026). Use só zoom/posição.")
 import cv2
 import numpy as np
 from PIL import Image, ImageOps
