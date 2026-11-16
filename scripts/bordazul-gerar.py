@@ -293,14 +293,15 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
 .hero .ph .sl.on{opacity:1}
 .hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* fotos em pé (Rodrigo 2026-11-16, sem desfoque): aparecem inteiras e nítidas, e a borda some no azul-marinho do fundo; fotos deitadas cobrem o topo todo */
-.hero .ph .sl{background:var(--navy)}
+/* enquadramento que o Rodrigo aprovou (2026-11-16): cada foto inteira, sem ampliar; o resto do topo é a mesma foto ao fundo, só levemente desfocada */
+.hero .ph .sl::before{content:"";position:absolute;inset:-20px;background:var(--src) center/cover;filter:blur(6px) brightness(.72)}
 @media (max-width:720px){
+ .hero .ph .sl.cm::before{display:none}
  .hero .ph .sl:not(.cm) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
  .hero .ph .sl.up img{transform:translateY(-30%)} /* Miss Bardot: corta o céu, o barco fica acima do título */
 }
 @media (min-width:721px){
- .hero .ph .sl:not(.cv) img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+ .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 }
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
