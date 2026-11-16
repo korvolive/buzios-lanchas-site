@@ -143,18 +143,118 @@ async function avisarPasseios(modelo: string) {
   return n;
 }
 
+// Convite da consulta vencida (Rodrigo 2026-11-16, "Convite automático e some"): consulta do site de HOJE cujo horário já chegou
+// (1 h antes do início, igual ao quadro "Consultas vencidas" do painel) recebe entre 18h e 21h UM aviso do número principal
+// (360dialog, modelo de Utilidade consulta_encerrada, PT/EN/ES, sem emoji) e sai do painel. Se o cliente responder, a conversa
+// segue pelo atendimento normal do WhatsApp. Sem o modelo aprovado como Utilidade, não envia nada: só tira a consulta do painel.
+// Travas: 1 convite por número a cada 30 dias, 10 por rodada, não envia para quem já tem passeio ou outra consulta de hoje em diante.
+// resgate_config.convite_ativo liga/desliga; convite_simular = só registra, não envia nem apaga.
+const MODELO_TXT: Record<string, string> = {
+  pt_BR: "Olá, {{1}}. Sua consulta de passeio na lancha {{2}} para {{3}} foi encerrada, porque o horário já passou. Se quiser escolher outra data, é só responder esta mensagem.",
+  en: "Hello {{1}}. Your boat trip inquiry for the {{2}} on {{3}} has been closed because the time has passed. If you would like to choose another date, just reply to this message.",
+  es: "Hola, {{1}}. Tu consulta de paseo en la lancha {{2}} para el {{3}} fue cerrada porque el horario ya pasó. Si quieres elegir otra fecha, solo responde este mensaje.",
+};
+const MODELO_EX: Record<string, string[]> = { pt_BR: ["Ana", "Miss Bardot", "16 de novembro"], en: ["Ana", "Miss Bardot", "November 16"], es: ["Ana", "Miss Bardot", "16 de noviembre"] };
+const INI_H: Record<string, number> = { manha: 10, dia: 10, tarde: 14, noite: 20 };
+async function d360Key() {
+  const env = Deno.env.get("D360_API_KEY") || "";
+  if (env) return env;
+  const { data } = await db.from("segredos_app").select("valor").eq("nome", "D360_API_KEY").maybeSingle();
+  return String(data?.valor || "");
+}
+// quais idiomas do modelo estão aprovados como Utilidade; os que faltam são criados (no máximo 1 tentativa a cada 24 h)
+async function modeloPronto(key: string, nome: string, cfg: any) {
+  const r = await fetch("https://waba-v2.360dialog.io/v1/configs/templates?limit=1000", { headers: { "D360-API-KEY": key } });
+  if (!r.ok) { console.error("convite modelos", r.status); return new Set<string>(); }
+  const j = await r.json().catch(() => ({}));
+  const ts: any[] = (j.waba_templates || j.data || []).filter((t: any) => t?.name === nome);
+  const ok = new Set<string>(ts.filter(t => String(t.status).toLowerCase() === "approved" && String(t.category).toUpperCase() === "UTILITY").map(t => String(t.language)));
+  const falta = Object.keys(MODELO_TXT).filter(l => !ts.some(t => String(t.language) === l));
+  if (falta.length && (!cfg.convite_modelo_em || Date.parse(cfg.convite_modelo_em) < Date.now() - 864e5)) {
+    await db.from("resgate_config").update({ convite_modelo_em: new Date().toISOString() }).eq("id", 1);
+    for (const l of falta) {
+      const c = await fetch("https://waba-v2.360dialog.io/v1/configs/templates", {
+        method: "POST", headers: { "D360-API-KEY": key, "content-type": "application/json" },
+        body: JSON.stringify({ name: nome, category: "UTILITY", language: l, components: [{ type: "BODY", text: MODELO_TXT[l], example: { body_text: [MODELO_EX[l]] } }] }),
+      });
+      console.log("convite modelo criado", l, c.status, c.ok ? "" : (await c.text()).slice(0, 300));
+    }
+  }
+  return ok;
+}
+async function convidarVencidas(cfg: any) {
+  const agora = Date.now(), br = new Date(agora - 3 * 3600e3), hoje = br.toISOString().slice(0, 10), hBr = br.getUTCHours();
+  if (hBr < 18 || hBr >= 21) return 0;
+  const { data: cs, error } = await db.from("consultas").select("id, lancha, data, horario, nome, telefone, lang, hora_ini")
+    .eq("data", hoje).is("recusada_em", null).is("virou_pedido_em", null).order("criado_em").limit(30);
+  if (error) { console.error("convite", error.message); return 0; }
+  const venc = (cs || []).filter(c => {
+    const m = String(c.hora_ini || "").match(/^(\d{1,2}):(\d{2})/);
+    const ini = m ? +m[1] + +m[2] / 60 : (INI_H[c.horario] ?? 10);
+    return hBr + br.getUTCMinutes() / 60 >= ini - 1;
+  }).slice(0, 10);
+  if (!venc.length) return 0;
+  const key = await d360Key().catch(() => "");
+  const nome = cfg.convite_modelo || "consulta_encerrada";
+  const pronto = key ? await modeloPronto(key, nome, cfg).catch(e => (console.error("convite modelos", e), new Set<string>())) : new Set<string>();
+  const { data: ls } = await db.from("lanchas").select("slug, nome");
+  const nomeL = (s: string) => ls?.find(l => l.slug === s)?.nome || s.replace(/-/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
+  const ja = new Set<string>();
+  let n = 0;
+  for (const c of venc) {
+    const to = dig(c.telefone), fim8 = to.slice(-8);
+    const l = SLOT[c.lang] ? c.lang : "pt", lc = LANG[l];
+    let manda = !!key && pronto.has(lc) && to.length >= 10 && to.length <= 15 && !ja.has(to);
+    if (manda) {
+      // outra consulta do mesmo número de hoje em diante (fora as vencidas desta rodada): o atendimento continua, sem aviso
+      const { data: outras } = await db.from("consultas").select("id, telefone, data").gte("data", hoje).is("recusada_em", null).ilike("telefone", `%${to.slice(-4)}`).limit(200);
+      if ((outras || []).some(o => dig(o.telefone).slice(-8) === fim8 && !venc.some(v => v.id === o.id))) manda = false;
+    }
+    if (manda) {
+      // já tem passeio marcado de hoje em diante com esse número
+      const { data: ans } = await db.from("anotacoes").select("telefone, bloqueios!inner(data)").gte("bloqueios.data", hoje).ilike("telefone", `%${to.slice(-4)}`).limit(200);
+      if ((ans || []).some(a => dig(a.telefone).slice(-8) === fim8)) manda = false;
+    }
+    if (manda) {
+      const { data: rec } = await db.from("consulta_convites").select("tel_dig").eq("tel_dig", to).gte("criado_em", new Date(agora - 30 * 864e5).toISOString()).limit(1);
+      if (rec?.length) manda = false;
+    }
+    if (cfg.convite_simular) { console.log("convite simulado", c.id, manda ? "enviaria" : "não enviaria"); continue; }
+    if (manda) {
+      ja.add(to);
+      // registra antes de mandar (trava de duplicidade mesmo se o cron rodar duas vezes)
+      const { data: reg, error: re } = await db.from("consulta_convites").insert({ tel_dig: to, consulta_id: c.id, lancha: c.lancha, data: c.data }).select("id").single();
+      if (re || !reg) { console.error("convite registro", re?.message); continue; }
+      const r = await fetch("https://waba-v2.360dialog.io/messages", {
+        method: "POST", headers: { "D360-API-KEY": key, "content-type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
+          template: { name: nome, language: { code: lc }, components: [
+            { type: "body", parameters: [nomeOk(c.nome), nomeL(c.lancha), dataLonga(c.data, l)].map(text => ({ type: "text", text })) },
+          ] } }),
+      });
+      await db.from("consulta_convites").update({ status: r.ok ? "enviado" : "falhou" }).eq("id", reg.id);
+      if (r.ok) { n++; console.log("convite ok", c.id); }
+      else console.error("convite falhou", c.id, r.status, (await r.text()).slice(0, 300));
+    }
+    // sai do painel (com ou sem aviso); a limpeza da meia-noite apagaria de qualquer jeito
+    await db.from("consultas").delete().eq("id", c.id).is("recusada_em", null);
+  }
+  return n;
+}
+
 Deno.serve(async req => {
   try {
     const { data: cfg } = await db.from("resgate_config").select("*").eq("id", 1).maybeSingle();
     if (!cfg?.chave || req.headers.get("x-chave") !== cfg.chave) return json({ erro: "nao" }, 401);
     const leads = cfg.lead_ativo && TOKEN && PHONE ? await lembrarLeads(cfg.modelo_lead || "cadastro_pendente").catch(e => (console.error("leads", e), 0)) : 0;
     const passeios = cfg.passeio_ativo && TOKEN && PHONE ? await avisarPasseios(cfg.modelo_passeio || "passeio_registrado").catch(e => (console.error("passeios", e), 0)) : 0;
-    if (!cfg.ativo || !TOKEN || !PHONE) return json({ ok: true, ativo: false, leads, passeios });
+    const convites = cfg.convite_ativo ? await convidarVencidas(cfg).catch(e => (console.error("convite", e), 0)) : 0;
+    if (!cfg.ativo || !TOKEN || !PHONE) return json({ ok: true, ativo: false, leads, passeios, convites });
     const agora = Date.now();
     // trava geral: no máximo 30 por hora
     const { count } = await db.from("consultas").select("id", { count: "exact", head: true }).gte("wa_enviado_em", new Date(agora - 3600e3).toISOString());
     let livre = 30 - (count ?? 0);
-    if (livre <= 0) return json({ ok: true, enviados: 0, trava: "hora", leads, passeios });
+    if (livre <= 0) return json({ ok: true, enviados: 0, trava: "hora", leads, passeios, convites });
     // consultas de 70 s a 30 min atrás, sem chamar no WhatsApp e sem resgate ainda
     const { data: cs } = await db.from("consultas").select("id, lancha, data, horario, pessoas, nome, telefone, lang, hora_ini, hora_fim")
       .eq("chamou", false).is("wa_enviado_em", null)
@@ -184,7 +284,7 @@ Deno.serve(async req => {
       if (r.ok) { enviados++; console.log("resgate ok", c.id); }
       else console.error("resgate falhou", c.id, r.status, (await r.text()).slice(0, 400));
     }
-    return json({ ok: true, enviados, leads, passeios });
+    return json({ ok: true, enviados, leads, passeios, convites });
   } catch (e) {
     console.error(e);
     return json({ erro: "falhou" }, 500);
