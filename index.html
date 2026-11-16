@@ -56,7 +56,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fontes sem travar a primeira pintura no celular: o texto aparece na fonte do aparelho e troca quando a fonte chega -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[rel="preload"][imagesrcset*="mb-c02"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/mb-c02.webp";hl.setAttribute("imagesrcset","/img/mb-c02-m.webp 800w, /img/mb-c02.webp 1600w");hl.setAttribute("imagesizes","100vw");hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
+<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[rel="preload"][imagesrcset*="mb-c12"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/mb-c12.webp";hl.setAttribute("imagesrcset","/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w");hl.setAttribute("imagesizes","100vw");hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
 <style>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
 :root{
@@ -723,7 +723,7 @@ h1,h2,h3{line-height:1.15}
 /* ideia B escolhida (2026-11-16): fundo escuro com a foto do grupo na boia da Miss Bardot */
 .hero.hero-foto{background:#04212c}
 /* no computador a foto vira o fundo do topo (não aumenta a altura); no celular ela fica no alto, antes do título */
-@media (min-width:761px){.hero.hero-foto{background:linear-gradient(180deg,rgba(4,33,44,.62),rgba(4,33,44,.86)),url(/img/mb-c02.webp) center 60%/cover #04212c}.hero-ph{display:none}}
+@media (min-width:761px){.hero.hero-foto{background:linear-gradient(180deg,rgba(4,33,44,.62),rgba(4,33,44,.86)),url(/img/mb-c12.webp) center 60%/cover #04212c}.hero-ph{display:none}}
 .hero-ph{margin:0;overflow:hidden;position:relative;background:#0a3443}
 .hero-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;animation:phin 1.4s cubic-bezier(.2,.8,.2,1) both}
 @keyframes phin{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
@@ -1160,7 +1160,7 @@ const UI = {
     seoDesc:"Aluguel de lancha em Búzios (RJ) com marinheiro, combustível, carvão, gelo e água mineral inclusos. Passeios privativos de 4 ou 7 horas para até 16 pessoas. Consulte pelo WhatsApp.",
     seoBoatTitle:"{name}: lancha de {feet} pés para até {cap} pessoas em Búzios | Búzios Lanchas",
     seoBoatTail:"Passeio de lancha privativo em Búzios, com marinheiro e combustível inclusos.",
-    heroTitle:"Aluguel de lancha em Búzios", heroLead:"No tamanho certo para o seu grupo, com marinheiro e combustível inclusos.", barT:"Lanchas em Búzios", barSub:"Com marinheiro", barGo:"Ver as lanchas", fx:["Passeio privativo, só o seu grupo a bordo","Gelo, carvão, água mineral e cooler inclusos","Traga as carnes que a equipe faz o churrasco"], heroPhotoAlt:"Grupo de amigas na piscina flutuante da lancha Miss Bardot, no mar de Búzios",
+    heroTitle:"Aluguel de lancha em Búzios", heroLead:"No tamanho certo para o seu grupo, com marinheiro e combustível inclusos.", barT:"Lanchas em Búzios", barSub:"Com marinheiro", barGo:"Ver as lanchas", fx:["Passeio privativo, só o seu grupo a bordo","Gelo, carvão, água mineral e cooler inclusos","Traga as carnes que a equipe faz o churrasco"], heroPhotoAlt:"Grupo de amigas na proa da lancha Miss Bardot, em despedida de solteira em Búzios",
     heroText:"Passeios privativos com marinheiro, combustível, carvão, gelo e água mineral inclusos. Traga suas bebidas e carnes que a equipe prepara o churrasco a bordo. De casais a grupos de até 16 pessoas.",
     heroMeet:"Conhecer a Miss Bardot", heroAll:"Ver as lanchas disponíveis", heroRev:"+100 avaliações 5 estrelas no Google",
     fleetEyebrow:"Nossas lanchas", fleetTitle:"Escolha pelo tamanho do grupo",
@@ -1217,7 +1217,7 @@ const UI = {
     seoDesc:"Private boat rental in Búzios, Rio de Janeiro, with skipper, fuel, charcoal, ice and mineral water included. 4 or 7 hour tours for up to 16 people. Ask on WhatsApp.",
     seoBoatTitle:"{name}: {feet}-foot boat for up to {cap} people in Búzios | Búzios Lanchas",
     seoBoatTail:"Private boat tour in Búzios, Brazil, with skipper and fuel included.",
-    heroTitle:"Boat rental in Búzios", heroLead:"The right size for your group, with skipper and fuel included.", barT:"Boats in Búzios", barSub:"With skipper", barGo:"See the boats", fx:["Private tour, only your group on board","Ice, charcoal, water and cooler included","Bring the meat and the crew grills it for you"], heroPhotoAlt:"Group of friends in the Miss Bardot floating pool, in the Búzios sea",
+    heroTitle:"Boat rental in Búzios", heroLead:"The right size for your group, with skipper and fuel included.", barT:"Boats in Búzios", barSub:"With skipper", barGo:"See the boats", fx:["Private tour, only your group on board","Ice, charcoal, water and cooler included","Bring the meat and the crew grills it for you"], heroPhotoAlt:"Group of friends on the bow of the Miss Bardot, at a bachelorette party in Búzios",
     heroText:"Private tours with skipper, fuel, charcoal, ice and mineral water included. Bring your drinks and meat and the crew will grill on board. From couples to groups of up to 16 people.",
     heroMeet:"Meet Miss Bardot", heroAll:"See available boats", heroRev:"100+ five-star reviews on Google",
     fleetEyebrow:"Our boats", fleetTitle:"Choose by group size",
@@ -1274,7 +1274,7 @@ const UI = {
     seoDesc:"Alquiler de lanchas en Búzios (Río de Janeiro) con marinero, combustible, carbón, hielo y agua mineral incluidos. Paseos privados de 4 o 7 horas para hasta 16 personas. Consulta por WhatsApp.",
     seoBoatTitle:"{name}: lancha de {feet} pies para hasta {cap} personas en Búzios | Búzios Lanchas",
     seoBoatTail:"Paseo privado en lancha en Búzios, Brasil, con marinero y combustible incluidos.",
-    heroTitle:"Alquiler de lanchas en Búzios", heroLead:"Del tamaño ideal para tu grupo, con marinero y combustible incluidos.", barT:"Lanchas en Búzios", barSub:"Con marinero", barGo:"Ver las lanchas", fx:["Paseo privado, solo tu grupo a bordo","Hielo, carbón, agua mineral y cooler incluidos","Trae la carne y el equipo hace el asado"], heroPhotoAlt:"Grupo de amigas en la piscina flotante de la lancha Miss Bardot, en el mar de Búzios",
+    heroTitle:"Alquiler de lanchas en Búzios", heroLead:"Del tamaño ideal para tu grupo, con marinero y combustible incluidos.", barT:"Lanchas en Búzios", barSub:"Con marinero", barGo:"Ver las lanchas", fx:["Paseo privado, solo tu grupo a bordo","Hielo, carbón, agua mineral y cooler incluidos","Trae la carne y el equipo hace el asado"], heroPhotoAlt:"Grupo de amigas en la proa de la lancha Miss Bardot, en una despedida de soltera en Búzios",
     heroText:"Paseos privados con marinero, combustible, carbón, hielo y agua mineral incluidos. Trae tus bebidas y carnes, y la tripulación prepara el asado a bordo. Desde parejas hasta grupos de hasta 16 personas.",
     heroMeet:"Conocer la Miss Bardot", heroAll:"Ver lanchas disponibles", heroRev:"+100 reseñas de 5 estrellas en Google",
     fleetEyebrow:"Nuestras lanchas", fleetTitle:"Elige según el tamaño del grupo",
@@ -2782,7 +2782,7 @@ function home(){
       <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
       ${guarHTML(false)}
     </div>
-    ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c02.webp" srcset="/img/mb-c02-m.webp 800w, /img/mb-c02.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
+    ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
     <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
     </ul>${guarHTML(false)}</aside>
