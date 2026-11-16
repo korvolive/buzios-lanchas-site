@@ -3443,15 +3443,17 @@ async function jetSave(body, okMsg){
   catch(e){ toast(/CORTESIA/.test(e.message) ? t("jetCortErr") : /PRECOS|neto_hora/.test(e.message) ? t("jetPriceErr") : t("saveErr")); return false; }
 }
 const jetView = () => { if(view==="main" && S.tab==="lancha" && !sheetDay && !tripRow) mainView(); };
+/* campo do jetski salvo: se o dono já está digitando em outro campo, não redesenha agora (apagava o que ele digitava; revisão 2026-11-16) */
+const jetTypedView = x => { if(x && "defaultValue" in x) x.defaultValue=x.value; if(busyTyping()){ S.needRender=true; return; } jetView(); };
 document.addEventListener("change", async e=>{ const x=e.target;
   if(x.dataset?.jetf){ const k=x.dataset.jetf; let v = x.type==="checkbox" ? x.checked : x.value;
     if(["pessoas","min_minutos","cortesia_min"].includes(k)) v=+v;
     if(k==="neto_hora") v = v==="" ? null : +v;
     if(k==="cortesia_lancha" && !v){ if(await jetSave({cortesia_lancha:null, cortesia_min:0})) jetView(); return; }
     if(k==="cortesia_lancha" && !(jetCur()?.cortesia_min)){ if(await jetSave({cortesia_lancha:v, cortesia_min:15})) jetView(); return; }
-    if(await jetSave({[k]:v})) jetView(); return; }
+    if(await jetSave({[k]:v})) jetTypedView(x); return; }
   if(x.dataset?.jetp){ const j=jetCur(); if(!j) return; const P={...(j.precos||{})}; if(x.value==="") delete P[x.dataset.jetp]; else P[x.dataset.jetp]=+x.value;
-    if(await jetSave({precos:P})) jetView(); return; }
+    if(await jetSave({precos:P})) jetTypedView(x); return; }
   if(x.id==="jet-vis"){ const j=jetCur(); if(!j) return;
     if(x.checked && (!(j.fotos||[]).length || !(j.neto_hora || Object.keys(j.precos||{}).length))){ x.checked=false; return toast(t("jetVisNeed")); }
     if(await jetSave({oculto:!x.checked}, t(x.checked?"jetVisOn":"jetVisOff"))) jetView(); return; }
@@ -8173,13 +8175,14 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
     cwFn({acao:"convite_info", c:convC}).then(j=>{ convBusy=false;
       if(j?.link){ location.replace(j.link); return; }
       if(j?.ok && j.conta===false){ convNome=j.nome||""; if(!ses && view==="convpw") show(); return; }
-      if(!ses && view==="convpw"){ view="signup"; show(); } }); /* link vencido ou erro: segue o cadastro de sempre */
+      if(!ses && view==="convpw"){ view="signup"; criarPrefill(); show(); } }); /* link vencido ou erro: segue o cadastro de sempre, já preenchido (revisão 2026-11-16) */
   }
-  if(!ses && qs.get("criar")==="1" && view!=="convpw"){ view="signup"; /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
+  function criarPrefill(){ /* "Crie sua conta" no site, ou o convite da Búzios Lanchas com e-mail, nome e WhatsApp */
     if(qs.get("email")) typedEmail=qs.get("email");
     if((qs.get("nome")||qs.get("tel")) && !store.get("cli-draft")) store.set("cli-draft",{nome:qs.get("nome")||"", whatsapp:qs.get("tel")||""});
     const cv=s2u(qs.get("c")); if(cv) fetch(SB+"/rest/v1/rpc/convite_dados",{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+KEY, "content-type":"application/json"}, body:JSON.stringify({c:cv})}).then(r=>r.ok?r.json():[]).then(j=>{ const d=j&&j[0]; if(!d||ses||view!=="signup") return;
       if(d.email && !typedEmail) typedEmail=d.email; if((d.nome||d.telefone) && !store.get("cli-draft")) store.set("cli-draft",{nome:d.nome||"", whatsapp:d.telefone||""}); show(); }).catch(()=>{}); } /* link curto do convite: preenche o cadastro pelo código */
+  if(!ses && qs.get("criar")==="1" && view!=="convpw"){ view="signup"; criarPrefill(); }
   if(ses){ view="main"; boot(); } else show();
 })();
 
