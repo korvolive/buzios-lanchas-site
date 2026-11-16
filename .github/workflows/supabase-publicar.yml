@@ -1,0 +1,137 @@
+name: Publicar no Supabase
+
+# Publica sozinho, sem depender de confirmação em conversa:
+# - funções (supabase/functions/<nome>/) alteradas no push para o main;
+# - arquivos SQL NOVOS em supabase/sql/ que tenham a linha "-- publicar: auto".
+#   (SQL sem essa linha continua só como registro: muitos já foram aplicados à mão.)
+# Segredo necessário: SUPABASE_ACCESS_TOKEN (Settings > Secrets and variables > Actions).
+# Sem o segredo, o workflow só avisa e não falha.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/**"
+      - "supabase/sql/**"
+      - "supabase/config.toml"
+  workflow_dispatch:
+    inputs:
+      funcoes:
+        description: "Funções para publicar (separadas por espaço). Vazio = nenhuma."
+        required: false
+        default: ""
+      sql:
+        description: "Arquivo SQL para aplicar (ex.: supabase/sql/2026-11-16_x.sql). Vazio = nenhum."
+        required: false
+        default: ""
+
+concurrency:
+  group: supabase-publicar
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publicar:
+    runs-on: ubuntu-24.04
+    env:
+      PROJECT_REF: sqoperylsqcbcjpcrlnp
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Conferir o segredo
+        id: seg
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::warning::Falta o segredo SUPABASE_ACCESS_TOKEN; nada foi publicado no Supabase."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Descobrir o que mudou
+        id: mudou
+        if: steps.seg.outputs.ok == 'true'
+        env:
+          ANTES: ${{ github.event.before }}
+          DEPOIS: ${{ github.sha }}
+          IN_FUNCOES: ${{ github.event.inputs.funcoes }}
+          IN_SQL: ${{ github.event.inputs.sql }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            funcoes="$IN_FUNCOES"
+            sqls="$IN_SQL"
+          else
+            if [ -z "$ANTES" ] || [ "$ANTES" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$ANTES^{commit}" 2>/dev/null; then
+              ANTES="$(git rev-parse "$DEPOIS~1")"
+            fi
+            funcoes="$(git diff --name-only "$ANTES" "$DEPOIS" -- supabase/functions | awk -F/ 'NF>=4{print $3}' | sort -u | tr '\n' ' ')"
+            sqls=""
+            for f in $(git diff --name-only --diff-filter=A "$ANTES" "$DEPOIS" -- 'supabase/sql/*.sql'); do
+              if grep -qiE '^--[[:space:]]*publicar:[[:space:]]*auto' "$f"; then sqls="$sqls $f"; fi
+            done
+          fi
+          # só nomes simples e pastas que existem
+          ok_f=""
+          for n in $funcoes; do
+            [[ "$n" =~ ^[a-z0-9-]+$ ]] || { echo "::error::Nome de função inválido: $n"; exit 1; }
+            if [ ! -f "supabase/functions/$n/index.ts" ]; then echo "Função $n foi removida do repositório; não mexo no Supabase."; continue; fi
+            grep -q "^\[functions\.$n\]" supabase/config.toml || { echo "::error::Função $n não está em supabase/config.toml (defina verify_jwt antes)."; exit 1; }
+            ok_f="$ok_f $n"
+          done
+          ok_s=""
+          for f in $sqls; do
+            [[ "$f" =~ ^supabase/sql/[A-Za-z0-9_.-]+\.sql$ ]] || { echo "::error::Arquivo SQL inválido: $f"; exit 1; }
+            [ -f "$f" ] || { echo "::error::Não achei $f"; exit 1; }
+            ok_s="$ok_s $f"
+          done
+          echo "funcoes=$ok_f" >> "$GITHUB_OUTPUT"
+          echo "sqls=$ok_s" >> "$GITHUB_OUTPUT"
+          echo "Funções: ${ok_f:-nenhuma}"
+          echo "SQL: ${ok_s:-nenhum}"
+
+      - name: Aplicar SQL novo (antes das funções)
+        if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.sqls != ''
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SQLS: ${{ steps.mudou.outputs.sqls }}
+        run: |
+          set -euo pipefail
+          for f in $SQLS; do
+            echo "Aplicando $f"
+            corpo="$(jq -Rs '{query: .}' < "$f")"
+            code=$(curl -sS -o resp.json -w '%{http_code}' -X POST \
+              "https://api.supabase.com/v1/projects/$PROJECT_REF/database/query" \
+              -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "$corpo")
+            if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+              echo "::error::Falhou $f (HTTP $code)"; head -c 2000 resp.json; echo; exit 1
+            fi
+            echo "OK $f"
+          done
+          rm -f resp.json
+
+      - uses: supabase/setup-cli@v1
+        if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.funcoes != ''
+        with:
+          version: latest
+
+      - name: Publicar funções
+        if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.funcoes != ''
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          FUNCOES: ${{ steps.mudou.outputs.funcoes }}
+        run: |
+          set -euo pipefail
+          supabase --version
+          for n in $FUNCOES; do
+            echo "Publicando $n"
+            supabase functions deploy "$n" --project-ref "$PROJECT_REF" --use-api --yes
+          done

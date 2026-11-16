@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script>/* toque seguro (2026-11-04): se a tela mudou debaixo do dedo (botão apareceu ou mudou de lugar há menos de 0,4 s), o toque vai para o botão que estava naquele ponto antes da mudança, nunca para o que apareceu no lugar dele */
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script src="/marca.js"></script><script>/* toque seguro (2026-11-04): se a tela mudou debaixo do dedo (botão apareceu ou mudou de lugar há menos de 0,4 s), o toque vai para o botão que estava naquele ponto antes da mudança, nunca para o que apareceu no lugar dele */
 (function(){ var SEL="button,a.btn,[role=button],label.btn,.rm", MS=400, born=new WeakMap(), pos=new WeakMap(), pend=false, hist=[], cur=[], VIU=300, now=function(){ return performance.now(); };
   function key(el){ var x=0,y=0,e=el; while(e){ x+=e.offsetLeft; y+=e.offsetTop; e=e.offsetParent; } return x+","+y+","+el.offsetWidth; }
   function sig(el){ var d=""; for(var k in el.dataset) d+=k+"="+el.dataset[k]+";"; return el.id ? "#"+el.id : el.tagName+"|"+d+"|"+(el.textContent||"").trim().slice(0,60); }
@@ -23,7 +23,7 @@
 })();</script><script>/* convite ou senha nova enviados pelo painel do Supabase caem aqui: a tela de criar senha fica em /login/ */(function(h){if(/access_token=/.test(h)&&/type=(invite|recovery)/.test(h))location.replace("/login/"+h)})(location.hash)</script>
 <script>/* aberto pelo app da Google Play (TWA): guarda antes de qualquer redirecionamento, que apaga o referrer */try{if(/^android-app:/.test(document.referrer))sessionStorage.setItem("twa","1");}catch(e){}
 /* link curto do convite (?c= / ?w=) e do vendedor para criar conta (?criar=1): abre o cadastro */(function(){var q=location.search;if(location.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q))location.replace("/login/"+(/[?&]criar=1/.test(q)?q:"?criar=1&"+q.slice(1)));})();
-/* idioma logo no começo (aprovado 2026-10-31): quem chega na versão em português com o aparelho em outra língua vai para /en/ ou /es/ antes de baixar o resto da página; mesma regra do roteador mais abaixo, que continua cuidando dos casos especiais */(function(){try{var L=location,q=L.search,m=L.pathname.match(/^\/(lancha\/([a-z0-9-]+)\/?)?(index\.html)?$/);if(!m||/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)||/[?&](lang|o)=/.test(q)||/^#lancha-|access_token=/.test(L.hash)||(L.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q)))return;var s=null;try{s=localStorage.getItem("lang")}catch(e){}var n=(navigator.language||"pt").slice(0,2).toLowerCase(),l=/^(pt|en|es)$/.test(s||"")?s:(n==="pt"||n==="es"?n:"en");if(l!=="pt")L.replace("/"+l+"/"+(m[2]?"lancha/"+m[2]+"/":"")+q+L.hash)}catch(e){}})();</script>
+/* idioma logo no começo (aprovado 2026-10-31): quem chega na versão em português com o aparelho em outra língua vai para /en/ ou /es/ antes de baixar o resto da página; mesma regra do roteador mais abaixo, que continua cuidando dos casos especiais */(function(){try{var L=location,q=L.search,B=window.MARCA_BASE||"",P=B&&L.pathname.indexOf(B)===0?(L.pathname.slice(B.length)||"/"):L.pathname,m=P.match(/^\/(lancha\/([a-z0-9-]+)\/?)?(index\.html)?$/);if(!m||/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)||/[?&](lang|o)=/.test(q)||/^#lancha-|access_token=/.test(L.hash)||(!B&&L.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q)))return;var s=null;try{s=localStorage.getItem("lang")}catch(e){}var n=(navigator.language||"pt").slice(0,2).toLowerCase(),l=/^(pt|en|es)$/.test(s||"")?s:(n==="pt"||n==="es"?n:"en");if(l!=="pt")L.replace(B+"/"+l+"/"+(m[2]?"lancha/"+m[2]+"/":"")+q+L.hash)}catch(e){}})();</script>
 <!-- Google Tag Manager (mesmo contêiner do site antigo: Google Ads, conversão no clique do WhatsApp e Google Analytics) -->
 <script>(function(w,d,s,l,i){if(/BuziosLanchasIOS/.test(navigator.userAgent))return;w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -55,7 +55,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fontes sem travar a primeira pintura no celular: o texto aparece na fonte do aparelho e troca quando a fonte chega -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[href="/img/rt-08.webp"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/rt-08.webp";hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
+<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[href="/img/rt-08.webp"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/rt-08.webp";hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
 <style>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
 :root{
@@ -1234,7 +1234,7 @@ const UI = {
    Quem é vendedor (donos e marinheiros também) compartilha com o código dele: o cliente que abrir fica ligado a quem mandou */
 const SHARE_ICO='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
 document.addEventListener("click", async e=>{ const btn=e.target.closest("[data-share]"); if(!btn) return; e.preventDefault();
-  const b={name:btn.closest(".b-title")?.querySelector("h1")?.textContent||""}, u=new URL(SITE+location.pathname);
+  const b={name:btn.closest(".b-title")?.querySelector("h1")?.textContent||""}, u=new URL(SITE+pathSemBase());
   if(ME?.codigo) u.searchParams.set("v", ME.codigo);
   const url=u.toString(), title=b?.name ? `${b.name} · ${BRAND}` : document.title;
   if(navigator.share){ try{ await navigator.share({title, text:t("shareTxt",{boat:b?.name||""}), url}); return; }catch(err){ if(err?.name==="AbortError") return; } }
@@ -1313,9 +1313,12 @@ if(CID){
 const LANGS = ["pt","en","es"];
 const SITE = CID ? CID.site : "https://www.lanchaembuzios.com.br"; /* domínio principal: endereço oficial das páginas para o Google */
 /* endereços: / e /lancha/miss-bardot/ em português; /en/... e /es/... nas outras línguas */
-const pathFor = (l,slug) => (l==="pt"?"/":`/${l}/`) + (slug?`lancha/${slug}/`:"");
+/* no bordazul.com.br o site de Búzios mora em /buzios (marca.js): BASE vai na frente de todo endereço de página */
+const BASE = window.MARCA_BASE || "";
+const pathFor = (l,slug) => BASE + (l==="pt"?"/":`/${l}/`) + (slug?`lancha/${slug}/`:"");
+const pathSemBase = () => BASE && location.pathname.indexOf(BASE)===0 ? (location.pathname.slice(BASE.length)||"/") : location.pathname;
 const route = (()=>{
-  const m = location.pathname.match(/^\/(?:(en|es)(?:\/|$))?(?:lancha\/([a-z0-9-]+)\/?)?(?:index\.html)?$/);
+  const m = pathSemBase().match(/^\/(?:(en|es)(?:\/|$))?(?:lancha\/([a-z0-9-]+)\/?)?(?:index\.html)?$/);
   return {lang:(m&&m[1])||"pt", slug:(m&&m[2])||null};
 })();
 /* buscadores (Google etc.) sempre veem o idioma do endereço; visitantes em / vão para a língua escolhida antes ou a do navegador */
@@ -2533,7 +2536,7 @@ function applyStatic(){
   if(CID){ const lg=document.querySelector("#logo > span"); if(lg?.firstChild) lg.firstChild.nodeValue=BRAND; const fb=document.getElementById("foot-brand"); if(fb) fb.textContent=BRAND; } /* marca da cidade no topo e no rodapé */
   document.getElementById("hdr-wa").href = topWa();
   /* guias no rodapé: no idioma da página; os sites das outras cidades não têm (o roteiro é o de Búzios) */
-  const fgu=document.getElementById("foot-guias"); if(fgu){ fgu.hidden=!!CID; ["roteiro","grupos","precos","marinheiro","praias"].forEach(g=>{ const a=document.getElementById("fg-"+g); if(a) a.href=(lang==="pt"?"/":`/${lang}/`)+GUIAS[g][lang]+"/"; }); }
+  const fgu=document.getElementById("foot-guias"); if(fgu){ fgu.hidden=!!CID; ["roteiro","grupos","precos","marinheiro","praias"].forEach(g=>{ const a=document.getElementById("fg-"+g); if(a) a.href=BASE+(lang==="pt"?"/":`/${lang}/`)+GUIAS[g][lang]+"/"; }); }
   /* entrar ou criar conta: botão com nome, para o cliente achar fácil (2026-10-25); abre em outra aba */
   const hdrLogged = (()=>{ try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } })();
   const hdrClient = (()=>{ try{ return JSON.parse(localStorage.getItem("conta-tipo"))==="cliente"; }catch(e){ return false; } })();
@@ -2552,7 +2555,7 @@ function applyStatic(){
   }
   setupGetApp(); checkAppUpdate();
   document.getElementById("lang").value = lang;
-  document.getElementById("logo").href = pathFor(lang);
+  document.getElementById("logo").href = BASE ? (lang==="pt"?"/":`/${lang}/`) /* Bordazul: o logo leva ao início do Bordazul */ : pathFor(lang);
   document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
 }
 /* trocar de idioma abre a mesma página no endereço da outra língua */
