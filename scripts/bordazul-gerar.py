@@ -41,7 +41,8 @@ DEST = [
 SLIPS = ["buzios", "arraial", "cabo-frio", "rio", "angra", "paraty"]
 COORD = {"buzios": "22°45′S 41°53′O", "arraial": "22°58′S 42°02′O", "cabo-frio": "22°53′S 42°01′O",
          "rio": "22°54′S 43°10′O", "angra": "23°00′S 44°18′O", "paraty": "23°13′S 44°43′O"}
-HERO_FOTOS = [("mar-buzios", 1600, 1080), ("barco-3", 1400, 1050), ("barco-1", 960, 1280), ("barco-4", 1080, 1236)]
+POS = {"barco-4": "center 40%", "barco-1": "center 62%", "barco-3": "center 55%"}  # enquadramento: o barco inteiro na faixa do topo
+HERO_FOTOS = [("mar-buzios", 1600, 1080), ("barco-3", 1400, 1050), ("barco-1", 960, 1280)]  # a foto da Real 26 (em pé, baixa resolução) saiu: cortava as pessoas na faixa larga
 
 T = {
  "pt": dict(
@@ -292,17 +293,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .hero{position:relative;margin:4px var(--m) 0;border-radius:var(--r-lg);overflow:hidden;height:min(84svh,800px);min-height:560px;background:var(--navy);color:#fff}
 .hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
 .hero .ph .sl.on{opacity:1}
-.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* enquadramento que o Rodrigo aprovou (2026-11-16): cada foto inteira, sem ampliar; o resto do topo é a mesma foto ao fundo, só levemente desfocada */
-.hero .ph .sl::before{content:"";position:absolute;inset:-20px;background:var(--src) center/cover;filter:blur(6px) brightness(.72)}
-@media (max-width:720px){
- .hero .ph .sl.cm::before{display:none}
- .hero .ph .sl:not(.cm) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
- .hero .ph .sl.up img{transform:translateY(-30%)} /* Miss Bardot: corta o céu, o barco fica acima do título */
-}
-@media (min-width:721px){
- .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
-}
+.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--pos,center)}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
 .hero h1{font-size:clamp(2.6rem,1.4rem + 4.6vw,5.4rem)}
@@ -325,8 +316,8 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .result a{display:inline-flex;align-items:center;gap:6px;margin-left:8px;color:var(--blue);font-weight:700}
 /* seções */
 section{scroll-margin-top:80px}
-.sec{padding:clamp(80px,10vw,130px) 0 0}
-.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:36px}
+.sec{padding:clamp(48px,6vw,80px) 0 0}
+.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}
 .sec-h h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}
 .sec-h p{max-width:46ch;color:var(--soft);margin-top:12px}
 /* destinos */
@@ -346,9 +337,9 @@ a.dest:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(7,28,5
 .wave{position:absolute;right:-30px;top:30%;width:120%;opacity:.12}
 /* passos */
 /* seções com fundo alternado, como na página da Búzios (Rodrigo 2026-11-16): claro, azul-marinho, claro, azul-claro, azul */
-#como,#perguntas{padding-bottom:clamp(80px,10vw,130px)}
-#como{background:var(--navy);color:#fff;margin-top:clamp(80px,10vw,130px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
-#barco{background:var(--chip);padding-bottom:clamp(80px,10vw,130px);margin-top:clamp(80px,10vw,130px)}
+#como,#perguntas{padding-bottom:clamp(48px,6vw,80px)}
+#como{background:var(--navy);color:#fff;margin-top:clamp(48px,6vw,80px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
+#barco{background:var(--chip);padding-bottom:clamp(48px,6vw,80px)}
 #perguntas{background:#0b3f91;color:#fff}#perguntas .side p{color:rgba(255,255,255,.8)}#perguntas .side .btn{background:#fff;color:#0b3f91}
 #perguntas details{color:var(--ink)}
 #perguntas .cta{background:var(--coral);color:var(--navy)}#perguntas .cta p{color:rgba(7,28,53,.82)}#perguntas .cta .btn.white{background:var(--navy);color:#fff}
@@ -389,11 +380,11 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 .faq details{background:var(--white)}.faq details[open]{background:var(--white)}
 .faq details p{padding:0 22px 20px;color:var(--soft)}
 /* chamada */
-.cta{margin-top:clamp(80px,10vw,130px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
+.cta{margin-top:clamp(48px,6vw,80px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
 .cta h2{font-size:clamp(2.2rem,1.4rem + 2.6vw,3.8rem)}.cta p{margin-top:12px;max-width:44ch;color:rgba(255,255,255,.9)}
 .cta .btns{display:flex;gap:12px;flex-wrap:wrap;flex:none}
 /* rodapé */
-.pe{margin-top:clamp(80px,10vw,130px);background:var(--navy);color:#fff;padding:64px 0 36px}
+.pe{margin-top:clamp(48px,6vw,80px);background:var(--navy);color:#fff;padding:64px 0 36px}
 .pe .row{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
 .pe .logo{color:#fff}.pe .lema{margin-top:10px;font-weight:700;color:var(--coral);letter-spacing:.01em}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
 .pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
@@ -467,7 +458,7 @@ def pagina(lang):
     langs = "".join(f'<a href="{PATH[l] if lang == "pt" else ("../" if l == "pt" else "../" + l + "/")}" hreflang="{HL[l]}" lang="{HL[l]}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in T)
     nav = "".join(f'<a href="{h}">{e(x)}</a>' for h, x in t["nav"])
     bz = BUZ + PATH[lang]
-    fotos = "".join(f'<div class="sl{" on" if i == 0 else ""}{" cv" if w > h else ""}{" cm" if n == "mar-buzios" else ""}{" up" if n == "barco-1" else ""}" style="--src:url({pre}img/{n}.jpg)"><img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{"" if i == 0 else " loading=lazy"}></div>' for i, (n, w, h) in enumerate(HERO_FOTOS))
+    fotos = "".join(f'<div class="sl{" on" if i == 0 else ""}" style="--pos:{POS.get(n, 'center')}"><img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{"" if i == 0 else " loading=lazy"}></div>' for i, (n, w, h) in enumerate(HERO_FOTOS))
     cid = {k: (nome, uf, u) for _, cs in DEST for k, nome, uf, u in cs}
     cards = []
     for k in SLIPS:
@@ -491,7 +482,7 @@ def pagina(lang):
             + "</li>" for k, nome, uf, u in cidades)
         regs.append(f'<details{" open" if i == 0 else ""}><summary>{e(t["reg"][reg])}<small>{len(cidades)}</small><span class="plus" aria-hidden="true">+</span></summary><ul>{lis}</ul></details>')
     carta = "".join(f"<p>{p}</p>" for p in t["carta"][1:])
-    faq = "".join(f'<details><summary>{e(q)}<span class="plus" aria-hidden="true">+</span></summary><p>{e(a)}</p></details>' for q, a in t["faq"])
+    faq = "".join(f'<details><summary>{e(q)}<span class="plus" aria-hidden="true">+</span></summary><p>{e(a)}</p></details>' for k, (q, a) in enumerate(t["faq"]) if k in (0, 1, 2, 4, 5, 9))
     ld = {"@context": "https://schema.org", "@type": "Organization", "name": "Bordazul", "url": DOM + "/",
           "description": t["desc"], "parentOrganization": {"@type": "Organization", "name": "Búzios Lanchas", "url": BZ + "/"},
           "contactPoint": {"@type": "ContactPoint", "telephone": "+55-21-99927-2550", "contactType": "customer service", "availableLanguage": ["Portuguese", "English", "Spanish"]}}
@@ -548,17 +539,10 @@ def pagina(lang):
 <div class="passos">{passos}</div>
 </div></section>
 
-<section class="sec"><div class="wrap">
-<div class="mares rv">
-<div class="txt"><h2>{e(t["mares"])}</h2><p>{e(t["mares_p"])}</p>
-<div class="count"><div><b>{total}</b><span>{"destinos" if lang != "en" else "destinations"}</span></div><div><b>{len(DEST)}</b><span>{"regiões" if lang=="pt" else "regions" if lang=="en" else "regiones"}</span></div></div></div>
-<div>{"".join(regs)}</div>
-</div>
-</div></section>
 
 <section class="sec" id="barco"><div class="wrap">
 <div class="dono rv">
-<div class="txt"><h2>{e(t["dono_h"])}</h2><p>{re.sub(r"^<strong>.*?</strong>\s*", "", t["carta"][0])}</p>{carta}
+<div class="txt"><h2>{e(t["dono_h"])}</h2><p>{re.sub(r"^<strong>.*?</strong>\s*", "", t["carta"][0])}</p>
 <div class="sign">{e(t["carta_ass"])}<span>{e(t["carta_cargo"])}</span></div>
 <div class="btns"><a class="btn coral" href="/anunciar/">{e(t["carta_btn"])}</a></div></div>
 <div class="ph"><img src="{pre}img/barco-3.jpg" width="1400" height="1050" alt="{e(t["foto_alt"][1])}" loading="lazy"></div>

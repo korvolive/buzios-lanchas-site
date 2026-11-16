@@ -45,17 +45,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .hero{position:relative;margin:4px var(--m) 0;border-radius:var(--r-lg);overflow:hidden;height:min(84svh,800px);min-height:560px;background:var(--navy);color:#fff}
 .hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
 .hero .ph .sl.on{opacity:1}
-.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* enquadramento que o Rodrigo aprovou (2026-11-16): cada foto inteira, sem ampliar; o resto do topo é a mesma foto ao fundo, só levemente desfocada */
-.hero .ph .sl::before{content:"";position:absolute;inset:-20px;background:var(--src) center/cover;filter:blur(6px) brightness(.72)}
-@media (max-width:720px){
- .hero .ph .sl.cm::before{display:none}
- .hero .ph .sl:not(.cm) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
- .hero .ph .sl.up img{transform:translateY(-30%)} /* Miss Bardot: corta o céu, o barco fica acima do título */
-}
-@media (min-width:721px){
- .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
-}
+.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--pos,center)}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
 .hero h1{font-size:clamp(2.6rem,1.4rem + 4.6vw,5.4rem)}
@@ -78,8 +68,8 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .result a{display:inline-flex;align-items:center;gap:6px;margin-left:8px;color:var(--blue);font-weight:700}
 /* seções */
 section{scroll-margin-top:80px}
-.sec{padding:clamp(80px,10vw,130px) 0 0}
-.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:36px}
+.sec{padding:clamp(48px,6vw,80px) 0 0}
+.sec-h{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}
 .sec-h h2{font-size:clamp(2rem,1.4rem + 2vw,3.2rem)}
 .sec-h p{max-width:46ch;color:var(--soft);margin-top:12px}
 /* destinos */
@@ -99,9 +89,9 @@ a.dest:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(7,28,5
 .wave{position:absolute;right:-30px;top:30%;width:120%;opacity:.12}
 /* passos */
 /* seções com fundo alternado, como na página da Búzios (Rodrigo 2026-11-16): claro, azul-marinho, claro, azul-claro, azul */
-#como,#perguntas{padding-bottom:clamp(80px,10vw,130px)}
-#como{background:var(--navy);color:#fff;margin-top:clamp(80px,10vw,130px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
-#barco{background:var(--chip);padding-bottom:clamp(80px,10vw,130px);margin-top:clamp(80px,10vw,130px)}
+#como,#perguntas{padding-bottom:clamp(48px,6vw,80px)}
+#como{background:var(--navy);color:#fff;margin-top:clamp(48px,6vw,80px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
+#barco{background:var(--chip);padding-bottom:clamp(48px,6vw,80px)}
 #perguntas{background:#0b3f91;color:#fff}#perguntas .side p{color:rgba(255,255,255,.8)}#perguntas .side .btn{background:#fff;color:#0b3f91}
 #perguntas details{color:var(--ink)}
 #perguntas .cta{background:var(--coral);color:var(--navy)}#perguntas .cta p{color:rgba(7,28,53,.82)}#perguntas .cta .btn.white{background:var(--navy);color:#fff}
@@ -142,11 +132,11 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 .faq details{background:var(--white)}.faq details[open]{background:var(--white)}
 .faq details p{padding:0 22px 20px;color:var(--soft)}
 /* chamada */
-.cta{margin-top:clamp(80px,10vw,130px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
+.cta{margin-top:clamp(48px,6vw,80px);background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:clamp(40px,6vw,80px);display:flex;justify-content:space-between;align-items:center;gap:32px;position:relative;overflow:hidden}
 .cta h2{font-size:clamp(2.2rem,1.4rem + 2.6vw,3.8rem)}.cta p{margin-top:12px;max-width:44ch;color:rgba(255,255,255,.9)}
 .cta .btns{display:flex;gap:12px;flex-wrap:wrap;flex:none}
 /* rodapé */
-.pe{margin-top:clamp(80px,10vw,130px);background:var(--navy);color:#fff;padding:64px 0 36px}
+.pe{margin-top:clamp(48px,6vw,80px);background:var(--navy);color:#fff;padding:64px 0 36px}
 .pe .row{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
 .pe .logo{color:#fff}.pe .lema{margin-top:10px;font-weight:700;color:var(--coral);letter-spacing:.01em}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
 .pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
@@ -187,7 +177,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 </div></header>
 <main>
 <section class="hero">
-<div class="ph"><div class="sl on cv cm" style="--src:url(img/mar-buzios.jpg)"><img src="img/mar-buzios.jpg" width="1600" height="1080" alt="Vista aérea de Búzios e suas ilhas"></div><div class="sl cv" style="--src:url(img/barco-3.jpg)"><img src="img/barco-3.jpg" width="1400" height="1050" alt="Lancha ao pôr do sol em Búzios" loading=lazy></div><div class="sl up" style="--src:url(img/barco-1.jpg)"><img src="img/barco-1.jpg" width="960" height="1280" alt="Lancha ancorada em águas verdes de Búzios" loading=lazy></div><div class="sl" style="--src:url(img/barco-4.jpg)"><img src="img/barco-4.jpg" width="1080" height="1236" alt="Na proa da lancha diante de uma ilha" loading=lazy></div></div>
+<div class="ph"><div class="sl on" style="--pos:center"><img src="img/mar-buzios.jpg" width="1600" height="1080" alt="Vista aérea de Búzios e suas ilhas"></div><div class="sl" style="--pos:center 55%"><img src="img/barco-3.jpg" width="1400" height="1050" alt="Lancha ao pôr do sol em Búzios" loading=lazy></div><div class="sl" style="--pos:center 62%"><img src="img/barco-1.jpg" width="960" height="1280" alt="Lancha ancorada em águas verdes de Búzios" loading=lazy></div></div>
 <div class="hero-txt"><h1>Seu dia no mar,<br>em todo o Brasil.</h1><p class="lead">Barcos com marinheiro, só para o seu grupo. Escolha o destino, a data e quantas pessoas vão a bordo.</p></div>
 </section>
 <div class="search" id="busca">
@@ -210,17 +200,10 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 <div class="passos"><div class="passo rv"><div class="n" aria-label="Passo 1">1</div><h3>Escolha o destino</h3><p>Diga onde, quando e quantas pessoas vão a bordo.</p></div><div class="passo rv"><div class="n" aria-label="Passo 2">2</div><h3>Compare os barcos</h3><p>Fotos, tamanho, o que vem incluso e o preço de cada um.</p></div><div class="passo rv"><div class="n" aria-label="Passo 3">3</div><h3>Garanta a data</h3><p>Um sinal de 50% segura o dia. O restante é pago no embarque.</p></div><div class="passo rv"><div class="n" aria-label="Passo 4">4</div><h3>Embarque</h3><p>O marinheiro espera seu grupo no píer, na hora marcada.</p></div></div>
 </div></section>
 
-<section class="sec"><div class="wrap">
-<div class="mares rv">
-<div class="txt"><h2>Mares</h2><p>Os destinos que o Bordazul vai cobrir. Abrimos cada um quando tiver barcos bons para alugar lá.</p>
-<div class="count"><div><b>21</b><span>destinos</span></div><div><b>6</b><span>regiões</span></div></div></div>
-<div><details open><summary>Rio de Janeiro<small>6</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Búzios<span class="uf">RJ</span></span><a class="tag" href="/buzios/">Embarque aberto</a></li><li><span>Arraial do Cabo<span class="uf">RJ</span></span><span class="tag">Em breve</span></li><li><span>Cabo Frio<span class="uf">RJ</span></span><span class="tag">Em breve</span></li><li><span>Rio de Janeiro<span class="uf">RJ</span></span><span class="tag">Em breve</span></li><li><span>Angra dos Reis<span class="uf">RJ</span></span><span class="tag">Em breve</span></li><li><span>Paraty<span class="uf">RJ</span></span><span class="tag">Em breve</span></li></ul></details><details><summary>São Paulo<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Ilhabela<span class="uf">SP</span></span><span class="tag">Em breve</span></li><li><span>Ubatuba<span class="uf">SP</span></span><span class="tag">Em breve</span></li><li><span>Guarujá<span class="uf">SP</span></span><span class="tag">Em breve</span></li></ul></details><details><summary>Santa Catarina<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Florianópolis<span class="uf">SC</span></span><span class="tag">Em breve</span></li><li><span>Bombinhas<span class="uf">SC</span></span><span class="tag">Em breve</span></li><li><span>Balneário Camboriú<span class="uf">SC</span></span><span class="tag">Em breve</span></li></ul></details><details><summary>Bahia<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Salvador<span class="uf">BA</span></span><span class="tag">Em breve</span></li><li><span>Morro de São Paulo<span class="uf">BA</span></span><span class="tag">Em breve</span></li><li><span>Porto Seguro<span class="uf">BA</span></span><span class="tag">Em breve</span></li></ul></details><details><summary>Alagoas e Pernambuco<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Maragogi<span class="uf">AL</span></span><span class="tag">Em breve</span></li><li><span>Porto de Galinhas<span class="uf">PE</span></span><span class="tag">Em breve</span></li><li><span>Fernando de Noronha<span class="uf">PE</span></span><span class="tag">Em breve</span></li></ul></details><details><summary>Lagos e rios<small>3</small><span class="plus" aria-hidden="true">+</span></summary><ul><li><span>Capitólio<span class="uf">MG</span></span><span class="tag">Em breve</span></li><li><span>Lago Paranoá, Brasília<span class="uf">DF</span></span><span class="tag">Em breve</span></li><li><span>Rio Negro, Manaus<span class="uf">AM</span></span><span class="tag">Em breve</span></li></ul></details></div>
-</div>
-</div></section>
 
 <section class="sec" id="barco"><div class="wrap">
 <div class="dono rv">
-<div class="txt"><h2>Tem um barco parado?</h2><p>Ele pode virar passeio e renda, sem você precisar cuidar de anúncio, atendimento ou cobrança.</p><p>O Bordazul nasceu de uma empresa de passeios de lancha em Búzios que já faz isso todos os dias: recebe o cliente, tira as dúvidas, confirma a data e cobra o sinal. O dono só cuida do barco e do passeio.</p><p>Agora vamos levar esse jeito de trabalhar para outros mares do Brasil. Estamos abrindo os cadastros aos poucos, destino por destino, para cada cidade já começar com barcos bons.</p><p>Se você tem lancha, iate, veleiro, catamarã ou escuna com marinheiro habilitado, fale com a gente. Você define o preço que quer receber, e o barco fica na agenda só quando você quiser.</p>
+<div class="txt"><h2>Tem um barco parado?</h2><p>Ele pode virar passeio e renda, sem você precisar cuidar de anúncio, atendimento ou cobrança.</p>
 <div class="sign">Equipe Bordazul<span>Cadastro de barcos</span></div>
 <div class="btns"><a class="btn coral" href="/anunciar/">Quero anunciar meu barco</a></div></div>
 <div class="ph"><img src="img/barco-3.jpg" width="1400" height="1050" alt="Lancha ao pôr do sol em Búzios" loading="lazy"></div>
@@ -230,7 +213,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 <section class="sec" id="perguntas"><div class="wrap">
 <div class="faq">
 <div class="side"><h2 class="rv">Perguntas</h2><p class="rv">Não achou sua dúvida? Fale com a gente pelo WhatsApp.</p><a class="btn rv" href="https://wa.me/5521999272550?text=Ol%C3%A1%21%20Vim%20pelo%20site%20do%20Bordazul." rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>Falar no WhatsApp</a></div>
-<div class="rv"><details><summary>O que é o Bordazul?<span class="plus" aria-hidden="true">+</span></summary><p>Uma plataforma para alugar barcos com marinheiro nos destinos náuticos do Brasil, com os barcos de vários donos reunidos em um só lugar.</p></details><details><summary>Onde já tem barcos?<span class="plus" aria-hidden="true">+</span></summary><p>Em Búzios, no Rio de Janeiro. Lá você vê todas as lanchas, fotos e preços por temporada e reserva online. Os outros destinos abrem aos poucos.</p></details><details><summary>Todo barco tem marinheiro?<span class="plus" aria-hidden="true">+</span></summary><p>Sim. Todos os passeios são feitos com marinheiro habilitado, e o barco é só do seu grupo.</p></details><details><summary>O que vem incluso em Búzios?<span class="plus" aria-hidden="true">+</span></summary><p>Combustível, gelo, carvão, água mineral e cooler. Comidas e bebidas não estão inclusas, e a equipe prepara o churrasco se você levar as carnes.</p></details><details><summary>Como faço a reserva?<span class="plus" aria-hidden="true">+</span></summary><p>Escolha o barco, a data e o número de pessoas. A data fica garantida com um sinal de 50%, e o restante é pago no dia do passeio.</p></details><details><summary>Como posso pagar?<span class="plus" aria-hidden="true">+</span></summary><p>O sinal pode ser pago por Pix em qualquer data e com cartão quando faltam 5 dias ou mais para o passeio.</p></details><details><summary>E se eu precisar desistir?<span class="plus" aria-hidden="true">+</span></summary><p>Você pode ficar com crédito de 100% do sinal por 1 ano. Com 7 dias ou mais de antecedência, também pode pedir o sinal inteiro de volta.</p></details><details><summary>E se o mar não estiver bom?<span class="plus" aria-hidden="true">+</span></summary><p>O passeio é remarcado para outra data, sem custo.</p></details><details><summary>Quando abre a minha cidade?<span class="plus" aria-hidden="true">+</span></summary><p>Assim que tiver barcos bons para alugar lá. Peça aviso pelo WhatsApp e você fica sabendo primeiro.</p></details><details><summary>Posso anunciar meu barco?<span class="plus" aria-hidden="true">+</span></summary><p>Pode. O cadastro é online, em bordazul.com.br/anunciar: você manda os dados, os documentos e as fotos, escolhe quanto quer receber e assina o termo pelo WhatsApp. A equipe analisa antes de o barco ir para o ar.</p></details><details><summary>Quem está por trás do Bordazul?<span class="plus" aria-hidden="true">+</span></summary><p>A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.</p></details></div>
+<div class="rv"><details><summary>O que é o Bordazul?<span class="plus" aria-hidden="true">+</span></summary><p>Uma plataforma para alugar barcos com marinheiro nos destinos náuticos do Brasil, com os barcos de vários donos reunidos em um só lugar.</p></details><details><summary>Onde já tem barcos?<span class="plus" aria-hidden="true">+</span></summary><p>Em Búzios, no Rio de Janeiro. Lá você vê todas as lanchas, fotos e preços por temporada e reserva online. Os outros destinos abrem aos poucos.</p></details><details><summary>Todo barco tem marinheiro?<span class="plus" aria-hidden="true">+</span></summary><p>Sim. Todos os passeios são feitos com marinheiro habilitado, e o barco é só do seu grupo.</p></details><details><summary>Como faço a reserva?<span class="plus" aria-hidden="true">+</span></summary><p>Escolha o barco, a data e o número de pessoas. A data fica garantida com um sinal de 50%, e o restante é pago no dia do passeio.</p></details><details><summary>Como posso pagar?<span class="plus" aria-hidden="true">+</span></summary><p>O sinal pode ser pago por Pix em qualquer data e com cartão quando faltam 5 dias ou mais para o passeio.</p></details><details><summary>Posso anunciar meu barco?<span class="plus" aria-hidden="true">+</span></summary><p>Pode. O cadastro é online, em bordazul.com.br/anunciar: você manda os dados, os documentos e as fotos, escolhe quanto quer receber e assina o termo pelo WhatsApp. A equipe analisa antes de o barco ir para o ar.</p></details></div>
 </div>
 <div class="cta rv"><div><h2>Partiu Búzios?</h2><p>Lanchas de 22 a 35 pés, para até 16 pessoas, com passeios de 4 ou 7 horas. A primeira frota já está na água. O resto do Brasil vem logo atrás.</p></div>
 <div class="btns"><a class="btn white" href="/buzios/">Ver lanchas em Búzios →</a></div></div>
