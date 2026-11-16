@@ -1,5 +1,7 @@
 // Búzios Lanchas: o que falta na conta Asaas de uma pessoa (Rodrigo 2026-11-15).
 // POST { user_id } -> { geral, dados, documentos, docs: [{ tipo, status, link }] }  (situação no Asaas, sem links nem dados pessoais)
+// POST { user_id, link: true } -> o mesmo + url: link do Asaas para a pessoa enviar o documento e a selfie (só administrador ou robô),
+//   para o administrador mandar direto quando a página do Asaas travar no aparelho dela (caso Antonio Falck 2026-11-16)
 // POST { lembrar: true } (robô, 1 vez por dia) -> push para quem ainda não enviou o documento e a selfie, até concluir
 // POST { todos: true } -> { contas: [{ user_id, nome, ...situação }] }              (todas as contas ainda não aprovadas)
 // Quem pode: administrador logado (tabela admins) ou o robô (x-chave = resgate_config.chave). Só leitura no Asaas.
@@ -57,15 +59,17 @@ async function chaveSub(uid: string) {
   try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: de64(iv) }, await segredo(), de64(ct))); }
   catch (e) { console.error("chaveSub", uid, e); return ""; }
 }
-async function situacao(uid: string) {
+async function situacao(uid: string, comLink = false) {
   const k = await chaveSub(uid);
   if (!k) return { geral: null, sem_chave: true, docs: [] };
   const h = { headers: { access_token: k, "user-agent": "buzios-lanchas" } };
   const st: any = await fetch(API() + "/myAccount/status", h).then((x) => x.json()).catch(() => ({}));
   const dc: any = await fetch(API() + "/myAccount/documents", h).then((x) => x.json()).catch(() => ({}));
   const docs = (dc?.data || []).map((d: any) => ({ tipo: d.type, status: d.status, link: !!d.onboardingUrl }));
+  const falta = (dc?.data || []).find((d: any) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
+  const url = comLink && falta && /^https:\/\/([a-z0-9-]+\.)*asaas\.com(\/|$)/i.test(String(falta.onboardingUrl)) ? String(falta.onboardingUrl) : undefined;
   if (st?.general === "APPROVED") await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", uid).is("aprovada_em", null);
-  return { geral: st?.general || null, dados: st?.commercialInfo || null, documentos: st?.documentation || null, conta_bancaria: st?.bankAccountInfo || null, docs };
+  return { geral: st?.general || null, dados: st?.commercialInfo || null, documentos: st?.documentation || null, conta_bancaria: st?.bankAccountInfo || null, docs, ...(url ? { url } : {}) };
 }
 
 const LEMBRA: Record<string, { title: string; body: string }> = {
@@ -117,7 +121,7 @@ Deno.serve(async (req) => {
     const alvo = String(b.user_id || "");
     if (!/^[0-9a-f-]{36}$/.test(alvo)) return json({ erro: "pessoa" }, 400);
     if (!(await db.from("asaas_contas").select("user_id").eq("user_id", alvo).maybeSingle()).data) return json({ status: "sem_conta" });
-    return json(await situacao(alvo));
+    return json(await situacao(alvo, b.link === true));
   } catch (e) {
     console.error(e);
     return json({ erro: "falhou" }, 500);
