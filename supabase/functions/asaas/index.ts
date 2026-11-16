@@ -769,6 +769,27 @@ Deno.serve(async req => {
     const u = await quem(req);
     if (!u) return json({ erro: "login" }, 401);
 
+    // status da conta na ficha da pessoa (Rodrigo 2026-11-16): só administrador. Conta criada/aprovada, chave Pix, saldo para sacar e último saque,
+    // para ele responder "não consigo sacar" sem perguntar a ninguém. Não devolve a chave da API nem o documento.
+    if (b.acao === "status_conta") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const alvo = String(b.user_id || "");
+      if (!/^[0-9a-f-]{36}$/i.test(alvo)) return json({ erro: "user_id" }, 400);
+      const { data: ct } = await db.from("asaas_contas").select("aprovada_em, wallet_id").eq("user_id", alvo).maybeSingle();
+      if (!ct) return json({ estado: "sem_conta" });
+      const { data: px } = await db.from("vendedores").select("pix_tipo, pix_chave").eq("user_id", alvo).maybeSingle();
+      const { data: sq } = await db.from("saques").select("valor, status, criado_em").eq("user_id", alvo).order("criado_em", { ascending: false }).limit(1).maybeSingle();
+      let saldo: number | null = null;
+      if (ct.aprovada_em) {
+        const k = await chaveSub(alvo);
+        if (k) {
+          const r = await fetch(API() + "/finance/balance", { headers: { access_token: k, "user-agent": "buzios-lanchas" } }).catch(() => null);
+          if (r?.ok) saldo = Math.floor((+(await r.json().catch(() => ({})))?.balance || 0) * 100) / 100;
+        }
+      }
+      return json({ estado: ct.aprovada_em && ct.wallet_id ? "ativa" : "analise", pix: px?.pix_chave ? { tipo: px.pix_tipo, chave: px.pix_chave } : null, saldo, saque: sq || null });
+    }
+
     // saque (Rodrigo 2026-10-28): o dono/vendedor tira o dinheiro da conta de recebimento dele pelo nosso app, sem entrar no Asaas.
     // Só para a chave Pix cadastrada por ele na área de vendas (lida aqui do banco, nunca do navegador); um saque por vez.
     if (b.acao === "saque_info" || b.acao === "sacar") {
