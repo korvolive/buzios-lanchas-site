@@ -2,6 +2,9 @@
 # verify_jwt copiado do que está no ar em 2026-11-16. Função nova: acrescente aqui antes do primeiro deploy.
 project_id = "sqoperylsqcbcjpcrlnp"
 
+[functions.acesso-link]
+verify_jwt = false
+
 [functions.alerta-equipe]
 verify_jwt = true
 
