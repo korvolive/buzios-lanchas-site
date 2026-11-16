@@ -36,7 +36,6 @@ jobs:
   publicar:
     runs-on: ubuntu-24.04
     env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PROJECT_REF: sqoperylsqcbcjpcrlnp
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +44,8 @@ jobs:
 
       - name: Conferir o segredo
         id: seg
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
             echo "::warning::Falta o segredo SUPABASE_ACCESS_TOKEN; nada foi publicado no Supabase."
@@ -98,6 +99,7 @@ jobs:
       - name: Aplicar SQL novo (antes das funções)
         if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.sqls != ''
         env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SQLS: ${{ steps.mudou.outputs.sqls }}
         run: |
           set -euo pipefail
@@ -124,9 +126,11 @@ jobs:
       - name: Publicar funções
         if: steps.seg.outputs.ok == 'true' && steps.mudou.outputs.funcoes != ''
         env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           FUNCOES: ${{ steps.mudou.outputs.funcoes }}
         run: |
           set -euo pipefail
+          supabase --version
           for n in $FUNCOES; do
             echo "Publicando $n"
             supabase functions deploy "$n" --project-ref "$PROJECT_REF" --use-api --yes
