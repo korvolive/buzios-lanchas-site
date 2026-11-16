@@ -1,4 +1,4 @@
--- publicar: auto
+-- (substituído por 2026-11-16_telefone-padrao-v2.sql: o banco recusou esta versão e nada mudou)
 -- Telefone num padrão só (Rodrigo 2026-11-16, caso Antonio Falck): "+" e os dígitos, sem espaço, traço ou parênteses.
 -- Ex.: "+55 (22) 98849-9888" e "+55 22-988499888" viram "+5522988499888".
 -- Vale para as colunas de telefone com formato livre. As que já guardam só dígitos (vendedor_leads, cotacoes_garantidas,
