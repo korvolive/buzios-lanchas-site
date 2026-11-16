@@ -782,6 +782,23 @@ html.is-app .barra{display:none}
 .when-clear{order:3;border:0;background:none;padding:4px 0;font-size:14px;text-decoration:underline;text-underline-offset:3px}
 @media (min-width:761px){.when-range{max-width:420px}.when > label{flex:0 1 180px}.when-res{flex:0 1 auto}}
 @media (max-width:380px){.when-range{gap:8px}.when{gap:10px 8px}.when-range .wl,.when > label{font-size:13px}.when-range .pk-dbtn{padding:0 8px;font-size:15px;background-image:none;text-align:center}.when > label select{padding-left:8px;padding-right:22px;background-position:right 7px center}}
+
+/* Lanchas de confiança em blocos iguais (ideia do amigo, 2026-11-16): só ícone e título; a descrição cobre o bloco ao passar o mouse ou tocar, sem mudar o tamanho */
+.hero-foto .trust ul{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px}
+.hero-foto .trust li{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;padding:14px;border-radius:14px;background:rgba(234,244,246,.07);border:1px solid rgba(234,244,246,.10);cursor:default;outline:none;overflow:hidden;min-height:112px;transition:border-color .2s}
+.hero-foto .trust li strong{font-size:15px;line-height:1.25}
+.hero-foto .trust li div span{position:absolute;inset:0;margin:0;padding:12px 14px;display:flex;align-items:center;font-size:13.5px;line-height:1.35;color:#eaf4f6;background:#173f4c;opacity:0;transition:opacity .2s;pointer-events:none}
+.hero-foto .trust li:hover,.hero-foto .trust li:focus{border-color:rgba(224,181,77,.55)}
+.hero-foto .trust li:hover div span,.hero-foto .trust li:focus div span{opacity:1}
+.hero-foto .trust-ic{margin:0}
+@media (hover:none){.hero-foto .trust li{cursor:pointer}}
+@media (max-width:400px){.hero-foto .trust li{min-height:124px;padding:12px}.hero-foto .trust li div span{font-size:13px;padding:10px 12px}}
+@media (prefers-reduced-motion:reduce){.hero-foto .trust li div span{transition:none}}
+/* Garantia com mais destaque */
+.hero-foto .guar{border:1.5px solid rgba(224,181,77,.75)!important;background:linear-gradient(135deg,rgba(224,181,77,.20),rgba(224,181,77,.07))!important;padding:16px 18px;border-radius:16px;box-shadow:0 0 0 4px rgba(224,181,77,.08)}
+.hero-foto .guar b{display:flex;align-items:center;gap:8px;font-size:17px;color:#f3d48a;margin-bottom:6px}
+.hero-foto .guar-ic{width:22px;height:22px;flex:none}
+.hero-foto .guar p{font-size:15px;opacity:.95}
 </style>
 
 <header class="top">
@@ -2749,7 +2766,7 @@ function seo(b){
 /* link de compartilhar do perfil no Google (2026-10-24): abre no navegador, em outra aba, só a Lancha Miss Bardot, sem anúncios de concorrentes como na busca */
 const GOOGLE_REVIEWS = "https://share.google/kUtKdkLJN0e9gmFWg";
 /* Garantia Búzios Lanchas (2026-10-29): no painel da lancha com a empresa e o recibo; na home, só a garantia, embaixo dos botões do topo */
-const guarHTML = full => `<div class="guar"><b>${t("guarT")}</b><p>${t("guarP")}</p>${full?`<ul><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
+const guarHTML = full => `<div class="guar"><b><svg class="guar-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>${t("guarT")}</b><p>${t("guarP")}</p>${full?`<ul><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
 const HERO_MEET = false; // botão "Conhecer a Miss Bardot" escondido (2026-10-24); true volta com ele
 const TRUST_ICONS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>`,
@@ -2815,7 +2832,7 @@ function home(){
     </div>
     ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
     <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
-      ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
+      ${TRUST_ICONS.map((ic,i)=>`<li tabindex="0"><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
     </ul>${guarHTML(false)}</aside>
     </div>
     <canvas id="waves" aria-hidden="true"></canvas>
