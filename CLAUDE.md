@@ -14,3 +14,10 @@ Este repositório tem um mapa pronto do código em `graphify-out/` (graph.json, 
 - Rede de segurança: o workflow `.github/workflows/mapa-graphify.yml` atualiza o mapa sozinho a cada push no `main` (se alguém esquecer).
 - Limite: o código JavaScript dentro dos arquivos `.html` (index.html, login/index.html etc.) não entra no mapa. Para essas páginas, use busca normal.
 - `graphify-out/` e `CLAUDE.md` não vão para o site (excluídos no deploy).
+
+# Publicar no Supabase sem confirmação
+
+O workflow `.github/workflows/supabase-publicar.yml` publica sozinho no push para o `main`:
+- funções alteradas em `supabase/functions/<nome>/` (verify_jwt vem de `supabase/config.toml`; função nova precisa entrar lá);
+- arquivos SQL novos em `supabase/sql/` que tenham a linha `-- publicar: auto` (escreva SQL idempotente).
+Assim edge e SQL saem pelo PR, sem depender do conector Supabase nem de frase do Rodrigo. Precisa do segredo `SUPABASE_ACCESS_TOKEN` no GitHub.
