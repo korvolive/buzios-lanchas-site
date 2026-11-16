@@ -16,7 +16,7 @@
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
-// POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site)
+// POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site); pré-reserva com pagar_ate só depois desse prazo
 // Pagou: a reserva se confirma sozinha (rpc confirmar_pago), sem o administrador aprovar (Rodrigo, 2026-10-25).
 // Gerou o Pix ou o cartão: a data fica segurada por 2 horas para esse cliente (pp_vaga e datas_seguradas).
 // POST {event:"ACCOUNT_STATUS_..."} (do Asaas, webhook da subconta) a análise do documento e da selfie mudou: confere no Asaas e, aprovada, avisa a pessoa
@@ -84,7 +84,8 @@ async function contato() {
   CONTATO = e || "contato@lanchaembuzios.com.br";
   return CONTATO;
 }
-const vale = (r: any) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS);
+// ate = prazo da pré-reserva (pedidos.pagar_ate): a cobrança continua valendo até lá
+const vale = (r: any, ate?: string | null) => !!r && (!!r.pago_em || Date.now() - new Date(r.criado_em).getTime() < SEGURA_MS || (!!ate && new Date(ate).getTime() > Date.now()));
 
 async function asaas(path: string, body?: unknown, method = body === undefined ? "GET" : "POST") {
   if (!KEY()) throw new Error("sem_chaves");
@@ -147,7 +148,7 @@ async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor, prazo_vencido_em").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor, prazo_vencido_em, pagar_ate").eq("id", pid).maybeSingle();
   return p ? { c, p } : null;
 }
 
@@ -600,7 +601,7 @@ Deno.serve(async req => {
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
-        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c)) || null, cartao_ok: cartaoOk(x.p.data), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
+        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: cartaoOk(x.p.data), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -622,8 +623,13 @@ Deno.serve(async req => {
       if (!((cfg?.chave && ch === cfg.chave) || (srk && tok === srk))) return json({ erro: "chave" }, 403);
       const lim = new Date(Date.now() - SEGURA_MS).toISOString();
       const { data: velhas } = await db.from("pagamentos_asaas").select("*").is("pago_em", null).lt("criado_em", lim).limit(50);
+      // pré-reserva com prazo combinado (pagar_ate): a cobrança vale até esse prazo, não só 2 horas (Rodrigo 2026-11-16, caso Elka)
+      const pids = [...new Set((velhas || []).map((r: any) => r.pedido))];
+      const { data: comPrazo } = pids.length ? await db.from("pedidos").select("id, pagar_ate").in("id", pids).gt("pagar_ate", new Date().toISOString()) : { data: [] };
+      const noPrazo = new Set((comPrazo || []).map((x: any) => x.id));
       let n = 0;
       for (const r of velhas || []) {
+        if (noPrazo.has(r.pedido)) continue;
         try {
           if (await conferir(r.asaas_id)) continue; // pagou em cima da hora
           if (!await cancelar(r.asaas_id)) continue; // tenta de novo na próxima rodada
@@ -696,7 +702,7 @@ Deno.serve(async req => {
       const tt = await totais(sinal), np = metodo === "cartao" && !fora ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
       const op = tt.parcelas[np - 1], tot = metodo === "cartao" ? op.total : tt.pix;
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
-      if (velha && vale(velha) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
+      if (velha && vale(velha, p.pagar_ate) && +velha.valor === tot && +velha.repasse === rep && velha.wallet_id === (wallet || null)) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
       if (velha) {
@@ -712,7 +718,7 @@ Deno.serve(async req => {
       const cus = await cliente(p.cliente, dig(b.cpf), fora && metodo === "cartao");
       if (!cus) return json({ erro: "cpf" }, 400);
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
-      const venc = new Date(Date.now() + 2 * 864e5 - 3 * 36e5).toISOString().slice(0, 10);
+      const venc = new Date(Math.max(Date.now() + 2 * 864e5, p.pagar_ate ? new Date(p.pagar_ate).getTime() + 864e5 : 0) - 3 * 36e5).toISOString().slice(0, 10); // nunca vence antes do prazo da pré-reserva
       const pg = await asaas("/payments", {
         customer: cus, billingType: metodo === "pix" ? "PIX" : "CREDIT_CARD", dueDate: venc,
         ...(np > 1 ? { installmentCount: np, installmentValue: op.parcela } : { value: tot }),

@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-16)
 
 ## Corpus Check
-- 165 files · ~371,955 words
+- 165 files · ~372,557 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `be54fccd`
+- Built from commit: `9842c252`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -374,16 +374,16 @@ Nodes (7): a_pedido_jetski_segurado, public.mb_libera_sinal_sozinho(), public.je
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.ativar_conta_cliente()` connect `2026-11-15_preco-cotado-garantido.sql` to `public.lanchas`, `2026-11-15_jetski-revisao-geral.sql`, `public.pedidos`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06359189378057302 - nodes in this community are weakly interconnected._
-- **Why does `public.papeis_painel` connect `2026-11-15_preco-cotado-garantido.sql` to `public.bloqueios`, `public._pre_reserva_volta`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Why does `public._pre_pedido_fim()` connect `public.anotacoes` to `public.pedidos`, `public.bloqueios`, `public.salvar_netos_v3`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.jetski_usos` connect `2026-11-15_jetski.sql` to `2026-11-15_jetski-revisao-geral.sql`, `2026-11-15_jetski-pedido.sql`, `public.lanchas`, `2026-11-15_jetski-lucas.sql`, `public.tg_anotacao_jetski_segura`, `public.pedidos`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06001984126984127 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07446808510638298 - nodes in this community are weakly interconnected._
+- **Should `2026-10-30_operador-um-toque.sql` be split into smaller, more focused modules?**
+  _Cohesion score 0.06628787878787878 - nodes in this community are weakly interconnected._
