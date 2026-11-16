@@ -616,6 +616,17 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .plcv{align-items:center}.plcv .pe{display:inline-flex;gap:6px;align-items:center;font-size:13px}.plcv input{width:92px;padding:6px 8px;font:inherit}.plcv .pe.ok input{border-color:#2e9e5b}.plcv .pe.bad input{border-color:#c0392b}
 .gtag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--line);border-radius:99px;font-size:12.5px;font-weight:600;color:var(--muted)}.gtag b{font-weight:800;color:#4285f4}
 .grf .grrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grf .f{margin-bottom:8px}.grpas{margin:10px 0}.grpas summary{cursor:pointer;font-size:14px;font-weight:600}
+/* padrão compacto dos cartões do painel (Rodrigo 2026-11-16): listas dentro de cartões com espaço interno, letras menores e botões pequenos.
+   Só aparência: não muda ids, data-* nem o que os robôs leem */
+.card>h2{font-size:17px}.card>h2+p.muted{font-size:13px;line-height:1.45}
+.card .ulist{border-radius:14px;margin:0;background:transparent}
+.card .ulist>.trow{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.card .ulist>.trow:last-child{border-bottom:0}
+.card .ulist>.trow strong{font-size:15px}.card .ulist>.trow small{font-size:12.5px}
+.card .ulist>.trow .reqbtns{width:auto;max-width:100%;flex-direction:row;flex-wrap:wrap;gap:6px;margin:0}
+.card .ulist>.trow .btn{width:auto!important;flex:0 0 auto;margin:0!important;padding:6px 12px!important;font-size:13px!important;min-height:0!important;line-height:1.25;border-radius:10px}
+.card .ulist>.trow .btn.wa svg{width:16px;height:16px}
+.card .ulist>.trow .face{width:34px;height:34px;font-size:13px}
 </style></head><body>
 <header class="top" id="top" hidden></header>
 <main id="app"><p class="loading">…</p></main>
