@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera o site da Bordazul (bordazul.com.br, pasta bordazul/) em PT, EN e ES, em HTML estático.
+"""Gera o site do Bordazul (bordazul.com.br, pasta bordazul/) em PT, EN e ES, em HTML estático.
 
 2026-11-15: marca nacional de aluguel de barcos (donos anunciam os barcos, como um marketplace).
 Fase 1: página de entrada. Búzios já tem embarque aberto (leva ao lanchaembuzios.com.br, com a data e
@@ -54,7 +54,7 @@ T = {
   f_dest="Destino", f_data="Data", f_pes="Pessoas", f_btn="Ver barcos", menos="Menos uma pessoa", mais="Mais uma pessoa",
   r_aberto="Búzios tem embarque aberto. Levamos você às lanchas com a sua data e o seu grupo.",
   r_breve="{c} ainda não abriu. Quer saber primeiro quando tiver barco lá?", r_breve_btn="Me avise pelo WhatsApp",
-  wa_breve="Olá! Quero ser avisado quando a Bordazul abrir em {c}.",
+  wa_breve="Olá! Quero ser avisado quando o Bordazul abrir em {c}.",
   links=[("#destinos", "Todos os destinos"), ("#como", "Como funciona"), ("#barco", "Anuncie seu barco")],
   foto_alt=["Vista aérea de Búzios e suas ilhas", "Lancha ao pôr do sol em Búzios", "Lancha ancorada em águas verdes de Búzios", "Na proa da lancha diante de uma ilha"],
   s_p1="Começamos por Búzios, onde a primeira frota já leva grupos às praias.",
@@ -72,16 +72,16 @@ T = {
         ("Na reserva", [("Tire dúvidas com a gente", "WhatsApp"), ("Garanta a data com o sinal", "50%")]),
         ("No dia", [("Encontre o marinheiro no píer", "na hora marcada"), ("Pague o restante", "no embarque")])],
   como_fim=("Você no mar", "4 ou 7 horas"),
-  mares="Mares", mares_p="Os destinos que a Bordazul vai cobrir. Abrimos cada um quando tiver barcos bons para alugar lá.",
+  mares="Mares", mares_p="Os destinos que o Bordazul vai cobrir. Abrimos cada um quando tiver barcos bons para alugar lá.",
   reg={"rj": "Rio de Janeiro", "sp": "São Paulo", "sul": "Santa Catarina", "ba": "Bahia", "ne": "Alagoas e Pernambuco", "lagos": "Lagos e rios"},
   carta=["<strong>Tem um barco parado na marina?</strong> Ele pode virar passeio e renda, sem você precisar cuidar de anúncio, atendimento ou cobrança.",
-         "A Bordazul nasceu de uma empresa de passeios de lancha em Búzios que já faz isso todos os dias: recebe o cliente, tira as dúvidas, confirma a data e cobra o sinal. O dono só cuida do barco e do passeio.",
+         "O Bordazul nasceu de uma empresa de passeios de lancha em Búzios que já faz isso todos os dias: recebe o cliente, tira as dúvidas, confirma a data e cobra o sinal. O dono só cuida do barco e do passeio.",
          "Agora vamos levar esse jeito de trabalhar para outros mares do Brasil. Estamos abrindo os cadastros aos poucos, destino por destino, para cada cidade já começar com barcos bons.",
          "Se você tem lancha, iate, veleiro, catamarã ou escuna com marinheiro habilitado, fale com a gente. Você define o preço que quer receber, e o barco fica na agenda só quando você quiser."],
   carta_ass="Equipe Bordazul", carta_cargo="Cadastro de barcos", carta_btn="Quero anunciar meu barco",
-  wa_dono="Olá! Tenho um barco e quero anunciar na Bordazul.",
+  wa_dono="Olá! Tenho um barco e quero anunciar no Bordazul.",
   faq_h="Perguntas",
-  faq=[("O que é a Bordazul?", "Uma plataforma para alugar barcos com marinheiro nos destinos náuticos do Brasil, com os barcos de vários donos reunidos em um só lugar."),
+  faq=[("O que é o Bordazul?", "Uma plataforma para alugar barcos com marinheiro nos destinos náuticos do Brasil, com os barcos de vários donos reunidos em um só lugar."),
        ("Onde já tem barcos?", "Em Búzios, no Rio de Janeiro. Lá você vê todas as lanchas, fotos e preços por temporada e reserva online. Os outros destinos abrem aos poucos."),
        ("Todo barco tem marinheiro?", "Sim. Todos os passeios são feitos com marinheiro habilitado, e o barco é só do seu grupo."),
        ("O que vem incluso em Búzios?", "Combustível, gelo, carvão, água mineral e cooler. Comidas e bebidas não estão inclusas, e a equipe prepara o churrasco se você levar as carnes."),
@@ -91,13 +91,13 @@ T = {
        ("E se o mar não estiver bom?", "O passeio é remarcado para outra data, sem custo."),
        ("Quando abre a minha cidade?", "Assim que tiver barcos bons para alugar lá. Peça aviso pelo WhatsApp e você fica sabendo primeiro."),
        ("Posso anunciar meu barco?", "Pode. Fale com a gente pelo WhatsApp: os cadastros estão abrindo destino por destino."),
-       ("Quem está por trás da Bordazul?", "A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.")],
+       ("Quem está por trás do Bordazul?", "A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.")],
   cta_p="A primeira frota já está na água. O resto do Brasil vem logo atrás.",
   cta_h="Partiu Búzios?", cta_l="Lanchas de 22 a 35 pés, para até 16 pessoas, com passeios de 4 ou 7 horas.", cta_btn="Ver lanchas em Búzios",
   pe_h="Até a bordo.", pe_p="Escreva para a gente quando quiser: sobre um passeio, sobre o seu barco ou para saber quando a sua cidade abre.",
   pe_selo="Lancha em Búzios",
   pe_imp="© 2026 Bordazul, uma marca da Búzios Lanchas · CNPJ 32.154.099/0001-72",
-  wa_geral="Olá! Vim pelo site da Bordazul.",
+  wa_geral="Olá! Vim pelo site do Bordazul.",
   noscript="Para ver as lanchas, abra o site de Búzios.",
  ),
  "en": dict(
