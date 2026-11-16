@@ -67,7 +67,8 @@ async function situacao(uid: string, comLink = false) {
   const dc: any = await fetch(API() + "/myAccount/documents", h).then((x) => x.json()).catch(() => ({}));
   const docs = (dc?.data || []).map((d: any) => ({ tipo: d.type, status: d.status, link: !!d.onboardingUrl }));
   const falta = (dc?.data || []).find((d: any) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
-  const url = comLink && falta && /^https:\/\/([a-z0-9-]+\.)*asaas\.com(\/|$)/i.test(String(falta.onboardingUrl)) ? String(falta.onboardingUrl) : undefined;
+  // o link vem do próprio Asaas (não é só asaas.com: a 1ª versão filtrava pelo domínio e não devolvia nada); só exige https
+  const url = comLink && falta && /^https:\/\//i.test(String(falta.onboardingUrl)) ? String(falta.onboardingUrl) : undefined;
   if (st?.general === "APPROVED") await db.from("asaas_contas").update({ aprovada_em: new Date().toISOString() }).eq("user_id", uid).is("aprovada_em", null);
   return { geral: st?.general || null, dados: st?.commercialInfo || null, documentos: st?.documentation || null, conta_bancaria: st?.bankAccountInfo || null, docs, ...(url ? { url } : {}) };
 }
