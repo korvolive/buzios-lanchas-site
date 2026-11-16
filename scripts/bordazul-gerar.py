@@ -21,12 +21,15 @@ DOM = "https://www.bordazul.com.br"
 BZ = "https://www.lanchaembuzios.com.br"
 WA = "5521999272550"
 PATH = {"pt": "/", "en": "/en/", "es": "/es/"}
+# Búzios mora dentro do Bordazul (bordazul.com.br/buzios/, mesma pasta do site de Búzios com a marca trocada pelo marca.js).
+# Aberto por outro endereço (prévia em lanchaembuzios.com.br/bordazul/), o JS troca /buzios pelo endereço de Búzios.
+BUZ = "/buzios"
 HL = {"pt": "pt-BR", "en": "en", "es": "es"}
 HOJE = "2026-11-15"
 
 # Regiões e destinos. aberto = URL do site com barcos (por enquanto só Búzios). uf = estado.
 DEST = [
-    ("rj", [("buzios", "Búzios", "RJ", BZ), ("arraial", "Arraial do Cabo", "RJ", None), ("cabo-frio", "Cabo Frio", "RJ", None),
+    ("rj", [("buzios", "Búzios", "RJ", BUZ), ("arraial", "Arraial do Cabo", "RJ", None), ("cabo-frio", "Cabo Frio", "RJ", None),
             ("rio", "Rio de Janeiro", "RJ", None), ("angra", "Angra dos Reis", "RJ", None), ("paraty", "Paraty", "RJ", None)]),
     ("sp", [("ilhabela", "Ilhabela", "SP", None), ("ubatuba", "Ubatuba", "SP", None), ("guaruja", "Guarujá", "SP", None)]),
     ("sul", [("floripa", "Florianópolis", "SC", None), ("bombinhas", "Bombinhas", "SC", None), ("camboriu", "Balneário Camboriú", "SC", None)]),
@@ -405,6 +408,7 @@ a.tag{background:var(--coral);color:#fff;text-decoration:none}
 
 JS = r"""
 document.documentElement.classList.add("js");
+if(!/(^|\.)bordazul\.com\.br$/.test(location.hostname))document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll('a[href^="/buzios"],option[data-url^="/buzios"],form[action^="/buzios"]').forEach(function(el){["href","data-url","action"].forEach(function(k){var v=el.getAttribute(k);if(v&&v.indexOf("/buzios")===0)el.setAttribute(k,"https://www.lanchaembuzios.com.br"+v.slice(7));});});});
 (function(){
 var f=document.getElementById("bilhete"),d=document.getElementById("f-data"),p=document.getElementById("f-pes"),s=document.getElementById("f-dest"),out=document.getElementById("res");
 var now=new Date(),iso=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");d.min=iso;
@@ -444,7 +448,7 @@ def pagina(lang):
     alt = "".join(f'<link rel="alternate" hreflang="{HL[l]}" href="{DOM + PATH[l]}">' for l in T) + f'<link rel="alternate" hreflang="x-default" href="{DOM}/">'
     langs = "".join(f'<a href="{PATH[l] if lang == "pt" else ("../" if l == "pt" else "../" + l + "/")}" hreflang="{HL[l]}" lang="{HL[l]}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in T)
     nav = "".join(f'<a href="{h}">{e(x)}</a>' for h, x in t["nav"])
-    bz = BZ + PATH[lang]
+    bz = BUZ + PATH[lang]
     fotos = "".join(f'<img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{" class=on" if i == 0 else " loading=lazy"}>' for i, (n, w, h) in enumerate(HERO_FOTOS))
     cid = {k: (nome, uf, u) for _, cs in DEST for k, nome, uf, u in cs}
     cards = []
@@ -558,7 +562,7 @@ def pagina(lang):
 <div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="about">{e(t["pe_p"])}</p></div>
 <ul>
 <li><a href="{e(wa(t["wa_geral"]))}" rel="noopener">WhatsApp (21) 99927-2550</a></li>
-<li><a href="{e(bz)}">lanchaembuzios.com.br</a></li>
+<li><a href="{e(bz)}">Búzios, RJ</a></li>
 <li><a href="https://www.instagram.com/missbardotbuzios/" rel="noopener">@missbardotbuzios</a></li>
 </ul>
 <ul>{nav.replace("<a ", "<li><a ").replace("</a>", "</a></li>")}</ul>
