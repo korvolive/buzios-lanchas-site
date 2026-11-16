@@ -48,6 +48,25 @@ RewriteCond %{HTTPS} off
 RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteCond %{HTTP_HOST} (^|\.)lanchaembuzios\.com\.br$ [NC]
 RewriteRule ^ https://www.lanchaembuzios.com.br%{REQUEST_URI} [R=301,L,NE]
+# Bordazul (2026-11-16): bordazul.com.br aponta para esta mesma pasta. O início do Bordazul vem da pasta bordazul/
+# e o site de Búzios inteiro (vitrine, conta, pagamento) aparece em bordazul.com.br/buzios/, com a marca trocada pelo marca.js.
+RewriteCond %{HTTP_HOST} (^|\.)bordazul\.com\.br$ [NC]
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://www.bordazul.com.br%{REQUEST_URI} [R=301,L,NE]
+RewriteCond %{HTTP_HOST} ^bordazul\.com\.br$ [NC]
+RewriteRule ^ https://www.bordazul.com.br%{REQUEST_URI} [R=301,L,NE]
+RewriteCond %{HTTP_HOST} (^|\.)bordazul\.com\.br$ [NC]
+RewriteRule ^(buzios|en|es)$ /$1/ [R=301,L]
+RewriteCond %{HTTP_HOST} (^|\.)bordazul\.com\.br$ [NC]
+RewriteCond %{THE_REQUEST} !\s/buzios[/?\s]
+RewriteCond %{DOCUMENT_ROOT}/bordazul/$1 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/bordazul/$1index.html -f
+RewriteRule ^(.*)$ bordazul/$1 [L]
+RewriteCond %{HTTP_HOST} (^|\.)bordazul\.com\.br$ [NC]
+RewriteRule ^buzios/(.*)$ $1 [L]
+RewriteCond %{HTTP_HOST} (^|\.)bordazul\.com\.br$ [NC]
+RewriteRule ^(rj|regiao|petrussia)(/|$) / [R=302,L]
 # Botão do WhatsApp: link com "?" codificado (/pagar/%3Fp%3D...) ou link curto (/pagar/p49-...) abre a página de pagamento
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^pagar/(\?.*|p[0-9]+-[0-9A-Za-z-]+)$ pagar/index.html [L]
