@@ -246,6 +246,16 @@ Deno.serve(async req => {
   try {
     const { data: cfg } = await db.from("resgate_config").select("*").eq("id", 1).maybeSingle();
     if (!cfg?.chave || req.headers.get("x-chave") !== cfg.chave) return json({ erro: "nao" }, 401);
+    // conferência (só leitura): status do modelo do convite da consulta vencida em cada idioma; não envia nada
+    const corpo = await req.json().catch(() => ({}));
+    if (corpo?.modelo_status) {
+      const key = await d360Key().catch(() => "");
+      if (!key) return json({ ok: false, erro: "sem chave" });
+      const r = await fetch("https://waba-v2.360dialog.io/v1/configs/templates?limit=1000", { headers: { "D360-API-KEY": key } });
+      const j = await r.json().catch(() => ({}));
+      const nome = cfg.convite_modelo || "consulta_encerrada";
+      return json({ ok: r.ok, modelos: (j.waba_templates || j.data || []).filter((t: any) => t?.name === nome).map((t: any) => ({ language: t.language, status: t.status, category: t.category, rejected_reason: t.rejected_reason || null })) });
+    }
     const leads = cfg.lead_ativo && TOKEN && PHONE ? await lembrarLeads(cfg.modelo_lead || "cadastro_pendente").catch(e => (console.error("leads", e), 0)) : 0;
     const passeios = cfg.passeio_ativo && TOKEN && PHONE ? await avisarPasseios(cfg.modelo_passeio || "passeio_registrado").catch(e => (console.error("passeios", e), 0)) : 0;
     const convites = cfg.convite_ativo ? await convidarVencidas(cfg).catch(e => (console.error("convite", e), 0)) : 0;
