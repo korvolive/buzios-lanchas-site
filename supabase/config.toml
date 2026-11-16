@@ -14,6 +14,9 @@ verify_jwt = false
 [functions.asaas-docs]
 verify_jwt = false
 
+[functions.asaas-saude]
+verify_jwt = false
+
 [functions.asaas-saques]
 verify_jwt = false
 
