@@ -15,10 +15,10 @@
   d.head.appendChild(f);
   var st = d.createElement("style");
   st.textContent =
-    ':root[data-marca="bordazul"]{--sea:#0a63e8;--sea-deep:#071c35;--brass:#ff6b4a;--brass-ink:#3a0d02;--chip:#e6effd;--bg:#f4f7fb;--line:#dbe4f0;--ink:#0d1b2e;--muted:#56657a;--full:#071c35;' +
+    ':root[data-marca="bordazul"]{--sea:#0a63e8;--sea-deep:#071c35;--brass:#f5b82e;--brass-ink:#2a1d00;--chip:#e6effd;--bg:#f4f7fb;--line:#dbe4f0;--ink:#0d1b2e;--muted:#56657a;--full:#071c35;' +
       '--display:"Urbanist",ui-sans-serif,system-ui,sans-serif;--body:"Urbanist",ui-sans-serif,system-ui,sans-serif}' +
-    '@media (prefers-color-scheme:dark){:root[data-marca="bordazul"]:not([data-theme="light"]){--sea:#6fa8ff;--sea-deep:#06142a;--brass:#ff8a6e;--chip:#14284a;--bg:#071223;--line:#1b2c47;--full:#6fa8ff}}' +
-    ':root[data-marca="bordazul"][data-theme="dark"]{--sea:#6fa8ff;--sea-deep:#06142a;--brass:#ff8a6e;--chip:#14284a;--bg:#071223;--line:#1b2c47;--full:#6fa8ff}' +
+    '@media (prefers-color-scheme:dark){:root[data-marca="bordazul"]:not([data-theme="light"]){--sea:#6fa8ff;--sea-deep:#06142a;--brass:#ffc94d;--chip:#14284a;--bg:#071223;--line:#1b2c47;--full:#6fa8ff}}' +
+    ':root[data-marca="bordazul"][data-theme="dark"]{--sea:#6fa8ff;--sea-deep:#06142a;--brass:#ffc94d;--chip:#14284a;--bg:#071223;--line:#1b2c47;--full:#6fa8ff}' +
     /* o app da Búzios Lanchas não é oferecido no Bordazul */
     '[data-marca="bordazul"] #gapill,[data-marca="bordazul"] #gamodal,[data-marca="bordazul"] .get-app,[data-marca="bordazul"] footer div:has(> h3[data-t="footApp"]){display:none!important}' +
     '[data-marca="bordazul"] .logo .bz-logo{flex:none}';
@@ -57,7 +57,7 @@
     if(!v || v.charAt(0) !== "/" || v.indexOf(B + "/") === 0 || v === B) return;
     if(/^\/(#|\?|$|lancha\/|en(\/|$)|es(\/|$))/.test(v)) a.setAttribute("href", B + v);
   }
-  var LOGO = '<svg class="bz-logo" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#ff6b4a" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  var LOGO = '<svg class="bz-logo" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#f5b82e" stroke-width="2.4" stroke-linecap="round"/></svg>';
   function no(n){
     if(n.nodeType === 3){ var t = troca(n.nodeValue); if(t !== n.nodeValue) n.nodeValue = t; return; }
     if(n.nodeType !== 1) return;
