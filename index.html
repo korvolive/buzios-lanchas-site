@@ -56,7 +56,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fontes sem travar a primeira pintura no celular: o texto aparece na fonte do aparelho e troca quando a fonte chega -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[href="/img/rt-08.webp"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/rt-08.webp";hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
+<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[rel="preload"][imagesrcset*="mb-c02"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/mb-c02.webp";hl.setAttribute("imagesrcset","/img/mb-c02-m.webp 800w, /img/mb-c02.webp 1600w");hl.setAttribute("imagesizes","100vw");hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
 <style>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
 :root{
@@ -663,6 +663,96 @@ h1,h2,h3{line-height:1.15}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .updbar{position:fixed;left:0;right:0;top:0;z-index:60;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--sea-deep);color:#e6f1f4;font-size:14px;line-height:1.35}.updbar[hidden]{display:none}.updbar span{flex:1}.updbar a{color:#fff;font-weight:700;text-decoration:underline}.updbar button{flex:none;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:inherit;font-size:16px;cursor:pointer}
 </style>
+<style id="repaginada">
+/* Repaginada leve (2026-11-16): menos enfeite de "site feito por IA" (rótulos em caixa-alta, fonte de código,
+   sombras e linhas finas), título mais curto e forte, botões com resposta ao toque e barra fixa no celular. */
+:root{--mono:var(--body)}
+.eyebrow{font:600 14px/1.3 var(--body);letter-spacing:0;text-transform:none}
+.section-head .eyebrow{display:none}
+.section-head h2{font-size:clamp(30px,4.6vw,48px);letter-spacing:-.025em;line-height:1.02}
+.logo small{letter-spacing:0;text-transform:none;font-size:12px;opacity:.75}
+.lang{letter-spacing:0}
+/* topo */
+.hero h1{font-size:clamp(42px,7.4vw,84px);line-height:.96;letter-spacing:-.035em;max-width:11ch}
+.hero .hero-lead{font-size:clamp(18px,1.4vw + 12px,22px);line-height:1.4;max-width:34ch;opacity:.92}
+.hero-text{gap:20px}
+.hero-rev{background:none;border:0;padding:0;font-size:15px;text-decoration:underline;text-decoration-color:rgba(255,255,255,.35);text-underline-offset:5px}
+.hero-rev:hover{text-decoration-color:currentColor}
+.hero-text .guar{background:rgba(0,0,0,.32);border:0;border-radius:14px}
+.trust{background:rgba(234,244,246,.07);border:0;border-radius:20px}
+.trust li{border-top:0;padding:10px 0}
+.trust-ic{background:none;width:24px;height:24px;margin-top:2px}
+.trust-ic svg{width:22px;height:22px}
+.guar{border:0;background:color-mix(in srgb,var(--brass) 11%,transparent)}
+.guar ul{border-top:0;padding-top:2px}
+/* botões: cor chapada, resposta ao toque e seta no principal */
+.btn{font-weight:700;transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .2s,background-color .2s}
+.btn:active{transform:translateY(1px) scale(.985)}
+.hero .ctas .btn:not(.wa-btn):not(.ghost)::after{content:"→";display:inline-block;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.hero .ctas .btn:not(.wa-btn):not(.ghost):hover::after{transform:translateX(4px)}
+/* cartões das lanchas: sem sombra parada, etiqueta em letra normal */
+.card.feat{box-shadow:none}
+.card>.tag{box-shadow:none;letter-spacing:0;text-transform:none;font:700 13px/1 var(--body);padding:7px 10px;border-radius:999px}
+.c-rate{box-shadow:none!important}
+.card{transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .2s}
+@media (hover:hover){.card:hover{transform:translateY(-4px)}}
+.card:active{transform:scale(.99)}
+/* como funciona: blocos em tom, sem linha e sem "Passo 1" */
+.how div{border-top:0;padding:20px;border-radius:18px;background:var(--surface)}
+.how div::before{content:none}
+.how h3{margin-top:0;font-size:22px;letter-spacing:-.015em}
+.how p{color:var(--ink);opacity:.8}
+/* barra fixa no celular: aparece depois do topo, some quando as lanchas estão na tela */
+.barra{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:44;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 18px;border-radius:20px;background:var(--sea-deep);color:#eaf4f6;box-shadow:0 14px 34px -12px rgba(0,0,0,.55);transform:translateY(160%);transition:transform .45s cubic-bezier(.2,.8,.2,1);visibility:hidden}
+.barra.on{transform:none;visibility:visible}
+.barra .bt{flex:1;min-width:0;line-height:1.2}.barra .bt b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.barra .bt span{display:block;font-size:13px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barra .btn{min-height:46px;padding:0 18px;flex:none}
+.barra .bwa{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#0b2e17}
+.barra .bwa svg{width:22px;height:22px}
+.barra .bwa:active{transform:scale(.95)}
+@media (max-width:600px){
+  .hero-text{justify-items:start;text-align:left;gap:16px}
+  .hero-rev{justify-self:start}
+  .hero h1{margin-inline:0;font-size:clamp(44px,13vw,56px);max-width:none}
+  .hero .hero-lead{font-size:18px;line-height:1.4}
+  .trust{text-align:left}
+  .section-head{justify-content:flex-start;text-align:left}
+  .section-head > div{justify-items:start}
+  .how div{text-align:left}
+}
+/* ideia B escolhida (2026-11-16): fundo escuro com a foto do grupo na boia da Miss Bardot */
+.hero.hero-foto{background:#04212c}
+/* no computador a foto vira o fundo do topo (não aumenta a altura); no celular ela fica no alto, antes do título */
+@media (min-width:761px){.hero.hero-foto{background:linear-gradient(180deg,rgba(4,33,44,.62),rgba(4,33,44,.86)),url(/img/mb-c02.webp) center 60%/cover #04212c}.hero-ph{display:none}}
+.hero-ph{margin:0;overflow:hidden;position:relative;background:#0a3443}
+.hero-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;animation:phin 1.4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes phin{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
+@media (max-width:760px){
+  .hero-foto .wrap{padding-top:0!important}
+  .hero-foto .hero-grid{grid-template-columns:1fr;gap:0}
+  .hero-foto .trust{margin-top:28px}
+  .hero-ph{order:-1;min-height:0;aspect-ratio:4/3;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));border-radius:0}
+  .hero-ph::after{content:"";position:absolute;inset:auto 0 0;height:45%;background:linear-gradient(180deg,rgba(4,33,44,0),#04212c);pointer-events:none}
+  .hero-foto .hero-text{margin-top:-64px;position:relative;z-index:1}
+}
+/* botão principal com brilho passando e seta (ideia dos links do amigo, em CSS puro) */
+.hero .ctas .btn:not(.wa-btn):not(.ghost),.barra .btn{position:relative;overflow:hidden;isolation:isolate}
+.hero .ctas .btn:not(.wa-btn):not(.ghost)::before,.barra .btn::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);animation:brilho 4.5s 1.5s ease-in-out infinite}
+@keyframes brilho{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+/* faixa de confiança rolando */
+.faixa{overflow:hidden;background:var(--surface);padding:16px 0;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.fx-tr{display:flex;width:max-content;animation:rola 40s linear infinite}
+.fx-dup{display:flex}
+.faixa:hover .fx-tr,.faixa:active .fx-tr,.faixa:focus-within .fx-tr{animation-play-state:paused}
+.fx-it{display:inline-flex;align-items:center;gap:10px;margin-right:40px;font:600 15px/1.2 var(--body);color:var(--ink);white-space:nowrap;text-decoration:none}
+.fx-dot{width:7px;height:7px;border-radius:50%;background:var(--brass);flex:none}
+.fx-st{color:#e0a92e;letter-spacing:1px}
+@keyframes rola{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.fx-tr{animation:none;flex-wrap:wrap;width:auto;justify-content:center;row-gap:10px}.fx-dup{display:none}.hero-ph img{animation:none}.hero .ctas .btn::before,.barra .btn::before{animation:none}}
+@media (min-width:761px){.barra{display:none}}
+html.is-app .barra{display:none}
+@media (prefers-reduced-motion:reduce){.btn,.card,.barra{transition:none}.btn:active,.card:active{transform:none}}
+</style>
 
 <header class="top">
   <div class="wrap">
@@ -695,6 +785,7 @@ h1,h2,h3{line-height:1.15}
   <a href="/login/" id="ab-login" class="main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span id="ab-login-t"></span></a>
 </nav>
 
+<div class="barra" id="barra" aria-hidden="true"></div>
 <div class="gapill" id="gapill" hidden><img src="/apple-touch-icon.png" alt=""><button type="button" class="go get-app"><span data-t="getApp"></span><small data-t="getAppSub"></small></button><button type="button" class="gax" id="gax">✕</button></div>
 <div class="gamodal" id="gamodal" hidden role="dialog" aria-modal="true"><div class="gabox"><img src="/apple-touch-icon.png" alt=""><h3 data-t="getAppT"></h3><p data-t="getAppSub"></p><p class="gahw" id="gahow"></p><button type="button" class="btn" id="gainst" hidden data-t="getAppBtn"></button><button type="button" class="gaclose" id="gaclose" data-t="getAppClose"></button></div></div>
 <footer>
@@ -1069,7 +1160,7 @@ const UI = {
     seoDesc:"Aluguel de lancha em Búzios (RJ) com marinheiro, combustível, carvão, gelo e água mineral inclusos. Passeios privativos de 4 ou 7 horas para até 16 pessoas. Consulte pelo WhatsApp.",
     seoBoatTitle:"{name}: lancha de {feet} pés para até {cap} pessoas em Búzios | Búzios Lanchas",
     seoBoatTail:"Passeio de lancha privativo em Búzios, com marinheiro e combustível inclusos.",
-    heroTitle:"Aluguel de lancha em Búzios, no <em>tamanho certo</em> para o seu grupo.",
+    heroTitle:"Aluguel de lancha em Búzios", heroLead:"No tamanho certo para o seu grupo, com marinheiro e combustível inclusos.", barT:"Lanchas em Búzios", barSub:"Com marinheiro", barGo:"Ver as lanchas", fx:["Passeio privativo, só o seu grupo a bordo","Gelo, carvão, água mineral e cooler inclusos","Traga as carnes que a equipe faz o churrasco","Reserve com o sinal e pague o resto no embarque"], heroPhotoAlt:"Grupo de amigas na piscina flutuante da lancha Miss Bardot, no mar de Búzios",
     heroText:"Passeios privativos com marinheiro, combustível, carvão, gelo e água mineral inclusos. Traga suas bebidas e carnes que a equipe prepara o churrasco a bordo. De casais a grupos de até 16 pessoas.",
     heroMeet:"Conhecer a Miss Bardot", heroAll:"Ver as lanchas disponíveis", heroRev:"+100 avaliações 5 estrelas no Google",
     fleetEyebrow:"Nossas lanchas", fleetTitle:"Escolha pelo tamanho do grupo",
@@ -1126,7 +1217,7 @@ const UI = {
     seoDesc:"Private boat rental in Búzios, Rio de Janeiro, with skipper, fuel, charcoal, ice and mineral water included. 4 or 7 hour tours for up to 16 people. Ask on WhatsApp.",
     seoBoatTitle:"{name}: {feet}-foot boat for up to {cap} people in Búzios | Búzios Lanchas",
     seoBoatTail:"Private boat tour in Búzios, Brazil, with skipper and fuel included.",
-    heroTitle:"Boat rental in Búzios, in the <em>right size</em> for your group.",
+    heroTitle:"Boat rental in Búzios", heroLead:"The right size for your group, with skipper and fuel included.", barT:"Boats in Búzios", barSub:"With skipper", barGo:"See the boats", fx:["Private tour, only your group on board","Ice, charcoal, water and cooler included","Bring the meat and the crew grills it for you","Book with a deposit, pay the rest when boarding"], heroPhotoAlt:"Group of friends in the Miss Bardot floating pool, in the Búzios sea",
     heroText:"Private tours with skipper, fuel, charcoal, ice and mineral water included. Bring your drinks and meat and the crew will grill on board. From couples to groups of up to 16 people.",
     heroMeet:"Meet Miss Bardot", heroAll:"See available boats", heroRev:"100+ five-star reviews on Google",
     fleetEyebrow:"Our boats", fleetTitle:"Choose by group size",
@@ -1183,7 +1274,7 @@ const UI = {
     seoDesc:"Alquiler de lanchas en Búzios (Río de Janeiro) con marinero, combustible, carbón, hielo y agua mineral incluidos. Paseos privados de 4 o 7 horas para hasta 16 personas. Consulta por WhatsApp.",
     seoBoatTitle:"{name}: lancha de {feet} pies para hasta {cap} personas en Búzios | Búzios Lanchas",
     seoBoatTail:"Paseo privado en lancha en Búzios, Brasil, con marinero y combustible incluidos.",
-    heroTitle:"Alquiler de lanchas en Búzios, del <em>tamaño ideal</em> para tu grupo.",
+    heroTitle:"Alquiler de lanchas en Búzios", heroLead:"Del tamaño ideal para tu grupo, con marinero y combustible incluidos.", barT:"Lanchas en Búzios", barSub:"Con marinero", barGo:"Ver las lanchas", fx:["Paseo privado, solo tu grupo a bordo","Hielo, carbón, agua mineral y cooler incluidos","Trae la carne y el equipo hace el asado","Reserva con una seña y paga el resto al embarcar"], heroPhotoAlt:"Grupo de amigas en la piscina flotante de la lancha Miss Bardot, en el mar de Búzios",
     heroText:"Paseos privados con marinero, combustible, carbón, hielo y agua mineral incluidos. Trae tus bebidas y carnes, y la tripulación prepara el asado a bordo. Desde parejas hasta grupos de hasta 16 personas.",
     heroMeet:"Conocer la Miss Bardot", heroAll:"Ver lanchas disponibles", heroRev:"+100 reseñas de 5 estrellas en Google",
     fleetEyebrow:"Nuestras lanchas", fleetTitle:"Elige según el tamaño del grupo",
@@ -1303,7 +1394,7 @@ if(CID){
     UI[l].routeNote = ["As paradas podem variar conforme o mar e o vento.","Stops may vary with the sea and the wind.","Las paradas pueden variar según el mar y el viento."][k]; });
   ["pt","en","es"].forEach(l=>{ const u=UI[l], k=i[l];
     /* textos da cidade: troca Búzios pelo nome da cidade (a empresa "Búzios Lanchas" fica) */
-    ["logoCity","coords","seoTitle","seoDesc","seoBoatTitle","seoBoatTail","heroTitle","routeTitle","routeMapAria","aboutTitle","about1","trust1p","stRouteT","whenTitle","whenWa","shareTxt"].forEach(x=>{ if(typeof u[x]==="string") u[x]=u[x].replace(/Armação dos Búzios/g,N).replace(/Búzios(?! Lanchas)/g,N); });
+    ["logoCity","coords","seoTitle","seoDesc","seoBoatTitle","seoBoatTail","heroTitle","barT","routeTitle","routeMapAria","aboutTitle","about1","trust1p","stRouteT","whenTitle","whenWa","shareTxt"].forEach(x=>{ if(typeof u[x]==="string") u[x]=u[x].replace(/Armação dos Búzios/g,N).replace(/Búzios(?! Lanchas)/g,N); });
     ["seoTitle","seoBoatTitle"].forEach(x=>{ if(typeof u[x]==="string") u[x]=u[x].replace("| Búzios Lanchas","| "+B); });
     u.coords=[`${CID.coord[0]} — Lanchas em ${N}`,`${CID.coord[1]} — Boats in ${N}`,`${CID.coord[2]} — Lanchas en ${N}`][k];
     u.logoAria=[`${B}, início`,`${B}, home`,`${B}, inicio`][k];
@@ -1414,7 +1505,7 @@ function openGRev(){
     ${document.documentElement.classList.contains("is-app") || /iphone|ipad|ipod|android/i.test(navigator.userAgent) ? "" /* no app e no celular o link sairia do site (abre o app do Google); só no computador (2026-10-24) */ : `<a class="btn" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener">${t("gRevAll")}</a>`}`;
   dl.showModal();
 }
-document.addEventListener("click", e => { const a=e.target.closest(".hero-rev,.pr-grev"); if(!a) return; e.preventDefault(); openGRev(); });
+document.addEventListener("click", e => { const a=e.target.closest(".hero-rev,.pr-grev,.fx-g"); if(!a) return; e.preventDefault(); openGRev(); });
 const t = (k,vars={}) => (UI[lang][k] ?? UI.pt[k]).replace(/\{(\w+)\}/g,(m,v)=>vars[v] ?? m);
 const tx = s => lang==="pt" ? s : ((PHRASES[s]||[])[lang==="en"?0:1] ?? s);
 const bt = (b,k) => b.i18n?.[lang]?.[k] ?? b[k];
@@ -2627,7 +2718,7 @@ function seo(b){
 /* link de compartilhar do perfil no Google (2026-10-24): abre no navegador, em outra aba, só a Lancha Miss Bardot, sem anúncios de concorrentes como na busca */
 const GOOGLE_REVIEWS = "https://share.google/kUtKdkLJN0e9gmFWg";
 /* Garantia Búzios Lanchas (2026-10-29): no painel da lancha com a empresa e o recibo; na home, só a garantia, embaixo dos botões do topo */
-const guarHTML = full => `<div class="guar"><b>🛡️ ${t("guarT")}</b><p>${t("guarP")}</p>${full?`<ul><li>🏢 ${t("guarCo")}</li><li>🧾 ${t("guarRec")}</li></ul>`:""}</div>`;
+const guarHTML = full => `<div class="guar"><b>${t("guarT")}</b><p>${t("guarP")}</p>${full?`<ul><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
 const HERO_MEET = false; // botão "Conhecer a Miss Bardot" escondido (2026-10-24); true volta com ele
 const TRUST_ICONS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>`,
@@ -2669,6 +2760,13 @@ function setCat(k){
 }
 document.addEventListener("click",e=>{ const x=e.target.closest("[data-cat]"); if(!x) return; e.preventDefault(); e.stopPropagation(); setCat(x.dataset.cat); },true);
 addEventListener("hashchange",()=>{ const k=location.hash==="#escunas"?"escuna":location.hash==="#frota"?"lancha":null; if(k && k!==cat && !route.slug){ cat=k; render(false); } });
+/* faixa de confiança rolando logo abaixo do topo (repaginada 2026-11-16): nota do Google + o padrão das lanchas; para quando a pessoa toca */
+function faixaHTML(){
+  const its = [`<a class="fx-it fx-g" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span class="fx-st" aria-hidden="true">★★★★★</span>${t("heroRev")}</a>`,
+    ...(UI[lang].fx||UI.pt.fx).map(x=>`<span class="fx-it"><span class="fx-dot" aria-hidden="true"></span>${x}</span>`)]; /* itens que não se repetem no quadro de confiança (pedido 2026-11-16) */
+  const h = its.join("");
+  return `<div class="faixa" role="region" aria-label="${t("trustTitle")}"><div class="fx-tr">${h}<span class="fx-dup" aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</span></div></div>`;
+}
 function home(){
   /* ordem escolhida pelo administrador no app (posicao, 2026-11-14); lancha sem posição vai depois, da maior para a menor */
   const sorted = catBoats().sort((a,b)=>((a.pos??1e9)-(b.pos??1e9))||(b.capacity-a.capacity)||((b.feet||0)-(a.feet||0)));
@@ -2676,20 +2774,22 @@ function home(){
   const list = [...sorted.filter(b=>b.featured), ...sorted.filter(b=>!b.featured)];
   const q = [when.de&&`data=${when.de}`, when.people&&`pessoas=${when.people}`].filter(Boolean).join("&");
   return `
-  <section class="hero" id="inicio">
+  <section class="hero${CID?"":" hero-foto"}" id="inicio">
     <div class="wrap hero-grid"><div class="hero-text">
-      <span class="coords">${t("coords")}</span>
       <h1>${t("heroTitle")}</h1>
-      <a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>
+      <p class="hero-lead">${t("heroLead")}</p>
+      ${CID?`<a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
       <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
       ${guarHTML(false)}
     </div>
+    ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c02.webp" srcset="/img/mb-c02-m.webp 800w, /img/mb-c02.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
     <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
     </ul>${guarHTML(false)}</aside>
     </div>
     <canvas id="waves" aria-hidden="true"></canvas>
   </section>
+  ${CID?"":faixaHTML()}
   <section class="section" id="frota"><div class="wrap">
     <div class="section-head">
       <div><span class="eyebrow">${t(catNow()==="escuna"?"escEyebrow":"fleetEyebrow")}</span><h2>${t(catNow()==="escuna"?"escTitle":"fleetTitle")}</h2></div>${catTabs()}
@@ -3075,4 +3175,17 @@ Promise.all([fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista
 if(location.hash.length>1) document.getElementById(location.hash==="#escunas"?"frota":location.hash.slice(1))?.scrollIntoView();
 </script>
 
+<script>/* barra fixa do celular (repaginada 2026-11-16): só na página inicial, depois do topo e longe da vitrine; nunca junto do aviso do app */
+(function(){ let tk=0, on=false; const bar=document.getElementById("barra");
+  function paint(){ const wa = noWaBtns() ? "" : `<a class="bwa" href="${greenWa()}" target="_blank" rel="noopener" aria-label="${t("waCtaB")}">${WA_SVG}</a>`;
+    bar.innerHTML = `<div class="bt"><b>${t("barT")}</b><span>${t("barSub")}</span></div><a class="btn" href="#frota" data-scroll="frota">${t("barGo")}</a>${wa}`; }
+  function check(){ tk=0; const h=document.getElementById("inicio"), f=document.getElementById("frota"), pill=document.getElementById("gapill");
+    let show=false;
+    if(h && f && pill.hidden && innerWidth<=760){ const vh=innerHeight, hb=h.getBoundingClientRect().bottom, fr=f.getBoundingClientRect(); show = hb<0 && !(fr.top<vh*0.75 && fr.bottom>vh*0.35); }
+    if(show && !on) paint();
+    if(show!==on){ on=show; bar.classList.toggle("on",on); bar.setAttribute("aria-hidden",on?"false":"true"); } }
+  addEventListener("scroll",()=>{ if(!tk) tk=requestAnimationFrame(check); },{passive:true});
+  addEventListener("resize",check);
+  bar.addEventListener("click",e=>{ const a=e.target.closest("[data-scroll]"); if(!a) return; const f=document.getElementById("frota"); if(f){ e.preventDefault(); f.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); } });
+})();</script>
 </body></html>
