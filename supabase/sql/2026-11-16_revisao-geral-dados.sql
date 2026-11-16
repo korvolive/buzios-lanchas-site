@@ -168,7 +168,7 @@ select 'media', 'sinal_maior_que_preco', p.id::text, 'sinal '||p.sinal_valor||' 
   from pedidos p where p.status in ('aprovado','pendente') and p.preco_cliente > 0 and p.sinal_valor > p.preco_cliente
 )
 select x.g, x.t, x.ref, x.d from (select distinct r.g, r.t, r.ref, r.d from r) x
- where coalesce(auth.role(), '') = 'service_role' or public.e_admin()
+ where coalesce(auth.role(), '') = 'service_role' or session_user in ('postgres', 'supabase_admin') or public.e_admin()
  order by case x.g when 'alta' then 1 when 'media' then 2 else 3 end, x.t, x.ref;
 $$;
 revoke all on function public.revisao_dados() from public, anon;
