@@ -70,7 +70,7 @@ main{padding-bottom:96px}
 <header><div class="in"><a href="/">Búzios Lanchas</a><div class="langs" role="group" aria-label="Language">
   <button type="button" data-lg="pt">PT</button><button type="button" data-lg="en">EN</button><button type="button" data-lg="es">ES</button></div></div></header>
 <main id="box"><div class="card"><p class="muted">…</p></div></main>
-<p class="selo"><picture><source media="(prefers-color-scheme: dark)" srcset="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Positivo.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1" alt="Serviços financeiros Asaas" height="40"></picture><br><small>Suporte Asaas: 0800 009 0037 · contato@asaas.com.br</small></p> <!-- selo do Asaas (BaaS) -->
+<p class="selo"><picture><source media="(prefers-color-scheme: dark)" srcset="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Positivo.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1" alt="Serviços financeiros Asaas" height="40"></picture><br><small id="asaas-sup">Suporte Asaas: 0800 009 0037 · contato@asaas.com.br</small></p> <!-- selo do Asaas (BaaS) -->
 <div class="toast" id="toast" role="status"></div>
 <div class="chwin" id="chwin" role="dialog" aria-modal="true" hidden><button type="button" class="chx" id="chx" aria-label="Fechar">✕</button><iframe id="chif" title="Chat"></iframe></div>
 <div class="fabs" id="fabs" hidden><div class="supm" id="supm" hidden></div><button type="button" class="fab" id="sup" aria-expanded="false"></button></div>
@@ -131,7 +131,7 @@ function polHTML(){ const X=POL[lg]||POL.pt; return `<div class="pay" data-m="po
 /* grava no pedido a hora do aceite (campo politica_aceita_em, Rodrigo 2026-11-15); se falhar, o cliente paga do mesmo jeito */
 document.addEventListener("change", e=>{ if(e.target.id==="pol-ok" && e.target.checked){ polOk=true; try{ localStorage.setItem(polKey(),"1"); }catch(x){}
   fetch(FN,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({acao:"aceite",p:P,k:K})}).catch(()=>{}); render(); } });
-let lg=(()=>{ try{ const s=localStorage.getItem("pagar-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[q.get("l")]?q.get("l"):T[n]?n:"pt"; })();
+let lg=(()=>{ if(T[q.get("l")]) return q.get("l"); /* link com ?l= vence a escolha antiga (revisão 2026-11-16) */ try{ const s=localStorage.getItem("pagar-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[q.get("l")]?q.get("l"):T[n]?n:"pt"; })();
 let D=null, state="wait", sdk=null, A=null, AX={}, rcOpen=q.get("recibo")==="1";
 const AS = true; /* Asaas ligado para todos os clientes em reais (Rodrigo 2026-11-11, BaaS liberado) */
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -176,7 +176,8 @@ const jHr=s=>{ const [h,m]=String(s).split(":").map(Number); return lg==="en" ? 
 function jetRows(L){ const J=D.jetski; if(!J) return ""; const W=JL[lg], fim=(()=>{ const [h,m]=J.ini.split(":").map(Number), t=h*60+m+(J.min||0)+(J.cort||0); return `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`; })();
   const lt=+D.lancha_total||0, v=+J.valor||0, o={d:jDur(J.min||0),c:J.cort?`${J.cort} min`:"",a:jHr(J.ini),b:jHr(fim)}; /* cortesia opcional: só cortesia não soma nada (2026-11-15) */
   return (lt&&v?`<li><span>${W.boat}</span><b>${brl(lt)}</b></li>`:"")+`<li><span>${tf(!J.cort?W.jet:J.min?W.jetCP:W.jetC,o)}</span><b>${v?brl(v):W.free}</b></li>`+(lt&&v?`<li><span>${W.tot}</span><b>${brl(lt+v)}</b></li>`:""); }
-function render(){
+const SUP={pt:"Suporte Asaas",en:"Asaas support",es:"Soporte Asaas"}; /* linha do selo nos 3 idiomas (revisão 2026-11-16) */
+function render(){ const su=document.getElementById("asaas-sup"); if(su) su.textContent=`${SUP[lg]||SUP.pt}: 0800 009 0037 · contato@asaas.com.br`;
   const L=T[lg]; document.documentElement.lang=lg; document.title=L.title+" · Búzios Lanchas";
   document.querySelectorAll("[data-lg]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lg===lg));
   if(state==="wait"){ box.innerHTML=`<div class="card"><p class="muted">…</p></div>`; return; }
