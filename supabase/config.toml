@@ -47,6 +47,9 @@ verify_jwt = true
 [functions.aviso-vendedor]
 verify_jwt = true
 
+[functions.bordazul-anunciar]
+verify_jwt = false
+
 [functions.cadastro-whatsapp]
 verify_jwt = false
 

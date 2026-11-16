@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Anunciar meu barco | Bordazul</title>
+<meta name="description" content="Cadastre seu barco no Bordazul: dados, documentos, fotos, o valor que você quer receber e o termo de parceria assinado pelo WhatsApp.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#071c35">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f7fb;--white:#fff;--ink:#0a1e33;--soft:#51657a;--line:#dfe7f0;--blue:#0a63e8;--blue-d:#0750c2;--navy:#071c35;--sun:#f5b82e;--sun-d:#e6a512;--chip:#e8f0fd;--ok:#127a46;--err:#c0352b;
+--r:18px;--f:"Urbanist",system-ui,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:1.0625rem;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:8px}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+.top{background:var(--navy);color:#fff}
+.top .in{max-width:760px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:800;font-size:1.35rem;letter-spacing:-.03em}
+.top .sai{margin-left:auto;color:rgba(255,255,255,.75);font-size:.92rem;background:none;border:0;font:600 .92rem var(--f);cursor:pointer;display:none}
+main{max-width:760px;margin:0 auto;padding:22px 16px 80px}
+.passos{display:flex;gap:6px;margin:4px 0 18px}
+.passos i{flex:1;height:6px;border-radius:9px;background:var(--line)}
+.passos i.on{background:var(--blue)}.passos i.ok{background:var(--sun)}
+.etq{font-weight:700;color:var(--soft);font-size:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.card{background:var(--white);border-radius:var(--r);padding:22px 18px;box-shadow:0 1px 0 var(--line)}
+.card h1{font-size:clamp(1.6rem,4.5vw,2.2rem);margin:6px 0 8px}
+.card h2{font-size:1.25rem;margin:22px 0 10px}
+.lead{color:var(--soft)}
+label{display:block;font-weight:700;font-size:.95rem;margin:16px 0 6px}
+label small{font-weight:500;color:var(--soft)}
+input,select,textarea{width:100%;min-height:50px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:500 1rem var(--f)}
+textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
+.erro-campo{border-color:var(--err)!important}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media(max-width:520px){.g2{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;border:0;background:var(--blue);color:#fff;font:700 1rem var(--f);cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--blue-d)}
+.btn.sun{background:var(--sun);color:var(--navy)}.btn.sun:hover{background:var(--sun-d)}
+.btn.claro{background:var(--chip);color:var(--blue)}
+.btn:disabled{opacity:.55;cursor:default}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.acoes .btn{flex:1 1 180px}
+.msg{margin-top:14px;padding:12px 14px;border-radius:12px;font-weight:600;display:none}
+.msg.erro{display:block;background:#fdecea;color:var(--err)}
+.msg.ok{display:block;background:#e6f5ec;color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;display:inline-flex;align-items:center;gap:8px;background:var(--chip);padding:10px 14px;border-radius:999px;font-weight:600;cursor:pointer}
+.chips input{width:auto;min-height:0;accent-color:var(--blue)}
+.arq{border:1.5px dashed var(--line);border-radius:14px;padding:14px;margin-top:12px}
+.arq h3{font-size:1.02rem}.arq p{color:var(--soft);font-size:.92rem;margin-top:2px}
+.arq .lista{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.miniatura{position:relative;width:96px;height:96px;border-radius:12px;overflow:hidden;background:var(--chip);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);font-size:.85rem}
+.miniatura img{width:100%;height:100%;object-fit:cover}
+.miniatura button{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(7,28,53,.8);color:#fff;font-size:1rem;cursor:pointer;line-height:1}
+.subir{display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:12px;background:var(--chip);color:var(--blue);font-weight:800;font-size:.85rem;cursor:pointer;text-align:center;padding:6px}
+.subir input{display:none}
+.faixa{background:var(--chip);border-radius:14px;padding:14px;margin-top:10px}
+.faixa b{color:var(--blue)}
+.cliente{color:var(--soft);font-size:.9rem;margin-top:4px}
+.termo{border:1.5px solid var(--line);border-radius:14px;padding:16px;max-height:420px;overflow:auto;background:#fbfcfe;font-size:.95rem}
+.termo h3{font-size:1rem;margin:14px 0 6px}.termo h3:first-child{margin-top:0}
+.termo p{margin:0 0 8px}
+.aceite{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-weight:500}
+.aceite input{width:22px;height:22px;min-height:0;flex:none;margin-top:2px;accent-color:var(--blue)}
+.assin{color:var(--soft);font-size:.9rem;margin-top:12px}
+.situacao{text-align:center;padding:10px 0}
+.situacao .ic{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;background:var(--chip);color:var(--blue)}
+.itens{list-style:none;padding:0;margin:14px 0 0;text-align:left}
+.itens li{padding:8px 0;border-top:1px solid var(--line);font-size:.95rem}
+.oculto{display:none!important}
+.cod{letter-spacing:.4em;font-size:1.4rem;text-align:center;font-weight:800}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+<a class="logo" href="/"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#0a63e8"/><path d="M5 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2 2.2-2 4.4-2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M8 23c2 0 2-1.6 4-1.6s2 1.6 4 1.6 2-1.6 4-1.6 2 1.6 4 1.6" fill="none" stroke="#f5b82e" stroke-width="2.4" stroke-linecap="round"/></svg>bordazul</a>
+<button class="sai" id="sair" type="button">Sair</button>
+</div></header>
+<main>
+<div class="passos" id="passos" aria-hidden="true"></div>
+
+<!-- 0: entrar -->
+<section class="card" data-passo="0">
+  <p class="etq">Anunciar meu barco</p>
+  <h1>Seu barco no Bordazul</h1>
+  <p class="lead">Leva uns 15 minutos. Você vai precisar dos documentos do barco (TIE e seguro DPEM), da habilitação do marinheiro e de pelo menos 6 fotos. Dá para parar e continuar depois.</p>
+  <label for="tel">Seu WhatsApp <small>(com DDD)</small></label>
+  <input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="(22) 99999-9999">
+  <div id="boxCod" class="oculto">
+    <label for="cod">Código que chegou no seu WhatsApp</label>
+    <input id="cod" class="cod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+  </div>
+  <div class="acoes"><button class="btn" id="btnEntrar" type="button">Receber código no WhatsApp</button></div>
+  <div class="msg" id="m0"></div>
+</section>
+
+<!-- 1: você -->
+<section class="card oculto" data-passo="1">
+  <p class="etq">Passo 1 de 5</p>
+  <h1>Sobre você</h1>
+  <p class="lead">Quem assina o termo e recebe os pagamentos.</p>
+  <label for="nome_dono">Nome completo</label><input id="nome_dono" autocomplete="name">
+  <div class="g2">
+    <div><label for="doc_dono">CPF ou CNPJ</label><input id="doc_dono" inputmode="numeric"></div>
+    <div><label for="email">E-mail <small>(opcional)</small></label><input id="email" type="email" autocomplete="email"></div>
+  </div>
+  <div class="acoes"><button class="btn" data-ir="2" type="button">Continuar</button></div>
+  <div class="msg" id="m1"></div>
+</section>
+
+<!-- 2: barco -->
+<section class="card oculto" data-passo="2">
+  <p class="etq">Passo 2 de 5</p>
+  <h1>O barco</h1>
+  <div class="g2">
+    <div><label for="nome_lancha">Nome do barco</label><input id="nome_lancha"></div>
+    <div><label for="tipo">Tipo</label><select id="tipo">
+      <option value="lancha">Lancha</option><option value="iate">Iate</option><option value="veleiro">Veleiro</option><option value="catamara">Catamarã</option><option value="escuna">Escuna</option><option value="outro">Outro</option></select></div>
+  </div>
+  <div class="g2">
+    <div><label for="cidade">Cidade</label><select id="cidade"></select></div>
+    <div id="boxOutra" class="oculto"><label for="cidade_outra">Qual cidade?</label><input id="cidade_outra"></div>
+  </div>
+  <label for="embarque">Onde o cliente embarca <small>(marina, píer ou praia)</small></label><input id="embarque">
+  <div class="g2">
+    <div><label for="pes">Tamanho <small>(pés)</small></label><input id="pes" inputmode="decimal" placeholder="32"></div>
+    <div><label for="cap">Capacidade <small>(pessoas, sem a tripulação)</small></label><input id="cap" inputmode="numeric"></div>
+  </div>
+  <div class="g2">
+    <div><label for="modelo">Fabricante e modelo</label><input id="modelo" placeholder="Ex.: Schaefer 303"></div>
+    <div><label for="ano">Ano</label><input id="ano" inputmode="numeric"></div>
+  </div>
+  <label for="tie">Número de inscrição na Marinha (TIE)</label><input id="tie">
+  <label>O que tem a bordo</label>
+  <div class="chips" id="itens"></div>
+  <label for="descricao">Conte como é o passeio <small>(roteiro, o que está incluso)</small></label><textarea id="descricao"></textarea>
+  <h2>Marinheiro</h2>
+  <div class="g2">
+    <div><label for="marinheiro">Nome do marinheiro</label><input id="marinheiro"></div>
+    <div><label for="categoria">Habilitação</label><select id="categoria"><option value="">Escolha</option><option value="arrais">Arrais-Amador</option><option value="mestre">Mestre-Amador</option><option value="capitao">Capitão-Amador</option><option value="profissional">Profissional (MAC/MOC ou superior)</option></select></div>
+  </div>
+  <div class="acoes"><button class="btn claro" data-ir="1" type="button">Voltar</button><button class="btn" data-ir="3" type="button">Continuar</button></div>
+  <div class="msg" id="m2"></div>
+</section>
+
+<!-- 3: documentos e fotos -->
+<section class="card oculto" data-passo="3">
+  <p class="etq">Passo 3 de 5</p>
+  <h1>Documentos e fotos</h1>
+  <p class="lead">Foto ou PDF, até 15 MB cada. Só a equipe de análise vê os documentos.</p>
+  <div class="arq" data-tipo="tie"><h3>TIE (título de inscrição da embarcação)</h3><p>Frente e verso, se tiver.</p><div class="lista"></div></div>
+  <div class="arq" data-tipo="dpem"><h3>Seguro DPEM em dia</h3><p>Apólice ou comprovante.</p><div class="lista"></div></div>
+  <div class="arq" data-tipo="habilitacao"><h3>Habilitação do marinheiro</h3><p>Carteira de Arrais, Mestre ou superior.</p><div class="lista"></div></div>
+  <div class="arq" data-tipo="foto"><h3>Fotos do barco <small id="nFotos"></small></h3><p>Mínimo 6, até 15. Por fora, por dentro, proa, banheiro. Fotos claras e atuais.</p><div class="lista"></div></div>
+  <div class="acoes"><button class="btn claro" data-ir="2" type="button">Voltar</button><button class="btn" data-ir="4" type="button">Continuar</button></div>
+  <div class="msg" id="m3"></div>
+</section>
+
+<!-- 4: preço -->
+<section class="card oculto" data-passo="4">
+  <p class="etq">Passo 4 de 5</p>
+  <h1>Quanto você quer receber</h1>
+  <p class="lead">É o seu valor líquido por passeio, com marinheiro e combustível. O Bordazul soma a comissão dele por cima e o cliente vê o valor final.</p>
+  <div class="faixa" id="faixa"></div>
+  <h2>Baixa temporada <small>(maio a outubro)</small></h2>
+  <div class="g2">
+    <div><label for="baixa">Passeio de 4 horas (R$)</label><input id="baixa" inputmode="numeric"><p class="cliente" data-cli="baixa"></p></div>
+    <div><label for="baixa7">Passeio de 7 horas (R$)</label><input id="baixa7" inputmode="numeric"><p class="cliente" data-cli="baixa7"></p></div>
+  </div>
+  <h2>Alta temporada <small>(dezembro a fevereiro)</small></h2>
+  <div class="g2">
+    <div><label for="alta">Passeio de 4 horas (R$)</label><input id="alta" inputmode="numeric"><p class="cliente" data-cli="alta"></p></div>
+    <div><label for="alta7">Passeio de 7 horas (R$)</label><input id="alta7" inputmode="numeric"><p class="cliente" data-cli="alta7"></p></div>
+  </div>
+  <p class="cliente" style="margin-top:14px">Março, abril e novembro ficam entre os dois. Você pode mudar os valores depois, no painel.</p>
+  <div class="acoes"><button class="btn claro" data-ir="3" type="button">Voltar</button><button class="btn" data-ir="5" type="button">Continuar</button></div>
+  <div class="msg" id="m4"></div>
+</section>
+
+<!-- 5: termo -->
+<section class="card oculto" data-passo="5">
+  <p class="etq">Passo 5 de 5</p>
+  <h1>Termo de parceria</h1>
+  <p class="lead">Leia com calma. Ele já vem com os seus dados e os do barco.</p>
+  <div class="termo" id="termo"></div>
+  <h2>Confirme</h2>
+  <div id="aceites"></div>
+  <div class="g2">
+    <div><label for="assNome">Seu nome completo</label><input id="assNome" autocomplete="name"></div>
+    <div><label for="assCpf">CPF ou CNPJ</label><input id="assCpf" inputmode="numeric"></div>
+  </div>
+  <p class="assin" id="assTexto"></p>
+  <div id="boxCodAss" class="oculto">
+    <label for="codAss">Código que chegou no seu WhatsApp</label>
+    <input id="codAss" class="cod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+  </div>
+  <div class="acoes"><button class="btn claro" data-ir="4" type="button">Voltar</button><button class="btn sun" id="btnAssinar" type="button">Receber código para assinar</button></div>
+  <div class="msg" id="m5"></div>
+</section>
+
+<!-- 6: situação -->
+<section class="card oculto" data-passo="6">
+  <div class="situacao" id="situacao"></div>
+  <div class="acoes"><button class="btn claro oculto" id="btnCorrigir" type="button">Corrigir o cadastro</button><button class="btn claro" id="btnNovo" type="button">Anunciar outro barco</button></div>
+  <div class="msg" id="m6"></div>
+</section>
+</main>
+<script>
+(function(){
+"use strict";
+var FN = "https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/bordazul-anunciar";
+var KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
+var COMISSAO = 15; /* % somado ao valor do dono (mesmo número do painel) */
+var LS = "bz_anunciar_tk";
+var CIDADES = [["buzios","Búzios (RJ)"],["arraial","Arraial do Cabo (RJ)"],["cabo-frio","Cabo Frio (RJ)"],["rio","Rio de Janeiro (RJ)"],["angra","Angra dos Reis (RJ)"],["paraty","Paraty (RJ)"],["ilhabela","Ilhabela (SP)"],["ubatuba","Ubatuba (SP)"],["guaruja","Guarujá (SP)"],["floripa","Florianópolis (SC)"],["bombinhas","Bombinhas (SC)"],["camboriu","Balneário Camboriú (SC)"],["salvador","Salvador (BA)"],["morro","Morro de São Paulo (BA)"],["porto-seguro","Porto Seguro (BA)"],["maragogi","Maragogi (AL)"],["porto-galinhas","Porto de Galinhas (PE)"],["noronha","Fernando de Noronha (PE)"],["capitolio","Capitólio (MG)"],["paranoa","Lago Paranoá, Brasília (DF)"],["manaus","Rio Negro, Manaus (AM)"],["outra","Outra cidade"]];
+var ITENS = [["banheiro","Banheiro"],["ar","Ar-condicionado"],["som","Som"],["gerador","Gerador"],["geladeira","Geladeira"],["churrasqueira","Churrasqueira"],["tapete","Tapete flutuante"],["snorkel","Snorkel"],["stand-up","Stand up paddle"],["toldo","Toldo"],["cozinha","Cozinha"],["cabine","Cabine"]];
+var CAMPOS = ["nome_dono","doc_dono","email","nome_lancha","tipo","cidade","cidade_outra","embarque","pes","cap","modelo","ano","tie","descricao","marinheiro","categoria","baixa","baixa7","alta","alta7"];
+var FALTA = {
+  nome_dono:[1,"Escreva seu nome completo."], doc_dono:[1,"Confira o CPF ou CNPJ."], nome_lancha:[2,"Falta o nome do barco."],
+  cidade:[2,"Escolha a cidade."], embarque:[2,"Falta o local de embarque."], pes:[2,"Confira o tamanho em pés."], cap:[2,"Confira a capacidade."],
+  tie:[2,"Falta o número da TIE."], marinheiro:[2,"Falta o marinheiro e a habilitação dele."], arq_tie:[3,"Falta a TIE."], arq_dpem:[3,"Falta o seguro DPEM."],
+  arq_habilitacao:[3,"Falta a habilitação do marinheiro."], fotos:[3,"São pelo menos 6 fotos."], precos:[4,"Preencha os quatro valores."],
+  faixa:[4,"O passeio de 4 horas na baixa temporada precisa ficar dentro da faixa."], ordem:[4,"O passeio de 7 horas precisa custar mais que o de 4, e a alta temporada não pode ficar abaixo da baixa."]
+};
+var ERROS = { tel:"Confira o número do WhatsApp.", espere:"Espere um minuto para pedir outro código.", nao_configurado:"O envio de códigos está fora do ar agora. Tente de novo mais tarde.",
+  envio:"Não conseguimos mandar o código para esse número. Confira se ele tem WhatsApp.", codigo:"Código errado. Confira e tente de novo.", expirou:"O código venceu. Peça outro.",
+  tentativas:"Muitas tentativas. Peça um código novo.", token:"Sua sessão acabou. Entre de novo com o WhatsApp.", enviado:"Esse cadastro já foi enviado para análise.",
+  aceites:"Marque todas as confirmações.", nome:"O nome precisa ser igual ao do passo 1.", cpf:"O CPF ou CNPJ precisa ser igual ao do passo 1.", limite:"Você chegou ao limite de arquivos desse tipo.",
+  tipo:"Formato não aceito. Use foto (JPG, PNG, WEBP, HEIC) ou PDF.", nao_subiu:"O arquivo não terminou de subir. Tente de novo.", falhou:"Algo deu errado. Tente de novo em instantes." };
+
+var $ = function(id){ return document.getElementById(id); };
+var tk = null, cad = null, fx = null, termoAtual = null, links = {}, info = null, passoAtual = 0;
+try{ tk = localStorage.getItem(LS); }catch(e){}
+
+function api(body){
+  return fetch(FN, {method:"POST", headers:{apikey:KEY, "content-type":"application/json"}, body:JSON.stringify(body)})
+    .then(function(r){ return r.json().catch(function(){ return {erro:"falhou"}; }); })
+    .catch(function(){ return {erro:"falhou"}; });
+}
+function msg(n, t, ok){ var m = $("m"+n); m.textContent = t || ""; m.className = "msg" + (t ? (ok ? " ok" : " erro") : ""); }
+function erroTxt(r){ return ERROS[r && r.erro] || ERROS.falhou; }
+function dig(s){ return String(s||"").replace(/\D/g,""); }
+function brl(n){ return "R$ " + Math.round(n).toLocaleString("pt-BR"); }
+function guardar(t){ tk = t; try{ t ? localStorage.setItem(LS, t) : localStorage.removeItem(LS); }catch(e){} }
+
+function mostrar(n){
+  passoAtual = n;
+  document.querySelectorAll("[data-passo]").forEach(function(s){ s.classList.toggle("oculto", +s.dataset.passo !== n); });
+  var p = $("passos"); p.innerHTML = "";
+  if(n >= 1 && n <= 5) for(var i = 1; i <= 5; i++){ var b = document.createElement("i"); b.className = i < n ? "ok" : i === n ? "on" : ""; p.appendChild(b); }
+  $("sair").style.display = tk ? "block" : "none";
+  window.scrollTo(0, 0);
+  if(n === 3) desenharArquivos();
+  if(n === 4) desenharFaixa();
+  if(n === 5) desenharTermo();
+}
+
+/* monta os campos fixos */
+CIDADES.forEach(function(c){ var o = document.createElement("option"); o.value = c[0]; o.textContent = c[1]; $("cidade").appendChild(o); });
+$("cidade").insertAdjacentHTML("afterbegin", '<option value="" selected>Escolha</option>');
+ITENS.forEach(function(c){ var l = document.createElement("label"); l.innerHTML = '<input type="checkbox" value="' + c[0] + '"> '; l.appendChild(document.createTextNode(c[1])); $("itens").appendChild(l); });
+$("cidade").addEventListener("change", function(){ $("boxOutra").classList.toggle("oculto", this.value !== "outra"); });
+
+function preencher(){
+  var d = (cad && cad.dados) || {};
+  CAMPOS.forEach(function(k){ var el = $(k); if(el && d[k] != null) el.value = d[k]; });
+  if(d.doc_dono) $("doc_dono").value = d.doc_dono;
+  $("boxOutra").classList.toggle("oculto", $("cidade").value !== "outra");
+  var it = d.itens || [];
+  $("itens").querySelectorAll("input").forEach(function(c){ c.checked = it.indexOf(c.value) >= 0; });
+}
+function coletar(){
+  var o = {};
+  CAMPOS.forEach(function(k){ var el = $(k); if(el) o[k] = el.value; });
+  o.itens = [].slice.call($("itens").querySelectorAll("input:checked")).map(function(c){ return c.value; });
+  return o;
+}
+function marcarErros(lista){
+  document.querySelectorAll(".erro-campo").forEach(function(e){ e.classList.remove("erro-campo"); });
+  (lista||[]).forEach(function(k){ var el = $(k === "marinheiro" ? "marinheiro" : k === "precos" || k === "faixa" ? "baixa" : k); if(el) el.classList.add("erro-campo"); });
+}
+/* o que precisa estar certo para sair de cada passo (o servidor confere tudo de novo na assinatura) */
+function conferePasso(n){
+  var d = coletar(), f = [];
+  if(n === 1){ if(d.nome_dono.trim().split(/\s+/).length < 2) f.push("nome_dono"); var doc = dig(d.doc_dono); if(doc.length !== 11 && doc.length !== 14) f.push("doc_dono"); }
+  if(n === 2){ if(!d.nome_lancha.trim()) f.push("nome_lancha"); if(!d.cidade || (d.cidade === "outra" && !d.cidade_outra.trim())) f.push("cidade"); if(!d.embarque.trim()) f.push("embarque");
+    var pes = parseFloat(String(d.pes).replace(",", ".")); if(!(pes > 5 && pes < 200)) f.push("pes"); if(!(+d.cap >= 1)) f.push("cap"); if(!d.tie.trim()) f.push("tie"); if(!d.marinheiro.trim() || !d.categoria) f.push("marinheiro"); }
+  if(n === 3){ var a = (cad && cad.arquivos) || [], c = function(t){ return a.filter(function(x){ return x.tipo === t; }).length; };
+    if(!c("tie")) f.push("arq_tie"); if(!c("dpem")) f.push("arq_dpem"); if(!c("habilitacao")) f.push("arq_habilitacao"); if(c("foto") < 6) f.push("fotos"); }
+  if(n === 4){ var v = ["baixa","baixa7","alta","alta7"].map(function(k){ return +dig(d[k]); });
+    if(v.some(function(x){ return !x; })) f.push("precos");
+    else { if(fx && (v[0] < fx.min || v[0] > fx.max)) f.push("faixa"); if(v[2] < v[0] || v[3] < v[1] || v[1] <= v[0] || v[3] <= v[2]) f.push("ordem"); } }
+  return f;
+}
+
+function salvar(){
+  return api({acao:"salvar", token:tk, dados:coletar()}).then(function(r){
+    if(r.cadastro){ cad = r.cadastro; fx = r.faixa; termoAtual = r.termo; }
+    return r;
+  });
+}
+document.querySelectorAll("[data-ir]").forEach(function(b){
+  b.addEventListener("click", function(){
+    var ir = +b.dataset.ir, de = passoAtual;
+    if(ir > de){
+      var f = conferePasso(de);
+      marcarErros(f);
+      if(f.length){ msg(de, FALTA[f[0]] ? FALTA[f[0]][1] : "Confira os campos marcados."); return; }
+    }
+    msg(de, "");
+    b.disabled = true;
+    (de >= 1 && de <= 4 && de !== 3 ? salvar() : Promise.resolve({})).then(function(r){
+      b.disabled = false;
+      if(r.erro === "token"){ sair(); return; }
+      if(r.erro){ msg(de, erroTxt(r)); return; }
+      mostrar(ir);
+    });
+  });
+});
+
+/* entrar com o WhatsApp */
+var codPedido = false;
+$("btnEntrar").addEventListener("click", function(){
+  var b = this, tel = $("tel").value;
+  if(dig(tel).length < 10){ msg(0, ERROS.tel); return; }
+  b.disabled = true; msg(0, "");
+  if(!codPedido){
+    api({acao:"enviar", para:"entrar", tel:tel}).then(function(r){
+      b.disabled = false;
+      if(r.erro){ msg(0, erroTxt(r)); return; }
+      codPedido = true; $("boxCod").classList.remove("oculto"); $("cod").focus();
+      b.textContent = "Confirmar código"; msg(0, "Mandamos um código de 6 números para o seu WhatsApp.", true);
+    });
+  } else {
+    api({acao:"confirmar", tel:tel, codigo:$("cod").value}).then(function(r){
+      b.disabled = false;
+      if(r.erro){ msg(0, erroTxt(r)); if(r.erro === "expirou" || r.erro === "tentativas"){ codPedido = false; b.textContent = "Receber outro código"; } return; }
+      guardar(r.token); abrir();
+    });
+  }
+});
+$("tel").addEventListener("input", function(){ if(codPedido){ codPedido = false; $("boxCod").classList.add("oculto"); $("btnEntrar").textContent = "Receber código no WhatsApp"; } });
+
+function sair(){ guardar(null); cad = null; codPedido = false; $("boxCod").classList.add("oculto"); $("btnEntrar").textContent = "Receber código no WhatsApp"; mostrar(0); }
+$("sair").addEventListener("click", sair);
+
+function abrir(){
+  return api({acao:"abrir", token:tk}).then(function(r){
+    if(r.erro){ if(r.erro === "token") sair(); else msg(0, erroTxt(r)); return; }
+    cad = r.cadastro; fx = r.faixa; termoAtual = r.termo; links = r.links || {};
+    preencher();
+    if(cad.status === "rascunho"){
+      var d = cad.dados || {};
+      mostrar(!d.nome_dono ? 1 : !d.tie ? 2 : conferePasso(3).length ? 3 : !d.alta7 ? 4 : 5);
+    } else situacao();
+  });
+}
+
+/* arquivos */
+var EXT = {"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/heic":"heic","image/heif":"heic","application/pdf":"pdf"};
+var MIME = {jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",heic:"image/heic",pdf:"application/pdf"};
+var MAX = {tie:3, dpem:3, habilitacao:3, foto:15};
+function extDe(f){ var e = EXT[f.type]; if(e) return e; var m = /\.([a-z0-9]+)$/i.exec(f.name || ""); return m ? m[1].toLowerCase().replace("jpeg","jpg") : ""; }
+/* fotos grandes ficam menores antes de subir (até 2400 px) */
+function reduzir(f){
+  if(!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size < 2.5e6) return Promise.resolve(f);
+  return new Promise(function(ok){
+    var u = URL.createObjectURL(f), im = new Image();
+    im.onload = function(){
+      var s = Math.min(1, 2400 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(function(b){ ok(b ? new File([b], "foto.jpg", {type:"image/jpeg"}) : f); }, "image/jpeg", .86);
+    };
+    im.onerror = function(){ URL.revokeObjectURL(u); ok(f); };
+    im.src = u;
+  });
+}
+var locais = {};
+function subir(tipo, arquivos){
+  var fila = [].slice.call(arquivos);
+  var prox = function(){
+    var f = fila.shift();
+    if(!f){ desenharArquivos(); return; }
+    reduzir(f).then(function(g){
+      var ext = extDe(g);
+      if(!MIME[ext] || (tipo === "foto" && ext === "pdf")){ msg(3, ERROS.tipo); return prox(); }
+      if(g.size > 15 * 1048576){ msg(3, "Arquivo maior que 15 MB."); return prox(); }
+      msg(3, "Enviando " + (f.name || "arquivo") + "...", true);
+      return api({acao:"upload", token:tk, tipo:tipo, ext:ext}).then(function(r){
+        if(r.erro){ msg(3, erroTxt(r)); return; }
+        return fetch(r.url, {method:"PUT", headers:{"content-type":MIME[ext], "x-upsert":"false"}, body:g}).then(function(up){
+          if(!up.ok){ msg(3, ERROS.nao_subiu); return; }
+          return api({acao:"arquivo_ok", token:tk, path:r.path, tipo:tipo}).then(function(r2){
+            if(r2.erro){ msg(3, erroTxt(r2)); return; }
+            cad = r2.cadastro; if(/^image\/(jpeg|png|webp)$/.test(g.type)) locais[r.path] = URL.createObjectURL(g);
+            msg(3, ""); desenharArquivos();
+          });
+        }).catch(function(){ msg(3, ERROS.nao_subiu); });
+      });
+    }).then(prox);
+  };
+  prox();
+}
+function desenharArquivos(){
+  var a = (cad && cad.arquivos) || [];
+  document.querySelectorAll(".arq").forEach(function(box){
+    var tipo = box.dataset.tipo, l = box.querySelector(".lista"), meus = a.filter(function(x){ return x.tipo === tipo; });
+    l.innerHTML = "";
+    meus.forEach(function(x){
+      var m = document.createElement("div"); m.className = "miniatura";
+      var src = locais[x.path] || (!/\.(pdf|heic)$/.test(x.path) && links[x.path]);
+      if(src){ var im = document.createElement("img"); im.src = src; im.alt = ""; m.appendChild(im); }
+      else m.textContent = /\.pdf$/.test(x.path) ? "PDF" : "Foto";
+      var bt = document.createElement("button"); bt.type = "button"; bt.setAttribute("aria-label", "Remover"); bt.textContent = "×";
+      bt.onclick = function(){ bt.disabled = true; api({acao:"remover", token:tk, path:x.path}).then(function(r){ if(r.cadastro) cad = r.cadastro; else msg(3, erroTxt(r)); desenharArquivos(); }); };
+      m.appendChild(bt); l.appendChild(m);
+    });
+    if(meus.length < MAX[tipo]){
+      var s = document.createElement("label"); s.className = "subir";
+      s.innerHTML = '<input type="file" ' + (tipo === "foto" ? 'accept="image/*" multiple' : 'accept="image/*,application/pdf"') + '>' + (tipo === "foto" ? "+ Fotos" : "+ Enviar");
+      s.querySelector("input").onchange = function(){ var fs = this.files; if(fs && fs.length) subir(tipo, [].slice.call(fs, 0, MAX[tipo] - meus.length)); };
+      l.appendChild(s);
+    }
+  });
+  var nf = a.filter(function(x){ return x.tipo === "foto"; }).length;
+  $("nFotos").textContent = "(" + nf + " de no mínimo 6)";
+}
+
+/* preço */
+function desenharFaixa(){
+  var pes = (cad && cad.dados && cad.dados.pes) || "";
+  $("faixa").innerHTML = fx
+    ? "Para um barco de <b>" + String(pes).replace(/[^\d.,]/g, "") + " pés</b>, o passeio de 4 horas na baixa temporada vai de <b>" + brl(fx.min) + "</b> a <b>" + brl(fx.max) + "</b> (referência: " + brl(fx.ref) + ")."
+    : "Volte ao passo 2 e informe o tamanho do barco para ver a faixa de preço.";
+  cliente();
+}
+function cliente(){
+  ["baixa","baixa7","alta","alta7"].forEach(function(k){
+    var v = +dig($(k).value), p = document.querySelector('[data-cli="' + k + '"]');
+    p.textContent = v ? "O cliente paga " + brl(v * (1 + COMISSAO / 100)) + " (com a comissão de " + COMISSAO + "% do Bordazul)." : "";
+  });
+}
+["baixa","baixa7","alta","alta7"].forEach(function(k){ $(k).addEventListener("input", cliente); });
+
+/* termo e assinatura */
+var codAssPedido = false;
+function desenharTermo(){
+  var t = $("termo"); t.innerHTML = "";
+  (termoAtual || []).forEach(function(s){
+    var h = document.createElement("h3"); h.textContent = s.h; t.appendChild(h);
+    s.ps.forEach(function(p){ var e = document.createElement("p"); e.textContent = p; t.appendChild(e); });
+  });
+  var box = $("aceites");
+  if(!box.childNodes.length && info) info.aceites.forEach(function(a, i){
+    var l = document.createElement("label"); l.className = "aceite";
+    l.innerHTML = '<input type="checkbox" data-ac="' + i + '">'; var sp = document.createElement("span"); sp.textContent = a; l.appendChild(sp); box.appendChild(l);
+  });
+  if(info) $("assTexto").textContent = info.assinatura;
+}
+$("btnAssinar").addEventListener("click", function(){
+  var b = this, acs = [].slice.call(document.querySelectorAll("[data-ac]"));
+  if(!acs.length || acs.some(function(c){ return !c.checked; })){ msg(5, ERROS.aceites); return; }
+  if($("assNome").value.trim().split(/\s+/).length < 2){ msg(5, "Escreva seu nome completo."); return; }
+  if(dig($("assCpf").value).length < 11){ msg(5, "Escreva seu CPF ou CNPJ."); return; }
+  b.disabled = true; msg(5, "");
+  if(!codAssPedido){
+    api({acao:"enviar", para:"assinar", token:tk}).then(function(r){
+      b.disabled = false;
+      if(r.erro === "faltam"){ var k = r.faltam[0], f = FALTA[k]; msg(5, (f ? f[1] : "Falta completar o cadastro.") + " Volte e complete."); if(f){ marcarErros(r.faltam); mostrar(f[0]); msg(f[0], f[1]); } return; }
+      if(r.erro){ msg(5, erroTxt(r)); return; }
+      codAssPedido = true; $("boxCodAss").classList.remove("oculto"); $("codAss").focus();
+      b.textContent = "Assinar o termo"; msg(5, "Mandamos o código para assinar no seu WhatsApp.", true);
+    });
+  } else {
+    api({acao:"assinar", token:tk, codigo:$("codAss").value, nome:$("assNome").value, cpf:$("assCpf").value, aceites:acs.map(function(c){ return c.checked; })}).then(function(r){
+      b.disabled = false;
+      if(r.erro){ msg(5, erroTxt(r)); if(r.erro === "expirou" || r.erro === "tentativas"){ codAssPedido = false; b.textContent = "Receber outro código"; } return; }
+      cad = r.cadastro; situacao();
+    });
+  }
+});
+
+/* situação depois de enviar */
+function situacao(){
+  var s = $("situacao"), d = cad.dados || {}, st = cad.status, dc = cad.decisao || {};
+  var T = {
+    em_analise:["✓", "Recebemos o seu cadastro", "O termo foi assinado. Agora a equipe confere os documentos, as fotos e o preço. A resposta sai em geral em até 2 dias úteis, e você acompanha por esta página."],
+    correcao:["!", "Falta corrigir uma coisa", "A análise pediu um ajuste antes de colocar o barco no ar."],
+    aprovado:["✓", "Barco aprovado", "Seu barco foi aprovado. Vamos te chamar no WhatsApp para combinar a agenda e a conta de recebimento."],
+    recusado:["×", "Cadastro não aprovado", "Desta vez o cadastro não foi aprovado."]
+  }[st] || ["…", "Cadastro", ""];
+  s.innerHTML = '<div class="ic"></div><h1></h1><p class="lead" style="margin-top:8px"></p>';
+  s.querySelector(".ic").textContent = T[0]; s.querySelector("h1").textContent = (d.nome_lancha ? d.nome_lancha + ": " : "") + T[1]; s.querySelector("p").textContent = T[2];
+  if(dc.motivo){ var m = document.createElement("p"); m.className = "faixa"; m.style.textAlign = "left"; m.textContent = "Motivo: " + dc.motivo; s.appendChild(m); }
+  if(cad.assinatura){ var a = document.createElement("p"); a.className = "cliente"; a.style.marginTop = "12px";
+    a.textContent = "Termo versão " + cad.assinatura.versao + " assinado por " + cad.assinatura.nome + " em " + new Date(cad.assinatura.em).toLocaleString("pt-BR") + ". Código de verificação: " + cad.assinatura.codigo + "."; s.appendChild(a); }
+  $("btnCorrigir").classList.toggle("oculto", st !== "correcao");
+  mostrar(6);
+}
+$("btnCorrigir").addEventListener("click", function(){ codAssPedido = false; $("boxCodAss").classList.add("oculto"); $("btnAssinar").textContent = "Receber código para assinar"; mostrar(1); });
+$("btnNovo").addEventListener("click", function(){
+  var b = this; b.disabled = true;
+  api({acao:"novo", token:tk}).then(function(r){
+    b.disabled = false;
+    if(r.erro){ msg(6, erroTxt(r)); return; }
+    cad = r.cadastro; fx = null; links = {}; locais = {}; termoAtual = null; codAssPedido = false;
+    $("aceites").innerHTML = ""; preencher(); mostrar(2);
+  });
+});
+
+api({acao:"termo"}).then(function(r){ if(r && r.aceites){ info = r; if(passoAtual === 5) desenharTermo(); } });
+if(tk) abrir(); else mostrar(0);
+})();
+</script>
+</body>
+</html>
