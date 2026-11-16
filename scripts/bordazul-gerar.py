@@ -94,7 +94,7 @@ T = {
        ("Quem está por trás do Bordazul?", "A Búzios Lanchas, empresa registrada que já leva grupos para passear de lancha em Búzios.")],
   cta_p="A primeira frota já está na água. O resto do Brasil vem logo atrás.",
   cta_h="Partiu Búzios?", cta_l="Lanchas de 22 a 35 pés, para até 16 pessoas, com passeios de 4 ou 7 horas.", cta_btn="Ver lanchas em Búzios",
-  pe_h="Até a bordo.", pe_p="Escreva para a gente quando quiser: sobre um passeio, sobre o seu barco ou para saber quando a sua cidade abre.",
+  pe_lema="Bordazul: a bordo do azul.", pe_h="Até a bordo.", pe_p="Escreva para a gente quando quiser: sobre um passeio, sobre o seu barco ou para saber quando a sua cidade abre.",
   pe_selo="Lancha em Búzios",
   pe_imp="© 2026 Bordazul, uma marca da Búzios Lanchas · CNPJ 32.154.099/0001-72",
   wa_geral="Olá! Vim pelo site do Bordazul.",
@@ -150,7 +150,7 @@ T = {
        ("Who is behind Bordazul?", "Búzios Lanchas, a registered company that already takes groups on boat tours in Búzios.")],
   cta_p="The first fleet is already on the water. The rest of Brazil is right behind.",
   cta_h="Off to Búzios?", cta_l="Boats from 22 to 35 feet, for up to 16 people, on 4 or 7 hour tours.", cta_btn="See boats in Búzios",
-  pe_h="See you aboard.", pe_p="Write to us any time: about a tour, about your boat or to hear when your city opens.",
+  pe_lema="Bordazul: aboard the blue.", pe_h="See you aboard.", pe_p="Write to us any time: about a tour, about your boat or to hear when your city opens.",
   pe_selo="Motorboat in Búzios",
   pe_imp="© 2026 Bordazul, a Búzios Lanchas brand · CNPJ 32.154.099/0001-72",
   wa_geral="Hi! I found you on the Bordazul website.",
@@ -206,7 +206,7 @@ T = {
        ("¿Quién está detrás de Bordazul?", "Búzios Lanchas, empresa registrada que ya lleva grupos a pasear en lancha en Búzios.")],
   cta_p="La primera flota ya está en el agua. El resto de Brasil viene justo detrás.",
   cta_h="¿Vamos a Búzios?", cta_l="Lanchas de 22 a 35 pies, para hasta 16 personas, con paseos de 4 o 7 horas.", cta_btn="Ver lanchas en Búzios",
-  pe_h="Nos vemos a bordo.", pe_p="Escríbenos cuando quieras: sobre un paseo, sobre tu barco o para saber cuándo abre tu ciudad.",
+  pe_lema="Bordazul: a bordo del azul.", pe_h="Nos vemos a bordo.", pe_p="Escríbenos cuando quieras: sobre un paseo, sobre tu barco o para saber cuándo abre tu ciudad.",
   pe_selo="Lancha en Búzios",
   pe_imp="© 2026 Bordazul, una marca de Búzios Lanchas · CNPJ 32.154.099/0001-72",
   wa_geral="¡Hola! Llegué por el sitio de Bordazul.",
@@ -377,7 +377,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 /* rodapé */
 .pe{margin-top:clamp(80px,10vw,130px);background:var(--navy);color:#fff;padding:64px 0 36px}
 .pe .row{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
-.pe .logo{color:#fff}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
+.pe .logo{color:#fff}.pe .lema{margin-top:10px;font-weight:700;color:var(--coral);letter-spacing:.01em}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
 .pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
 .pe .imp{margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);font-size:.9rem}
 /* entradas */
@@ -559,7 +559,7 @@ def pagina(lang):
 
 <footer class="pe"><div class="wrap">
 <div class="row">
-<div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="about">{e(t["pe_p"])}</p></div>
+<div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="lema">{e(t["pe_lema"])}</p><p class="about">{e(t["pe_p"])}</p></div>
 <ul>
 <li><a href="{e(wa(t["wa_geral"]))}" rel="noopener">WhatsApp (21) 99927-2550</a></li>
 <li><a href="{e(bz)}">Búzios, RJ</a></li>
