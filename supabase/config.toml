@@ -1,0 +1,105 @@
+# Usado pelo workflow "Publicar no Supabase" (supabase-publicar.yml).
+# verify_jwt copiado do que está no ar em 2026-11-16. Função nova: acrescente aqui antes do primeiro deploy.
+project_id = "sqoperylsqcbcjpcrlnp"
+
+[functions.alerta-equipe]
+verify_jwt = true
+
+[functions.asaas]
+verify_jwt = false
+
+[functions.asaas-chaves-girar]
+verify_jwt = false
+
+[functions.asaas-docs]
+verify_jwt = false
+
+[functions.asaas-saques]
+verify_jwt = false
+
+[functions.asaas-transferir]
+verify_jwt = false
+
+[functions.avaliacao]
+verify_jwt = true
+
+[functions.aviso-chat]
+verify_jwt = true
+
+[functions.aviso-comprovante]
+verify_jwt = true
+
+[functions.aviso-equipe]
+verify_jwt = false
+
+[functions.aviso-lucas]
+verify_jwt = true
+
+[functions.aviso-preco]
+verify_jwt = true
+
+[functions.aviso-aprovacao]
+verify_jwt = false
+
+[functions.aviso-sinal]
+verify_jwt = true
+
+[functions.aviso-vendedor]
+verify_jwt = true
+
+[functions.cadastro-whatsapp]
+verify_jwt = false
+
+[functions.cambio]
+verify_jwt = false
+
+[functions.central-auto]
+verify_jwt = false
+
+[functions.chat-inativo]
+verify_jwt = false
+
+[functions.clima-alertas]
+verify_jwt = false
+
+[functions.clima-site]
+verify_jwt = false
+
+[functions.consulta-aviso]
+verify_jwt = false
+
+[functions.consulta-resgate]
+verify_jwt = false
+
+[functions.convite-email]
+verify_jwt = true
+
+[functions.entrar-celular]
+verify_jwt = false
+
+[functions.notificar]
+verify_jwt = true
+
+[functions.paypal-checkout]
+verify_jwt = false
+
+[functions.paypal-fatura]
+verify_jwt = true
+
+[functions.pedido-indisponivel]
+verify_jwt = true
+
+[functions.pedido-vendedor]
+verify_jwt = true
+
+[functions.traduzir]
+verify_jwt = true
+
+[functions.traduzir-chat]
+verify_jwt = false
+
+[functions.whatsapp-codigo]
+verify_jwt = false
+
+[functions.whatsapp-webhook]
+verify_jwt = false

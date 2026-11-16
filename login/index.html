@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script src="/marca.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#06394a">
@@ -8059,7 +8059,7 @@ async function boot(){
     S.papel = null; if(!S.admin){ const pq=()=>db("rpc/papel_painel",{method:"POST",body:{}}).then(r=>r??null, ()=>undefined); let pp = await pq(); if(pp===undefined){ await fresh(true).catch(()=>{}); pp = await pq(); } if(pp===undefined) throw Object.assign(new Error("papel"),{status:0}); /* falha de rede ou login: tenta de novo em vez de abrir como cliente */ if(pp==="operador" || pp==="auditor"){ S.papel=pp; S.admin=true; if(pp==="operador" && !["lista","pedidos"].includes(S.tab)) S.tab="pedidos"; if(pp==="auditor" && !["lista","pedidos","usuarios"].includes(S.tab)) S.tab="lista"; } }
     if(S.admin && new URLSearchParams(location.search).get("consulta")){ const qx=new URLSearchParams(location.search), cid=+qx.get("consulta"); S.tab="pedidos"; S.reqF="pendente"; history.replaceState(null,"",location.pathname);
       /* aviso "pedido esperando aprovação" (2026-11-16): o toque abre o pedido já na janela de aprovar */
-      if(qx.get("aprovar") && cid>0){ let n=0; const go=()=>{ const c=(S.cons||[]).find(x=>x.id===cid), b=c && (c.grupo ? document.querySelector(`[data-csgrp="${c.grupo}"]`) : document.querySelector(`[data-csone="${cid}"]`)); if(b){ b.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>b.click(),400); return; } if(++n<40) setTimeout(go,500); else if(!(S.cons||[]).some(c=>c.id===cid)) toast(t("csJaFoi")); }; setTimeout(go,800); } } /* aviso "não chamou no WhatsApp" */
+      if(qx.get("aprovar") && cid>0){ let n=0; const go=()=>{ const c=(S.cons||[]).find(x=>x.id===cid), b=c && (c.grupo ? document.querySelector(`[data-csgrp="${CSS.escape(String(c.grupo))}"]`) : document.querySelector(`[data-csone="${cid}"]`)); if(b){ b.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>b.click(),400); return; } if(++n<40) setTimeout(go,500); else if(!(S.cons||[]).some(c=>c.id===cid)) toast(t("csJaFoi")); }; setTimeout(go,800); } } /* aviso "não chamou no WhatsApp" */
     await socioAceitar();
     S.vend = (await db("rpc/meu_vendedor",{method:"POST",body:{}}).catch(()=>[]))[0] || null; await loadVendIds();
     S.vcid = S.vend ? await db(`vendedores?select=cidades&user_id=eq.${ses.user.id}`).then(r=>r?.[0]?.cidades||null, ()=>null) : null; /* cidades em que vende (2026-11-03) */
