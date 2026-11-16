@@ -3245,32 +3245,37 @@ if(location.hash.length>1) document.getElementById(location.hash==="#escunas"?"f
   addEventListener("resize",check);
   bar.addEventListener("click",e=>{ const a=e.target.closest("[data-scroll]"); if(!a) return; const f=document.getElementById("frota"); if(f){ e.preventDefault(); f.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); } });
 })();</script>
-<script>/* cards da home no computador (Rodrigo 2026-11-16): reordena as etiquetas para ficarem lado a lado sempre que couberem, sem esconder nenhuma */
+<script>/* cards da home no computador (Rodrigo 2026-11-16): reordena as etiquetas para ficarem lado a lado sempre que couberem, sem esconder nenhuma.
+   A lista é refeita quando os itens chegam do banco: cada etiqueta nova recebe a posição original e o encaixe roda de novo. */
 (function(){
   const mq=matchMedia("(min-width:701px)");
   function pack(ul){
-    const lis=[...ul.children]; if(lis.length<3) return;
-    if(!ul.dataset.ord) ul.dataset.ord="1", lis.forEach((l,i)=>l.dataset.o=i);
+    let lis=[...ul.children]; if(lis.length<2) return;
+    if(lis.some(l=>l.dataset.o===undefined)) lis.forEach((l,i)=>l.dataset.o=i);
     const orig=lis.slice().sort((a,b)=>a.dataset.o-b.dataset.o);
-    if(!mq.matches){ orig.forEach(l=>ul.appendChild(l)); return; }
-    const W=ul.clientWidth, gap=parseFloat(getComputedStyle(ul).columnGap)||0; if(!W) return;
-    const groups=[orig.filter(l=>!l.classList.contains("gold")),orig.filter(l=>l.classList.contains("gold"))];
-    const out=[]; let rest=0; /* espaço que sobrou na linha atual, para o próximo grupo continuar nela */
-    groups.forEach(g=>{
-      let left=g.map(l=>({l,w:l.getBoundingClientRect().width}));
-      while(left.length){
-        let room=rest>0?rest:W, row=[];
-        if(rest<=0){ left.sort((a,b)=>b.w-a.w); const f=left.shift(); row.push(f); room=W-f.w; }
-        left.sort((a,b)=>b.w-a.w);
-        for(let i=0;i<left.length;){ if(left[i].w+gap<=room+0.5){ room-=left[i].w+gap; row.push(left.splice(i,1)[0]); } else i++; }
-        if(!row.length){ rest=0; continue; }
-        out.push(...row); rest=room;
-      }
-    });
-    out.forEach(x=>ul.appendChild(x.l));
+    let out;
+    if(!mq.matches) out=orig;
+    else{
+      const W=ul.clientWidth, gap=parseFloat(getComputedStyle(ul).columnGap)||0; if(!W) return;
+      const groups=[orig.filter(l=>!l.classList.contains("gold")),orig.filter(l=>l.classList.contains("gold"))];
+      out=[]; let rest=0; /* espaço que sobrou na linha atual, para o próximo grupo continuar nela */
+      groups.forEach(g=>{
+        const left=g.map(l=>({l,w:l.getBoundingClientRect().width}));
+        while(left.length){
+          left.sort((a,b)=>b.w-a.w);
+          let room, row=[];
+          if(rest>0) room=rest; else { const f=left.shift(); row.push(f); room=W-f.w; }
+          for(let i=0;i<left.length;){ if(left[i].w+gap<=room+0.5){ room-=left[i].w+gap; row.push(left.splice(i,1)[0]); } else i++; }
+          if(!row.length){ rest=0; continue; }
+          out.push(...row.map(x=>x.l)); rest=room;
+        }
+      });
+    }
+    if(out.every((l,i)=>l===lis[i])) return; /* já está na ordem certa: não mexe (evita laço com o observador) */
+    out.forEach(l=>ul.appendChild(l));
   }
   let q=0; const run=()=>{ if(q) return; q=requestAnimationFrame(()=>{ q=0; document.querySelectorAll(".fleet-car .c-items").forEach(pack); }); };
-  new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.(".c-items,.card,.grid")||n.querySelector?.(".c-items"))))) run(); }).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(ms=>{ if(ms.some(m=>m.target.closest?.(".fleet-car")||[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.(".fleet-car,.c-items")||n.querySelector?.(".fleet-car"))))) run(); }).observe(document.body,{childList:true,subtree:true});
   addEventListener("resize",run); if(document.fonts) document.fonts.ready.then(run); run();
 })();</script>
 </body></html>
