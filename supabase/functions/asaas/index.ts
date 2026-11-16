@@ -347,10 +347,14 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
 }
 
 // confere a cobrança direto no Asaas e, se paga, marca o pedido como pago e confirma a reserva sozinha
-async function conferir(asaasId: string) {
+async function conferir(asaasId: string, status = false) {
   const { data: row } = await db.from("pagamentos_asaas").select("*").eq("asaas_id", asaasId).maybeSingle();
   if (!row) return false;
-  if (row.pago_em) return true;
+  if (row.pago_em) {
+    // já paga: o aviso do Asaas só atualiza a situação (cartão "CONFIRMED" vira "RECEIVED" quando cai no saldo), conferindo direto no Asaas
+    if (status && row.status !== "RECEIVED") { const pg = await asaas(`/payments/${encodeURIComponent(asaasId)}`); if (pg?.status && pg.status !== row.status) await db.from("pagamentos_asaas").update({ status: pg.status }).eq("id", row.id); }
+    return true;
+  }
   const pg = await asaas(`/payments/${encodeURIComponent(asaasId)}`);
   await db.from("pagamentos_asaas").update({ status: pg.status }).eq("id", row.id);
   // parcelado: o registro guarda o total (parcela × n), e a primeira parcela vale total / n
@@ -610,7 +614,7 @@ Deno.serve(async req => {
 
     // aviso do Asaas: não confia no corpo, confere a cobrança direto no Asaas
     if (b?.event && b?.payment?.id) {
-      if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id)).catch(e => console.error("webhook", e));
+      if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id), true).catch(e => console.error("webhook", e));
       return json({ ok: true });
     }
     // aviso da subconta (documento e selfie): também não confia no corpo, só manda conferir no Asaas
