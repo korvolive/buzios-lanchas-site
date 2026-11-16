@@ -129,5 +129,5 @@ jobs:
           set -euo pipefail
           for n in $FUNCOES; do
             echo "Publicando $n"
-            supabase functions deploy "$n" --project-ref "$PROJECT_REF" --use-api
+            supabase functions deploy "$n" --project-ref "$PROJECT_REF" --use-api --yes
           done
