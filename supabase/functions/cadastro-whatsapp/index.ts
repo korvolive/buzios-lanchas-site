@@ -45,6 +45,8 @@ async function codigoDe(s: string) {
   return String((b[0] * 16777216 + b[1] * 65536 + b[2] * 256 + b[3]) % 1000000).padStart(6, "0");
 }
 const contas = async (t: string) => ((await db.rpc("conta_do_celular", { t })).data || []) as { user_id: string; cliente: boolean; wa_ok: boolean }[];
+/* conta da equipe ou do painel nunca troca a senha pelo WhatsApp: troca pelo e-mail (revisão de segurança 2026-11-16) */
+const daEquipe = async (u: string) => !!(await db.rpc("e_equipe", { u })).data || !!(await db.from("papeis_painel").select("user_id").eq("user_id", u).maybeSingle()).data;
 const sessao = async (email: string, password: string) => {
   const r = await fetch(`${URL_SB}/auth/v1/token?grant_type=password`, { method: "POST", headers: { apikey: ANON, "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
   return r.json().catch(() => ({}));
@@ -195,7 +197,7 @@ Deno.serve(async req => {
     if (b.acao === "enviar") {
       const para = b.para === "senha" ? "senha" : "cadastro", acc = await contas(t);
       if (para === "cadastro" && acc.length) return json({ erro: "ja_tem" });
-      if (para === "senha" && !acc.some(a => a.cliente && a.wa_ok)) return json({ erro: "sem_conta" });
+      if (para === "senha") { const a = acc.find(x => x.cliente && x.wa_ok); if (!a || await daEquipe(a.user_id)) return json({ erro: "sem_conta" }); }
       return await mandaCodigo(t, para, b.lang);
     }
 
@@ -279,7 +281,7 @@ Deno.serve(async req => {
       if (senha.length < 6) return json({ erro: "dados" }, 400);
       const e = await confere(t, b.codigo, "senha"); if (e) return json({ erro: e }, e === "tentativas" ? 429 : 400);
       const a = (await contas(t)).find(x => x.cliente && x.wa_ok);
-      if (!a) return json({ erro: "sem_conta" });
+      if (!a || await daEquipe(a.user_id)) return json({ erro: "sem_conta" });
       const { data: u } = await db.auth.admin.updateUserById(a.user_id, { password: senha, ...((await db.auth.admin.getUserById(a.user_id)).data.user?.email_confirmed_at ? {} : { email: `wa${t}${SEM}`, email_confirm: true, user_metadata: { email_pendente: null } }) });
       return json(await sessao(u.user?.email || "", senha));
     }
