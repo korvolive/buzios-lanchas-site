@@ -77,6 +77,8 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
   --rt-sea:#0f3442; --rt-land:#25403f; --rt-shore:#35554f}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
+/* a página nunca arrasta para os lados no celular (Rodrigo 2026-11-16) */
+html{overflow-x:hidden}@supports (overflow:clip){html,body{overflow-x:clip}}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sea-deep)}
 a{color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -111,7 +113,7 @@ nav.top a:hover{opacity:1}
 html.is-app body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
 html.is-app #hdr-login{display:none}
 .login-a{display:inline-flex;align-items:center;gap:6px;color:#eaf4f6;border:1.5px solid rgba(234,244,246,.5);border-radius:999px;padding:8px 13px 8px 10px;font-weight:600;font-size:14px;line-height:1;text-decoration:none;white-space:nowrap}.login-a:hover{border-color:#eaf4f6}.login-a svg{width:18px;height:18px;flex:none}
-@media (max-width:430px){html.on-boat .login-a span{display:none}html.on-boat .login-a{padding:8px}}@media (max-width:345px){.login-a span{display:none}.login-a{padding:8px}}
+@media (max-width:480px){html.on-boat .login-a span{display:none}html.on-boat .login-a{padding:8px}}@media (max-width:345px){.login-a span{display:none}.login-a{padding:8px}}@media (max-width:340px){header.top .wrap{gap:6px}html.on-boat .logo{font-size:14.5px}html.on-boat .lang{padding-left:8px}}
 .btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;text-decoration:none;font:600 15px/1 var(--body);padding:13px 18px;border-radius:999px;background:var(--brass);color:var(--brass-ink)}
 .btn:hover{filter:brightness(1.06)}
 .btn.ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
