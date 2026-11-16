@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1467 nodes · 2425 edges · 113 communities (70 shown, 43 thin omitted)
+- 1467 nodes · 2426 edges · 113 communities (71 shown, 42 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6f02ddef`
+- Built from commit: `669c796e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -50,7 +50,7 @@
 - public.clientes
 - whatsapp-codigo/index.ts
 - ref_npm_supabase
-- traduzir-chat/index.ts
+- pedido-vendedor/index.ts
 - traduzir/index.ts
 - asaas-saques/index.ts
 - login/sw.js
@@ -128,7 +128,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (113 total, 43 thin omitted)
+## Communities (113 total, 42 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.07
@@ -271,8 +271,12 @@ Cohesion: 0.25
 Nodes (3): CORS, db, LANG
 
 ### Community 35 - "ref_npm_supabase"
-Cohesion: 0.13
-Nodes (7): CORS, db, CORS, db, CORS, db, T
+Cohesion: 0.12
+Nodes (6): CORS, db, CORS, db, CORS, db
+
+### Community 36 - "pedido-vendedor/index.ts"
+Cohesion: 0.40
+Nodes (3): CORS, db, T
 
 ### Community 37 - "traduzir/index.ts"
 Cohesion: 0.47
@@ -411,7 +415,7 @@ Cohesion: 0.19
 Nodes (6): public.ordenar_lanchas(), public.jetski_do_passeio(), public.tg_pedido_jetski_uso(), public.tirar_jetski(), public.virar_credito(), public._desc_parceiro()
 
 ## Knowledge Gaps
-- **43 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
