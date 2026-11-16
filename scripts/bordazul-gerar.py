@@ -293,15 +293,14 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
 .hero .ph .sl.on{opacity:1}
 .hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* celular: as fotos de barco aparecem inteiras no alto, o título fica sobre o fundo desfocado (a vista aérea continua cobrindo tudo) */
+/* fotos em pé (Rodrigo 2026-11-16, sem desfoque): aparecem inteiras e nítidas, e a borda some no azul-marinho do fundo; fotos deitadas cobrem o topo todo */
+.hero .ph .sl{background:var(--navy)}
 @media (max-width:720px){
- .hero .ph .sl:not(.cv)::before{content:"";position:absolute;inset:-60px;background:var(--src) center/cover;filter:blur(32px) brightness(.6) saturate(1.15)}
- .hero .ph .sl:not(.cv) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
+ .hero .ph .sl:not(.cm) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
+ .hero .ph .sl.up img{transform:translateY(-30%)} /* Miss Bardot: corta o céu, o barco fica acima do título */
 }
-/* computador (Rodrigo 2026-11-16): a foto inteira na altura do topo, sem ampliar, com as laterais sumindo num fundo desfocado da mesma foto */
 @media (min-width:721px){
- .hero .ph .sl::before{content:"";position:absolute;inset:-60px;background:var(--src) center/cover;filter:blur(32px) brightness(.6) saturate(1.15)}
- .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+ .hero .ph .sl:not(.cv) img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 }
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
@@ -467,7 +466,7 @@ def pagina(lang):
     langs = "".join(f'<a href="{PATH[l] if lang == "pt" else ("../" if l == "pt" else "../" + l + "/")}" hreflang="{HL[l]}" lang="{HL[l]}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in T)
     nav = "".join(f'<a href="{h}">{e(x)}</a>' for h, x in t["nav"])
     bz = BUZ + PATH[lang]
-    fotos = "".join(f'<div class="sl{" on" if i == 0 else ""}{" cv" if n == "mar-buzios" else ""}" style="--src:url({pre}img/{n}.jpg)"><img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{"" if i == 0 else " loading=lazy"}></div>' for i, (n, w, h) in enumerate(HERO_FOTOS))
+    fotos = "".join(f'<div class="sl{" on" if i == 0 else ""}{" cv" if w > h else ""}{" cm" if n == "mar-buzios" else ""}{" up" if n == "barco-1" else ""}" style="--src:url({pre}img/{n}.jpg)"><img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{"" if i == 0 else " loading=lazy"}></div>' for i, (n, w, h) in enumerate(HERO_FOTOS))
     cid = {k: (nome, uf, u) for _, cs in DEST for k, nome, uf, u in cs}
     cards = []
     for k in SLIPS:
