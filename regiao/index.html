@@ -11,6 +11,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06394a">
 <link rel="canonical" href="https://www.lanchasregiaodoslagos.com.br/">
+<link rel="alternate" hreflang="pt-BR" href="https://www.lanchasregiaodoslagos.com.br/"><link rel="alternate" hreflang="en" href="https://www.lanchasregiaodoslagos.com.br/en/"><link rel="alternate" hreflang="es" href="https://www.lanchasregiaodoslagos.com.br/es/"><link rel="alternate" hreflang="x-default" href="https://www.lanchasregiaodoslagos.com.br/">
 <meta property="og:title" content="Lanchas Região dos Lagos"><meta property="og:description" content="Búzios, Cabo Frio e Arraial do Cabo: escolha a cidade do seu passeio de lancha.">
 <meta property="og:image" content="https://www.lanchaembuzios.com.br/img/rt-08.jpg"><meta property="og:type" content="website">
 <link rel="icon" href="https://www.lanchaembuzios.com.br/apple-touch-icon.png"><link rel="apple-touch-icon" href="https://www.lanchaembuzios.com.br/apple-touch-icon.png">
@@ -150,8 +151,9 @@ const art = c => `<svg viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice
   ${[0,1,2,3,4].map(i=>`<path d="M0 ${185+i*26}c50-12 100-12 150 0s100 12 150 0 70-10 100-4" fill="none" stroke="#fff" stroke-opacity="${.35-i*.05}" stroke-width="1.6"/>`).join("")}
   <path d="M232 214h52l-9 11h-34z" fill="#fff" opacity=".9"/><path d="M250 212v-22l15 22z" fill="#c99a2e"/></svg>`;
 const params = new URLSearchParams(location.search);
-let lang = (()=>{ const q=params.get("lang"); if(T[q]) return q; try{ const s=localStorage.getItem("rl-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[n]?n:"pt"; })();
+/* a língua vem do endereço (/, /en/, /es/): cada língua tem a sua página para o Google (404 em /en/ e /es/, 2026-11-16) */
 const LP = {pt:"/", en:"/en/", es:"/es/"};
+let lang = (()=>{ const m=location.pathname.match(/^\/(en|es)(\/|$)/); if(m) return m[1]; const q=params.get("lang"); return T[q]?q:"pt"; })();
 function render(){
   const t=T[lang]; document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   document.querySelectorAll("[data-t]").forEach(el=>{ el.innerHTML=t[el.dataset.t]; });
@@ -164,7 +166,7 @@ function render(){
     return c.live ? `<a class="city" href="${c.url}${LP[lang]}">${pic}${body}</a>` : `<div class="city off" aria-disabled="true">${pic}${body}</div>`;
   }).join("");
 }
-document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{ lang=b.dataset.l; try{ localStorage.setItem("rl-lang",lang); }catch(e){} render(); });
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{ if(b.dataset.l!==lang) location.href=LP[b.dataset.l]; });
 render();
 /* a cidade entra no ar sozinha quando tiver lancha publicada no app (ativa, não oculta) */
 const API="https://sqoperylsqcbcjpcrlnp.supabase.co/rest/v1/lanchas", KEY="sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
