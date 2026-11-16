@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-16)
 
 ## Corpus Check
-- 188 files · ~403,532 words
+- 188 files · ~404,051 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `50fb33c4`
+- Built from commit: `df839900`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -423,11 +423,11 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public.anotacoes` to `public.pedidos`, `public.consultas`, `public.anotacoes`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.ativar_conta_cliente()` connect `public.ativar_conta_cliente` to `public.anotacoes`, `public.origem_reserva`, `public.jetski_do_passeio`, `public.anotacoes`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `public.marcar_wa()` connect `public.bloqueios` to `public._pre_reserva_volta`, `public.clientes`, `public.consultas`, `public.pedidos`, `public.ativar_conta_cliente`, `public.anotacoes`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06001984126984127 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**

@@ -43,8 +43,19 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.04}p{marg
 .top .btn{min-height:44px;padding:0 20px;font-size:.95rem}
 /* capa */
 .hero{position:relative;margin:4px var(--m) 0;border-radius:var(--r-lg);overflow:hidden;height:min(84svh,800px);min-height:560px;background:var(--navy);color:#fff}
-.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:opacity 1.6s ease,transform 7s linear}
-.hero .ph img.on{opacity:1;transform:scale(1)}
+.hero .ph .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;overflow:hidden}
+.hero .ph .sl.on{opacity:1}
+.hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* celular: as fotos de barco aparecem inteiras no alto, o título fica sobre o fundo desfocado (a vista aérea continua cobrindo tudo) */
+@media (max-width:720px){
+ .hero .ph .sl:not(.cv)::before{content:"";position:absolute;inset:-60px;background:var(--src) center/cover;filter:blur(32px) brightness(.6) saturate(1.15)}
+ .hero .ph .sl:not(.cv) img{bottom:auto;height:auto;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
+}
+/* computador (Rodrigo 2026-11-16): a foto inteira na altura do topo, sem ampliar, com as laterais sumindo num fundo desfocado da mesma foto */
+@media (min-width:721px){
+ .hero .ph .sl::before{content:"";position:absolute;inset:-60px;background:var(--src) center/cover;filter:blur(32px) brightness(.6) saturate(1.15)}
+ .hero .ph img{left:62%;right:auto;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,53,.15) 0%,rgba(7,28,53,.05) 35%,rgba(7,28,53,.75) 100%);pointer-events:none}
 .hero-txt{position:absolute;left:clamp(24px,5vw,72px);right:24px;bottom:clamp(120px,14vh,150px);z-index:2;max-width:780px}
 .hero h1{font-size:clamp(2.6rem,1.4rem + 4.6vw,5.4rem)}
@@ -87,6 +98,13 @@ a.dest:hover{transform:translateY(-6px);box-shadow:0 24px 50px -24px rgba(7,28,5
 .dest.soon::after{background:linear-gradient(180deg,transparent,rgba(0,0,0,.18))}
 .wave{position:absolute;right:-30px;top:30%;width:120%;opacity:.12}
 /* passos */
+/* seções com fundo alternado, como na página da Búzios (Rodrigo 2026-11-16): claro, azul-marinho, claro, azul-claro, azul */
+#como,#perguntas{padding-bottom:clamp(80px,10vw,130px)}
+#como{background:var(--navy);color:#fff;margin-top:clamp(80px,10vw,130px)}#como .passo{color:var(--ink)}#como .sec-h p{color:rgba(255,255,255,.72)}
+#barco{background:var(--chip);padding-bottom:clamp(80px,10vw,130px);margin-top:clamp(80px,10vw,130px)}
+#perguntas{background:#0b3f91;color:#fff}#perguntas .side p{color:rgba(255,255,255,.8)}#perguntas .side .btn{background:#fff;color:#0b3f91}
+#perguntas details{color:var(--ink)}
+#perguntas .cta{background:var(--coral);color:var(--navy)}#perguntas .cta p{color:rgba(7,28,53,.82)}#perguntas .cta .btn.white{background:var(--navy);color:#fff}
 .passos{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:p}
 .passo{background:var(--white);border-radius:var(--r);padding:30px 26px 34px;transition:transform .3s var(--ease)}
 .passo:hover{transform:translateY(-4px)}
@@ -169,7 +187,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 </div></header>
 <main>
 <section class="hero">
-<div class="ph"><img src="../img/mar-buzios.jpg" width="1600" height="1080" alt="Vista aérea de Búzios y sus islas" class=on><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Lancha al atardecer en Búzios" loading=lazy><img src="../img/barco-1.jpg" width="960" height="1280" alt="Lancha anclada en las aguas verdes de Búzios" loading=lazy><img src="../img/barco-4.jpg" width="1080" height="1236" alt="En la proa frente a una isla" loading=lazy></div>
+<div class="ph"><div class="sl on cv" style="--src:url(../img/mar-buzios.jpg)"><img src="../img/mar-buzios.jpg" width="1600" height="1080" alt="Vista aérea de Búzios y sus islas"></div><div class="sl" style="--src:url(../img/barco-3.jpg)"><img src="../img/barco-3.jpg" width="1400" height="1050" alt="Lancha al atardecer en Búzios" loading=lazy></div><div class="sl" style="--src:url(../img/barco-1.jpg)"><img src="../img/barco-1.jpg" width="960" height="1280" alt="Lancha anclada en las aguas verdes de Búzios" loading=lazy></div><div class="sl" style="--src:url(../img/barco-4.jpg)"><img src="../img/barco-4.jpg" width="1080" height="1236" alt="En la proa frente a una isla" loading=lazy></div></div>
 <div class="hero-txt"><h1>Tu día en el mar,<br>en todo Brasil.</h1><p class="lead">Barcos con marinero, solo para tu grupo. Elige el destino, la fecha y cuántas personas van a bordo.</p></div>
 </section>
 <div class="search" id="busca">
@@ -246,7 +264,7 @@ document.querySelectorAll("[data-pick]").forEach(function(a){a.addEventListener(
 f.addEventListener("submit",function(ev){var o=s.options[s.selectedIndex];ev.preventDefault();if(!o.dataset.url){show();var a=out.querySelector("a");a&&a.focus();return;}
  var q=[];if(d.value&&d.value>=iso)q.push("data="+d.value);var n=+p.value;if(n>=1&&n<=99)q.push("pessoas="+n);
  location.href=o.dataset.url+(q.length?"?"+q.join("&"):"");});
-var imgs=[].slice.call(document.querySelectorAll(".hero .ph img")),i=0,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
+var imgs=[].slice.call(document.querySelectorAll(".hero .ph .sl")),i=0,red=matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(imgs.length>1&&!red){setInterval(function(){if(document.hidden)return;imgs[i].classList.remove("on");i=(i+1)%imgs.length;imgs[i].classList.add("on");},5600);}
 var io="IntersectionObserver" in window?new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target);}});},{threshold:.12}):null;
 document.querySelectorAll(".rv").forEach(function(el){if(!io){el.classList.add("in");return;}
