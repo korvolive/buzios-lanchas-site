@@ -16,6 +16,7 @@
     for(var i=0;i<prev.length;i++){ var o=prev[i]; if(px>=o.x && px<=o.x+o.w && py>=o.y && py<=o.y+o.h){ was=o; break; } }
     var alvo = was ? (was.el.isConnected ? was.el : (function(){ for(var j=0;j<cur.length;j++) if(cur[j].s===was.s) return cur[j].el; return null; })()) : null;
     if(alvo===el) return; /* é o mesmo botão: só mudou de lugar */
+    if(!alvo){ var ss=sig(el); for(var q=0;q<prev.length;q++) if(prev[q].s===ss) return; } /* nada tocável ali antes e o botão já existia na tela (só desceu um pouco): o toque vale (revisão 2026-11-16: 1º toque no WhatsApp sumia) */
     e.preventDefault(); e.stopImmediatePropagation();
     /* o botão de antes ficou coberto (janela abriu por cima): não clica nele, só ignora o toque */
     if(alvo){ var ra=alvo.getBoundingClientRect(), tp=document.elementFromPoint(ra.left+ra.width/2, ra.top+ra.height/2); if(!tp || !(tp===alvo || alvo.contains(tp) || tp.contains(alvo))) alvo=null; }
@@ -598,6 +599,8 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .pk-boards button[aria-checked="true"]{background:var(--sea);border-color:var(--sea);color:var(--surface)}
 .picker .pk-missing,.pk-slots.pk-missing button{border-color:#d9614c;box-shadow:0 0 0 1px #d9614c}
 .pk-hint{color:var(--muted);margin:10px 0 0;font-size:14px}
+.pk-pronto{animation:pkPronto .9s ease 2}
+@keyframes pkPronto{50%{transform:scale(1.04);box-shadow:0 0 0 6px rgba(37,211,102,.25)}}
 .pk-cup{display:flex;gap:10px;align-items:flex-start;margin:10px 0 0;padding:10px 12px;border:1.5px dashed var(--brass);border-radius:10px;cursor:pointer;font-size:14px}.pk-cup input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--brass);flex:none}.pk-cup small{display:block;opacity:.8;margin-top:2px}.pk-res{margin:10px 0 0;padding:10px;border-radius:8px;background:var(--chip);font-size:14px}
 .pk-res.conf{background:color-mix(in srgb,var(--brass) 18%,var(--surface))}.pk-res.conf .confnote{display:block;margin-top:10px;font-size:12.5px;line-height:1.45;opacity:.85}.pk-res.conf .confnote a{color:inherit}.pk-res.conf p{margin:0 0 6px}.pk-res.conf ul{margin:0 0 10px;padding-left:4px;list-style:none}.pk-res.conf .btn{width:100%;justify-content:center}.pk-res.ok p{margin:0 0 10px}.pk-res.ok .btn{width:100%;justify-content:center;text-align:center}.pk-res.ok .pk-or{display:block;margin:12px 0 6px;font-size:13px;opacity:.85}.pk-res.ok .btn.sec{background:transparent;color:inherit;border:1.5px solid currentColor;box-shadow:none}.pk-res.ok{background:color-mix(in srgb,#2f9e6a 16%,var(--surface))}
 .pk-res.busy{background:color-mix(in srgb,#d9614c 16%,var(--surface))}
@@ -2054,7 +2057,7 @@ function climaRender(){
     <p class="wx-src">${L.src}</p>`;
   box.hidden=false;
 }
-let seq = 0;
+let seq = 0, tapPend = 0;
 /* na data escolhida, os horários já alugados aparecem como indisponíveis */
 async function markSlots(b){
   const d=pick.date, busy=d ? await loadAgenda() : null; if(d!==pick.date) return;
@@ -2465,7 +2468,9 @@ async function showBoatStatus(b){
       if(!FOREIGN && !isTeam() && !viaVend(b) && !ME){ e.preventDefault(); return openLead(b); } /* consulta rápida: nome, WhatsApp e e-mail antes (2026-10-23) */
       track("reserva_whatsapp",b); /* consultar é só uma conversa no WhatsApp: pedido só pelo Reservar online (2026-10-23) */
       return; }
-    e.preventDefault(); missing(); };
+    e.preventDefault();
+    if(pick.date && pick.slot && pick.people){ tapPend=Date.now(); out.innerHTML=`<p class="pk-hint">${t("checking")}</p>`; return; } /* tocou enquanto confere a agenda: não some o toque (revisão 2026-11-16) */
+    missing(); };
   /* reservar online: com conta, o pedido vai direto para a Búzios Lanchas; sem conta, cria a conta e volta para cá */
   const ob=document.getElementById("book-online");
   if(ob) ob.onclick = () => { if(!btn.dataset.ready){ if(!pick.date || !pick.slot || !pick.people) missing(); return; } /* lancha ocupada nesse horário: o aviso já está na tela */
@@ -2484,9 +2489,12 @@ async function showBoatStatus(b){
   const my=++seq; out.innerHTML=`<p class="pk-hint">${t("checking")}</p>`;
   markSlots(b);
   const s=await statusFor(b,pick.date,pick.slot); if(my!==seq) return;
-  if(s==="ocupada"){ autoBook=false; out.innerHTML=`<p class="pk-res busy">${t("busy",{date:fmtDate(pick.date), slot:slotLabel(pick.slot)})}</p>`; return; }
+  if(s==="ocupada"){ autoBook=false; tapPend=0; out.innerHTML=`<p class="pk-res busy">${t("busy",{date:fmtDate(pick.date), slot:slotLabel(pick.slot)})}</p>`; return; }
   out.innerHTML="";
   btn.href=waBook(b,pick.date,pick.slot,pick.people,pick.board); btn.dataset.ready="1";
+  if(tapPend && Date.now()-tapPend<15000){ tapPend=0; /* o toque que chegou antes da agenda: a consulta rápida abre sozinha; nos outros casos o botão pisca para o 2º toque */
+    if(!autoBook && !FOREIGN && !isTeam() && !viaVend(b) && !ME && !(isClient() && CLI))setTimeout(()=>openLead(b),0);
+    else{ btn.classList.remove("pk-pronto"); void btn.offsetWidth; btn.classList.add("pk-pronto"); } }
   const vw=document.getElementById("vend-wa"); if(vw && VEND) vw.href=vendWaHref(b, vendPickMsg(b));
   if(autoBook){ out.innerHTML=`<div class="pk-res conf"><p>${t("confT")}</p><ul><li>📅 ${fmtDate(pick.date)}</li><li>🕙 ${slotLabel(pick.slot)}</li><li>👥 ${peopleLabel(pick.people)}</li>${pick.board?`<li>⚓ ${pick.board}</li>`:""}</ul><button type="button" class="btn" id="conf-go">${t("confBtn")}</button><small class="confnote">${t("confNote")}</small></div>`;
     document.getElementById("conf-go").onclick=()=>{ autoBook=false; document.getElementById("book-online")?.click(); };
