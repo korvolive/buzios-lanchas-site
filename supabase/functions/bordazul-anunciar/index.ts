@@ -13,6 +13,8 @@
 // POST { acao: "arquivo_ok", token, path, tipo }          -> { cadastro }   (depois que o arquivo subiu)
 // POST { acao: "remover", token, path }                   -> { cadastro }
 // POST { acao: "assinar", token, codigo, nome, cpf, aceites } -> { cadastro } | { erro: "faltam", faltam: [...] } | { erro: "codigo" ...}
+// POST { acao: "lista", token }                          -> { atual, barcos: [...] }  (todos os barcos desse WhatsApp)
+// POST { acao: "trocar", token, id }                      -> como "abrir", para outro barco do mesmo WhatsApp
 // POST { acao: "links", token }                           -> { links: { path: url } }  (ver as fotos e documentos já enviados)
 // POST { acao: "admin_links", id }  + login de administrador -> { links }
 // Segredos: WA_TOKEN, WA_PHONE_ID, WA_ATIVO=1 (os mesmos da whatsapp-codigo).
@@ -228,6 +230,25 @@ Deno.serve(async req => {
 
     if (acao === "abrir") return json({ cadastro: publico(c), termo: termo(c.dados, c.tel), faixa: await faixa(c.dados), links: await links(c.arquivos || [], 3600) });
     if (acao === "links") return json({ links: await links(c.arquivos || [], 3600) });
+
+    /* todos os barcos do mesmo WhatsApp, para o dono com mais de um */
+    if (acao === "lista") {
+      const { data: l } = await db.from("bz_cadastros").select("id, status, dados, arquivos, atualizado_em").eq("tel", c.tel).order("criado_em", { ascending: true }).limit(50);
+      const barcos = (l || []).map((x: any) => ({ id: x.id, status: x.status, nome: x.dados?.nome_lancha || "", cidade: x.dados?.cidade_nome || "", pes: x.dados?.pes || "",
+        foto: (x.arquivos || []).find((a: any) => a.tipo === "foto")?.path || null, em: x.atualizado_em }));
+      const lk = await links(barcos.filter(b => b.foto).map(b => ({ path: b.foto })), 3600);
+      return json({ atual: c.id, barcos: barcos.map(b => ({ ...b, foto: b.foto ? lk[b.foto] || null : null })) });
+    }
+    if (acao === "trocar") {
+      const { data: alvo } = await db.from("bz_cadastros").select("id").eq("id", String(body.id || "")).eq("tel", c.tel).maybeSingle();
+      if (!alvo) return json({ erro: "cadastro" }, 404);
+      if (alvo.id !== c.id) {
+        await db.from("bz_cadastros").update({ token_hash: null }).eq("id", c.id);
+        await db.from("bz_cadastros").update({ token_hash: c.token_hash, token_expira: c.token_expira }).eq("id", alvo.id);
+      }
+      const { data: n } = await db.from("bz_cadastros").select("*").eq("id", alvo.id).single();
+      return json({ cadastro: publico(n), termo: termo(n.dados, n.tel), faixa: await faixa(n.dados), links: await links(n.arquivos || [], 3600) });
+    }
 
     if (acao === "novo") {
       const { data: n, error } = await db.from("bz_cadastros").insert({ tel: c.tel, tel_ok_em: c.tel_ok_em, token_hash: c.token_hash, token_expira: c.token_expira,
