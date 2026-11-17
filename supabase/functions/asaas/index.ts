@@ -985,6 +985,14 @@ Deno.serve(async req => {
     // aviso da subconta (documento e selfie): também não confia no corpo, só manda conferir no Asaas
     if (/^ACCOUNT_STATUS_/.test(String(b?.event || ""))) {
       await conferirContas().catch(e => console.error("conta webhook", e));
+      // documento recusado: o aviso com o motivo e o link sai na hora (função asaas-docs; o robô de 10 em 10 min cobre se falhar)
+      if (/DOCUMENT_REJECTED|GENERAL_APPROVAL_REJECTED/.test(String(b.event))) {
+        const ch = (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data?.chave;
+        // em segundo plano: o Asaas recebe o "ok" na hora
+        const p = ch ? fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas-docs", { method: "POST", headers: { "content-type": "application/json", "x-chave": ch }, body: JSON.stringify({ rejeitados: true }) }).catch(e => console.error("rejeitados webhook", e)) : null;
+        // deno-lint-ignore no-explicit-any
+        if (p) { const er = (globalThis as any).EdgeRuntime; if (er?.waitUntil) er.waitUntil(p); else await p; }
+      }
       return json({ ok: true });
     }
 
@@ -1358,6 +1366,14 @@ Deno.serve(async req => {
       if (!r.ok) { console.error("documentos", r.status, JSON.stringify(j).slice(0, 400)); return json({ status: "sem" }); }
       const l: any[] = j.data || [];
       const falta = l.find((d) => ["NOT_SENT", "REJECTED"].includes(d.status) && d.onboardingUrl);
+      // recusado: o que foi recusado e o motivo (código gravado pelo robô de documento recusado, função asaas-docs) para o aviso na tela
+      const rejs = l.filter((d) => d.status === "REJECTED");
+      const rejT = new Set(rejs.map((d) => d.type));
+      if (rejs.length) {
+        const ur = (rejs.find((d) => d.onboardingUrl) || falta)?.onboardingUrl;
+        const { data: cr } = await db.from("asaas_contas").select("rejeicao_motivo").eq("user_id", u.id).maybeSingle();
+        if (ur) return json({ status: "pendente", url: ur, rejeitado: true, oque: rejT.has("IDENTIFICATION_SELFIE") ? (rejT.size === 1 ? "selfie" : "ambos") : "doc", motivo: cr?.rejeicao_motivo || null });
+      }
       if (falta) return json({ status: "pendente", url: falta.onboardingUrl, rejeitado: falta.status === "REJECTED" });
       // documento ainda não enviado, mas o Asaas ainda não liberou o link (está conferindo os dados do cadastro): não é "em análise"
       if (l.some((d) => ["NOT_SENT", "REJECTED"].includes(d.status))) return json({ status: "aguardando" });
