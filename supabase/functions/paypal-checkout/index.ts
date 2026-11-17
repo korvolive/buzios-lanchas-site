@@ -586,6 +586,6 @@ async function fechar(o: any, c: any, p: any, lancha: string, nome: string) {
   await avisarAdmins(nome, texto, lancha, p.data, p.id, ok).catch(e => console.error(e));
   // repasse ao dono (Rodrigo 2026-10-25): o dinheiro do PayPal fica na Búzios; avisa na hora para mandar a parte do dono o quanto antes
   const { data: rp } = await db.from("pedidos").select("lancha, repasse_dono").eq("id", p.id).maybeSingle();
-  if (rp && +rp.repasse_dono > 0 && rp.lancha !== "miss-bardot") await pushAdmins({ title: `💸 Repasse para o dono: ${brlv(+rp.repasse_dono)}`, body: `Pago pelo PayPal: ${lancha} (${dataBR(p.data)}). Saque o PayPal para o Asaas e mande a parte do dono. Está em Usuários › Repasses do PayPal.` }, `rep-${p.id}`).catch(e => console.error(e));
+  if (rp && +rp.repasse_dono > 0 && rp.lancha !== "miss-bardot") await pushAdmins({ title: `💸 Repasse para o dono: ${brlv(+rp.repasse_dono)}`, body: `Pago pelo PayPal: ${lancha} (${dataBR(p.data)}). Quando o saque do PayPal cair no Asaas, a parte do dono sai sozinha. Está em Usuários › Repasses do PayPal.` }, `rep-${p.id}`).catch(e => console.error(e));
   return json({ pago: true });
 }
