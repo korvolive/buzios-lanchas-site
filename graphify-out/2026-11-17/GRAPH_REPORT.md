@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-17)
 
 ## Corpus Check
-- 211 files · ~436,508 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1678 nodes · 2777 edges · 128 communities (77 shown, 51 thin omitted)
@@ -117,8 +115,8 @@
 4. `public.cancelar_pre_reserva()` - 14 edges
 5. `public.cancelar_pre_reserva()` - 14 edges
 6. `public._ligar_passeio()` - 14 edges
-7. `asaas()` - 13 edges
-8. `X()` - 13 edges
+7. `X()` - 13 edges
+8. `asaas()` - 13 edges
 9. `avisarDonos()` - 13 edges
 10. `public.vendas_manuais` - 13 edges
 
@@ -454,15 +452,15 @@ Nodes (4): cofre_registros_trava, public.registros_exportados, registros_exporta
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.ativar_conta_cliente`, `public.bloqueios`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06359189378057302 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `vendedores`, `public._desc_parceiro`, `2026-11-15_preco-cotado-garantido.sql`, `public.pagamentos_pp`, `public.bloqueios`?**
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `vendedores`, `public._desc_parceiro`, `2026-11-15_preco-cotado-garantido.sql`, `public.pagamentos_pp`, `public.bloqueios`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.050543637966500146 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
