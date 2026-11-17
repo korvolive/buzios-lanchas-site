@@ -52,7 +52,7 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const API = Deno.env.get("PAYPAL_ENV") === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
 const SITE = "https://www.lanchaembuzios.com.br";
-const POLITICA_VERSAO = "2026-11-15"; // versão da /cancelamento/ que o cliente aceita na página de pagamento
+const POLITICA_VERSAO = "2026-11-17"; // versão da /cancelamento/ que o cliente aceita na página de pagamento
 const SYM: Record<string, string> = { USD: "US$", EUR: "€", GBP: "£", BRL: "R$" };
 const fmt = (m: string, v: number) => `${SYM[m] || m} ${Number(v).toLocaleString(m === "BRL" ? "pt-BR" : "en-US", { minimumFractionDigits: Number.isInteger(+v) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "en");
