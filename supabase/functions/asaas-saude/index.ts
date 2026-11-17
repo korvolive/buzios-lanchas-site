@@ -111,9 +111,13 @@ Deno.serve(async (req) => {
     try {
       const saldo = +(await asaas("/finance/balance")).balance || 0;
       // parte de dono de cobrança paga sem divisão (cartão recém-confirmado ainda não entrou no saldo: fica de fora), ainda não enviada
-      const { data: sd } = await db.from("pagamentos_asaas").select("pedido, metodo, status, pago_em, wallet_id, repasse").not("pago_em", "is", null);
+      const { data: sd } = await db.from("pagamentos_asaas").select("pedido, metodo, status, pago_em, wallet_id, repasse, parcelas, antecipada").not("pago_em", "is", null);
       const comSplit = new Set((sd || []).filter((x: any) => x.wallet_id && +x.repasse > 0).map((x: any) => +x.pedido));
-      const ids = [...new Set((sd || []).filter((x: any) => !comSplit.has(+x.pedido) && !(x.metodo === "cartao" && x.status === "CONFIRMED" && Date.now() - new Date(x.pago_em).getTime() < 4 * 864e5)).map((x: any) => +x.pedido))];
+      // Rodrigo 2026-11-17: o dono só recebe quando o dinheiro do pedido cai; cartão que ainda não caiu inteiro não entra no que a Búzios deve hoje
+      const caiu = (x: any) => x?.status === "RECEIVED" || x?.status === "RECEIVED_IN_CASH" || !!x?.antecipada;
+      const naoCaiu = (x: any) => x.metodo === "cartao" && (Array.isArray(x.parcelas) && x.parcelas.length ? !x.parcelas.every(caiu) : !caiu(x));
+      const aCair = new Set((sd || []).filter(naoCaiu).map((x: any) => +x.pedido));
+      const ids = [...new Set((sd || []).filter((x: any) => !comSplit.has(+x.pedido) && !aCair.has(+x.pedido)).map((x: any) => +x.pedido))];
       const { data: ps } = ids.length ? await db.from("pedidos").select("id, repasse_dono, lancha").in("id", ids).eq("status", "aprovado").gt("repasse_dono", 0).neq("lancha", "miss-bardot") : { data: [] };
       const { data: rf } = ids.length ? await db.from("repasses_pp").select("pedido").in("pedido", ids).not("enviado_em", "is", null) : { data: [] };
       const feito = new Set((rf || []).map((x: any) => +x.pedido));

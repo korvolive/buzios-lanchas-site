@@ -393,9 +393,11 @@ function situacaoCredito(r: any) {
   const parc = Array.isArray(r.parcelas) ? r.parcelas : null;
   if (ESTORNO.test(String(r.status || "")) || parc?.some((x: any) => ESTORNO.test(String(x.status || "")))) return "estornado";
   if (r.status === "AWAITING_RISK_ANALYSIS") return "analise";
-  if (parc?.length) return parc.every((x: any) => x.status === "RECEIVED" || x.status === "RECEIVED_IN_CASH") ? "recebido" : "liberar";
-  return r.status === "RECEIVED" || r.status === "RECEIVED_IN_CASH" ? "recebido" : "liberar";
+  if (parc?.length) return parc.every((x: any) => CAIU(x)) ? "recebido" : "liberar";
+  return CAIU(r) ? "recebido" : "liberar";
 }
+// caiu no saldo da Búzios: recebido no Asaas ou antecipado (antecipação já creditada)
+const CAIU = (x: any) => x?.status === "RECEIVED" || x?.status === "RECEIVED_IN_CASH" || !!x?.antecipada;
 function creditoFinal(r: any) {
   const s = situacaoCredito(r);
   return (s === "recebido" && r.liquido != null && (r.credito_em || Array.isArray(r.parcelas))) || (s === "estornado" && !!r.conferido_em);
@@ -404,11 +406,24 @@ async function atualizarCredito(r: any) {
   if (!r?.asaas_id) return null;
   const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
   const n: any = { status: pg.status || r.status, conferido_em: new Date().toISOString() };
+  // antecipação (Rodrigo 2026-11-17): com antecipação creditada o dinheiro já está no saldo antes da data de cada parcela
+  let ant: any = null;
+  try {
+    const la = (await asaas(`/anticipations?${pg.installment ? "installment=" + encodeURIComponent(pg.installment) : "payment=" + encodeURIComponent(r.asaas_id)}&limit=10`))?.data || [];
+    const cr = la.find((a: any) => a.status === "CREDITED" || a.status === "DEBITED");
+    const ab = la.find((a: any) => ["PENDING", "SCHEDULED"].includes(a.status));
+    ant = cr ? { status: "creditada", data: cr.anticipationDate || cr.requestDate || null } : ab ? { status: "pedida", data: ab.anticipationDate || null } : null;
+  } catch (_) { /* sem permissão de antecipação na chave: segue sem */ }
+  n.antecipacao = ant;
+  const antOk = ant?.status === "creditada";
   if (pg.installment) {
     const l = ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []).sort((a: any, z: any) => (+a.installmentNumber || 0) - (+z.installmentNumber || 0));
     if (l.length) {
       const ok = (x: any) => x.status === "RECEIVED" || x.status === "RECEIVED_IN_CASH"; // creditDate vem com data futura enquanto o cartão está CONFIRMED
-      n.parcelas = l.map((x: any, i: number) => ({ n: +x.installmentNumber || i + 1, valor: +x.value, liquido: +x.netValue || null, status: x.status, previsto: x.estimatedCreditDate || x.creditDate || x.dueDate || null, credito: ok(x) ? (x.creditDate || x.paymentDate || null) : null }));
+      n.parcelas = l.map((x: any, i: number) => {
+        const a = !ok(x) && antOk && !ESTORNO.test(String(x.status || ""));
+        return { n: +x.installmentNumber || i + 1, valor: +x.value, liquido: +x.netValue || null, status: x.status, previsto: x.estimatedCreditDate || x.creditDate || x.dueDate || null, credito: ok(x) ? (x.creditDate || x.paymentDate || null) : a ? ant.data : null, antecipada: a || undefined };
+      });
       n.liquido = Math.max(0, Math.round(l.reduce((a: number, x: any) => a + (+x.netValue || 0), 0) * 100) / 100);
       const fut = n.parcelas.filter((x: any) => !x.credito).map((x: any) => x.previsto).filter(Boolean).sort();
       n.credito_previsto = fut[0] || null;
@@ -418,12 +433,51 @@ async function atualizarCredito(r: any) {
   } else {
     if (pg.netValue != null) n.liquido = Math.max(0, +pg.netValue);
     const rec = pg.status === "RECEIVED" || pg.status === "RECEIVED_IN_CASH";
-    n.credito_previsto = rec ? null : (pg.estimatedCreditDate || pg.creditDate || null);
-    n.credito_em = rec ? (pg.creditDate || pg.paymentDate || null) : null;
+    const a = !rec && antOk && !ESTORNO.test(String(pg.status || ""));
+    n.antecipada = a;
+    n.credito_previsto = rec || a ? null : (pg.estimatedCreditDate || pg.creditDate || null);
+    n.credito_em = rec ? (pg.creditDate || pg.paymentDate || null) : a ? ant.data : null;
   }
   await db.from("pagamentos_asaas").update(n).eq("id", r.id);
   return n;
 }
+
+// Rodrigo 2026-11-17: "o dono tem que receber só quando eu receber". Repasse do saldo (dono sem divisão, comissão) só com o dinheiro
+// DAQUELE pedido já no saldo da Búzios: Pix na hora; cartão quando a parcela cai (ou a antecipação é creditada). Nunca adianta com
+// dinheiro de outra venda. Regra de cobertura: paga de uma vez quando o que já caiu do pedido cobre o valor (no parcelado, costuma ser a
+// última parcela); a divisão do Asaas (split) já faz isso sozinha, parcela por parcela.
+function caixaPedido(rows: any[]) {
+  let caiu = 0, estorno = false;
+  const fut: { d: string | null; v: number }[] = [];
+  for (const r of rows) {
+    if (situacaoCredito(r) === "estornado") { estorno = true; continue; }
+    const parc = Array.isArray(r.parcelas) && r.parcelas.length ? r.parcelas : null;
+    const itens = parc ? parc.map((x: any) => ({ x, d: x.previsto || null })) : [{ x: r, d: r.credito_previsto || null }];
+    for (const { x, d } of itens) {
+      const v = +(x.liquido ?? x.valor) || 0;
+      if (CAIU(x)) caiu += v; else fut.push({ d, v });
+    }
+  }
+  fut.sort((a, z) => String(a.d || "9999").localeCompare(String(z.d || "9999")));
+  return { caiu: Math.round(caiu * 100) / 100, fut, estorno };
+}
+// data em que o dinheiro do pedido passa a cobrir "precisa": null se já cobre; "?" se nunca cobre pelo que está previsto
+function quandoCobre(cx: { caiu: number; fut: { d: string | null; v: number }[] }, precisa: number): string | null {
+  if (cx.caiu >= precisa - 0.005) return null;
+  let soma = cx.caiu;
+  for (const f of cx.fut) { soma += f.v; if (soma >= precisa - 0.005) return f.d || "?"; }
+  return "?";
+}
+// confere no Asaas o cartão que ainda não caiu (no máximo a cada 30 min por cobrança) antes de decidir um repasse
+async function refrescar(rows: any[]) {
+  for (const r of rows) {
+    if (r.metodo !== "cartao" || creditoFinal(r)) continue;
+    if (r.conferido_em && Date.now() - new Date(r.conferido_em).getTime() < 30 * 60e3) continue;
+    const n = await atualizarCredito(r).catch((e) => (console.error("refrescar", r.pedido, e?.message), null));
+    if (n) Object.assign(r, n);
+  }
+}
+const COLS_PG = "id, pedido, metodo, asaas_id, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, antecipada, conferido_em";
 // nome de cada pessoa para a planilha: perfil, cadastro de cliente, conta Asaas ou empresa do vendedor
 async function nomes(ids: string[], contas: Map<string, any>) {
   const m = new Map<string, string>();
@@ -597,9 +651,12 @@ async function enviarSaldos() {
   await conferirContas();
   const { data: ok } = await db.from("asaas_contas").select("user_id, wallet_id").not("aprovada_em", "is", null);
   if (!ok?.length) return { ligado: true, enviados: 0 };
-  let saldo = +(await asaas("/finance/balance")).balance || 0, n = 0;
+  let saldo = +(await asaas("/finance/balance")).balance || 0, n = 0, esperando = 0;
+  // antecipação automática de cartão ligada na conta? (só informa; a regra usa o que de fato caiu em cada cobrança)
+  const antAuto = await asaas("/anticipations/configurations").then((c: any) => c?.creditCardAutomaticEnabled ?? null).catch(() => null);
   // 1. parte do dono: pago pelo Asaas sem divisão (o dono ainda não tinha conta aprovada)
-  const { data: pg } = await db.from("pagamentos_asaas").select("pedido, wallet_id, repasse").not("pago_em", "is", null);
+  const { data: pg } = await db.from("pagamentos_asaas").select(COLS_PG).not("pago_em", "is", null);
+  const doPedido = (id: number) => (pg || []).filter((r: any) => +r.pedido === +id);
   const semDiv = [...new Set((pg || []).filter((r: any) => !r.wallet_id || !(+r.repasse > 0)).map((r: any) => +r.pedido))]
     .filter((id) => !(pg || []).some((r: any) => +r.pedido === id && r.wallet_id && +r.repasse > 0));
   if (semDiv.length) {
@@ -610,6 +667,10 @@ async function enviarSaldos() {
       if (SEM_REPASSE.includes(p.lancha) || ja.has(+p.id)) continue;
       const w = await carteira(p.lancha); if (!w) continue; // dono ainda sem conta aprovada: fica no saldo dele
       const v = Math.round(+p.repasse_dono * 100) / 100;
+      // só com o dinheiro deste pedido já no saldo (cartão: parcelas que caíram); senão espera, nunca adianta com outra venda
+      const rows = doPedido(p.id); await refrescar(rows);
+      const cx = caixaPedido(rows);
+      if (cx.estorno || quandoCobre(cx, v) !== null) { esperando++; continue; }
       if (v > saldo) break;
       const { error: et } = await db.from("repasses_pp").insert({ pedido: p.id, valor: v, comprovante: "asaas:enviando" });
       if (et) continue;
@@ -627,7 +688,7 @@ async function enviarSaldos() {
   }
   // 2. comissão do vendedor/parceiro: depois do passeio, se ele aconteceu
   const vend = ok.map((c: any) => c.user_id);
-  const { data: cs } = await db.from("pedidos").select("id, vendedor, data, horario, bloqueio_id, preco_cliente, preco_base")
+  const { data: cs } = await db.from("pedidos").select("id, lancha, vendedor, data, horario, bloqueio_id, preco_cliente, preco_base, repasse_dono")
     .in("vendedor", vend).eq("status", "aprovado").is("comissao_paga", null).is("comissao_comprovante", null).order("data").limit(30);
   for (const p of cs || []) {
     const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
@@ -638,6 +699,15 @@ async function enviarSaldos() {
     const parte = vv?.indicado_por && +vv.indicacao_pct ? Math.round(bruto * +vv.indicacao_pct) / 100 : 0;
     const com = Math.round((bruto - parte) * 100) / 100;
     if (!(com > 0) || com > saldo) continue;
+    // pago pelo Asaas: só quando o dinheiro deste pedido já caído cobre a parte do dono + a comissão (o dono vem primeiro)
+    const rows = doPedido(p.id);
+    if (rows.length) {
+      await refrescar(rows);
+      const cx = caixaPedido(rows);
+      const split = rows.filter((r: any) => r.wallet_id && +r.repasse > 0).reduce((a: number, r: any) => a + +r.repasse, 0);
+      const dono = split > 0 ? split : SEM_REPASSE.includes(p.lancha) ? 0 : Math.max(+p.repasse_dono || 0, 0);
+      if (cx.estorno || quandoCobre(cx, dono + com) !== null) { esperando++; continue; }
+    }
     const { data: vok } = await db.rpc("vendedor_ok", { uid: p.vendedor });
     if (vok !== true) continue;
     const w = ok.find((c: any) => c.user_id === p.vendedor)?.wallet_id; if (!w) continue;
@@ -708,7 +778,7 @@ async function enviarSaldos() {
     if (ej) console.error("jetski_repasse", p.id, ej.message);
     saldo -= env; n++;
   }
-  return { ligado: true, enviados: n };
+  return { ligado: true, enviados: n, esperando_dinheiro: esperando, antecipacao_auto: antAuto };
 }
 
 Deno.serve(async req => {
@@ -1185,7 +1255,7 @@ Deno.serve(async req => {
     // com o comprovante. Mais as transferências avulsas do saldo (diárias etc.). Não devolve CPF, telefone, chave nem Pix copia e cola.
     if (b.acao === "planilha") {
       if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
-      const { data: pgs } = await db.from("pagamentos_asaas").select("id, pedido, metodo, asaas_id, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, conferido_em").not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1000);
+      const { data: pgs } = await db.from("pagamentos_asaas").select(COLS_PG + ", antecipacao").not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1000);
       // confere no Asaas só o que ainda pode mudar (no máximo 25 por vez, cada um no máximo a cada 5 minutos)
       const muda = (pgs || []).filter((r: any) => !creditoFinal(r) && (!r.conferido_em || Date.now() - new Date(r.conferido_em).getTime() > 5 * 60e3)).slice(0, 25);
       await Promise.all(muda.map((r: any) => atualizarCredito(r).then((n: any) => n && Object.assign(r, n)).catch(e => console.error("planilha credito", r.pedido, e?.message))));
@@ -1198,6 +1268,9 @@ Deno.serve(async req => {
       const { data: cts } = await db.from("asaas_contas").select("user_id, wallet_id, nome, aprovada_em");
       const { data: trs } = await db.from("transferencias_saldo").select("id, user_id, valor, motivo, comprovante, status, criado_em").order("criado_em", { ascending: false }).limit(500);
       const P = new Map((peds || []).map((p: any) => [p.id, p])), R = new Map((rps || []).map((r: any) => [r.pedido, r]));
+      // data prevista do repasse (Rodrigo 2026-11-17): quando o dinheiro já caído do pedido cobre a parte de cada um
+      const CX = new Map<number, any>();
+      for (const r of pgs || []) { const k = +r.pedido; if (!CX.has(k)) CX.set(k, caixaPedido((pgs || []).filter((x: any) => +x.pedido === k))); }
       const L = new Map((lns || []).map((l: any) => [l.slug, l.nome])), W = new Map((cts || []).filter((c: any) => c.wallet_id).map((c: any) => [c.wallet_id, c.user_id]));
       const C = new Map((cts || []).map((c: any) => [c.user_id, c]));
       // dono que recebe: o que tem conta Asaas aprovada; senão o primeiro cadastrado
@@ -1222,10 +1295,16 @@ Deno.serve(async req => {
           rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+rp.valor), como: c === "asaas:enviando" ? "enviando" : c.startsWith("asaas:") ? "asaas" : "fora", quando: dia(rp.enviado_em), ok: c !== "asaas:enviando", saque: c.startsWith("asaas:") ? sq(saqueDe(donoU, dia(rp.enviado_em))) : null, comprovante: (c.startsWith("asaas:") && c !== "asaas:enviando") || c.startsWith("fora:repasses/") ? "repasse" : null });
         } else if (!(base.split > 0) && p.status === "aprovado" && +p.repasse_dono > 0) {
           const ct = donoU ? C.get(donoU) : null;
-          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : base.metodo === "paypal" ? "paypal" : "aguardando", ok: false });
+          const cx = base.metodo !== "paypal" ? CX.get(+p.id) : null, prev = cx ? quandoCobre(cx, +p.repasse_dono) : null;
+          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : base.metodo === "paypal" ? "paypal" : prev ? "aguardando_credito" : "aguardando", previsto: prev && prev !== "?" ? prev : null, ok: false });
         }
         const com = p.vendedor ? r2(Math.max(0, +p.preco_cliente - +p.preco_base)) : 0;
-        if (com > 0) { const c = String(p.comissao_comprovante || ""); rep.push({ tipo: "vendedor", nome: N.get(p.vendedor) || "Vendedor", valor: com, como: p.comissao_paga ? (c.startsWith("asaas:") ? "asaas" : "fora") : "pendente", quando: dia(p.comissao_paga), ok: !!p.comissao_paga, saque: c.startsWith("asaas:") ? sq(saqueDe(p.vendedor, dia(p.comissao_paga))) : null, comprovante: p.comissao_paga && c && c !== "asaas:enviando" ? "comissao" : null }); }
+        if (com > 0) {
+          const c = String(p.comissao_comprovante || "");
+          const cx = !p.comissao_paga && base.metodo !== "paypal" ? CX.get(+p.id) : null;
+          const donoV = base.split > 0 ? base.split : SEM_REPASSE.includes(p.lancha) ? 0 : Math.max(+p.repasse_dono || 0, 0);
+          const prev = cx ? quandoCobre(cx, donoV + com) : null;
+          rep.push({ tipo: "vendedor", nome: N.get(p.vendedor) || "Vendedor", valor: com, como: p.comissao_paga ? (c.startsWith("asaas:") ? "asaas" : "fora") : "pendente", motivo: prev ? "aguardando_credito" : undefined, previsto: prev && prev !== "?" ? (prev > String(p.data) ? prev : String(p.data)) : null, quando: dia(p.comissao_paga), ok: !!p.comissao_paga, saque: c.startsWith("asaas:") ? sq(saqueDe(p.vendedor, dia(p.comissao_paga))) : null, comprovante: p.comissao_paga && c && c !== "asaas:enviando" ? "comissao" : null }); }
         const saiu = rep.reduce((a, x) => a + x.valor, 0);
         vendas.push({ pid: p.id, data: p.data, horario: p.horario, lancha: L.get(p.lancha) || p.lancha, cliente: N.get(p.cliente) || "Cliente", pedido: p.status, total: r2(+p.preco_cliente || 0), ...base, split_user: undefined, buzios: base.liquido != null ? r2(Math.max(0, base.liquido - saiu)) : null, repasses: rep });
       };
