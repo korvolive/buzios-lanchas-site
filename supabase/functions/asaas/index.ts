@@ -737,6 +737,83 @@ async function avisarEntradas(ver = false) {
   return ver ? { contas: out } : { avisos, contas: out.filter((x) => x.erro || x.marcadas != null) };
 }
 
+// ---------- PayPal -> Asaas -> dono (Rodrigo 2026-11-17) ----------
+// O PayPal saca sozinho para a conta Asaas da Búzios, somando vários pagamentos (e já convertido para reais, com taxa e câmbio).
+// Não dá para casar valor com valor; a regra é a da fila: o PayPal saca o saldo em ordem, então cada entrada cobre os pedidos
+// pagos ANTES dela, na ordem em que os clientes pagaram. Cada pedido "gasta" 90% do sinal em reais (taxa e câmbio comem até ~10%).
+// Um pedido só é coberto se o dinheiro que já caiu paga ele e todos os anteriores; se a entrada cobriu todos os anteriores,
+// a sobra (câmbio a favor) fica na Búzios e a conta zera, para a diferença não se acumular. Se faltar, espera a próxima entrada.
+const PP_FATOR = 0.9;
+function paypalCobertos(entradas: { em: number; valor: number }[], pedidos: { id: number; pago: number; est: number }[]) {
+  const E = [...entradas].sort((a, b) => a.em - b.em), P = [...pedidos].sort((a, b) => a.pago - b.pago || a.id - b.id);
+  const cob = new Set<number>(); let pool = 0, i = 0;
+  for (const e of E) {
+    pool += e.valor;
+    while (i < P.length && P[i].pago < e.em && pool + 0.005 >= P[i].est) { pool -= P[i].est; cob.add(P[i].id); i++; }
+    if (i >= P.length || P[i].pago >= e.em) pool = 0; // cobriu todos os anteriores: sobra de câmbio fica na Búzios
+  }
+  return cob;
+}
+const veioDoPaypal = (t: any) => /paypal/i.test(`${t?.description || ""} ${t?.type || ""}`);
+// lê o extrato da conta principal e registra as entradas vindas do PayPal (paypal_entradas, uma linha por movimentação)
+async function lerEntradasPaypal(desde: string) {
+  const ini = new Date(Date.parse(desde) - 3 * 36e5).toISOString().slice(0, 10);
+  const novas: any[] = [];
+  for (let off = 0, i = 0; i < 10; i++, off += 100) {
+    const l = await asaas(`/financialTransactions?startDate=${ini}&order=asc&limit=100&offset=${off}`);
+    for (const t of l?.data || []) if (t?.id && +t.value > 0 && !t.paymentId && !NAO_ENTRADA.test(String(t.type || "")) && veioDoPaypal(t)) novas.push(t);
+    if (!l?.hasMore) break;
+  }
+  if (novas.length) {
+    const { error } = await db.from("paypal_entradas").upsert(novas.map((t: any) => ({ tx_id: String(t.id), valor: Math.round(+t.value * 100) / 100, data: String(t.date || "").slice(0, 10) || null, tipo: String(t.type || "").slice(0, 60) })), { onConflict: "tx_id", ignoreDuplicates: true });
+    if (error) throw error;
+  }
+}
+// fila dos pedidos pagos no PayPal (com captura) e quais o dinheiro que já caiu cobre
+async function filaPaypal(cfg: any) {
+  const { data: ent } = await db.from("paypal_entradas").select("valor, visto_em");
+  const { data: gs } = await db.from("pagamentos_pp").select("pedido, pago_em").not("pago_em", "is", null).not("captura", "is", null).gte("pago_em", cfg.paypal_pedidos_desde);
+  const ids = [...new Set((gs || []).map((g: any) => +g.pedido))];
+  const { data: ps } = ids.length ? await db.from("pedidos").select("id, lancha, data, status, sinal_valor, jetski_valor, repasse_dono").in("id", ids) : { data: [] };
+  const { data: pa } = ids.length ? await db.from("pagamentos_asaas").select("pedido").in("pedido", ids).not("pago_em", "is", null) : { data: [] };
+  const peloAsaas = new Set((pa || []).map((r: any) => +r.pedido));
+  const fila = (ps || []).filter((p: any) => !peloAsaas.has(+p.id) && online(p) > 0)
+    .map((p: any) => ({ ...p, pago: Date.parse((gs || []).find((g: any) => +g.pedido === +p.id)!.pago_em), est: Math.round(online(p) * PP_FATOR * 100) / 100 }));
+  const cob = paypalCobertos((ent || []).map((e: any) => ({ em: Date.parse(e.visto_em), valor: +e.valor })), fila.map((p: any) => ({ id: +p.id, pago: p.pago, est: p.est })));
+  return { fila, cob, caiu: (ent || []).reduce((a: number, e: any) => a + +e.valor, 0) };
+}
+async function repassarPaypal(saldo: number) {
+  const { data: cfg } = await db.from("asaas_config").select("paypal_auto, paypal_desde, paypal_pedidos_desde").eq("id", 1).maybeSingle();
+  if (!cfg?.paypal_auto || !cfg.paypal_desde || !cfg.paypal_pedidos_desde) return null;
+  await lerEntradasPaypal(cfg.paypal_desde);
+  const { fila, cob } = await filaPaypal(cfg);
+  let enviados = 0, esperando = 0;
+  const { data: feitos } = fila.length ? await db.from("repasses_pp").select("pedido").in("pedido", fila.map((p: any) => p.id)) : { data: [] };
+  const ja = new Set((feitos || []).map((r: any) => +r.pedido));
+  for (const p of fila.sort((a: any, b: any) => a.pago - b.pago)) {
+    if (p.status !== "aprovado" || SEM_REPASSE.includes(p.lancha) || !(+p.repasse_dono > 0) || ja.has(+p.id)) continue;
+    if (!cob.has(+p.id)) { esperando++; continue; } // o dinheiro deste pedido ainda não caiu do PayPal
+    const w = await carteira(p.lancha); if (!w) continue; // dono sem conta aprovada: fica no saldo dele e sai quando aprovar
+    const v = Math.round(+p.repasse_dono * 100) / 100;
+    if (v > online(p) + 0.005) { console.error("paypal repasse maior que o sinal", p.id); continue; }
+    if (v > saldo) break;
+    const { error: et } = await db.from("repasses_pp").insert({ pedido: p.id, valor: v, comprovante: "asaas:enviando" });
+    if (et) continue; // outra rodada já pegou
+    let tr: any;
+    try { tr = await asaas("/transfers", { value: v, walletId: w }); }
+    catch (e: any) {
+      console.error("paypal dono", p.id, e?.status, e?.message);
+      if (e?.status >= 400 && e?.status < 500) await db.from("repasses_pp").delete().eq("pedido", p.id).eq("comprovante", "asaas:enviando");
+      continue; // sem resposta clara: fica travado para conferir no Asaas, nunca manda duas vezes
+    }
+    await db.from("repasses_pp").update({ comprovante: "asaas:" + tr.id, enviado_em: new Date().toISOString() }).eq("pedido", p.id);
+    saldo -= v; enviados++;
+    const nome = await nomeLancha(p.lancha);
+    await pushAdmins({ title: `PayPal caiu: ${brl(v)} enviado ao dono`, body: `${nome} (${dataBR(p.data)}): a parte do dono saiu do Asaas para a conta dele.` }, `pprep-${p.id}`).catch(e => console.error(e));
+  }
+  return { saldo, enviados, esperando };
+}
+
 async function enviarSaldos() {
   const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
   if (!cfg?.saldo_auto) return { ligado: false };
@@ -777,6 +854,10 @@ async function enviarSaldos() {
       saldo -= v; n++;
     }
   }
+  // 1b. PayPal (Rodrigo 2026-11-17): o saque automático do PayPal cai no Asaas da Búzios; a parte do dono sai sozinha
+  // quando o dinheiro do pedido dele já caiu (paypalCobertos). Miss Bardot fica na Búzios. Desligar: asaas_config.paypal_auto = false
+  const ppr = await repassarPaypal(saldo).catch(e => (console.error("paypal repasse", e?.message), null));
+  if (ppr) { saldo = ppr.saldo; n += ppr.enviados; esperando += ppr.esperando; }
   // 2. comissão do vendedor/parceiro: depois do passeio, se ele aconteceu
   const vend = ok.map((c: any) => c.user_id);
   const { data: cs } = await db.from("pedidos").select("id, lancha, vendedor, data, horario, bloqueio_id, preco_cliente, preco_base, repasse_dono")
@@ -915,6 +996,22 @@ Deno.serve(async req => {
       const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
       if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
       return json(await avisarEntradas(b.ver === true));
+    }
+    // PayPal -> Asaas: só o robô. ver = entradas sem cobrança no extrato (data, tipo, valor, se veio do PayPal; sem descrição) e a fila
+    if (b.acao === "paypal") {
+      const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
+      const { data: pc } = await db.from("asaas_config").select("paypal_auto, paypal_desde, paypal_pedidos_desde").eq("id", 1).maybeSingle();
+      const dias = Math.min(Math.max(Number(b.dias) || 30, 1), 90);
+      const ini = new Date(Date.now() - dias * 864e5).toISOString().slice(0, 10);
+      const l = await asaas(`/financialTransactions?startDate=${ini}&order=desc&limit=100`).catch((e: any) => ({ erro: e?.message }));
+      const sem = (l?.data || []).filter((t: any) => +t.value > 0 && !t.paymentId).map((t: any) => ({ data: t.date, tipo: t.type, valor: +t.value, paypal: veioDoPaypal(t) }));
+      if (pc?.paypal_desde && b.ler === true) await lerEntradasPaypal(pc.paypal_desde);
+      const f = pc?.paypal_pedidos_desde ? await filaPaypal(pc) : null;
+      const { data: rp } = f?.fila.length ? await db.from("repasses_pp").select("pedido, enviado_em").in("pedido", f.fila.map((p: any) => p.id)) : { data: [] };
+      return json({ config: pc, entradas_sem_cobranca: sem, erro: l?.erro, caiu_paypal: f?.caiu ?? 0,
+        fila: (f?.fila || []).map((p: any) => ({ pedido: p.id, lancha: p.lancha, status: p.status, gasta: p.est, dono: +p.repasse_dono || 0, coberto: f!.cob.has(+p.id), repassado: (rp || []).some((r: any) => +r.pedido === +p.id && r.enviado_em) })) });
     }
     if (b.acao === "antecipacao") {
       const ch = req.headers.get("x-chave") || "";
