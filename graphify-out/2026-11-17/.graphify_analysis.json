@@ -1058,6 +1058,9 @@
     "58": [
       "sw"
     ],
+    "59": [
+      "supabase_sql_2026_11_17_grant_jetski_pasta_authenticated"
+    ],
     "60": [
       "github_workflows_mapa_graphify",
       "github_workflows_mapa_graphify_concurrency",
@@ -1752,6 +1755,7 @@
     "56": 1.0,
     "57": 1.0,
     "58": 1.0,
+    "59": 1.0,
     "60": 0.06722689075630252,
     "61": 0.3333333333333333,
     "62": 0.15666666666666668,
@@ -1917,7 +1921,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.anotacoes`, `public.origem_reserva`?",
-      "why": "High betweenness centrality (0.024) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.026) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -1926,8 +1930,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.jetski_usos` connect `public.jetski_usos` to `public.revisao_dados`, `public.origem_reserva`, `public.anotacoes`, `public.jetski_do_passeio`, `2026-11-15_jetski-lucas.sql`?",
-      "why": "High betweenness centrality (0.018) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public.anotacoes` to `2026-11-15_preco-cotado-garantido.sql`, `public.origem_reserva`, `public.bloqueios`, `public.origem_reserva`?",
+      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -1936,8 +1940,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.anotacoes` to `2026-11-15_preco-cotado-garantido.sql`, `public.origem_reserva`, `public.bloqueios`, `public.origem_reserva`?",
-      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+      "question": "Why does `public.jetski_usos` connect `public.jetski_usos` to `public.revisao_dados`, `public.origem_reserva`, `public.anotacoes`, `public.jetski_do_passeio`, `2026-11-15_jetski-lucas.sql`?",
+      "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
