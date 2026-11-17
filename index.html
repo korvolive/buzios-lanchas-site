@@ -3163,7 +3163,7 @@ const ocultas = fetch(AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug&oc
 const BASICS_NEW = ["Marinheiro","Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Coletes para todos"];
 let dbDone = false, dbWait = false, dbAdded = 0;
 /* vídeo das lanchas cadastradas pelo app (o arquivo fica no site, em video/): slug -> [vídeo, capa] */
-const VIDEO_DB = { spartana:["video/spartana.mp4","img/spartana-video.jpg"] };
+const VIDEO_DB = { spartana:["video/spartana.mp4","img/spartana-video.jpg"], chefe:["video/chefe.mp4","img/chefe-video.jpg"] };
 /* cada cidade mostra só as lanchas dela (CIDADE, lá em cima); lancha sem cidade = Búzios */
 /* posicao = ordem na vitrine escolhida pelo administrador no app (2026-11-14); banco sem a coluna: volta para a consulta antiga */
 const lanchasURL = c => AGENDA_URL.replace("bloqueios","lanchas")+"?select=slug,nome,dados"+c+"&dados=not.is.null&dados->>exemplo=is.null&ativa=is.true&order=nome";
