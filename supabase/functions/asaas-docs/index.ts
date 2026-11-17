@@ -1,7 +1,7 @@
 // Búzios Lanchas: o que falta na conta Asaas de uma pessoa (Rodrigo 2026-11-15).
 // POST { user_id } -> { geral, dados, documentos, docs: [{ tipo, status, link }] }  (situação no Asaas, sem links nem dados pessoais)
 // POST { user_id, link: true } -> o mesmo + url: link do Asaas para a pessoa enviar o documento e a selfie (só administrador ou robô),
-//   para o administrador mandar direto quando a página do Asaas travar no aparelho dela (caso Antonio Falck 2026-11-16)
+//   para o administrador mandar direto quando a página do Asaas travar no aparelho dela (2026-11-16)
 // POST { lembrar: true } (robô, 1 vez por dia) -> push para quem ainda não enviou o documento e a selfie, até concluir
 // POST { todos: true } -> { contas: [{ user_id, nome, ...situação }] }              (todas as contas ainda não aprovadas)
 // Quem pode: administrador logado (tabela admins) ou o robô (x-chave = resgate_config.chave). Só leitura no Asaas.

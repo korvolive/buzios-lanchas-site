@@ -1,6 +1,6 @@
 -- publicar: auto
--- Telefone num padrão só (Rodrigo 2026-11-16, caso Antonio Falck): "+DDI" e o número só com dígitos, sem traço nem parênteses.
--- Ex.: "+55 (22) 98849-9888" e "+55 22-988499888" viram "+55 22988499888".
+-- Telefone num padrão só (Rodrigo 2026-11-16): "+DDI" e o número só com dígitos, sem traço nem parênteses.
+-- Ex.: "+55 (22) 99999-0000" e "+55 22-999990000" viram "+55 22999990000".
 -- O espaço depois do DDI fica: é o que o banco já exige (clientes_whatsapp_check, perfis_telefone_check) e o que o app usa para separar o país.
 -- (a 1ª versão, sem espaço, foi recusada por essas regras e não mudou nada)
 -- Vale para as colunas de telefone com formato livre. As que já guardam só dígitos (vendedor_leads, cotacoes_garantidas,
@@ -60,27 +60,4 @@ begin
   raise notice 'telefone padrao: total % corrigidos', tot;
 end $$;
 
--- número com o país errado na varredura: convite de cliente dos EUA gravado com +55 na frente do +1 (o passeio dela tem +1)
-update public.convites set telefone = '+1 7169086949', tel_dig = '17169086949'
- where regexp_replace(coalesce(telefone, ''), '\D', '', 'g') = '5517169086949';
-
--- outros números errados achados na varredura (DDI repetido, 0 antes do DDD, DDI sem espaço)
-do $$
-declare r record; t text;
-begin
-  foreach t in array array['anotacoes','clientes','consultas'] loop
-    execute format('alter table public.%I disable trigger user', t);
-    if exists (select 1 from pg_trigger where tgrelid = ('public.' || t)::regclass and tgname = 'zz_auditar') then execute format('alter table public.%I enable trigger zz_auditar', t); end if;
-  end loop;
-  for r in select * from (values ('117863553738', '+1 7863553738'), ('117169086949', '+1 7169086949'),
-                                 ('5401166781437', '+54 1166781437'), ('5491166555949', '+54 91166555949')) v(velho, novo)
-  loop
-    update public.anotacoes set telefone = r.novo where regexp_replace(coalesce(telefone, ''), '\D', '', 'g') = r.velho;
-    update public.clientes set whatsapp = r.novo where regexp_replace(coalesce(whatsapp, ''), '\D', '', 'g') = r.velho;
-    update public.consultas set telefone = r.novo where regexp_replace(coalesce(telefone, ''), '\D', '', 'g') = r.velho;
-    update public.convites set telefone = r.novo, tel_dig = regexp_replace(r.novo, '\D', '', 'g') where regexp_replace(coalesce(telefone, ''), '\D', '', 'g') = r.velho;
-  end loop;
-  foreach t in array array['anotacoes','clientes','consultas'] loop
-    execute format('alter table public.%I enable trigger user', t);
-  end loop;
-end $$;
+-- (correção pontual de números de clientes aplicada em 16/11; os números foram retirados do repositório público por LGPD)

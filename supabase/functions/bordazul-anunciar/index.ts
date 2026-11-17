@@ -283,10 +283,14 @@ Deno.serve(async req => {
     }
 
     if (acao === "novo") {
+      /* token_hash é único: tira o token do cadastro atual antes de criar o novo (antes criava primeiro e sempre dava 409) */
+      await db.from("bz_cadastros").update({ token_hash: null }).eq("id", c.id);
       const { data: n, error } = await db.from("bz_cadastros").insert({ tel: c.tel, tel_ok_em: c.tel_ok_em, token_hash: c.token_hash, token_expira: c.token_expira,
         dados: { nome_dono: c.dados?.nome_dono, doc_dono: c.dados?.doc_dono, email: c.dados?.email } }).select("*").single();
-      if (error) return json({ erro: "novo" }, 409); /* token_hash é único: um cadastro aberto por vez nesse aparelho */
-      await db.from("bz_cadastros").update({ token_hash: null }).eq("id", c.id);
+      if (error) { /* devolve o token ao cadastro atual para o dono não perder o acesso */
+        await db.from("bz_cadastros").update({ token_hash: c.token_hash, token_expira: c.token_expira }).eq("id", c.id);
+        return json({ erro: "novo" }, 409);
+      }
       return json({ cadastro: publico(n), faixa: null });
     }
 

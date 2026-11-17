@@ -1,6 +1,6 @@
 -- (substituído por 2026-11-16_telefone-padrao-v2.sql: o banco recusou esta versão e nada mudou)
--- Telefone num padrão só (Rodrigo 2026-11-16, caso Antonio Falck): "+" e os dígitos, sem espaço, traço ou parênteses.
--- Ex.: "+55 (22) 98849-9888" e "+55 22-988499888" viram "+5522988499888".
+-- Telefone num padrão só (Rodrigo 2026-11-16): "+" e os dígitos, sem espaço, traço ou parênteses.
+-- Ex.: "+55 (22) 99999-0000" e "+55 22-999990000" viram "+5522999990000".
 -- Vale para as colunas de telefone com formato livre. As que já guardam só dígitos (vendedor_leads, cotacoes_garantidas,
 -- ref_vendedor_tel, bz_cadastros e as tel_dig) ficam como estão, porque o banco compara esses dígitos direto.
 create or replace function public._tel_padrao(t text)
@@ -50,6 +50,4 @@ begin
   raise notice 'telefone padrao: total % corrigidos', tot;
 end $$;
 
--- número com o país errado na varredura: convite de cliente dos EUA gravado com +55 na frente do +1 (o passeio dela tem +1)
-update public.convites set telefone = '+17169086949', tel_dig = '17169086949'
- where regexp_replace(coalesce(telefone, ''), '\D', '', 'g') = '5517169086949';
+-- (correção pontual de números de clientes aplicada em 16/11; os números foram retirados do repositório público por LGPD)
