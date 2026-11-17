@@ -262,6 +262,19 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .install p{margin:0;font-size:15px;flex:1}
 .install .x{border:0;background:none;font-size:22px;line-height:1;color:var(--muted);padding:0 4px}
 .owners{list-style:none;margin:10px 0 0;padding:0;font-size:15px}
+/* planilha de vendas (2026-11-17): cartões compactos, informação à esquerda e valores/botões à direita */
+.pvsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pvsum span{display:flex;flex-direction:column;min-width:0;border:1px solid var(--line);border-radius:12px;padding:8px 10px}.pvsum b{font-size:16px;white-space:nowrap}
+.pvbar{display:flex;gap:8px;margin-top:10px}.pvbar .in{padding:9px 12px;font-size:15px;margin:0}.pvbar input{flex:1;min-width:0}.pvbar select{flex:none;width:auto;max-width:44%}.pvtf h2{font-size:16px}
+.pvfs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pvf{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}.pvf[aria-pressed="true"]{background:var(--brass);color:var(--brass-ink);border-color:var(--brass);font-weight:700}
+.pvlist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.pvc{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:0 12px}
+.pvc>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;cursor:pointer}.pvc>summary::-webkit-details-marker{display:none}
+.pvl{flex:1;min-width:0;overflow-wrap:anywhere;font-size:14px}.pvr{flex:none;display:flex;align-items:center;gap:6px;text-align:right}
+.pvc .chev{display:inline-block;transition:transform .2s;font-style:normal;font-size:18px;color:var(--muted)}.pvc[open] .chev{transform:rotate(90deg)}
+.pvchip{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}.pvchip.ok{background:var(--cfree);color:var(--cfree-ink)}.pvchip.wait{background:var(--half);color:var(--half-ink)}.pvchip.bad{border:1px solid var(--bad);color:var(--bad)}
+.pvd{list-style:none;margin:0;padding:0}.pvd li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.pvd li>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+.pvb{width:auto;margin:0;padding:6px 10px;font-size:13px}.pvwarn{color:var(--bad)}
+@media (max-width:420px){.pvsum b{font-size:14px}.pvc>summary{flex-wrap:wrap}.pvc>summary .pvr{margin-left:auto}}
 .owners li{padding:8px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
 .owners li span{word-break:break-all}
 .ownb{margin-top:16px}.ownb h3{margin:0 0 2px;font-size:16px}
@@ -1143,6 +1156,10 @@ const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(
   set(k,v){ try{ v==null ? localStorage.removeItem(k) : localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
 let lang = store.get("dono-lang") || (/^en/i.test(navigator.language) ? "en" : /^es/i.test(navigator.language) ? "es" : "pt");
 if(!LANGS.includes(lang)) lang="pt";
+/* planilha de vendas do administrador (2026-11-17) */
+Object.assign(T.pt, {tabPlan:"Planilha de vendas", pvCard:"Cartão {n}x", pvCard1:"Cartão", pvEst:"Estornado", pvAna:"Em análise", pvLib:"Libera {d}", pvLibS:"A liberar", pvRec:"Recebido", pvARep:"A repassar", pvDono:"Dono", pvVend:"Vendedor", pvDiv:"Recebeu na divisão do Asaas em {d}", pvDivPrev:"Recebe na divisão quando o cartão liberar ({d})", pvDivCard:"Recebe na divisão quando o cartão liberar", pvAs:"Enviado pelo Asaas em {d}", pvFora:"Pago por fora em {d}", pvEnv:"Enviando pelo Asaas", pvPendAn:"A repassar: conta Asaas do dono em análise", pvPendSem:"A repassar: dono sem conta Asaas", pvPendPp:"A repassar: pago pelo PayPal", pvPendVend:"A pagar depois do passeio", pvPend:"A repassar", pvComp:"Comprovante", pvCanc:"pedido cancelado", pvRecus:"pedido recusado", pvTrip:"passeio {d}", pvPago:"Cliente pagou em {d}", pvSinalDe:"Sinal {s} de {t}", pvRecibo:"Recibo", pvParc:"{n}ª", pvCaiu:"caiu {d}", pvLibL:"libera {d}", pvTaxa:"Taxa do Asaas", pvBz:"Fica para a Búzios", pvSRec:"Recebido", pvSLib:"A liberar", pvSRep:"A repassar", pvQ:"Buscar", pvMes:"Mês", pvTodos:"Todos os meses", pvFT:"Todos", pvFL:"A liberar", pvFR:"Recebidos", pvFP:"A repassar", pvFE:"Estornados", pvNada:"Nenhum pagamento encontrado.", pvTfT:"Outras transferências do saldo ({n})", pvAt:"Atualizado com o Asaas às {h}"});
+Object.assign(T.en, {tabPlan:"Sales sheet", pvCard:"Card {n}x", pvCard1:"Card", pvEst:"Refunded", pvAna:"Under review", pvLib:"Clears {d}", pvLibS:"Pending", pvRec:"Received", pvARep:"To pay out", pvDono:"Owner", pvVend:"Seller", pvDiv:"Received via Asaas split on {d}", pvDivPrev:"Receives via split when the card clears ({d})", pvDivCard:"Receives via split when the card clears", pvAs:"Sent via Asaas on {d}", pvFora:"Paid outside on {d}", pvEnv:"Sending via Asaas", pvPendAn:"To pay: owner Asaas account under review", pvPendSem:"To pay: owner has no Asaas account", pvPendPp:"To pay: paid via PayPal", pvPendVend:"To pay after the trip", pvPend:"To pay out", pvComp:"Receipt", pvCanc:"order cancelled", pvRecus:"order declined", pvTrip:"trip {d}", pvPago:"Client paid on {d}", pvSinalDe:"Deposit {s} of {t}", pvRecibo:"Receipt", pvParc:"#{n}", pvCaiu:"cleared {d}", pvLibL:"clears {d}", pvTaxa:"Asaas fee", pvBz:"Búzios keeps", pvSRec:"Received", pvSLib:"Pending", pvSRep:"To pay out", pvQ:"Search", pvMes:"Month", pvTodos:"All months", pvFT:"All", pvFL:"Pending", pvFR:"Received", pvFP:"To pay out", pvFE:"Refunded", pvNada:"No payments found.", pvTfT:"Other balance transfers ({n})", pvAt:"Updated from Asaas at {h}"});
+Object.assign(T.es, {tabPlan:"Planilla de ventas", pvCard:"Tarjeta {n}x", pvCard1:"Tarjeta", pvEst:"Reembolsado", pvAna:"En análisis", pvLib:"Libera {d}", pvLibS:"Por liberar", pvRec:"Recibido", pvARep:"Por repasar", pvDono:"Dueño", pvVend:"Vendedor", pvDiv:"Recibió en la división de Asaas el {d}", pvDivPrev:"Recibe en la división cuando la tarjeta libere ({d})", pvDivCard:"Recibe en la división cuando la tarjeta libere", pvAs:"Enviado por Asaas el {d}", pvFora:"Pagado por fuera el {d}", pvEnv:"Enviando por Asaas", pvPendAn:"Por repasar: cuenta Asaas del dueño en análisis", pvPendSem:"Por repasar: dueño sin cuenta Asaas", pvPendPp:"Por repasar: pagado por PayPal", pvPendVend:"A pagar después del paseo", pvPend:"Por repasar", pvComp:"Comprobante", pvCanc:"pedido cancelado", pvRecus:"pedido rechazado", pvTrip:"paseo {d}", pvPago:"El cliente pagó el {d}", pvSinalDe:"Seña {s} de {t}", pvRecibo:"Recibo", pvParc:"{n}ª", pvCaiu:"cayó {d}", pvLibL:"libera {d}", pvTaxa:"Tasa de Asaas", pvBz:"Queda para Búzios", pvSRec:"Recibido", pvSLib:"Por liberar", pvSRep:"Por repasar", pvQ:"Buscar", pvMes:"Mes", pvTodos:"Todos los meses", pvFT:"Todos", pvFL:"Por liberar", pvFR:"Recibidos", pvFP:"Por repasar", pvFE:"Reembolsados", pvNada:"Ningún pago encontrado.", pvTfT:"Otras transferencias del saldo ({n})", pvAt:"Actualizado con Asaas a las {h}"});
 const t = (k,v={}) => String(T[lang][k] ?? T.pt[k] ?? "").replace(/\{(\w+)\}/g,(m,x)=>v[x] ?? m);
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 /* e-mail com domínio digitado errado (gamail.com, hotmal.com, gmail.con...): sugere o certo */
@@ -6446,21 +6463,88 @@ function mainView(){
     + fotoPendHTML() + installHTML() + pushHTML() + (S.tab==="lista" ? teamVerHTML() : "") + (S.tab==="pedidos" || S.tab==="lista" ? bzCardHTML() : "")
     + (S.tab==="lista" ? asAvisoHTML() + recebHTML(false) : "")
     + (S.tab==="lancha" ? nbNewHTML() : "") /* "Cadastrar lancha nova" acima do seletor da lancha (2026-10-25) */
-    + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" ? "" : S.boats.length>1 || (S.jets?.length && !S.papel && !isRO()) ? (ntBtn ? `<div class="bprow">${boatPicker(chips)}${ntBtn}</div>` : boatPicker(chips)) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1>${ntBtn}</div>`)
+    + (S.tab==="pedidos" || S.tab==="usuarios" || S.tab==="conversas" || S.tab==="vendas" || S.tab==="planilha" ? "" : S.boats.length>1 || (S.jets?.length && !S.papel && !isRO()) ? (ntBtn ? `<div class="bprow">${boatPicker(chips)}${ntBtn}</div>` : boatPicker(chips)) : `<div class="bhead">${avatar(S.boats[0].slug,"bav lg")}<h1>${esc(S.boats[0].nome)}</h1>${ntBtn}</div>`)
     + (S.tab==="lista" && S.myTrips?.length && !isRO() ? sailorHTML() : "") + (S.tab==="lista" && S.isAjud ? ajudHTML() : "") /* o fixo já vê a agenda toda da lancha */
     + (S.tab==="lista" && isRO() ? `<p class="msg ro">${t("roNote")}</p>` : "")
     + (S.err ? `<p class="msg err">${t("loadErr")} <button class="link" id="retry">${t("retry")}</button></p>` : "")
-    + (S.tab==="vendas" ? (v=>asAvisoHTML(true) + recebHTML(true) + v)(vendHTML()) + asContaHTML(true) : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.jetSel && (S.tab==="lista" || S.tab==="lancha") ? jetHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("nosite",siteVisHTML()) + foldCard("rauto",autoResHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* desconto de grupo pequeno também fica dentro de "Valores da lancha", no fim (2026-10-31) */ /* períodos especiais ficam dentro de "Valores da lancha" (2026-10-23) */ /* "Mudanças feitas pelo dono" saiu (2026-10-26: os valores já têm limites) */ + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + (S.asConta && S.asDocs?.status==="ok" ? "" : foldCard("as",asContaHTML())) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + rankHTML() /* jet ski saiu daqui: é escolhido na lista de embarcações, como uma lancha (Rodrigo 2026-11-17) */ + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (2026-10-23) */ + (S.asConta && S.asDocs?.status==="ok" ? foldCard("as",asContaHTML()) : "") /* conta aprovada: o selo vai no fim, como rodapé (Rodrigo 2026-11-14) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
+    + (S.tab==="vendas" ? (v=>asAvisoHTML(true) + recebHTML(true) + v)(vendHTML()) + asContaHTML(true) : S.tab==="planilha" ? `<div id="pvbox">${planilhaHTML()}</div>` : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.jetSel && (S.tab==="lista" || S.tab==="lancha") ? jetHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("nosite",siteVisHTML()) + foldCard("rauto",autoResHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* desconto de grupo pequeno também fica dentro de "Valores da lancha", no fim (2026-10-31) */ /* períodos especiais ficam dentro de "Valores da lancha" (2026-10-23) */ /* "Mudanças feitas pelo dono" saiu (2026-10-26: os valores já têm limites) */ + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + (S.asConta && S.asDocs?.status==="ok" ? "" : foldCard("as",asContaHTML())) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + rankHTML() /* jet ski saiu daqui: é escolhido na lista de embarcações, como uma lancha (Rodrigo 2026-11-17) */ + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (2026-10-23) */ + (S.asConta && S.asDocs?.status==="ok" ? foldCard("as",asContaHTML()) : "") /* conta aprovada: o selo vai no fim, como rodapé (Rodrigo 2026-11-14) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   if(S.tab==="lancha") foldCards(app);
   bindMain();
+  if(S.tab==="planilha") pvBind(document.getElementById("pvbox"));
 }
+/* Planilha de vendas (Rodrigo 2026-11-17): só o administrador. Tudo que entrou pelo Asaas (e PayPal): quando cai na conta
+   (cartão: data de liberação, atualizada sozinha direto no Asaas), quem já recebeu cada parte (dono, vendedor), quanto, quando
+   e o comprovante. Busca por nome, lancha ou número; filtros por situação e mês. Dados só pela função asaas (ação "planilha"). */
+async function loadPv(){ if(!S.admin) return;
+  try{ S.pv = await asFn({acao:"planilha"}); S.pvErr=false; }catch(e){ S.pvErr=true; } }
+const pvD = s => s ? String(s).slice(0,10).split("-").reverse().slice(0,2).join("/") : "";
+const pvDH = s => { if(!s) return ""; const d=new Date(s); return isNaN(d) ? pvD(s) : d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"}); };
+const pvMes = s => { if(!s) return ""; const d=new Date(s); return isNaN(d) ? String(s).slice(0,7) : d.toLocaleDateString("en-CA",{timeZone:"America/Sao_Paulo"}).slice(0,7); };
+const pvFalta = v => (v.repasses||[]).some(r=>!r.ok);
+const pvMet = v => v.metodo==="pix" ? "Pix" : v.metodo==="paypal" ? "PayPal" : v.n>1 ? t("pvCard",{n:v.n}) : t("pvCard1");
+const pvVal = v => v.moeda && v.moeda!=="BRL" ? `${v.moeda==="USD"?"US$":v.moeda} ${(+v.valor).toLocaleString("pt-BR")}` : brl2(v.valor);
+function pvChip(v){
+  if(v.situacao==="estornado") return `<b class="pvchip bad">${t("pvEst")}</b>`;
+  if(v.situacao==="analise") return `<b class="pvchip wait">${t("pvAna")}</b>`;
+  if(v.situacao==="liberar") return `<b class="pvchip wait">${v.previsto ? t("pvLib",{d:pvD(v.previsto)}) : t("pvLibS")}</b>`;
+  return `<b class="pvchip ok">${t("pvRec")}</b>`; }
+function pvRep(r){
+  const quem = r.tipo==="dono" ? t("pvDono") : t("pvVend");
+  const como = r.como==="divisao" ? (r.ok ? t("pvDiv",{d:pvD(r.quando)}) : r.previsto ? t("pvDivPrev",{d:pvD(r.previsto)}) : t("pvDivCard"))
+    : r.como==="asaas" ? t("pvAs",{d:pvD(r.quando)}) : r.como==="fora" ? t("pvFora",{d:pvD(r.quando)}) : r.como==="enviando" ? t("pvEnv")
+    : r.motivo==="conta_analise" ? t("pvPendAn") : r.motivo==="sem_conta" ? t("pvPendSem") : r.motivo==="paypal" ? t("pvPendPp") : r.tipo==="vendedor" ? t("pvPendVend") : t("pvPend");
+  return `<li><span><strong>${esc(quem)} · ${esc(r.nome)}</strong><br><small class="${r.ok||r.tipo!=="dono"?"muted":"pvwarn"}">${esc(como)}</small></span><span class="pvr"><b>${brl2(r.valor)}</b>${r.comprovante?`<button type="button" class="btn sec pvb" data-pvc="${r.comprovante}">${t("pvComp")}</button>`:""}</span></li>`; }
+function pvCard(v){
+  const k=`${v.pid}-${v.metodo}`, aberto=S.pvOpen?.has(k), parc=Array.isArray(v.parcelas)&&v.parcelas.length>1 ? v.parcelas : null;
+  const taxa = v.liquido!=null && v.metodo!=="paypal" ? Math.max(0, Math.round((v.valor-v.liquido)*100)/100) : null;
+  const pedTxt = v.pedido==="cancelado" ? ` · ${t("pvCanc")}` : v.pedido==="recusado" ? ` · ${t("pvRecus")}` : "";
+  return `<details class="pvc" data-pvk="${esc(k)}"${aberto?" open":""}><summary><span class="pvl"><strong>${esc(v.cliente)} · ${esc(v.lancha)}</strong><br><small class="muted">#${v.pid} · ${t("pvTrip",{d:pvD(v.data)})} · ${esc(pvMet(v))} ${pvVal(v)}${pedTxt}</small></span><span class="pvr">${pvChip(v)}${pvFalta(v)?`<b class="pvchip wait">${t("pvARep")}</b>`:""}<i class="chev" aria-hidden="true">›</i></span></summary>
+    <ul class="pvd"><li><span>${t("pvPago",{d:pvDH(v.pago_em)})}${v.total>v.sinal?`<br><small class="muted">${t("pvSinalDe",{s:brl2(v.sinal),t:brl2(v.total)})}</small>`:""}</span><span class="pvr">${v.recibo?`<button type="button" class="btn sec pvb" data-pvp="${v.pid}">${t("pvRecibo")}</button>`:""}</span></li>
+    ${parc?`<li><span>${parc.map(x=>`${t("pvParc",{n:x.n})} ${brl2(x.valor)} · ${x.status==="RECEIVED"||x.credito ? t("pvCaiu",{d:pvD(x.credito)}) : x.previsto ? t("pvLibL",{d:pvD(x.previsto)}) : t("pvLibS")}`).join("<br>")}</span></li>`
+      : v.situacao==="recebido" && v.credito_em && v.metodo!=="pix" ? `<li><span>${t("pvCaiu",{d:pvD(v.credito_em)})}</span></li>` : ""}
+    ${taxa?`<li><span class="muted">${t("pvTaxa")}</span><span class="pvr muted">${brl2(taxa)}</span></li>`:""}
+    ${(v.repasses||[]).map(pvRep).join("")}
+    ${v.buzios!=null?`<li><span><strong>${t("pvBz")}</strong></span><span class="pvr"><b>${brl2(v.buzios)}</b></span></li>`:""}</ul></details>`; }
+function planilhaHTML(){
+  if(S.pvErr && !S.pv) return `<div class="card"><p class="msg err" style="margin:0">${t("loadErr")} <button class="link" id="pvretry">${t("retry")}</button></p></div>`;
+  if(!S.pv) return `<p class="loading">…</p>`;
+  const V=S.pv.vendas||[], q=(S.pvQ||"").trim().toLowerCase(), f=S.pvF||"todos", m=S.pvM||"";
+  const meses=[...new Set(V.map(v=>pvMes(v.pago_em)).filter(Boolean))].sort().reverse();
+  const doMes=V.filter(v=>!m || pvMes(v.pago_em)===m), vivo=doMes.filter(v=>v.situacao!=="estornado");
+  const soma=a=>a.reduce((x,y)=>x+(+y||0),0);
+  const rec=soma(vivo.filter(v=>v.situacao==="recebido"&&v.metodo!=="paypal").map(v=>v.liquido??v.valor)), lib=soma(vivo.filter(v=>v.situacao!=="recebido").map(v=>v.liquido??v.valor)), rep=soma(vivo.flatMap(v=>(v.repasses||[]).filter(r=>!r.ok).map(r=>r.valor)));
+  const L=doMes.filter(v=> f==="todos" || (f==="liberar" ? v.situacao==="liberar"||v.situacao==="analise" : f==="recebido" ? v.situacao==="recebido" : f==="repassar" ? pvFalta(v) : v.situacao==="estornado"))
+    .filter(v=>!q || [v.cliente,v.lancha,"#"+v.pid,String(v.pid),pvMet(v),...(v.repasses||[]).map(r=>r.nome)].join(" ").toLowerCase().includes(q.replace(/^#/,"")) );
+  const TF=(S.pv.transf||[]).filter(x=>!m || pvMes(x.quando)===m).filter(x=>!q || [x.nome,x.motivo].join(" ").toLowerCase().includes(q));
+  const fb=[["todos","pvFT"],["liberar","pvFL"],["recebido","pvFR"],["repassar","pvFP"],["estornado","pvFE"]];
+  return `<div class="card pvtop"><div class="pvsum"><span><small class="muted">${t("pvSRec")}</small><b>${brl2(rec)}</b></span><span><small class="muted">${t("pvSLib")}</small><b>${brl2(lib)}</b></span><span><small class="muted">${t("pvSRep")}</small><b>${brl2(rep)}</b></span></div>
+    <div class="pvbar"><input type="search" class="in" id="pvq" placeholder="🔍 ${t("pvQ")}" value="${esc(S.pvQ||"")}" aria-label="${t("pvQ")}"><select class="in" id="pvm" aria-label="${t("pvMes")}"><option value="">${t("pvTodos")}</option>${meses.map(x=>`<option value="${x}"${x===m?" selected":""}>${x.split("-").reverse().join("/")}</option>`).join("")}</select></div>
+    <div class="pvfs" role="group">${fb.map(([k,l])=>`<button type="button" class="pvf" data-pvf="${k}" aria-pressed="${f===k}">${t(l)}</button>`).join("")}</div></div>
+    ${L.length ? `<div class="pvlist">${L.map(pvCard).join("")}</div>` : `<p class="muted" style="text-align:center">${t("pvNada")}</p>`}
+    ${TF.length ? `<details class="card fold pvtf" data-fold="pvtf"${foldOpen("pvtf",false)?" open":""}>${foldSum(t("pvTfT",{n:TF.length}))}<ul class="pvd">${TF.map(x=>`<li><span><strong>${esc(x.nome)}</strong><br><small class="muted">${esc(x.motivo)} · ${pvDH(x.quando)}${x.status!=="enviado"?` · ${esc(x.status)}`:""}</small></span><span class="pvr"><b>${brl2(x.valor)}</b>${x.comprovante?`<button type="button" class="btn sec pvb" data-pvt="${x.id}">${t("pvComp")}</button>`:""}</span></li>`).join("")}</ul></details>` : ""}
+    <p class="muted" style="font-size:12px;text-align:center">${t("pvAt",{h:new Date(S.pv.em).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})})}</p>`; }
+async function pvRecibo(body, b){ const w=window.open("","_blank"); if(b) b.disabled=true;
+  try{ const j=await asFn({acao:"recibo", ...body}); if(!j.url) throw new Error("sem"); if(w) w.location=j.url; else location.href=j.url; }
+  catch(e){ if(w) w.close(); toast(e.message==="sem" ? t("vdRecNone") : e.message==="pendente" ? t("vdRecWait") : t("saveErr")); }
+  if(b) b.disabled=false; }
+function pvPaint(){ const box=document.getElementById("pvbox"); if(!box) return mainView(); const q=document.activeElement?.id==="pvq", pos=q?document.activeElement.selectionStart:null;
+  box.innerHTML=planilhaHTML(); pvBind(box); if(q){ const i=document.getElementById("pvq"); i.focus(); try{ i.setSelectionRange(pos,pos); }catch(e){} } }
+function pvBind(root){ if(!root) return;
+  root.querySelector("#pvretry")?.addEventListener("click", ()=>{ S.pvErr=false; loadBlocks(); });
+  const q=root.querySelector("#pvq"); if(q) q.oninput=()=>{ S.pvQ=q.value; clearTimeout(pvBind.tm); pvBind.tm=setTimeout(pvPaint,200); };
+  const m=root.querySelector("#pvm"); if(m) m.onchange=()=>{ S.pvM=m.value; pvPaint(); };
+  root.querySelectorAll("[data-pvf]").forEach(x=>x.onclick=()=>{ S.pvF=x.dataset.pvf; pvPaint(); });
+  root.querySelectorAll("details.pvc").forEach(d=>d.ontoggle=()=>{ S.pvOpen=S.pvOpen||new Set(); d.open ? S.pvOpen.add(d.dataset.pvk) : S.pvOpen.delete(d.dataset.pvk); });
+  root.querySelectorAll("[data-pvc]").forEach(x=>x.onclick=()=>{ const pid=+x.closest("details.pvc").dataset.pvk.split("-")[0]; verComprovante(pid, x, x.dataset.pvc==="repasse" ? "repasse" : undefined); });
+  root.querySelectorAll("[data-pvp]").forEach(x=>x.onclick=()=>pvRecibo({tipo:"pagamento", pid:+x.dataset.pvp}, x));
+  root.querySelectorAll("[data-pvt]").forEach(x=>x.onclick=()=>pvRecibo({tipo:"transf", id:+x.dataset.pvt}, x)); }
 /* abas do painel: as de todos com o nome; as que só o administrador vê (Reservas, Usuários, Conversas) só com o ícone (2026-10-22) */
-const ADM_TABS = {vendas:["💼","tabVend"], pedidos:["📖","tabReq"], usuarios:["👥","tabUsers"], conversas:["💬","chT"]};
+const ADM_TABS = {planilha:["📊","tabPlan"], vendas:["💼","tabVend"], pedidos:["📖","tabReq"], usuarios:["👥","tabUsers"], conversas:["💬","chT"]};
 function tabsHTML(){
   if(S.papel){ const named=[["lista","tabList"]], icons=S.papel==="auditor" ? ["pedidos","usuarios"] : ["pedidos"];
     return `<p class="papelbar" style="margin:0 0 10px;font-size:14px;font-weight:600;padding:8px 12px;border:1.5px solid var(--brass);border-radius:12px">${t(S.papel==="auditor"?"papelAud":"papelOp")}</p><div class="tabs itabs" role="tablist" style="grid-template-columns:auto repeat(${icons.length},40px)">${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span></button>`).join("")}</div>`; }
-  const named=[["lista","tabList"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.vend && !S.admin?[["vendas",S.vend.parceiro?"role_parc":"tabVend"]]:[]),...(S.eq?.membro?[["chat","eqT"]]:[])] /* área do vendedor numa aba própria (2026-10-23); Calendário foi para dentro de Passeios e o Chat Náutico é a última aba (2026-10-25) */, icons=S.admin ? [...(S.vend?["vendas"]:[]),"pedidos","usuarios",...(S.convs===false?[]:["conversas"])] : [];
+  const named=[["lista","tabList"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.vend && !S.admin?[["vendas",S.vend.parceiro?"role_parc":"tabVend"]]:[]),...(S.eq?.membro?[["chat","eqT"]]:[])] /* área do vendedor numa aba própria (2026-10-23); Calendário foi para dentro de Passeios e o Chat Náutico é a última aba (2026-10-25) */, icons=S.admin ? [...(S.vend?["vendas"]:[]),"pedidos","planilha","usuarios",...(S.convs===false?[]:["conversas"])] : [];
   const cnt=k=> k==="pedidos"&&S.reqCount ? `<b class="cnt">${S.reqCount}</b>` : k==="usuarios"&&((S.comPend?.length||0)+(S.vmPend?.length||0)+leadsNew()+rppN()) ? `<b class="cnt">${(S.comPend?.length||0)+(S.vmPend?.length||0)+leadsNew()+rppN()}</b>` : k==="conversas"&&S.chatUnread ? `<b class="cnt ch">${S.chatUnread}</b>` : "";
   return `<div class="tabs${icons.length||named.length>3?" itabs":""}" role="tablist"${icons.length?` style="grid-template-columns:repeat(${named.length},auto) repeat(${icons.length},${icons.length>3?32:40}px)"`:""}>${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="chat"&&S.eq?.nao_lidas?` <b class="cnt ch">${S.eq.nao_lidas}</b>`:""}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span>${cnt(k)}</button>`).join("")}</div>`;
 }
@@ -7405,6 +7489,7 @@ async function loadBlocks(){ loadWaSent(); loadCond(); loadVM(); /* quando o con
   if(S.cur!=="*" && (S.tab==="lancha" || S.tab==="lista")){ const l=S.cur; Promise.all([loadMnt(), S.tab==="lancha" ? loadMntAll() : null, S.tab==="lancha" ? loadDg() : null]).then(()=>{ if(l===S.cur) dgRefresh(); if(l===S.cur && view==="main" && !sheetDay && !tripRow && (S.tab==="lancha" || S.tab==="lista")) bgView(); }); }
   if((S.admin || S.own?.length || S.papel==="operador") && (S.tab==="pedidos" || S.tab==="lista")) await loadToConfirm(); /* recarrega: o passeio pode ter terminado com o app aberto */
   if(S.tab==="pedidos" && S.admin){ const my=++loadSeq; await loadReqs(); if(my===loadSeq) mainView(); return; }
+  if(S.tab==="planilha" && S.admin){ const my=++loadSeq; if(!S.pv) mainView(); await loadPv(); if(my===loadSeq && S.tab==="planilha") mainView(); return; }
   if(S.tab==="usuarios" && S.admin){ const my=++loadSeq; if(!S.users) mainView(); loadClis(); await Promise.all([loadUsers(), loadComPend(), loadLeads()]); if(my===loadSeq) mainView(); return; }
   if((S.tab==="lancha" || S.tab==="mar") && isRO()) S.tab="lista"; /* funcionário não tem a aba Lancha */
   if(S.tab==="lancha"){ if(S.cur==="*") S.cur=S.boats[0].slug; const my=++loadSeq, l=S.cur;

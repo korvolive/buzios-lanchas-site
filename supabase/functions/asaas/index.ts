@@ -14,6 +14,7 @@
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
+// POST {acao:"planilha"} / {acao:"recibo", tipo, pid|id} (login admin)  planilha de vendas: pagamentos, quando caem, repasses e comprovantes
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
 // POST {acao:"expirar"} (cron a cada 10 min) cancela no Asaas as cobranças com mais de 2 horas sem pagamento (a data volta para o site); pré-reserva com pagar_ate só depois desse prazo
@@ -385,6 +386,58 @@ async function avisarAdmins(nome: string, valor: string, lancha: string, dia: st
   }
 }
 
+// planilha de vendas (Rodrigo 2026-11-17): quando o dinheiro de cada pagamento cai na conta da Búzios.
+// Pix cai na hora; cartão fica "CONFIRMED" até a data de liberação (cada parcela tem a sua). Guardado em pagamentos_asaas.
+const ESTORNO = /REFUND|CHARGEBACK/;
+function situacaoCredito(r: any) {
+  const parc = Array.isArray(r.parcelas) ? r.parcelas : null;
+  if (ESTORNO.test(String(r.status || "")) || parc?.some((x: any) => ESTORNO.test(String(x.status || "")))) return "estornado";
+  if (r.status === "AWAITING_RISK_ANALYSIS") return "analise";
+  if (parc?.length) return parc.every((x: any) => x.status === "RECEIVED" || x.status === "RECEIVED_IN_CASH") ? "recebido" : "liberar";
+  return r.status === "RECEIVED" || r.status === "RECEIVED_IN_CASH" ? "recebido" : "liberar";
+}
+function creditoFinal(r: any) {
+  const s = situacaoCredito(r);
+  return (s === "recebido" && r.liquido != null && (r.credito_em || Array.isArray(r.parcelas))) || (s === "estornado" && !!r.conferido_em);
+}
+async function atualizarCredito(r: any) {
+  if (!r?.asaas_id) return null;
+  const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
+  const n: any = { status: pg.status || r.status, conferido_em: new Date().toISOString() };
+  if (pg.installment) {
+    const l = ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []).sort((a: any, z: any) => (+a.installmentNumber || 0) - (+z.installmentNumber || 0));
+    if (l.length) {
+      n.parcelas = l.map((x: any, i: number) => ({ n: +x.installmentNumber || i + 1, valor: +x.value, liquido: +x.netValue || null, status: x.status, previsto: x.estimatedCreditDate || x.dueDate || null, credito: x.creditDate || null }));
+      n.liquido = Math.max(0, Math.round(l.reduce((a: number, x: any) => a + (+x.netValue || 0), 0) * 100) / 100);
+      const fut = n.parcelas.filter((x: any) => !x.credito).map((x: any) => x.previsto).filter(Boolean).sort();
+      n.credito_previsto = fut[0] || null;
+      const cs = n.parcelas.map((x: any) => x.credito).filter(Boolean).sort();
+      n.credito_em = cs.length === n.parcelas.length ? cs[cs.length - 1] : null;
+    }
+  } else {
+    if (pg.netValue != null) n.liquido = Math.max(0, +pg.netValue);
+    n.credito_previsto = pg.estimatedCreditDate || null;
+    n.credito_em = pg.creditDate || null;
+  }
+  await db.from("pagamentos_asaas").update(n).eq("id", r.id);
+  return n;
+}
+// nome de cada pessoa para a planilha: perfil, cadastro de cliente, conta Asaas ou empresa do vendedor
+async function nomes(ids: string[], contas: Map<string, any>) {
+  const m = new Map<string, string>();
+  if (!ids.length) return m;
+  const [pf, cl, vd] = await Promise.all([
+    db.from("perfis").select("user_id, nome").in("user_id", ids),
+    db.from("clientes").select("user_id, nome").in("user_id", ids),
+    db.from("vendedores").select("user_id, empresa").in("user_id", ids),
+  ]);
+  for (const id of ids) {
+    const n = (pf.data || []).find((x: any) => x.user_id === id)?.nome || (cl.data || []).find((x: any) => x.user_id === id)?.nome || contas.get(id)?.nome || (vd.data || []).find((x: any) => x.user_id === id)?.empresa;
+    if (n && String(n).trim()) m.set(id, String(n).trim().slice(0, 80));
+  }
+  return m;
+}
+
 // confere a cobrança direto no Asaas e, se paga, marca o pedido como pago e confirma a reserva sozinha
 async function conferir(asaasId: string, status = false) {
   const { data: row } = await db.from("pagamentos_asaas").select("*").eq("asaas_id", asaasId).maybeSingle();
@@ -675,6 +728,7 @@ Deno.serve(async req => {
     // aviso do Asaas: não confia no corpo, confere a cobrança direto no Asaas
     if (b?.event && b?.payment?.id) {
       if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id), true).catch(e => console.error("webhook", e));
+      if (/^PAYMENT_/.test(String(b.event)) && b.payment?.id) { const { data: rw } = await db.from("pagamentos_asaas").select("id, asaas_id").eq("asaas_id", String(b.payment.id)).not("pago_em", "is", null).maybeSingle(); if (rw) await atualizarCredito(rw).catch(e => console.error("webhook credito", e?.message)); }
       return json({ ok: true });
     }
     // aviso da subconta (documento e selfie): também não confia no corpo, só manda conferir no Asaas
@@ -1122,6 +1176,85 @@ Deno.serve(async req => {
       }
       const { data: sg, error } = await db.storage.from("comprovantes").createSignedUrl(c, 600);
       return sg?.signedUrl ? json({ url: sg.signedUrl }) : json({ erro: "sem", detalhe: error?.message }, 404);
+    }
+
+    // planilha de vendas (Rodrigo 2026-11-17): só administrador. Tudo que entrou pelo Asaas (e PayPal), quando cai na conta
+    // (cartão: data de liberação de cada parcela, atualizada aqui direto no Asaas) e para quem saiu cada parte (dono, vendedor),
+    // com o comprovante. Mais as transferências avulsas do saldo (diárias etc.). Não devolve CPF, telefone, chave nem Pix copia e cola.
+    if (b.acao === "planilha") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const { data: pgs } = await db.from("pagamentos_asaas").select("id, pedido, metodo, asaas_id, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, conferido_em").not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1000);
+      // confere no Asaas só o que ainda pode mudar (no máximo 25 por vez, cada um no máximo a cada 5 minutos)
+      const muda = (pgs || []).filter((r: any) => !creditoFinal(r) && (!r.conferido_em || Date.now() - new Date(r.conferido_em).getTime() > 5 * 60e3)).slice(0, 25);
+      await Promise.all(muda.map((r: any) => atualizarCredito(r).then((n: any) => n && Object.assign(r, n)).catch(e => console.error("planilha credito", r.pedido, e?.message))));
+      const { data: pps } = await db.from("pagamentos_pp").select("pedido, moeda, valor, pago_em, pago_valor").not("pago_em", "is", null).not("captura", "is", null).limit(500);
+      const pids = [...new Set([...(pgs || []).map((r: any) => r.pedido), ...(pps || []).map((r: any) => r.pedido)])];
+      const { data: peds } = pids.length ? await db.from("pedidos").select("id, cliente, lancha, data, horario, status, vendedor, preco_base, preco_cliente, repasse_dono, comissao_paga, comissao_comprovante").in("id", pids) : { data: [] };
+      const { data: rps } = pids.length ? await db.from("repasses_pp").select("pedido, valor, comprovante, enviado_em").in("pedido", pids) : { data: [] };
+      const { data: lns } = await db.from("lanchas").select("slug, nome");
+      const { data: dns } = await db.from("donos").select("user_id, lancha");
+      const { data: cts } = await db.from("asaas_contas").select("user_id, wallet_id, nome, aprovada_em");
+      const { data: trs } = await db.from("transferencias_saldo").select("id, user_id, valor, motivo, comprovante, status, criado_em").order("criado_em", { ascending: false }).limit(500);
+      const P = new Map((peds || []).map((p: any) => [p.id, p])), R = new Map((rps || []).map((r: any) => [r.pedido, r]));
+      const L = new Map((lns || []).map((l: any) => [l.slug, l.nome])), W = new Map((cts || []).filter((c: any) => c.wallet_id).map((c: any) => [c.wallet_id, c.user_id]));
+      const C = new Map((cts || []).map((c: any) => [c.user_id, c]));
+      // dono que recebe: o que tem conta Asaas aprovada; senão o primeiro cadastrado
+      const donoDe = (l: string) => { const ds = (dns || []).filter((d: any) => d.lancha === l).map((d: any) => d.user_id); return ds.find((x: string) => C.get(x)?.aprovada_em) || ds.find((x: string) => C.get(x)) || ds[0] || null; };
+      const uids = new Set<string>();
+      for (const p of peds || []) { if (p.cliente) uids.add(p.cliente); if (p.vendedor) uids.add(p.vendedor); const d = donoDe(p.lancha); if (d) uids.add(d); }
+      for (const r of pgs || []) if (r.wallet_id && W.get(r.wallet_id)) uids.add(W.get(r.wallet_id));
+      for (const t of trs || []) uids.add(t.user_id);
+      const N = await nomes([...uids], C);
+      const r2 = (v: number) => Math.round(v * 100) / 100, dia = (s: any) => s ? String(s).slice(0, 10) : null;
+      const vendas: any[] = [];
+      const uma = (p: any, base: any) => {
+        const rep: any[] = [];
+        const donoU = base.split_user || donoDe(p.lancha);
+        if (base.split > 0) rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: base.split, como: "divisao", quando: base.situacao === "recebido" ? (base.credito_em || dia(base.pago_em)) : null, previsto: base.situacao === "recebido" ? null : base.previsto, ok: base.situacao === "recebido" });
+        const rp: any = R.get(p.id);
+        if (rp) {
+          const c = String(rp.comprovante || "");
+          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+rp.valor), como: c === "asaas:enviando" ? "enviando" : c.startsWith("asaas:") ? "asaas" : "fora", quando: dia(rp.enviado_em), ok: c !== "asaas:enviando", comprovante: (c.startsWith("asaas:") && c !== "asaas:enviando") || c.startsWith("fora:repasses/") ? "repasse" : null });
+        } else if (!(base.split > 0) && p.status === "aprovado" && +p.repasse_dono > 0) {
+          const ct = donoU ? C.get(donoU) : null;
+          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : base.metodo === "paypal" ? "paypal" : "aguardando", ok: false });
+        }
+        const com = p.vendedor ? r2(Math.max(0, +p.preco_cliente - +p.preco_base)) : 0;
+        if (com > 0) { const c = String(p.comissao_comprovante || ""); rep.push({ tipo: "vendedor", nome: N.get(p.vendedor) || "Vendedor", valor: com, como: p.comissao_paga ? (c.startsWith("asaas:") ? "asaas" : "fora") : "pendente", quando: dia(p.comissao_paga), ok: !!p.comissao_paga, comprovante: p.comissao_paga && c && c !== "asaas:enviando" ? "comissao" : null }); }
+        const saiu = rep.reduce((a, x) => a + x.valor, 0);
+        vendas.push({ pid: p.id, data: p.data, horario: p.horario, lancha: L.get(p.lancha) || p.lancha, cliente: N.get(p.cliente) || "Cliente", pedido: p.status, total: r2(+p.preco_cliente || 0), ...base, split_user: undefined, buzios: base.liquido != null ? r2(Math.max(0, base.liquido - saiu)) : null, repasses: rep });
+      };
+      for (const r of pgs || []) {
+        const p: any = P.get(r.pedido); if (!p) continue;
+        const sit = situacaoCredito(r), parc = Array.isArray(r.parcelas) ? r.parcelas : null;
+        uma(p, { metodo: r.metodo === "pix" ? "pix" : "cartao", n: parc?.length || 1, valor: r2(+r.valor), sinal: r2(+r.sinal), liquido: r.liquido != null ? r2(+r.liquido) : null, pago_em: r.pago_em, situacao: sit, status: r.status, previsto: sit === "recebido" ? null : (parc?.find((x: any) => x.status !== "RECEIVED")?.previsto || r.credito_previsto), credito_em: r.credito_em, recebidas: parc ? parc.filter((x: any) => x.status === "RECEIVED").length : null, parcelas: parc, split: r.wallet_id && +r.repasse > 0 ? r2(+r.repasse) : 0, split_user: r.wallet_id ? W.get(r.wallet_id) : null, recibo: r.status === "RECEIVED" || r.status === "CONFIRMED" });
+      }
+      for (const x of pps || []) {
+        const p: any = P.get(x.pedido); if (!p) continue;
+        uma(p, { metodo: "paypal", n: 1, valor: r2(+x.valor), moeda: x.moeda, sinal: r2(+x.valor), liquido: null, pago_em: x.pago_em, situacao: "recebido", previsto: null, credito_em: dia(x.pago_em), split: 0 });
+      }
+      vendas.sort((a, z) => a.pago_em < z.pago_em ? 1 : -1);
+      const transf = (trs || []).map((t: any) => ({ id: t.id, nome: N.get(t.user_id) || "—", valor: r2(+t.valor), motivo: String(t.motivo || "").slice(0, 140), quando: t.criado_em, status: t.status, comprovante: String(t.comprovante || "").startsWith("asaas:") && t.status === "enviado" }));
+      return json({ vendas, transf, em: new Date().toISOString() });
+    }
+    // comprovante na planilha (administrador): recibo do pagamento do cliente no Asaas ou da transferência avulsa do saldo
+    if (b.acao === "recibo") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      if (b.tipo === "pagamento") {
+        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id").eq("pedido", Number(b.pid)).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
+        if (!r?.asaas_id) return json({ erro: "sem" }, 404);
+        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
+        const url = pg?.transactionReceiptUrl || pg?.invoiceUrl;
+        return url ? json({ url }) : json({ erro: "pendente" }, 409);
+      }
+      if (b.tipo === "transf") {
+        const { data: t } = await db.from("transferencias_saldo").select("comprovante").eq("id", Number(b.id)).maybeSingle();
+        const c = String(t?.comprovante || "");
+        if (!c.startsWith("asaas:") || c.length < 8) return json({ erro: "sem" }, 404);
+        const tr = await asaas("/transfers/" + encodeURIComponent(c.slice(6)));
+        return tr?.transactionReceiptUrl ? json({ url: tr.transactionReceiptUrl }) : json({ erro: "pendente", status: tr?.status || null }, 409);
+      }
+      return json({ erro: "tipo" }, 400);
     }
 
     if (b.acao === "webhook") {
