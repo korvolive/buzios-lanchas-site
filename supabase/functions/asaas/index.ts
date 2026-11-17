@@ -626,16 +626,32 @@ async function enviarSaldos() {
     // trava só se o pedido continua aprovado (cancelado entre a leitura e o envio não recebe)
     const { data: trava } = await db.from("pedidos").update({ jetski_repasse: "asaas:enviando" }).eq("id", p.id).eq("status", "aprovado").is("jetski_repasse", null).select("id");
     if (!trava?.length) continue;
+    // dívida do dono (Rodrigo 2026-11-17): jet ski devolvido ao cliente ou trocado depois do repasse sai dos próximos repasses dele
+    const { data: liq, error: eab } = await db.rpc("jetski_abater", { p_pid: p.id, p_dono: dono, p_valor: v });
+    if (eab || liq == null || isNaN(+liq)) {
+      console.error("jetski_abater", p.id, eab?.message);
+      await db.from("pedidos").update({ jetski_repasse: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
+      continue;
+    }
+    const env = Math.round(Math.max(+liq, 0) * 100) / 100;
+    if (!(env > 0)) { // a dívida cobriu tudo: nada a transferir
+      const { error: ed } = await db.from("pedidos").update({ jetski_repasse: "divida", jetski_repasse_em: new Date().toISOString() }).eq("id", p.id);
+      if (ed) console.error("jetski_repasse divida", p.id, ed.message);
+      n++; continue;
+    }
     let tr: any;
-    try { tr = await asaas("/transfers", { value: v, walletId: w }); }
+    try { tr = await asaas("/transfers", { value: env, walletId: w }); }
     catch (e: any) {
       console.error("saldo jetski", p.id, e?.status, e?.message);
-      if (e?.status >= 400 && e?.status < 500) await db.from("pedidos").update({ jetski_repasse: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
+      if (e?.status >= 400 && e?.status < 500) {
+        await db.rpc("jetski_abater_desfaz", { p_pid: p.id }).then(({ error }: any) => error && console.error("jetski_abater_desfaz", p.id, error.message));
+        await db.from("pedidos").update({ jetski_repasse: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
+      }
       continue; // sem resposta clara: fica travado para conferir no Asaas, nunca manda duas vezes
     }
     const { error: ej } = await db.from("pedidos").update({ jetski_repasse: "asaas:" + tr.id, jetski_repasse_em: new Date().toISOString() }).eq("id", p.id);
     if (ej) console.error("jetski_repasse", p.id, ej.message);
-    saldo -= v; n++;
+    saldo -= env; n++;
   }
   return { ligado: true, enviados: n };
 }
