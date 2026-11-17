@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-17)
 
 ## Corpus Check
-- 193 files · ~406,697 words
+- 193 files · ~406,207 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
-- 1476 nodes · 2440 edges · 116 communities (73 shown, 43 thin omitted)
+- 1477 nodes · 2440 edges · 117 communities (73 shown, 44 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f9619eee`
+- Built from commit: `4c919af3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -121,17 +121,17 @@
   supabase/sql/2026-11-15_jetski-lucas.sql → supabase/sql/2026-11-15_jetski.sql
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
   supabase/sql/2026-11-05_revisao-diaria.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
+- `public.marcar_wa()` --writes_to--> `public.alteracoes_pedidas`  [EXTRACTED]
+  supabase/sql/2026-10-30_papeis-operador-auditor.sql → supabase/sql/2026-10-30_operador-um-toque.sql
 - `public.origem_reserva()` --reads_from--> `public.papeis_painel`  [EXTRACTED]
   supabase/sql/2026-11-13_origem-da-reserva.sql → supabase/sql/2026-10-30_papeis-operador-auditor.sql
 - `public.origem_reserva()` --reads_from--> `public.vendas_manuais`  [EXTRACTED]
   supabase/sql/2026-11-13_origem-da-reserva.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
-- `public._aprovar_consulta()` --writes_to--> `public.vendas_manuais`  [EXTRACTED]
-  supabase/sql/2026-11-16_troca-solta-pre-reserva-anterior.sql → supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql
 
 ## Import Cycles
 - None detected.
 
-## Communities (116 total, 43 thin omitted)
+## Communities (117 total, 44 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.07
@@ -426,21 +426,21 @@ Cohesion: 0.11
 Nodes (8): public.auto_confirmar_fora(), zz_anotacao_jetski_segura, public.mover_passeio_v2(), passeio_sem_manutencao, public._passeio_sem_manutencao(), zz_anotacao_neto_garantido, public._aprovar_consulta(), public._soltar_anterior_mesmo_cliente()
 
 ## Knowledge Gaps
-- **43 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **44 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.anotacoes`, `public.origem_reserva`, `public.anotacoes`, `public.consultas`, `public.marcar_wa`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.anotacoes` to `public.origem_reserva`, `public.bloqueios`, `public.pedidos`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.marcar_wa` to `public.ativar_conta_cliente`, `public.origem_reserva`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.papeis_painel` connect `public.marcar_wa` to `public.ativar_conta_cliente`, `public.origem_reserva`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `public._aprovar_consulta()` connect `public.anotacoes` to `public.origem_reserva`, `public.bloqueios`, `public.pedidos`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06001984126984127 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
