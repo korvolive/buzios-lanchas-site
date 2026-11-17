@@ -230,13 +230,14 @@ async function vaga(pid: number, segurar = false) {
   return String(data || "livre");
 }
 
-// semDoc: estrangeiro pagando com cartão internacional, cobrança sem CPF/CNPJ (Mayara/Asaas 2026-11-11)
+// semDoc: estrangeiro (central em dólar/euro), cobrança sem CPF/CNPJ: cartão internacional (Mayara/Asaas 2026-11-11) e Pix pago
+// por app de fora (Mercado Pago da Argentina, Wise etc., Rodrigo 2026-11-17); se digitar um CPF, ele é usado
 async function cliente(uid: string, cpfNovo: string, semDoc = false) {
   const { data: ja } = await db.from("asaas_clientes").select("customer_id, cpf").eq("user_id", uid).maybeSingle();
   const { data: cl } = await db.from("clientes").select("nome, cpf, whatsapp").eq("user_id", uid).maybeSingle();
   const cpf = dig(cl?.cpf) || cpfNovo, docOk = cpfOk(cpf) || cnpjOk(cpf);
   if (ja) {
-    if (ja.cpf || semDoc) return ja.customer_id as string;
+    if (ja.cpf || (semDoc && !docOk)) return ja.customer_id as string;
     // cliente criado sem documento (pagou como estrangeiro) e agora paga em reais: completa o CPF no Asaas
     if (!docOk) return null;
     await asaas(`/customers/${ja.customer_id}`, { cpfCnpj: cpf });
@@ -1158,8 +1159,10 @@ Deno.serve(async req => {
         if (await conferir(r.asaas_id).catch(() => false)) return json({ pago: true });
         if (await cancelar(r.asaas_id)) await db.from("pagamentos_asaas").delete().eq("id", r.id).is("pago_em", null);
       }
-      const cus = await cliente(p.cliente, dig(b.cpf), fora && metodo === "cartao");
+      const cus = await cliente(p.cliente, dig(b.cpf), fora);
       if (!cus) return json({ erro: "cpf" }, 400);
+      // Pix de estrangeiro sem CPF: se o Asaas recusar a cobrança sem documento, a página volta a pedir o CPF de quem paga (como antes)
+      const pixSemDoc = fora && metodo === "pix" && !(await db.from("asaas_clientes").select("cpf").eq("user_id", p.cliente).maybeSingle()).data?.cpf;
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const venc = new Date(Math.max(Date.now() + 2 * 864e5, p.pagar_ate ? new Date(p.pagar_ate).getTime() + 864e5 : 0) - 3 * 36e5).toISOString().slice(0, 10); // nunca vence antes do prazo da pré-reserva
       const corpo: any = {
@@ -1173,6 +1176,11 @@ Deno.serve(async req => {
       let semSplit = false, pg: any;
       try { pg = await asaas("/payments", corpo); }
       catch (e: any) {
+        if (pixSemDoc && e?.asaas && e?.status === 400 && /cpf|cnpj|documento/i.test(String(e?.message || ""))) {
+          console.error("pix sem CPF recusado pelo Asaas", p.id, e?.message);
+          pushAdmins({ title: "Asaas recusou Pix sem CPF", body: `Pedido ${p.id}: o Asaas não aceitou Pix de estrangeiro sem CPF. A página voltou a pedir o CPF. Peça ao Asaas para liberar pagadores estrangeiros.` }, `pix-sem-cpf-${new Date().toISOString().slice(0, 10)}`).catch((x) => console.error("push pix sem cpf", x));
+          return json({ erro: "cpf" }, 400);
+        }
         if (!corpo.split || !(e?.asaas && e?.status === 400 && /split/i.test(String(e?.message || "")))) throw e;
         console.error("split desligado no Asaas: cobrando sem divisão", p.id, e?.message);
         delete corpo.split; semSplit = true;

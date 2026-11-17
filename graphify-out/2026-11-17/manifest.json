@@ -84,8 +84,8 @@
     "semantic_hash": ""
   },
   "scripts/prerender.mjs": {
-    "mtime": 1794948234.7306423,
-    "seen": 1794956423.398725,
+    "mtime": 1794956389.2476501,
+    "seen": 1794956690.1069522,
     "ast_hash": "b1e6afe82db30c6307aef09ea33d4c7a",
     "semantic_hash": ""
   },
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "supabase/functions/asaas/index.ts": {
-    "mtime": 1794956404.3761494,
-    "seen": 1794956423.3987546,
-    "ast_hash": "760f0c54cd5dcdddc368aea5ad149259",
+    "mtime": 1794956591.7172198,
+    "seen": 1794956690.1069798,
+    "ast_hash": "23b80f601ff21d02dbb90dcf3958ac38",
     "semantic_hash": ""
   },
   "supabase/functions/avaliacao/index.ts": {
@@ -192,8 +192,8 @@
     "semantic_hash": ""
   },
   "supabase/functions/paypal-checkout/index.ts": {
-    "mtime": 1794956397.4068346,
-    "seen": 1794956423.398798,
+    "mtime": 1794956499.1236565,
+    "seen": 1794956690.1070223,
     "ast_hash": "f2cc98e0a8002ee0d126c7c38671057e",
     "semantic_hash": ""
   },
@@ -264,21 +264,21 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1794948234.7226424,
-    "seen": 1794956423.3990104,
+    "mtime": 1794956389.23965,
+    "seen": 1794956690.107227,
     "ast_hash": "e6c5af2273ec4eb5e32a26f80c15ba62",
     "semantic_hash": ""
   },
   "login/index.html": {
-    "mtime": 1794956397.4068346,
-    "seen": 1794956423.3990116,
+    "mtime": 1794956499.1236565,
+    "seen": 1794956690.1072283,
     "ast_hash": "0981c3b90f1f772004c812b4533a5b08",
     "semantic_hash": ""
   },
   "pagar/index.html": {
-    "mtime": 1794956397.4068346,
-    "seen": 1794956423.3990133,
-    "ast_hash": "315ef3b3c1acf64eaf6bb4ae85992453",
+    "mtime": 1794956607.7249136,
+    "seen": 1794956690.1072292,
+    "ast_hash": "3b70d9176a7d93f68b76282558ae9220",
     "semantic_hash": ""
   },
   "privacidade/index.html": {
@@ -1560,8 +1560,8 @@
     "semantic_hash": ""
   },
   "SEGURANCA.md": {
-    "mtime": 1794951915.1153958,
-    "seen": 1794956423.3989944,
+    "mtime": 1794956389.2116501,
+    "seen": 1794956690.1072104,
     "ast_hash": "d135498fec46fd7f8534c036355ba1b6",
     "semantic_hash": ""
   },
@@ -1854,8 +1854,8 @@
     "semantic_hash": ""
   },
   "supabase/functions/asaas-docs/index.ts": {
-    "mtime": 1794956321.4468303,
-    "seen": 1794956423.3987455,
+    "mtime": 1794956389.2476501,
+    "seen": 1794956690.106973,
     "ast_hash": "36154bb8812cc109450220fd2e866b82",
     "semantic_hash": ""
   },
@@ -2472,44 +2472,44 @@
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_paypal-cai-no-asaas-repasse-auto.sql": {
-    "mtime": 1794948713.0750692,
-    "seen": 1794956423.3989837,
+    "mtime": 1794956389.25165,
+    "seen": 1794956690.107198,
     "ast_hash": "26868cc12d468898c6b2ec0ada9ea8ce",
     "semantic_hash": ""
   },
   ".github/workflows/registros-exportar.yml": {
-    "mtime": 1794956321.42283,
-    "seen": 1794956423.3986752,
+    "mtime": 1794956389.2116501,
+    "seen": 1794956690.1069014,
     "ast_hash": "798eed89a99381b69eb44e6a1c3be3e7",
     "semantic_hash": ""
   },
   ".github/workflows/segunda-aprovacao.yml": {
-    "mtime": 1794951915.1153958,
-    "seen": 1794956423.398678,
+    "mtime": 1794956389.2116501,
+    "seen": 1794956690.1069047,
     "ast_hash": "9385c4626467e3c1ce00575bb9eaec2a",
     "semantic_hash": ""
   },
   "scripts/registros-exportar.mjs": {
-    "mtime": 1794956321.4468303,
-    "seen": 1794956423.3987296,
+    "mtime": 1794956389.2476501,
+    "seen": 1794956690.106957,
     "ast_hash": "b9b7adf0a48e8e66c2120dcd8ea9b864",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_retencao-registros-5-anos.sql": {
-    "mtime": 1794951915.1273959,
-    "seen": 1794956423.398987,
+    "mtime": 1794956389.25165,
+    "seen": 1794956690.1072018,
     "ast_hash": "bde01d8f57fa432092304b4c17e59d99",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_documento-recusado-aviso.sql": {
-    "mtime": 1794956321.4508302,
-    "seen": 1794956423.398971,
+    "mtime": 1794956389.25165,
+    "seen": 1794956690.1071777,
     "ast_hash": "b97860765320c5661e2abca60265a662",
     "semantic_hash": ""
   },
   "documento/index.html": {
-    "mtime": 1794956321.42283,
-    "seen": 1794956423.3990061,
+    "mtime": 1794956389.2116501,
+    "seen": 1794956690.1072235,
     "ast_hash": "fdcdcfdad6122b1c9de9034cc2c8bd97",
     "semantic_hash": ""
   }
