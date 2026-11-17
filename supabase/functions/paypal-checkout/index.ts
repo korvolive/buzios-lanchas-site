@@ -125,6 +125,15 @@ async function vaga(pid: number, segurar = false) {
 // sem ordem PayPal e sem comprovante. Desliga com o segredo CENTRAL_MOEDA_OFF=1.
 const COB_EUR = new Set(["49", "33", "39", "351", "31", "32", "43", "353", "30", "358", "352", "356", "357", "386", "421", "372", "371", "370", "385"]);
 const PAIS_DDI: Record<string, string> = { BR: "55", AR: "54", CL: "56", UY: "598", PY: "595", CO: "57", PE: "51", MX: "52", US: "1", CA: "1", PT: "351", ES: "34", FR: "33", IT: "39", DE: "49", GB: "44", IE: "353", NL: "31", BE: "32", CH: "41", AU: "61" };
+// Pix no topo só para quem conhece Pix (Rodrigo 2026-11-17): América Latina (argentino paga pelo Mercado Pago, chileno etc.);
+// americano, europeu e outros veem o Pix por último, depois do cartão e do PayPal
+const DDI_LATAM = new Set(["54", "56", "598", "595", "57", "51", "52", "591", "593", "58", "506", "507", "502", "503", "504", "505", "53"]);
+async function pixTopo(uid: string) {
+  const { data: cl } = await db.from("clientes").select("pais, whatsapp").eq("user_id", uid).maybeSingle();
+  const w = String(cl?.whatsapp || "").trim();
+  const cc = PAIS_DDI[String(cl?.pais || "")] || (w.match(/^\+(\d{1,3})\s/) || [])[1] || "";
+  return DDI_LATAM.has(cc) || [...DDI_LATAM].some(d => cc === "" && dig(w).startsWith(d) && w.startsWith("+"));
+}
 const niceUp = (x: number) => { const step = x < 100 ? 5 : x < 1000 ? 10 : x < 10000 ? 50 : 10 ** (Math.floor(Math.log10(x)) - 1); return Math.ceil(x / step) * step; };
 // deno-lint-ignore no-explicit-any
 async function moedaDoCliente(c: any, p: any) {
@@ -356,7 +365,8 @@ Deno.serve(async req => {
         if (epn) console.error("preco_novo_pedido", p.id, epn.message);
         else if (pn?.mudou) preco_novo = { antigo: +pn.antigo, valor: +pn.valor };
       }
-      return json({ preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      const pix_topo = c.moeda !== "BRL" ? await pixTopo(p.cliente).catch(() => true) : true;
+      return json({ pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto,
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)

@@ -230,7 +230,7 @@ function render(){ const su=document.getElementById("asaas-sup"); if(su) su.text
   /* prazo vencido e o dono mudou o preço (Rodrigo 2026-11-15): mostra o valor novo e só deixa pagar depois do "concordo" */
   else if(open && !paid && D.preco_novo) payArea=`<h2>${L.pnT}</h2><p>${tf(L.pnTx,{a:brl(D.preco_novo.antigo), v:`<b>${brl(D.preco_novo.valor)}</b>`})}</p><button type="button" class="btn" data-pn="1">${L.pnBtn}</button><div id="pnmsg"></div>`;
   else if(open && !paid && !polOk && !D.aceite) payArea = polHTML(); /* já aceitou neste pedido (em outro aparelho): não pergunta de novo */
-  else if(open && !paid) payArea = ((h=>foreign ? (h.includes('data-m="as-pix"') ? h + pp : pix + h + pp) : h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ para brasileiro (Rodrigo 2026-11-11); estrangeiro vê o Pix do CNPJ primeiro, porque muitos já estão no Brasil (Rodrigo 2026-11-14) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 3 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
+  else if(open && !paid) payArea = ((h=>foreign ? (pixUlt() ? h + pp + (AS && A && A.ativo && A.pix ? asPixHTML(L,true) : pix) : h.includes('data-m="as-pix"') ? h + pp : pix + h + pp) : h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ para brasileiro (Rodrigo 2026-11-11); estrangeiro vê o Pix do CNPJ primeiro, porque muitos já estão no Brasil (Rodrigo 2026-11-14) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 3 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
   else if(!open && !conf) payArea=`<p class="msg err">${L.closed}</p>`;
   /* o chat fica só no botão Suporte do canto (2026-10-25); aqui sobra o WhatsApp (sem chat) e Ver meus passeios */
   const my=(R?`<button type="button" class="btn" data-rc="1">${L.rcOpen}</button>`:"")+(conf||paid?`<a class="btn sec" href="/login/">${L.my}</a>`:"");
@@ -255,11 +255,13 @@ function fabs(){ const L=T[lg]; FB.hidden=!D; if(!D) return;
 FS.onclick=()=>{ FM.hidden=!FM.hidden; FS.setAttribute("aria-expanded",String(!FM.hidden)); };
 document.addEventListener("click", e=>{ if(!FM.hidden && !FB.contains(e.target)){ FM.hidden=true; FS.setAttribute("aria-expanded","false"); } });
 /* bloco do Asaas: valores já com a taxa de cada forma de pagamento (o cliente paga as taxas, o dono 2026-10-24) */
+/* americano, europeu etc. (fora da América Latina): Pix por último, depois do cartão e do PayPal (Rodrigo 2026-11-17); o servidor manda pix_topo */
+const pixUlt=()=>!!(D && D.moeda!=="BRL" && D.pix_topo===false);
 function asHTML(){
   if(!AS || !A) return "";
   const L=T[lg], fx=D.moeda!=="BRL", hold=`<p class="muted" style="margin:10px 0 0">⏱ ${L.asHold}</p><div id="asmsg"></div>`;
   /* estrangeiro: Pix automático em reais com o CPF de quem paga (muitos já estão no Brasil, Rodrigo 2026-11-14) + cartão internacional sem CPF */
-  if(fx){ if(!A.ativo || !A.pix) return asIntHTML(true); const ci=asIntHTML(false); return asPixHTML(L,true) + ci + hold; }
+  if(fx){ if(!A.ativo || !A.pix) return asIntHTML(true); const ci=asIntHTML(false); return pixUlt() ? ci + hold : asPixHTML(L,true) + ci + hold; }
   if(!A.ativo || !A.pix) return `<p class="msg err">${L.asOff}</p>`;
   return `${asPixHTML(L,false)}
     ${A.cartao_ok===false?"":`<div class="pay" data-m="as-card"><h3>${L.asCard}</h3>${cardOpts(L)}<button type="button" class="btn" data-as="cartao">💳 ${L.asCardBtn}</button></div>`}
@@ -273,7 +275,7 @@ const CPF_PIX_ALT={pt:{cp:"Sem conta no Brasil? Use o cartão internacional ou o
 function cpfPixHow(){ const c=!!(A.cartao && A.cartao_ok!==false), pp=!!(D.cliente_id && !D.pp_prazo), a=CPF_PIX_ALT[lg]||CPF_PIX_ALT.pt; return (CPF_PIX_HOW[lg]||CPF_PIX_HOW.pt)+" "+a[c&&pp?"cp":c?"c":pp?"p":"n"]; }
 /* Pix do estrangeiro sem CPF (Rodrigo 2026-11-17): o QR do Asaas pode ser pago pelo Mercado Pago da Argentina, Wise e outros apps de fora;
    o CPF só é pedido se o Asaas recusar a cobrança sem documento (AX.pedeCpf) */
-const PIX_APPS={pt:"Não tem conta no Brasil? Dá para pagar este QR code Pix pelo app do Mercado Pago (Argentina), da Wise ou de outro app que pague Pix no Brasil. Não precisa de CPF.",en:"No Brazilian bank account? You can pay this Pix QR code with Mercado Pago (Argentina), Wise or another app that pays Pix in Brazil. No CPF needed.",es:"¿No tienes cuenta en Brasil? Puedes pagar este código QR Pix con la app de Mercado Pago (Argentina), Wise u otra app que pague Pix en Brasil. No necesitas CPF."};
+const PIX_APPS={pt:"Não tem conta no Brasil? Dá para pagar este QR code Pix pelo app do Mercado Pago (Argentina), da Wise ou de outro app que pague Pix no Brasil. Não precisa de CPF.",en:"Pix is Brazil's instant payment. No Brazilian bank account? You can pay this Pix QR code with Mercado Pago (Argentina), Wise or another app that pays Pix in Brazil. No CPF needed.",es:"Pix es el pago instantáneo de Brasil. ¿No tienes cuenta en Brasil? Puedes pagar este código QR Pix con la app de Mercado Pago (Argentina), Wise u otra app que pague Pix en Brasil. No necesitas CPF."};
 function asPixHTML(L, fx){
   const fee=v=>(Math.round((v-A.sinal)*100)/100)>0?tf(L.asFee,{v:brl(Math.round((v-A.sinal)*100)/100)}):"", px=AX.pix||A.cob_pix;
   const cpf = (fx ? !AX.pedeCpf : A.cpf) || (px&&px.pix_payload) ? "" : `<label class="muted" style="display:block;margin:0 0 6px">${fx?(CPF_PIX[lg]||CPF_PIX.pt):L.asCpf}${fx?`<small style="display:block;margin:2px 0 0">${cpfPixHow()}</small>`:""}<input id="as-cpf" inputmode="numeric" autocomplete="off" style="display:block;width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;margin-top:4px;background:var(--surface);color:var(--ink)"></label>`;
