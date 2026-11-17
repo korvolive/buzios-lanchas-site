@@ -2189,7 +2189,7 @@
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `public.vendas_manuais` connect `public.anotacoes` to `vendedores`, `public.bloqueios`, `public.origem_reserva`, `public.marcar_wa`, `public.bloqueios`?",
+      "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public._pre_reserva_volta`, `2026-11-13_origem-da-reserva.sql`, `public.marcar_wa`, `public.bloqueios`?",
       "why": "High betweenness centrality (0.034) - this node is a cross-community bridge."
     },
     {
@@ -2199,7 +2199,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.anotacoes`, `public`, `public.consultas`?",
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public`, `public.consultas`?",
       "why": "High betweenness centrality (0.018) - this node is a cross-community bridge."
     },
     {
@@ -2209,7 +2209,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.origem_reserva()` connect `public.origem_reserva` to `vendedores`, `public._desc_parceiro`, `public.marcar_wa`, `public.ativar_conta_cliente`, `public.meus_repasses_pp`, `public.anotacoes`, `public.consultas`?",
+      "question": "Why does `public.origem_reserva()` connect `2026-11-13_origem-da-reserva.sql` to `vendedores`, `public._desc_parceiro`, `public.marcar_wa`, `public.ativar_conta_cliente`, `public.pagamentos_asaas`, `public.bloqueios`, `public.consultas`?",
       "why": "High betweenness centrality (0.018) - this node is a cross-community bridge."
     },
     {

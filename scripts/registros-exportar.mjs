@@ -20,12 +20,14 @@ if (!TOKEN && !TESTE) { console.error("Falta SUPABASE_ACCESS_TOKEN"); process.ex
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 const _fetch = TESTE || fetch;
 
-async function chamar(url, opts = {}, tentativas = 5) {
+async function chamar(url, opts = {}, tentativas = 8) {
   for (let i = 0; ; i++) {
     const r = await _fetch(url, opts);
     if (r.status === 429 || r.status >= 500) {
       if (i >= tentativas) throw new Error(`HTTP ${r.status} em ${url.split("?")[0]}`);
-      await dormir(2000 * (i + 1));
+      // limite de uso da API: espera o que ela pedir (Retry-After) ou cada vez mais, até 1 min
+      const pedido = Number(r.headers?.get?.("retry-after")) || 0;
+      await dormir(Math.min(60000, Math.max(pedido * 1000, 5000 * 2 ** Math.min(i, 4))));
       continue;
     }
     return r;
@@ -44,10 +46,10 @@ const lit = (v) => (v === null || v === undefined ? "null" : `'${String(v).repla
 
 async function logs(consulta, ini, fim) {
   const q = new URLSearchParams({ sql: consulta, iso_timestamp_start: ini, iso_timestamp_end: fim });
-  const j = await api(`/analytics/endpoints/logs.all?${q}`);
+  const j = await api(`/analytics/endpoints/logs?${q}`);
   if (j && j.error) throw new Error(`consulta de registros falhou: ${JSON.stringify(j.error).slice(0, 300)}`);
-  await dormir(400);
-  return (j && j.result) || [];
+  await dormir(700);
+  return (j && (j.result || j.data)) || [];
 }
 
 const A = (k) => `log_attributes['${k}']`;
@@ -102,11 +104,17 @@ async function exportarFonte(nome, f, ini, fim) {
   const tot = await logs(`select count() c from (${f.corpo})`, ini, fim);
   const total = Number(tot[0]?.c ?? tot[0]?.["count()"] ?? 0);
   const linhas = [];
+  let primeiraAnterior = null;
+  const t0 = Date.now();
   while (linhas.length < total) {
     const pag = await logs(`${f.corpo} order by ${f.ordem} limit ${PAGINA} offset ${linhas.length}`, ini, fim);
     if (!pag.length) break;
+    const primeira = JSON.stringify(pag[0]);
+    if (primeira === primeiraAnterior) throw new Error(`${nome}: a plataforma repetiu a mesma página (offset ignorado)`);
+    primeiraAnterior = primeira;
     for (const l of pag) linhas.push(JSON.stringify(l));
   }
+  console.log(`${nome}: ${total} linhas lidas em ${Math.round((Date.now() - t0) / 1000)} s`);
   if (linhas.length !== total) throw new Error(`${nome}: esperava ${total} linhas e veio ${linhas.length}`);
   return linhas;
 }
@@ -167,6 +175,8 @@ const feitosRows = await sql("select dia::text dia, fonte from public.registros_
 const feitos = new Set((feitosRows || []).map((r) => `${r.dia}|${r.fonte}`));
 const dias = (process.env.DIAS || "").trim() ? process.env.DIAS.trim().split(/\s+/) : diasPendentes(feitos);
 let falhas = 0;
+let urgentes = 0; // falha num dia que está quase saindo da janela da plataforma (4+ dias atrás)
+const limiteUrgente = new Date(Date.now() - 4 * 86400000).toISOString().slice(0, 10);
 for (const dia of dias) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dia)) throw new Error(`dia inválido: ${dia}`);
   const ini = `${dia}T00:00:00.000Z`;
@@ -177,9 +187,12 @@ for (const dia of dias) {
       await gravar(dia, nome, await exportarFonte(nome, f, ini, fim));
     } catch (e) {
       falhas++;
-      console.log(`::error::${dia} ${nome}: ${e.message}`);
+      if (dia <= limiteUrgente || process.env.DIAS) urgentes++;
+      console.log(`::warning::${dia} ${nome}: ${e.message}`);
     }
   }
 }
 console.log(dias.length ? `Dias: ${dias.join(", ")}. Falhas: ${falhas}.` : "Nada pendente.");
-if (falhas) process.exit(1);
+// Só marca falha (e o GitHub manda e-mail) quando o dia corre risco de se perder ou foi pedido à mão;
+// falha passageira é recuperada sozinha na rodada seguinte.
+if (urgentes) process.exit(1);
