@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1558 nodes · 2611 edges · 124 communities (77 shown, 47 thin omitted)
+- 1559 nodes · 2611 edges · 125 communities (77 shown, 48 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7fb57c4f`
+- Built from commit: `a35dd387`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -133,7 +133,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (124 total, 47 thin omitted)
+## Communities (125 total, 48 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.07
@@ -444,21 +444,21 @@ Cohesion: 0.67
 Nodes (3): jetski_sempre_aprendiz, public.meus_jetski_alugueis(), public.tg_jetski_aprendiz()
 
 ## Knowledge Gaps
-- **47 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **48 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.ativar_conta_cliente`, `public.bloqueios`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `public.pedidos`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.jetski_usos` connect `public.jetski_usos` to `2026-11-15_jetski-lucas.sql`, `public`, `2026-11-15_jetski-pedido.sql`, `public.bloqueios`, `public.jetskis`, `public.pedidos`, `2026-11-17_jetski-dono.sql`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.05365296803652968 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
