@@ -83,6 +83,9 @@ verify_jwt = false
 [functions.convite-email]
 verify_jwt = true
 
+[functions.dono-aprovacao]
+verify_jwt = false
+
 [functions.entrar-celular]
 verify_jwt = false
 
