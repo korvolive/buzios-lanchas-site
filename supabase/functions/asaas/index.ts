@@ -816,6 +816,34 @@ Deno.serve(async req => {
       return json({ ok: true });
     }
 
+    // antecipação de cartão (Rodrigo 2026-11-17: "tem que ser antecipado"): só o robô. simular = mostra taxa e líquido;
+    // pedir = pede a antecipação no Asaas das vendas de cartão já confirmadas que a antecipação automática não pegou
+    if (b.acao === "antecipacao") {
+      const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
+      const conf = await asaas("/anticipations/configurations").catch((e: any) => ({ erro: e?.message }));
+      const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG + ", antecipacao").eq("metodo", "cartao").not("pago_em", "is", null);
+      const so = Array.isArray(b.pids) ? new Set(b.pids.map(Number)) : null;
+      const out: any[] = [];
+      for (const r of rs || []) {
+        if (so && !so.has(+r.pedido)) continue;
+        if (creditoFinal(r) || situacaoCredito(r) !== "liberar" || r.antecipacao) continue;
+        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`).catch(() => null);
+        if (!pg) continue;
+        const alvo = pg.installment ? { installment: pg.installment } : { payment: r.asaas_id };
+        const sim = await asaas("/anticipations/simulate", alvo).catch((e: any) => ({ erro: e?.message, status: e?.status }));
+        const item: any = { pedido: r.pedido, anticipable: pg.anticipable ?? null, sim: { valor: sim?.value, liquido: sim?.netValue, taxa: sim?.fee, dias: sim?.anticipationDays, documentos: sim?.isDocumentationRequired, erro: sim?.erro } };
+        if (b.pedir === true && !sim?.erro && sim?.isDocumentationRequired !== true) {
+          const feito = await asaas("/anticipations", alvo).catch((e: any) => ({ erro: e?.message, status: e?.status }));
+          item.pedido_antecipacao = { status: feito?.status, data: feito?.anticipationDate, erro: feito?.erro };
+          if (!feito?.erro) await atualizarCredito(r).catch(() => null);
+        }
+        out.push(item);
+      }
+      return json({ config: conf, itens: out });
+    }
+
     if (b.acao === "expirar") {
       // só o robô (chave interna do resgate_config) ou a chave de serviço
       const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
