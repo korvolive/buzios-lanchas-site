@@ -95,7 +95,8 @@ async function jetskiLibera(p: any) {
 // cartão só com 5 dias ou mais até o passeio (Rodrigo 2026-10-25; era 7, mudou para 5 em 2026-10-29): o cartão cai em cerca de 2 dias mesmo com antecipação,
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
-const cartaoOk = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS;
+// Miss Bardot (lancha da Búzios): cartão a qualquer prazo, sem a regra dos 5 dias (Rodrigo 2026-11-17); o fechamento 40 min antes continua
+const cartaoOk = (d: string, lancha?: string) => lancha === "miss-bardot" || ((Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS);
 // chave da subconta cifrada (revisão de segurança 2026-10-28): no banco só fica "v1:<iv>:<cifra>"
 const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
 const de64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
@@ -972,7 +973,7 @@ Deno.serve(async req => {
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
-        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: cartaoOk(x.p.data), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
+        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: cartaoOk(x.p.data, x.p.lancha), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -1134,7 +1135,7 @@ Deno.serve(async req => {
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
       if (vg === "jetski") return json({ erro: "jetski" }, 409); // prazo vencido e o jetski foi para outro cliente: não cobra (Rodrigo 2026-11-15)
       const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = online(p); // sinal da lancha + jetski
-      if (metodo === "cartao" && !cartaoOk(p.data)) return json({ erro: "cartao_prazo" }, 409);
+      if (metodo === "cartao" && !cartaoOk(p.data, p.lancha)) return json({ erro: "cartao_prazo" }, 409);
       if (!(sinal > 0)) return json({ erro: "valor" }, 400);
       const wallet = await carteira(p.lancha);
       const rep = wallet ? +(p.repasse_dono ?? -1) : 0;
