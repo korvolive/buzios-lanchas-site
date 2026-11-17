@@ -1821,7 +1821,10 @@ Object.assign(UI.es, {jetT:"Agrega una moto de agua al paseo", jetSafe:"El dueñ
 const JET_HORAS = {manha:[600,840], tarde:[840,1080], dia:[600,1020]}; /* minutos do dia: 10h–14h, 14h–18h, 10h–17h (mesmos horários do site) */
 let JETS = null, JETS_L = []; const JET_OC = new Map();
 const jetRpc = (n, b) => fetch(SB_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify(b||{})}).then(r=>r.ok?r.json():[]).catch(()=>[]);
-const loadJets = () => JETS ||= jetRpc("jetskis_site").then(L=>(JETS_L=Array.isArray(L)?L:[]));
+/* jetskis_site_v2 (Rodrigo 2026-11-17): tabela de cada temporada; o dono escolhe o valor de cada tempo (30 min a 3 h) */
+const loadJets = () => JETS ||= fetch(SB_URL+"/rest/v1/rpc/jetskis_site_v2",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:"{}"}).then(r=>r.ok?r.json():jetRpc("jetskis_site")).catch(()=>jetRpc("jetskis_site")).then(L=>(JETS_L=Array.isArray(L)?L:[]));
+const jTab = j => (pick.date && j.tabelas ? j.tabelas[seasonBase(pick.date)] : null) || j.tabela || []; /* valores da temporada da data escolhida */
+const jFrom = j => { const T=pick.date || !j.tabelas ? jTab(j) : Object.values(j.tabelas).flat(); return T.reduce((a,x)=>!a || x.valor<a.valor ? x : a, null); };
 const jetOcup = d => { if(!JET_OC.has(d)) JET_OC.set(d, jetRpc("jetski_ocupado",{p_data:d})); return JET_OC.get(d); };
 const jDur = m => m<60 ? `${m} min` : lang==="en" ? `${m/60} h`.replace(".5 h"," h 30") : `${Math.floor(m/60)}h${m%60?"30":""}`;
 const jHr = m => { const h=Math.floor(m/60), mm=m%60; return lang==="en" ? `${h%12||12}${mm?":"+pad(mm):""}${h<12?"am":"pm"}` : `${h}h${mm?pad(mm):""}`; };
@@ -1838,7 +1841,7 @@ const jetCortOf = (j,b) => j.cortesia_lancha===b.slug && j.cortesia_min>0 ? j.co
 /* card de cada jetski: galeria pequena (setas ou deslizar), nome, modelo, preço e chave aprendiz; com mais de um, toca no card para escolher (Rodrigo 2026-11-15) */
 const JET_GI = new Map(); let JET_SEL = null;
 function jetCardHTML(j, on, many, cm){
-  const f=j.fotos||[], de=(j.tabela||[])[0];
+  const f=j.fotos||[], de=jFrom(j);
   const gal=f.length ? `<div class="jet-gal2"><div class="jet-trk" data-jtrk="${esc(j.id)}">${f.map((u,i)=>`<img src="${esc(u)}" alt="${esc(j.nome)} ${i+1}" loading="lazy" data-jfull="${esc(j.id)}">`).join("")}</div>${f.length>1?`<button type="button" class="jet-nv jet-pv" data-jnv="-1" aria-label="‹">‹</button><button type="button" class="jet-nv jet-nx" data-jnv="1" aria-label="›">›</button><span class="jet-ct">1/${f.length}</span>`:""}</div>` : "";
   return `<div class="jet-card${on?" on":""}"${many?` role="radio" aria-checked="${on}" tabindex="0" data-jsel="${esc(j.id)}"`:""}>${gal}
     <div class="jet-cb"><strong>${esc(j.nome)}</strong>${j.modelo?`<span class="jet-md">${esc(j.modelo)}</span>`:""}
@@ -1854,7 +1857,7 @@ async function jetRender(b){
   if(pick.jetC) JET_SEL=cj.id; /* marcou a cortesia: fica no jetski da cortesia */
   else if(pick.jet && L.some(x=>x.id===pick.jet.id)) JET_SEL=pick.jet.id;
   if(!L.some(x=>x.id===JET_SEL)) JET_SEL=(cj||L[0]).id; /* começa no jetski da cortesia desta lancha */
-  const j=L.find(x=>x.id===JET_SEL), many=L.length>1, tab=j.tabela||[];
+  const j=L.find(x=>x.id===JET_SEL), many=L.length>1, tab=jTab(j);
   const c=pick.jetC && cj && j.id===cj.id ? cort : 0; /* minutos de cortesia que o cliente quis (Rodrigo 2026-11-15: é opcional) */
   const w=JET_HORAS[pick.slot], night=pick.slot==="noite";
   let corpo="";
@@ -1905,7 +1908,7 @@ function jetTouch(b){ const bt=document.getElementById("book-btn"); if(bt?.datas
   const ob=document.getElementById("book-online"); if(ob?.dataset.sent && sentKey!==pickKey()){ delete ob.dataset.sent; ob.disabled=false; ob.textContent=t("bookOnline"); } /* trocou o jetski depois de enviar: pode pedir de novo (revisão 2026-11-16) */ }
 function jetWaTxt(){
   const sel=pick.jet, j=sel && JETS_L.find(x=>x.id===sel.id); if(!j || sel.ini==null) return "";
-  const c=sel.c||0, v=(j.tabela||[]).find(x=>x.min===sel.min)?.valor, o={c:jDur(c), d:jDur(sel.min), a:jHr(sel.ini), b:jHr(sel.ini+sel.min+c), v:brl(v)};
+  const c=sel.c||0, v=jTab(j).find(x=>x.min===sel.min)?.valor, o={c:jDur(c), d:jDur(sel.min), a:jHr(sel.ini), b:jHr(sel.ini+sel.min+c), v:brl(v)};
   return !c ? (v ? t("jetWa",o) : "") : sel.min ? (v ? t("jetWaCP",o) : "") : t("jetWaC",o);
 }
 /* selo no card da vitrine: lancha que dá cortesia de jetski (Rodrigo 2026-11-15) */
@@ -1924,7 +1927,7 @@ function jetInfo(j, b, at){
   dl.innerHTML=`<button type="button" class="jet-x" aria-label="${t("jetClose")}">✕</button><h3>${esc(j.nome)}${j.modelo?` <small class="jet-md">${esc(j.modelo)}</small>`:""}</h3>
     ${(j.fotos||[]).length?`<div class="jet-gal jet-galh">${j.fotos.map(f=>`<img src="${esc(f)}" alt="${esc(j.nome)}" loading="lazy">`).join("")}</div>`:""}
     <p class="jet-tags"><span class="jet-key">${t("jetKeyTag")}</span>${cm?`<span class="jet-key jet-gift">${t("jetCortTag",{m:jDur(cm)})}</span>`:""}</p>
-    ${(j.tabela||[]).length?`<table class="jet-tb"><tbody>${j.tabela.map(x=>`<tr><td>${jDur(x.min)}</td><td>${brl(x.valor)}</td></tr>`).join("")}</tbody></table>`:""}
+    ${jTab(j).length?`<table class="jet-tb"><tbody>${jTab(j).map(x=>`<tr><td>${jDur(x.min)}</td><td>${brl(x.valor)}</td></tr>`).join("")}</tbody></table>`:""}
     <p class="jet-inote">${t("jetInfoNote")}</p>
     <button type="button" class="btn jet-add">${t("jetAdd")}</button>`;
   document.body.appendChild(dl); dl.querySelector(".jet-x").onclick=()=>dl.close(); dl.onclick=e=>{ if(e.target===dl) dl.close(); };
