@@ -82,7 +82,10 @@ async function chama(acao){
 }
 function cartao(d){
   const hr = d.hora_ini && d.hora_fim ? `${String(d.hora_ini).slice(0,5)} às ${String(d.hora_fim).slice(0,5)}` : (SLOT[d.horario] || d.horario || "");
-  const rows = [["Embarcação", d.lancha], ["Data", d.data ? dataTxt(d.data) : ""], ["Horário", hr], ["Pessoas", d.pessoas], ["Cliente", d.cliente], ["Você recebe", +d.neto > 0 ? brl(d.neto) : ""]]
+  const rows = [["Embarcação", d.lancha], ["Data", d.data ? dataTxt(d.data) : ""], ["Horário", hr], ["Pessoas", d.pessoas], ["Cliente", d.cliente], ["Você recebe no total", +d.neto > 0 ? brl(d.neto) : ""],
+    ...(d.embarque != null && +d.neto > 0 ? (+d.antecipado >= 0
+      ? [["Antecipado (do sinal)", brl(d.antecipado)], ["No dia, do cliente", brl(d.embarque)]]
+      : [["No dia, do cliente", brl(d.embarque)], ["Você repassa à Búzios", brl(-d.antecipado)]]) : [])]
     .filter(r => r[1] !== null && r[1] !== undefined && r[1] !== "");
   return rows.map(([k,v]) => `<div class="row"><span>${k}</span><b>${esc(v)}</b></div>`).join("");
 }
