@@ -1,2462 +1,2468 @@
 {
   ".claude/settings.json": {
-    "mtime": 1794566411.6962821,
-    "seen": 1794929404.9998183,
+    "mtime": 1794929448.5299351,
+    "seen": 1794929459.819571,
     "ast_hash": "5a6e96e8182d8f5d00ae632e20bbfa60",
     "semantic_hash": ""
   },
   ".github/workflows/android.yml": {
-    "mtime": 1794566411.6968126,
-    "seen": 1794929404.9998302,
+    "mtime": 1794929448.530719,
+    "seen": 1794929459.8195786,
     "ast_hash": "f11bbcdbc57e2c40e6e81b73143c95db",
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929404.9998364,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8195815,
     "ast_hash": "02fc37b3483bf86a0e23c49454676c6d",
     "semantic_hash": ""
   },
   ".github/workflows/ios.yml": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929404.9998407,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8195832,
     "ast_hash": "215e2f37ff304612d7e469c7e51ec411",
     "semantic_hash": ""
   },
   ".github/workflows/verificar.yml": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929404.9998531,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8195896,
     "ast_hash": "6ddce1be2c43122275e19bd7de69bd5f",
     "semantic_hash": ""
   },
   ".well-known/assetlinks.json": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929404.9998565,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8195908,
     "ast_hash": "331edcda2186ce30d1689c7d7f6c8054",
     "semantic_hash": ""
   },
   "dono/sw.js": {
-    "mtime": 1794566411.6973236,
-    "seen": 1794929404.9998596,
+    "mtime": 1794929448.5360336,
+    "seen": 1794929459.819592,
     "ast_hash": "54fd58f21b3f4422e7d0b78982702028",
     "semantic_hash": ""
   },
   "login/sortable.min.js": {
-    "mtime": 1794566411.8097453,
-    "seen": 1794929404.9998667,
+    "mtime": 1794929448.6419363,
+    "seen": 1794929459.8195958,
     "ast_hash": "2205f234f6d77f03da6f8b5f808800e7",
     "semantic_hash": ""
   },
   "login/sw.js": {
-    "mtime": 1794566411.8097453,
-    "seen": 1794929404.9998693,
+    "mtime": 1794929448.6419363,
+    "seen": 1794929459.8195972,
     "ast_hash": "328e22d584ceb9a3a998af674d5b0359",
     "semantic_hash": ""
   },
   "pagar/qrcode.js": {
-    "mtime": 1794566411.8292735,
-    "seen": 1794929404.999877,
+    "mtime": 1794929448.6544533,
+    "seen": 1794929459.8196,
     "ast_hash": "6e6189e2b177b3d014321edad68fd73c",
     "semantic_hash": ""
   },
   "scripts/android/gerar.mjs": {
-    "mtime": 1794566411.8309042,
-    "seen": 1794929404.9998798,
+    "mtime": 1794929448.655832,
+    "seen": 1794929459.8196013,
     "ast_hash": "d9f0ad24d37c7cc48dae006515d7683b",
     "semantic_hash": ""
   },
   "scripts/db-mudou.mjs": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.999886,
+    "mtime": 1794929448.655832,
+    "seen": 1794929459.8196044,
     "ast_hash": "847bebb42b1be6dcc9e43040f324036b",
     "semantic_hash": ""
   },
   "scripts/ios/gerar.mjs": {
-    "mtime": 1794566411.8310487,
-    "seen": 1794929404.9999053,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.8196144,
     "ast_hash": "f69d5654687e0fe8f56115f043105496",
     "semantic_hash": ""
   },
   "scripts/lanchas-db.mjs": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999075,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.8196156,
     "ast_hash": "d53b43e601eb0b9c291357ae0467f84d",
     "semantic_hash": ""
   },
   "scripts/prerender.mjs": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.999912,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.819618,
     "ast_hash": "f9ccbbbe5cb2682d2e8649d17c5a9866",
     "semantic_hash": ""
   },
   "supabase/functions/alerta-equipe/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999285,
+    "mtime": 1794929448.6568902,
+    "seen": 1794929459.8196282,
     "ast_hash": "8d105091d05d08ac88e437fa7755d090",
     "semantic_hash": ""
   },
   "supabase/functions/asaas/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.999944,
+    "mtime": 1794929448.6569364,
+    "seen": 1794929459.819636,
     "ast_hash": "548993e92c4148ac58c4b63e797c1fbb",
     "semantic_hash": ""
   },
   "supabase/functions/avaliacao/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929404.9999464,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196373,
     "ast_hash": "4cd72c6f396b165638c09a41b1f29574",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-chat/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.9999511,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196394,
     "ast_hash": "a8ab63d788e117d63bf2acc8736db02e",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-comprovante/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.999954,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196406,
     "ast_hash": "60f277bc76eac178829c3a51018b8abd",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-equipe/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929404.9999568,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196416,
     "ast_hash": "d68036414104cf7738274081007304c7",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-preco/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.9999619,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.819644,
     "ast_hash": "e20e44e642e944a872c018917ccc6bd5",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-vendedor/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.9999661,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196468,
     "ast_hash": "059f5450b7484511cd5a4c59e96c5ac8",
     "semantic_hash": ""
   },
   "supabase/functions/cadastro-whatsapp/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999735,
+    "mtime": 1794929448.6588562,
+    "seen": 1794929459.81965,
     "ast_hash": "0aa059628258ad8b6b6cb90be058ac87",
     "semantic_hash": ""
   },
   "supabase/functions/cambio/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929404.999976,
+    "mtime": 1794929448.6588562,
+    "seen": 1794929459.8196511,
     "ast_hash": "11badf82cb746dcb85e764aee5c3129d",
     "semantic_hash": ""
   },
   "supabase/functions/chat-inativo/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999807,
+    "mtime": 1794929448.6588562,
+    "seen": 1794929459.8196537,
     "ast_hash": "f6fd7de72e0e0118a8264534a7959569",
     "semantic_hash": ""
   },
   "supabase/functions/clima-alertas/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.999983,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196547,
     "ast_hash": "9a905ff38775e72999076a913367557e",
     "semantic_hash": ""
   },
   "supabase/functions/consulta-aviso/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999895,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196568,
     "ast_hash": "c83cb852f272afec4aace34a76da513d",
     "semantic_hash": ""
   },
   "supabase/functions/consulta-resgate/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999917,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.819658,
     "ast_hash": "9e770d47b608dec4bf44efbc822d9337",
     "semantic_hash": ""
   },
   "supabase/functions/convite-email/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929404.9999938,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196595,
     "ast_hash": "fc662ded97cafa00add67c07cd5018fe",
     "semantic_hash": ""
   },
   "supabase/functions/entrar-celular/index.ts": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929404.9999993,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196619,
     "ast_hash": "564fc6a4c306c51329020fc21c1d5374",
     "semantic_hash": ""
   },
   "supabase/functions/notificar/index.ts": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0000014,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196626,
     "ast_hash": "e28e1b175641dc9a5049d6e7da90e9a0",
     "semantic_hash": ""
   },
   "supabase/functions/paypal-checkout/index.ts": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000004,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196635,
     "ast_hash": "1f5eb51d613ec614522fa1d756a34e93",
     "semantic_hash": ""
   },
   "supabase/functions/paypal-fatura/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929405.0000064,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196645,
     "ast_hash": "0491d8614cbb285311d880ab405c866d",
     "semantic_hash": ""
   },
   "supabase/functions/pedido-indisponivel/index.ts": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000009,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196654,
     "ast_hash": "bf92c186a6a63613d3147b8c59dde083",
     "semantic_hash": ""
   },
   "supabase/functions/pedido-vendedor/index.ts": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0000112,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196664,
     "ast_hash": "7a293ca14614441a9286809624194893",
     "semantic_hash": ""
   },
   "supabase/functions/traduzir-chat/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929405.0000138,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.819667,
     "ast_hash": "f9e607997fe11045fd1efc85fa2cc7ac",
     "semantic_hash": ""
   },
   "supabase/functions/traduzir/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929405.0000162,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196683,
     "ast_hash": "3f9128d840e6e18bbfd3d241104adaf3",
     "semantic_hash": ""
   },
   "supabase/functions/whatsapp-codigo/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929405.0000184,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.819669,
     "ast_hash": "9d1179b9dc0792d3bc341ce57abf8117",
     "semantic_hash": ""
   },
   "supabase/functions/whatsapp-webhook/index.ts": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929405.0000207,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.81967,
     "ast_hash": "2118247a204fecfc4006e93cf6957906",
     "semantic_hash": ""
   },
   "sw.js": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0003126,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8198078,
     "ast_hash": "8202dd6c9f05db453616b307897b1a2b",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929405.000317,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8198097,
     "ast_hash": "f11059e4af4058ab542ff6825386bf21",
     "semantic_hash": ""
   },
   "dono/index.html": {
-    "mtime": 1794566411.6973236,
-    "seen": 1794929405.000339,
+    "mtime": 1794929448.5360336,
+    "seen": 1794929459.819821,
     "ast_hash": "657e1120debe4a1dacfbdd188e6a5fb5",
     "semantic_hash": ""
   },
   "falar/index.html": {
-    "mtime": 1794566411.6973236,
-    "seen": 1794929405.0003412,
+    "mtime": 1794929448.5360336,
+    "seen": 1794929459.8198216,
     "ast_hash": "1487c79595373fce361e17bc58de68ae",
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1794928868.2436194,
-    "seen": 1794929405.0003436,
+    "mtime": 1794929448.5959358,
+    "seen": 1794929459.8198225,
     "ast_hash": "890fc3c7599a7a771038e51faaa2d5a3",
     "semantic_hash": ""
   },
   "login/index.html": {
-    "mtime": 1794929403.0516512,
-    "seen": 1794929405.0003462,
+    "mtime": 1794929448.6019359,
+    "seen": 1794929459.8198235,
     "ast_hash": "0d9ae68b173de09120d2fefb9cc10e70",
     "semantic_hash": ""
   },
   "pagar/index.html": {
-    "mtime": 1794928868.2676196,
-    "seen": 1794929405.000348,
+    "mtime": 1794929448.6539364,
+    "seen": 1794929459.8198245,
     "ast_hash": "fe26a5e2224578c9ba20e47ab0d74a74",
     "semantic_hash": ""
   },
   "privacidade/index.html": {
-    "mtime": 1794928868.2676196,
-    "seen": 1794929405.0003521,
+    "mtime": 1794929448.6544533,
+    "seen": 1794929459.8198261,
     "ast_hash": "9381f2896fe225cf855fdff9ff1e7547",
     "semantic_hash": ""
   },
   "regiao/index.html": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929405.000361,
+    "mtime": 1794929448.6549585,
+    "seen": 1794929459.8198297,
     "ast_hash": "1ed3e05946f5990fab8c0c4451b1e422",
     "semantic_hash": ""
   },
   "robots.txt": {
-    "mtime": 1794566411.8301928,
-    "seen": 1794929405.0003765,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.819837,
     "ast_hash": "583d1507f36790c5a07bc57304ca3974",
     "semantic_hash": ""
   },
   "material/buzios-flat-adesivo-quartos.pdf": {
-    "mtime": 1794566411.8137453,
-    "seen": 1794929405.0003788,
+    "mtime": 1794929448.6459365,
+    "seen": 1794929459.8198383,
     "ast_hash": "ae203fb1b7dbaed948b8602f2c5fd497",
     "semantic_hash": ""
   },
   "material/buzios-flat-display-balcao.pdf": {
-    "mtime": 1794566411.8217454,
-    "seen": 1794929405.000381,
+    "mtime": 1794929448.6499364,
+    "seen": 1794929459.819839,
     "ast_hash": "f9bc65fff5cf6984efc48d00dad2a0e3",
     "semantic_hash": ""
   },
   "apple-touch-icon-precomposed.png": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929405.000385,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8198407,
     "ast_hash": "6d81610a1dfe81d5a2cc526ab531d824",
     "semantic_hash": ""
   },
   "apple-touch-icon.png": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929405.000387,
+    "mtime": 1794929448.5309353,
+    "seen": 1794929459.8198419,
     "ast_hash": "6d81610a1dfe81d5a2cc526ab531d824",
     "semantic_hash": ""
   },
   "dono/apple-touch-icon.png": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929405.0004046,
+    "mtime": 1794929448.5349352,
+    "seen": 1794929459.8198493,
     "ast_hash": "6d81610a1dfe81d5a2cc526ab531d824",
     "semantic_hash": ""
   },
   "dono/icon-192.png": {
-    "mtime": 1794566411.6973236,
-    "seen": 1794929405.0004063,
+    "mtime": 1794929448.5360336,
+    "seen": 1794929459.8198502,
     "ast_hash": "ca07fe3bc9a91bc703af1696b3fa61dd",
     "semantic_hash": ""
   },
   "dono/icon-512.png": {
-    "mtime": 1794566411.6973236,
-    "seen": 1794929405.0004084,
+    "mtime": 1794929448.5360336,
+    "seen": 1794929459.819851,
     "ast_hash": "db77e65091d6931b42f81088956a886c",
     "semantic_hash": ""
   },
   "dono/icon-maskable.png": {
-    "mtime": 1794566411.6973236,
-    "seen": 1794929405.0004103,
+    "mtime": 1794929448.5360336,
+    "seen": 1794929459.819852,
     "ast_hash": "143cc9c3d5bd2ebb873d402ddc25658d",
     "semantic_hash": ""
   },
   "img/bb-01-t.jpg": {
-    "mtime": 1794566411.7057455,
-    "seen": 1794929405.0004125,
+    "mtime": 1794929448.5489354,
+    "seen": 1794929459.8198528,
     "ast_hash": "13ed2d278ab6128efb92b115dd6905bb",
     "semantic_hash": ""
   },
   "img/bb-01.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.000415,
+    "mtime": 1794929448.5489354,
+    "seen": 1794929459.8198538,
     "ast_hash": "db34387c1d582636ad6f24d1316183a4",
     "semantic_hash": ""
   },
   "img/bb-02-t.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004175,
+    "mtime": 1794929448.5489354,
+    "seen": 1794929459.8198547,
     "ast_hash": "bcf17709fffa2d77beac0e2efa5cd58d",
     "semantic_hash": ""
   },
   "img/bb-02.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004196,
+    "mtime": 1794929448.5499353,
+    "seen": 1794929459.8198557,
     "ast_hash": "3135e0edfbd81caa2203d399e5d8a1c0",
     "semantic_hash": ""
   },
   "img/bb-03-t.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004215,
+    "mtime": 1794929448.5499353,
+    "seen": 1794929459.8198564,
     "ast_hash": "baab8201c02ea03be911acee93295b62",
     "semantic_hash": ""
   },
   "img/bb-03.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004237,
+    "mtime": 1794929448.5499353,
+    "seen": 1794929459.8198574,
     "ast_hash": "6b48dadf1bbb88b7cd2679f88f3c0455",
     "semantic_hash": ""
   },
   "img/bb-04-t.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004258,
+    "mtime": 1794929448.5499353,
+    "seen": 1794929459.8198586,
     "ast_hash": "cd48313a707ce6ba3d76fc5440eab32e",
     "semantic_hash": ""
   },
   "img/bb-04.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004275,
+    "mtime": 1794929448.5509355,
+    "seen": 1794929459.8198595,
     "ast_hash": "66156bc07ae553f94786f3a66cfa8792",
     "semantic_hash": ""
   },
   "img/bb-05-t.jpg": {
-    "mtime": 1794566411.7074533,
-    "seen": 1794929405.0004294,
+    "mtime": 1794929448.5509355,
+    "seen": 1794929459.8198602,
     "ast_hash": "bb0235bb62a5de020c6b4ae5e5b8267f",
     "semantic_hash": ""
   },
   "img/bb-05.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004313,
+    "mtime": 1794929448.5519354,
+    "seen": 1794929459.8198612,
     "ast_hash": "8d7281e2998e74bdc422085cdf1fc7da",
     "semantic_hash": ""
   },
   "img/bb-06-t.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004332,
+    "mtime": 1794929448.5519354,
+    "seen": 1794929459.8198621,
     "ast_hash": "ecd91026bc79c5af2e722e0859054a09",
     "semantic_hash": ""
   },
   "img/bb-06.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004349,
+    "mtime": 1794929448.5519354,
+    "seen": 1794929459.819863,
     "ast_hash": "7b7a3cba5fc400624c5589ca86d43d0b",
     "semantic_hash": ""
   },
   "img/bb-07-t.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004375,
+    "mtime": 1794929448.5519354,
+    "seen": 1794929459.819864,
     "ast_hash": "bbe07d0373beeda07ec27cf4caa5c238",
     "semantic_hash": ""
   },
   "img/bb-07.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.00044,
+    "mtime": 1794929448.5529354,
+    "seen": 1794929459.8198647,
     "ast_hash": "05a0f3c239000472134a4ff9d4ec0af6",
     "semantic_hash": ""
   },
   "img/bb-08-t.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004416,
+    "mtime": 1794929448.5529354,
+    "seen": 1794929459.819866,
     "ast_hash": "f8531cacc725e473916209478699cc90",
     "semantic_hash": ""
   },
   "img/bb-08.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004437,
+    "mtime": 1794929448.5529354,
+    "seen": 1794929459.8198667,
     "ast_hash": "d9204486f1b3fd51bee6a8c5627033b5",
     "semantic_hash": ""
   },
   "img/bubbles-video.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0004458,
+    "mtime": 1794929448.5529354,
+    "seen": 1794929459.8198676,
     "ast_hash": "30d5c4a86948953e1de681660b43a630",
     "semantic_hash": ""
   },
   "img/cp-01-t.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0005107,
+    "mtime": 1794929448.5589354,
+    "seen": 1794929459.8198795,
     "ast_hash": "bc2c6ccfc16afe2f46a4e725e2817001",
     "semantic_hash": ""
   },
   "img/cp-01.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0005128,
+    "mtime": 1794929448.5589354,
+    "seen": 1794929459.8198805,
     "ast_hash": "aa5e2deaf4e5d744a74f34482248d3e6",
     "semantic_hash": ""
   },
   "img/cp-02-t.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0005145,
+    "mtime": 1794929448.5589354,
+    "seen": 1794929459.8198812,
     "ast_hash": "9a1941dc1c3a8aa9843ad8abe550c16b",
     "semantic_hash": ""
   },
   "img/cp-02.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.000517,
+    "mtime": 1794929448.5599356,
+    "seen": 1794929459.819882,
     "ast_hash": "ae643e491f74f4b702c65751c2de2f82",
     "semantic_hash": ""
   },
   "img/cp-03-t.jpg": {
-    "mtime": 1794566411.7097454,
-    "seen": 1794929405.0005188,
+    "mtime": 1794929448.5599356,
+    "seen": 1794929459.819883,
     "ast_hash": "3241c99501b8da25b6f826c60ae251d0",
     "semantic_hash": ""
   },
   "img/cp-03.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.000521,
+    "mtime": 1794929448.5599356,
+    "seen": 1794929459.8198838,
     "ast_hash": "3bd2df8377ebc5a9f8576a03093614e9",
     "semantic_hash": ""
   },
   "img/cp-04-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005229,
+    "mtime": 1794929448.5599356,
+    "seen": 1794929459.8198845,
     "ast_hash": "cbb01dfd82d7adff602be8fa4273faa4",
     "semantic_hash": ""
   },
   "img/cp-04.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005245,
+    "mtime": 1794929448.5609355,
+    "seen": 1794929459.8198855,
     "ast_hash": "bde327092c7b32697603b79520d9e00d",
     "semantic_hash": ""
   },
   "img/cp-05-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005264,
+    "mtime": 1794929448.5609355,
+    "seen": 1794929459.8198864,
     "ast_hash": "38b32508ac545788d6fecce0c8469f34",
     "semantic_hash": ""
   },
   "img/cp-05.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005283,
+    "mtime": 1794929448.5609355,
+    "seen": 1794929459.8198874,
     "ast_hash": "43c6a86c24ad3caa6b012b2fd2a052ca",
     "semantic_hash": ""
   },
   "img/cp-06-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005305,
+    "mtime": 1794929448.5609355,
+    "seen": 1794929459.819888,
     "ast_hash": "f927be7d54379d3ebe106a60684c93c8",
     "semantic_hash": ""
   },
   "img/cp-06.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005322,
+    "mtime": 1794929448.5609355,
+    "seen": 1794929459.8198888,
     "ast_hash": "e74744b54835edffa050f7926efa3a87",
     "semantic_hash": ""
   },
   "img/cp-07-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005343,
+    "mtime": 1794929448.5609355,
+    "seen": 1794929459.81989,
     "ast_hash": "68804692602fab039472e0d32e779f38",
     "semantic_hash": ""
   },
   "img/cp-07.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005362,
+    "mtime": 1794929448.5619354,
+    "seen": 1794929459.8198907,
     "ast_hash": "baa3baed97bda5a90edeea54b02c76d9",
     "semantic_hash": ""
   },
   "img/cp-08-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005383,
+    "mtime": 1794929448.5619354,
+    "seen": 1794929459.8198915,
     "ast_hash": "1ea25088da4085d15b544749b05e956d",
     "semantic_hash": ""
   },
   "img/cp-08.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005405,
+    "mtime": 1794929448.5619354,
+    "seen": 1794929459.8198924,
     "ast_hash": "cb39de2a8cde66bc086fe1c07a0c9cd3",
     "semantic_hash": ""
   },
   "img/lz-01-t.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.000556,
+    "mtime": 1794929448.5649354,
+    "seen": 1794929459.819899,
     "ast_hash": "ae819aa1838fcc551d7b717755c726e1",
     "semantic_hash": ""
   },
   "img/lz-01.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005581,
+    "mtime": 1794929448.5659356,
+    "seen": 1794929459.8198998,
     "ast_hash": "99f3280d397a2fcd436da0be39e49a6e",
     "semantic_hash": ""
   },
   "img/lz-02-t.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.00056,
+    "mtime": 1794929448.5659356,
+    "seen": 1794929459.819901,
     "ast_hash": "47596dc721ddecdec91f377104613038",
     "semantic_hash": ""
   },
   "img/lz-02.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005624,
+    "mtime": 1794929448.5659356,
+    "seen": 1794929459.8199017,
     "ast_hash": "d71217a059497a8d44e46da690f03030",
     "semantic_hash": ""
   },
   "img/lz-03-t.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005646,
+    "mtime": 1794929448.5659356,
+    "seen": 1794929459.8199027,
     "ast_hash": "3876934f5ecb4891c0ba1d243a31357d",
     "semantic_hash": ""
   },
   "img/lz-03.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005662,
+    "mtime": 1794929448.5659356,
+    "seen": 1794929459.8199034,
     "ast_hash": "2abeae0693a6cbc4393b6dd30b6dcbc1",
     "semantic_hash": ""
   },
   "img/lz-04-t.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005682,
+    "mtime": 1794929448.5669355,
+    "seen": 1794929459.8199046,
     "ast_hash": "86446f7c8ec63d8036b8bfb583d62651",
     "semantic_hash": ""
   },
   "img/lz-04.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005698,
+    "mtime": 1794929448.5669355,
+    "seen": 1794929459.8199055,
     "ast_hash": "f8dfafa4f2f4b7a9ed30bec681c11e39",
     "semantic_hash": ""
   },
   "img/mapa-buzios.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.000572,
+    "mtime": 1794929448.5669355,
+    "seen": 1794929459.8199062,
     "ast_hash": "332dd276ba4202aa903d15d2b38d901b",
     "semantic_hash": ""
   },
   "img/mb-01-t.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005736,
+    "mtime": 1794929448.5669355,
+    "seen": 1794929459.8199072,
     "ast_hash": "f02138da2d043d24d49f4bb441e6870c",
     "semantic_hash": ""
   },
   "img/mb-01.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005755,
+    "mtime": 1794929448.5679355,
+    "seen": 1794929459.819908,
     "ast_hash": "8b8d5cc7f0c18b8bb2f210cb9530b8dc",
     "semantic_hash": ""
   },
   "img/mb-02-t.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005772,
+    "mtime": 1794929448.5679355,
+    "seen": 1794929459.8199089,
     "ast_hash": "be6832932b54e5b58226ef4c57c4b515",
     "semantic_hash": ""
   },
   "img/mb-02.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.000579,
+    "mtime": 1794929448.5679355,
+    "seen": 1794929459.8199096,
     "ast_hash": "3c178e10c55103572ee634b4f9e049f4",
     "semantic_hash": ""
   },
   "img/mb-03-t.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.000581,
+    "mtime": 1794929448.5689356,
+    "seen": 1794929459.8199103,
     "ast_hash": "12e52878490b74a8afad377ddedb3b7e",
     "semantic_hash": ""
   },
   "img/mb-03.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005832,
+    "mtime": 1794929448.5689356,
+    "seen": 1794929459.8199112,
     "ast_hash": "12c3d635226a769a4ec921e5389b6273",
     "semantic_hash": ""
   },
   "img/mb-04-t.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.000585,
+    "mtime": 1794929448.5689356,
+    "seen": 1794929459.8199122,
     "ast_hash": "e29727deb1cec9f6ac52ea63caf3ef03",
     "semantic_hash": ""
   },
   "img/mb-04.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005867,
+    "mtime": 1794929448.5699356,
+    "seen": 1794929459.819913,
     "ast_hash": "46ddf4066b89a9d6883d4b8cd679e6b1",
     "semantic_hash": ""
   },
   "img/mb-05-t.jpg": {
-    "mtime": 1794566411.7217455,
-    "seen": 1794929405.0005887,
+    "mtime": 1794929448.5699356,
+    "seen": 1794929459.819914,
     "ast_hash": "347b3b4deb59d72efd4b3d64371d194b",
     "semantic_hash": ""
   },
   "img/mb-05.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0005903,
+    "mtime": 1794929448.5699356,
+    "seen": 1794929459.8199148,
     "ast_hash": "068bf74033b7ae18cdbf596648439aa6",
     "semantic_hash": ""
   },
   "img/mb-06-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0005922,
+    "mtime": 1794929448.5699356,
+    "seen": 1794929459.8199155,
     "ast_hash": "cb3be8b3308ee4696b1d0db659525d58",
     "semantic_hash": ""
   },
   "img/mb-06.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0005944,
+    "mtime": 1794929448.5709355,
+    "seen": 1794929459.8199162,
     "ast_hash": "fa75ab13762a639c0dfa96242f3ae4b6",
     "semantic_hash": ""
   },
   "img/mb-07-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0005963,
+    "mtime": 1794929448.5709355,
+    "seen": 1794929459.8199172,
     "ast_hash": "9b83150a025d92417fd0c5276cf5e8db",
     "semantic_hash": ""
   },
   "img/mb-07.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0005982,
+    "mtime": 1794929448.5709355,
+    "seen": 1794929459.8199182,
     "ast_hash": "d235a4cdeb4a4dd5bd5d685f83e3a6bd",
     "semantic_hash": ""
   },
   "img/mb-08-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006,
+    "mtime": 1794929448.5709355,
+    "seen": 1794929459.8199189,
     "ast_hash": "a3b5ff0ec56503d2e80904b4d089d492",
     "semantic_hash": ""
   },
   "img/mb-08.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006013,
+    "mtime": 1794929448.5709355,
+    "seen": 1794929459.8199198,
     "ast_hash": "68194bee12ec0056b8418c0962a85d9c",
     "semantic_hash": ""
   },
   "img/mb-09-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006032,
+    "mtime": 1794929448.5719357,
+    "seen": 1794929459.8199205,
     "ast_hash": "c675ef6d91e47d3bfa987b92424eda34",
     "semantic_hash": ""
   },
   "img/mb-09.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006049,
+    "mtime": 1794929448.5719357,
+    "seen": 1794929459.8199215,
     "ast_hash": "97e8f40f2adeb68aa2591f035f7d62bf",
     "semantic_hash": ""
   },
   "img/mb-10-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006065,
+    "mtime": 1794929448.5719357,
+    "seen": 1794929459.8199224,
     "ast_hash": "8be0e8346c0b88bd28cc807bb81e7b7a",
     "semantic_hash": ""
   },
   "img/mb-10.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.000609,
+    "mtime": 1794929448.5719357,
+    "seen": 1794929459.8199232,
     "ast_hash": "bf80876cd904ba28745853f8f6ac4087",
     "semantic_hash": ""
   },
   "img/mb-11-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006108,
+    "mtime": 1794929448.5719357,
+    "seen": 1794929459.819924,
     "ast_hash": "2bcaed3696701ec78cc8c35f84ea9fdf",
     "semantic_hash": ""
   },
   "img/mb-11.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006125,
+    "mtime": 1794929448.5729356,
+    "seen": 1794929459.819925,
     "ast_hash": "ca6e660b175b8d6f74b350a98bbc28f9",
     "semantic_hash": ""
   },
   "img/mb-12-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006144,
+    "mtime": 1794929448.5729356,
+    "seen": 1794929459.8199258,
     "ast_hash": "ec3a93f75d60ced5ac608c8f98f7b579",
     "semantic_hash": ""
   },
   "img/mb-12.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.000616,
+    "mtime": 1794929448.5729356,
+    "seen": 1794929459.8199267,
     "ast_hash": "f57f332a191a1e56f647d750383a88c4",
     "semantic_hash": ""
   },
   "img/mb-13-t.jpg": {
-    "mtime": 1794566411.7257454,
-    "seen": 1794929405.0006182,
+    "mtime": 1794929448.5729356,
+    "seen": 1794929459.8199275,
     "ast_hash": "4c5fec82ef7521d105422b1d58ced0dc",
     "semantic_hash": ""
   },
   "img/mb-13.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006204,
+    "mtime": 1794929448.5739357,
+    "seen": 1794929459.8199286,
     "ast_hash": "56d358f02463c2790ea7eb101f36a342",
     "semantic_hash": ""
   },
   "img/mb-14-t.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006218,
+    "mtime": 1794929448.5739357,
+    "seen": 1794929459.8199296,
     "ast_hash": "7fbce0bd07b9eb0368dbb7f1f58a5d08",
     "semantic_hash": ""
   },
   "img/mb-14.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006235,
+    "mtime": 1794929448.5739357,
+    "seen": 1794929459.8199303,
     "ast_hash": "1b3ca1d1f0d08458c52c5c84e2368497",
     "semantic_hash": ""
   },
   "img/md-01-t.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006506,
+    "mtime": 1794929448.5809357,
+    "seen": 1794929459.8199441,
     "ast_hash": "e377a97492cdcb5c82a5521838b4de5b",
     "semantic_hash": ""
   },
   "img/md-01.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.000653,
+    "mtime": 1794929448.5819356,
+    "seen": 1794929459.8199449,
     "ast_hash": "6b981d901eb6d8bf2888c84c9605f061",
     "semantic_hash": ""
   },
   "img/md-02-t.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.000655,
+    "mtime": 1794929448.5819356,
+    "seen": 1794929459.8199458,
     "ast_hash": "29d64a01fd1f12b5d4a7744d4e2ce75c",
     "semantic_hash": ""
   },
   "img/md-02.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006568,
+    "mtime": 1794929448.5819356,
+    "seen": 1794929459.8199468,
     "ast_hash": "07652e9a6935c7a67e85e9f4aa788432",
     "semantic_hash": ""
   },
   "img/md-03-t.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.000659,
+    "mtime": 1794929448.5819356,
+    "seen": 1794929459.8199475,
     "ast_hash": "26883a7db10f6219c2ebad8924d6ae56",
     "semantic_hash": ""
   },
   "img/md-03.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006604,
+    "mtime": 1794929448.5819356,
+    "seen": 1794929459.8199484,
     "ast_hash": "b84bdedac9706173a945570cf6cadf3c",
     "semantic_hash": ""
   },
   "img/md-04-t.jpg": {
-    "mtime": 1794566411.7297454,
-    "seen": 1794929405.0006626,
+    "mtime": 1794929448.5819356,
+    "seen": 1794929459.8199496,
     "ast_hash": "793f8795b84b55fcace52feec2602715",
     "semantic_hash": ""
   },
   "img/md-04.jpg": {
-    "mtime": 1794566411.7337453,
-    "seen": 1794929405.0006652,
+    "mtime": 1794929448.5829358,
+    "seen": 1794929459.8199506,
     "ast_hash": "f09176df1f7fb2e892dfb97be13b4cb3",
     "semantic_hash": ""
   },
   "img/md-05-t.jpg": {
-    "mtime": 1794566411.7337453,
-    "seen": 1794929405.0006673,
+    "mtime": 1794929448.5829358,
+    "seen": 1794929459.8199513,
     "ast_hash": "5258e2878cf58d9dd22368e3e7133e7f",
     "semantic_hash": ""
   },
   "img/md-05.jpg": {
-    "mtime": 1794566411.7337453,
-    "seen": 1794929405.0006695,
+    "mtime": 1794929448.5829358,
+    "seen": 1794929459.819952,
     "ast_hash": "5b55c9bf6d10bf6235a373bed97a5740",
     "semantic_hash": ""
   },
   "img/miss-bardot-video.jpg": {
-    "mtime": 1794566411.7337453,
-    "seen": 1794929405.000672,
+    "mtime": 1794929448.5829358,
+    "seen": 1794929459.8199532,
     "ast_hash": "7439f617c5732dfa99b50d9b79625ad4",
     "semantic_hash": ""
   },
   "img/parceiros/aline8.png": {
-    "mtime": 1794566411.7337453,
-    "seen": 1794929405.0006745,
+    "mtime": 1794929448.5839357,
+    "seen": 1794929459.819954,
     "ast_hash": "d293b0dc819750be8a76dad6b858ad7f",
     "semantic_hash": ""
   },
   "img/parceiros/bah.png": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0006769,
+    "mtime": 1794929448.5839357,
+    "seen": 1794929459.8199549,
     "ast_hash": "ebb148374bcfe499c325d0ea974fd827",
     "semantic_hash": ""
   },
   "img/parceiros/thiago69.png": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0006793,
+    "mtime": 1794929448.5839357,
+    "seen": 1794929459.8199558,
     "ast_hash": "cc4fa2e457691cee1ec478751d05b079",
     "semantic_hash": ""
   },
   "img/rt-01.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.000723,
+    "mtime": 1794929448.5899358,
+    "seen": 1794929459.8199744,
     "ast_hash": "bf87069b4a3930f437b97d3d25edd49a",
     "semantic_hash": ""
   },
   "img/rt-02.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0007253,
+    "mtime": 1794929448.5899358,
+    "seen": 1794929459.8199751,
     "ast_hash": "e47367532631496bcc12602f09046ab5",
     "semantic_hash": ""
   },
   "img/rt-03.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0007274,
+    "mtime": 1794929448.5899358,
+    "seen": 1794929459.819976,
     "ast_hash": "1090f963eeeedfbfbc5e67db7f996e67",
     "semantic_hash": ""
   },
   "img/rt-04.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0007293,
+    "mtime": 1794929448.5909357,
+    "seen": 1794929459.819977,
     "ast_hash": "a5c4a74857d69802a5d26cb32f18b2ab",
     "semantic_hash": ""
   },
   "img/rt-05.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0007312,
+    "mtime": 1794929448.5909357,
+    "seen": 1794929459.8199778,
     "ast_hash": "d56f170d28ae2ec3e5c0cbe62678162a",
     "semantic_hash": ""
   },
   "img/rt-06.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.0007327,
+    "mtime": 1794929448.5919359,
+    "seen": 1794929459.8199785,
     "ast_hash": "966707495113112b4f22849a5e04067e",
     "semantic_hash": ""
   },
   "img/rt-07.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.0007348,
+    "mtime": 1794929448.5919359,
+    "seen": 1794929459.8199794,
     "ast_hash": "5335300d3d073425142a95c56b9586e0",
     "semantic_hash": ""
   },
   "img/rt-08.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.0007365,
+    "mtime": 1794929448.5919359,
+    "seen": 1794929459.8199806,
     "ast_hash": "1e2d7a108f55f7fd4aebf8eeec59ad85",
     "semantic_hash": ""
   },
   "img/rt-09.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.0007381,
+    "mtime": 1794929448.5929358,
+    "seen": 1794929459.8199813,
     "ast_hash": "99546497c8bac07022ca7eeec9c55a83",
     "semantic_hash": ""
   },
   "img/rt-10.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.0007396,
+    "mtime": 1794929448.5929358,
+    "seen": 1794929459.819982,
     "ast_hash": "ab34b3ba200966266a58445dc86aec5c",
     "semantic_hash": ""
   },
   "img/rt-11.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.000741,
+    "mtime": 1794929448.5929358,
+    "seen": 1794929459.8199828,
     "ast_hash": "ba0f32f1e3348aa2c199440e9cdcc2c5",
     "semantic_hash": ""
   },
   "img/rt-12.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.000743,
+    "mtime": 1794929448.5929358,
+    "seen": 1794929459.819984,
     "ast_hash": "0137790afa52d9162dce808459ad53f4",
     "semantic_hash": ""
   },
   "login/apple-touch-icon.png": {
-    "mtime": 1794566411.7417455,
-    "seen": 1794929405.0007558,
+    "mtime": 1794929448.5959358,
+    "seen": 1794929459.8199892,
     "ast_hash": "6d81610a1dfe81d5a2cc526ab531d824",
     "semantic_hash": ""
   },
   "login/icon-192.png": {
-    "mtime": 1794566411.7443876,
-    "seen": 1794929405.0007577,
+    "mtime": 1794929448.5969074,
+    "seen": 1794929459.8199902,
     "ast_hash": "ca07fe3bc9a91bc703af1696b3fa61dd",
     "semantic_hash": ""
   },
   "login/icon-512.png": {
-    "mtime": 1794566411.7443876,
-    "seen": 1794929405.0007598,
+    "mtime": 1794929448.5969074,
+    "seen": 1794929459.819991,
     "ast_hash": "db77e65091d6931b42f81088956a886c",
     "semantic_hash": ""
   },
   "login/icon-maskable.png": {
-    "mtime": 1794566411.7443876,
-    "seen": 1794929405.0007615,
+    "mtime": 1794929448.5969074,
+    "seen": 1794929459.8199923,
     "ast_hash": "143cc9c3d5bd2ebb873d402ddc25658d",
     "semantic_hash": ""
   },
   "material/buzios-flat-adesivo-quartos.jpg": {
-    "mtime": 1794566411.8137453,
-    "seen": 1794929405.0007634,
+    "mtime": 1794929448.6449363,
+    "seen": 1794929459.8199933,
     "ast_hash": "f74d9668479e05bdc46ba6c082794e1f",
     "semantic_hash": ""
   },
   "material/buzios-flat-display-balcao.jpg": {
-    "mtime": 1794566411.8177454,
-    "seen": 1794929405.0007648,
+    "mtime": 1794929448.6489365,
+    "seen": 1794929459.8199942,
     "ast_hash": "874f0ea824450fd65caa499416a30dcc",
     "semantic_hash": ""
   },
   "scripts/ios/icone-1024.png": {
-    "mtime": 1794566411.8310487,
-    "seen": 1794929405.0007718,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.8199968,
     "ast_hash": "6618d8b4fee595f9b929962e5924a2cc",
     "semantic_hash": ""
   },
   "video/bubbles.mp4": {
-    "mtime": 1794566411.8537455,
-    "seen": 1794929405.0007741,
+    "mtime": 1794929448.6689367,
+    "seen": 1794929459.8199978,
     "ast_hash": "435fe69a155b52f88ab1190098622a2d",
     "semantic_hash": ""
   },
   "video/miss-bardot.mp4": {
-    "mtime": 1794566411.9017453,
-    "seen": 1794929405.0007782,
+    "mtime": 1794929448.704937,
+    "seen": 1794929459.8199995,
     "ast_hash": "b6eb754f1d0a670dee467960676746ab",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_ajustes-alteracao.sql": {
-    "mtime": 1794566411.8317013,
-    "seen": 1794929405.0000236,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.8196714,
     "ast_hash": "8ced436522101b4eba33aefcb8b0508a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_comprovante-no-passeio.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000286,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196735,
     "ast_hash": "c7981831b131e0f598f9bdcbcf87f6b5",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_consultas-recusadas.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000305,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196743,
     "ast_hash": "99c5face513d221fa60f1aa537066be3",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_mover-passeio-atual.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000327,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196754,
     "ast_hash": "8447459c0843bc1516ec8b81a1bbed22",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_operador-lanca-pedido.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000346,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196764,
     "ast_hash": "fbb80144fcab049c923ac73ce2a205b7",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_operador-um-toque.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000037,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.819677,
     "ast_hash": "3eb47b13b54e93203c8ed4f0b5601e34",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_papeis-operador-auditor.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000389,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196783,
     "ast_hash": "e64daf856c4c909735abd1d9f5b76c20",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_pedido-do-operador-pela-central.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000408,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196793,
     "ast_hash": "ab1b47e60eaf67e52092dd1fb6936be3",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_prazo-pre-reserva.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000043,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196802,
     "ast_hash": "bb3891972a0d5c2698566c42ae7f68a1",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_pre-reserva-volta-e-comprovante-chat.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000045,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196812,
     "ast_hash": "13889038dcabcb927183b85c61622b46",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_revisao-politicas-gravacao.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000472,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196824,
     "ast_hash": "270bf139183e09653fc7cdc3e22efcea",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_servidor-pode-conferir-admin.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000049,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196833,
     "ast_hash": "dc3c9d963e9ac83fb28aed0590abd837",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_whatsapp-condicional-vendedor.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000517,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196845,
     "ast_hash": "c96be469713d90a8bbeb94cd7f842f68",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_whatsapp-sem-duplicar.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000534,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196857,
     "ast_hash": "e883cecdbb5239f604390db0b9b3590d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_comprovante-sem-chat.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000556,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196867,
     "ast_hash": "3d2ecc5f0d2eb97a806e92072ec53142",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_desconto-grupo-pequeno.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000577,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196878,
     "ast_hash": "24419d83b2ba71a2251d2902cea9b08a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_lembrete-do-sinal.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000594,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.819689,
     "ast_hash": "0159455deb5f24fc3318ab32a124887c",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_miss-bardot-pre-reserva-automatica.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000613,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.81969,
     "ast_hash": "72ebdaf1562568c219394a3ca57757f0",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_operador-pede-avaliacao.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000632,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.819691,
     "ast_hash": "c2a153e080abf806bd4073f2d4977825",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_periodos-pelo-horario.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000065,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196924,
     "ast_hash": "a6d155a41b66cb1d2673e2976b1c7c2b",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_seguranca-travas.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000067,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196933,
     "ast_hash": "dd7a0aafa4b0807ae35043084c2de254",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_vendedor-comissao-por-cima.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000691,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196945,
     "ast_hash": "64b7370db52a23108c2658d5f273574d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-31_vendedor-lanca-pedido.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000713,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196957,
     "ast_hash": "291e5ce309e377c6348eb96a354a44d6",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_alteracao-guarda-embarque.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000073,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196967,
     "ast_hash": "4a2d5d40f2493154ee0b245e40de7942",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_comprovante-reserva-confirmada.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000075,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196976,
     "ast_hash": "b36759ea968af2d28ea7d4f1dd7868cb",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_dono-epocas-opcionais.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000772,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196986,
     "ast_hash": "84d308a97a698b42e1a58a06a957f71e",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_lancha-meio-pe.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000794,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196995,
     "ast_hash": "cfda41f338d408d44ab81224a19fc00d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_recibo-admin.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000081,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8197002,
     "ast_hash": "98434029bb56055673e02bf1008c1b65",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_reveillon-27-e-teto-25.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000083,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197012,
     "ast_hash": "d5e9cf94f718e033f7c4ce99d07aee9f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-01_vendedor-valor-da-tabela.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000846,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197024,
     "ast_hash": "07e9c685354c4aca209cd0c7325ea96a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-02_comissao-manual-ate-1000.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000865,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197033,
     "ast_hash": "c45bc40ccc3a3ef95d8d14348a7b6a32",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-02_credito-do-cliente.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000887,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197043,
     "ast_hash": "33dfc44468209c64ece7d1faedd33487",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-02_parceiro-desconto-so-no-primeiro.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000906,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197055,
     "ast_hash": "85ddf5da72f1d2786e6cee2ce726e9bf",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-02_revisao-diaria.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000927,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197064,
     "ast_hash": "526c82bad18967f7f9258c86599dd672",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-02_vendedor-3-igual-parceiro.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000942,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197074,
     "ast_hash": "a453c133f7eafff636c2f475f9061648",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_cidades-lanchas-e-vendedores.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000963,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197083,
     "ast_hash": "3114d598f7102cc8d1dc462463482986",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_condicional-aviso-ao-cliente.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0000985,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197093,
     "ast_hash": "1f8428ecad1814723cc80ab5356a486b",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_marinheiro-ve-telefone-do-cliente.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001006,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.81971,
     "ast_hash": "68ed8a817dc0b0c67a256d9b80f4cb63",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_revisao-diaria.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001028,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197112,
     "ast_hash": "1caa8a43ca0a0a8f38a3e4d4382152a7",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_vendedor-clientes-recorrentes.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000105,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197124,
     "ast_hash": "fcd4817a6c1cb5a6e96e775176ae6416",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_vendedor-pct-e-vinculo-2-anos.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000107,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197136,
     "ast_hash": "02a04abb8d38c9bf00f9d85f3329f930",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-03_vendedor-teto-3-e-link-do-cliente.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000109,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197143,
     "ast_hash": "91734acd1d73327a957f9c8ff5010538",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_avaliacoes-google-analista.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001109,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197155,
     "ast_hash": "5775f6885cbc70746177901c0384f503",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000113,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.819717,
     "ast_hash": "d1552bca62fc495b0fb057b599d1f540",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_avaliacoes-google-salvar-ao-vivo.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000115,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197176,
     "ast_hash": "02a1283fc9b24fc90658b7253985a934",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_credito-guarda-o-passeio.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000117,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197184,
     "ast_hash": "0ceddf98b8730cff80c8499977171e2c",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_lanchas-do-codigo-no-banco.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001187,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197193,
     "ast_hash": "b1d4a7b39740ca64337709fc92cc5213",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_pedido-de-grupo.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.00013,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197205,
     "ast_hash": "35ef0098d3e9866b767c72c44af7df2e",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_piso-do-operador-visivel.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000132,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197215,
     "ast_hash": "88639dfc61a9ac32ed1069d35feb5a27",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_precos-sempre-cheios.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001345,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197222,
     "ast_hash": "5804f9e0b77bbceff3c4ab489f9dece7",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_reveillon-noturno-preco.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001366,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197234,
     "ast_hash": "37a922aa7b3cf92fe69d3ce1697fcc93",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_revisao-diaria.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001388,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197243,
     "ast_hash": "2e4ac64a2e6ac0c129755266e305e37c",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_socio-nas-vendas-do-app.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001414,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197255,
     "ast_hash": "a4bff946d3db0e61480e596dd2b8ca2c",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_venda-vendedor-aviso-oficial-sempre.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001435,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197262,
     "ast_hash": "34491eecf181c9eca456bd8e1dbc549f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_vendedor-email-opcional.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.000146,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197274,
     "ast_hash": "33d7d1e4bbb850eff311c0d2bfdc550c",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_vendedor-lancar-e-limpa-avaliacoes.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001483,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197284,
     "ast_hash": "02e980e58174bb2d50edd26cbdda5d00",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-04_vendedor-nome-da-empresa.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001502,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.819729,
     "ast_hash": "3ec86f9ec05f01bc579ff519ccd43a3f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_grupo-sinal-e-neto-por-temporada.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001628,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197348,
     "ast_hash": "c7f1741aca76b8a0f3b33fce6fb1baf9",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_revisao-diaria.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001674,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197365,
     "ast_hash": "a2b2b0e63c1592a1ceccf08c0d0345cc",
     "semantic_hash": ""
   },
   "scripts/fotos-db.py": {
-    "mtime": 1794566411.8309042,
-    "seen": 1794929404.9998965,
+    "mtime": 1794929448.6559365,
+    "seen": 1794929459.81961,
     "ast_hash": "f3a58fbe11d539ede63dba7675fd27c4",
     "semantic_hash": ""
   },
   "scripts/htaccess.sh": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9998994,
+    "mtime": 1794929448.6559365,
+    "seen": 1794929459.8196118,
     "ast_hash": "7c29b6518b0cf32a85f29b1c026cd86c",
     "semantic_hash": ""
   },
   "scripts/ios/appdelegate.py": {
-    "mtime": 1794566411.8309042,
-    "seen": 1794929404.9999025,
+    "mtime": 1794929448.6559365,
+    "seen": 1794929459.8196132,
     "ast_hash": "bebe9703a570f2bea5aab8fe17e7e5da",
     "semantic_hash": ""
   },
   "scripts/paginas.mjs": {
-    "mtime": 1794566411.8310487,
-    "seen": 1794929404.9999096,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.8196168,
     "ast_hash": "2e974c2fddceaed103bc168f4ee62856",
     "semantic_hash": ""
   },
   "scripts/webp.py": {
-    "mtime": 1794566411.8310487,
-    "seen": 1794929404.99992,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.8196225,
     "ast_hash": "221496d8b7af981475ba6252fe48b94e",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-lucas/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.999959,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196428,
     "ast_hash": "39c73eed5cb873ee9bcc4a656478ef4e",
     "semantic_hash": ""
   },
   "supabase/functions/central-auto/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999785,
+    "mtime": 1794929448.6588562,
+    "seen": 1794929459.8196523,
     "ast_hash": "9c963d9df5024c87713cb22ef9f0a301",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929405.0003147,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8198087,
     "ast_hash": "d4370fe30d81fd8b3092d82eb111451c",
     "semantic_hash": ""
   },
   "app/index.html": {
-    "mtime": 1794566411.6968627,
-    "seen": 1794929405.0003214,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8198118,
     "ast_hash": "620ff64e87c28e126aaee49e296f2026",
     "semantic_hash": ""
   },
   "material/flyer-leticia-teixeira.pdf": {
-    "mtime": 1794566411.8217454,
-    "seen": 1794929405.000383,
+    "mtime": 1794929448.6509364,
+    "seen": 1794929459.8198397,
     "ast_hash": "6f2abd771c373e58d060fc1334589d75",
     "semantic_hash": ""
   },
   "img/cp-09-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005426,
+    "mtime": 1794929448.5619354,
+    "seen": 1794929459.8198934,
     "ast_hash": "701bf23882218a9f906bc2de8a2f474c",
     "semantic_hash": ""
   },
   "img/cp-09.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005448,
+    "mtime": 1794929448.5629356,
+    "seen": 1794929459.8198943,
     "ast_hash": "be37492673d93215c763fd7029318341",
     "semantic_hash": ""
   },
   "img/jc-01-t.jpg": {
-    "mtime": 1794566411.7137454,
-    "seen": 1794929405.0005472,
+    "mtime": 1794929448.5629356,
+    "seen": 1794929459.8198953,
     "ast_hash": "37a7d7d21746d99aa10d97fa96efab8f",
     "semantic_hash": ""
   },
   "img/jc-01.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005493,
+    "mtime": 1794929448.5639355,
+    "seen": 1794929459.819896,
     "ast_hash": "86930000e955aae036a4d1134ed2ec8c",
     "semantic_hash": ""
   },
   "img/jc-02-t.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005517,
+    "mtime": 1794929448.5639355,
+    "seen": 1794929459.8198972,
     "ast_hash": "dbbd1f73d49cc76b037971adf2eb6f5e",
     "semantic_hash": ""
   },
   "img/jc-02.jpg": {
-    "mtime": 1794566411.7177453,
-    "seen": 1794929405.0005538,
+    "mtime": 1794929448.5639355,
+    "seen": 1794929459.8198981,
     "ast_hash": "074d43008cdcfcb03220b0624282ebe6",
     "semantic_hash": ""
   },
   "material/flyer-leticia-teixeira.png": {
-    "mtime": 1794566411.8257453,
-    "seen": 1794929405.000767,
+    "mtime": 1794929448.6539364,
+    "seen": 1794929459.8199952,
     "ast_hash": "80d810885373735ad7fd2b59dff4a80a",
     "semantic_hash": ""
   },
   "scripts/rj-gerar.py": {
-    "mtime": 1794566411.8310487,
-    "seen": 1794929404.9999175,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.819621,
     "ast_hash": "f3f593a2850ead6fb612d210b474b3fb",
     "semantic_hash": ""
   },
   "rj/en/index.html": {
-    "mtime": 1794566411.8301928,
-    "seen": 1794929405.0003653,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.819832,
     "ast_hash": "7acfe9ce43cf8c2b85d8a5d8894ab58b",
     "semantic_hash": ""
   },
   "rj/es/index.html": {
-    "mtime": 1794566411.8301928,
-    "seen": 1794929405.0003676,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.8198333,
     "ast_hash": "631998368839cdefcb8371d90f860da1",
     "semantic_hash": ""
   },
   "rj/index.html": {
-    "mtime": 1794566411.8301928,
-    "seen": 1794929405.0003717,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.8198352,
     "ast_hash": "0f86ea602a55a7af61d716d57e5434a7",
     "semantic_hash": ""
   },
   "rj/robots.txt": {
-    "mtime": 1794566411.8301928,
-    "seen": 1794929405.0003743,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.8198364,
     "ast_hash": "2219840a6805d09d2d33ca433ca9f829",
     "semantic_hash": ""
   },
   "img/vv-01-t.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.000751,
+    "mtime": 1794929448.5939357,
+    "seen": 1794929459.8199875,
     "ast_hash": "d550fc144d047ecf247c6932e45193ad",
     "semantic_hash": ""
   },
   "img/vv-01.jpg": {
-    "mtime": 1794566411.7377453,
-    "seen": 1794929405.0007539,
+    "mtime": 1794929448.594936,
+    "seen": 1794929459.8199883,
     "ast_hash": "7e176a70b47a3ab7e758df59435e9751",
     "semantic_hash": ""
   },
   "rj/img/buzios.jpg": {
-    "mtime": 1794566411.8301928,
-    "seen": 1794929405.00077,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.8199959,
     "ast_hash": "1e2d7a108f55f7fd4aebf8eeec59ad85",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_avisar-dono-e-cliente.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001523,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.819731,
     "ast_hash": "454adbe2800716cd860bdd6183b0444b",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_avisar-o-dono-pelo-lucas.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001552,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.819732,
     "ast_hash": "f136d81c829c22309d7458bf46314195",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_dono-publica-fotos.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001576,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197327,
     "ast_hash": "4b1e49f03241ce9dd586ca0509281137",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_email-opcional-na-reserva-do-lucas.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001605,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197339,
     "ast_hash": "9d6d863c056141e93257dc8abb1739c4",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_remove-item-solario-na-popa.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001652,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197355,
     "ast_hash": "c8a503a5bdab90d77dc2d7b105d531ff",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-05_socios-nome-completo-e-convites-pendentes.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001698,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.819738,
     "ast_hash": "e7d19dd454d1adb84c40930a0231c2b6",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-06_neto-do-dono-por-passeio.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001726,
+    "mtime": 1794929448.6609366,
+    "seen": 1794929459.8197386,
     "ast_hash": "6289fbfc76cba8240dcf91a0403c9221",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-06_parceiro-5.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001755,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197396,
     "ast_hash": "e252089355b3434d1a28db6fb4f2c24e",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-06_parceiro-pct-editavel.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001776,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197408,
     "ast_hash": "e6aa763d9840aae6728b43673efc6242",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-08_app-versao-minima.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.00018,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197417,
     "ast_hash": "f683c33749f2cf67379d5a61713bb34e",
     "semantic_hash": ""
   },
   "petrussia/index.html": {
-    "mtime": 1794928868.2676196,
-    "seen": 1794929405.0003502,
+    "mtime": 1794929448.6544533,
+    "seen": 1794929459.8198254,
     "ast_hash": "e0ba68b60daae9307a41320aea63d533",
     "semantic_hash": ""
   },
   "img/petrussia.jpg": {
-    "mtime": 1794566411.7355564,
-    "seen": 1794929405.000681,
+    "mtime": 1794929448.5839357,
+    "seen": 1794929459.8199568,
     "ast_hash": "7248fcc1b2511a6c69f93e1676028109",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-sinal/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.999964,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196454,
     "ast_hash": "4d4cb205bb7461b66dda90117c5ec43a",
     "semantic_hash": ""
   },
   "SEGURANCA.md": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929405.000319,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8198109,
     "ast_hash": "d3925d61448cfc39a61a11636d214852",
     "semantic_hash": ""
   },
   "scripts/enquadrar.py": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9998896,
+    "mtime": 1794929448.6559365,
+    "seen": 1794929459.8196063,
     "ast_hash": "7d2495b82ebdabda5df825265aca2d9f",
     "semantic_hash": ""
   },
   "img/mb-15-t.jpg": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929405.0006256,
+    "mtime": 1794929448.5739357,
+    "seen": 1794929459.8199317,
     "ast_hash": "e60fc3bf6e856ef80d3a123e2a1851e0",
     "semantic_hash": ""
   },
   "img/mb-15.jpg": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929405.0006275,
+    "mtime": 1794929448.5759356,
+    "seen": 1794929459.8199327,
     "ast_hash": "ef2911b9b37468437ef823be5c1041ae",
     "semantic_hash": ""
   },
   "img/mb-16-t.jpg": {
-    "mtime": 1794928868.2236195,
-    "seen": 1794929405.0006294,
+    "mtime": 1794929448.5759356,
+    "seen": 1794929459.8199337,
     "ast_hash": "264555b32dac5fc0b2480dfbbffc9ab9",
     "semantic_hash": ""
   },
   "img/mb-16.jpg": {
-    "mtime": 1794928868.2236195,
-    "seen": 1794929405.000631,
+    "mtime": 1794929448.5769358,
+    "seen": 1794929459.8199346,
     "ast_hash": "c8c16314e170d3fd52500d3081bf61a7",
     "semantic_hash": ""
   },
   "img/mb-17-t.jpg": {
-    "mtime": 1794928868.2236195,
-    "seen": 1794929405.0006328,
+    "mtime": 1794929448.5769358,
+    "seen": 1794929459.8199358,
     "ast_hash": "77dbad7af9f8fa0aae1bb5db668b68c1",
     "semantic_hash": ""
   },
   "img/mb-17.jpg": {
-    "mtime": 1794928868.2236195,
-    "seen": 1794929405.000635,
+    "mtime": 1794929448.5779357,
+    "seen": 1794929459.8199368,
     "ast_hash": "ed307d6492ff40bf5f1ceb5de8d73024",
     "semantic_hash": ""
   },
   "scripts/estender-laterais.py": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.999893,
+    "mtime": 1794929448.6559365,
+    "seen": 1794929459.8196082,
     "ast_hash": "a0bcf13d7459e7541b4168f37d312784",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-chaves-girar/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.999931,
+    "mtime": 1794929448.6568902,
+    "seen": 1794929459.8196294,
     "ast_hash": "6a467fae7b37209e506bea6ae3fbda1a",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-saques/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999366,
+    "mtime": 1794929448.6569364,
+    "seen": 1794929459.8196325,
     "ast_hash": "572902513794cb6789074211bf101e35",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-transferir/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.999941,
+    "mtime": 1794929448.6569364,
+    "seen": 1794929459.8196352,
     "ast_hash": "2980f19e98bbf5c29514d9d1ee59612c",
     "semantic_hash": ""
   },
   "regiao/google044473d8c1714a05.html": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929405.000359,
+    "mtime": 1794929448.6549585,
+    "seen": 1794929459.819829,
     "ast_hash": "30d4f5f368285ed156b4f9a47b48ed36",
     "semantic_hash": ""
   },
   "rj/google044473d8c1714a05.html": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929405.0003695,
+    "mtime": 1794929448.655185,
+    "seen": 1794929459.8198345,
     "ast_hash": "30d4f5f368285ed156b4f9a47b48ed36",
     "semantic_hash": ""
   },
   ".github/workflows/mapa-graphify.yml": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929404.9998443,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.8195856,
     "ast_hash": "91a70e8c532d6fa6bfab73f4e25cc7d8",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-12_alterar-pedido.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001824,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819743,
     "ast_hash": "e306bf2b9360834a1f9dbb1af32b3bf0",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-12_supabase-pedido-prazo-vencido.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001843,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819744,
     "ast_hash": "1d903727aa29738e0c85fd16c178b837",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-12_troca-horario-pedido.sql": {
-    "mtime": 1794566411.8341079,
-    "seen": 1794929405.0001867,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819745,
     "ast_hash": "ede66e3e816d6d422aaae83b6be4bb6a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_auditoria-e-registro-de-acessos.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0001884,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819746,
     "ast_hash": "2d59c3ccc4f2063a7d7a6b801ecde3f8",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_carnaval-separado.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000191,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819747,
     "ast_hash": "96a01056c3772252b2dc354122eeddc2",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_cupom-boas-vindas-vendedor.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0001929,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197484,
     "ast_hash": "1c408cf42d9521fcc10175fc3d9c816a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_transferir-saldo.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000197,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197503,
     "ast_hash": "158bb7834e6b4ccd152ae6cc0efddb2d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_buzios-a-mais-carnaval.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002022,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197525,
     "ast_hash": "076da07cb70f248e3dbd91a9561ce371",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_repasse-asaas-pendentes.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000211,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197567,
     "ast_hash": "6aee24344f4db6f4195c4e177310c788",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_lanchas-posicao-no-site.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000209,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819756,
     "ast_hash": "11dd6ed495bf3eab0e92817418a474c3",
     "semantic_hash": ""
   },
   "img/sp-01-t.jpg": {
-    "mtime": 1794928868.2396195,
-    "seen": 1794929405.000745,
+    "mtime": 1794929448.5929358,
+    "seen": 1794929459.8199847,
     "ast_hash": "61234405cc76ace9e08743d938d4a694",
     "semantic_hash": ""
   },
   "img/sp-01.jpg": {
-    "mtime": 1794928868.2396195,
-    "seen": 1794929405.0007472,
+    "mtime": 1794929448.5939357,
+    "seen": 1794929459.8199856,
     "ast_hash": "8f2750bf8e31ae1fa390e16f92cba449",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_escunas-categoria.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002072,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197548,
     "ast_hash": "b5fe777edd18bdc706d78841f5a73526",
     "semantic_hash": ""
   },
   "img/pv-01-t.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.000683,
+    "mtime": 1794929448.5839357,
+    "seen": 1794929459.819958,
     "ast_hash": "b1a0be977c4b62d05167163c6b2b10de",
     "semantic_hash": ""
   },
   "img/pv-01.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0006855,
+    "mtime": 1794929448.5839357,
+    "seen": 1794929459.819959,
     "ast_hash": "bde1fd5e5f0a98b87fe0e128b0e7fd24",
     "semantic_hash": ""
   },
   "img/pv-02-t.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0006883,
+    "mtime": 1794929448.5849357,
+    "seen": 1794929459.81996,
     "ast_hash": "445939b88ee59c11203427f0d31b2633",
     "semantic_hash": ""
   },
   "img/pv-02.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0006914,
+    "mtime": 1794929448.5849357,
+    "seen": 1794929459.8199608,
     "ast_hash": "045a1b7ed1bfd6e82ba2d57fb8bd0843",
     "semantic_hash": ""
   },
   "img/pv-03-t.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.000694,
+    "mtime": 1794929448.5849357,
+    "seen": 1794929459.8199618,
     "ast_hash": "97d39a61b45e05bd637b9d559a45c0f8",
     "semantic_hash": ""
   },
   "img/pv-03.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0006967,
+    "mtime": 1794929448.5859358,
+    "seen": 1794929459.819963,
     "ast_hash": "2c54723665a4007e1f12e4794e007791",
     "semantic_hash": ""
   },
   "img/pv-04-t.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0006986,
+    "mtime": 1794929448.5859358,
+    "seen": 1794929459.8199637,
     "ast_hash": "0c93e9ce980a46ab3e335c64ef2f9fa1",
     "semantic_hash": ""
   },
   "img/pv-04.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0007007,
+    "mtime": 1794929448.5859358,
+    "seen": 1794929459.8199646,
     "ast_hash": "2c61c01333653f34e5baf57864f636fb",
     "semantic_hash": ""
   },
   "img/pv-05-t.jpg": {
-    "mtime": 1794928868.2316196,
-    "seen": 1794929405.0007029,
+    "mtime": 1794929448.5869358,
+    "seen": 1794929459.8199654,
     "ast_hash": "17a1918183aed256bbdfe145159b2ac2",
     "semantic_hash": ""
   },
   "img/pv-05.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.000705,
+    "mtime": 1794929448.5869358,
+    "seen": 1794929459.8199666,
     "ast_hash": "180b39722f3ec44831fe7a86039baec3",
     "semantic_hash": ""
   },
   "img/pv-06-t.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.0007071,
+    "mtime": 1794929448.5869358,
+    "seen": 1794929459.8199673,
     "ast_hash": "f06d1ce5b30099c780751ec86cee6068",
     "semantic_hash": ""
   },
   "img/pv-06.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.000709,
+    "mtime": 1794929448.5879357,
+    "seen": 1794929459.8199682,
     "ast_hash": "348278c2934568edcaeb155c91b88f9e",
     "semantic_hash": ""
   },
   "img/pv-07-t.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.0007112,
+    "mtime": 1794929448.5879357,
+    "seen": 1794929459.819969,
     "ast_hash": "08132442424794469a90fb58d9a2fba2",
     "semantic_hash": ""
   },
   "img/pv-07.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.000713,
+    "mtime": 1794929448.5879357,
+    "seen": 1794929459.8199701,
     "ast_hash": "016cedac1945cc52c76cd293e6a7d56a",
     "semantic_hash": ""
   },
   "img/pv-08-t.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.000715,
+    "mtime": 1794929448.5879357,
+    "seen": 1794929459.8199708,
     "ast_hash": "6bc18ed5a10fcfcf9e9af415c56c018f",
     "semantic_hash": ""
   },
   "img/pv-08.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.0007167,
+    "mtime": 1794929448.5889359,
+    "seen": 1794929459.8199718,
     "ast_hash": "c0fae4545b123a27bb40647927ca3d27",
     "semantic_hash": ""
   },
   "img/pv-09-t.jpg": {
-    "mtime": 1794928868.2356195,
-    "seen": 1794929405.0007186,
+    "mtime": 1794929448.5889359,
+    "seen": 1794929459.8199725,
     "ast_hash": "b78b769b1c8e6dfebca723fbe1ea352d",
     "semantic_hash": ""
   },
   "img/pv-09.jpg": {
-    "mtime": 1794928868.2396195,
-    "seen": 1794929405.000721,
+    "mtime": 1794929448.5889359,
+    "seen": 1794929459.8199735,
     "ast_hash": "124572c728a358e096c0fdfdd696b50a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_escunas-3h-funcoes.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002048,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197536,
     "ast_hash": "70d0de2752f9c4513e8bc0ad013ebbf0",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_auto-confirmar-passeios-do-dono.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197517,
     "ast_hash": "452328dcbe4646f75bdf338124feb886",
     "semantic_hash": ""
   },
   "supabase/functions/clima-site/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999864,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.819656,
     "ast_hash": "2e741f6257ca692bfb9d39e1c042a642",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-docs/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999337,
+    "mtime": 1794929448.6569364,
+    "seen": 1794929459.8196313,
     "ast_hash": "5ef6e090269098daec0471446d4c6856",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_passeio-bloqueado-em-manutencao.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002298,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197675,
     "ast_hash": "7cc17ee153fc3caf737ced96320ccab8",
     "semantic_hash": ""
   },
   "cancelamento/index.html": {
-    "mtime": 1794928868.1516194,
-    "seen": 1794929405.000337,
+    "mtime": 1794929448.5349352,
+    "seen": 1794929459.8198197,
     "ast_hash": "11f74a4f382499691c316fd8e1c94167",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_teto-comissao-buzios-30.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002341,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197694,
     "ast_hash": "9aba69f7b4caeafb20e36c457dae41db",
     "semantic_hash": ""
   },
   "img/spartana-video.jpg": {
-    "mtime": 1794928868.2396195,
-    "seen": 1794929405.0007493,
+    "mtime": 1794929448.5939357,
+    "seen": 1794929459.8199863,
     "ast_hash": "1988dcc2f9bdd95726202021bc1fd0bf",
     "semantic_hash": ""
   },
   "video/spartana.mp4": {
-    "mtime": 1794928868.3116195,
-    "seen": 1794929405.0007806,
+    "mtime": 1794929448.7159371,
+    "seen": 1794929459.8200002,
     "ast_hash": "62410fe5c424319f9d7ba4abdcc36856",
     "semantic_hash": ""
   },
   "img/completas.json": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929404.9998627,
+    "mtime": 1794929448.5589354,
+    "seen": 1794929459.8195941,
     "ast_hash": "385def54238ae3ea759cbdb36a66d5e0",
     "semantic_hash": ""
   },
   "img/mb-c07-t.jpg": {
-    "mtime": 1794928868.2236195,
-    "seen": 1794929405.0006373,
+    "mtime": 1794929448.5779357,
+    "seen": 1794929459.8199377,
     "ast_hash": "12b9f7b1758cb63a8f1c5bae75d3cd4f",
     "semantic_hash": ""
   },
   "img/mb-c07.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.0006392,
+    "mtime": 1794929448.5779357,
+    "seen": 1794929459.819939,
     "ast_hash": "0c5ece26f09770de36e8b9c5f0701276",
     "semantic_hash": ""
   },
   "img/mb-c08-t.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.0006413,
+    "mtime": 1794929448.5789356,
+    "seen": 1794929459.8199399,
     "ast_hash": "479d3c057df8799ded04b5470dfe318b",
     "semantic_hash": ""
   },
   "img/mb-c08.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.0006433,
+    "mtime": 1794929448.5789356,
+    "seen": 1794929459.8199406,
     "ast_hash": "51da305b9e01f4444b3d4b03bf95703a",
     "semantic_hash": ""
   },
   "img/mb-c12-t.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.0006452,
+    "mtime": 1794929448.5789356,
+    "seen": 1794929459.8199413,
     "ast_hash": "0f85c6647ce9ad5e55bc382080e316cd",
     "semantic_hash": ""
   },
   "img/mb-c12.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.000647,
+    "mtime": 1794929448.5799358,
+    "seen": 1794929459.8199425,
     "ast_hash": "cd14906fcad35010c526a9d23514efbf",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_mover-passeio-marinheiro-da-tela.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002277,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197665,
     "ast_hash": "c60992eb8eb4842032f7805e01b41321",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002255,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819765,
     "ast_hash": "62908150be53603d8d3f5ae8ab38860f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-pedido.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002198,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819762,
     "ast_hash": "805bc232ba3b917109995ddf23f7a938",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-revisao.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002234,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197637,
     "ast_hash": "b3c333d4e62178004e6ed66bc60846f6",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-cortesia-opcional.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002158,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197591,
     "ast_hash": "6a2407ce404771f8e0a3b4fd8a288a86",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-revisao-geral.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002217,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197627,
     "ast_hash": "8e9274b5bf5e42c05c8d3f1bbfe9e195",
     "semantic_hash": ""
   },
   "scripts/bordazul-gerar.py": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9998832,
+    "mtime": 1794929448.655832,
+    "seen": 1794929459.8196034,
     "ast_hash": "d168b2c057ae8310decc9332b0422ffb",
     "semantic_hash": ""
   },
   "bordazul/en/index.html": {
-    "mtime": 1794928868.1480052,
-    "seen": 1794929405.000327,
+    "mtime": 1794929448.531218,
+    "seen": 1794929459.8198152,
     "ast_hash": "4cea6af5fbb22881499bf28dda8fe38d",
     "semantic_hash": ""
   },
   "bordazul/es/index.html": {
-    "mtime": 1794928868.1480052,
-    "seen": 1794929405.0003293,
+    "mtime": 1794929448.531218,
+    "seen": 1794929459.8198159,
     "ast_hash": "6a251231b2b3d8628733749205a441ff",
     "semantic_hash": ""
   },
   "bordazul/index.html": {
-    "mtime": 1794928868.1516194,
-    "seen": 1794929405.000333,
+    "mtime": 1794929448.5349352,
+    "seen": 1794929459.8198178,
     "ast_hash": "64bb55f369d9be8bd5f1850bb3479b49",
     "semantic_hash": ""
   },
   "bordazul/robots.txt": {
-    "mtime": 1794928868.1516194,
-    "seen": 1794929405.0003352,
+    "mtime": 1794929448.5349352,
+    "seen": 1794929459.8198187,
     "ast_hash": "efde3b9dd1c76e3a39a99db9ed1898f6",
     "semantic_hash": ""
   },
   "bordazul/favicon.svg": {
-    "mtime": 1794928868.1480052,
-    "seen": 1794929405.0003889,
+    "mtime": 1794929448.531218,
+    "seen": 1794929459.819843,
     "ast_hash": "5ba0fe7c4600120b6238c5e66c7e0c5a",
     "semantic_hash": ""
   },
   "bordazul/img/barco-1.jpg": {
-    "mtime": 1794928868.1480052,
-    "seen": 1794929405.0003908,
+    "mtime": 1794929448.5319352,
+    "seen": 1794929459.819844,
     "ast_hash": "eb9a5ba2ba50c29f08a35dc181b78777",
     "semantic_hash": ""
   },
   "bordazul/img/barco-2.jpg": {
-    "mtime": 1794928868.1498177,
-    "seen": 1794929405.0003927,
+    "mtime": 1794929448.5319352,
+    "seen": 1794929459.819845,
     "ast_hash": "f7af4609447a42fa6ea0eb7647b71e36",
     "semantic_hash": ""
   },
   "bordazul/img/barco-3.jpg": {
-    "mtime": 1794928868.1498177,
-    "seen": 1794929405.000395,
+    "mtime": 1794929448.5329351,
+    "seen": 1794929459.8198457,
     "ast_hash": "a06c1471cc55ae0e10452a69b9f802fa",
     "semantic_hash": ""
   },
   "bordazul/img/barco-4.jpg": {
-    "mtime": 1794928868.1498177,
-    "seen": 1794929405.000397,
+    "mtime": 1794929448.5339353,
+    "seen": 1794929459.8198466,
     "ast_hash": "987b15f5d21fef53d40c07f7e33944dd",
     "semantic_hash": ""
   },
   "bordazul/img/mar-buzios.jpg": {
-    "mtime": 1794928868.1516194,
-    "seen": 1794929405.0003994,
+    "mtime": 1794929448.5349352,
+    "seen": 1794929459.8198473,
     "ast_hash": "4bc2cae8a64a14365d5f9291318e8974",
     "semantic_hash": ""
   },
   "bordazul/img/selo.jpg": {
-    "mtime": 1794928868.1516194,
-    "seen": 1794929405.0004022,
+    "mtime": 1794929448.5349352,
+    "seen": 1794929459.8198485,
     "ast_hash": "0c2926d9858ad1b24a31aced4951ec96",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_jetski-lucas.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000218,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197606,
     "ast_hash": "233696943c495c4999b345cf15f28bcb",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_jetski-lucas-revisao-seguranca.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000254,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197777,
     "ast_hash": "b1101d3a18e28900ec6dd479e16bf3c2",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_preco-cotado-garantido.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002322,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197687,
     "ast_hash": "ea2a63ac26598b5d2d9c64eba1ad9594",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_ativar-conta-cliente.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000236,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197703,
     "ast_hash": "485a2590ab012b5062c6f9beb66198fa",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_convite-direto-pagar.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002522,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.819777,
     "ast_hash": "03a246af29c9a41e51ca6d8450ef92a9",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_consultas-site-fecham-sozinhas.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002477,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197753,
     "ast_hash": "14477ee0696eb1ebb270ef3bed8e3f06",
     "semantic_hash": ""
   },
   "scripts/regiao-gerar.py": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999146,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.81962,
     "ast_hash": "d7733e54f00aabbae6652401a64a5b07",
     "semantic_hash": ""
   },
   "regiao/en/index.html": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929405.0003545,
+    "mtime": 1794929448.6549585,
+    "seen": 1794929459.8198268,
     "ast_hash": "c0078a54f359fe7adc05209e840688c9",
     "semantic_hash": ""
   },
   "regiao/es/index.html": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929405.0003567,
+    "mtime": 1794929448.6549585,
+    "seen": 1794929459.819828,
     "ast_hash": "2673ca3da01afd1133a0b4743fa33bf4",
     "semantic_hash": ""
   },
   "regiao/robots.txt": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929405.0003633,
+    "mtime": 1794929448.6549585,
+    "seen": 1794929459.8198311,
     "ast_hash": "efed5ae4a9255a8a81bacc4f9e788787",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_seguranca-convite-sem-email.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002735,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197873,
     "ast_hash": "e833d6da4a2355f2774d8da6c9ea3ab6",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_pre-reserva-prazo-nao-encurta.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002651,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197834,
     "ast_hash": "f1dc1f0a36ab697be256a5698d2fc9f3",
     "semantic_hash": ""
   },
   "marca.js": {
-    "mtime": 1794928868.2676196,
-    "seen": 1794929404.9998727,
+    "mtime": 1794929448.6429365,
+    "seen": 1794929459.8195987,
     "ast_hash": "9a483c6b05681dee843917eb840bebbb",
     "semantic_hash": ""
   },
   "bordazul/google044473d8c1714a05.html": {
-    "mtime": 1794928868.1480052,
-    "seen": 1794929405.000331,
+    "mtime": 1794929448.531218,
+    "seen": 1794929459.819817,
     "ast_hash": "30d4f5f368285ed156b4f9a47b48ed36",
     "semantic_hash": ""
   },
   ".github/workflows/supabase-publicar.yml": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929404.9998486,
+    "mtime": 1794929448.5307527,
+    "seen": 1794929459.819588,
     "ast_hash": "609335a1e11950e4ac1730696ad2d778",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_teste-publicar-supabase.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.00028,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197904,
     "ast_hash": "a16c72994312037556009dd3b50991c7",
     "semantic_hash": ""
   },
   "supabase/functions/aviso-aprovacao/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.9999487,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196387,
     "ast_hash": "bfc29d4dd516ee715a9a676b26301380",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_aviso-aprovacao.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002406,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197722,
     "ast_hash": "0def0e4b3d3c6ff969ead2b460f87e04",
     "semantic_hash": ""
   },
   "supabase/functions/bordazul-anunciar/index.ts": {
-    "mtime": 1794928868.2756195,
-    "seen": 1794929404.9999683,
+    "mtime": 1794929448.6579366,
+    "seen": 1794929459.8196478,
     "ast_hash": "e5e7dc36773ef009e49fbd85e9ed3fa2",
     "semantic_hash": ""
   },
   "supabase/functions/bordazul-anunciar/termo.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.999971,
+    "mtime": 1794929448.6588562,
+    "seen": 1794929459.819649,
     "ast_hash": "e4edcfee0ae46ca7be831e35bfda5038",
     "semantic_hash": ""
   },
   "bordazul/anunciar/index.html": {
-    "mtime": 1794928868.1480052,
-    "seen": 1794929405.0003252,
+    "mtime": 1794929448.531218,
+    "seen": 1794929459.819814,
     "ast_hash": "5221deef80d3f5b3989c601d9cb17e07",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_bordazul-cadastro-dono.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002434,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197734,
     "ast_hash": "9d8f54eeec1ca90c0fc97b56225f5342",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_painel-sinais-hoje.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002584,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.81978,
     "ast_hash": "cbeda144d36ebca4e186ce05993aaaf3",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_repasse-pendente-dono-e-cartao.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002673,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197844,
     "ast_hash": "83b88f63b9875daaa767e5f3358bb407",
     "semantic_hash": ""
   },
   "supabase/functions/asaas-saude/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999387,
+    "mtime": 1794929448.6569364,
+    "seen": 1794929459.8196342,
     "ast_hash": "82888d1b22e41e8fa0f34d66aac3e504",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_asaas-validacao-saques.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0000257,
+    "mtime": 1794929448.6600733,
+    "seen": 1794929459.8196726,
     "ast_hash": "c603e29bfbd6c78946f7df47df20bcc0",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-13_origem-da-reserva.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0001948,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197494,
     "ast_hash": "b1f1ceaab156f60f006bd695dad8a2de",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-14_transferir-saldo-teto.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002131,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.819758,
     "ast_hash": "9a087c6219d384eb0c88f3cf95fe644b",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_cancelar-pre-reserva-trava.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002458,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197742,
     "ast_hash": "9baa52a4355710f5c5e40319b4d6ed5f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_revisao-geral-dados.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002694,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.819785,
     "ast_hash": "8f8ad263791d2cfc1551f5d8aceb9f0f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_revoke-jetski-visitante.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002713,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197863,
     "ast_hash": "d0b2ee4ba298f2d8ce8a82c53361317a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_troca-solta-pre-reserva-anterior.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002818,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197913,
     "ast_hash": "175403b4d0b273d4df29314cdd513f42",
     "semantic_hash": ""
   },
   "img/buzios.jpg": {
-    "mtime": 1794928868.2116196,
-    "seen": 1794929405.0004807,
+    "mtime": 1794929448.5539355,
+    "seen": 1794929459.8198686,
     "ast_hash": "1e2d7a108f55f7fd4aebf8eeec59ad85",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_painel-sinais-desde.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002568,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197794,
     "ast_hash": "dcc622c24fa7cf7ec76721902f1a82a8",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_parceiro-comissao-10-desconto-separado.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002608,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197813,
     "ast_hash": "24b0e3fe6300c40a779c60f36a451b0d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_parceiro-desconto-lancha-propria.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000263,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197827,
     "ast_hash": "05bac407dd5735f322381fe2ab1ecd5d",
     "semantic_hash": ""
   },
   "supabase/functions/acesso-link/index.ts": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999259,
+    "mtime": 1794929448.6568902,
+    "seen": 1794929459.8196266,
     "ast_hash": "2a11d0921b62edc883956133ccc29a6d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_telefone-padrao.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002778,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197892,
     "ast_hash": "de45701e2f76734951e7748d914c323d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_telefone-padrao-v2.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002756,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197882,
     "ast_hash": "59fdbc92409e5d849fdf572983a8d0b8",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_ativar-conta-so-dono-provado.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002384,
+    "mtime": 1794929448.6619365,
+    "seen": 1794929459.8197713,
     "ast_hash": "90d2afdcf15b98cd341b07b21bd996f8",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-16_convite-consulta-vencida.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002499,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.819776,
     "ast_hash": "ef601906d1920017c092bbc678ae2d17",
     "semantic_hash": ""
   },
   "img/mb-mar.jpg": {
-    "mtime": 1794928868.2276196,
-    "seen": 1794929405.0006492,
+    "mtime": 1794929448.5809357,
+    "seen": 1794929459.8199432,
     "ast_hash": "9888e7fd138213dd08c92201ee1f43eb",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_whatsapp-verificado-nao-some.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0003104,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8198066,
     "ast_hash": "4a9fc17b5bd498f778dbcb2c0958e996",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_ativar-conta-confirma-so-whatsapp-verificado.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002847,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197923,
     "ast_hash": "afa750b2e4fe5411738dc4857f1bc470",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_grant-jetski-pasta-authenticated.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002918,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197956,
     "ast_hash": "9b2764141eaae7d74e04ccc5ac210a82",
     "semantic_hash": ""
   },
   "sem-negativo.js": {
-    "mtime": 1794928868.2716196,
-    "seen": 1794929404.9999228,
+    "mtime": 1794929448.6562839,
+    "seen": 1794929459.8196244,
     "ast_hash": "0a2429c3ead468798786dbd017146e19",
     "semantic_hash": ""
   },
   "img/chefe-01-t.jpg": {
-    "mtime": 1794928868.2116196,
-    "seen": 1794929405.0004847,
+    "mtime": 1794929448.5539355,
+    "seen": 1794929459.8198695,
     "ast_hash": "6c9346df73d5f34e399cf287257ae335",
     "semantic_hash": ""
   },
   "img/chefe-01.jpg": {
-    "mtime": 1794928868.2156196,
-    "seen": 1794929405.0004873,
+    "mtime": 1794929448.5549355,
+    "seen": 1794929459.8198705,
     "ast_hash": "6f7af7946f103d576c07e8d342de72c5",
     "semantic_hash": ""
   },
   "img/chefe-02-t.jpg": {
-    "mtime": 1794928868.2156196,
-    "seen": 1794929405.0004902,
+    "mtime": 1794929448.5549355,
+    "seen": 1794929459.8198714,
     "ast_hash": "d2ed90cf23622964b5269c85523e4ceb",
     "semantic_hash": ""
   },
   "img/chefe-02.jpg": {
-    "mtime": 1794928868.2156196,
-    "seen": 1794929405.0004933,
+    "mtime": 1794929448.5559354,
+    "seen": 1794929459.8198721,
     "ast_hash": "87bb6bbf7bfc9c9e86b14a8cd5978043",
     "semantic_hash": ""
   },
   "img/chefe-03-t.jpg": {
-    "mtime": 1794928868.2156196,
-    "seen": 1794929405.0004957,
+    "mtime": 1794929448.5559354,
+    "seen": 1794929459.8198733,
     "ast_hash": "0f49aae3ef5c8772aa181be2599565f1",
     "semantic_hash": ""
   },
   "img/chefe-03.jpg": {
-    "mtime": 1794928868.2156196,
-    "seen": 1794929405.0004978,
+    "mtime": 1794929448.5569355,
+    "seen": 1794929459.819874,
     "ast_hash": "307f60dd6f2582c4371ce4530b0b37cb",
     "semantic_hash": ""
   },
   "img/chefe-04-t.jpg": {
-    "mtime": 1794928868.2156196,
-    "seen": 1794929405.0005002,
+    "mtime": 1794929448.5569355,
+    "seen": 1794929459.8198748,
     "ast_hash": "0f59a9c1537dba6cf41cfe1d244235e8",
     "semantic_hash": ""
   },
   "img/chefe-04.jpg": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929405.0005026,
+    "mtime": 1794929448.5579355,
+    "seen": 1794929459.819876,
     "ast_hash": "ec08e54857135cd5f52bac966a608b75",
     "semantic_hash": ""
   },
   "img/chefe-05-t.jpg": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929405.0005045,
+    "mtime": 1794929448.5579355,
+    "seen": 1794929459.819877,
     "ast_hash": "90754aea8d9d77cf66500dd9dd71bec7",
     "semantic_hash": ""
   },
   "img/chefe-05.jpg": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929405.0005066,
+    "mtime": 1794929448.5589354,
+    "seen": 1794929459.8198776,
     "ast_hash": "3f3dea4b8d42fc02f172d3e275533c07",
     "semantic_hash": ""
   },
   "img/chefe-video.jpg": {
-    "mtime": 1794928868.2196195,
-    "seen": 1794929405.000509,
+    "mtime": 1794929448.5589354,
+    "seen": 1794929459.8198786,
     "ast_hash": "7db36a9bc2a8cd575b0395a9803b4ead",
     "semantic_hash": ""
   },
   "video/chefe.mp4": {
-    "mtime": 1794928868.2916195,
-    "seen": 1794929405.0007763,
+    "mtime": 1794929448.6729367,
+    "seen": 1794929459.8199987,
     "ast_hash": "58549eb0321c193ec7ba42cdff5264c9",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_nenhum-valor-negativo.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0003028,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8198009,
     "ast_hash": "20bbcaff09df929c42fb8e6ce2becb65",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_jetski-dono.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002944,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197968,
     "ast_hash": "9f266901d2f1ecb9d79eedb7d8f0812a",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_jetski-leitura-dono.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002964,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197978,
     "ast_hash": "095234e9bbc35ed95b636d58951f68b2",
     "semantic_hash": ""
   },
   "supabase/functions/dono-aprovacao/index.ts": {
-    "mtime": 1794928868.2790573,
-    "seen": 1794929404.9999967,
+    "mtime": 1794929448.6589365,
+    "seen": 1794929459.819661,
     "ast_hash": "10ce5a1fce75c080aeafb6472389920d",
     "semantic_hash": ""
   },
   "aprovar/index.html": {
-    "mtime": 1794928868.143758,
-    "seen": 1794929405.000323,
+    "mtime": 1794929448.5309353,
+    "seen": 1794929459.8198128,
     "ast_hash": "d2d35dfbb169f6609d82af193886e6e2",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_dono-aprova-pre-reserva.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002894,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197947,
     "ast_hash": "e5a1edc20ac0027ebaf042e41e2ffa76",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_dono-aprova-antecipado.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002873,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197935,
     "ast_hash": "7cf45af01191b4d1ca01e494a1a77c75",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_jetski-repasse-cancelado.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.000301,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197997,
     "ast_hash": "dcae95f4c92113975f2142ea818aff05",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_planilha-de-vendas.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0003052,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8198018,
     "ast_hash": "58f9a109895515f440c8a1ee9c493b03",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_repasse-so-quando-cair.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0003068,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8198028,
     "ast_hash": "06e162662e4290c247f6b245d8d48611",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_jetski-preco-por-tempo.sql": {
-    "mtime": 1794928868.2796195,
-    "seen": 1794929405.0002985,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8197987,
     "ast_hash": "293b11cb2f59d125eb4ab165eb6afc3d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-17_reveillon-carnaval-teto-30.sql": {
-    "mtime": 1794928928.279623,
-    "seen": 1794929405.0003085,
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.819804,
     "ast_hash": "7b7256c29129eb4fb688d2b0b0383faa",
+    "semantic_hash": ""
+  },
+  "supabase/sql/2026-11-17_reveillon-carnaval-teto-volta-25.sql": {
+    "mtime": 1794929448.6629367,
+    "seen": 1794929459.8198051,
+    "ast_hash": "0d3bc11bf632e722577998db84797e45",
     "semantic_hash": ""
   }
 }
