@@ -301,6 +301,13 @@ Deno.serve(async (req) => {
     const b = await req.json().catch(() => ({}));
     if (b.rejeitados === true) {
       if (!ch) return json({ erro: "acesso" }, 403); // só o robô
+      // modelos: cria agora o modelo documento_reenviar (se faltar) e mostra os idiomas já aprovados pela Meta, sem avisar ninguém
+      if (b.modelos === true) {
+        const key = await d360Key();
+        if (!key) return json({ erro: "sem_chave" });
+        await db.from("resgate_config").update({ docrej_modelo_em: null }).eq("id", 1);
+        return json({ aprovados: await modeloRej(key, {}) });
+      }
       return json(await avisarRejeitados(b.simular === true));
     }
     if (b.lembrar === true) {
