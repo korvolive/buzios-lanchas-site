@@ -1369,22 +1369,76 @@ Deno.serve(async req => {
       const transf = (trs || []).map((t: any) => ({ id: t.id, nome: N.get(t.user_id) || "—", valor: r2(+t.valor), motivo: String(t.motivo || "").slice(0, 140), quando: t.criado_em, status: t.status, comprovante: String(t.comprovante || "").startsWith("asaas:") && t.status === "enviado" }));
       return json({ vendas, transf, em: new Date().toISOString() });
     }
-    // comprovante na planilha (administrador): recibo do pagamento do cliente no Asaas ou da transferência avulsa do saldo
+    // comprovante na planilha (administrador): os dados do comprovante para o painel mostrar numa janela própria, sem sair da página
+    // (Rodrigo 2026-11-17). Pagamento do cliente, repasse ao dono, comissão do vendedor ou transferência avulsa do saldo.
+    // Transferência pelo Asaas: dados lidos direto no Asaas (+ link do comprovante oficial). Pix por fora: link assinado do arquivo anexado.
     if (b.acao === "recibo") {
       if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const brl2 = (v: any) => (+v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      const dt = (s: any) => s ? String(s).slice(0, 10).split("-").reverse().join("/") : null;
+      const ST: Record<string, string> = { DONE: "Concluída", PENDING: "Aguardando", BANK_PROCESSING: "Em processamento no banco", CANCELLED: "Cancelada", FAILED: "Falhou", RECEIVED: "Recebido", CONFIRMED: "Confirmado (cartão a cair)", REFUNDED: "Estornado", RECEIVED_IN_CASH: "Recebido" };
+      const arquivo = async (path: string) => {
+        const { data: sg } = await db.storage.from("comprovantes").createSignedUrl(path, 600);
+        if (!sg?.signedUrl) return json({ erro: "sem" }, 404);
+        return json({ arquivo: sg.signedUrl, tipo: /\.pdf$/i.test(path) ? "pdf" : "img" });
+      };
+      const transf = async (id: string, titulo: string, para: string | null, sobre: string | null) => {
+        const tr = await asaas("/transfers/" + encodeURIComponent(id));
+        const linhas: [string, string][] = [];
+        if (para) linhas.push(["Para", para]);
+        if (sobre) linhas.push(["Referente a", sobre]);
+        linhas.push(["Valor", brl2(tr.value)]);
+        if (+tr.transferFee > 0) linhas.push(["Tarifa", brl2(tr.transferFee)]);
+        linhas.push(["Situação", ST[tr.status] || String(tr.status || "—")]);
+        const d = dt(tr.effectiveDate || tr.scheduleDate || tr.dateCreated); if (d) linhas.push(["Data", d]);
+        linhas.push(["Forma", tr.operationType === "PIX" ? "Pix" : tr.walletId || tr.operationType === "INTERNAL" ? "Transferência entre contas Asaas" : "Transferência bancária"]);
+        if (tr.endToEndIdentifier) linhas.push(["Identificador Pix", String(tr.endToEndIdentifier)]);
+        linhas.push(["Nº no Asaas", String(tr.id)]);
+        return json({ titulo, linhas, url: tr.transactionReceiptUrl || null });
+      };
+      const nomeDe = async (uid: string | null) => uid ? ((await nomes([uid], new Map((await db.from("asaas_contas").select("user_id, nome").eq("user_id", uid)).data?.map((c: any) => [c.user_id, c]) || []))).get(uid) || null) : null;
       if (b.tipo === "pagamento") {
-        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id").eq("pedido", Number(b.pid)).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
+        const pid = Number(b.pid);
+        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id, metodo").eq("pedido", pid).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
         if (!r?.asaas_id) return json({ erro: "sem" }, 404);
         const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
-        const url = pg?.transactionReceiptUrl || pg?.invoiceUrl;
-        return url ? json({ url }) : json({ erro: "pendente" }, 409);
+        const { data: p } = await db.from("pedidos").select("cliente, lancha, data").eq("id", pid).maybeSingle();
+        const n = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`).catch(() => null))?.data || []).length : 1;
+        const linhas: [string, string][] = [];
+        const cli = await nomeDe(p?.cliente || null); if (cli) linhas.push(["Cliente", cli]);
+        if (p) linhas.push(["Passeio", `${(await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha} · ${dt(p.data)}`]);
+        linhas.push(["Valor", n > 1 ? `${brl2(+pg.value * n)} (${n}x de ${brl2(pg.value)})` : brl2(pg.value)]);
+        linhas.push(["Forma", pg.billingType === "PIX" ? "Pix" : pg.billingType === "CREDIT_CARD" ? (n > 1 ? `Cartão em ${n}x` : "Cartão") : String(pg.billingType || "—")]);
+        linhas.push(["Situação", ST[pg.status] || String(pg.status || "—")]);
+        const d = dt(pg.clientPaymentDate || pg.paymentDate || pg.confirmedDate); if (d) linhas.push(["Pago em", d]);
+        linhas.push(["Pedido", `#${pid}`]);
+        linhas.push(["Nº no Asaas", String(pg.id)]);
+        return json({ titulo: "Pagamento do cliente", linhas, url: pg.transactionReceiptUrl || pg.invoiceUrl || null });
       }
       if (b.tipo === "transf") {
-        const { data: t } = await db.from("transferencias_saldo").select("comprovante").eq("id", Number(b.id)).maybeSingle();
+        const { data: t } = await db.from("transferencias_saldo").select("user_id, motivo, comprovante").eq("id", Number(b.id)).maybeSingle();
         const c = String(t?.comprovante || "");
         if (!c.startsWith("asaas:") || c.length < 8) return json({ erro: "sem" }, 404);
-        const tr = await asaas("/transfers/" + encodeURIComponent(c.slice(6)));
-        return tr?.transactionReceiptUrl ? json({ url: tr.transactionReceiptUrl }) : json({ erro: "pendente", status: tr?.status || null }, 409);
+        return await transf(c.slice(6), "Transferência do saldo", await nomeDe(t?.user_id || null), t?.motivo ? String(t.motivo).slice(0, 140) : null);
+      }
+      if (b.tipo === "repasse" || b.tipo === "comissao") {
+        const pid = Number(b.pid);
+        const { data: p } = await db.from("pedidos").select("lancha, data, vendedor, comissao_comprovante").eq("id", pid).maybeSingle();
+        if (!p) return json({ erro: "pedido" }, 404);
+        const sobre = `Pedido #${pid} · ${(await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha} · ${dt(p.data)}`;
+        if (b.tipo === "comissao") {
+          const c = String(p.comissao_comprovante || "");
+          if (!c || c === "asaas:" || c === "asaas:enviando") return json({ erro: c ? "pendente" : "sem" }, c ? 409 : 404);
+          return c.startsWith("asaas:") ? await transf(c.slice(6), "Comissão do vendedor", await nomeDe(p.vendedor), sobre) : await arquivo(c);
+        }
+        const c = String((await db.from("repasses_pp").select("comprovante").eq("pedido", pid).maybeSingle()).data?.comprovante || "");
+        if (c.startsWith("asaas:") && c.length > 6 && c !== "asaas:enviando") {
+          const ds = (await db.from("donos").select("user_id").eq("lancha", p.lancha)).data || [];
+          const ct = ds.length ? (await db.from("asaas_contas").select("user_id").in("user_id", ds.map((d: any) => d.user_id)).not("aprovada_em", "is", null).limit(1).maybeSingle()).data : null;
+          return await transf(c.slice(6), "Repasse ao dono", await nomeDe(ct?.user_id || ds[0]?.user_id || null), sobre);
+        }
+        if (c.startsWith("fora:repasses/")) return await arquivo(c.slice(5));
+        return json({ erro: c === "asaas:enviando" ? "pendente" : "sem" }, c === "asaas:enviando" ? 409 : 404);
       }
       return json({ erro: "tipo" }, 400);
     }
