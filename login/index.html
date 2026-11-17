@@ -636,6 +636,14 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 .card.cfold>:not(h2){display:none!important}.card.cfold>h2{margin:0} /* classe própria: "fold" já é dos cartões que abrem pelo título (details) e escondia o título deles (2026-11-16) */
 .rpai{display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:start}.rpai>.rpah,.rpai>p,.rpai>.rpachips{grid-column:1}.rpai>.rpab{grid-column:2;grid-row:1/span 4;flex-direction:column;margin:0;align-self:center}.rpai>.rpab .btn{flex:none;min-width:0}
 @media(max-width:420px){.rpai{display:block}.rpai>.rpab{flex-direction:row;margin:10px 0 0}.rpai>.rpab .btn{flex:1 1 auto;white-space:normal}}
+
+/* o painel nunca arrasta para os lados no celular (Rodrigo 2026-11-16): trava horizontal e nada fica mais largo que a tela */
+html{overflow-x:hidden}@supports (overflow:clip){html,body{overflow-x:clip}}
+html body main#app{max-width:min(560px,100vw)}
+html body #app .card,html body #app details,html body #app .pseason,html body #app .msec,html body #app .pnet,html body #app .pg{min-width:0;max-width:100%;box-sizing:border-box}
+html body #app .pg{grid-template-columns:20px minmax(0,72px) minmax(0,64px) auto}html body #app .pg:has(.tpx){grid-template-columns:20px minmax(0,70px) minmax(0,118px) auto}
+html body #app .tpx,html body #app .tpp,html body #app .tpp input{min-width:0}
+html body .tabs{grid-auto-columns:minmax(0,1fr)}html body .tabs>*{min-width:0;overflow:hidden;text-overflow:ellipsis}
 </style></head><body>
 <header class="top" id="top" hidden></header>
 <main id="app"><p class="loading">…</p></main>
