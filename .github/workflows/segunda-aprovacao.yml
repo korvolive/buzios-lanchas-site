@@ -1,0 +1,52 @@
+name: Segunda aprovação (mudanças sensíveis)
+
+# Avaliação de segurança Asaas (16/11/2026), item "Segregação de desenvolvimento e implantação":
+# mudança em pagamentos, Asaas, acessos ou dados de clientes precisa de aprovação de uma pessoa diferente de quem fez.
+#
+# Como ligar: em Settings > Secrets and variables > Actions > Variables, criar REVISOR_SEGURANCA com o usuário
+# do GitHub do revisor (funcionário ou revisor técnico contratado). Depois, na proteção do main, marcar esta
+# verificação ("segunda-aprovacao") como obrigatória. Enquanto a variável estiver vazia, só marca o PR e passa.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  segunda-aprovacao:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Conferir
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          AUTOR: ${{ github.event.pull_request.user.login }}
+          REVISOR: ${{ vars.REVISOR_SEGURANCA }}
+        run: |
+          set -euo pipefail
+          # caminhos sensíveis: pagamentos, Asaas/PayPal, banco e permissões, login, publicação
+          sensivel='^(supabase/functions/(asaas|paypal|pedido|dono-aprovacao|acesso-link|entrar-celular|whatsapp-codigo|cadastro-whatsapp|convite-email)[^/]*/|supabase/sql/|supabase/config\.toml|pagar/|login/|aprovar/|dono/|\.github/workflows/|SEGURANCA\.md)'
+          arquivos="$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename')"
+          hits="$(printf '%s\n' "$arquivos" | grep -E "$sensivel" || true)"
+          if [ -z "$hits" ]; then echo "Sem mudança sensível."; exit 0; fi
+          { echo "### Mudança sensível"; echo; printf -- '- %s\n' $hits; } >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$REVISOR" ]; then
+            echo "::warning::Mudança sensível. Revisor ainda não definido (REVISOR_SEGURANCA); passa sem segunda aprovação."
+            exit 0
+          fi
+          if [ "${REVISOR,,}" = "${AUTOR,,}" ]; then echo "::error::O revisor não pode ser o autor do PR."; exit 1; fi
+          ok="$(gh api --paginate "repos/$REPO/pulls/$PR/reviews" \
+                --jq "[.[] | select(.state==\"APPROVED\" and (.user.login|ascii_downcase)==(\"$REVISOR\"|ascii_downcase) and .commit_id==\"$HEAD\")] | length")"
+          if [ "${ok:-0}" -gt 0 ]; then
+            echo "Aprovado por $REVISOR na versão atual." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Mudança sensível precisa da aprovação de $REVISOR na versão atual do PR."
+            exit 1
+          fi
