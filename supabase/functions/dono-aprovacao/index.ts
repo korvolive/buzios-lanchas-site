@@ -202,11 +202,14 @@ async function avisarDonos(cfg: any) {
   }
   if (!alvos.length) return { pendentes: cs.length, enviados: 0 };
   const key = await d360Key();
-  if (!key) return { erro: "sem chave" };
-  const ts = await modelos(key);
-  if (!aprovado(ts, MOD_DONO, "pt_BR")) return { pendentes: cs.length, enviados: 0, modelo: "esperando a Meta" };
-  let n = 0;
+  const wa = !!key && aprovado(await modelos(key), MOD_DONO, "pt_BR");
+  // aviso no celular (app) sai sempre que o dono tiver o app; o WhatsApp só depois que a Meta aprovar o modelo.
+  // Sem nenhum dos dois, não registra: quando o modelo for aprovado, o WhatsApp ainda sai.
+  const { data: subs } = await db.from("push_subs").select("user_id").in("user_id", [...new Set(alvos.map(a => a.dono))]);
+  const temApp = new Set((subs || []).map(x => x.user_id));
+  let n = 0, np = 0;
   for (const { c, dono, to } of alvos.slice(0, 10)) {
+    if (!wa && !temApp.has(dono)) continue;
     // registra antes de mandar: trava de duplicidade se o cron rodar duas vezes
     const { data: reg, error: re } = await db.from("aprovacoes_dono")
       .insert({ consulta_id: c.id, dono, lancha: c.lancha, data: c.data, horario: c.horario, tel_fim: dig(c.telefone).slice(-8) || null })
@@ -214,15 +217,20 @@ async function avisarDonos(cfg: any) {
     if (re || !reg) { if (!String(re?.message || "").includes("duplicate")) console.error("registro", re?.message); continue; }
     let neto = c.neto_garantido;
     if (neto == null) neto = (await db.rpc("preco_neto_tabela", { l: c.lancha, d: c.data, h: c.horario })).data;
-    const ok = await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
+    const nomeL = L.get(c.lancha)!.nome, quando = `${dataLonga(c.data, "pt")}, ${hora(c, "pt")}`;
+    const p = temApp.has(dono) ? await push([dono], () => ({ title: `Nova pré-reserva: ${nomeL}`,
+      body: `${quando}, ${c.pessoas || "-"} pessoas${+neto > 0 ? `. Você recebe ${brl(neto)}` : ""}. Toque para aprovar.` }),
+      `/aprovar/?t=${reg.token}`, `dono_aprov-${c.id}`).catch(e => (console.error("push dono", e), 0)) : 0;
+    if (p) np++;
+    const ok = wa && await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
       template: { name: MOD_DONO, language: { code: "pt_BR" }, components: [
-        { type: "body", parameters: [L.get(c.lancha)!.nome, dataLonga(c.data, "pt"), hora(c, "pt"), String(c.pessoas || "-"), +neto > 0 ? brl(neto) : "a combinar"].map(text => ({ type: "text", text })) },
+        { type: "body", parameters: [nomeL, dataLonga(c.data, "pt"), hora(c, "pt"), String(c.pessoas || "-"), +neto > 0 ? brl(neto) : "a combinar"].map(text => ({ type: "text", text })) },
         { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: reg.token }] },
       ] } });
-    await db.from("aprovacoes_dono").update({ enviado_em: new Date().toISOString(), envio: ok ? "enviado" : "falhou" }).eq("id", reg.id);
+    await db.from("aprovacoes_dono").update({ enviado_em: new Date().toISOString(), envio: [ok ? "whatsapp" : wa ? "whatsapp_falhou" : "", p ? "app" : ""].filter(Boolean).join("+") || "falhou" }).eq("id", reg.id);
     if (ok) { n++; console.log("aviso dono ok", c.id); }
   }
-  return { pendentes: cs.length, enviados: n };
+  return { pendentes: cs.length, enviados: n, app: np, modelo: wa ? "aprovado" : "esperando a Meta" };
 }
 
 // ---------- cliente avisado quando o dono recusa ----------
