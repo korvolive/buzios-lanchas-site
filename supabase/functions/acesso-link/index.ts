@@ -1,4 +1,4 @@
-// Búzios Lanchas: link para entrar, gerado pelo administrador (caso Antonio Falck 2026-11-16: dono esqueceu a senha).
+// Búzios Lanchas: link para entrar, gerado pelo administrador (2026-11-16: dono esqueceu a senha).
 // POST { user_id } com o token do administrador -> { link }: link de uso único (expira como o e-mail de nova senha)
 // que abre o app já na tela "Criar senha nova". O administrador manda pelo WhatsApp; a pessoa não precisa de e-mail.
 // Quem pode: só administrador logado (tabela admins). Não gera link para outro administrador.
@@ -28,6 +28,8 @@ Deno.serve(async (req) => {
     const { data: lk, error } = await db.auth.admin.generateLink({ type: "recovery", email, options: { redirectTo: VOLTA } });
     if (error || !lk?.properties?.action_link) { console.error("acesso-link", error?.message); return json({ erro: "falhou" }, 500); }
     console.log("acesso-link gerado", { por: quem, para: user_id }); // só ids, sem dados pessoais
+    // regra 11 do SEGURANCA.md: mudança de acesso fica na auditoria (quem gerou, para quem, quando)
+    await db.from("auditoria").insert({ tabela: "auth.users", operacao: "LINK_NOVA_SENHA", registro: user_id, quem, depois: { por: quem, para: user_id } }).then(() => {}, () => {});
     return json({ link: lk.properties.action_link });
   } catch (e) {
     console.error("acesso-link", (e as Error).message);
