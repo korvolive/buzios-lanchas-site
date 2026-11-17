@@ -84,6 +84,13 @@ const FIM: Record<string, number> = { manha: 14, dia: 17, tarde: 18, noite: 24 }
 // hora_fim do passeio na agenda ('HH:MM'), quando o dono anotou, vale no lugar do fim do horário
 const acabou = (d: string, h: string, fim?: string | null) => { const [fh, fm] = String(fim || "").split(":").map(Number);
   return Date.parse(`${d}T00:00:00-03:00`) + (fim && !isNaN(fh) ? fh + (fm || 0) / 60 : FIM[h] ?? 24) * 36e5 <= Date.now(); };
+// repasse do jetski (Rodrigo 2026-11-17): libera 2 h antes da saída combinada da lancha (rpc inicio_combinado; sem ela, o horário padrão)
+const JETSKI_ANTES_MS = 2 * 36e5;
+async function jetskiLibera(p: any) {
+  const { data, error } = await db.rpc("inicio_combinado", { d: p.data, h: p.horario, hi: p.hora_ini ?? null, bid: p.bloqueio_id ?? null });
+  const ini = !error && data ? Date.parse(String(data).slice(0, 19) + "-03:00") : Date.parse(`${p.data}T${String(INICIO[p.horario] ?? 10).padStart(2, "0")}:00:00-03:00`);
+  return !isNaN(ini) && ini - JETSKI_ANTES_MS <= Date.now();
+}
 // cartão só com 5 dias ou mais até o passeio (Rodrigo 2026-10-25; era 7, mudou para 5 em 2026-10-29): o cartão cai em cerca de 2 dias mesmo com antecipação,
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
@@ -592,12 +599,14 @@ async function enviarSaldos() {
     if (em) console.error("comissao_paga", p.id, em.message);
     saldo -= com; n++;
   }
-  // 3. jetski (Rodrigo 2026-11-15): depois do passeio, o líquido do jetski vai para o dono do jetski (pago online junto com o sinal)
-  const { data: js } = await db.from("pedidos").select("id, data, horario, bloqueio_id, jetski, jetski_neto")
-    .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse", null).order("data").limit(30);
+  // 3. jetski: o líquido do jetski vai para o dono do jetski (pago online junto com o sinal).
+  // Rodrigo 2026-11-17: no dia do passeio, 2 h antes da saída da lancha (o dono recebe antes de sair de casa; cancelamento antes disso
+  // nunca tira dinheiro da conta dele). Era depois do passeio.
+  const hoje = new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10);
+  const { data: js } = await db.from("pedidos").select("id, data, horario, hora_ini, bloqueio_id, jetski, jetski_neto")
+    .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse", null).lte("data", hoje).order("data").limit(30);
   for (const p of js || []) {
-    const fim = p.bloqueio_id ? (await db.from("anotacoes").select("hora_fim").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.hora_fim : null;
-    if (!acabou(p.data, p.horario, fim)) continue;
+    if (!(await jetskiLibera(p))) continue;
     if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) continue;
     // só com o dinheiro do cliente já na Búzios (Asaas ou PayPal)
     // e o valor pago tem de cobrir o jetski (revisão 2026-11-15): cobrança do Asaas com o sinal + jetski; PayPal em reais com o valor certo
@@ -896,7 +905,9 @@ Deno.serve(async req => {
     if (b.acao === "conta") {
       const { data: ds } = await db.from("donos").select("lancha").eq("user_id", u.id);
       const { data: vd } = await db.from("vendedores").select("user_id").eq("user_id", u.id).eq("ativo", true).maybeSingle();
-      if (!ds?.length && !vd) return json({ erro: "dono" }, 403); // dono de lancha ou vendedor (comissão)
+      // dono de jet ski (Rodrigo 2026-11-17: quem só tem jet ski também recebe pelo Asaas, igual ao dono de lancha)
+      const { data: jd } = await db.from("jetskis").select("id").eq("dono", u.id).eq("ativo", true).limit(1);
+      if (!ds?.length && !vd && !jd?.length) return json({ erro: "dono" }, 403); // dono de lancha, de jet ski ou vendedor (comissão)
       if ((await db.from("asaas_contas").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "ja" }, 409);
       const doc = dig(b.cpfCnpj), pf = doc.length === 11;
       if (pf ? !cpfOk(doc) : !cnpjOk(doc)) return json({ erro: "doc" }, 400);

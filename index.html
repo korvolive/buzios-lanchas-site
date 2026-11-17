@@ -49,6 +49,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 .jet-q{font-weight:600;margin:14px 0 6px;font-size:14px}
 .jet-note{margin:0 0 4px;padding:10px 12px;border-radius:10px;background:var(--chip);font-size:13.5px;line-height:1.45}.jet-note b{display:block;margin-bottom:2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}.jet-cup span{display:block;font-weight:600}.jet-cup small{font-weight:400}.jet-slots{margin-top:2px}.jet-res{font-weight:600}.jet-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.jet-tags .jet-key{margin:0}.jet-gift{background:color-mix(in srgb,var(--sea) 14%,transparent)}
 .c-jet{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--brass,#8a6508)}
+.jet-info{margin-top:6px;border:0;background:none;padding:0;color:var(--accent,#0a66c2);text-decoration:underline;font:inherit;font-size:14px;cursor:pointer;align-self:flex-start}.jet-inf .jet-galh{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory}.jet-inf .jet-galh img{flex:0 0 100%;max-height:52vh;object-fit:cover;scroll-snap-align:start}.jet-inf .jet-md{font-weight:400;opacity:.7}.jet-inf .jet-tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.jet-tb{width:100%;border-collapse:collapse;margin:4px 0 8px}.jet-tb td{padding:6px 0;border-bottom:1px solid rgba(0,0,0,.08)}.jet-tb td:last-child{text-align:right;font-weight:600}.jet-inote{font-size:14px;opacity:.8;margin:6px 0 12px}.jet-add{width:100%}
 .stop-dlg.jet-dlg{max-width:min(720px,94vw);width:min(720px,calc(100vw - 24px));padding:14px 16px 16px;overflow-y:auto}.stop-dlg.jet-dlg h3{margin:4px 36px 10px 0}.jet-gal{display:grid;gap:8px}.jet-gal img{width:100%;border-radius:10px}.jet-x{float:right;border:0;background:none;font-size:20px;cursor:pointer;color:inherit}
 :root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1672637870274530&ev=PageView&noscript=1"></noscript>
@@ -1842,7 +1843,8 @@ function jetCardHTML(j, on, many, cm){
   return `<div class="jet-card${on?" on":""}"${many?` role="radio" aria-checked="${on}" tabindex="0" data-jsel="${esc(j.id)}"`:""}>${gal}
     <div class="jet-cb"><strong>${esc(j.nome)}</strong>${j.modelo?`<span class="jet-md">${esc(j.modelo)}</span>`:""}
       ${de?`<span class="jet-pr">${t("jetFrom",{v:brl(de.valor), d:jDur(de.min)})}</span>`:""}
-      <span class="jet-tags">${cm?`<span class="jet-key jet-gift">${t("jetCortTag",{m:jDur(cm)})}</span>`:""}${j.chave_aprendiz?`<span class="jet-key">${t("jetKeyTag")}</span>`:""}</span></div></div>`;
+      <span class="jet-tags">${cm?`<span class="jet-key jet-gift">${t("jetCortTag",{m:jDur(cm)})}</span>`:""}<span class="jet-key">${t("jetKeyTag")}</span></span>
+      <button type="button" class="jet-info" data-jinfo="${esc(j.id)}">${t("jetInfo")}</button></div></div>`;
 }
 async function jetRender(b){
   const box=document.getElementById("jet-box"); if(!box || isEsc(b)) return;
@@ -1880,7 +1882,7 @@ async function jetRender(b){
   }
   box.innerHTML=`<h2 class="pk-h">${t("jetT")}</h2>
     <div class="jet-cards${many?" many":""}"${many?` role="radiogroup" aria-label="${t("jetT")}"`:""}>${L.map(x=>jetCardHTML(x, x.id===j.id, many, jetCortOf(x,b))).join("")}</div>
-    <div class="jet-note"><b>${t("jetImp")}</b>${t(j.chave_aprendiz?"jetSafe":"jetSafeNoKey")}</div>
+    <div class="jet-note"><b>${t("jetImp")}</b>${t("jetSafe")}</div>
     ${cort?`<label class="pk-cup jet-cup"><input type="checkbox" id="jet-cortcb"${pick.jetC?" checked":""}><span>${t("jetCortChk",{m:jDur(cort)})}<small>${t("jetCortChkSub")}</small></span></label>`:""}
     ${corpo}`;
   box.hidden=false;
@@ -1890,7 +1892,8 @@ async function jetRender(b){
     tr.onscroll=()=>{ const i=Math.round(tr.scrollLeft/Math.max(1,tr.clientWidth)); JET_GI.set(id,i); if(ct) ct.textContent=`${Math.min(i,n-1)+1}/${n}`; };
     tr.parentNode.querySelectorAll("[data-jnv]").forEach(bt=>bt.onclick=e=>{ e.stopPropagation(); const i=(JET_GI.get(id)||0)+(+bt.dataset.jnv), k=(i+n)%n; tr.scrollTo({left:k*tr.clientWidth, behavior:"smooth"}); });
   });
-  box.querySelectorAll("[data-jfull]").forEach(im=>im.onclick=e=>{ if(im.dataset.jfull!==JET_SEL) return; /* card não escolhido: o toque na foto escolhe o card */ e.stopPropagation(); const x=L.find(y=>y.id===im.dataset.jfull); if(x) jetFotos(x, [...im.parentNode.children].indexOf(im)); });
+  box.querySelectorAll("[data-jfull]").forEach(im=>im.onclick=e=>{ if(im.dataset.jfull!==JET_SEL) return; /* card não escolhido: o toque na foto escolhe o card */ e.stopPropagation(); const x=L.find(y=>y.id===im.dataset.jfull); if(x) jetInfo(x, b, [...im.parentNode.children].indexOf(im)); });
+  box.querySelectorAll("[data-jinfo]").forEach(bt=>bt.onclick=e=>{ e.stopPropagation(); const x=L.find(y=>y.id===bt.dataset.jinfo); if(x) jetInfo(x, b, 0); });
   box.querySelectorAll("[data-jsel]").forEach(c=>{ const go=()=>{ if(JET_SEL===c.dataset.jsel) return; JET_SEL=c.dataset.jsel; pick.jet=null; pick.jetC=false; jetRender(b).then(()=>jetTouch(b)); };
     c.onclick=go; c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
   const cb=box.querySelector("#jet-cortcb"); if(cb) cb.onchange=()=>{ pick.jetC=cb.checked; pick.jet=null; jetRender(b).then(()=>jetTouch(b)); };
@@ -1906,10 +1909,30 @@ function jetWaTxt(){
   return !c ? (v ? t("jetWa",o) : "") : sel.min ? (v ? t("jetWaCP",o) : "") : t("jetWaC",o);
 }
 /* selo no card da vitrine: lancha que dá cortesia de jetski (Rodrigo 2026-11-15) */
+Object.assign(UI.pt, {jetInfo:"Ver detalhes", jetAdd:"Adicionar ao passeio", jetInfoNote:"Vai junto com o seu passeio de lancha: o dono leva o jetski até a lancha e acompanha você. O valor é pago junto com o sinal da lancha."});
+Object.assign(UI.en, {jetInfo:"See details", jetAdd:"Add to my tour", jetInfoNote:"It goes with your boat tour: the owner brings the jet ski to the boat and rides along with you. It is paid together with the boat deposit."});
+Object.assign(UI.es, {jetInfo:"Ver detalles", jetAdd:"Agregar al paseo", jetInfoNote:"Va junto con tu paseo en lancha: el dueño lleva la moto de agua hasta la lancha y te acompaña. Se paga junto con la seña de la lancha."});
 Object.assign(UI.pt, {jetCard:"🎁 Ganhe {m} de jetski"}); Object.assign(UI.en, {jetCard:"🎁 Get {m} of jet ski free"}); Object.assign(UI.es, {jetCard:"🎁 Gana {m} de moto de agua"});
 function jetCards(){ const E=document.querySelectorAll("[data-jetc]:not([data-jok])"); if(!E.length || IS_BOT) return;
   loadJets().then(L=>E.forEach(el=>{ el.dataset.jok=1; const j=L.find(x=>x.cortesia_lancha===el.dataset.jetc && x.cortesia_min>0); if(j){ el.textContent=t("jetCard",{m:jDur(j.cortesia_min)}); el.hidden=false; } })); }
 { let jq=0; new MutationObserver(()=>{ if(!jq) jq=requestAnimationFrame(()=>{ jq=0; jetCards(); }); }).observe(document.documentElement,{childList:true,subtree:true}); }
+/* janela compacta do jet ski (Rodrigo 2026-11-17): faz o papel da página do jet ski, sem sair da página da lancha.
+   Fotos, modelo, chave de aprendiz, valores de 1h a 3h, cortesia desta lancha e "Adicionar ao passeio" (vai para a escolha de tempo e horário) */
+function jetInfo(j, b, at){
+  document.getElementById("jet-dlg")?.remove();
+  const cm=jetCortOf(j,b), dl=document.createElement("dialog"); dl.id="jet-dlg"; dl.className="stop-dlg jet-dlg jet-inf";
+  dl.innerHTML=`<button type="button" class="jet-x" aria-label="${t("jetClose")}">✕</button><h3>${esc(j.nome)}${j.modelo?` <small class="jet-md">${esc(j.modelo)}</small>`:""}</h3>
+    ${(j.fotos||[]).length?`<div class="jet-gal jet-galh">${j.fotos.map(f=>`<img src="${esc(f)}" alt="${esc(j.nome)}" loading="lazy">`).join("")}</div>`:""}
+    <p class="jet-tags"><span class="jet-key">${t("jetKeyTag")}</span>${cm?`<span class="jet-key jet-gift">${t("jetCortTag",{m:jDur(cm)})}</span>`:""}</p>
+    ${(j.tabela||[]).length?`<table class="jet-tb"><tbody>${j.tabela.map(x=>`<tr><td>${jDur(x.min)}</td><td>${brl(x.valor)}</td></tr>`).join("")}</tbody></table>`:""}
+    <p class="jet-inote">${t("jetInfoNote")}</p>
+    <button type="button" class="btn jet-add">${t("jetAdd")}</button>`;
+  document.body.appendChild(dl); dl.querySelector(".jet-x").onclick=()=>dl.close(); dl.onclick=e=>{ if(e.target===dl) dl.close(); };
+  dl.querySelector(".jet-add").onclick=()=>{ dl.close(); if(JET_SEL!==j.id){ JET_SEL=j.id; pick.jet=null; pick.jetC=false; }
+    jetRender(b).then(()=>{ jetTouch(b); const bx=document.getElementById("jet-box"); (bx?.querySelector("[data-jdur]")||bx)?.scrollIntoView({block:"center",behavior:"smooth"}); }); };
+  dl.showModal();
+  if(at>0){ const g=dl.querySelector(".jet-galh"), im=g?.children[at]; if(im) g.scrollLeft=im.offsetLeft-g.offsetLeft; }
+}
 function jetFotos(j, at){
   document.getElementById("jet-dlg")?.remove();
   const dl=document.createElement("dialog"); dl.id="jet-dlg"; dl.className="stop-dlg jet-dlg";
