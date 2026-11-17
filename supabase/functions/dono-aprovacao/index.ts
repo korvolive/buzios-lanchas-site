@@ -44,14 +44,19 @@ const MES: Record<string, string[]> = {
   es: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
 };
 const dataLonga = (d: string, l: string) => { const [, m, dd] = d.split("-").map(Number); return l === "en" ? `${MES.en[m - 1]} ${dd}` : `${dd} de ${MES[l][m - 1]}`; };
-const hora = (c: any, l: string) => c.hora_ini && c.hora_fim ? `${String(c.hora_ini).slice(0, 5)} - ${String(c.hora_fim).slice(0, 5)}` : (SLOT[l][c.horario] || c.horario);
+// horário exato (o Lucas pode lançar fora do padrão); sem hora lançada, o padrão do app para o turno
+const STD: Record<string, string[]> = { manha: ["10:00", "14:00"], tarde: ["14:00", "18:00"], dia: ["10:00", "17:00"] };
+const hora = (c: any, l: string) => {
+  const [a, b] = c.hora_ini && c.hora_fim ? [String(c.hora_ini).slice(0, 5), String(c.hora_fim).slice(0, 5)] : (STD[c.horario] || []);
+  return a ? (l === "en" ? `${a} to ${b}` : l === "es" ? `${a} a ${b}` : `${a} às ${b}`) : (SLOT[l][c.horario] || c.horario);
+};
 const primeiro = (n: unknown) => { const p = String(n || "").trim().split(/\s+/)[0] || ""; return p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : ""; };
 const langCli = (c: any, to: string) => ["pt", "en", "es"].includes(c.lang) && !(c.lang === "pt" && !to.startsWith("55")) ? c.lang : to.startsWith("55") ? "pt" : ES_DDI.some(d => to.startsWith(d)) ? "es" : "en";
 
 // ---------- modelos (criados sozinhos, no máximo 1 tentativa a cada 24 h; sem aprovação da Meta não envia) ----------
 const MOD_DONO = "dono_aprovar_reserva";
 const MOD_DONO_TXT = "Nova pré-reserva para a {{1}}: {{2}}, {{3}}, {{4}} pessoas. Valor para você: {{5}}.\n\nA embarcação está livre nesse horário? Toque no botão abaixo para aprovar. Se não estiver, você também pode avisar por lá.";
-const MOD_DONO_EX = ["Midas", "20 de novembro", "tarde", "8", "R$ 2.000"];
+const MOD_DONO_EX = ["Midas", "20 de novembro", "14:00 às 18:00", "8", "R$ 2.000"];
 const MOD_INDISP = "reserva_indisponivel";
 const MOD_INDISP_TXT: Record<string, string> = {
   pt_BR: "Olá, {{1}}. Infelizmente a embarcação {{2}} acabou sendo reservada por outro cliente para {{3}} e não está mais disponível nesse horário. Responda esta mensagem que mostramos as outras opções livres para essa data.",
@@ -263,7 +268,7 @@ Deno.serve(async req => {
         const { data: r, error } = await db.rpc("dono_aprovar", { tok: t });
         if (error) { console.error("aprovar", error.message); return json({ estado: "erro" }, 500); }
         if (r?.estado === "aprovou") {
-          const nomeL = await nomeLancha(r.lancha), quando = `${dataLonga(r.data, "pt")} (${SLOT.pt[r.horario] || r.horario})`, cli = primeiro(r.cliente);
+          const nomeL = await nomeLancha(r.lancha), quando = `${dataLonga(r.data, "pt")} (${hora(r, "pt")})`, cli = primeiro(r.cliente);
           // a etiqueta do aviso de aprovação pendente: substitui o "esperando aprovação" no celular do administrador
           await push(await admins(), l => l === "en" ? { title: "Owner approved the booking", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}. The client moves on to payment.` }
             : l === "es" ? { title: "El dueño aprobó la reserva", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}. El cliente sigue al pago.` }
@@ -287,7 +292,7 @@ Deno.serve(async req => {
         const nomeL = await nomeLancha(r.lancha);
         const cliente = await avisarCliente(r, nomeL).catch(e => (console.error("cliente", e), "falhou"));
         await db.from("aprovacoes_dono").update({ envio: "recusa:" + cliente }).eq("token", t);
-        const quando = `${dataLonga(r.data, "pt")} (${SLOT.pt[r.horario] || r.horario})`, cli = primeiro(r.nome);
+        const quando = `${dataLonga(r.data, "pt")} (${hora(r, "pt")})`, cli = primeiro(r.nome);
         const avisado = ["texto", "modelo"].includes(cliente);
         const alvo = [...new Set([...(await admins()), ...(await operadores()), ...(r.vendedor ? [r.vendedor] : [])])];
         await push(alvo, () => ({ title: "O dono recusou a pré-reserva",
