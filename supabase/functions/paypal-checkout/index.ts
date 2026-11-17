@@ -119,6 +119,36 @@ async function vaga(pid: number, segurar = false) {
 }
 
 // pedido + cobrança, conferindo o token do link
+// Cliente estrangeiro com central em reais (criada pelo convite direto/ativar conta, que sempre gravam BRL): a página
+// não mostrava PayPal nem cartão internacional, embora a mensagem do link prometesse (caso 17/11, cliente +44, pedido 75).
+// Ao abrir a página, converte para a moeda do país do cliente, igual à central-auto. Só sem vendedor, pendente, nada pago,
+// sem ordem PayPal e sem comprovante. Desliga com o segredo CENTRAL_MOEDA_OFF=1.
+const COB_EUR = new Set(["49", "33", "39", "351", "31", "32", "43", "353", "30", "358", "352", "356", "357", "386", "421", "372", "371", "370", "385"]);
+const PAIS_DDI: Record<string, string> = { BR: "55", AR: "54", CL: "56", UY: "598", PY: "595", CO: "57", PE: "51", MX: "52", US: "1", CA: "1", PT: "351", ES: "34", FR: "33", IT: "39", DE: "49", GB: "44", IE: "353", NL: "31", BE: "32", CH: "41", AU: "61" };
+const niceUp = (x: number) => { const step = x < 100 ? 5 : x < 1000 ? 10 : x < 10000 ? 50 : 10 ** (Math.floor(Math.log10(x)) - 1); return Math.ceil(x / step) * step; };
+// deno-lint-ignore no-explicit-any
+async function moedaDoCliente(c: any, p: any) {
+  if (Deno.env.get("CENTRAL_MOEDA_OFF") === "1") return;
+  if (c.moeda !== "BRL" || p.vendedor || p.status !== "pendente" || c.pago_em || c.order_id || c.captura || p.comprovante_em) return;
+  const { data: cl } = await db.from("clientes").select("pais, whatsapp").eq("user_id", p.cliente).maybeSingle();
+  const w = String(cl?.whatsapp || "").trim();
+  const cc = PAIS_DDI[String(cl?.pais || "")] || (w.match(/^\+(\d{1,3})\s/) || [])[1] || (w.startsWith("+") ? "" : "55");
+  if (!cc || cc === "55") return;
+  if ((await db.from("pagamentos_asaas").select("pedido").eq("pedido", p.id).not("pago_em", "is", null).limit(1).maybeSingle()).data) return;
+  const moeda = cc === "34" || COB_EUR.has(cc) ? "EUR" : cc === "44" ? "GBP" : "USD";
+  const fx = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/cambio").then(r => r.json()).catch(() => null);
+  const r = +fx?.rates?.[moeda.toLowerCase()];
+  const brl = +p.sinal_valor + (+p.jetski_valor || 0);
+  if (!(r > 0) || !(brl > 0)) return;
+  const valor = niceUp(brl * r * 1.10);
+  const { data: up } = await db.from("pagamentos_pp").update({ moeda, valor, atualizado_em: new Date().toISOString() })
+    .eq("pedido", p.id).eq("moeda", "BRL").is("pago_em", null).is("order_id", null).select("pedido").maybeSingle();
+  if (!up) return;
+  await db.from("pedidos").update({ paypal_valor: fmt(moeda, valor) }).eq("id", p.id);
+  c.moeda = moeda; c.valor = valor;
+  console.log("central em moeda do cliente", p.id, moeda);
+}
+
 async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
@@ -288,6 +318,7 @@ Deno.serve(async req => {
       const x = await carregar(Number(u.searchParams.get("p")), u.searchParams.get("k") || "");
       if (!x) return json({ erro: "link" }, 404);
       const { c, p, lancha, nome } = x;
+      await moedaDoCliente(c, p).catch(e => console.error("moedaDoCliente", e));
       const sup = (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data?.id || null;
       const vc = p.vendedor ? (await db.from("conversas").select("id").eq("tipo", "vendedor").eq("cliente", p.cliente).eq("vendedor", p.vendedor).maybeSingle()).data?.id || null : null;
       let vn = "";
