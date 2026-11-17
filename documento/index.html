@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enviar documento · Búzios Lanchas</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/login/icon-192.png">
+<!-- Botão "Enviar de novo" do aviso de documento recusado pelo Asaas (WhatsApp, modelo documento_reenviar; Rodrigo 2026-11-17).
+     Sem login: o token do link é a credencial, conferido no servidor (função asaas-docs, acao "reenvio"), e só abre
+     o link do próprio Asaas para a pessoa enviar o documento e a selfie de novo. PT/EN/ES pelo idioma do aparelho. -->
+<style>
+:root{--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--card:#fff;--line:#dfe7ea;--ok:#1f8f4e;--no:#b3261e;--btn:#0f6c86}
+@media (prefers-color-scheme:dark){:root{--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f;--card:#13262d;--line:#24414a;--ok:#2aa863;--no:#e46a62;--btn:#1b8fae}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px 16px}
+main{max-width:440px;margin:0 auto;text-align:center}
+.logo{width:64px;height:64px;border-radius:16px}
+h1{font-size:22px;margin:12px 0 4px}
+.sub{color:var(--muted);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;text-align:left;margin-bottom:20px}
+.card p{margin:0 0 8px}.card p:last-child{margin:0}
+.lab{color:var(--muted);font-size:14px;margin:0 0 2px}
+.mot{color:var(--no);font-weight:600}
+ul{margin:0;padding-left:20px;color:var(--muted);font-size:15px}
+li{margin:4px 0}
+.big{display:block;width:100%;border:0;border-radius:16px;background:var(--btn);color:#fff;font-weight:700;font-size:20px;line-height:1.2;padding:19px 16px;text-decoration:none;text-align:center}
+.msg{font-size:19px;font-weight:700;margin:8px 0}
+.msg.ok{color:var(--ok)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="/login/icon-192.png" alt="">
+  <div id="carregando"><p class="sub" style="margin-top:20px" id="carT"></p></div>
+
+  <div id="recusado" class="hide">
+    <h1 id="rT"></h1>
+    <p class="sub" id="rS"></p>
+    <div class="card">
+      <p class="lab" id="oL"></p><p id="oV"></p>
+      <p class="lab" id="mL"></p><p class="mot" id="mV"></p>
+    </div>
+    <div class="card"><p class="lab" id="dL"></p><ul id="dV"></ul></div>
+    <a class="big" id="ir" href="#" rel="noopener"></a>
+    <p class="sub" style="margin-top:14px;font-size:14px" id="guard"></p>
+  </div>
+
+  <div id="fim" class="hide">
+    <h1 id="fT"></h1>
+    <p class="sub" id="fS"></p>
+    <a class="big hide" id="ir2" href="#" rel="noopener"></a>
+  </div>
+</main>
+
+<script>
+const FN = "https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/asaas-docs";
+const tok = new URLSearchParams(location.search).get("t") || "";
+const $ = id => document.getElementById(id);
+const L = (navigator.language || "pt").slice(0,2).toLowerCase();
+const lang = ["pt","en","es"].includes(L) ? L : "en";
+document.documentElement.lang = lang === "pt" ? "pt-BR" : lang;
+const TX = {
+  pt: { car:"Carregando…", rT:"Documento não aprovado", rS:"O Asaas, que processa os pagamentos da Búzios Lanchas, pediu para você enviar de novo.", oL:"Precisa enviar de novo", mL:"Motivo", dL:"Dicas para dar certo",
+    dicas:["A CNH digital em PDF, baixada no app CNH do Brasil (gov.br), costuma ser o jeito mais fácil.","Se for foto: documento inteiro, sem cortar as bordas, sem reflexo de flash e em lugar claro.","Selfie com o rosto inteiro, sem óculos escuros nem boné.","Abra no Chrome ou no Safari, com internet boa."],
+    ir:"Enviar de novo", guard:"Enquanto isso, o que é seu fica guardado. Quando o Asaas aprovar, você recebe um aviso.",
+    o:{doc:"Documento com foto", selfie:"Selfie", ambos:"Documento com foto e selfie"},
+    m:{ilegivel:"A foto ficou sem nitidez e não deu para ler os dados.", reflexo:"A foto ficou com reflexo e não deu para ler os dados.", cortado:"O documento apareceu cortado ou incompleto. Ele precisa aparecer inteiro.", selfie:"A selfie não ficou boa. O rosto precisa aparecer inteiro, sem óculos escuros nem boné, em lugar claro.", vencido:"O documento está vencido.", titular:"O documento não é do titular do cadastro. Em empresa, precisa ser do sócio administrador.", outro:"O Asaas não conseguiu conferir o que foi enviado."},
+    analise:["Recebemos o seu envio","O Asaas está conferindo. Você recebe um aviso quando a conta for aprovada."], aprovado:["Conta aprovada","Está tudo certo. O que é seu já cai direto na sua conta."],
+    falta:["Falta enviar o documento","Toque no botão abaixo para enviar o documento e a selfie. Leva 2 minutos."], preparando:["Quase lá","O Asaas está preparando o link novo. Abra este link de novo em alguns minutos."],
+    invalido:["Link inválido","Abra o app da Búzios Lanchas para enviar o documento."], erro:["Não deu para carregar agora","Tente de novo em instantes ou abra o app da Búzios Lanchas."] },
+  en: { car:"Loading…", rT:"Document not approved", rS:"Asaas, which processes payments for Búzios Lanchas, asked you to send it again.", oL:"Please send again", mL:"Reason", dL:"Tips",
+    dicas:["If it is a photo: the whole document, without cutting the edges, without flash glare and in good light.","A digital driver's license in PDF also works.","Selfie with your whole face, no sunglasses or cap.","Open it in Chrome or Safari, with a good connection."],
+    ir:"Send again", guard:"Meanwhile, your share stays saved. When Asaas approves, you will get a notice.",
+    o:{doc:"Photo ID", selfie:"Selfie", ambos:"Photo ID and selfie"},
+    m:{ilegivel:"The photo was blurry and the details could not be read.", reflexo:"The photo had glare and the details could not be read.", cortado:"The document was cut off or incomplete. It must show entirely.", selfie:"The selfie was not clear. Your whole face must show, no sunglasses or cap, in good light.", vencido:"The document is expired.", titular:"The document is not from the account holder. For a company, it must be the managing partner.", outro:"Asaas could not verify what was sent."},
+    analise:["We received it","Asaas is checking it. You will get a notice when your account is approved."], aprovado:["Account approved","All set. Your share now goes straight to your account."],
+    falta:["Your document is missing","Tap the button below to send your ID and selfie. It takes 2 minutes."], preparando:["Almost there","Asaas is preparing a new link. Open this link again in a few minutes."],
+    invalido:["Invalid link","Open the Búzios Lanchas app to send your document."], erro:["Could not load now","Try again shortly or open the Búzios Lanchas app."] },
+  es: { car:"Cargando…", rT:"Documento no aprobado", rS:"Asaas, que procesa los pagos de Búzios Lanchas, pidió que lo envíes de nuevo.", oL:"Hay que enviar de nuevo", mL:"Motivo", dL:"Consejos",
+    dicas:["Si es una foto: el documento entero, sin cortar los bordes, sin reflejo del flash y con buena luz.","La licencia de conducir digital en PDF también sirve.","Selfie con la cara entera, sin lentes de sol ni gorra.","Ábrelo en Chrome o Safari, con buena internet."],
+    ir:"Enviar de nuevo", guard:"Mientras tanto, lo tuyo queda guardado. Cuando Asaas apruebe, recibirás un aviso.",
+    o:{doc:"Documento con foto", selfie:"Selfie", ambos:"Documento con foto y selfie"},
+    m:{ilegivel:"La foto salió borrosa y no se pudieron leer los datos.", reflexo:"La foto tenía reflejo y no se pudieron leer los datos.", cortado:"El documento salió cortado o incompleto. Tiene que verse entero.", selfie:"La selfie no salió bien. La cara tiene que verse entera, sin lentes de sol ni gorra, con buena luz.", vencido:"El documento está vencido.", titular:"El documento no es del titular de la cuenta. En empresa, tiene que ser del socio administrador.", outro:"Asaas no pudo verificar lo que se envió."},
+    analise:["Recibimos tu envío","Asaas lo está revisando. Recibirás un aviso cuando tu cuenta sea aprobada."], aprovado:["Cuenta aprobada","Todo listo. Lo tuyo ya cae directo en tu cuenta."],
+    falta:["Falta enviar el documento","Toca el botón de abajo para enviar el documento y la selfie. Toma 2 minutos."], preparando:["Casi listo","Asaas está preparando un link nuevo. Abre este link de nuevo en unos minutos."],
+    invalido:["Link inválido","Abre la app de Búzios Lanchas para enviar el documento."], erro:["No se pudo cargar ahora","Intenta de nuevo en un momento o abre la app de Búzios Lanchas."] },
+}[lang];
+$("carT").textContent = TX.car;
+const seguro = u => /^https:\/\//i.test(String(u || "")) ? String(u) : "";
+function fim(k, url){
+  $("carregando").classList.add("hide"); $("fim").classList.remove("hide");
+  $("fT").textContent = TX[k][0]; $("fS").textContent = TX[k][1];
+  if (url) { const a = $("ir2"); a.href = url; a.textContent = TX.ir; a.classList.remove("hide"); }
+}
+(async () => {
+  let d;
+  try { const r = await fetch(FN, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({acao:"reenvio", t:tok})}); d = await r.json(); }
+  catch { d = {estado:"erro"}; }
+  if (d.estado === "recusado" && seguro(d.url)) {
+    $("carregando").classList.add("hide"); $("recusado").classList.remove("hide");
+    $("rT").textContent = d.nome ? `${d.nome}, ${TX.rT.charAt(0).toLowerCase()+TX.rT.slice(1)}` : TX.rT;
+    $("rS").textContent = TX.rS; $("oL").textContent = TX.oL; $("mL").textContent = TX.mL; $("dL").textContent = TX.dL;
+    $("oV").textContent = TX.o[d.oque] || TX.o.doc;
+    $("mV").textContent = (d.motivo === "outro" && d.motivo_txt && lang === "pt") ? d.motivo_txt : (TX.m[d.motivo] || TX.m.outro);
+    $("dV").replaceChildren(...TX.dicas.map(x => { const li = document.createElement("li"); li.textContent = x; return li; }));
+    const a = $("ir"); a.href = seguro(d.url); a.textContent = TX.ir;
+    $("guard").textContent = TX.guard;
+    return;
+  }
+  if (d.estado === "falta" && seguro(d.url)) return fim("falta", seguro(d.url));
+  fim(["analise","aprovado","preparando","invalido"].includes(d.estado) ? d.estado : "erro");
+})();
+</script>
+</body>
+</html>
