@@ -1,0 +1,39 @@
+name: Guardar registros (5 anos)
+
+# Todo dia exporta os registros de acesso e de segurança do Supabase (que a plataforma só guarda por poucos dias)
+# para o cofre privado "registros-seguranca", com SHA-256 encadeado em public.registros_exportados.
+# Compromisso com o Asaas (avaliação de segurança de 16/11/2026): guardar por no mínimo 5 anos.
+# Se um dia falhar, a rodada seguinte recupera (até 6 dias para trás).
+
+on:
+  schedule:
+    - cron: "15 8 * * *" # 05:15 em Brasília
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Dias específicos (AAAA-MM-DD separados por espaço). Vazio = os que faltam."
+        required: false
+        default: ""
+
+concurrency:
+  group: registros-exportar
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  exportar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Exportar
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: sqoperylsqcbcjpcrlnp
+          DIAS: ${{ github.event.inputs.dias }}
+        run: node scripts/registros-exportar.mjs
