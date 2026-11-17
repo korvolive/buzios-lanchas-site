@@ -38,6 +38,10 @@ label small{font-weight:500;color:var(--soft)}
 input,select,textarea{width:100%;min-height:50px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:500 1rem var(--f)}
 textarea{min-height:110px;resize:vertical}
 input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
+.fone{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.fone:focus-within{border-color:var(--blue)}
+.fone span{display:flex;align-items:center;padding:0 4px 0 14px;font:700 1rem var(--f);color:var(--ink);white-space:nowrap}
+.fone input{border:0;border-radius:0;padding-left:6px;min-width:0}
 .erro-campo{border-color:var(--err)!important}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 @media(max-width:520px){.g2{grid-template-columns:1fr}}
@@ -103,7 +107,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
   <h1>Seu barco no Bordazul</h1>
   <p class="lead">Leva uns 15 minutos. Você vai precisar dos documentos do barco (TIE e seguro DPEM), da habilitação do marinheiro e de pelo menos 6 fotos. Dá para parar e continuar depois.</p>
   <label for="tel">Seu WhatsApp <small>(com DDD)</small></label>
-  <input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="(22) 99999-9999">
+  <div class="fone"><span aria-hidden="true">(+55)</span><input id="tel" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="20" placeholder="21 99999-9999" aria-label="WhatsApp com DDD"></div>
   <div id="boxCod" class="oculto">
     <label for="cod">Código que chegou no seu WhatsApp</label>
     <input id="cod" class="cod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
@@ -350,8 +354,9 @@ document.querySelectorAll("[data-ir]").forEach(function(b){
 /* entrar com o WhatsApp */
 var codPedido = false;
 $("btnEntrar").addEventListener("click", function(){
-  var b = this, tel = $("tel").value;
-  if(dig(tel).length < 10){ msg(0, ERROS.tel); return; }
+  var b = this, num = telNum($("tel").value);
+  if(!/^[1-9]{2}9\d{8}$/.test(num)){ msg(0, "Confira o número: DDD + 9 dígitos do celular, como 21 99999-9999."); $("tel").focus(); return; }
+  var tel = "55" + num;
   b.disabled = true; msg(0, "");
   if(!codPedido){
     api({acao:"enviar", para:"entrar", tel:tel}).then(function(r){
@@ -368,6 +373,11 @@ $("btnEntrar").addEventListener("click", function(){
     });
   }
 });
+/* máscara: (+55) fixo e o resto "21 99999-9999", só números, 11 dígitos */
+function telNum(v){ var d = dig(v); if(d.length > 11 && d.indexOf("55") === 0) d = d.slice(2); return d.slice(0, 11); }
+function telFmt(v){ var d = telNum(v); return d.length <= 2 ? d : d.slice(0, 2) + " " + (d.length > 7 ? d.slice(2, 7) + "-" + d.slice(7) : d.slice(2)); }
+$("tel").addEventListener("input", function(e){ var t = this, end = t.selectionStart === t.value.length, nv = telFmt(t.value); if(nv !== t.value && !(e.inputType || "").startsWith("delete")){ t.value = nv; if(end) t.selectionStart = t.selectionEnd = nv.length; } else if(nv !== t.value && dig(t.value).length > 11){ t.value = nv; } });
+$("tel").addEventListener("blur", function(){ this.value = telFmt(this.value); });
 $("tel").addEventListener("input", function(){ if(codPedido){ codPedido = false; $("boxCod").classList.add("oculto"); $("btnEntrar").textContent = "Receber código no WhatsApp"; } });
 
 function sair(){ guardar(null); cad = null; codPedido = false; $("boxCod").classList.add("oculto"); $("btnEntrar").textContent = "Receber código no WhatsApp"; mostrar(0); }

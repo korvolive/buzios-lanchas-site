@@ -433,7 +433,10 @@ function passo1(saida){
     + '<p class="err" id="fE" aria-live="polite"></p><button class="btn-gold" id="fGo" type="submit">' + x.go + '</button></form>'
     + '<div class="row"><button type="button" id="fNo">' + (saida ? x.xno : x.no) + '</button><a href="/login/?v=' + VCOD + '">' + x.acc + '</a></div><small>' + x.sm + '</small>';
   document.getElementById("fNo").onclick = fechar;
-  document.getElementById("fC").onchange = function(){ document.getElementById("fW").placeholder = this.value === "55" ? "(22) 99999-9999" : ""; };
+  var brTel = function(v){ var d = String(v || "").replace(/\D/g, ""); if(d.length > 11 && d.indexOf("55") === 0) d = d.slice(2); d = d.slice(0, 11); if(d.length < 3) return d.length ? "(" + d : ""; var k = d.length === 11 ? 5 : 4, b = d.slice(2); return "(" + d.slice(0, 2) + ") " + (b.length > k ? b.slice(0, k) + "-" + b.slice(k) : b); };
+  var brTelOn = function(){ var w = document.getElementById("fW"); if(document.getElementById("fC").value !== "55") return; var end = w.selectionStart === w.value.length, nv = brTel(w.value); if(nv !== w.value){ w.value = nv; if(end) w.selectionStart = w.selectionEnd = nv.length; } };
+  document.getElementById("fW").addEventListener("input", function(e){ if(!(e.inputType || "").startsWith("delete")) brTelOn(); });
+  document.getElementById("fC").onchange = function(){ document.getElementById("fW").placeholder = this.value === "55" ? "(22) 99999-9999" : ""; brTelOn(); };
   mB.querySelectorAll("input,select").forEach(function(el){ el.addEventListener("input", function(){ document.getElementById("fE").textContent = ""; }); });
   document.getElementById("mF").onsubmit = async function(e){
     e.preventDefault();
