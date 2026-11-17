@@ -339,26 +339,6 @@ async function pushAdmins(msg: { title: string; body: string }, tag: string) {
     catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
   }
 }
-// dono: a parte dele do sinal pago pelo PayPal chegou na conta Asaas dele
-const REP: Record<string, (v: string, l: string, d: string) => { title: string; body: string }> = {
-  pt: (v, l, d) => ({ title: "Sua parte chegou 💰", body: `${v} da reserva da ${l} em ${d} foram enviados para a sua conta Asaas.` }),
-  en: (v, l, d) => ({ title: "Your share arrived 💰", body: `${v} from the ${l} booking on ${d} was sent to your Asaas account.` }),
-  es: (v, l, d) => ({ title: "Tu parte llegó 💰", body: `${v} de la reserva de la ${l} el ${d} se enviaron a tu cuenta Asaas.` }),
-};
-async function avisarDono(p: { id: number; lancha: string; data: string; repasse_dono: number }) {
-  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
-  if (!k) return;
-  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
-  const { data: ds } = await db.from("donos").select("user_id").eq("lancha", p.lancha);
-  if (!ds?.length) return;
-  const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
-  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", ds.map((d: any) => d.user_id));
-  for (const s of subs || []) {
-    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
-    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...REP[l](brl(+p.repasse_dono), lancha, dataBR(p.data)), url: "/login/", tag: `rep-${p.id}` }), { TTL: 86400, urgency: "normal" }); }
-    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
-  }
-}
 // quem trouxe a reserva (Rodrigo 2026-11-13): mesmo texto do notificar; rpc origem_reserva, sem ela o aviso sai igual
 const QUEM_ROT: Record<string, string> = { pt: "Quem trouxe", en: "Brought by", es: "Quién lo trajo" };
 const QUEM_T: Record<string, Record<string, (n: string) => string>> = {
@@ -649,6 +629,114 @@ async function avisarAntecipadas() {
   }
 }
 
+// aviso "Você recebeu R$ X" (Rodrigo 2026-11-17, estilo banco): lê o extrato da subconta de cada dono/vendedor aprovado e avisa por push
+// cada entrada que já caiu no saldo disponível para saque (extrato só mostra o que já entrou; cartão a cair, em análise ou agendado não aparece).
+// Vale para repasse de passeio, divisão do pagamento (split), comissão, jet ski e "Transferir Saldo". A primeira leitura de cada conta só
+// marca o que já existia, sem avisar. Sem emoji, sem nome de pessoa da empresa.
+const ENT: Record<string, { tr: string; pg: string; corpo: (v: string, r: string) => string; ref: Record<string, (x: any) => string> }> = {
+  pt: { tr: "Transferência recebida", pg: "Pagamento recebido", corpo: (v, r) => `Você recebeu ${v} na sua conta${r ? ` · ${r}` : ""}. Já disponível para saque.`,
+    ref: { rep: x => `repasse do passeio ${x.lancha} ${x.dia}`, div: x => `passeio ${x.lancha} ${x.dia}`, com: x => `comissão do passeio ${x.lancha} ${x.dia}`, jet: x => `jet ski do passeio ${x.dia}`, sal: x => x.motivo } },
+  en: { tr: "Transfer received", pg: "Payment received", corpo: (v, r) => `You received ${v} in your account${r ? ` · ${r}` : ""}. Available to withdraw.`,
+    ref: { rep: x => `payout for the ${x.lancha} trip ${x.dia}`, div: x => `${x.lancha} trip ${x.dia}`, com: x => `commission for the ${x.lancha} trip ${x.dia}`, jet: x => `jet ski on the ${x.dia} trip`, sal: x => x.motivo } },
+  es: { tr: "Transferencia recibida", pg: "Pago recibido", corpo: (v, r) => `Recibiste ${v} en tu cuenta${r ? ` · ${r}` : ""}. Ya disponible para retirar.`,
+    ref: { rep: x => `pago del paseo ${x.lancha} ${x.dia}`, div: x => `paseo ${x.lancha} ${x.dia}`, com: x => `comisión del paseo ${x.lancha} ${x.dia}`, jet: x => `moto de agua del paseo ${x.dia}`, sal: x => x.motivo } },
+};
+const NAO_ENTRADA = /REVERSAL|REFUND|CHARGEBACK|CANCEL|BLOCK|ESTORNO/i; // estorno, bloqueio e devolução não são "dinheiro recebido"
+const diaCurto = (d: string) => String(d || "").slice(0, 10).split("-").slice(1).reverse().join("/");
+async function nomeLancha(slug: string) { return (await db.from("lanchas").select("nome").eq("slug", slug).maybeSingle()).data?.nome || slug; }
+async function valorTransf(c: string) {
+  if (!String(c || "").startsWith("asaas:") || c === "asaas:enviando") return null;
+  const tr = await asaas("/transfers/" + encodeURIComponent(c.slice(6))).catch(() => null);
+  return tr ? +tr.value : null;
+}
+// de onde veio a entrada: devolve { k, id, ...dados } ou null (aviso sai sem a referência)
+async function refEntrada(uid: string, t: any, usados: Set<string>) {
+  const igual = (x: number | null) => x != null && Math.abs(+x - +t.value) < 0.005;
+  if (t.paymentId) { // divisão do pagamento do cliente (split): a cobrança é da conta principal, com externalReference PED<id>
+    const pg = await asaas("/payments/" + encodeURIComponent(t.paymentId)).catch(() => null);
+    const pid = /^PED(\d+)$/.exec(String(pg?.externalReference || ""))?.[1];
+    if (!pid) return null;
+    const { data: p } = await db.from("pedidos").select("lancha, data").eq("id", +pid).maybeSingle();
+    return p ? { k: "div", id: `pd:${pid}:${t.paymentId}`, lancha: await nomeLancha(p.lancha), dia: diaCurto(p.data) } : null;
+  }
+  const desde = new Date(Date.now() - 4 * 864e5).toISOString();
+  const { data: ts } = await db.from("transferencias_saldo").select("id, valor, motivo").eq("user_id", uid).eq("status", "enviado").gte("criado_em", desde);
+  for (const x of ts || []) if (!usados.has(`ts:${x.id}`) && igual(+x.valor)) return { k: "sal", id: `ts:${x.id}`, motivo: String(x.motivo || "").slice(0, 80) };
+  const lanchas = ((await db.from("donos").select("lancha").eq("user_id", uid)).data || []).map((d: any) => d.lancha);
+  if (lanchas.length) {
+    const { data: rp } = await db.from("repasses_pp").select("pedido, valor").gte("enviado_em", desde).like("comprovante", "asaas:%");
+    const cand = (rp || []).filter((r: any) => !usados.has(`rp:${r.pedido}`) && igual(+r.valor));
+    if (cand.length) {
+      const { data: ps } = await db.from("pedidos").select("id, lancha, data").in("id", cand.map((r: any) => r.pedido)).in("lancha", lanchas);
+      const p = (ps || [])[0];
+      if (p) return { k: "rep", id: `rp:${p.id}`, lancha: await nomeLancha(p.lancha), dia: diaCurto(p.data) };
+    }
+  }
+  const { data: cs } = await db.from("pedidos").select("id, lancha, data, comissao_comprovante").eq("vendedor", uid).gte("comissao_paga", desde).like("comissao_comprovante", "asaas:%").limit(10);
+  for (const p of cs || []) if (!usados.has(`cm:${p.id}`) && igual(await valorTransf(p.comissao_comprovante))) return { k: "com", id: `cm:${p.id}`, lancha: await nomeLancha(p.lancha), dia: diaCurto(p.data) };
+  const jets = ((await db.from("jetskis").select("id").eq("dono", uid)).data || []).map((j: any) => j.id);
+  if (jets.length) {
+    const { data: js } = await db.from("pedidos").select("id, data, jetski_repasse").in("jetski", jets).gte("jetski_repasse_em", desde).like("jetski_repasse", "asaas:%").limit(10);
+    for (const p of js || []) if (!usados.has(`js:${p.id}`) && igual(await valorTransf(p.jetski_repasse))) return { k: "jet", id: `js:${p.id}`, dia: diaCurto(p.data) };
+  }
+  return null;
+}
+async function pushEntrada(uid: string, valor: number, ref: any, transf: boolean, tag: string) {
+  const { data: k } = await db.from("push_config").select("publica, privada").eq("id", 1).maybeSingle();
+  if (!k) return 0;
+  webpush.setVapidDetails("mailto:" + await contato(), k.publica, k.privada);
+  const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", uid);
+  let n = 0;
+  for (const s of subs || []) {
+    const l = ["pt", "en", "es"].includes(s.lang) ? s.lang : "pt";
+    const E = ENT[l];
+    const r = ref && E.ref[ref.k] ? E.ref[ref.k](ref) : "";
+    const title = ref ? (ref.k === "div" ? E.pg : E.tr) : (transf ? E.tr : E.pg);
+    try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ title, body: E.corpo(brl(valor), r), url: "/login/", tag }), { TTL: 86400, urgency: "high" }); n++; }
+    catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await db.from("push_subs").delete().eq("endpoint", s.endpoint); }
+  }
+  return n;
+}
+async function avisarEntradas(ver = false) {
+  const { data: cs } = await db.from("asaas_contas").select("user_id").not("aprovada_em", "is", null).not("wallet_id", "is", null);
+  const desde = new Date(Date.now() - 3 * 864e5 - 3 * 36e5).toISOString().slice(0, 10);
+  const out: any[] = [];
+  let avisos = 0;
+  for (const c of cs || []) {
+    const uid = c.user_id;
+    const k = await chaveSub(uid).catch(() => null);
+    if (!k) { out.push({ conta: out.length + 1, erro: "sem_chave" }); continue; }
+    let lista: any[] = [];
+    try { lista = (await subApi(k, `/financialTransactions?startDate=${desde}&order=asc&limit=100`))?.data || []; }
+    catch (e: any) { out.push({ conta: out.length + 1, erro: String(e?.message || e).slice(0, 120) }); continue; }
+    const ent = lista.filter((t: any) => t?.id && +t.value > 0 && !NAO_ENTRADA.test(String(t.type || "")));
+    if (ver) { const tipos: Record<string, number> = {}; for (const t of lista) tipos[`${t.type}${+t.value > 0 ? "+" : "-"}${t.paymentId ? ":pg" : ""}${t.transferId ? ":tr" : ""}`] = (tipos[`${t.type}${+t.value > 0 ? "+" : "-"}${t.paymentId ? ":pg" : ""}${t.transferId ? ":tr" : ""}`] || 0) + 1; out.push({ conta: out.length + 1, itens: lista.length, entradas: ent.length, tipos }); continue; }
+    const { data: ja } = await db.from("avisos_entrada").select("tx_id, ref").eq("user_id", uid).gte("criado_em", new Date(Date.now() - 10 * 864e5).toISOString());
+    const visto = new Set((ja || []).map((r: any) => r.tx_id));
+    const marco = `marco:${uid}`;
+    if (!(await db.from("avisos_entrada").select("tx_id").eq("tx_id", marco).maybeSingle()).data) {
+      // primeira leitura desta conta: só registra o que já estava lá, sem avisar
+      await db.from("avisos_entrada").upsert([{ tx_id: marco, user_id: uid, valor: 0, tipo: "marco" }, ...ent.map((t: any) => ({ tx_id: String(t.id), user_id: uid, valor: +t.value, tipo: String(t.type || "").slice(0, 60) }))], { onConflict: "tx_id", ignoreDuplicates: true });
+      out.push({ conta: out.length + 1, marcadas: ent.length });
+      continue;
+    }
+    const usados = new Set((ja || []).map((r: any) => r.ref).filter(Boolean));
+    for (const t of ent) {
+      if (visto.has(String(t.id))) continue;
+      const ref = await refEntrada(uid, t, usados).catch((e) => (console.error("refEntrada", e?.message), null));
+      // trava: grava antes de avisar; se outra rodada já gravou, não avisa de novo
+      const { data: novo, error } = await db.from("avisos_entrada").upsert({ tx_id: String(t.id), user_id: uid, valor: +t.value, tipo: String(t.type || "").slice(0, 60), ref: ref?.id || null }, { onConflict: "tx_id", ignoreDuplicates: true }).select("tx_id");
+      if (error || !novo?.length) continue;
+      if (ref?.id) usados.add(ref.id);
+      const transf = !!t.transferId || /TRANSFER/i.test(String(t.type || ""));
+      const n = await pushEntrada(uid, Math.round(+t.value * 100) / 100, ref, transf, `ent-${t.id}`).catch((e) => (console.error("pushEntrada", e?.message), 0));
+      await db.from("avisos_entrada").update({ avisado: n > 0 }).eq("tx_id", String(t.id));
+      avisos++;
+    }
+  }
+  return ver ? { contas: out } : { avisos, contas: out.filter((x) => x.erro || x.marcadas != null) };
+}
+
 async function enviarSaldos() {
   const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
   if (!cfg?.saldo_auto) return { ligado: false };
@@ -687,7 +775,6 @@ async function enviarSaldos() {
       }
       await db.from("repasses_pp").update({ comprovante: "asaas:" + tr.id, enviado_em: new Date().toISOString() }).eq("pedido", p.id);
       saldo -= v; n++;
-      await avisarDono(p).catch((e) => console.error("avisarDono", e));
     }
   }
   // 2. comissão do vendedor/parceiro: depois do passeio, se ele aconteceu
@@ -822,6 +909,13 @@ Deno.serve(async req => {
 
     // antecipação de cartão (Rodrigo 2026-11-17: "tem que ser antecipado"): só o robô. simular = mostra taxa e líquido;
     // pedir = pede a antecipação no Asaas das vendas de cartão já confirmadas que a antecipação automática não pegou
+    // aviso de dinheiro na conta: só o robô. ver = tipos do extrato de cada subconta (sem nomes nem valores); sem ver = roda agora
+    if (b.acao === "entradas") {
+      const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
+      return json(await avisarEntradas(b.ver === true));
+    }
     if (b.acao === "antecipacao") {
       const ch = req.headers.get("x-chave") || "";
       const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
@@ -901,7 +995,8 @@ Deno.serve(async req => {
         .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
       const saldos = await enviarSaldos().catch(e => (console.error("saldos", e), null));
       await avisarAntecipadas().catch(e => console.error("antecipadas", e));
-      return json({ expiradas: n, vencidos: (venc || []).length, prazo_vencido: (semPg || []).length, canceladas: fora, paypal: ppr, saldos });
+      const entradas = await avisarEntradas().catch(e => (console.error("entradas", e), null));
+      return json({ expiradas: n, vencidos: (venc || []).length, prazo_vencido: (semPg || []).length, canceladas: fora, paypal: ppr, saldos, entradas });
     }
 
     if (b.acao === "pagar" || b.acao === "conferir") {
@@ -1259,7 +1354,6 @@ Deno.serve(async req => {
         }
         await db.from("repasses_pp").update({ comprovante: "asaas:" + tr.id, enviado_em: new Date().toISOString() }).eq("pedido", p.id);
         saldo -= v; enviados.push({ pid: p.id, valor: v });
-        await avisarDono(p).catch(e => console.error("avisarDono", e));
       }
       const precisa = fila.filter((p: any) => falta.includes(p.id)).reduce((a: number, p: any) => a + +p.repasse_dono, 0);
       return json({ enviados, sem_conta: sem.length, falta: falta.length, saldo: Math.round(saldo * 100) / 100, precisa: Math.round(precisa * 100) / 100 });

@@ -104,7 +104,7 @@ Deno.serve(async req => {
       await db.from("transferencias_saldo").update({ comprovante: null, status: "falhou", erro: String(e?.message || e).slice(0, 300) }).eq("id", row.id);
       return json({ erro: "asaas", detalhe: String(e?.message || "").slice(0, 200) }, 502);
     }
-    await avisar(alvo, valor, motivo).catch(e => console.error("avisar", e));
+    // o aviso "Transferência recebida" sai da função asaas quando a entrada aparece no extrato da conta (já disponível para saque)
     return json({ ok: true, valor });
   } catch (e) {
     console.error(e);
