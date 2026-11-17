@@ -676,7 +676,7 @@ html body .tabs{grid-auto-columns:minmax(0,1fr)}html body .tabs>*{min-width:0;ov
   function ok(){ if(!pend){ pend=true; requestAnimationFrame(snap); } }
   try{ new MutationObserver(ok).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","open"]}); /* janelas que abrem só trocando classe (vídeo) também contam */ }catch(e){}
   document.addEventListener("toggle",ok,true);
-  document.addEventListener("click",function(e){ if(!e.isTrusted || (!e.clientX && !e.clientY)) return; var el=e.target&&e.target.closest&&e.target.closest(SEL); if(!el) return; if(pend) snap(); var b=born.get(el);
+  document.addEventListener("click",function(e){ if(!e.isTrusted || (!e.clientX && !e.clientY)) return; if(e.target&&e.target.closest&&e.target.closest(".dpov")) return; /* calendário aberto por cima de tudo: o toque no dia sempre vale (vendedora no iPhone escolhia a data e nada acontecia, 2026-11-17) */ var el=e.target&&e.target.closest&&e.target.closest(SEL); if(!el) return; if(pend) snap(); var b=born.get(el);
     if(b==null || now()-b>=MS) return;
     /* a tela que a pessoa via quando mirou: a que estava valendo uns 0,3 s antes do toque */
     var tv=now()-VIU, prev=[], px=e.clientX+scrollX, py=e.clientY+scrollY, was=null; for(var h=hist.length-1;h>=0;h--) if(hist[h].t<=tv){ prev=hist[h].lay; break; }
