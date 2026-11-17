@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aprovar reserva · Búzios Lanchas</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/login/icon-192.png">
+<!-- Botão "Ver e aprovar" do aviso de pré-reserva que o dono recebe no WhatsApp (Rodrigo 2026-11-17).
+     Sem login: o token do link é a credencial, conferido no servidor (função dono-aprovacao). Feita para ser simples:
+     um botão grande para aprovar; "não está disponível" pequeno e com confirmação, para não tocar sem querer. -->
+<style>
+:root{--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--card:#fff;--line:#dfe7ea;--ok:#1f8f4e;--no:#b3261e}
+@media (prefers-color-scheme:dark){:root{--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f;--card:#13262d;--line:#24414a;--ok:#2aa863;--no:#e46a62}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px 16px}
+main{max-width:440px;margin:0 auto;text-align:center}
+.logo{width:64px;height:64px;border-radius:16px}
+h1{font-size:22px;margin:12px 0 4px}
+.sub{color:var(--muted);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;text-align:left;margin-bottom:22px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row span{color:var(--muted)}
+.row b{text-align:right}
+.big{display:block;width:100%;border:0;border-radius:16px;background:var(--ok);color:#fff;font:700 20px/1.2 inherit;font-family:inherit;padding:20px 16px;cursor:pointer}
+.big:disabled{opacity:.6}
+.small{display:inline-block;margin-top:26px;background:none;border:0;color:var(--muted);font:15px inherit;font-family:inherit;text-decoration:underline;cursor:pointer;padding:8px}
+.msg{font-size:19px;font-weight:700;margin:8px 0}
+.msg.ok{color:var(--ok)}.msg.no{color:var(--no)}
+.bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px}
+.bg.on{display:flex}
+.dlg{background:var(--card);border-radius:18px;padding:22px 18px;max-width:400px;width:100%;text-align:center}
+.dlg h2{font-size:20px;margin:0 0 8px}
+.dlg p{color:var(--muted);margin:0 0 18px}
+.dlg .big{font-size:18px;padding:16px}
+.dlg .red{background:none;color:var(--no);border:2px solid var(--no);margin-top:10px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="/login/icon-192.png" alt="">
+  <div id="carregando"><p class="sub" style="margin-top:20px">Carregando a reserva…</p></div>
+
+  <div id="pendente" class="hide">
+    <h1>Nova pré-reserva</h1>
+    <p class="sub">A embarcação está livre nesse horário?</p>
+    <div class="card" id="dados"></div>
+    <button class="big" id="sim" type="button">Está livre, aprovar</button>
+    <button class="small" id="nao" type="button">Não está disponível</button>
+  </div>
+
+  <div id="fim" class="hide">
+    <div class="card" id="dados2"></div>
+    <p class="msg" id="fimT"></p>
+    <p class="sub" id="fimS"></p>
+  </div>
+</main>
+
+<div class="bg" id="bg" role="dialog" aria-modal="true" aria-labelledby="dT">
+  <div class="dlg">
+    <h2 id="dT">Tem certeza que não está disponível?</h2>
+    <p>O cliente vai ser avisado agora que a embarcação não está livre nesse horário, e a reserva será cancelada.</p>
+    <button class="big" id="voltar" type="button">Voltar, está livre</button>
+    <button class="big red" id="confirma" type="button">Sim, não está disponível</button>
+  </div>
+</div>
+
+<script>
+const FN = "https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/dono-aprovacao";
+const t = new URLSearchParams(location.search).get("t") || "";
+const $ = id => document.getElementById(id);
+const MES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const SLOT = {manha:"Manhã", tarde:"Tarde", dia:"Dia inteiro", noite:"Noite"};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const brl = v => "R$ " + Number(v).toLocaleString("pt-BR", {maximumFractionDigits:0});
+function dataTxt(d){ const [y,m,dd]=d.split("-").map(Number), w=new Date(y,m-1,dd).toLocaleDateString("pt-BR",{weekday:"long"}); return `${w}, ${dd} de ${MES[m-1]}`; }
+async function chama(acao){
+  const r = await fetch(FN, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({acao, t})});
+  return r.json().catch(() => ({estado:"erro"}));
+}
+function cartao(d){
+  const hr = d.hora_ini && d.hora_fim ? `${String(d.hora_ini).slice(0,5)} às ${String(d.hora_fim).slice(0,5)}` : (SLOT[d.horario] || d.horario || "");
+  const rows = [["Embarcação", d.lancha], ["Data", d.data ? dataTxt(d.data) : ""], ["Horário", hr], ["Pessoas", d.pessoas], ["Cliente", d.cliente], ["Você recebe", +d.neto > 0 ? brl(d.neto) : ""]]
+    .filter(r => r[1] !== null && r[1] !== undefined && r[1] !== "");
+  return rows.map(([k,v]) => `<div class="row"><span>${k}</span><b>${esc(v)}</b></div>`).join("");
+}
+function fim(d, tipo, titulo, sub){
+  $("carregando").classList.add("hide"); $("pendente").classList.add("hide"); $("bg").classList.remove("on");
+  $("dados2").innerHTML = d && d.lancha ? cartao(d) : ""; $("dados2").classList.toggle("hide", !(d && d.lancha));
+  $("fimT").className = "msg " + tipo; $("fimT").textContent = titulo; $("fimS").textContent = sub || "";
+  $("fim").classList.remove("hide");
+}
+function mostra(d){
+  const e = d && d.estado;
+  if(e === "pendente"){ $("dados").innerHTML = cartao(d); $("carregando").classList.add("hide"); $("pendente").classList.remove("hide"); return; }
+  if(e === "aprovada") return fim(d, "ok", "Essa reserva já foi aprovada.", "Não precisa fazer mais nada. Obrigado!");
+  if(e === "recusada") return fim(d, "no", "Essa reserva já foi cancelada.", "Não precisa fazer mais nada.");
+  if(e === "resolvida") return fim(d, "", "Essa reserva já foi resolvida.", "Não precisa fazer mais nada.");
+  if(e === "vencida") return fim(d, "", "A data dessa reserva já passou.", "");
+  return fim(null, "no", "Link inválido.", "Se precisar, fale com a Búzios Lanchas.");
+}
+let dados = null;
+(async () => {
+  if(!/^[0-9a-f-]{36}$/i.test(t)) return mostra({estado:"invalido"});
+  try{ dados = await chama("ver"); mostra(dados); }
+  catch(_){ fim(null, "no", "Sem conexão.", "Confira a internet e abra o link de novo."); }
+})();
+$("sim").onclick = async () => {
+  $("sim").disabled = true; $("sim").textContent = "Aprovando…";
+  try{
+    const r = await chama("aprovar");
+    if(r.estado === "aprovou") return fim(dados, "ok", "Reserva aprovada!", "O cliente já pode pagar. Você recebe o aviso quando o pagamento entrar.");
+    if(r.estado === "erro"){ $("sim").disabled = false; $("sim").textContent = "Está livre, aprovar";
+      return fim(dados, "no", "Não deu para aprovar por aqui.", "A Búzios Lanchas vai confirmar com você. " + (r.msg ? "(" + r.msg + ")" : "")); }
+    mostra({...dados, ...r});
+  }catch(_){ $("sim").disabled = false; $("sim").textContent = "Está livre, aprovar"; alert("Sem conexão. Tente de novo."); }
+};
+$("nao").onclick = () => $("bg").classList.add("on");
+$("voltar").onclick = () => $("bg").classList.remove("on");
+$("bg").onclick = e => { if(e.target === $("bg")) $("bg").classList.remove("on"); };
+$("confirma").onclick = async () => {
+  $("confirma").disabled = true; $("confirma").textContent = "Cancelando…";
+  try{
+    const r = await chama("recusar");
+    if(r.estado === "recusou") return fim(dados, "no", "Pronto, reserva cancelada.", "O cliente foi avisado. Obrigado por responder!");
+    mostra({...dados, ...r});
+  }catch(_){ $("confirma").disabled = false; $("confirma").textContent = "Sim, não está disponível"; }
+};
+</script>
+</body>
+</html>
