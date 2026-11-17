@@ -44,10 +44,10 @@ const lit = (v) => (v === null || v === undefined ? "null" : `'${String(v).repla
 
 async function logs(consulta, ini, fim) {
   const q = new URLSearchParams({ sql: consulta, iso_timestamp_start: ini, iso_timestamp_end: fim });
-  const j = await api(`/analytics/endpoints/logs.all?${q}`);
+  const j = await api(`/analytics/endpoints/logs?${q}`);
   if (j && j.error) throw new Error(`consulta de registros falhou: ${JSON.stringify(j.error).slice(0, 300)}`);
   await dormir(400);
-  return (j && j.result) || [];
+  return (j && (j.result || j.data)) || [];
 }
 
 const A = (k) => `log_attributes['${k}']`;
