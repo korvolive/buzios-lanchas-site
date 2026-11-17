@@ -120,7 +120,8 @@ Deno.serve(async req => {
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const com = Math.max((p.preco_cliente || 0) - (p.preco_base || 0), 0);
       const dados = { ...p, lancha, comissao: "R$ " + com.toLocaleString("pt-BR", { minimumFractionDigits: com % 1 ? 2 : 0 }), forma: /^asaas:/.test(p.comissao_comprovante || "") ? "asaas" : "pix" };
-      const enviados = await push(p.vendedor, dados, PUSH_PAGO, `pago-${p.id}`);
+      // pago pelo Asaas: o push "Transferência recebida" sai da função asaas quando o dinheiro aparece no extrato (Rodrigo 2026-11-17); aqui só o e-mail
+      const enviados = dados.forma === "asaas" ? 0 : await push(p.vendedor, dados, PUSH_PAGO, `pago-${p.id}`);
       const mail = await email(p.vendedor, dados, MAIL_PAGO, ASSUNTO_PAGO).catch(e => (console.error(e), false));
       return json({ enviados, email: mail });
     }
