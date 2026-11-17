@@ -1,7 +1,7 @@
 // Búzios Lanchas: consulta rápida que não virou conversa (Rodrigo 2026-10-23).
 // O site chama logo depois de salvar os dados da janelinha. Os administradores recebem na hora o aviso de
 // consulta nova (Rodrigo 2026-10-24). Se em 60 segundos o cliente não tocar em "Chamar no WhatsApp",
-// recebem outro aviso para chamar ele.
+// recebem outro aviso para chamar ele. (2026-11-17: aviso imediato desligado a pedido do Rodrigo; fica só o de 60 s.)
 // POST { k: <chave da consulta> }  (sem login: só age numa consulta existente, uma vez por consulta)
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -57,6 +57,7 @@ const NOVA: Record<string, (c: any) => { title: string; body: string }> = {
   en: c => ({ title: "📩 New availability request", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.en[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} people` : ""}` }),
   es: c => ({ title: "📩 Nueva consulta de disponibilidad", body: `${c.nome} · ${c.lancha} · ${dataBR(c.data)} · ${SLOT.es[c.horario] || c.horario}${c.pessoas ? ` · ${c.pessoas} personas` : ""}` }),
 };
+const CONSULTA_NOVA_PUSH = false;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function push(c: any, txt: typeof TXT, tag: string) {
@@ -79,7 +80,10 @@ async function push(c: any, txt: typeof TXT, tag: string) {
 }
 
 async function avisar(c: any) {
-  await push(c, NOVA, "consulta-nova").catch(e => console.error(e));
+  // Rodrigo 2026-11-17: o aviso imediato de "Consulta nova de disponibilidade" virou flood no celular dele
+  // (ele já acompanha pelo WhatsApp). Desligado. A consulta continua aparecendo no painel, e os avisos de
+  // aprovação (aviso-aprovacao) e de sinal pago seguem iguais. Para religar: CONSULTA_NOVA_PUSH = true.
+  if (CONSULTA_NOVA_PUSH) await push(c, NOVA, "consulta-nova").catch(e => console.error(e));
   if (c.chamou) return;
   await new Promise(r => setTimeout(r, 60_000));
   // ainda não chamou? marca como avisada (uma vez só) e manda o aviso
