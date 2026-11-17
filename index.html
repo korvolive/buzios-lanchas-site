@@ -2467,6 +2467,11 @@ function vlTela(dl, shown, tel, msg){
 /* consulta rápida (2026-10-23): a janelinha pede nome, WhatsApp e e-mail, guarda uma pré-reserva que não bloqueia a lancha
    (o administrador aprova ou recusa no app) e abre o WhatsApp com a mensagem pronta */
 const LEAD_DDI = [["BR","55"],["AR","54"],["CL","56"],["UY","598"],["PY","595"],["PT","351"],["US","1"]];
+/* WhatsApp brasileiro com máscara enquanto digita: (21) 99927-2550. Só números, no máximo 11 (DDD + número). Outros países ficam livres. */
+const brTel = v => { let d=String(v||"").replace(/\D/g,""); if(d.length>11 && d.startsWith("55")) d=d.slice(2); d=d.slice(0,11); if(d.length<3) return d.length?`(${d}`:""; const k=d.length===11?5:4, b=d.slice(2); return `(${d.slice(0,2)}) `+(b.length>k?b.slice(0,k)+"-"+b.slice(k):b); };
+const brTelOn = tl => { const dd=tl.previousElementSibling; if(!dd || dd.tagName!=="SELECT" || dd.value!=="55") return; const end=tl.selectionStart===tl.value.length, nv=brTel(tl.value); if(nv!==tl.value){ tl.value=nv; if(end) tl.selectionStart=tl.selectionEnd=nv.length; } };
+document.addEventListener("input", e => { const x=e.target; if(x.matches && x.matches(".lphone input[type=tel]") && !(e.inputType||"").startsWith("delete")) brTelOn(x); });
+document.addEventListener("change", e => { const x=e.target; if(x.matches && x.matches(".lphone select")){ const tl=x.nextElementSibling; if(tl && tl.type==="tel") brTelOn(tl); } });
 const novaChave = () => crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
 const consultaSave = (b,k,v,chamou) => fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
     body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang, p_pais:detectReg()||null})})

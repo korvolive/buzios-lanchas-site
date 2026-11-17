@@ -41,8 +41,13 @@ DEST = [
 SLIPS = ["buzios", "arraial", "cabo-frio", "rio", "angra", "paraty"]
 COORD = {"buzios": "22°45′S 41°53′O", "arraial": "22°58′S 42°02′O", "cabo-frio": "22°53′S 42°01′O",
          "rio": "22°54′S 43°10′O", "angra": "23°00′S 44°18′O", "paraty": "23°13′S 44°43′O"}
-POS = {"barco-4": "center 40%", "barco-1": "center 62%", "barco-3": "center 55%"}  # enquadramento: o barco inteiro na faixa do topo
-HERO_FOTOS = [("mar-buzios", 1600, 1080), ("barco-3", 1400, 1050), ("barco-1", 960, 1280)]  # a foto da Real 26 (em pé, baixa resolução) saiu: cortava as pessoas na faixa larga
+# Capa: só mar e litoral (nada de lanchas nossas). Fotos reais de uso livre do Unsplash, sem edição; enquadra só com posição.
+# (fonte, largura, altura, índice em foto_alt, posição)
+_UN = "https://images.unsplash.com/photo-{}?w=1920&q=75&auto=format&fit=crop"
+HERO_FOTOS = [("img/mar-buzios.jpg", 1600, 1080, 0, "center"),
+              (_UN.format("1511225771260-3767ac2414fd"), 1920, 1440, 4, "center 45%"),
+              (_UN.format("1778332541872-d550f93e00f4"), 1920, 1438, 5, "center 50%"),
+              (_UN.format("1544989163-df6cdad98651"), 1920, 1440, 6, "center 60%")]
 
 T = {
  "pt": dict(
@@ -57,7 +62,7 @@ T = {
   r_breve="{c} ainda não abriu. Quer saber primeiro quando tiver barco lá?", r_breve_btn="Me avise pelo WhatsApp",
   wa_breve="Olá! Quero ser avisado quando o Bordazul abrir em {c}.",
   links=[("#destinos", "Todos os destinos"), ("#como", "Como funciona"), ("#barco", "Anuncie seu barco")],
-  foto_alt=["Vista aérea de Búzios e suas ilhas", "Lancha ao pôr do sol em Búzios", "Lancha ancorada em águas verdes de Búzios", "Na proa da lancha diante de uma ilha"],
+  foto_alt=["Vista aérea de Búzios e suas ilhas", "Lancha ao pôr do sol em Búzios", "Lancha ancorada em águas verdes de Búzios", "Na proa da lancha diante de uma ilha", "Praia vista do alto, com ondas e restinga", "Mar verde encontrando costões de pedra e mata", "Litoral do Rio de Janeiro ao entardecer"],
   s_p1="Começamos por Búzios, onde a primeira frota já leva grupos às praias.",
   s_p2="Depois vêm o mar do Rio e o Brasil inteiro, um destino de cada vez.",
   s_alt="Vista aérea da península de Búzios e suas ilhas",
@@ -113,7 +118,7 @@ T = {
   r_breve="{c} is not open yet. Want to hear first when it has boats?", r_breve_btn="Tell me on WhatsApp",
   wa_breve="Hi! Please let me know when Bordazul opens in {c}.",
   links=[("#destinos", "All destinations"), ("#como", "How it works"), ("#barco", "List your boat")],
-  foto_alt=["Aerial view of Búzios and its islands", "Motorboat at sunset in Búzios", "Motorboat anchored in the green waters of Búzios", "On the bow in front of an island"],
+  foto_alt=["Aerial view of Búzios and its islands", "Motorboat at sunset in Búzios", "Motorboat anchored in the green waters of Búzios", "On the bow in front of an island", "Beach seen from above, with waves and dunes", "Green sea meeting rocky shores and forest", "Rio de Janeiro coastline at dusk"],
   s_p1="We start in Búzios, where the first fleet already takes groups to the beaches.",
   s_p2="Then the rest of Rio's coast and all of Brazil, one destination at a time.",
   s_alt="Aerial view of the Búzios peninsula and its islands",
@@ -169,7 +174,7 @@ T = {
   r_breve="{c} todavía no abrió. ¿Quieres saberlo primero cuando tenga barcos?", r_breve_btn="Avísame por WhatsApp",
   wa_breve="¡Hola! Quiero que me avisen cuando Bordazul abra en {c}.",
   links=[("#destinos", "Todos los destinos"), ("#como", "Cómo funciona"), ("#barco", "Anuncia tu barco")],
-  foto_alt=["Vista aérea de Búzios y sus islas", "Lancha al atardecer en Búzios", "Lancha anclada en las aguas verdes de Búzios", "En la proa frente a una isla"],
+  foto_alt=["Vista aérea de Búzios y sus islas", "Lancha al atardecer en Búzios", "Lancha anclada en las aguas verdes de Búzios", "En la proa frente a una isla", "Playa vista desde arriba, con olas y vegetación", "Mar verde junto a rocas y selva", "Costa de Río de Janeiro al atardecer"],
   s_p1="Empezamos por Búzios, donde la primera flota ya lleva grupos a las playas.",
   s_p2="Después vienen el mar de Río y todo Brasil, un destino a la vez.",
   s_alt="Vista aérea de la península de Búzios y sus islas",
@@ -458,7 +463,7 @@ def pagina(lang):
     langs = "".join(f'<a href="{PATH[l] if lang == "pt" else ("../" if l == "pt" else "../" + l + "/")}" hreflang="{HL[l]}" lang="{HL[l]}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in T)
     nav = "".join(f'<a href="{h}">{e(x)}</a>' for h, x in t["nav"])
     bz = BUZ + PATH[lang]
-    fotos = "".join(f'<div class="sl{" on" if i == 0 else ""}" style="--pos:{POS.get(n, 'center')}"><img src="{pre}img/{n}.jpg" width="{w}" height="{h}" alt="{e(t["foto_alt"][i])}"{"" if i == 0 else " loading=lazy"}></div>' for i, (n, w, h) in enumerate(HERO_FOTOS))
+    fotos = "".join(f'<div class="sl{" on" if i == 0 else ""}" style="--pos:{pos}"><img src="{e(src) if src.startswith("http") else pre + src}" width="{w}" height="{h}" alt="{e(t["foto_alt"][ai])}"{"" if i == 0 else " loading=lazy"}></div>' for i, (src, w, h, ai, pos) in enumerate(HERO_FOTOS))
     cid = {k: (nome, uf, u) for _, cs in DEST for k, nome, uf, u in cs}
     cards = []
     for k in SLIPS:
