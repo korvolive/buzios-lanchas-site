@@ -73,12 +73,12 @@ await ready();
 const { slugs, dbSlugs, hidden, llm } = await page.evaluate(() => { const all = [...BOATS, ...[...HIDDEN.values()].map(x => x.b)];
   /* dados para o llms.txt (resumo do site para as IAs): só o que o site já mostra ao público */
   const txt = x => String(x || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-  const llm = { boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null, tag: txt(b.tagline),
+  const llm = { boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, esc: b.kind === "escuna", feet: b.kind === "escuna" ? null : b.feet || null, cap: b.capacity || null, tag: txt(b.tagline),
       emb: [...new Set(Object.values(b.boarding || {}).flat())] })),
     faq: faqOf("pt").map(([q, a]) => [txt(q), txt(a)]), faqEn: faqOf("en").map(([q, a]) => [txt(q), txt(a)]), route: ROUTE.map(r => r[0]) };
   /* dados das páginas de roteiro e de grupos (scripts/paginas.mjs) */
   llm.guias = { piso4: pisoSite("4"), piso7: pisoSite("7"),
-    boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug)).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null,
+    boats: BOATS.filter(b => !b.example && !HIDE_LIST.includes(b.slug) && b.kind !== "escuna" /* guias são de lancha: escuna fica separada (2026-11-17) */).map(b => ({ slug: b.slug, name: b.name, feet: b.feet || null, cap: b.capacity || null,
       tag: Object.fromEntries(["pt", "en", "es"].map(l => [l, txt(b.i18n?.[l]?.tagline ?? b.tagline)])), img: b.photos?.[0] ? imgSrc(b.photos[0], "m") : "" })),
     route: ROUTE.map((r, i) => ({ name: r[0], desc: Object.fromEntries(["pt", "en", "es"].map(l => [l, UI[l].stops?.[i] || ""])),
       img: ROUTE_PHOTOS.includes(i + 1) ? `/img/rt-${String(i + 1).padStart(2, "0")}-m.webp` : "", credit: ROUTE_CREDITS[i] || null })) };
@@ -143,7 +143,8 @@ fs.writeFileSync(path.join(ROOT, "llms.txt"), [
   "",
   "## Lanchas",
   "",
-  ...llm.boats.map(b => `- [${b.name}](${boatUrl("pt", b.slug)}): ${[b.feet ? String(b.feet).replace(".", ",") + " pés" : "", b.cap ? "até " + b.cap + " pessoas" : ""].filter(Boolean).join(", ")}.${b.tag ? " " + b.tag : ""}${b.emb.length ? " Embarque: " + b.emb.join(" ou ") + "." : ""}`),
+  ...llm.boats.filter(b => !b.esc).map(b => `- [${b.name}](${boatUrl("pt", b.slug)}): ${[b.feet ? String(b.feet).replace(".", ",") + " pés" : "", b.cap ? "até " + b.cap + " pessoas" : ""].filter(Boolean).join(", ")}.${b.tag ? " " + b.tag : ""}${b.emb.length ? " Embarque: " + b.emb.join(" ou ") + "." : ""}`),
+  ...(llm.boats.some(b => b.esc) ? ["", "## Escunas", "", ...llm.boats.filter(b => b.esc).map(b => `- [${b.name}](${boatUrl("pt", b.slug)}): ${[b.feet ? String(b.feet).replace(".", ",") + " pés" : "", b.cap ? "até " + b.cap + " pessoas" : ""].filter(Boolean).join(", ")}.${b.tag ? " " + b.tag : ""}${b.emb.length ? " Embarque: " + b.emb.join(" ou ") + "." : ""}`)] : []),
   "",
   "## Roteiro padrão",
   "",
