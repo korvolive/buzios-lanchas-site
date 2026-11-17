@@ -742,6 +742,13 @@ async function enviarSaldos() {
     if (!pas.length && !pp) continue; // pago fora do site (Pix com comprovante): a Búzios repassa à mão
     const cobre = deve > 0 && (pas.some((r: any) => +r.sinal >= deve - 0.005) || (!!pp && (pp.moeda !== "BRL" || +pp.valor >= deve - 0.005)));
     if (!cobre) { console.error("saldo jetski: pagamento não cobre o jetski", p.id); continue; }
+    // Rodrigo 2026-11-17 (escolheu "2h antes, só se já caiu"): pago pelo Asaas, o dinheiro deste pedido já tem de estar no saldo
+    // (Pix na hora; cartão ainda a cair espera a parcela cair, nunca adianta com dinheiro de outra venda)
+    if (pas.length) {
+      const rows = doPedido(p.id); await refrescar(rows);
+      const cx = caixaPedido(rows);
+      if (cx.estorno || quandoCobre(cx, +p.jetski_neto || 0) !== null) { esperando++; continue; }
+    }
     const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono;
     const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue; // dono do jetski sem conta aprovada: a Búzios paga por Pix
     const v = Math.round(+p.jetski_neto * 100) / 100;
@@ -807,6 +814,34 @@ Deno.serve(async req => {
     if (/^ACCOUNT_STATUS_/.test(String(b?.event || ""))) {
       await conferirContas().catch(e => console.error("conta webhook", e));
       return json({ ok: true });
+    }
+
+    // antecipação de cartão (Rodrigo 2026-11-17: "tem que ser antecipado"): só o robô. simular = mostra taxa e líquido;
+    // pedir = pede a antecipação no Asaas das vendas de cartão já confirmadas que a antecipação automática não pegou
+    if (b.acao === "antecipacao") {
+      const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
+      const conf = await asaas("/anticipations/configurations").catch((e: any) => ({ erro: e?.message }));
+      const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG + ", antecipacao").eq("metodo", "cartao").not("pago_em", "is", null);
+      const so = Array.isArray(b.pids) ? new Set(b.pids.map(Number)) : null;
+      const out: any[] = [];
+      for (const r of rs || []) {
+        if (so && !so.has(+r.pedido)) continue;
+        if (creditoFinal(r) || situacaoCredito(r) !== "liberar" || r.antecipacao) continue;
+        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`).catch(() => null);
+        if (!pg) continue;
+        const alvo = pg.installment ? { installment: pg.installment } : { payment: r.asaas_id };
+        const sim = await asaas("/anticipations/simulate", alvo).catch((e: any) => ({ erro: e?.message, status: e?.status }));
+        const item: any = { pedido: r.pedido, anticipable: pg.anticipable ?? null, sim: { valor: sim?.value, liquido: sim?.netValue, taxa: sim?.fee, dias: sim?.anticipationDays, documentos: sim?.isDocumentationRequired, erro: sim?.erro } };
+        if (b.pedir === true && !sim?.erro && sim?.isDocumentationRequired !== true) {
+          const feito = await asaas("/anticipations", alvo).catch((e: any) => ({ erro: e?.message, status: e?.status }));
+          item.pedido_antecipacao = { status: feito?.status, data: feito?.anticipationDate, erro: feito?.erro };
+          if (!feito?.erro) await atualizarCredito(r).catch(() => null);
+        }
+        out.push(item);
+      }
+      return json({ config: conf, itens: out });
     }
 
     if (b.acao === "expirar") {
