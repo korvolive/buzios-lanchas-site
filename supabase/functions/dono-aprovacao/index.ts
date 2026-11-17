@@ -75,25 +75,30 @@ async function modelos(key: string) {
 }
 const aprovado = (ts: any[] | null, nome: string, lc: string) =>
   !!ts?.some(t => t?.name === nome && String(t.language) === lc && String(t.status).toLowerCase() === "approved" && String(t.category).toUpperCase() === "UTILITY");
+const velho = (x: unknown) => !x || Date.parse(String(x)) < Date.now() - 864e5;
+// cria o que falta; cada modelo é conferido no máximo 1 vez a cada 24 h (marca em resgate_config)
 async function criarModelos(key: string, ts: any[] | null, cfg: any) {
   if (!ts) return;
   const tem = (n: string, lc: string) => ts.some(t => t?.name === n && String(t.language) === lc);
-  const velho = (x: unknown) => !x || Date.parse(String(x)) < Date.now() - 864e5;
-  if (!tem(MOD_DONO, "pt_BR") && velho(cfg.dono_modelo_em)) {
-    await db.from("resgate_config").update({ dono_modelo_em: new Date().toISOString() }).eq("id", 1);
-    const c = await fetch(`${D360}/v1/configs/templates`, {
-      method: "POST", headers: { "D360-API-KEY": key, "content-type": "application/json" },
-      body: JSON.stringify({ name: MOD_DONO, category: "UTILITY", language: "pt_BR", components: [
-        { type: "BODY", text: MOD_DONO_TXT, example: { body_text: [MOD_DONO_EX] } },
-        { type: "BUTTONS", buttons: [{ type: "URL", text: "Ver e aprovar", url: `${SITE}/aprovar/?t={{1}}`, example: [`${SITE}/aprovar/?t=3f2b6c1e-8d4a-4b7e-9c2d-1a5e7f9b0c3d`] }] },
-      ] }),
-    });
-    console.log("modelo dono criado", c.status, c.ok ? "" : (await c.text()).slice(0, 300));
+  const agora = new Date().toISOString();
+  if (velho(cfg.dono_modelo_em)) {
+    cfg.dono_modelo_em = agora;
+    await db.from("resgate_config").update({ dono_modelo_em: agora }).eq("id", 1);
+    if (!tem(MOD_DONO, "pt_BR")) {
+      const c = await fetch(`${D360}/v1/configs/templates`, {
+        method: "POST", headers: { "D360-API-KEY": key, "content-type": "application/json" },
+        body: JSON.stringify({ name: MOD_DONO, category: "UTILITY", language: "pt_BR", components: [
+          { type: "BODY", text: MOD_DONO_TXT, example: { body_text: [MOD_DONO_EX] } },
+          { type: "BUTTONS", buttons: [{ type: "URL", text: "Ver e aprovar", url: `${SITE}/aprovar/?t={{1}}`, example: [`${SITE}/aprovar/?t=3f2b6c1e-8d4a-4b7e-9c2d-1a5e7f9b0c3d`] }] },
+        ] }),
+      });
+      console.log("modelo dono criado", c.status, c.ok ? "" : (await c.text()).slice(0, 300));
+    }
   }
-  const falta = Object.keys(MOD_INDISP_TXT).filter(lc => !tem(MOD_INDISP, lc));
-  if (falta.length && velho(cfg.indisp_modelo_em)) {
-    await db.from("resgate_config").update({ indisp_modelo_em: new Date().toISOString() }).eq("id", 1);
-    for (const lc of falta) {
+  if (velho(cfg.indisp_modelo_em)) {
+    cfg.indisp_modelo_em = agora;
+    await db.from("resgate_config").update({ indisp_modelo_em: agora }).eq("id", 1);
+    for (const lc of Object.keys(MOD_INDISP_TXT).filter(lc => !tem(MOD_INDISP, lc))) {
       const c = await fetch(`${D360}/v1/configs/templates`, {
         method: "POST", headers: { "D360-API-KEY": key, "content-type": "application/json" },
         body: JSON.stringify({ name: MOD_INDISP, category: "UTILITY", language: lc, components: [{ type: "BODY", text: MOD_INDISP_TXT[lc], example: { body_text: [MOD_INDISP_EX[lc]] } }] }),
@@ -161,6 +166,11 @@ const nomeLancha = async (slug: string) => (await db.from("lanchas").select("nom
 async function avisarDonos(cfg: any) {
   const agora = Date.now(), br = new Date(agora - 3 * 3600e3), hBR = br.getUTCHours(), hoje = br.toISOString().slice(0, 10);
   if (hBR < 7 || hBR >= 22) return { fora_do_horario: true };
+  // modelos cadastrados antes do primeiro pedido, para a Meta já ter aprovado quando precisar (confere 1 vez a cada 24 h)
+  if (velho(cfg.dono_modelo_em) || velho(cfg.indisp_modelo_em)) {
+    const k = await d360Key();
+    if (k) await criarModelos(k, await modelos(k), cfg).catch(e => console.error("criar modelos", e));
+  }
   const { data: cs, error } = await db.from("consultas")
     .select("id, lancha, data, horario, hora_ini, hora_fim, pessoas, telefone, neto_garantido, grupo, criado_em")
     .not("criado_por", "is", null).is("recusada_em", null).is("virou_pedido_em", null).is("grupo", null)
@@ -189,7 +199,6 @@ async function avisarDonos(cfg: any) {
   const key = await d360Key();
   if (!key) return { erro: "sem chave" };
   const ts = await modelos(key);
-  await criarModelos(key, ts, cfg).catch(e => console.error("criar modelos", e));
   if (!aprovado(ts, MOD_DONO, "pt_BR")) return { pendentes: cs.length, enviados: 0, modelo: "esperando a Meta" };
   let n = 0;
   for (const { c, dono, to } of alvos.slice(0, 10)) {
