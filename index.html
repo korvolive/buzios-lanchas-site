@@ -211,14 +211,14 @@ html.is-app #hdr-login{display:none}
   .fleet-car .grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -16px;padding:4px 16px 14px;scroll-padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .fleet-car .grid::-webkit-scrollbar{display:none}
   .fleet-car .card{flex:0 0 86%;scroll-snap-align:start}
-  /* escolha do Rodrigo (2026-11-16): formato da opção D (pílula com "Deslize" + "1 de 3" dentro, setas dos lados, acima das lanchas) nas cores da opção C (azul-marinho, sem bege) */
+  /* escolha final do Rodrigo (2026-11-16, opção 2): acima das lanchas, centralizado, "1 de 3" por página, barra de progresso e setas azul-marinho à direita */
   .car-nav:not([hidden]){display:flex;align-items:center;gap:10px;margin:0 0 12px}
-  .car-mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:10px;height:40px;padding:0 14px;border-radius:999px;background:#e6eef1;border:1px solid #d3e0e5;color:#06394a;font:600 14px/1.2 var(--body);white-space:nowrap}
-  .car-hint{display:block;overflow:hidden;text-overflow:ellipsis}.car-hint:empty{display:none}
-  .car-count{display:block;flex:none;padding-left:10px;border-left:1px solid #b9ccd3;color:#48666f}.car-count:empty{display:none}
+  .car-count{display:block;flex:none;min-width:44px;margin:0;white-space:nowrap;color:#48666f;font:600 14px/1 var(--body)}.car-count:empty{visibility:hidden}
+  .car-track{display:block;flex:1;min-width:40px;height:4px;margin:0 4px;border-radius:4px;background:#dbe5e9;overflow:hidden}
+  .car-track i{display:block;height:100%;width:0;border-radius:4px;background:#06394a;transition:width .3s ease}
   .car-btn{flex:0 0 auto;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:0;background:#06394a;color:#fff;font:600 24px/1 var(--body);padding:0 0 3px;cursor:pointer;transition:background .2s}
   .car-btn:disabled{background:#c9d6db;cursor:default}
-  @media (max-width:360px){.car-mid{font-size:13px;gap:8px;padding:0 10px}.car-count{padding-left:8px}}
+  @media (prefers-reduced-motion:reduce){.car-track i{transition:none}}
 }
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;transition:transform .2s,border-color .2s}
 .card:hover{transform:translateY(-3px);border-color:var(--sea)}
@@ -2864,7 +2864,7 @@ function home(){
       <p class="when-res" id="w-res" aria-live="polite"></p>
     </div>
     ${vendCard(null)}
-    <div class="car-nav"${list.length>1?"":" hidden"}><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" disabled>‹</button><div class="car-mid"><span class="car-hint">${list.length>1?t("carHint"):""}</span><span class="car-count" aria-live="polite"></span></div><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
+    <div class="car-nav"${list.length>1?"":" hidden"}><span class="car-count" aria-live="polite"></span><div class="car-track" aria-hidden="true"><i></i></div><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" disabled>‹</button><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
       ${list.map(b=>`
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
@@ -3052,6 +3052,7 @@ function carSync(reset){
   const cs=[...g.querySelectorAll(".card")].filter(c=>!c.hidden), n=cs.length, w=cs[0]?cs[0].offsetWidth+14:1;
   const on=g.scrollWidth>g.clientWidth+4, por=Math.max(1,Math.floor((g.clientWidth+8)/w)), pags=Math.max(1,Math.ceil(n/por)); /* conta páginas: 4 lanchas por página no computador, 1 no celular */
   const fim=g.scrollLeft>g.scrollWidth-g.clientWidth-8, i=fim?pags:Math.min(pags,Math.round(g.scrollLeft/(w*por))+1);
+  const tr=app.querySelector(".car-track i"); if(tr) tr.style.width=(on?i/pags*100:0)+"%";
   const pv=app.querySelector(".car-btn.prev"), nx=app.querySelector(".car-btn.next"), ct=app.querySelector(".car-count");
   pv.disabled=g.scrollLeft<8; nx.disabled=g.scrollLeft>g.scrollWidth-g.clientWidth-8;
   const nv=app.querySelector(".car-nav"); if(nv) nv.hidden=!(on&&n>1);
