@@ -7840,6 +7840,10 @@ function splitPhone(v){
   v=String(v||"").trim(); if(!v) return {cc:"55", num:""};
   const m=/^\+(\d{1,4})\s+(.*)$/.exec(v); if(m) return {cc:m[1], num:m[2]};
   if(v.startsWith("+")){ const d=v.replace(/\D/g,""), c=COUNTRIES.map(x=>x[1]).sort((a,b)=>b.length-a.length).find(c=>d.startsWith(c)); return c ? {cc:c, num:d.slice(c.length)} : {cc:d.slice(0,2), num:d.slice(2)}; }
+  /* só dígitos (ex.: vendedor_leads guarda DDI+número): 12+ dígitos que não começam com 55 já trazem o código do país, nunca ganham 55 (2026-11-17, lead argentino 541159521728) */
+  const d=v.replace(/\D/g,"");
+  if(/^55\d{10,11}$/.test(d)) return {cc:"55", num:d.slice(2)};
+  if(d.length>=12 && !d.startsWith("55")){ const c=COUNTRIES.map(x=>x[1]).sort((a,b)=>b.length-a.length).find(c=>d.startsWith(c)); if(c) return {cc:c, num:d.slice(c.length)}; }
   return {cc:"55", num:v};
 }
 /* erros do login em linguagem simples (2026-11-14): nunca mostra o texto técnico em inglês do servidor */
