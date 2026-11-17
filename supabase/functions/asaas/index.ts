@@ -406,37 +406,41 @@ async function atualizarCredito(r: any) {
   if (!r?.asaas_id) return null;
   const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
   const n: any = { status: pg.status || r.status, conferido_em: new Date().toISOString() };
-  // antecipação (Rodrigo 2026-11-17): com antecipação creditada o dinheiro já está no saldo antes da data de cada parcela
-  let ant: any = null;
-  try {
-    const la = (await asaas(`/anticipations?${pg.installment ? "installment=" + encodeURIComponent(pg.installment) : "payment=" + encodeURIComponent(r.asaas_id)}&limit=10`))?.data || [];
-    const cr = la.find((a: any) => a.status === "CREDITED" || a.status === "DEBITED");
-    const ab = la.find((a: any) => ["PENDING", "SCHEDULED"].includes(a.status));
-    ant = cr ? { status: "creditada", data: cr.anticipationDate || cr.requestDate || null } : ab ? { status: "pedida", data: ab.anticipationDate || null } : null;
-  } catch (_) { /* sem permissão de antecipação na chave: segue sem */ }
-  n.antecipacao = ant;
-  const antOk = ant?.status === "creditada";
-  if (pg.installment) {
-    const l = ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []).sort((a: any, z: any) => (+a.installmentNumber || 0) - (+z.installmentNumber || 0));
-    if (l.length) {
-      const ok = (x: any) => x.status === "RECEIVED" || x.status === "RECEIVED_IN_CASH"; // creditDate vem com data futura enquanto o cartão está CONFIRMED
-      n.parcelas = l.map((x: any, i: number) => {
-        const a = !ok(x) && antOk && !ESTORNO.test(String(x.status || ""));
-        return { n: +x.installmentNumber || i + 1, valor: +x.value, liquido: +x.netValue || null, status: x.status, previsto: x.estimatedCreditDate || x.creditDate || x.dueDate || null, credito: ok(x) ? (x.creditDate || x.paymentDate || null) : a ? ant.data : null, antecipada: a || undefined };
-      });
-      n.liquido = Math.max(0, Math.round(l.reduce((a: number, x: any) => a + (+x.netValue || 0), 0) * 100) / 100);
-      const fut = n.parcelas.filter((x: any) => !x.credito).map((x: any) => x.previsto).filter(Boolean).sort();
-      n.credito_previsto = fut[0] || null;
-      const cs = n.parcelas.map((x: any) => x.credito).filter(Boolean).sort();
-      n.credito_em = cs.length === n.parcelas.length ? cs[cs.length - 1] : null;
-    }
+  // antecipação (Rodrigo 2026-11-17): a automática do Asaas pede uma antecipação POR PARCELA (cada cobrança tem a sua).
+  // Pedida = em análise no Asaas; creditada = o dinheiro já entrou no saldo (antes da data da parcela), com o líquido da antecipação.
+  const ok = (x: any) => x.status === "RECEIVED" || x.status === "RECEIVED_IN_CASH"; // creditDate vem com data futura enquanto o cartão está CONFIRMED
+  const antDe = async (x: any) => {
+    if (!x?.anticipated || ok(x) || ESTORNO.test(String(x.status || ""))) return null;
+    try {
+      const la = (await asaas(`/anticipations?payment=${encodeURIComponent(x.id)}&limit=10`))?.data || [];
+      const cr = la.find((a: any) => a.status === "CREDITED" || a.status === "DEBITED");
+      const ab = la.find((a: any) => ["PENDING", "SCHEDULED"].includes(a.status));
+      const a = cr || ab;
+      return a ? { st: cr ? "creditada" : "pedida", data: cr ? (cr.anticipationDate || null) : null, liquido: +a.netValue || null } : null;
+    } catch (_) { return null; }
+  };
+  const lista = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []).sort((a: any, z: any) => (+a.installmentNumber || 0) - (+z.installmentNumber || 0)) : [pg];
+  const ants = await Promise.all(lista.map(antDe));
+  const sts = ants.filter(Boolean).map((a: any) => a.st);
+  n.antecipacao = sts.length ? { status: sts.every((x: string) => x === "creditada") ? "creditada" : "pedida", parcelas: sts.length } : null;
+  if (pg.installment && lista.length) {
+    n.parcelas = lista.map((x: any, i: number) => {
+      const a: any = ants[i], cred = a?.st === "creditada";
+      return { n: +x.installmentNumber || i + 1, valor: +x.value, liquido: a?.liquido || +x.netValue || null, status: x.status, previsto: a ? null : (x.estimatedCreditDate || x.creditDate || x.dueDate || null),
+        credito: ok(x) ? (x.creditDate || x.paymentDate || null) : cred ? a.data : null, antecipada: cred || undefined, antecipacao: a && !cred ? "pedida" : undefined };
+    });
+    n.liquido = Math.max(0, Math.round(n.parcelas.reduce((a: number, x: any) => a + (+x.liquido || 0), 0) * 100) / 100);
+    const fut = n.parcelas.filter((x: any) => !x.credito).map((x: any) => x.previsto).filter(Boolean).sort();
+    n.credito_previsto = fut[0] || null;
+    const cs = n.parcelas.map((x: any) => x.credito).filter(Boolean).sort();
+    n.credito_em = cs.length === n.parcelas.length ? cs[cs.length - 1] : null;
   } else {
-    if (pg.netValue != null) n.liquido = Math.max(0, +pg.netValue);
-    const rec = pg.status === "RECEIVED" || pg.status === "RECEIVED_IN_CASH";
-    const a = !rec && antOk && !ESTORNO.test(String(pg.status || ""));
-    n.antecipada = a;
+    const a: any = ants[0], cred = a?.st === "creditada";
+    if (a?.liquido) n.liquido = a.liquido; else if (pg.netValue != null) n.liquido = Math.max(0, +pg.netValue);
+    const rec = ok(pg);
+    n.antecipada = cred;
     n.credito_previsto = rec || a ? null : (pg.estimatedCreditDate || pg.creditDate || null);
-    n.credito_em = rec ? (pg.creditDate || pg.paymentDate || null) : a ? ant.data : null;
+    n.credito_em = rec ? (pg.creditDate || pg.paymentDate || null) : cred ? a.data : null;
   }
   await db.from("pagamentos_asaas").update(n).eq("id", r.id);
   return n;

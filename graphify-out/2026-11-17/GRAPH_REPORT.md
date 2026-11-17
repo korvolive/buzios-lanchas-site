@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-17)
 
 ## Corpus Check
-- 201 files · ~419,886 words
+- 201 files · ~420,896 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1cf0ca99`
+- Built from commit: `eabcdbbf`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -448,15 +448,15 @@ Nodes (3): public.lancar_pedido_operador(), public.trava_campos_buzios(), trava_
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.anotacoes` to `vendedores`, `public.origem_reserva`, `public.bloqueios`, `public.bloqueios`, `public.marcar_wa`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.pagamentos_pp`, `public.anotacoes`, `public.pedidos`, `public.origem_reserva`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.origem_reserva()` connect `public.origem_reserva` to `vendedores`, `public._desc_parceiro`, `public.marcar_wa`, `public.pagamentos_pp`, `public.anotacoes`, `public.ativar_conta_cliente`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.marcar_wa` to `public.ativar_conta_cliente`, `public.origem_reserva`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.05365296803652968 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
