@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-17)
 
 ## Corpus Check
-- 210 files · ~432,352 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1661 nodes · 2747 edges · 136 communities (82 shown, 54 thin omitted)
@@ -482,15 +480,15 @@ Nodes (3): asaas_validacoes_id, public.asaas_chaves, public.asaas_validacoes
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.anotacoes`, `public.marcar_wa`, `public.bloqueios`, `public.pagamentos_asaas`, `public.consultas`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public`, `public.consultas`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public.origem_reserva()` connect `public.pagamentos_asaas` to `vendedores`, `2026-11-13_origem-da-reserva.sql`, `public.marcar_wa`, `public.ativar_conta_cliente`, `public.bloqueios`, `public.consultas`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.050543637966500146 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
