@@ -1794,6 +1794,9 @@
       "supabase_sql_2026_10_31_seguranca_travas_public_trava_campos_buzios",
       "supabase_sql_2026_10_31_seguranca_travas_trava_campos_buzios"
     ],
+    "126": [
+      "supabase_sql_2026_11_17_repasse_so_quando_cair"
+    ],
     "127": [
       "supabase_sql_2026_11_17_whatsapp_verificado_nao_some",
       "supabase_sql_2026_11_17_whatsapp_verificado_nao_some_public_trava_whatsapp_ok"
@@ -1926,6 +1929,7 @@
     "123": 0.4,
     "124": 0.4,
     "125": 0.6666666666666666,
+    "126": 1.0,
     "127": 1.0
   },
   "gods": [
@@ -2041,7 +2045,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.anotacoes` to `vendedores`, `public.origem_reserva`, `public.bloqueios`, `public.bloqueios`, `public.marcar_wa`?",
-      "why": "High betweenness centrality (0.038) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.037) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2051,7 +2055,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.pagamentos_pp`, `public.anotacoes`, `public.pedidos`, `public.origem_reserva`?",
-      "why": "High betweenness centrality (0.025) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2061,7 +2065,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.origem_reserva()` connect `public.origem_reserva` to `vendedores`, `public._desc_parceiro`, `public.marcar_wa`, `public.pagamentos_pp`, `public.anotacoes`, `public.ativar_conta_cliente`?",
-      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.018) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
