@@ -823,6 +823,15 @@ Deno.serve(async req => {
       const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
       if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
       const conf = await asaas("/anticipations/configurations").catch((e: any) => ({ erro: e?.message }));
+      if (b.ver && Number(b.ver) > 0) { // diagnóstico: campos de antecipação das parcelas de um pedido (sem dados do cliente)
+        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id").eq("pedido", Number(b.ver)).not("pago_em", "is", null).maybeSingle();
+        if (!r) return json({ erro: "pedido" }, 404);
+        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
+        const l = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []) : [pg];
+        const an = await asaas(`/anticipations?limit=20`).catch((e: any) => ({ erro: e?.message }));
+        return json({ parcelas: l.map((x: any) => ({ n: x.installmentNumber, status: x.status, anticipated: x.anticipated, anticipable: x.anticipable, creditDate: x.creditDate, estimatedCreditDate: x.estimatedCreditDate, netValue: x.netValue })),
+          antecipacoes: (an?.data || []).map((a: any) => ({ status: a.status, installment: a.installment === pg.installment, payment: a.payment, anticipationDate: a.anticipationDate, requestDate: a.requestDate, netValue: a.netValue, fee: a.fee })), erro: an?.erro });
+      }
       const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG + ", antecipacao").eq("metodo", "cartao").not("pago_em", "is", null);
       const so = Array.isArray(b.pids) ? new Set(b.pids.map(Number)) : null;
       const out: any[] = [];
