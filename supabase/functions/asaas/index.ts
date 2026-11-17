@@ -407,7 +407,8 @@ async function atualizarCredito(r: any) {
   if (pg.installment) {
     const l = ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []).sort((a: any, z: any) => (+a.installmentNumber || 0) - (+z.installmentNumber || 0));
     if (l.length) {
-      n.parcelas = l.map((x: any, i: number) => ({ n: +x.installmentNumber || i + 1, valor: +x.value, liquido: +x.netValue || null, status: x.status, previsto: x.estimatedCreditDate || x.dueDate || null, credito: x.creditDate || null }));
+      const ok = (x: any) => x.status === "RECEIVED" || x.status === "RECEIVED_IN_CASH"; // creditDate vem com data futura enquanto o cartão está CONFIRMED
+      n.parcelas = l.map((x: any, i: number) => ({ n: +x.installmentNumber || i + 1, valor: +x.value, liquido: +x.netValue || null, status: x.status, previsto: x.estimatedCreditDate || x.creditDate || x.dueDate || null, credito: ok(x) ? (x.creditDate || x.paymentDate || null) : null }));
       n.liquido = Math.max(0, Math.round(l.reduce((a: number, x: any) => a + (+x.netValue || 0), 0) * 100) / 100);
       const fut = n.parcelas.filter((x: any) => !x.credito).map((x: any) => x.previsto).filter(Boolean).sort();
       n.credito_previsto = fut[0] || null;
@@ -416,8 +417,9 @@ async function atualizarCredito(r: any) {
     }
   } else {
     if (pg.netValue != null) n.liquido = Math.max(0, +pg.netValue);
-    n.credito_previsto = pg.estimatedCreditDate || null;
-    n.credito_em = pg.creditDate || null;
+    const rec = pg.status === "RECEIVED" || pg.status === "RECEIVED_IN_CASH";
+    n.credito_previsto = rec ? null : (pg.estimatedCreditDate || pg.creditDate || null);
+    n.credito_em = rec ? (pg.creditDate || pg.paymentDate || null) : null;
   }
   await db.from("pagamentos_asaas").update(n).eq("id", r.id);
   return n;
@@ -1205,22 +1207,25 @@ Deno.serve(async req => {
       for (const r of pgs || []) if (r.wallet_id && W.get(r.wallet_id)) uids.add(W.get(r.wallet_id));
       for (const t of trs || []) uids.add(t.user_id);
       const N = await nomes([...uids], C);
+      const { data: sqs } = await db.from("saques").select("user_id, valor, status, criado_em").in("user_id", [...uids]).neq("status", "falhou").order("criado_em", { ascending: true }).limit(2000);
+      const saqueDe = (uid: string | null, desde: string | null) => uid && desde ? (sqs || []).find((x: any) => x.user_id === uid && String(x.criado_em).slice(0, 10) >= desde) : null;
+      const sq = (x: any) => x ? { valor: Math.round(+x.valor * 100) / 100, quando: String(x.criado_em).slice(0, 10), feito: x.status === "feito" } : null;
       const r2 = (v: number) => Math.round(v * 100) / 100, dia = (s: any) => s ? String(s).slice(0, 10) : null;
       const vendas: any[] = [];
       const uma = (p: any, base: any) => {
         const rep: any[] = [];
         const donoU = base.split_user || donoDe(p.lancha);
-        if (base.split > 0) rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: base.split, como: "divisao", quando: base.situacao === "recebido" ? (base.credito_em || dia(base.pago_em)) : null, previsto: base.situacao === "recebido" ? null : base.previsto, ok: base.situacao === "recebido" });
+        if (base.split > 0) { const q = base.situacao === "recebido" ? (base.credito_em || dia(base.pago_em)) : null; rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: base.split, como: "divisao", quando: q, previsto: base.situacao === "recebido" ? null : base.previsto, ok: base.situacao === "recebido", saque: sq(saqueDe(donoU, q)) }); }
         const rp: any = R.get(p.id);
         if (rp) {
           const c = String(rp.comprovante || "");
-          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+rp.valor), como: c === "asaas:enviando" ? "enviando" : c.startsWith("asaas:") ? "asaas" : "fora", quando: dia(rp.enviado_em), ok: c !== "asaas:enviando", comprovante: (c.startsWith("asaas:") && c !== "asaas:enviando") || c.startsWith("fora:repasses/") ? "repasse" : null });
+          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+rp.valor), como: c === "asaas:enviando" ? "enviando" : c.startsWith("asaas:") ? "asaas" : "fora", quando: dia(rp.enviado_em), ok: c !== "asaas:enviando", saque: c.startsWith("asaas:") ? sq(saqueDe(donoU, dia(rp.enviado_em))) : null, comprovante: (c.startsWith("asaas:") && c !== "asaas:enviando") || c.startsWith("fora:repasses/") ? "repasse" : null });
         } else if (!(base.split > 0) && p.status === "aprovado" && +p.repasse_dono > 0) {
           const ct = donoU ? C.get(donoU) : null;
           rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : base.metodo === "paypal" ? "paypal" : "aguardando", ok: false });
         }
         const com = p.vendedor ? r2(Math.max(0, +p.preco_cliente - +p.preco_base)) : 0;
-        if (com > 0) { const c = String(p.comissao_comprovante || ""); rep.push({ tipo: "vendedor", nome: N.get(p.vendedor) || "Vendedor", valor: com, como: p.comissao_paga ? (c.startsWith("asaas:") ? "asaas" : "fora") : "pendente", quando: dia(p.comissao_paga), ok: !!p.comissao_paga, comprovante: p.comissao_paga && c && c !== "asaas:enviando" ? "comissao" : null }); }
+        if (com > 0) { const c = String(p.comissao_comprovante || ""); rep.push({ tipo: "vendedor", nome: N.get(p.vendedor) || "Vendedor", valor: com, como: p.comissao_paga ? (c.startsWith("asaas:") ? "asaas" : "fora") : "pendente", quando: dia(p.comissao_paga), ok: !!p.comissao_paga, saque: c.startsWith("asaas:") ? sq(saqueDe(p.vendedor, dia(p.comissao_paga))) : null, comprovante: p.comissao_paga && c && c !== "asaas:enviando" ? "comissao" : null }); }
         const saiu = rep.reduce((a, x) => a + x.valor, 0);
         vendas.push({ pid: p.id, data: p.data, horario: p.horario, lancha: L.get(p.lancha) || p.lancha, cliente: N.get(p.cliente) || "Cliente", pedido: p.status, total: r2(+p.preco_cliente || 0), ...base, split_user: undefined, buzios: base.liquido != null ? r2(Math.max(0, base.liquido - saiu)) : null, repasses: rep });
       };

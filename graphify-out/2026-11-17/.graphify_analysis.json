@@ -1770,6 +1770,9 @@
       "supabase_functions_aviso_preco_index_json",
       "supabase_functions_aviso_preco_index_t"
     ],
+    "119": [
+      "supabase_sql_2026_11_17_planilha_de_vendas"
+    ],
     "124": [
       "pg_trigger",
       "supabase_sql_2026_11_16_telefone_padrao_v2",
@@ -1902,6 +1905,7 @@
     "116": 0.3333333333333333,
     "117": 0.6666666666666666,
     "118": 0.4,
+    "119": 1.0,
     "124": 0.4,
     "127": 1.0
   },
@@ -2018,7 +2022,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.035) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.036) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2028,7 +2032,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.pedidos`, `public.bloqueios`, `public.consultas`?",
-      "why": "High betweenness centrality (0.024) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2038,7 +2042,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.origem_reserva`, `public.marcar_wa`?",
-      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
