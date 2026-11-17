@@ -81,7 +81,8 @@ async function chama(acao){
   return r.json().catch(() => ({estado:"erro"}));
 }
 function cartao(d){
-  const hr = d.hora_ini && d.hora_fim ? `${String(d.hora_ini).slice(0,5)} às ${String(d.hora_fim).slice(0,5)}` : (SLOT[d.horario] || d.horario || "");
+  const STD = {manha:["10:00","14:00"], tarde:["14:00","18:00"], dia:["10:00","17:00"]}[d.horario]; /* mesmo horário padrão do app */
+  const hr = d.hora_ini && d.hora_fim ? `${String(d.hora_ini).slice(0,5)} às ${String(d.hora_fim).slice(0,5)}` : STD ? `${STD[0]} às ${STD[1]}` : (SLOT[d.horario] || d.horario || "");
   const rows = [["Embarcação", d.lancha], ["Data", d.data ? dataTxt(d.data) : ""], ["Horário", hr], ["Pessoas", d.pessoas], ["Cliente", d.cliente], ["Você recebe no total", +d.neto > 0 ? brl(d.neto) : ""],
     ...(d.embarque != null && +d.neto > 0 ? (+d.antecipado >= 0
       ? [["Você recebe antes", brl(d.antecipado)], ["Cobrar do cliente no dia", brl(d.embarque)]]
