@@ -604,7 +604,7 @@ async function enviarSaldos() {
   // nunca tira dinheiro da conta dele). Era depois do passeio.
   const hoje = new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10);
   const { data: js } = await db.from("pedidos").select("id, data, horario, hora_ini, bloqueio_id, jetski, jetski_neto")
-    .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse", null).lte("data", hoje).order("data").limit(30);
+    .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse", null).lte("data", hoje).order("data").limit(100);
   for (const p of js || []) {
     if (!(await jetskiLibera(p))) continue;
     if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) continue;
@@ -621,7 +621,10 @@ async function enviarSaldos() {
     const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue; // dono do jetski sem conta aprovada: a Búzios paga por Pix
     const v = Math.round(+p.jetski_neto * 100) / 100;
     if (!(v > 0) || v > saldo) continue;
-    const { data: trava } = await db.from("pedidos").update({ jetski_repasse: "asaas:enviando" }).eq("id", p.id).is("jetski_repasse", null).select("id");
+    // revisão de segurança 2026-11-17: o líquido nunca passa do que o cliente pagou pelo jetski
+    if (v > (+pq?.jetski_valor || 0) + 0.005) { console.error("saldo jetski: líquido maior que o valor pago", p.id); continue; }
+    // trava só se o pedido continua aprovado (cancelado entre a leitura e o envio não recebe)
+    const { data: trava } = await db.from("pedidos").update({ jetski_repasse: "asaas:enviando" }).eq("id", p.id).eq("status", "aprovado").is("jetski_repasse", null).select("id");
     if (!trava?.length) continue;
     let tr: any;
     try { tr = await asaas("/transfers", { value: v, walletId: w }); }
