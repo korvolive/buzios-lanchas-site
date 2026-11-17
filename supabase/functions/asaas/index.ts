@@ -742,6 +742,13 @@ async function enviarSaldos() {
     if (!pas.length && !pp) continue; // pago fora do site (Pix com comprovante): a Búzios repassa à mão
     const cobre = deve > 0 && (pas.some((r: any) => +r.sinal >= deve - 0.005) || (!!pp && (pp.moeda !== "BRL" || +pp.valor >= deve - 0.005)));
     if (!cobre) { console.error("saldo jetski: pagamento não cobre o jetski", p.id); continue; }
+    // Rodrigo 2026-11-17 (escolheu "2h antes, só se já caiu"): pago pelo Asaas, o dinheiro deste pedido já tem de estar no saldo
+    // (Pix na hora; cartão ainda a cair espera a parcela cair, nunca adianta com dinheiro de outra venda)
+    if (pas.length) {
+      const rows = doPedido(p.id); await refrescar(rows);
+      const cx = caixaPedido(rows);
+      if (cx.estorno || quandoCobre(cx, +p.jetski_neto || 0) !== null) { esperando++; continue; }
+    }
     const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono;
     const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue; // dono do jetski sem conta aprovada: a Búzios paga por Pix
     const v = Math.round(+p.jetski_neto * 100) / 100;
