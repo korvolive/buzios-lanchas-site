@@ -8,7 +8,6 @@
   "6": "paypal-checkout/index.ts",
   "7": "public._ligar_passeio",
   "8": "prerender.mjs",
-  "9": "ref_npm_web_push_3_6_7",
   "10": "steps",
   "11": "steps",
   "12": "steps",
@@ -29,11 +28,11 @@
   "28": "consulta-aviso/index.ts",
   "29": "avaliacao/index.ts",
   "30": "central-auto/index.ts",
-  "31": "public.consultas",
   "32": "public.anotacoes",
   "33": "public.clientes",
   "34": "whatsapp-codigo/index.ts",
   "35": "steps",
+  "36": "public.pedidos",
   "37": "traduzir/index.ts",
   "38": "asaas-saques/index.ts",
   "39": "login/sw.js",
@@ -64,6 +63,7 @@
   "64": "htaccess.sh",
   "65": "2026-11-13_auditoria-e-registro-de-acessos.sql",
   "66": "public._desc_parceiro",
+  "67": "2026-11-15_jetski-lucas.sql",
   "68": "public.marcar_wa",
   "69": "2026-11-05_revisao-diaria.sql",
   "70": "2026-11-08_app-versao-minima.sql",
@@ -120,5 +120,6 @@
   "127": "2026-11-17_whatsapp-verificado-nao-some.sql",
   "129": "2026-11-17_paypal-cai-no-asaas-repasse-auto.sql",
   "130": "2026-11-17_retencao-registros-5-anos.sql",
-  "131": "traduzir-chat/index.ts"
+  "131": "traduzir-chat/index.ts",
+  "132": "2026-10-30_asaas-validacao-saques.sql"
 }
