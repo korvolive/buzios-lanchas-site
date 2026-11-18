@@ -2879,10 +2879,10 @@ function tripGroups(rows, desc){
 }
 /* o passeio já terminou? (hora de fim combinada, senão o fim do horário; o noturno só no dia seguinte) */
 const SLOT_END = {manha:14, tarde:18, dia:17, noite:99};
-function tripEnded(data, horario, n){
+function tripEnded(data, horario, n, folga){ /* folga: horas a mais depois do fim */
   const today=todayISO(); if(data<today) return true; if(data>today) return false;
   const d=new Date(), h=d.getHours()+d.getMinutes()/60, [fh,fm]=String(n?.hora_fim||"").split(":").map(Number);
-  return h >= (n?.hora_fim ? fh+(fm||0)/60 : SLOT_END[horario] ?? 99);
+  return h >= (n?.hora_fim ? fh+(fm||0)/60 : SLOT_END[horario] ?? 99) + (folga||0);
 }
 /* administrador: passeios da Búzios Lanchas que já passaram, para confirmar se aconteceram (libera a avaliação do cliente) */
 /* com o app aberto, os passeios que acabaram de terminar entram no quadro ao voltar para o app */
@@ -2897,7 +2897,7 @@ async function loadToConfirm(){
       if(fora ? !(own.includes(b.lancha) && b.data>=FORA_DESDE) : !(S.admin || op)) return false;
       b.fora=fora; return true; });
     const rz = b => Array.isArray(b.realizados) ? b.realizados[0] : b.realizados;
-    S.toConfirm = mine.filter(b=>!rz(b) && tripEnded(b.data, b.horario, (Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes)));
+    S.toConfirm = mine.filter(b=>!rz(b) && tripEnded(b.data, b.horario, (Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes), 1)); /* os passeios se concluem sozinhos ao terminar (2026-11-18): aqui só aparece o que não concluiu em 1 hora */
     /* lembrete fixo (2026-10-24): confirmou que aconteceu e ainda não pediu a avaliação no WhatsApp */
     S.toAskWa = mine.filter(b=>{ const x=rz(b), n=Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes; return x?.aconteceu && !x.wa_aval && x.em>=WA_AVAL_DESDE && waOf(n?.telefone).length>=8 && Date.now()-new Date(x.em)>3*3600e3; } /* o pedido sai sozinho pelo WhatsApp oficial; aqui só aparece se não saiu em 3 horas (2026-11-11) */); }
   catch(e){ S.toConfirm = e.status===400||e.status===404 ? false : []; }
