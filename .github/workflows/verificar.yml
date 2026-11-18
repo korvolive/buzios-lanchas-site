@@ -11,6 +11,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Nomes e dourados dos itens iguais no site e no app
+        run: node scripts/itens-iguais.mjs
       - name: Gerar páginas e sitemap.xml (sem enviar)
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
