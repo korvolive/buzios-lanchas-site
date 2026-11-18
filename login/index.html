@@ -4947,7 +4947,7 @@ function pedidosHTML(){
   const card = x => x.nota!==undefined ? tripCard(x,true) : reqCard(x,true);
   return `<div class="tabs sub" role="tablist">${[["pendente","reqPend"],["aprovado","reqOk"],["hist","reqHist"],["canc","reqCanc"]].map(([k,l])=>`<button type="button" role="tab" data-rf="${k}" aria-selected="${f===k}">${t(l)} (${L[k].length})</button>`).join("")}</div>
     ${S.admin&&!S.papel?consHTML("vend"):""}${S.papel==="operador"||(S.admin&&!S.papel)?`<button type="button" class="btn" id="op-lanca" style="margin:0 0 14px">${t("opBtn")}</button>`:""}${altHTML()}${condAlertHTML()}${lembHTML()}${credAdmHTML()}${grevHTML()}${donoAvHTML()}${avHojeHTML()}${waPendHTML()}${confirmHTML()}${waAvHTML()}${dpgHTML()}${f==="pendente" ? consHTML() : ""}${cidFilterHTML()}${f==="pendente" ? "" : `<p class="how muted">${t("reqSub")}</p>`}
-    ${f==="pendente" ? `<details class="card cfm fold" data-fold="pedp"${foldOpen("pedp")?" open":""}>${foldSum(t("pedBoxT",{n:L.pendente.length}))}<p class="muted" style="margin-top:0">${t("reqSub")}</p>${L.pendente.length ? `<div class="trips">${L.pendente.map(card).join("")}</div>` : `<p class="muted" style="margin:0">${t("reqNone")}</p>`}</details>` /* 18/11 (Rodrigo): mesmo padrão de cartão de Sinais pendentes e Créditos, com título dizendo o que é */
+    ${f==="pendente" ? `<details class="card cfm fold" data-fold="pedp"${foldOpen("pedp")?" open":""}>${foldSum(t("pedBoxT",{n:L.pendente.length}))}<p class="muted" style="margin-top:0">${t("reqSub")}</p>${L.pendente.length ? `<div class="trips">${L.pendente.map(card).join("")}</div>` : `<p class="muted" style="margin:0">${t("reqNone")}</p>`}</details>${consRecHTML()}` /* 18/11 (Rodrigo): mesmo padrão de cartão de Sinais pendentes e Créditos, com título dizendo o que é */
       : !L[f].length ? `<div class="card"><p class="muted" style="margin:0">${t("reqNone")}</p></div>`
       : f!=="pendente" ? byBoat(L[f]).map(([l,rs])=>`<details class="rqboat" data-rqb="${f}|${esc(l)}"${S.rqOpen?.has(f+"|"+l)?" open":""}><summary class="mhead"><h3 class="who">${avatar(l,"bav")}${esc(boatName(l))}</h3><span>${rs.length===1?t("monthHead1"):t("monthHead",{n:rs.length})}<i class="chev" aria-hidden="true">›</i></span></summary><div class="trips">${rs.map(card).join("")}</div></details>`).join("") /* cada lancha abre e fecha com um toque */
       : `<div class="trips">${L[f].map(card).join("")}</div>`}`;
@@ -5037,7 +5037,7 @@ function consWa(c){ const ph=splitPhone(c.telefone), wa=ph.cc+ph.num.replace(/\D
   const tt=(k,o)=>(T[L][k]||T.pt[k]).replace(/\{(\w+)\}/g,(m,x)=>o[x]??m);
   const when=dateOf(c.data).toLocaleDateString(T[L].locale||"pt-BR",{day:"numeric",month:"long"}), slot=(T[L]["slot_"+c.horario]||t("slot_"+c.horario)).toLowerCase();
   return {wa, msg:tt(consVenc(c)?"csWaPast":c.chamou?"csWaCall":"csWaNoCall",{name:c.nome.split(" ")[0], boat:boatName(c.lancha), date:when, slot, people:c.pessoas?tt("csPeople",{n:c.pessoas}):""})}; }
-function consHTML(modo){
+function consHTML(modo,c1){
   if(modo==="vend" && (S.papel || !S.cons?.length)) return "";
   if(S.cons===false) return `<div class="card"><p class="msg err" style="margin:0">${t("csSql")}</p></div>`;
   if(!S.cons?.length && !S.consRec?.length) return "";
@@ -5058,6 +5058,7 @@ function consHTML(modo){
       <span class="tside">${wa.length>=8?`<a class="twa"${waAttr("consulta",c.id)} href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(c.nome)}">${WA_ICON}<span>WhatsApp</span>${waTag("consulta",c.id)}</a>`:""}${wa.length>=8&&!past&&!rec&&c.pessoas&&!luc?`<a class="twa rlk" href="https://wa.me/${wa}?text=${encodeURIComponent(rlMsg(L,{nome:c.nome, lancha:c.lancha, data:c.data, horario:c.horario, pessoas:c.pessoas}))}" target="_blank" rel="noopener" aria-label="${t("rlBtnL")}: ${esc(c.nome)}">📲<span>${t("rlBtn").replace("📲 ","")}</span></a>`:""}</span>
       ${S.papel?"":`<span class="reqbtns">${rec?`<button type="button" class="btn" data-csres="${c.id}">↩️ ${t("crRes")}</button>`:`${!past&&c.grupo?`<button type="button" class="btn" data-csgrp="${c.grupo}">${t("grpOne",{n:(S.cons||[]).filter(x=>x.grupo===c.grupo).length})}</button>`:""}${!past&&c.criado_por&&!c.grupo?`<button type="button" class="btn${luc?" csmain":""}" data-csone="${c.id}">${t(luc?"csOk":"csOne")}</button>`:""}${!past&&!c.grupo&&!luc?`<button type="button" class="btn${c.criado_por?" sec":""}" data-csok="${c.id}">${t("csOk")}</button>`:""}${luc&&!past?`<button type="button" class="btn sec" data-csed="${c.id}">✏️ ${t("edBtn")}</button>`:""}<button type="button" class="btn sec" data-csno="${c.id}"${past?' data-past="1"':""}>${t(past?"csRm":"csNo")}</button>${!past&&!luc?`<button type="button" class="btn sec" data-csed="${c.id}">✏️ ${t("edBtn")}</button>`:""}`}</span>`}</span></span>
     </div>`; };
+  if(modo==="card1") return card(c1,true); /* cartão de Recusadas, desenhado por consRecHTML no fim da aba */
   /* escolher a lancha (ou todas) quando há consultas de mais de uma (2026-10-25) */
   const chips = L => { const by={}; L.forEach(c=>by[c.lancha]=(by[c.lancha]||0)+1); const ks=Object.keys(by).sort((a,b)=>boatName(a).localeCompare(boatName(b)));
     if(ks.length<2) return "";
@@ -5073,8 +5074,13 @@ function consHTML(modo){
   if(modo==="vend"){ if(!vendas.length) return ""; S.csOpen=S.csOpen||new Set(); S.csAuto=S.csAuto||new Set(); vendas.forEach(c=>{ if(!S.csAuto.has(c.id)){ S.csAuto.add(c.id); S.csOpen.add(c.id); } });
     return `<div class="card csvend" style="margin:0 0 18px;border:2px solid var(--brass)"><h2 style="margin-top:0">${t("csVendT")} (${vendas.length})</h2><div class="trips">${vendas.map(c=>card(c)).join("")}</div></div>`; }
   return (sites.length?`<details class="card cfm fold" data-fold="cons"${foldOpen("cons",false)?" open":""}>${foldSum(`${t("csT")} (${porCliente(sites).length})`)}<p class="how muted" style="margin-top:0">${t("csSub")}</p>${ordem}${chips(sites)}<div class="trips">${porCliente(only(sites)).map(g=>card(g[0])+(g.length>1?`<details class="csmesmo" style="margin:-4px 0 10px 12px"><summary class="muted" style="cursor:pointer;font-size:14px">👤 ${esc(t("csMesmo",{n:g.length-1, name:shortName(g[0].nome||""), b:g.slice(1).map(x=>boatName(x.lancha)).join(", ")}))}</summary><div class="trips">${g.slice(1).map(c=>card(c)).join("")}</div></details>`:"")).join("")}</div></details>`:"")
-    + (vencidas.length?`<details class="card cfm fold" data-fold="consv"${foldOpen("consv")?" open":""}>${foldSum(`${t("csVT")} (${vencidas.length})`)}<p class="how muted" style="margin-top:0">${t("csVSub")}</p>${ordem}${chips(vencidas)}<div class="trips">${only(vencidas).map(c=>card(c)).join("")}</div></details>`:"")
-    + (S.consRec?.length?`<details class="card cfm fold" data-fold="consr"${foldOpen("consr")?" open":""}>${foldSum(`${t("crT")} (${S.consRec.length})`)}<p class="how muted" style="margin-top:0">${t("crSub")}</p><div class="trips">${[...S.consRec].sort((a,b)=>a.data.localeCompare(b.data)).map(c=>card(c,true)).join("")}</div></details>`:"");
+    + (vencidas.length?`<details class="card cfm fold" data-fold="consv"${foldOpen("consv")?" open":""}>${foldSum(`${t("csVT")} (${vencidas.length})`)}<p class="how muted" style="margin-top:0">${t("csVSub")}</p>${ordem}${chips(vencidas)}<div class="trips">${only(vencidas).map(c=>card(c)).join("")}</div></details>`:"");
+}
+/* Recusadas: último quadro da aba, é o menos importante (Rodrigo 2026-11-18) */
+function consRecHTML(){
+  if(!S.consRec?.length || S.cons===false) return "";
+  const card=c=>consHTML("card1",c);
+  return `<details class="card cfm fold" data-fold="consr"${foldOpen("consr")?" open":""}>${foldSum(`${t("crT")} (${S.consRec.length})`)}<p class="how muted" style="margin-top:0">${t("crSub")}</p><div class="trips">${[...S.consRec].sort((a,b)=>a.data.localeCompare(b.data)).map(c=>card(c)).join("")}</div></details>`;
 }
 /* a consulta venceu: falta menos de 1 hora para o início do passeio (manhã e dia 10h, tarde 14h, noite 20h, horário de Brasília) */
 document.addEventListener("click", e=>{ const b=e.target.closest("[data-csb]"); if(!b) return; S.csBoat=b.dataset.csb; mainView(); });
