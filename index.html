@@ -57,7 +57,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fontes sem travar a primeira pintura no celular: o texto aparece na fonte do aparelho e troca quando a fonte chega -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Urbanist:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Urbanist:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[rel="preload"][imagesrcset*="mb-c12"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/mb-c12.webp";hl.setAttribute("imagesrcset","/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w");hl.setAttribute("imagesizes","100vw");hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
+<script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[rel="preload"][imagesrcset*="capa-festa-cel"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/capa-festa-cel.webp";hl.setAttribute("imagesrcset","/img/capa-festa-cel-m.webp 800w, /img/capa-festa-cel.webp 1600w");hl.setAttribute("imagesizes","100vw");hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
 <style>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
 :root{
@@ -267,7 +267,7 @@ html.is-app #hdr-login{display:none}
 /* valor só com data (Rodrigo 2026-11-18): chamada para escolher a data ou entrar, valor final, ocupada na data e meia diária */
 .price-from .pf-cta{font:700 16px/1.1 var(--body);color:var(--sea);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .price-from .pf-cta:focus-visible{outline:2px solid var(--sea);outline-offset:2px;border-radius:4px}
-.card.feat .price-from .pf-cta{color:var(--brass)}
+.card.feat .price-from span{color:#eaf4f6}.card.feat .price-from .pf-cta{color:var(--brass)}
 .price-from strong .mny{font:inherit;color:inherit}
 .price-from .pf-fin{display:block;margin-top:4px;font-size:11.5px;color:var(--muted)}
 .card.feat .price-from .pf-fin{color:#b9d0d8}
@@ -845,8 +845,8 @@ html:not(.on-boat) .hero.hero-foto{margin:var(--pm) var(--pm) 0;border-radius:28
 html:not(.on-boat) .hero.hero-foto #waves{display:none}
 html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:56px}
 @media (min-width:761px){
-  html:not(.on-boat) .hero.hero-foto::before{bottom:-6px;background:linear-gradient(rgba(4,33,44,.55),rgba(4,33,44,.55)),url(/img/mb-mar.webp) center bottom/100% 100%}
-  html:not(.on-boat) .hero.hero-foto::after{bottom:0;background:linear-gradient(90deg,rgba(4,33,44,.78) 0%,rgba(4,33,44,.42) 42%,rgba(4,33,44,.18) 60%,rgba(4,33,44,.5) 100%),url(/img/mb-mar.webp) center bottom/auto 100% no-repeat}
+  html:not(.on-boat) .hero.hero-foto::before{bottom:-6px;background:linear-gradient(rgba(4,33,44,.55),rgba(4,33,44,.55)),url(/img/capa-festa-bg.webp) center bottom/100% 100%}
+  html:not(.on-boat) .hero.hero-foto::after{bottom:0;background:linear-gradient(90deg,rgba(4,33,44,.78) 0%,rgba(4,33,44,.42) 42%,rgba(4,33,44,.18) 60%,rgba(4,33,44,.5) 100%),url(/img/capa-festa.webp) center bottom/auto 100% no-repeat}
   html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px}
 }
 html:not(.on-boat) .hero-foto .trust{background:rgba(4,33,44,.5)}
@@ -881,7 +881,7 @@ html:not(.on-boat) .faq details{border-radius:16px}
   html:not(.on-boat) .hero.hero-foto .hero-grid{grid-template-columns:minmax(0,640px)}
   html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px 96px}
   /* foto inteira no meio com a largura certa para a altura do topo e laterais sumindo suave no fundo desfocado (sem corte em tela larga, Rodrigo 2026-11-18) */
-  html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:2048/880;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/mb-mar.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
+  html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:2048/880;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/capa-festa.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
   @media (min-width:1400px){html:not(.on-boat) .hero.hero-foto .wrap.hero-grid{grid-template-columns:minmax(0,640px)}}
 }
 html:not(.on-boat) .when-top{position:relative;z-index:3;margin-top:-52px}
@@ -918,6 +918,8 @@ html:not(.on-boat) .hero-foto .hero-text .guar{display:block;max-width:560px;bac
 html:not(.on-boat) .confia .trust .guar{display:none!important}
 html:not(.on-boat) .confia .trust{grid-template-columns:1fr}
 @media (max-width:760px){html:not(.on-boat) .hero-foto .hero-text .guar{text-align:left;margin-top:4px}}
+/* garantia no canto direito de cima da foto no computador (Rodrigo 2026-11-18: no computador não gostou embaixo do texto; no celular fica onde está) */
+@media (min-width:1100px){html:not(.on-boat) .hero.hero-foto{position:relative}html:not(.on-boat) .hero-foto .wrap,html:not(.on-boat) .hero-foto .hero-grid,html:not(.on-boat) .hero-foto .hero-text{position:static}html:not(.on-boat) .hero-foto .hero-text>*{position:relative;z-index:1}html:not(.on-boat) .hero-foto .hero-text .guar{position:absolute;right:40px;top:26px;max-width:350px;z-index:3;background:rgba(4,33,44,.66);padding:12px 16px;border-radius:18px}html:not(.on-boat) .hero-foto .hero-text .guar p{font-size:13.5px;line-height:1.45;margin-top:4px}}
 /* confiança como no topo antigo (Rodrigo 2026-11-18): blocos iguais só com ícone e título; a descrição cobre o bloco ao passar o mouse ou tocar */
 html:not(.on-boat) .confia .trust ul{grid-auto-rows:1fr}
 html:not(.on-boat) .confia .trust li{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;padding:20px;min-height:120px;overflow:hidden;cursor:default;outline:none;border:1.5px solid transparent;transition:border-color .2s}
@@ -929,6 +931,8 @@ html:not(.on-boat) .confia .trust-ic{margin:0}
 @media (hover:none){html:not(.on-boat) .confia .trust li{cursor:pointer}}
 @media (max-width:400px){html:not(.on-boat) .confia .trust li{min-height:118px;padding:14px}html:not(.on-boat) .confia .trust li strong{font-size:15px}html:not(.on-boat) .confia .trust li div span{font-size:13.5px;padding:12px 14px}}
 @media (prefers-reduced-motion:reduce){html:not(.on-boat) .confia .trust li div span{transition:none}}
+/* WhatsApp ao lado do título "Lanchas de confiança" no computador (Rodrigo 2026-11-18); no celular continua embaixo dos blocos */
+@media (min-width:1240px){html:not(.on-boat) .confia .wrap{position:relative}html:not(.on-boat) .confia .wa-cta{position:absolute;top:4px;right:max(16px,env(safe-area-inset-right,0px));margin:0;max-width:none;flex-wrap:nowrap;white-space:nowrap}}
 /* idioma em botões, igual ao Bordazul (2026-11-18): no computador PT · EN · ES lado a lado; no celular fica a lista compacta */
 .langs{display:none;background:rgba(234,244,246,.1);border-radius:999px;padding:4px;gap:2px}
 .langs button{font:700 13px/1 var(--body);border:0;background:none;color:inherit;opacity:.8;padding:8px 11px;border-radius:999px;cursor:pointer}
@@ -3216,7 +3220,7 @@ function home(){
       <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
       ${guarHTML(false)}
     </div>
-    ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
+    ${CID?"":`<figure class="hero-ph"><img src="/img/capa-festa-cel.webp" srcset="/img/capa-festa-cel-m.webp 800w, /img/capa-festa-cel.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
     ${CID?trustH:""}
     </div>
     <canvas id="waves" aria-hidden="true"></canvas>
