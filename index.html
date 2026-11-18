@@ -2276,13 +2276,13 @@ const ITEM_ICON = {
   "Som Bluetooth":IC('<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>')
 };
 Object.assign(ITEM_ICON, {"Coletes salva-vidas para todos":ITEM_ICON["Coletes para todos"], "Gelo escama (1 caixa)":ITEM_ICON["Gelo escama"], "Carvão (1 saco)":ITEM_ICON["Carvão"], "Som ambiente":ITEM_ICON["Som Bluetooth"]}); /* itens das escunas (2026-11-14) */
-const chipHTML = (i,label) => `<li${STACK_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${label}</li>`;
+const chipHTML = (i,label) => `<li${STACK_GOLD.includes(i)?' class="gold"':CARD_BASIC.includes(i)?' class="basic"':""}>${ITEM_ICON[i]||""}${label}</li>`;
 /* nome curto dos itens (pt, en, es): fonte única para card da home, página da lancha e app (igual a ITEM_SHORT em login/index.html; o verificar.yml confere). O nome cadastrado no Supabase continua o mesmo (Rodrigo 2026-11-18) */
 const ITEM_SHORT = {"Wi-Fi Starlink":["Wi-Fi","Wi-Fi","Wi-Fi"],"Televisão":["TV","TV","TV"],"Coletes para todos":["Coletes","Life jackets","Chalecos"],"Toldo com sombra":["Toldo","Canopy","Toldo"],"Toalhas de banho":["Toalhas","Towels","Toallas"],"Macarrão flutuante":["Macarrão","Pool noodles","Fideos"],"Máscaras de mergulho":["Máscaras","Snorkel masks","Máscaras"],"Gerador de energia":["Gerador","Generator","Generador"],"Geladeira":["Frigobar","Minibar","Frigobar"]};
 const itemLabel = i => ITEM_SHORT[i] ? ITEM_SHORT[i][lang==="en"?1:lang==="es"?2:0] : tx(i);
 const itemChip = i => chipHTML(i, itemLabel(i));
 const cardChip = itemChip;
-const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i)), ...CARD_EXTRA.filter(i=>has.includes(i))].map(cardChip).join(""); };
+const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...CARD_EXTRA.filter(i=>has.includes(i)), ...STACK_GOLD.filter(i=>has.includes(i))].map(cardChip).join(""); }; /* ordem fixa: básicos, extras, dourados (Rodrigo 2026-11-18) */
 const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t(isEsc(b)?"stBoatTEsc":"stBoatT",{f:ftx(b)})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${t("stRouteP")}</small></div></li>
@@ -3306,7 +3306,8 @@ if(location.hash.length>1) document.getElementById(location.hash==="#escunas"?"f
     if(!mq.matches) out=orig;
     else{
       const W=ul.clientWidth, gap=parseFloat(getComputedStyle(ul).columnGap)||0; if(!W) return;
-      const groups=[orig.filter(l=>!l.classList.contains("gold")),orig.filter(l=>l.classList.contains("gold"))];
+      const isB=l=>l.classList.contains("basic"), isG=l=>l.classList.contains("gold"); /* básicos primeiro, depois extras, por último dourados (Rodrigo 2026-11-18) */
+      const groups=[orig.filter(isB),orig.filter(l=>!isB(l)&&!isG(l)),orig.filter(isG)];
       out=[]; let rest=0; /* espaço que sobrou na linha atual, para o próximo grupo continuar nela */
       groups.forEach(g=>{
         const left=g.map(l=>({l,w:l.getBoundingClientRect().width}));
