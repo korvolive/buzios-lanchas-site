@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-18)
 
 ## Corpus Check
-- 217 files · ~439,688 words
+- 217 files · ~439,174 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
