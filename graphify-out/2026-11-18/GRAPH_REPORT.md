@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-18)
 
 ## Corpus Check
-- 220 files · ~445,996 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1712 nodes · 2825 edges · 136 communities (81 shown, 55 thin omitted)
@@ -132,10 +130,10 @@
   supabase/sql/2026-11-15_jetski-lucas.sql → supabase/sql/2026-11-15_jetski.sql
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
   supabase/sql/2026-11-05_revisao-diaria.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
-- `public.jetski_do_passeio()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
-  supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
-- `public.jetski_do_passeio()` --reads_from--> `public.jetskis`  [EXTRACTED]
-  supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
+- `jetski_sempre_aprendiz` --triggers--> `public.jetskis`  [EXTRACTED]
+  supabase/sql/2026-11-17_jetski-dono.sql → supabase/sql/2026-11-15_jetski.sql
+- `public.meus_jetski_alugueis()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
+  supabase/sql/2026-11-17_jetski-dono.sql → supabase/sql/2026-11-15_jetski.sql
 
 ## Import Cycles
 - None detected.
@@ -473,11 +471,11 @@ Nodes (6): a_pedido_jetski_segurado, public._jetski_segura(), public.lancar_rese
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
 - **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`, `public.origem_reserva`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.anotacoes`, `public.clientes`, `public.anotacoes`, `public._ligar_passeio`, `b`, `public.bloqueios`, `public.ativar_conta_cliente`?**
