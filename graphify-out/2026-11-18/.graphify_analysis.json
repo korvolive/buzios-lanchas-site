@@ -147,6 +147,7 @@
       "supabase_functions_asaas_index_dig",
       "supabase_functions_asaas_index_docs_ok",
       "supabase_functions_asaas_index_ent",
+      "supabase_functions_asaas_index_entradapaypal",
       "supabase_functions_asaas_index_enviarsaldos",
       "supabase_functions_asaas_index_exp",
       "supabase_functions_asaas_index_filapaypal",
@@ -379,41 +380,11 @@
       "sv"
     ],
     "8": [
-      "ref_bubblewrap_core",
       "ref_node_child_process",
-      "ref_node_crypto",
-      "ref_node_fs",
       "ref_node_http",
-      "ref_node_path",
       "ref_playwright",
-      "scripts_android_gerar",
-      "scripts_android_gerar_m",
-      "scripts_android_gerar_web",
-      "scripts_db_mudou",
-      "scripts_db_mudou_source",
-      "scripts_ios_gerar",
-      "scripts_ios_gerar_web",
-      "scripts_itens_iguais",
-      "scripts_itens_iguais_erros",
-      "scripts_itens_iguais_pega",
-      "scripts_lanchas_db",
-      "scripts_lanchas_db_fotosdb",
-      "scripts_lanchas_db_lanchasdb",
-      "scripts_lanchas_db_precosdb",
-      "scripts_paginas",
-      "scripts_paginas_boatpath",
-      "scripts_paginas_c",
-      "scripts_paginas_esc",
-      "scripts_paginas_faqpreco",
-      "scripts_paginas_gerarpaginas",
-      "scripts_paginas_guiapath",
-      "scripts_paginas_guias",
-      "scripts_paginas_homepath",
-      "scripts_paginas_num",
-      "scripts_paginas_t",
       "scripts_prerender",
       "scripts_prerender_alt",
-      "scripts_prerender_altg",
       "scripts_prerender_boaturl",
       "scripts_prerender_db_read",
       "scripts_prerender_fc",
@@ -430,12 +401,22 @@
       "scripts_prerender_types"
     ],
     "9": [
+      "ref_npm_supabase",
       "ref_npm_web_push_3_6_7",
+      "supabase_functions_acesso_link_index",
+      "supabase_functions_acesso_link_index_cors",
+      "supabase_functions_acesso_link_index_db",
+      "supabase_functions_acesso_link_index_json",
       "supabase_functions_alerta_equipe_index",
       "supabase_functions_alerta_equipe_index_cat",
       "supabase_functions_alerta_equipe_index_cors",
       "supabase_functions_alerta_equipe_index_db",
       "supabase_functions_alerta_equipe_index_json",
+      "supabase_functions_aviso_preco_index",
+      "supabase_functions_aviso_preco_index_cors",
+      "supabase_functions_aviso_preco_index_db",
+      "supabase_functions_aviso_preco_index_json",
+      "supabase_functions_aviso_preco_index_t",
       "supabase_functions_chat_inativo_index",
       "supabase_functions_chat_inativo_index_db",
       "supabase_functions_chat_inativo_index_lang",
@@ -611,6 +592,7 @@
       "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public",
       "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public_bloqueios",
       "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public_pedidos",
+      "supabase_sql_2026_11_15_preco_cotado_garantido_zz_anotacao_neto_garantido",
       "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas",
       "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_a_consulta_resgate_limpa_pedido",
       "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_fechar_consultas_site",
@@ -687,6 +669,17 @@
       "supabase_sql_2026_11_04_credito_guarda_o_passeio_public_virar_credito"
     ],
     "20": [
+      "supabase_functions_asaas_transferir_index",
+      "supabase_functions_asaas_transferir_index_api",
+      "supabase_functions_asaas_transferir_index_asaas",
+      "supabase_functions_asaas_transferir_index_avisar",
+      "supabase_functions_asaas_transferir_index_aviso",
+      "supabase_functions_asaas_transferir_index_brl",
+      "supabase_functions_asaas_transferir_index_cors",
+      "supabase_functions_asaas_transferir_index_db",
+      "supabase_functions_asaas_transferir_index_json",
+      "supabase_functions_asaas_transferir_index_key",
+      "supabase_functions_asaas_transferir_index_mascara",
       "supabase_functions_pedido_indisponivel_index",
       "supabase_functions_pedido_indisponivel_index_choca",
       "supabase_functions_pedido_indisponivel_index_cors",
@@ -1244,10 +1237,19 @@
       "supabase_sql_2026_11_18_funcao_pre_reservas_vencidas_public_pre_reservas_vencidas"
     ],
     "66": [
-      "supabase_sql_2026_10_30_asaas_validacao_saques",
-      "supabase_sql_2026_10_30_asaas_validacao_saques_asaas_validacoes_id",
-      "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_chaves",
-      "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_validacoes"
+      "ref_node_path",
+      "scripts_paginas",
+      "scripts_paginas_boatpath",
+      "scripts_paginas_c",
+      "scripts_paginas_esc",
+      "scripts_paginas_faqpreco",
+      "scripts_paginas_gerarpaginas",
+      "scripts_paginas_guiapath",
+      "scripts_paginas_guias",
+      "scripts_paginas_homepath",
+      "scripts_paginas_num",
+      "scripts_paginas_t",
+      "scripts_prerender_altg"
     ],
     "67": [
       "h",
@@ -1279,6 +1281,7 @@
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_tg_pedido_jetski",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_tg_pedido_jetski_segurado",
       "uid",
+      "v_id",
       "v_precos"
     ],
     "68": [
@@ -1318,17 +1321,16 @@
       "supabase_sql_2026_11_06_parceiro_pct_editavel"
     ],
     "76": [
-      "supabase_functions_asaas_transferir_index",
-      "supabase_functions_asaas_transferir_index_api",
-      "supabase_functions_asaas_transferir_index_asaas",
-      "supabase_functions_asaas_transferir_index_avisar",
-      "supabase_functions_asaas_transferir_index_aviso",
-      "supabase_functions_asaas_transferir_index_brl",
-      "supabase_functions_asaas_transferir_index_cors",
-      "supabase_functions_asaas_transferir_index_db",
-      "supabase_functions_asaas_transferir_index_json",
-      "supabase_functions_asaas_transferir_index_key",
-      "supabase_functions_asaas_transferir_index_mascara"
+      "ref_bubblewrap_core",
+      "ref_node_fs",
+      "scripts_android_gerar",
+      "scripts_android_gerar_m",
+      "scripts_android_gerar_web",
+      "scripts_ios_gerar",
+      "scripts_ios_gerar_web",
+      "scripts_itens_iguais",
+      "scripts_itens_iguais_erros",
+      "scripts_itens_iguais_pega"
     ],
     "77": [
       "supabase_functions_asaas_docs_index",
@@ -1491,8 +1493,7 @@
       "supabase_sql_2026_11_15_jetski_public_jetskis_site",
       "supabase_sql_2026_11_15_jetski_public_pode_editar_jetski_pasta",
       "supabase_sql_2026_11_15_jetski_public_pode_jetski",
-      "supabase_sql_2026_11_15_jetski_public_tg_jetski_uso_confere",
-      "v_id"
+      "supabase_sql_2026_11_15_jetski_public_tg_jetski_uso_confere"
     ],
     "85": [
       "supabase_sql_2026_11_14_buzios_a_mais_carnaval"
@@ -1552,6 +1553,11 @@
       "pd",
       "public_clientes",
       "public_convites",
+      "public_perfis",
+      "supabase_sql_2026_10_30_asaas_validacao_saques",
+      "supabase_sql_2026_10_30_asaas_validacao_saques_asaas_validacoes_id",
+      "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_chaves",
+      "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_validacoes",
       "supabase_sql_2026_10_30_papeis_operador_auditor",
       "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le",
       "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le_atend",
@@ -1713,13 +1719,19 @@
       "sem_negativo_limpa"
     ],
     "109": [
+      "a",
+      "anon",
+      "b",
       "cid",
       "ocupado",
+      "outro",
       "public_conversas",
       "public_mensagens",
       "public_pedidos",
       "supabase_sql_2026_11_15_jetski_pedido_public_mb_libera_sinal_sozinho",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_jetski_avisa_conflito",
+      "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela",
+      "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela_public_mover_passeio_v2",
       "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta",
       "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_a_msg_expirou_pre_reserva",
       "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_a_pre_reserva_prazo_vale",
@@ -1733,12 +1745,8 @@
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_tirar_jetski"
     ],
     "110": [
-      "a",
-      "anon",
-      "b",
       "bid",
       "c",
-      "outro",
       "pid",
       "public_anotacoes",
       "public_bloqueios",
@@ -1747,19 +1755,15 @@
       "public_marinheiros",
       "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono",
       "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono_public_auto_confirmar_fora",
-      "supabase_sql_2026_11_15_jetski_lucas_zz_anotacao_jetski_segura",
       "supabase_sql_2026_11_15_jetski_revisao_geral",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_jetski_do_passeio",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_jetski_min_txt",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_jetski_uso_confere",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_pedido_jetski_uso",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_virar_credito",
-      "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela",
-      "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela_public_mover_passeio_v2",
       "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao",
       "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_passeio_sem_manutencao",
       "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_public_passeio_sem_manutencao",
-      "supabase_sql_2026_11_15_preco_cotado_garantido_zz_anotacao_neto_garantido",
       "supabase_sql_2026_11_16_troca_solta_pre_reserva_anterior",
       "supabase_sql_2026_11_16_troca_solta_pre_reserva_anterior_public_aprovar_consulta",
       "supabase_sql_2026_11_16_troca_solta_pre_reserva_anterior_public_soltar_anterior_mesmo_cliente",
@@ -1791,7 +1795,6 @@
     ],
     "112": [
       "public_admins",
-      "public_perfis",
       "public_repasses_pp",
       "public_vendedores",
       "supabase_sql_2026_11_13_origem_da_reserva_public_origem_reserva",
@@ -1825,23 +1828,14 @@
       "supabase_functions_aviso_lucas_index_txt"
     ],
     "116": [
-      "ref_npm_supabase",
-      "supabase_functions_acesso_link_index",
-      "supabase_functions_acesso_link_index_cors",
-      "supabase_functions_acesso_link_index_db",
-      "supabase_functions_acesso_link_index_json",
       "supabase_functions_aviso_equipe_index",
       "supabase_functions_aviso_equipe_index_cors",
       "supabase_functions_aviso_equipe_index_db",
       "supabase_functions_aviso_equipe_index_json",
-      "supabase_functions_aviso_equipe_index_userbyemail",
-      "supabase_functions_aviso_preco_index",
-      "supabase_functions_aviso_preco_index_cors",
-      "supabase_functions_aviso_preco_index_db",
-      "supabase_functions_aviso_preco_index_json",
-      "supabase_functions_aviso_preco_index_t"
+      "supabase_functions_aviso_equipe_index_userbyemail"
     ],
     "117": [
+      "ref_node_crypto",
       "ref_node_zlib",
       "scripts_registros_exportar",
       "scripts_registros_exportar_a",
@@ -1937,6 +1931,14 @@
       "supabase_sql_2026_11_17_retencao_registros_5_anos_registros_exportados_trava",
       "supabase_sql_2026_11_17_retencao_registros_5_anos_registros_exportados_trava_tudo"
     ],
+    "131": [
+      "scripts_db_mudou",
+      "scripts_db_mudou_source",
+      "scripts_lanchas_db",
+      "scripts_lanchas_db_fotosdb",
+      "scripts_lanchas_db_lanchasdb",
+      "scripts_lanchas_db_precosdb"
+    ],
     "133": [
       "supabase_sql_2026_11_18_prazo_pre_reserva_nao_vence_de_madrugada",
       "supabase_sql_2026_11_18_prazo_pre_reserva_nao_vence_de_madrugada_public_prazo_pre_fim"
@@ -1963,6 +1965,7 @@
       "supabase_sql_2026_11_15_jetski_lucas_sql_c",
       "supabase_sql_2026_11_15_jetski_lucas_sql_public_bloqueios",
       "supabase_sql_2026_11_15_jetski_lucas_sql_public_consultas",
+      "supabase_sql_2026_11_15_jetski_lucas_zz_anotacao_jetski_segura",
       "supabase_sql_2026_11_16_jetski_lucas_revisao_seguranca",
       "supabase_sql_2026_11_16_jetski_lucas_revisao_seguranca_public_tg_anotacao_jetski_segura"
     ],
@@ -1975,25 +1978,25 @@
   "cohesion": {
     "0": 0.06531204644412192,
     "1": 0.0927536231884058,
-    "2": 0.050543637966500146,
+    "2": 0.050200803212851405,
     "3": 0.07312925170068027,
     "4": 0.11363636363636363,
     "5": 0.18666666666666668,
     "6": 0.0673758865248227,
     "7": 0.14,
-    "8": 0.05952380952380952,
-    "9": 0.13333333333333333,
+    "8": 0.1286549707602339,
+    "9": 0.09,
     "10": 0.08333333333333333,
     "11": 0.0625,
     "12": 0.09090909090909091,
     "13": 0.18681318681318682,
     "14": 0.42857142857142855,
     "15": 0.1523809523809524,
-    "16": 0.07422402159244265,
+    "16": 0.07179487179487179,
     "17": 0.1471861471861472,
     "18": 0.16483516483516483,
     "19": 0.15666666666666668,
-    "20": 0.17142857142857143,
+    "20": 0.09846153846153846,
     "21": 0.15384615384615385,
     "22": 0.15384615384615385,
     "23": 0.15384615384615385,
@@ -2039,8 +2042,8 @@
     "63": 0.5,
     "64": 1.0,
     "65": 0.175,
-    "66": 0.6666666666666666,
-    "67": 0.135632183908046,
+    "66": 0.21794871794871795,
+    "67": 0.12903225806451613,
     "68": 0.4,
     "69": 0.38095238095238093,
     "70": 1.0,
@@ -2049,7 +2052,7 @@
     "73": 1.0,
     "74": 1.0,
     "75": 1.0,
-    "76": 0.2545454545454545,
+    "76": 0.2,
     "77": 0.1032258064516129,
     "78": 0.046511627906976744,
     "79": 0.32142857142857145,
@@ -2057,7 +2060,7 @@
     "81": 0.42857142857142855,
     "82": 0.3333333333333333,
     "83": 0.15384615384615385,
-    "84": 0.1568627450980392,
+    "84": 0.16911764705882354,
     "85": 1.0,
     "86": 0.3333333333333333,
     "87": 1.0,
@@ -2066,7 +2069,7 @@
     "90": 1.0,
     "91": 0.5238095238095238,
     "92": 1.0,
-    "93": 0.13054187192118227,
+    "93": 0.1051693404634581,
     "94": 1.0,
     "95": 0.08695652173913043,
     "96": 1.0,
@@ -2082,15 +2085,15 @@
     "106": 0.6666666666666666,
     "107": 0.3333333333333333,
     "108": 0.6666666666666666,
-    "109": 0.1503267973856209,
-    "110": 0.0796221322537112,
+    "109": 0.10507246376811594,
+    "110": 0.10752688172043011,
     "111": 0.2967032967032967,
-    "112": 0.1794871794871795,
+    "112": 0.19696969696969696,
     "113": 1.0,
     "114": 0.3333333333333333,
     "115": 0.2857142857142857,
-    "116": 0.13333333333333333,
-    "117": 0.225,
+    "116": 0.4,
+    "117": 0.20588235294117646,
     "118": 0.24242424242424243,
     "119": 1.0,
     "120": 1.0,
@@ -2104,9 +2107,10 @@
     "128": 1.0,
     "129": 1.0,
     "130": 0.2777777777777778,
+    "131": 0.5333333333333333,
     "133": 1.0,
     "135": 0.3333333333333333,
-    "136": 0.1619047619047619,
+    "136": 0.15,
     "138": 0.6666666666666666
   },
   "gods": [
@@ -2126,6 +2130,11 @@
       "degree": 17
     },
     {
+      "id": "supabase_functions_asaas_index_asaas",
+      "label": "asaas()",
+      "degree": 14
+    },
+    {
       "id": "supabase_sql_2026_10_31_lembrete_do_sinal_public_cancelar_pre_reserva",
       "label": "public.cancelar_pre_reserva()",
       "degree": 14
@@ -2143,11 +2152,6 @@
     {
       "id": "login_sortable_min_x",
       "label": "X()",
-      "degree": 13
-    },
-    {
-      "id": "supabase_functions_asaas_index_asaas",
-      "label": "asaas()",
       "degree": 13
     },
     {
@@ -2222,7 +2226,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2231,8 +2235,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.trocar_horario_pedido()` connect `public.salvar_netos_v3` to `public.pp_vaga_h`?",
-      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?",
+      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2241,13 +2245,13 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?",
-      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
+      "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.origem_reserva`, `public.clientes`, `public.marcar_wa`?",
+      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
       "question": "Should `asaas/index.ts` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.050543637966500146 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.050200803212851405 - nodes in this community are weakly interconnected."
     },
     {
       "type": "low_cohesion",
