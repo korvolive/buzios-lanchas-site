@@ -1052,7 +1052,7 @@ const ROUTE_CREDITS = [
 const stopPhoto = i => ROUTE_PHOTOS.includes(i+1) ? `/img/rt-${String(i+1).padStart(2,"0")}` : null;
 /* mapa ilustrativo (vista aérea, img/mapa-buzios.jpg): um ponto numerado por parada; no computador, passar o mouse mostra a foto no canto */
 function routeMap(){
-  return `<div class="rt-stage"><img class="rt-map" draggable="false" src="/img/mapa-buzios-m.webp" srcset="/img/mapa-buzios-m.webp 800w, /img/mapa-buzios-l.webp 1200w, /img/mapa-buzios.webp 1600w" sizes="(max-width:760px) 92vw, 1600px" width="1600" height="1080" loading="lazy" alt="${t("routeMapAria")}">
+  return `<div class="rt-stage"><img class="rt-map" draggable="false" src="/img/mapa-buzios-m.webp" srcset="/img/mapa-buzios-m.webp 800w, /img/mapa-buzios.webp 1600w" sizes="(max-width:760px) 92vw, 1600px" width="1600" height="1080" loading="lazy" alt="${t("routeMapAria")}">
     ${ROUTE.map(([nm,x,y],i)=>`<button type="button" class="pin" data-stop="${i}" style="left:${x}%;top:${y}%" aria-label="${i+1}. ${nm}">${i+1}</button>`).join("")}</div>
     <div class="rt-zoom"><button type="button" data-z="1" aria-label="${t("zoomIn")}">+</button><button type="button" data-z="-1" aria-label="${t("zoomOut")}">−</button></div>
     <div class="rt-peek" aria-hidden="true"><img alt=""><b></b></div>`;

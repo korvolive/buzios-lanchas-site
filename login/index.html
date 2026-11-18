@@ -4491,7 +4491,7 @@ function saldoHTML(vend, dentro){ /* dentro: vai dentro da Área do vendedor/par
   const lib=L.filter(x=>x.liberado), tot=lib.reduce((a,x)=>a+(+x.valor||0),0), dep=L.filter(x=>!x.liberado).reduce((a,x)=>a+(+x.valor||0),0);
   const go = !S.asConta ? `<p class="msg err sdmsg">${t("sdSem")}</p><button type="button" class="btn" data-sdgo="${vend?"v":"d"}">${t("sdSemGo")}</button>`
     : d.status==="pendente" ? `<p class="msg err sdmsg">${(d.rejeitado?esc(asRejTxt(d)):t("sdDocs"))}</p><a class="btn" href="${esc(d.url)}" rel="noopener" data-asdoc>📷 ${t("asDocsGo")}</a>`
-    : d.status==="ok" ? `<p class="msg ok sdmsg">✓ ${t("sdOk")}</p>` : `<p class="muted sdmsg">⏳ ${t("sdAnal")}</p>`;
+    : d.status==="ok" ? `<p class="msg ok sdmsg">✓ ${t("sdOk")}</p>` : d.status==="analise" ? `<p class="muted sdmsg">⏳ ${t("sdAnal")}</p>` : `<p class="muted sdmsg">⏳ ${t("asDocsPrep")}</p>`; /* aguardando/sem: igual ao aviso do topo ("preparando"), não "em análise" (revisão 2026-11-18) */
   const st=!S.asConta?"sem":d.status==="pendente"?"pend":d.status==="ok"?"ok":"anal", q=sq?S.saque:null, carr=S.asConta===0 || (S.asConta && !S.asDocs); /* carregando: sem aviso nem selo, para não piscar */
   /* cartão com cara de banco (2026-10-28): o valor principal é o que já está na conta; se não tiver conta, o que está guardado na Búzios */
   const big = q ? +q.disponivel||0 : tot>0 ? tot : dep, lab = q ? t("sqNa") : tot>0 || !dep ? t("bkGuard") : t("bkDep");
@@ -5985,7 +5985,7 @@ function rpaHTML(){ const L=(S.rpa||[]).filter(r=>!r.enviando); if(!L.length) re
   const util=(d,n)=>{ const x=new Date(d); while(n>0){ x.setDate(x.getDate()+1); if(x.getDay()%6) n--; } return x; };
   const dm=x=>String(x.getDate()).padStart(2,"0")+"/"+String(x.getMonth()+1).padStart(2,"0");
   const chip=(c,txt)=>`<span class="rpachip rpa-${c}">${txt}</span>`;
-  const st=r=>[r.recebido===false?chip("esp",t("rpaStCartao",{d:dm(util(r.pago_em,2))})):"", !r.dono?chip("esp",t("rpaSemDono")):!r.tem_conta?chip("esp",t("rpaStConta")):r.recebido!==false?chip("ok",t("rpaStPronto")):""].join("");
+  const st=r=>[r.recebido===false?chip("esp",t("rpaStCartao",{d:r.previsto?dm(new Date(r.previsto+"T12:00:00")):dm(util(r.pago_em,2))})):"", !r.dono?chip("esp",t("rpaSemDono")):!r.tem_conta?chip("esp",t("rpaStConta")):r.recebido!==false?chip("ok",t("rpaStPronto")):""].join("");
   return `<div class="card" id="rpa"><style>
     #rpa h2{font-size:17px;margin:0 0 4px} #rpa .rpasub{font-size:13px;line-height:1.45;margin:0 0 12px}
     .rpai{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
@@ -6532,7 +6532,7 @@ function pvRep(r){
     : r.como==="asaas" ? t("pvAs",{d:pvD(r.quando)}) : r.como==="fora" ? t("pvFora",{d:pvD(r.quando)}) : r.como==="enviando" ? t("pvEnv")
     : r.motivo==="aguardando_credito" ? (r.previsto ? t("pvPendCred",{d:pvD(r.previsto)}) : t("pvPendCredS"))
     : (r.motivo==="conta_analise" ? t("pvPendAn") : r.motivo==="sem_conta" ? t("pvPendSem") : r.motivo==="paypal" ? t("pvPendPp") : r.tipo==="vendedor" ? t("pvPendVend") : t("pvPend")) + (r.previsto ? ` · ${t("pvPrevRep",{d:pvD(r.previsto)})}` : "");
-  return `<li><span><strong>${esc(quem)} · ${esc(r.nome)}</strong><br><small class="${r.ok||r.tipo!=="dono"?"muted":"pvwarn"}">${esc(como)}${r.saque?` · ${esc(t(r.saque.feito?"pvSacou":"pvSacando",{v:brl2(r.saque.valor),d:pvD(r.saque.quando)}))}`:""}</small></span><span class="pvr"><b>${brl2(r.valor)}</b>${r.comprovante?`<button type="button" class="btn sec pvb" data-pvc="${r.comprovante}">${t("pvComp")}</button>`:""}</span></li>`; }
+  return `<li><span><strong>${esc(quem)} · ${esc(r.nome)}</strong><br><small class="${r.ok||r.tipo!=="dono"?"muted":"pvwarn"}">${esc(como)}${r.saque?` · ${esc(t(r.saque.feito?"pvSacou":"pvSacando",{v:brl2(r.saque.valor),d:pvD(r.saque.quando)}))}`:""}</small></span><span class="pvr"><b>${brl2(r.valor)}</b>${r.comprovante?`<button type="button" class="btn sec pvb" data-pvc="${esc(r.comprovante)}">${t("pvComp")}</button>`:""}</span></li>`; }
 function pvCard(v){
   const k=`${v.pid}-${v.metodo}`, aberto=S.pvOpen?.has(k), parc=Array.isArray(v.parcelas)&&v.parcelas.length>1 ? v.parcelas : null;
   const taxa = v.liquido!=null && v.metodo!=="paypal" ? Math.max(0, Math.round((v.valor-v.liquido)*100)/100) : null;
