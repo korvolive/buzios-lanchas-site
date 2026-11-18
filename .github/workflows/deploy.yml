@@ -7,6 +7,11 @@ on:
   schedule:
     - cron: "*/10 * * * *" # lancha nova ou editada no app: publica sozinho (só quando o banco mudou)
 
+# um envio por vez (2026-11-18): um envio antigo que termina depois não sobrescreve o mais novo
+concurrency:
+  group: deploy-hostgator-${{ github.event_name == 'schedule' && 'auto' || 'push' }} # a verificação automática fica numa fila à parte para não tomar o lugar de um envio de push
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-24.04
