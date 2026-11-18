@@ -247,6 +247,7 @@
       "supabase_functions_dono_aprovacao_index_aprovado",
       "supabase_functions_dono_aprovacao_index_avisarcliente",
       "supabase_functions_dono_aprovacao_index_avisardonos",
+      "supabase_functions_dono_aprovacao_index_avisarresolvidas",
       "supabase_functions_dono_aprovacao_index_brl",
       "supabase_functions_dono_aprovacao_index_cors",
       "supabase_functions_dono_aprovacao_index_criarmodelos",
@@ -256,12 +257,14 @@
       "supabase_functions_dono_aprovacao_index_dig",
       "supabase_functions_dono_aprovacao_index_enviar",
       "supabase_functions_dono_aprovacao_index_es_ddi",
+      "supabase_functions_dono_aprovacao_index_fim_palavra",
       "supabase_functions_dono_aprovacao_index_hora",
       "supabase_functions_dono_aprovacao_index_json",
       "supabase_functions_dono_aprovacao_index_langcli",
       "supabase_functions_dono_aprovacao_index_lc",
       "supabase_functions_dono_aprovacao_index_mes",
       "supabase_functions_dono_aprovacao_index_mod_dono_ex",
+      "supabase_functions_dono_aprovacao_index_mod_fim_ex",
       "supabase_functions_dono_aprovacao_index_mod_indisp_ex",
       "supabase_functions_dono_aprovacao_index_mod_indisp_txt",
       "supabase_functions_dono_aprovacao_index_modelos",
@@ -380,11 +383,41 @@
       "sv"
     ],
     "8": [
+      "ref_bubblewrap_core",
       "ref_node_child_process",
+      "ref_node_crypto",
+      "ref_node_fs",
       "ref_node_http",
+      "ref_node_path",
       "ref_playwright",
+      "scripts_android_gerar",
+      "scripts_android_gerar_m",
+      "scripts_android_gerar_web",
+      "scripts_db_mudou",
+      "scripts_db_mudou_source",
+      "scripts_ios_gerar",
+      "scripts_ios_gerar_web",
+      "scripts_itens_iguais",
+      "scripts_itens_iguais_erros",
+      "scripts_itens_iguais_pega",
+      "scripts_lanchas_db",
+      "scripts_lanchas_db_fotosdb",
+      "scripts_lanchas_db_lanchasdb",
+      "scripts_lanchas_db_precosdb",
+      "scripts_paginas",
+      "scripts_paginas_boatpath",
+      "scripts_paginas_c",
+      "scripts_paginas_esc",
+      "scripts_paginas_faqpreco",
+      "scripts_paginas_gerarpaginas",
+      "scripts_paginas_guiapath",
+      "scripts_paginas_guias",
+      "scripts_paginas_homepath",
+      "scripts_paginas_num",
+      "scripts_paginas_t",
       "scripts_prerender",
       "scripts_prerender_alt",
+      "scripts_prerender_altg",
       "scripts_prerender_boaturl",
       "scripts_prerender_db_read",
       "scripts_prerender_fc",
@@ -516,6 +549,7 @@
       "precos",
       "precos_hist",
       "precos_neto",
+      "public_precos_neto",
       "rf",
       "supabase_sql_2026_11_12_troca_horario_pedido_public_trocar_horario_pedido",
       "supabase_sql_2026_11_12_troca_horario_pedido_sql_p",
@@ -525,7 +559,8 @@
       "supabase_sql_2026_11_13_carnaval_separado_public_epoca",
       "supabase_sql_2026_11_13_carnaval_separado_public_meus_netos",
       "supabase_sql_2026_11_13_carnaval_separado_public_salvar_netos_v3",
-      "supabase_sql_2026_11_13_carnaval_separado_public_valor_na_data"
+      "supabase_sql_2026_11_13_carnaval_separado_public_valor_na_data",
+      "supabase_sql_2026_11_16_bordazul_cadastro_dono_public_bz_faixa"
     ],
     "14": [
       "supabase_functions_clima_site_index",
@@ -669,17 +704,6 @@
       "supabase_sql_2026_11_04_credito_guarda_o_passeio_public_virar_credito"
     ],
     "20": [
-      "supabase_functions_asaas_transferir_index",
-      "supabase_functions_asaas_transferir_index_api",
-      "supabase_functions_asaas_transferir_index_asaas",
-      "supabase_functions_asaas_transferir_index_avisar",
-      "supabase_functions_asaas_transferir_index_aviso",
-      "supabase_functions_asaas_transferir_index_brl",
-      "supabase_functions_asaas_transferir_index_cors",
-      "supabase_functions_asaas_transferir_index_db",
-      "supabase_functions_asaas_transferir_index_json",
-      "supabase_functions_asaas_transferir_index_key",
-      "supabase_functions_asaas_transferir_index_mascara",
       "supabase_functions_pedido_indisponivel_index",
       "supabase_functions_pedido_indisponivel_index_choca",
       "supabase_functions_pedido_indisponivel_index_cors",
@@ -854,9 +878,14 @@
       "asaas_contas",
       "consultas",
       "creditos",
+      "lanchas",
       "pagamentos_asaas",
       "realizados",
       "repasses_pp",
+      "supabase_sql_2026_11_01_lancha_meio_pe",
+      "supabase_sql_2026_11_01_lancha_meio_pe_public_salvar_lancha",
+      "supabase_sql_2026_11_14_escunas_categoria",
+      "supabase_sql_2026_11_14_escunas_categoria_public_salvar_lancha",
       "supabase_sql_2026_11_14_repasse_asaas_pendentes",
       "supabase_sql_2026_11_14_repasse_asaas_pendentes_public_repasses_asaas_pendentes",
       "supabase_sql_2026_11_16_repasse_pendente_dono_e_cartao",
@@ -1237,19 +1266,17 @@
       "supabase_sql_2026_11_18_funcao_pre_reservas_vencidas_public_pre_reservas_vencidas"
     ],
     "66": [
-      "ref_node_path",
-      "scripts_paginas",
-      "scripts_paginas_boatpath",
-      "scripts_paginas_c",
-      "scripts_paginas_esc",
-      "scripts_paginas_faqpreco",
-      "scripts_paginas_gerarpaginas",
-      "scripts_paginas_guiapath",
-      "scripts_paginas_guias",
-      "scripts_paginas_homepath",
-      "scripts_paginas_num",
-      "scripts_paginas_t",
-      "scripts_prerender_altg"
+      "supabase_functions_asaas_transferir_index",
+      "supabase_functions_asaas_transferir_index_api",
+      "supabase_functions_asaas_transferir_index_asaas",
+      "supabase_functions_asaas_transferir_index_avisar",
+      "supabase_functions_asaas_transferir_index_aviso",
+      "supabase_functions_asaas_transferir_index_brl",
+      "supabase_functions_asaas_transferir_index_cors",
+      "supabase_functions_asaas_transferir_index_db",
+      "supabase_functions_asaas_transferir_index_json",
+      "supabase_functions_asaas_transferir_index_key",
+      "supabase_functions_asaas_transferir_index_mascara"
     ],
     "67": [
       "h",
@@ -1319,18 +1346,6 @@
     ],
     "75": [
       "supabase_sql_2026_11_06_parceiro_pct_editavel"
-    ],
-    "76": [
-      "ref_bubblewrap_core",
-      "ref_node_fs",
-      "scripts_android_gerar",
-      "scripts_android_gerar_m",
-      "scripts_android_gerar_web",
-      "scripts_ios_gerar",
-      "scripts_ios_gerar_web",
-      "scripts_itens_iguais",
-      "scripts_itens_iguais_erros",
-      "scripts_itens_iguais_pega"
     ],
     "77": [
       "supabase_functions_asaas_docs_index",
@@ -1418,12 +1433,25 @@
       "supabase_functions_asaas_chaves_girar_index_db",
       "supabase_functions_asaas_chaves_girar_index_de64",
       "supabase_functions_asaas_chaves_girar_index_fechar",
-      "supabase_functions_asaas_chaves_girar_index_json"
+      "supabase_functions_asaas_chaves_girar_index_json",
+      "supabase_functions_entrar_celular_index",
+      "supabase_functions_entrar_celular_index_contas",
+      "supabase_functions_entrar_celular_index_cors",
+      "supabase_functions_entrar_celular_index_db",
+      "supabase_functions_entrar_celular_index_dig",
+      "supabase_functions_entrar_celular_index_json",
+      "supabase_functions_entrar_celular_index_mascara",
+      "supabase_functions_whatsapp_webhook_index",
+      "supabase_functions_whatsapp_webhook_index_assinaturaok",
+      "supabase_functions_whatsapp_webhook_index_db",
+      "supabase_functions_whatsapp_webhook_index_es_ddi",
+      "supabase_functions_whatsapp_webhook_index_langof",
+      "supabase_functions_whatsapp_webhook_index_responder",
+      "supabase_functions_whatsapp_webhook_index_txt"
     ],
     "80": [
       "e",
       "public_precos",
-      "public_precos_neto",
       "r",
       "supabase_sql_2026_10_30_operador_um_toque_public_piso_operador",
       "supabase_sql_2026_10_30_operador_um_toque_public_valor_na_data",
@@ -1450,15 +1478,6 @@
       "supabase_sql_2026_11_14_transferir_saldo_teto",
       "supabase_sql_2026_11_14_transferir_saldo_teto_a_teto_diario",
       "supabase_sql_2026_11_14_transferir_saldo_teto_public_transferencia_teto"
-    ],
-    "82": [
-      "supabase_functions_entrar_celular_index",
-      "supabase_functions_entrar_celular_index_contas",
-      "supabase_functions_entrar_celular_index_cors",
-      "supabase_functions_entrar_celular_index_db",
-      "supabase_functions_entrar_celular_index_dig",
-      "supabase_functions_entrar_celular_index_json",
-      "supabase_functions_entrar_celular_index_mascara"
     ],
     "83": [
       "pg_tables",
@@ -1703,15 +1722,6 @@
       "supabase_sql_2026_11_16_telefone_padrao_public_tel_padrao",
       "supabase_sql_2026_11_16_telefone_padrao_public_tg_tel_padrao"
     ],
-    "107": [
-      "supabase_functions_whatsapp_webhook_index",
-      "supabase_functions_whatsapp_webhook_index_assinaturaok",
-      "supabase_functions_whatsapp_webhook_index_db",
-      "supabase_functions_whatsapp_webhook_index_es_ddi",
-      "supabase_functions_whatsapp_webhook_index_langof",
-      "supabase_functions_whatsapp_webhook_index_responder",
-      "supabase_functions_whatsapp_webhook_index_txt"
-    ],
     "108": [
       "sem_negativo",
       "sem_negativo_alvo",
@@ -1811,6 +1821,11 @@
       "supabase_sql_2026_11_17_nenhum_valor_negativo"
     ],
     "114": [
+      "supabase_functions_aviso_equipe_index",
+      "supabase_functions_aviso_equipe_index_cors",
+      "supabase_functions_aviso_equipe_index_db",
+      "supabase_functions_aviso_equipe_index_json",
+      "supabase_functions_aviso_equipe_index_userbyemail",
       "supabase_functions_paypal_fatura_index",
       "supabase_functions_paypal_fatura_index_cors",
       "supabase_functions_paypal_fatura_index_db",
@@ -1827,15 +1842,7 @@
       "supabase_functions_aviso_lucas_index_json",
       "supabase_functions_aviso_lucas_index_txt"
     ],
-    "116": [
-      "supabase_functions_aviso_equipe_index",
-      "supabase_functions_aviso_equipe_index_cors",
-      "supabase_functions_aviso_equipe_index_db",
-      "supabase_functions_aviso_equipe_index_json",
-      "supabase_functions_aviso_equipe_index_userbyemail"
-    ],
     "117": [
-      "ref_node_crypto",
       "ref_node_zlib",
       "scripts_registros_exportar",
       "scripts_registros_exportar_a",
@@ -1881,14 +1888,6 @@
       "supabase_sql_2026_11_17_documento_recusado_aviso",
       "supabase_sql_2026_11_17_documento_recusado_aviso_asaas_contas_reenvio_token"
     ],
-    "123": [
-      "lanchas",
-      "supabase_sql_2026_11_01_lancha_meio_pe",
-      "supabase_sql_2026_11_01_lancha_meio_pe_public_salvar_lancha",
-      "supabase_sql_2026_11_14_escunas_categoria",
-      "supabase_sql_2026_11_14_escunas_categoria_public_salvar_lancha",
-      "supabase_sql_2026_11_16_bordazul_cadastro_dono_public_bz_faixa"
-    ],
     "124": [
       "pg_trigger",
       "supabase_sql_2026_11_16_telefone_padrao_v2",
@@ -1931,14 +1930,6 @@
       "supabase_sql_2026_11_17_retencao_registros_5_anos_registros_exportados_trava",
       "supabase_sql_2026_11_17_retencao_registros_5_anos_registros_exportados_trava_tudo"
     ],
-    "131": [
-      "scripts_db_mudou",
-      "scripts_db_mudou_source",
-      "scripts_lanchas_db",
-      "scripts_lanchas_db_fotosdb",
-      "scripts_lanchas_db_lanchasdb",
-      "scripts_lanchas_db_precosdb"
-    ],
     "133": [
       "supabase_sql_2026_11_18_prazo_pre_reserva_nao_vence_de_madrugada",
       "supabase_sql_2026_11_18_prazo_pre_reserva_nao_vence_de_madrugada_public_prazo_pre_fim"
@@ -1980,23 +1971,23 @@
     "1": 0.0927536231884058,
     "2": 0.050200803212851405,
     "3": 0.07312925170068027,
-    "4": 0.11363636363636363,
+    "4": 0.11587301587301588,
     "5": 0.18666666666666668,
     "6": 0.0673758865248227,
     "7": 0.14,
-    "8": 0.1286549707602339,
+    "8": 0.05952380952380952,
     "9": 0.09,
     "10": 0.08333333333333333,
     "11": 0.0625,
     "12": 0.09090909090909091,
-    "13": 0.18681318681318682,
+    "13": 0.15833333333333333,
     "14": 0.42857142857142855,
     "15": 0.1523809523809524,
     "16": 0.07179487179487179,
     "17": 0.1471861471861472,
     "18": 0.16483516483516483,
     "19": 0.15666666666666668,
-    "20": 0.09846153846153846,
+    "20": 0.17142857142857143,
     "21": 0.15384615384615385,
     "22": 0.15384615384615385,
     "23": 0.15384615384615385,
@@ -2007,7 +1998,7 @@
     "28": 0.2222222222222222,
     "29": 0.2222222222222222,
     "30": 0.2222222222222222,
-    "31": 0.19230769230769232,
+    "31": 0.13071895424836602,
     "32": 0.17142857142857143,
     "33": 0.13333333333333333,
     "34": 0.25,
@@ -2042,7 +2033,7 @@
     "63": 0.5,
     "64": 1.0,
     "65": 0.175,
-    "66": 0.21794871794871795,
+    "66": 0.2545454545454545,
     "67": 0.12903225806451613,
     "68": 0.4,
     "69": 0.38095238095238093,
@@ -2052,13 +2043,11 @@
     "73": 1.0,
     "74": 1.0,
     "75": 1.0,
-    "76": 0.2,
     "77": 0.1032258064516129,
     "78": 0.046511627906976744,
-    "79": 0.32142857142857145,
-    "80": 0.11052631578947368,
+    "79": 0.09956709956709957,
+    "80": 0.11695906432748537,
     "81": 0.42857142857142855,
-    "82": 0.3333333333333333,
     "83": 0.15384615384615385,
     "84": 0.16911764705882354,
     "85": 1.0,
@@ -2083,23 +2072,20 @@
     "104": 1.0,
     "105": 0.8333333333333334,
     "106": 0.6666666666666666,
-    "107": 0.3333333333333333,
     "108": 0.6666666666666666,
     "109": 0.10507246376811594,
     "110": 0.10752688172043011,
     "111": 0.2967032967032967,
     "112": 0.19696969696969696,
     "113": 1.0,
-    "114": 0.3333333333333333,
+    "114": 0.16363636363636364,
     "115": 0.2857142857142857,
-    "116": 0.4,
-    "117": 0.20588235294117646,
+    "117": 0.225,
     "118": 0.24242424242424243,
     "119": 1.0,
     "120": 1.0,
     "121": 1.0,
     "122": 0.6666666666666666,
-    "123": 0.3333333333333333,
     "124": 0.4,
     "125": 0.2857142857142857,
     "126": 1.0,
@@ -2107,7 +2093,6 @@
     "128": 1.0,
     "129": 1.0,
     "130": 0.2777777777777778,
-    "131": 0.5333333333333333,
     "133": 1.0,
     "135": 0.3333333333333333,
     "136": 0.15,
@@ -2135,6 +2120,11 @@
       "degree": 14
     },
     {
+      "id": "supabase_functions_dono_aprovacao_index_avisardonos",
+      "label": "avisarDonos()",
+      "degree": 14
+    },
+    {
       "id": "supabase_sql_2026_10_31_lembrete_do_sinal_public_cancelar_pre_reserva",
       "label": "public.cancelar_pre_reserva()",
       "degree": 14
@@ -2152,11 +2142,6 @@
     {
       "id": "login_sortable_min_x",
       "label": "X()",
-      "degree": 13
-    },
-    {
-      "id": "supabase_functions_dono_aprovacao_index_avisardonos",
-      "label": "avisarDonos()",
       "degree": 13
     },
     {
@@ -2226,7 +2211,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2235,8 +2220,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?",
-      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+      "question": "Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.anotacoes`, `public.clientes`, `public.anotacoes`, `public._ligar_passeio`, `b`, `public.bloqueios`, `public.ativar_conta_cliente`?",
+      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2246,7 +2231,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.origem_reserva`, `public.clientes`, `public.marcar_wa`?",
-      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
