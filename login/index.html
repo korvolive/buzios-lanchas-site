@@ -670,7 +670,8 @@ html{overflow-x:hidden}@supports (overflow:clip){html,body{overflow-x:clip}}
 html body main#app{max-width:min(560px,100vw)}
 /* planilhas no computador (Rodrigo 2026-11-18): a de passeios usa a largura toda da tela; a de vendas abre mais larga. Celular fica igual */
 html body main#app:has(#plan){max-width:100vw}
-@media (min-width:900px){html body main#app:has(#pvbox){max-width:min(960px,100vw)}}
+/* só a planilha de vendas sai mais larga; o painel e o menu de abas continuam no tamanho de sempre (Rodrigo 2026-11-18) */
+@media (min-width:900px){#pvbox{width:min(928px,calc(100vw - 32px));margin-left:50%;transform:translateX(-50%)}}
 /* abas do administrador em 2 linhas (2026-11-18): ícone com contador no celular; nome quando cabe; uma linha só quando tudo cabe */
 html body .tabs.adm2{display:flex;flex-wrap:wrap}
 html body .tabs.adm2>button{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:3px;padding:10px 2px;font-size:14px;white-space:nowrap;overflow:hidden}
