@@ -2898,8 +2898,8 @@ function home(){
     </div>
     ${vendCard(null)}
     <div class="car-nav"${list.length>1?"":" hidden"}><span class="car-count" aria-live="polite"></span><div class="car-track" aria-hidden="true"><i></i></div><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" disabled>‹</button><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
-      ${list.map(b=>`
-        <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
+      ${list.map((b,i)=>`
+        <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" data-o="${i}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           <span class="c-rw" data-rate="${b.slug}" hidden><span class="c-rate" role="button" tabindex="0" aria-expanded="false"></span><span class="c-rev"></span></span>
           ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
@@ -3112,19 +3112,33 @@ function cardPreco(c, b, dias){
   const d = de===ate ? fmtShort(de) : t("cardRange",{de:fmtShort(de),ate:fmtShort(ate)});
   el.innerHTML=`<span>${t(ME&&!VEND?"vendOn":"cardOn",{d})}${mn<mx?" · "+t("cardFrom"):""}</span><br><strong>${money(mn)}</strong>`;
 }
+/* ordem da vitrine com filtro (Rodrigo 2026-11-18): sem filtro vale a ordem do app (data-o); com qualquer filtro (data ou pessoas)
+   a destaque (Miss Bardot) continua em primeiro e as outras vão da mais barata para a mais cara, sozinhas.
+   Preço = o mesmo valor de 4h que o card mostra: com data, o da data (ou o menor dos dias livres do período); sem data, o "a partir de" (menor 4h do ano) */
+function ordenaCards(cards, preco){
+  const g=cards[0]?.parentNode; if(!g) return;
+  const o=c=>+c.dataset.o, feat=c=>c.classList.contains("feat")?0:1, v=c=>preco&&preco.get(c)>0?preco.get(c):Infinity;
+  const ord = cards.slice().sort((a,b)=> preco ? (feat(a)-feat(b)) || (v(a)-v(b)) || (o(a)-o(b)) : o(a)-o(b));
+  if(ord.every((c,i)=>g.children[i]===c)) return;
+  ord.forEach(c=>g.appendChild(c));
+}
 async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
   if(+when.people>maxCap()) when.people=""; /* grupo maior que a maior lancha (veio pelo endereço): mostra todas em vez de nenhuma */
   const cards=[...app.querySelectorAll(".card[data-boat]")], d=when.de, np=+when.people, key=when.de+when.ate+when.people;
-  if(!d && !np){ cards.forEach(c=>{ c.hidden=false; cardPreco(c,null,null); }); res.textContent=""; carSync(true); return; }
+  if(!d && !np){ cards.forEach(c=>{ c.hidden=false; cardPreco(c,null,null); }); ordenaCards(cards,null); res.textContent=""; carSync(true); return; }
   if(d) res.textContent=t("checking");
   const busy = d ? await loadAgenda() : null; if(key!==when.de+when.ate+when.people) return;
-  let n=0; cards.forEach(c=>{ const b=BOATS.find(x=>x.slug===c.dataset.boat);
+  let n=0; const preco=new Map(); cards.forEach(c=>{ const b=BOATS.find(x=>x.slug===c.dataset.boat);
     const free = d && firstFree(busy,b);
     c.hidden = !!((np && b.capacity<np) || (d && !free)); if(!c.hidden) n++;
     /* o link leva ao primeiro dia livre do período; lá a pessoa escolhe o dia e o horário exatos */
     if(free){ const u=new URL(c.href); u.searchParams.set("data",free); c.href=u.pathname+u.search; }
-    cardPreco(c, b, d && free ? periodDays().filter(x=>!isBusy(busyOn(busy,b,x),"",x)) : null); });
+    const dias = d && free ? periodDays().filter(x=>!isBusy(busyOn(busy,b,x),"",x)) : null;
+    cardPreco(c, b, dias);
+    const vs=(dias||[]).map(x=>cardDia(b,x)).filter(v=>v>0);
+    preco.set(c, vs.length ? Math.min(...vs) : minCli(b)); });
+  ordenaCards(cards, preco);
   carSync(true);
   const people = np ? peopleLabel(np) : "";
   const ate=when.ate||d, range = !d ? "" : ate===d ? t("rangeOne",{d:fmtShort(d)}) : t("rangeTwo",{de:fmtShort(d),ate:fmtShort(ate)});
