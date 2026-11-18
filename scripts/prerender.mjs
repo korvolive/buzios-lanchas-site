@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { lanchasDB, precosDB, fotosDB } from "./lanchas-db.mjs";
+import { lanchasDB, precosDB, fotosDB, iaDB } from "./lanchas-db.mjs";
 import { gerarPaginas, guiaPath } from "./paginas.mjs";
 import { chromium } from "playwright";
 
@@ -17,7 +17,7 @@ let SOURCE = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const SITE = SOURCE.match(/const SITE = (?:CID \? CID\.site : )?"([^"]+)"/)[1];
 /* lanchas cadastradas no app ficam no banco (Supabase): a página lê lanchas, fotos, valores e itens de lá */
 const DB = SOURCE.match(/const AGENDA_URL = "([^"]+)\/bloqueios"/)[1], KEY = SOURCE.match(/const AGENDA_KEY = "([^"]+)"/)[1];
-const DB_READ = new RegExp("^" + DB.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "/(lanchas|fotos|precos|itens)\\?");
+const DB_READ = new RegExp("^" + DB.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "/(lanchas|fotos|precos|itens|lanchas_ia)\\?");
 const LANGS = ["pt", "en", "es"];
 const pathFor = (l, slug) => (l === "pt" ? "/" : `/${l}/`) + (slug ? `lancha/${slug}/` : "");
 const TYPES = { ".jpg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".mp4": "video/mp4" };
@@ -41,7 +41,7 @@ const page = await browser.newPage();
 await page.addInitScript(() => { window.PRERENDER = true; }); /* o site gera também a página da lancha oculta */
 /* fontes e outros endereços externos não são necessários para gerar o HTML */
 await page.route("**/*", r => (r.request().url().startsWith(base) || (r.request().method() === "GET" && DB_READ.test(r.request().url())) ? r.continue() : r.abort()));
-const ready = () => page.waitForFunction(() => window.dbBoatsDone && window.precosDone && window.fotosDone, null, { timeout: 30000 })
+const ready = () => page.waitForFunction(() => window.dbBoatsDone && window.precosDone && window.fotosDone && window.iaDone, null, { timeout: 30000 })
   .then(() => page.waitForLoadState("networkidle", { timeout: 10000 })).catch(() => {});
 
 const pages = [];
@@ -57,7 +57,7 @@ async function snap(l, slug) {
     document.documentElement.dataset.pub = [...BOATS, ...[...HIDDEN.values()].map(x => x.b)].filter(b => b.db).map(b => b.slug).join(",");
     document.documentElement.dataset.hide = HIDE_LIST.join(","); /* ocultas pelo administrador: a página existe, mas não aparece */
     /* dados do banco desta publicação: a visita já abre com eles e não precisa redesenhar a página quando o banco responde */
-    const F = ["name", "feet", "capacity", "tagline", "description", "i18n", "boarding", "db", "prices", "prices7", "semFer", "pf", "pr", "pr7", "pc", "pc7", "cx", "cx7", "ds", "esp", "rx", "rx7", "photos", "pos"];
+    const F = ["name", "feet", "capacity", "tagline", "description", "i18n", "boarding", "db", "prices", "prices7", "semFer", "pf", "pr", "pr7", "pc", "pc7", "cx", "cx7", "ds", "esp", "rx", "rx7", "photos", "pos", "ia"];
     const snapDB = BOATS.map(b => b.dbNew ? b : Object.fromEntries(F.filter(k => b[k] !== undefined).map(k => [k, b[k]]).concat([["slug", b.slug]])));
     const js = document.createElement("script"); js.type = "application/json"; js.id = "dbsnap";
     js.textContent = JSON.stringify(snapDB).replace(/</g, "\\u003c"); document.head.appendChild(js);
@@ -170,5 +170,5 @@ fs.writeFileSync(path.join(ROOT, "llms.txt"), [
 const rows = await lanchasDB(DB, KEY);
 const ativas = rows ? JSON.parse(rows).filter(r => r.ativa && r.dados?.capacidade).map(r => r.slug).sort().join() : null;
 const ok = rows && ativas === [...dbSlugs].sort().join();
-fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows + (await precosDB(DB, KEY)) + (await fotosDB(DB, KEY))).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
+fs.writeFileSync(path.join(ROOT, "lanchas-db.json"), JSON.stringify({ h: ok ? crypto.createHash("sha256").update(rows + (await precosDB(DB, KEY)) + (await fotosDB(DB, KEY)) + (await iaDB(DB, KEY))).digest("hex") : "erro", lanchas: dbSlugs }) + "\n");
 console.log(`${pages.length} páginas, sitemap.xml e llms.txt gerados; lanchas do app: ${dbSlugs.join(", ") || "nenhuma"}${ok ? "" : " (banco não conferiu: publica de novo na próxima verificação)"}`);

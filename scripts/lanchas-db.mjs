@@ -19,3 +19,8 @@ export async function precosDB(DB, KEY) {
 export async function fotosDB(DB, KEY) {
   return fetch(DB + "/fotos?select=lancha,lista&order=lancha", { headers: { apikey: KEY } }).then(r => (r.ok ? r.text() : "")).catch(() => "");
 }
+/* Textos do Claude (tabela lanchas_ia, 2026-11-18): texto do Google, resumo das avaliações e texto das fotos; mudou, republica.
+   Tabela ainda inexistente ou sem resposta: "" (não muda a marca) */
+export async function iaDB(DB, KEY) {
+  return fetch(DB + "/lanchas_ia?select=slug,seo,resumo,alt&order=slug", { headers: { apikey: KEY } }).then(r => (r.ok ? r.text() : "")).catch(() => "");
+}

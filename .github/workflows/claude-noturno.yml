@@ -1,0 +1,48 @@
+name: Tarefas do Claude (noturno)
+
+# Usa os créditos de API do Claude em segundo plano: traduz descrições das lanchas (pt -> en/es),
+# escreve o texto para o Google, o texto das fotos e o resumo das avaliações (scripts/claude-noturno.mjs).
+# Não roda no site: se a chave faltar ou a API falhar, só pula e o site fica como está.
+# Segredos: ANTHROPIC_API_KEY (console.anthropic.com) e SUPABASE_ACCESS_TOKEN. Sem a chave, fica desligado.
+# Teto de gasto: LIMITE_MES_USD (padrão US$ 60 por mês); ao chegar nele, para até o mês seguinte.
+
+on:
+  schedule:
+    - cron: "40 6 * * *" # 03:40 em Brasília
+  workflow_dispatch:
+    inputs:
+      tarefas:
+        description: "Quais (traducao, seo, alt, resumo). Vazio = todas."
+        required: false
+        default: ""
+      simular:
+        description: "Simular (mostra o resultado sem gravar)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: claude-noturno
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  tarefas:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar o SDK da Anthropic
+        run: npm install --no-save --no-audit --no-fund @anthropic-ai/sdk@1.8.0
+      - name: Rodar
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          TAREFAS: ${{ github.event.inputs.tarefas }}
+          SIMULAR: ${{ github.event.inputs.simular == 'true' && '1' || '' }}
+          LIMITE_MES_USD: ${{ vars.LIMITE_MES_USD || '60' }}
+        run: node scripts/claude-noturno.mjs
