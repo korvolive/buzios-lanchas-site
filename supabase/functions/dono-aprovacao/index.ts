@@ -57,6 +57,11 @@ const langCli = (c: any, to: string) => ["pt", "en", "es"].includes(c.lang) && !
 const MOD_DONO = "dono_aprovar_reserva";
 const MOD_DONO_TXT = "Nova pré-reserva para a {{1}}: {{2}}, {{3}}, {{4}} pessoas. Valor para você: {{5}}.\n\nA embarcação está livre nesse horário? Toque no botão abaixo para aprovar. Se não estiver, você também pode avisar por lá.";
 const MOD_DONO_EX = ["Midas", "20 de novembro", "14:00 às 18:00", "8", "R$ 2.000"];
+// a pré-reserva já foi resolvida pela Búzios Lanchas antes do dono responder: ele fica sabendo e não precisa fazer nada
+const MOD_FIM = "dono_reserva_resolvida";
+const MOD_FIM_TXT = "A pré-reserva da {{1}} para {{2}}, {{3}}, já foi {{4}} pela Búzios Lanchas. Não precisa fazer mais nada nesse pedido.";
+const MOD_FIM_EX = ["Midas", "20 de novembro", "14:00 às 18:00", "aprovada"];
+const FIM_PALAVRA: Record<string, string> = { aprovada: "aprovada", recusada: "cancelada", resolvida: "resolvida" };
 const MOD_INDISP = "reserva_indisponivel";
 const MOD_INDISP_TXT: Record<string, string> = {
   pt_BR: "Olá, {{1}}. Infelizmente a embarcação {{2}} acabou sendo reservada por outro cliente para {{3}} e não está mais disponível nesse horário. Responda esta mensagem que mostramos as outras opções livres para essa data.",
@@ -98,6 +103,17 @@ async function criarModelos(key: string, ts: any[] | null, cfg: any) {
         ] }),
       });
       console.log("modelo dono criado", c.status, c.ok ? "" : (await c.text()).slice(0, 300));
+    }
+  }
+  if (velho(cfg.fim_modelo_em)) {
+    cfg.fim_modelo_em = agora;
+    await db.from("resgate_config").update({ fim_modelo_em: agora }).eq("id", 1);
+    if (!tem(MOD_FIM, "pt_BR")) {
+      const c = await fetch(`${D360}/v1/configs/templates`, {
+        method: "POST", headers: { "D360-API-KEY": key, "content-type": "application/json" },
+        body: JSON.stringify({ name: MOD_FIM, category: "UTILITY", language: "pt_BR", components: [{ type: "BODY", text: MOD_FIM_TXT, example: { body_text: [MOD_FIM_EX] } }] }),
+      });
+      console.log("modelo resolvida criado", c.status, c.ok ? "" : (await c.text()).slice(0, 300));
     }
   }
   if (velho(cfg.indisp_modelo_em)) {
@@ -172,16 +188,17 @@ async function avisarDonos(cfg: any) {
   const agora = Date.now(), br = new Date(agora - 3 * 3600e3), hBR = br.getUTCHours(), hoje = br.toISOString().slice(0, 10);
   if (hBR < 7 || hBR >= 22) return { fora_do_horario: true };
   // modelos cadastrados antes do primeiro pedido, para a Meta já ter aprovado quando precisar (confere 1 vez a cada 24 h)
-  if (velho(cfg.dono_modelo_em) || velho(cfg.indisp_modelo_em)) {
+  if (velho(cfg.dono_modelo_em) || velho(cfg.indisp_modelo_em) || velho(cfg.fim_modelo_em)) {
     const k = await d360Key();
     if (k) await criarModelos(k, await modelos(k), cfg).catch(e => console.error("criar modelos", e));
   }
+  const fim = await avisarResolvidas().catch(e => (console.error("resolvidas", e), -1));
   const { data: cs, error } = await db.from("consultas")
     .select("id, lancha, data, horario, hora_ini, hora_fim, pessoas, telefone, neto_garantido, grupo, criado_em")
     .not("criado_por", "is", null).is("recusada_em", null).is("virou_pedido_em", null).is("grupo", null)
     .gte("data", hoje).gte("criado_em", new Date(agora - 864e5).toISOString()).order("id").limit(30);
   if (error) throw error;
-  if (!cs?.length) return { pendentes: 0 };
+  if (!cs?.length) return { pendentes: 0, resolvidas: fim };
   const slugs = [...new Set(cs.map(c => c.lancha))];
   const { data: ls } = await db.from("lanchas").select("slug, nome, reserva_auto").in("slug", slugs);
   const L = new Map((ls || []).map(l => [l.slug, l]));
@@ -231,6 +248,48 @@ async function avisarDonos(cfg: any) {
     if (ok) { n++; console.log("aviso dono ok", c.id); }
   }
   return { pendentes: cs.length, enviados: n, app: np, modelo: wa ? "aprovado" : "esperando a Meta" };
+}
+
+// ---------- dono avisado quando a Búzios Lanchas resolveu antes dele (Rodrigo 2026-11-18) ----------
+// Aviso que já saiu, dono ainda não respondeu e a consulta foi aprovada, recusada ou fechada pela equipe: avisa uma vez
+// (celular se tiver o app; WhatsApp pelo modelo dono_reserva_resolvida, ou texto livre enquanto a Meta não aprova o modelo).
+async function avisarResolvidas() {
+  const { data: rs, error } = await db.from("aprovacoes_dono").select("id, token, dono, lancha, data, horario, consulta_id")
+    .is("resposta", null).is("fim_avisado_em", null).not("enviado_em", "is", null)
+    .gte("criado_em", new Date(Date.now() - 3 * 864e5).toISOString()).order("id").limit(20);
+  if (error) throw error;
+  if (!rs?.length) return 0;
+  let key = "", ts: any[] | null = null, n = 0;
+  for (const a of rs) {
+    const v = (await db.rpc("dono_aprovacao_ver", { tok: a.token })).data;
+    const est = v?.estado;
+    if (est === "pendente") continue;
+    // marca antes de mandar: não repete se o cron rodar duas vezes
+    const { data: up } = await db.from("aprovacoes_dono").update({ fim_avisado_em: new Date().toISOString(), fim_estado: est })
+      .eq("id", a.id).is("fim_avisado_em", null).select("id");
+    if (!up?.length || !FIM_PALAVRA[est]) continue; // vencida ou link inválido: nada a avisar
+    const nomeL = v.lancha || await nomeLancha(a.lancha), quando = hora({ ...a, hora_ini: v.hora_ini, hora_fim: v.hora_fim }, "pt"), dia = dataLonga(a.data, "pt");
+    const pal = FIM_PALAVRA[est];
+    const p = await push([a.dono], () => ({ title: `Pré-reserva já ${pal}: ${nomeL}`,
+      body: `${dia}, ${quando}. A Búzios Lanchas já resolveu esse pedido. Não precisa fazer mais nada.` }),
+      `/aprovar/?t=${a.token}`, `dono_aprov-${a.consulta_id}`).catch(() => 0);
+    const { data: pf } = await db.from("perfis").select("telefone").eq("user_id", a.dono).maybeSingle();
+    const to = waNum(pf?.telefone);
+    let w = "";
+    if (to) {
+      if (!key) { key = await d360Key(); ts = key ? await modelos(key) : null; }
+      if (key) {
+        const txt = `A pré-reserva da ${nomeL} para ${dia}, ${quando}, já foi ${pal} pela Búzios Lanchas. Não precisa fazer mais nada nesse pedido.`;
+        // o modelo chega sempre; o texto livre só chega se o dono falou com o número nas últimas 24 h (por isso fica de reserva)
+        if (aprovado(ts, MOD_FIM, "pt_BR")) w = await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
+          template: { name: MOD_FIM, language: { code: "pt_BR" }, components: [{ type: "body", parameters: [nomeL, dia, quando, pal].map(text => ({ type: "text", text })) }] } }) ? "modelo" : "modelo_falhou";
+        else w = await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "text", text: { body: txt, preview_url: false } }) ? "texto" : "texto_falhou";
+      }
+    }
+    await db.from("aprovacoes_dono").update({ fim_estado: `${est}:${[w, p ? "app" : ""].filter(Boolean).join("+") || "nada"}` }).eq("id", a.id);
+    n++;
+  }
+  return n;
 }
 
 // ---------- cliente avisado quando o dono recusa ----------
@@ -315,7 +374,7 @@ Deno.serve(async req => {
     if (!cfg?.chave || req.headers.get("x-chave") !== cfg.chave) return json({ erro: "nao" }, 401);
     if (b?.teste === "modelos") {
       const key = await d360Key(); const ts = key ? await modelos(key) : null;
-      return json({ modelos: (ts || []).filter(x => [MOD_DONO, MOD_INDISP].includes(x?.name)).map(x => ({ name: x.name, language: x.language, status: x.status, category: x.category, rejected_reason: x.rejected_reason || null })) });
+      return json({ modelos: (ts || []).filter(x => [MOD_DONO, MOD_INDISP, MOD_FIM].includes(x?.name)).map(x => ({ name: x.name, language: x.language, status: x.status, category: x.category, rejected_reason: x.rejected_reason || null })) });
     }
     if (cfg.dono_aprov_ativo === false) return json({ ok: true, ativo: false });
     return json({ ok: true, ...(await avisarDonos(cfg)) });

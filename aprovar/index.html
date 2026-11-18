@@ -99,9 +99,11 @@ function fim(d, tipo, titulo, sub){
 function mostra(d){
   const e = d && d.estado;
   if(e === "pendente"){ $("dados").innerHTML = cartao(d); $("carregando").classList.add("hide"); $("pendente").classList.remove("hide"); return; }
-  if(e === "aprovada") return fim(d, "ok", "Essa reserva já foi aprovada.", "Não precisa fazer mais nada. Obrigado!");
-  if(e === "recusada") return fim(d, "no", "Essa reserva já foi cancelada.", "Não precisa fazer mais nada.");
-  if(e === "resolvida") return fim(d, "", "Essa reserva já foi resolvida.", "Não precisa fazer mais nada.");
+  /* resposta = o que o próprio dono respondeu; sem resposta, quem resolveu foi a Búzios Lanchas (Rodrigo 2026-11-18) */
+  const eu = d && d.resposta;
+  if(e === "aprovada") return fim(d, "ok", eu === "aprovou" ? "Você já aprovou essa reserva." : "Essa reserva já foi aprovada pela Búzios Lanchas.", "Não precisa fazer mais nada. Obrigado!");
+  if(e === "recusada") return fim(d, "no", eu === "recusou" ? "Você já avisou que não está disponível." : "Essa reserva já foi cancelada pela Búzios Lanchas.", "Não precisa fazer mais nada.");
+  if(e === "resolvida") return fim(d, "", eu === "aprovou" ? "Você já aprovou essa reserva." : "Essa reserva já foi resolvida pela Búzios Lanchas.", "Não precisa fazer mais nada.");
   if(e === "vencida") return fim(d, "", "A data dessa reserva já passou.", "");
   return fim(null, "no", "Link inválido.", "Se precisar, fale com a Búzios Lanchas.");
 }
