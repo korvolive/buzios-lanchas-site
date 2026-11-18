@@ -461,6 +461,7 @@ a[data-gsi]{position:relative;overflow:hidden}.gsio{position:absolute;inset:0;op
 .stars{color:var(--brass);letter-spacing:2px;font-size:15px}
 .b-reviews{margin:30px 0 0}.gbadge{font-family:Arial,sans-serif;font-weight:800;color:#4285f4}
 .gcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:14px;min-width:0}
+.gresumo{margin:14px 0 0;padding-bottom:14px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.55}.gresumo b{color:var(--ink,inherit)}
 .gsum{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .gscore{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:center}
 .gscore strong{grid-row:span 2;font:800 46px/1 var(--display);color:var(--ink)}
@@ -2225,7 +2226,7 @@ function loadGRevs(b){
     const ini = n => (String(n).replace(/<[^>]*>/g,"").trim()[0]||"?").toUpperCase(), cores = ["#1a73e8","#0b8043","#c5221f","#8e24aa","#e37400","#00796b"];
     box.className="block b-reviews b-google"; box.innerHTML = `<h2>${t("reviewsTitle")}</h2><div class="gcard">
       <div class="gsum"><div class="gscore"><strong>${mtxt}</strong><span class="stars" aria-hidden="true">${st(Math.round(media))}</span><small>${t(list.length===1?"gRevCnt1":"gRevCnt",{n:list.length})}</small></div>
-        <a class="gbtn" href="${gUrl}" target="_blank" rel="noopener"><b class="gbadge">G</b>${t("gRevAll")}</a></div>
+        <a class="gbtn" href="${gUrl}" target="_blank" rel="noopener"><b class="gbadge">G</b>${t("gRevAll")}</a></div>${iaTx(b.ia?.resumo) ? `<p class="gresumo"><b>${{pt:"Em resumo:",en:"In short:",es:"En resumen:"}[lang]||"Em resumo:"}</b> ${esc(iaTx(b.ia.resumo))}</p>` : ""}
       <ul class="reviews">${list.slice(0,40).map((x,i)=>`<li><div class="gwho"><span class="gav" style="background:${cores[x.n.length%cores.length]}" aria-hidden="true">${ini(x.n)}</span><span><b>${x.n}</b>${x.d?`<small>${mes(x.d)}</small>`:""}</span><b class="gbadge" title="Google">G</b></div><span class="stars" aria-label="${t("siteRevStars",{n:x.k})}">${st(x.k)}</span>${x.q?`<q>${x.q}</q><button type="button" class="gmore" data-gk="${b.slug}:${i}" hidden>${t("gMore")}</button>`:""}</li>`).join("")}</ul></div>`;
     /* texto longo (2026-11-04): cartão com altura limitada, "Ler mais" abre o texto todo */
     /* aberto continua aberto quando a página se redesenha (revisão 2026-11-05); data-gk dá a cada botão uma identidade própria para o toque seguro */
@@ -3101,7 +3102,7 @@ function headTag(sel,tag,attrs){
 }
 function seo(b){
   const title = b ? t(isEsc(b)?"seoEscTitle":"seoBoatTitle",{name:b.name, feet:ftx(b)??"", cap:b.capacity}) : t("seoTitle");
-  const desc = b ? `${bt(b,"tagline")} ${t("seoBoatTail")}` : t("seoDesc");
+  const desc = b ? (iaTx(b.ia?.seo) || `${bt(b,"tagline")} ${t("seoBoatTail")}`) : t("seoDesc"); /* texto escrito pelo Claude à noite (lanchas_ia), se houver */
   const url = SITE + pathFor(lang, b?.slug);
   const img = absImg((b?.photos||BOATS[0]?.photos||["/img/rt-08.jpg"])[0]);
   /* iPhone no Safari: "Adicionar à Tela de Início" usa o título da página como nome do app */
@@ -3288,7 +3289,10 @@ const enq = p => { const g=okG(p[3]); if(g) return `--gd:${g.d};--gm:${g.m};--zd
   const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
 const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? (thumb==="m"&&!jpg&&FOTO_M[p[0]] ? FOTO_M[p[0]] : p[0] + (thumb===1?"-t":"") + ".jpg") : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
 const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
-const altOf = (b,i) => esc(b.photos[i][1] ? tx(b.photos[i][1]) : `${b.name} · ${i+1}`);
+/* texto das fotos: o do app vale em português; em inglês e espanhol, e nas fotos sem texto, entra o do Claude (lanchas_ia) se houver */
+const altOf = (b,i) => { const a=b.photos[i][1], ia=iaTx(b.ia?.alt?.[b.photos[i][0]]); return esc(a ? (lang==="pt" || PHRASES[a] ? tx(a) : ia || a) : ia || `${b.name} · ${i+1}`); };
+/* textos do Claude (2026-11-18): só texto simples e curto; qualquer coisa estranha é ignorada e a página fica como antes */
+function iaTx(o){ const v=o && typeof o==="object" ? o[lang] : null; return typeof v==="string" && v.trim().length>1 && v.length<400 ? v.trim() : ""; }
 const okFoto = f => typeof f==="string" && (/^https:\/\/sqoperylsqcbcjpcrlnp\.supabase\.co\/storage\/v1\/object\/public\/[\w\/.\-]+$/.test(f) || /^[\w\-]+$/.test(f));
 const okPos = p => typeof p==="string" && /^[a-z0-9% .]{1,30}$/.test(p) ? p : "center 50%";
 function gallery(b){
@@ -3664,6 +3668,15 @@ Promise.all([fetch(AGENDA_URL.replace("bloqueios","fotos")+"?select=lancha,lista
       if(JSON.stringify(P)!==JSON.stringify(b.photos)){ b.photos=P; mudou=true; } });
     if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
   .catch(()=>{}).finally(()=>window.fotosDone=true);
+/* textos do Claude (tabela lanchas_ia, gerada à noite pelo workflow claude-noturno.yml): texto do Google, resumo das avaliações e texto das fotos.
+   Só completa a página; sem a tabela, vazia ou sem resposta, tudo fica exatamente como antes */
+Promise.all([fetch(AGENDA_URL.replace("bloqueios","lanchas_ia")+"?select=slug,seo,resumo,alt", {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []), dbBoats])
+  .then(([rows])=>{ let mudou=false; const ob=x=>x && typeof x==="object" && !Array.isArray(x) ? x : null;
+    (Array.isArray(rows)?rows:[]).forEach(r=>{ const b=BOATS.find(x=>x.slug===r.slug); if(!b) return;
+      const ia={seo:ob(r.seo), resumo:ob(r.resumo), alt:ob(r.alt)};
+      if(JSON.stringify(ia)!==JSON.stringify(b.ia||null)){ b.ia=ia; mudou=true; } });
+    if(mudou){ const y=scrollY; render(false); scrollTo(0,y); } })
+  .catch(()=>{}).finally(()=>window.iaDone=true);
 /* chegando de outra página com #frota ou #como, desce até a seção */
 if(location.hash.length>1) document.getElementById(location.hash==="#escunas"?"frota":location.hash.slice(1))?.scrollIntoView();
 </script>
