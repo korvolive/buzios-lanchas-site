@@ -261,7 +261,7 @@ function asHTML(){
   if(!AS || !A) return "";
   const L=T[lg], fx=D.moeda!=="BRL", hold=`<p class="muted" style="margin:10px 0 0">⏱ ${L.asHold}</p><div id="asmsg"></div>`;
   /* estrangeiro: Pix automático em reais com o CPF de quem paga (muitos já estão no Brasil, Rodrigo 2026-11-14) + cartão internacional sem CPF */
-  if(fx){ if(!A.ativo || !A.pix) return asIntHTML(true); const ci=asIntHTML(false); return pixUlt() ? ci + hold : asPixHTML(L,true) + ci + hold; }
+  if(fx){ if(!A.ativo || !A.pix) return asIntHTML(true); const ci=asIntHTML(false); return pixUlt() ? (ci ? ci + hold : `<div id="asmsg"></div>`) : asPixHTML(L,true) + ci + hold; } /* Pix por último sem cartão: o aviso das 2 horas vai junto do Pix, lá embaixo (revisão 2026-11-18) */
   if(!A.ativo || !A.pix) return `<p class="msg err">${L.asOff}</p>`;
   return `${asPixHTML(L,false)}
     ${A.cartao_ok===false?"":`<div class="pay" data-m="as-card"><h3>${L.asCard}</h3>${cardOpts(L)}<button type="button" class="btn" data-as="cartao">💳 ${L.asCardBtn}</button></div>`}
@@ -276,12 +276,14 @@ function cpfPixHow(){ const c=!!(A.cartao && A.cartao_ok!==false), pp=!!(D.clien
 /* Pix do estrangeiro sem CPF (Rodrigo 2026-11-17): o QR do Asaas pode ser pago pelo Mercado Pago da Argentina, Wise e outros apps de fora;
    o CPF só é pedido se o Asaas recusar a cobrança sem documento (AX.pedeCpf) */
 const PIX_APPS={pt:"Não tem conta no Brasil? Dá para pagar este QR code Pix pelo app do Mercado Pago (Argentina), da Wise ou de outro app que pague Pix no Brasil. Não precisa de CPF.",en:"Pix is Brazil's instant payment. No Brazilian bank account? You can pay this Pix QR code with Mercado Pago (Argentina), Wise or another app that pays Pix in Brazil. No CPF needed.",es:"Pix es el pago instantáneo de Brasil. ¿No tienes cuenta en Brasil? Puedes pagar este código QR Pix con la app de Mercado Pago (Argentina), Wise u otra app que pague Pix en Brasil. No necesitas CPF."};
+/* estrangeiro que nunca digitou CPF e o Asaas pediu (revisão 2026-11-18): "Confira o CPF" não fazia sentido */
+const CPF_NEED={pt:"Este Pix precisa do CPF de quem vai pagar. Digite acima e toque de novo.",en:"This Pix needs the payer's CPF (Brazilian tax ID). Type it above and tap again.",es:"Este Pix necesita el CPF de quien va a pagar. Escríbelo arriba y toca de nuevo."};
 function asPixHTML(L, fx){
   const fee=v=>(Math.round((v-A.sinal)*100)/100)>0?tf(L.asFee,{v:brl(Math.round((v-A.sinal)*100)/100)}):"", px=AX.pix||A.cob_pix;
   const cpf = (fx ? !AX.pedeCpf : A.cpf) || (px&&px.pix_payload) ? "" : `<label class="muted" style="display:block;margin:0 0 6px">${fx?(CPF_PIX[lg]||CPF_PIX.pt):L.asCpf}${fx?`<small style="display:block;margin:2px 0 0">${cpfPixHow()}</small>`:""}<input id="as-cpf" inputmode="numeric" autocomplete="off" style="display:block;width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;margin-top:4px;background:var(--surface);color:var(--ink)"></label>`;
   const body = `<div class="amt" style="font-size:24px">${brl(A.pix)}</div><div class="muted">${fee(A.pix)}</div>
     ${px&&px.pix_payload ? `${px.pix_img?`<img class="qr" style="display:block;width:100%" alt="QR code Pix" src="data:image/png;base64,${esc(px.pix_img)}">`:`<div class="qr">${qrSvg(px.pix_payload)}</div>`}<button type="button" class="btn sec" data-copy="${esc(px.pix_payload)}">${L.copyCC}</button><p class="muted" style="margin:10px 0 0">${L.asAuto}</p>` : `<button type="button" class="btn" data-as="pix">${L.asGen}</button>`}`;
-  return fx ? `<div class="pay" data-m="as-pix"><h3>${L.asPix}</h3>${AX.pedeCpf?"":`<p class="muted" style="margin:0 0 8px">${PIX_APPS[lg]||PIX_APPS.pt}</p>`}${cpf}${body}</div>` : `${cpf}<div class="pay" data-m="as-pix"><h3>${L.asPix}</h3>${body}</div>`;
+  return fx ? `<div class="pay" data-m="as-pix"><h3>${L.asPix}</h3>${AX.pedeCpf?"":`<p class="muted" style="margin:0 0 8px">${PIX_APPS[lg]||PIX_APPS.pt}</p>`}${cpf}${body}${pixUlt()&&!asIntHTML(false)?`<p class="muted" style="margin:10px 0 0">⏱ ${L.asHold}</p>`:""}<div id="asmsg-pix"></div></div>` : `${cpf}<div class="pay" data-m="as-pix"><h3>${L.asPix}</h3>${body}</div>`;
 }
 /* cartão em até 6x (2026-10-25): cada opção mostra a parcela, o total e a taxa; o cliente escolhe */
 /* estrangeiro (central em dólar/euro): cartão internacional pelo Asaas, cobrado em reais, à vista, sem CPF; o PayPal continua embaixo (Rodrigo 2026-11-11) */
@@ -299,7 +301,9 @@ function cardOpts(L){
 }
 document.addEventListener("change", e=>{ if(e.target.name==="parc") AX.n=+e.target.value; });
 function cpfOk(c){ if(!/^\d{11}$/.test(c)||/^(\d)\1{10}$/.test(c)) return false; const dv=n=>{ let s=0; for(let i=0;i<n;i++) s+=+c[i]*(n+1-i); const r=s*10%11; return r===10?0:r; }; return dv(9)===+c[9]&&dv(10)===+c[10]; }
-document.addEventListener("click", async e=>{ const b=e.target.closest("[data-as]"); if(!b) return; const L=T[lg], msg=document.getElementById("asmsg");
+/* aviso perto do botão: no Pix do estrangeiro (fim da página) o #asmsg do cartão fica longe, lá em cima (revisão 2026-11-18) */
+const asMsgEl=k=>(k==="pix"&&document.getElementById("asmsg-pix"))||document.getElementById("asmsg")||document.getElementById("asmsg-pix");
+document.addEventListener("click", async e=>{ const b=e.target.closest("[data-as]"); if(!b) return; const L=T[lg], msg=asMsgEl(b.dataset.as);
   const ci=document.getElementById("as-cpf"), cpf=ci?ci.value.replace(/\D/g,""):"";
   if(ci && (b.dataset.as==="pix" || D.moeda==="BRL") && !cpfOk(cpf)){ ci.focus(); msg.innerHTML=`<p class="msg err">${L.asCpfBad}</p>`; return; }
   b.disabled=true; msg.innerHTML=`<p class="muted">…</p>`;
@@ -309,7 +313,7 @@ document.addEventListener("click", async e=>{ const b=e.target.closest("[data-as
     if(j.erro==="ocupada"){ D.indisponivel=true; render(); return; }
     if(j.erro==="jetski"){ D.jetski_fora=true; render(); return; }
     if(j.erro==="pagando"||j.erro==="passou"){ msg.innerHTML=`<p class="msg err">${j.erro==="passou"?L.late:L.busy}</p>`; b.disabled=false; return; }
-    if(j.erro==="cpf"){ const keep=ci?.value||""; A.cpf=false; if(D.moeda!=="BRL") AX.pedeCpf=true; render(); const nc=document.getElementById("as-cpf"); if(nc) nc.value=keep; document.getElementById("asmsg").innerHTML=`<p class="msg err">${L.asCpfBad}</p>`; return; }
+    if(j.erro==="cpf"){ const keep=ci?.value||"", novo=!ci; A.cpf=false; if(D.moeda!=="BRL") AX.pedeCpf=true; render(); const nc=document.getElementById("as-cpf"); if(nc){ nc.value=keep; if(novo) nc.focus(); } const m2=asMsgEl(b.dataset.as); if(m2) m2.innerHTML=`<p class="msg err">${novo?(CPF_NEED[lg]||CPF_NEED.pt):L.asCpfBad}</p>`; return; }
     if(j.erro==="cartao_prazo"){ A.cartao_ok=false; render(); const am=document.getElementById("asmsg"); if(am) am.innerHTML=`<p class="msg err">${L.asCardPrazo}</p>`; else box.insertAdjacentHTML("beforeend",`<div class="card"><p class="msg err">${L.asCardPrazo}</p></div>`); /* o bloco do cartão some no render: o aviso não pode sumir junto (revisão 2026-11-12) */ return; }
     if(j.erro==="repasse"){ msg.innerHTML=`<p class="msg err">${L.asRep}</p>`; b.disabled=false; return; }
     if(!r.ok) throw 0;

@@ -962,6 +962,7 @@ async function enviarSaldos() {
   return { ligado: true, enviados: n, esperando_dinheiro: esperando, antecipacao_auto: antAuto };
 }
 
+let ultimaVarreduraConta = 0;
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   try {
@@ -986,6 +987,10 @@ Deno.serve(async req => {
     }
     // aviso da subconta (documento e selfie): também não confia no corpo, só manda conferir no Asaas
     if (/^ACCOUNT_STATUS_/.test(String(b?.event || ""))) {
+      // o aviso não tem token (subcontas antigas foram criadas sem): no máximo uma varredura a cada 2 min por instância,
+      // para ninguém estourar o limite da API do Asaas chamando em loop (revisão 2026-11-18); o robô de 10 em 10 min cobre o resto
+      if (Date.now() - ultimaVarreduraConta < 120_000) return json({ ok: true });
+      ultimaVarreduraConta = Date.now();
       await conferirContas().catch(e => console.error("conta webhook", e));
       // documento recusado: o aviso com o motivo e o link sai na hora (função asaas-docs; o robô de 10 em 10 min cobre se falhar)
       if (/DOCUMENT_REJECTED|GENERAL_APPROVAL_REJECTED/.test(String(b.event))) {
@@ -1549,20 +1554,24 @@ Deno.serve(async req => {
       const sq = (x: any) => x ? { valor: Math.round(+x.valor * 100) / 100, quando: String(x.criado_em).slice(0, 10), feito: x.status === "feito" } : null;
       const r2 = (v: number) => Math.round(v * 100) / 100, dia = (s: any) => s ? String(s).slice(0, 10) : null;
       const vendas: any[] = [];
+      // repasse do dono, parte pendente e comissão são do pedido: só no primeiro card de cada pedido
+      // (pedido com dois pagamentos contava em dobro em "A repassar", revisão 2026-11-18)
+      const jaPed = new Set<number>();
       const uma = (p: any, base: any) => {
         const rep: any[] = [];
+        const prim = !jaPed.has(+p.id); jaPed.add(+p.id);
         const donoU = base.split_user || donoDe(p.lancha);
         if (base.split > 0) { const q = base.situacao === "recebido" ? (base.credito_em || dia(base.pago_em)) : null; rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: base.split, como: "divisao", quando: q, previsto: base.situacao === "recebido" ? null : base.previsto, ok: base.situacao === "recebido", saque: sq(saqueDe(donoU, q)) }); }
-        const rp: any = R.get(p.id);
+        const rp: any = prim ? R.get(p.id) : null;
         if (rp) {
           const c = String(rp.comprovante || "");
           rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+rp.valor), como: c === "asaas:enviando" ? "enviando" : c.startsWith("asaas:") ? "asaas" : "fora", quando: dia(rp.enviado_em), ok: c !== "asaas:enviando", saque: c.startsWith("asaas:") ? sq(saqueDe(donoU, dia(rp.enviado_em))) : null, comprovante: (c.startsWith("asaas:") && c !== "asaas:enviando") || c.startsWith("fora:repasses/") ? "repasse" : null });
-        } else if (!(base.split > 0) && p.status === "aprovado" && +p.repasse_dono > 0) {
+        } else if (prim && !(base.split > 0) && p.status === "aprovado" && +p.repasse_dono > 0) {
           const ct = donoU ? C.get(donoU) : null;
           const cx = base.metodo !== "paypal" ? CX.get(+p.id) : null, prev = cx ? quandoCobre(cx, +p.repasse_dono) : null;
           rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : base.metodo === "paypal" ? "paypal" : prev ? "aguardando_credito" : "aguardando", previsto: prev && prev !== "?" ? prev : null, ok: false });
         }
-        const com = p.vendedor ? r2(Math.max(0, +p.preco_cliente - +p.preco_base)) : 0;
+        const com = prim && p.vendedor ? r2(Math.max(0, +p.preco_cliente - +p.preco_base)) : 0;
         if (com > 0) {
           const c = String(p.comissao_comprovante || "");
           const cx = !p.comissao_paga && base.metodo !== "paypal" ? CX.get(+p.id) : null;
