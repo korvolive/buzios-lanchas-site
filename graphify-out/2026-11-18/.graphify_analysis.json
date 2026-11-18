@@ -1347,6 +1347,9 @@
     "75": [
       "supabase_sql_2026_11_06_parceiro_pct_editavel"
     ],
+    "76": [
+      "supabase_sql_2026_11_18_dono_aviso_ja_resolvida"
+    ],
     "77": [
       "supabase_functions_asaas_docs_index",
       "supabase_functions_asaas_docs_index_api",
@@ -2043,6 +2046,7 @@
     "73": 1.0,
     "74": 1.0,
     "75": 1.0,
+    "76": 1.0,
     "77": 0.1032258064516129,
     "78": 0.046511627906976744,
     "79": 0.09956709956709957,
@@ -2221,7 +2225,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.anotacoes`, `public.clientes`, `public.anotacoes`, `public._ligar_passeio`, `b`, `public.bloqueios`, `public.ativar_conta_cliente`?",
-      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2231,7 +2235,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.origem_reserva`, `public.clientes`, `public.marcar_wa`?",
-      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",

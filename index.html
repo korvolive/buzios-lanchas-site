@@ -846,7 +846,7 @@ html.is-app .barra{display:none}
         <svg class="caret" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 3h8L5 8z"/></svg>
       </label>
       <a class="btn" id="hdr-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
-      <a class="login-a" id="hdr-login" href="/login/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span id="hdr-login-t"></span></a>
+      <a class="login-a" id="hdr-login" href="/login/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span id="hdr-login-t"></span></a>
     </nav>
   </div>
 </header>
@@ -867,7 +867,7 @@ html.is-app .barra{display:none}
     <div><h3 id="foot-brand">Búzios Lanchas</h3><p data-t="footAbout"></p></div>
     <div><h3 data-t="footBook"></h3><p><a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></p></div>
     <div><h3 data-t="footApp"></h3><p><a href="#" class="get-app" data-t="getApp"></a></p></div>
-    <div><h3 data-t="footTeam"></h3><p><a href="/login/" target="_blank" rel="noopener" data-t="footLogin"></a></p><p><a href="/login/?criar=1" target="_blank" rel="noopener" data-t="footSignup"></a></p></div>
+    <div><h3 data-t="footTeam"></h3><p><a href="/login/" data-t="footLogin"></a></p><p><a href="/login/?criar=1" data-t="footSignup"></a></p></div>
     <div id="foot-guias"><h3 data-t="footGuides"></h3><p><a id="fg-roteiro" href="/passeio-de-lancha-em-buzios/" data-t="footGuideRoute"></a></p><p><a id="fg-grupos" href="/lancha-para-grupos-e-aniversarios/" data-t="footGuideGroups"></a></p><p><a id="fg-precos" href="/quanto-custa-alugar-lancha-em-buzios/" data-t="footGuidePrices"></a></p><p><a id="fg-marinheiro" href="/aluguel-de-lancha-com-marinheiro-em-buzios/" data-t="footGuideSkipper"></a></p><p><a id="fg-praias" href="/melhores-praias-de-buzios-de-lancha/" data-t="footGuideBeaches"></a></p></div>
     <div><h3 data-t="footFollow"></h3><p class="fsiga"><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a><a href="https://www.facebook.com/profile.php?id=61596333033854" target="_blank" rel="noopener">Facebook</a><span class="aselo"><img src="https://baas.asaas.com/selos/Servicos_financeiros_Asaas-Reduzida-Negativo-Branco.svg?id=702f8fb0-93b2-4ad2-8743-37806e50a6e1" alt="Serviços financeiros Asaas" height="40" loading="lazy"></span></p></div> <!-- selo do Asaas (BaaS), links do João Lucas 2026-10-27; ao lado do Instagram (2026-11-05) -->
   </div>
@@ -2568,7 +2568,7 @@ function openLead(b){
     <label>${t("accPw")}<input id="li-p" type="password" autocomplete="current-password"></label>
     <p class="lerr" id="li-err" aria-live="polite"></p>
     <button class="btn" id="li-go">${t("accGo")}</button>
-    <p class="lrow"><button type="button" class="lacc" id="li-back">${t("accBack")}</button><a href="/login/" target="_blank" rel="noopener">${t("accForgot")}</a></p></form>`;
+    <p class="lrow"><button type="button" class="lacc" id="li-back">${t("accBack")}</button><a href="/login/">${t("accForgot")}</a></p></form>`;
   const $=id=>dl.querySelector("#"+id), go=$("ld-go");
   const read=()=>({nome:$("ld-n").value.trim().replace(/\s+/g," "), ddi:$("ld-c").value, tel:$("ld-w").value.trim(), email:$("ld-e").value.trim().toLowerCase()});
   const bad=v=>{ const d=v.tel.replace(/\D/g,""); return v.nome.length<2 ? ["ld-n","leadBadName"] : (v.ddi==="55" ? !/^\d{10,11}$/.test(d) : d.length<6||d.length>13) ? ["ld-w","leadBadWa"] : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email) ? ["ld-e","leadBadEmail"] : null; };
@@ -2775,7 +2775,7 @@ function openContaValor(){
       <label>${t("accPw")}<input id="li-p" type="password" autocomplete="current-password"></label>
       <p class="lerr" id="li-err" aria-live="polite">${msg||""}</p>
       <button class="btn" id="li-go">${t("accGo")}</button>
-      <p class="lrow"><button type="button" class="lacc" id="cv-new">${t("cvNew")}</button><a href="/login/" target="_blank" rel="noopener">${t("accForgot")}</a></p></form>`;
+      <p class="lrow"><button type="button" class="lacc" id="cv-new">${t("cvNew")}</button><a href="/login/">${t("accForgot")}</a></p></form>`;
     dl.querySelector(".lx").onclick=()=>dl.close();
     const fm=$("cv-in"), err=$("li-err"); gBind();
     fm.querySelectorAll("[data-by]").forEach(x=>x.onclick=()=>{ by=x.dataset.by; fm.querySelectorAll("[data-by]").forEach(y=>y.setAttribute("aria-pressed",y.dataset.by===by)); fm.querySelectorAll("[data-f]").forEach(y=>y.hidden=y.dataset.f!==by); err.textContent=""; $(by==="tel"?"li-w":"li-e").focus(); });

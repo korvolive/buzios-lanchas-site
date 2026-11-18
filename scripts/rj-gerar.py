@@ -217,7 +217,7 @@ def card(d, t, lang):
     inner = f'<div class="pic">{pic}{soon}<span class="coord">{coord}</span></div>{body}'
     extra = f' data-k="{d["k"]}" data-url="{d["url"]}"' if (not live and d.get("url")) else ""
     if live:
-        return f'<a class="city" href="{d["url"]}{PATH[lang]}">{inner}</a>'
+        return f'<a class="city" href="{d["url"]}{PATH[lang]}" target="_blank" rel="noopener">{inner}</a>'
     return f'<div class="city off"{extra}>{inner}</div>'
 
 
@@ -261,14 +261,14 @@ def pagina(lang):
 </div></header>
 <section class="hero"><div class="wrap">
 <p class="eyebrow">{t["eyebrow"]}</p><h1>{t["h1"]}</h1><p class="lead">{t["lead"]}</p>
-<div class="btns"><a class="btn p" href="{BZ}{PATH[lang]}">{t["cta"]} →</a><a class="btn s" href="{wa}" rel="noopener">{t["cta2"]}</a></div>
+<div class="btns"><a class="btn p" href="{BZ}{PATH[lang]}" target="_blank" rel="noopener">{t["cta"]} →</a><a class="btn s" href="{wa}" target="_blank" rel="noopener">{t["cta2"]}</a></div>
 </div><svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50c160-30 320-30 480 0s320 30 480 0 320-30 480 0v40H0z" fill="#f3f7f8"/></svg></section>
 <main><div class="wrap">
 <section class="panel" aria-labelledby="h-dest"><h2 id="h-dest">{t["hdest"]}</h2><p class="sub">{t["sdest"]}</p><div class="grid" id="grid">{cards}</div></section>
 <section aria-labelledby="h-inc"><h2 id="h-inc">{t["hinc"]}</h2><div class="inc" style="margin-top:14px">{inc}</div></section>
 <section class="panel" aria-labelledby="h-faq"><h2 id="h-faq">{t["hfaq"]}</h2>{faq}</section>
 </div></main>
-<footer><div class="wrap"><span>{t["foot"]}</span><span><a href="https://wa.me/{WA}" rel="noopener">WhatsApp (21) 99927-2550</a> · <a href="https://www.instagram.com/missbardotbuzios/" rel="noopener">@missbardotbuzios</a> · <a href="{BZ}{PATH[lang]}">lanchaembuzios.com.br</a></span></div></footer>
+<footer><div class="wrap"><span>{t["foot"]}</span><span><a href="https://wa.me/{WA}" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a> · <a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a> · <a href="{BZ}{PATH[lang]}" target="_blank" rel="noopener">lanchaembuzios.com.br</a></span></div></footer>
 <a class="wa-fab" href="{wa}" target="_blank" rel="noopener" aria-label="{t["waB"]}">{WA_SVG}<span>{t["waB"]}</span></a>
 <script>
 /* Arraial e Cabo Frio entram no ar sozinhos quando tiverem lancha publicada no app (ativa, não oculta) */
