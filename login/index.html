@@ -4682,11 +4682,11 @@ function asContaHTML(vend){ /* vend: conta do vendedor para receber a comissão 
   if(!own && !S.admin) return "";
   if(own) asLoad();
   if(S.admin && S.asFaltam===undefined){ S.asFaltam=0; asFn({acao:"faltam"}).then(j=>{ S.asFaltam=j.lanchas||[]; }, ()=>{ S.asFaltam=null; }).then(()=>{ if(S.tab==="lancha") bgView(); }); }
-  const falt = S.admin && Array.isArray(S.asFaltam) ? `<p class="muted" style="margin:12px 0 0;font-size:14px">${S.asFaltam.length ? t("asFaltam",{l:S.asFaltam.map(esc).join(", ")}) : t("asFaltamNao")}</p>` : "";
+  const falt = S.admin && Array.isArray(S.asFaltam) && S.asFaltam.length ? `<p class="muted" style="margin:12px 0 0;font-size:14px">${t("asFaltam",{l:S.asFaltam.map(esc).join(", ")})}</p>` : ""; /* todos com conta: nada aparece (Rodrigo 2026-11-18) */
   const adm = S.admin && !vend ? falt : ""; /* o aviso de pagamento do Asaas já foi cadastrado (2026-10-25): o botão saiu; a função asaas ainda aceita acao "webhook" se um dia precisar refazer */
   const T_=vend?t("asVT"):t("asT");
-  const prev = !own && !vend && S.admin && AS_TESTE; /* prévia da tela de cadastro para o print do checklist do Asaas (2026-10-27): não cria conta */
-  if(!own && !prev) return `<div class="card"><h2>💳 ${T_}</h2>${adm}</div>`;
+  const prev = false; /* a prévia do cadastro para o print do checklist do Asaas (2026-10-27) saiu: a avaliação foi aprovada e o administrador não tem conta a criar (Rodrigo 2026-11-18) */
+  if(!own) return adm ? `<div class="card"><h2>💳 ${T_}</h2>${adm}</div>` : "";
   if(S.asConta===0 && !prev) return adm?`<div class="card">${adm}</div>`:""; /* carregando: nada, sem cartão "…" piscando (Rodrigo 2026-11-12) */
   if(S.asConta && !prev && S.asDocs?.status==="ok") return `<p class="asativa" style="margin:0 0 14px;font-size:13px;color:var(--muted,#6b7c85)"><span style="color:var(--ok,#1a7f4b);font-weight:600">✓ ${t("asAtiva")}</span> · <a href="https://www.asaas.com/" target="_blank" rel="noopener noreferrer" style="color:inherit">Serviços financeiros Asaas</a></p>${adm?`<div class="card">${adm}</div>`:""}`; /* aprovada: sem o cartão grande (Rodrigo 2026-11-12) */
   if(S.asConta && !prev){ asDocs(); if(!S.asDocs) return adm?`<div class="card">${adm}</div>`:""; const d=S.asDocs;
