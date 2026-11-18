@@ -535,7 +535,6 @@
       "precos",
       "precos_hist",
       "precos_neto",
-      "public_precos_neto",
       "rf",
       "supabase_sql_2026_11_12_troca_horario_pedido_public_trocar_horario_pedido",
       "supabase_sql_2026_11_12_troca_horario_pedido_sql_p",
@@ -580,8 +579,22 @@
       "supabase_functions_clima_alertas_index_validade"
     ],
     "16": [
+      "atual",
+      "information_schema_columns",
       "nid",
+      "public_consultas",
+      "public_fotos",
+      "public_fotos_pendentes",
+      "supabase_sql_2026_11_05_dono_publica_fotos",
+      "supabase_sql_2026_11_05_dono_publica_fotos_public_aprovar_foto",
+      "supabase_sql_2026_11_05_dono_publica_fotos_sql_pg_proc",
+      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas",
+      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas_public_lancar_pedido_operador",
+      "supabase_sql_2026_11_13_origem_da_reserva",
+      "supabase_sql_2026_11_13_origem_da_reserva_bloqueio_trazido_por",
+      "supabase_sql_2026_11_13_origem_da_reserva_public_bloqueio_trazido_por",
       "supabase_sql_2026_11_15_preco_cotado_garantido",
+      "supabase_sql_2026_11_15_preco_cotado_garantido_a_consulta_neto_garantido",
       "supabase_sql_2026_11_15_preco_cotado_garantido_cotacoes_garantidas_busca",
       "supabase_sql_2026_11_15_preco_cotado_garantido_cotacoes_garantidas_lancha",
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_confere_valor_op",
@@ -589,6 +602,7 @@
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_cotacoes_garantidas",
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_garantia_cotacao",
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_lancar_pedido_operador",
+      "supabase_sql_2026_11_15_preco_cotado_garantido_public_preco_novo_pedido",
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_precos_lanc",
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_registrar_cotacao",
       "supabase_sql_2026_11_15_preco_cotado_garantido_public_tg_anotacao_neto_garantido",
@@ -596,7 +610,14 @@
       "supabase_sql_2026_11_15_preco_cotado_garantido_registrar_cotacao",
       "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public",
       "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public_bloqueios",
-      "supabase_sql_2026_11_15_preco_cotado_garantido_zz_anotacao_neto_garantido"
+      "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public_pedidos",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_a_consulta_resgate_limpa_pedido",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_fechar_consultas_site",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_tg_consulta_resgate_limpa_pedido",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_tg_fecha_consultas_site",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_zz_anotacao_fecha_consultas",
+      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_zz_consulta_lancada_fecha_site"
     ],
     "17": [
       "supabase_functions_consulta_resgate_index",
@@ -624,13 +645,17 @@
     ],
     "18": [
       "conversas",
+      "jetski_usos",
+      "jetskis",
       "mensagens",
       "mid",
       "p",
       "pagamentos_pp",
+      "pedidos",
       "supabase_sql_2026_11_15_jetski_pedido_public_liberar_sinal",
       "supabase_sql_2026_11_15_jetski_pedido_sql_pedidos",
       "supabase_sql_2026_11_15_jetski_revisao",
+      "supabase_sql_2026_11_15_jetski_revisao_geral_public_pp_vaga",
       "supabase_sql_2026_11_15_jetski_revisao_public_alterar_pedido",
       "supabase_sql_2026_11_15_jetski_revisao_public_trocar_horario_pedido"
     ],
@@ -937,14 +962,12 @@
       "supabase_sql_2026_11_16_parceiro_desconto_lancha_propria_public_desc_parceiro",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_jetski_dividas_dono",
-      "supabase_sql_2026_11_17_jetski_repasse_cancelado_pedido_jetski_troca",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_jetski_abater",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_jetski_abater_desfaz",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_jetski_abatimentos",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_jetski_dividas",
       "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_meus_jetski_alugueis",
-      "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_tg_pedido_jetski_troca",
-      "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_tirar_jetski"
+      "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_tg_pedido_jetski_troca"
     ],
     "37": [
       "supabase_functions_traduzir_index",
@@ -1221,30 +1244,29 @@
       "supabase_sql_2026_11_18_funcao_pre_reservas_vencidas_public_pre_reservas_vencidas"
     ],
     "66": [
-      "auth_users",
-      "public_perfis",
       "supabase_sql_2026_10_30_asaas_validacao_saques",
       "supabase_sql_2026_10_30_asaas_validacao_saques_asaas_validacoes_id",
       "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_chaves",
-      "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_validacoes",
-      "supabase_sql_2026_11_17_jetski_dono_public_usuario_por_email"
+      "supabase_sql_2026_10_30_asaas_validacao_saques_public_asaas_validacoes"
     ],
     "67": [
       "h",
       "j",
-      "k",
       "public_lanchas",
-      "supabase_sql_2026_11_15_jetski_lucas",
-      "supabase_sql_2026_11_15_jetski_lucas_a_pedido_jetski_segurado",
+      "public_pagamentos_asaas",
+      "public_pagamentos_pp",
+      "supabase_sql_2026_11_15_jetski_cortesia_opcional_public_tg_pedido_jetski",
       "supabase_sql_2026_11_15_jetski_lucas_public_jetski_confere",
-      "supabase_sql_2026_11_15_jetski_lucas_public_jetski_cotar",
-      "supabase_sql_2026_11_15_jetski_lucas_public_jetski_livres",
-      "supabase_sql_2026_11_15_jetski_lucas_public_jetski_segura",
-      "supabase_sql_2026_11_15_jetski_lucas_public_lancar_reserva_com_jetski",
+      "supabase_sql_2026_11_15_jetski_lucas_public_tg_pedido_jetski",
       "supabase_sql_2026_11_15_jetski_lucas_public_tg_pedido_jetski_segurado",
-      "supabase_sql_2026_11_15_jetski_lucas_public_tg_pedido_jetski_uso",
-      "supabase_sql_2026_11_15_jetski_lucas_zz_anotacao_jetski_segura",
-      "supabase_sql_2026_11_15_jetski_public_jetski_marcar",
+      "supabase_sql_2026_11_15_jetski_public_jetskis",
+      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_pedido_jetski",
+      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tirar_jetski",
+      "supabase_sql_2026_11_16_painel_sinais_desde",
+      "supabase_sql_2026_11_16_painel_sinais_desde_public_painel_sinais_desde",
+      "supabase_sql_2026_11_16_painel_sinais_hoje",
+      "supabase_sql_2026_11_16_painel_sinais_hoje_public_painel_sinais_hoje",
+      "supabase_sql_2026_11_16_revisao_geral_dados_public_painel_sinais_hoje",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetski_confere",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetski_cotar",
@@ -1252,11 +1274,11 @@
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetski_neto_ep",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetski_salvar",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetski_segura",
+      "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetskis_site_v2",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_lancar_reserva_com_jetski",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_tg_pedido_jetski",
       "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_tg_pedido_jetski_segurado",
       "uid",
-      "v_id",
       "v_precos"
     ],
     "68": [
@@ -1338,6 +1360,7 @@
       "supabase_functions_asaas_docs_index_reenvio",
       "supabase_functions_asaas_docs_index_segredo",
       "supabase_functions_asaas_docs_index_situacao",
+      "supabase_functions_asaas_docs_index_situacaomodelos",
       "supabase_functions_asaas_docs_index_wanum"
     ],
     "78": [
@@ -1398,6 +1421,7 @@
     "80": [
       "e",
       "public_precos",
+      "public_precos_neto",
       "r",
       "supabase_sql_2026_10_30_operador_um_toque_public_piso_operador",
       "supabase_sql_2026_10_30_operador_um_toque_public_valor_na_data",
@@ -1452,25 +1476,23 @@
     ],
     "84": [
       "supabase_sql_2026_11_15_jetski",
+      "supabase_sql_2026_11_15_jetski_cortesia_opcional",
+      "supabase_sql_2026_11_15_jetski_cortesia_opcional_public_tg_pedido_jetski_uso",
       "supabase_sql_2026_11_15_jetski_jetski_uso_confere",
       "supabase_sql_2026_11_15_jetski_jetski_usos_dia",
       "supabase_sql_2026_11_15_jetski_public_jetski_choca",
       "supabase_sql_2026_11_15_jetski_public_jetski_desmarcar",
+      "supabase_sql_2026_11_15_jetski_public_jetski_marcar",
       "supabase_sql_2026_11_15_jetski_public_jetski_neto",
       "supabase_sql_2026_11_15_jetski_public_jetski_ocupado",
       "supabase_sql_2026_11_15_jetski_public_jetski_salvar",
       "supabase_sql_2026_11_15_jetski_public_jetski_usos",
       "supabase_sql_2026_11_15_jetski_public_jetski_valor",
-      "supabase_sql_2026_11_15_jetski_public_jetskis",
       "supabase_sql_2026_11_15_jetski_public_jetskis_site",
       "supabase_sql_2026_11_15_jetski_public_pode_editar_jetski_pasta",
       "supabase_sql_2026_11_15_jetski_public_pode_jetski",
       "supabase_sql_2026_11_15_jetski_public_tg_jetski_uso_confere",
-      "supabase_sql_2026_11_17_jetski_dono",
-      "supabase_sql_2026_11_17_jetski_dono_jetski_sempre_aprendiz",
-      "supabase_sql_2026_11_17_jetski_dono_public_meus_jetski_alugueis",
-      "supabase_sql_2026_11_17_jetski_dono_public_tg_jetski_aprendiz",
-      "supabase_sql_2026_11_17_jetski_preco_por_tempo_public_jetskis_site_v2"
+      "v_id"
     ],
     "85": [
       "supabase_sql_2026_11_14_buzios_a_mais_carnaval"
@@ -1525,6 +1547,7 @@
       "supabase_sql_2026_11_16_convite_consulta_vencida_public_consulta_convites"
     ],
     "93": [
+      "auth_users",
       "cv",
       "pd",
       "public_clientes",
@@ -1534,13 +1557,23 @@
       "supabase_sql_2026_10_30_papeis_operador_auditor_public_painel_le_atend",
       "supabase_sql_2026_10_30_papeis_operador_auditor_public_papeis_painel",
       "supabase_sql_2026_10_30_papeis_operador_auditor_public_papel_painel",
+      "supabase_sql_2026_11_16_ativar_conta_cliente",
+      "supabase_sql_2026_11_16_ativar_conta_cliente_public_ativar_conta_cliente",
+      "supabase_sql_2026_11_16_ativar_conta_cliente_sql_auth_users",
+      "supabase_sql_2026_11_16_ativar_conta_cliente_sql_public_clientes",
+      "supabase_sql_2026_11_16_ativar_conta_cliente_sql_public_convites",
       "supabase_sql_2026_11_16_ativar_conta_so_dono_provado",
       "supabase_sql_2026_11_16_ativar_conta_so_dono_provado_public_ativar_conta_cliente",
+      "supabase_sql_2026_11_16_convite_direto_pagar",
+      "supabase_sql_2026_11_16_convite_direto_pagar_public_convite_pagar",
+      "supabase_sql_2026_11_16_convite_direto_pagar_public_uid_email_informado",
+      "supabase_sql_2026_11_16_convite_direto_pagar_public_wa_fmt",
       "supabase_sql_2026_11_16_seguranca_convite_sem_email",
       "supabase_sql_2026_11_16_seguranca_convite_sem_email_public_ativar_conta_cliente",
       "supabase_sql_2026_11_16_seguranca_convite_sem_email_public_convite_pagar",
       "supabase_sql_2026_11_17_ativar_conta_confirma_so_whatsapp_verificado",
       "supabase_sql_2026_11_17_ativar_conta_confirma_so_whatsapp_verificado_public_ativar_conta_cliente",
+      "supabase_sql_2026_11_17_jetski_dono_public_usuario_por_email",
       "tk",
       "u"
     ],
@@ -1633,10 +1666,7 @@
     ],
     "102": [
       "bloqueios",
-      "jetski_usos",
-      "jetskis",
       "manutencoes",
-      "pedidos",
       "supabase_sql_2026_11_12_alterar_pedido",
       "supabase_sql_2026_11_12_alterar_pedido_public_alterar_pedido",
       "supabase_sql_2026_11_12_alterar_pedido_public_segredos_app",
@@ -1648,8 +1678,7 @@
       "supabase_sql_2026_11_12_troca_horario_pedido",
       "supabase_sql_2026_11_12_troca_horario_pedido_public_pp_vaga_h",
       "supabase_sql_2026_11_12_troca_horario_pedido_public_troca_ok",
-      "supabase_sql_2026_11_12_troca_horario_pedido_public_trocas_pedido",
-      "supabase_sql_2026_11_15_jetski_revisao_geral_public_pp_vaga"
+      "supabase_sql_2026_11_12_troca_horario_pedido_public_trocas_pedido"
     ],
     "103": [
       "public_saques"
@@ -1695,7 +1724,13 @@
       "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_a_msg_expirou_pre_reserva",
       "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_a_pre_reserva_prazo_vale",
       "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_public_tg_msg_expirou_pre_reserva",
-      "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_public_tg_pre_reserva_prazo_vale"
+      "supabase_sql_2026_11_16_pre_reserva_prazo_nao_encurta_public_tg_pre_reserva_prazo_vale",
+      "supabase_sql_2026_11_17_jetski_dono",
+      "supabase_sql_2026_11_17_jetski_dono_jetski_sempre_aprendiz",
+      "supabase_sql_2026_11_17_jetski_dono_public_meus_jetski_alugueis",
+      "supabase_sql_2026_11_17_jetski_dono_public_tg_jetski_aprendiz",
+      "supabase_sql_2026_11_17_jetski_repasse_cancelado_pedido_jetski_troca",
+      "supabase_sql_2026_11_17_jetski_repasse_cancelado_public_tirar_jetski"
     ],
     "110": [
       "a",
@@ -1712,13 +1747,19 @@
       "public_marinheiros",
       "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono",
       "supabase_sql_2026_11_14_auto_confirmar_passeios_do_dono_public_auto_confirmar_fora",
+      "supabase_sql_2026_11_15_jetski_lucas_zz_anotacao_jetski_segura",
+      "supabase_sql_2026_11_15_jetski_revisao_geral",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_jetski_do_passeio",
+      "supabase_sql_2026_11_15_jetski_revisao_geral_public_jetski_min_txt",
+      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_jetski_uso_confere",
+      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_pedido_jetski_uso",
       "supabase_sql_2026_11_15_jetski_revisao_geral_public_virar_credito",
       "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela",
       "supabase_sql_2026_11_15_mover_passeio_marinheiro_da_tela_public_mover_passeio_v2",
       "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao",
       "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_passeio_sem_manutencao",
       "supabase_sql_2026_11_15_passeio_bloqueado_em_manutencao_public_passeio_sem_manutencao",
+      "supabase_sql_2026_11_15_preco_cotado_garantido_zz_anotacao_neto_garantido",
       "supabase_sql_2026_11_16_troca_solta_pre_reserva_anterior",
       "supabase_sql_2026_11_16_troca_solta_pre_reserva_anterior_public_aprovar_consulta",
       "supabase_sql_2026_11_16_troca_solta_pre_reserva_anterior_public_soltar_anterior_mesmo_cliente",
@@ -1739,42 +1780,29 @@
       "marinheiros",
       "pa",
       "perfis",
-      "public_vendedores",
       "supabase_sql_2026_11_05_socios_nome_completo_e_convites_pendentes_public_meus_socios",
       "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado",
       "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_definir_desc_parceiro",
       "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_definir_pct_vendedor",
       "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_desc_parceiro",
       "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_meu_vendedor",
-      "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_preco_vendedor",
       "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_vendedor_publico",
-      "v",
       "vendedores"
     ],
     "112": [
-      "public_pagamentos_asaas",
-      "public_pagamentos_pp",
+      "public_admins",
+      "public_perfis",
       "public_repasses_pp",
+      "public_vendedores",
+      "supabase_sql_2026_11_13_origem_da_reserva_public_origem_reserva",
+      "supabase_sql_2026_11_13_origem_da_reserva_sql_public_donos",
       "supabase_sql_2026_11_13_origem_da_reserva_sql_public_pedidos",
-      "supabase_sql_2026_11_15_jetski_cortesia_opcional",
-      "supabase_sql_2026_11_15_jetski_cortesia_opcional_public_tg_pedido_jetski",
-      "supabase_sql_2026_11_15_jetski_cortesia_opcional_public_tg_pedido_jetski_uso",
-      "supabase_sql_2026_11_15_jetski_lucas_public_tg_pedido_jetski",
-      "supabase_sql_2026_11_15_jetski_revisao_geral",
-      "supabase_sql_2026_11_15_jetski_revisao_geral_public_jetski_min_txt",
-      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_jetski_uso_confere",
-      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_pedido_jetski",
-      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tg_pedido_jetski_uso",
-      "supabase_sql_2026_11_15_jetski_revisao_geral_public_tirar_jetski",
-      "supabase_sql_2026_11_16_painel_sinais_desde",
-      "supabase_sql_2026_11_16_painel_sinais_desde_public_painel_sinais_desde",
-      "supabase_sql_2026_11_16_painel_sinais_hoje",
-      "supabase_sql_2026_11_16_painel_sinais_hoje_public_painel_sinais_hoje",
+      "supabase_sql_2026_11_16_parceiro_comissao_10_desconto_separado_public_preco_vendedor",
       "supabase_sql_2026_11_16_revisao_geral_dados",
       "supabase_sql_2026_11_16_revisao_geral_dados_public_meus_repasses_pp",
-      "supabase_sql_2026_11_16_revisao_geral_dados_public_painel_sinais_hoje",
       "supabase_sql_2026_11_16_revisao_geral_dados_public_repasses_feitos",
-      "supabase_sql_2026_11_16_revisao_geral_dados_public_saude_checagens"
+      "supabase_sql_2026_11_16_revisao_geral_dados_public_saude_checagens",
+      "v"
     ],
     "113": [
       "supabase_sql_2026_11_17_nenhum_valor_negativo"
@@ -1806,7 +1834,12 @@
       "supabase_functions_aviso_equipe_index_cors",
       "supabase_functions_aviso_equipe_index_db",
       "supabase_functions_aviso_equipe_index_json",
-      "supabase_functions_aviso_equipe_index_userbyemail"
+      "supabase_functions_aviso_equipe_index_userbyemail",
+      "supabase_functions_aviso_preco_index",
+      "supabase_functions_aviso_preco_index_cors",
+      "supabase_functions_aviso_preco_index_db",
+      "supabase_functions_aviso_preco_index_json",
+      "supabase_functions_aviso_preco_index_t"
     ],
     "117": [
       "ref_node_zlib",
@@ -1904,50 +1937,9 @@
       "supabase_sql_2026_11_17_retencao_registros_5_anos_registros_exportados_trava",
       "supabase_sql_2026_11_17_retencao_registros_5_anos_registros_exportados_trava_tudo"
     ],
-    "131": [
-      "atual",
-      "information_schema_columns",
-      "public_fotos",
-      "public_fotos_pendentes",
-      "supabase_sql_2026_11_05_dono_publica_fotos",
-      "supabase_sql_2026_11_05_dono_publica_fotos_public_aprovar_foto",
-      "supabase_sql_2026_11_05_dono_publica_fotos_sql_pg_proc",
-      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas",
-      "supabase_sql_2026_11_05_email_opcional_na_reserva_do_lucas_public_lancar_pedido_operador"
-    ],
-    "132": [
-      "public_admins",
-      "public_consultas",
-      "supabase_sql_2026_11_13_origem_da_reserva",
-      "supabase_sql_2026_11_13_origem_da_reserva_bloqueio_trazido_por",
-      "supabase_sql_2026_11_13_origem_da_reserva_public_bloqueio_trazido_por",
-      "supabase_sql_2026_11_13_origem_da_reserva_public_origem_reserva",
-      "supabase_sql_2026_11_13_origem_da_reserva_sql_public_donos",
-      "supabase_sql_2026_11_15_preco_cotado_garantido_a_consulta_neto_garantido",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_a_consulta_resgate_limpa_pedido",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_fechar_consultas_site",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_tg_consulta_resgate_limpa_pedido",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_public_tg_fecha_consultas_site",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_zz_anotacao_fecha_consultas",
-      "supabase_sql_2026_11_16_consultas_site_fecham_sozinhas_zz_consulta_lancada_fecha_site"
-    ],
     "133": [
       "supabase_sql_2026_11_18_prazo_pre_reserva_nao_vence_de_madrugada",
       "supabase_sql_2026_11_18_prazo_pre_reserva_nao_vence_de_madrugada_public_prazo_pre_fim"
-    ],
-    "134": [
-      "supabase_sql_2026_11_15_preco_cotado_garantido_public_preco_novo_pedido",
-      "supabase_sql_2026_11_15_preco_cotado_garantido_sql_public_pedidos",
-      "supabase_sql_2026_11_16_ativar_conta_cliente",
-      "supabase_sql_2026_11_16_ativar_conta_cliente_public_ativar_conta_cliente",
-      "supabase_sql_2026_11_16_ativar_conta_cliente_sql_auth_users",
-      "supabase_sql_2026_11_16_ativar_conta_cliente_sql_public_clientes",
-      "supabase_sql_2026_11_16_ativar_conta_cliente_sql_public_convites",
-      "supabase_sql_2026_11_16_convite_direto_pagar",
-      "supabase_sql_2026_11_16_convite_direto_pagar_public_convite_pagar",
-      "supabase_sql_2026_11_16_convite_direto_pagar_public_uid_email_informado",
-      "supabase_sql_2026_11_16_convite_direto_pagar_public_wa_fmt"
     ],
     "135": [
       "supabase_functions_traduzir_chat_index",
@@ -1958,20 +1950,21 @@
       "supabase_functions_traduzir_chat_index_participa"
     ],
     "136": [
+      "k",
+      "supabase_sql_2026_11_15_jetski_lucas",
+      "supabase_sql_2026_11_15_jetski_lucas_a_pedido_jetski_segurado",
+      "supabase_sql_2026_11_15_jetski_lucas_public_jetski_cotar",
+      "supabase_sql_2026_11_15_jetski_lucas_public_jetski_livres",
+      "supabase_sql_2026_11_15_jetski_lucas_public_jetski_segura",
+      "supabase_sql_2026_11_15_jetski_lucas_public_lancar_reserva_com_jetski",
       "supabase_sql_2026_11_15_jetski_lucas_public_tg_anotacao_jetski_segura",
+      "supabase_sql_2026_11_15_jetski_lucas_public_tg_pedido_jetski_uso",
       "supabase_sql_2026_11_15_jetski_lucas_sql_b",
       "supabase_sql_2026_11_15_jetski_lucas_sql_c",
       "supabase_sql_2026_11_15_jetski_lucas_sql_public_bloqueios",
       "supabase_sql_2026_11_15_jetski_lucas_sql_public_consultas",
       "supabase_sql_2026_11_16_jetski_lucas_revisao_seguranca",
       "supabase_sql_2026_11_16_jetski_lucas_revisao_seguranca_public_tg_anotacao_jetski_segura"
-    ],
-    "137": [
-      "supabase_functions_aviso_preco_index",
-      "supabase_functions_aviso_preco_index_cors",
-      "supabase_functions_aviso_preco_index_db",
-      "supabase_functions_aviso_preco_index_json",
-      "supabase_functions_aviso_preco_index_t"
     ],
     "138": [
       "convites_socio",
@@ -1993,12 +1986,12 @@
     "10": 0.08333333333333333,
     "11": 0.0625,
     "12": 0.09090909090909091,
-    "13": 0.17142857142857143,
+    "13": 0.18681318681318682,
     "14": 0.42857142857142855,
     "15": 0.1523809523809524,
-    "16": 0.19852941176470587,
+    "16": 0.07422402159244265,
     "17": 0.1471861471861472,
-    "18": 0.2222222222222222,
+    "18": 0.16483516483516483,
     "19": 0.15666666666666668,
     "20": 0.17142857142857143,
     "21": 0.15384615384615385,
@@ -2016,7 +2009,7 @@
     "33": 0.13333333333333333,
     "34": 0.25,
     "35": 0.06666666666666667,
-    "36": 0.2,
+    "36": 0.24358974358974358,
     "37": 0.4666666666666667,
     "38": 0.20261437908496732,
     "39": 0.5,
@@ -2046,8 +2039,8 @@
     "63": 0.5,
     "64": 1.0,
     "65": 0.175,
-    "66": 0.3333333333333333,
-    "67": 0.10052910052910052,
+    "66": 0.6666666666666666,
+    "67": 0.135632183908046,
     "68": 0.4,
     "69": 0.38095238095238093,
     "70": 1.0,
@@ -2057,14 +2050,14 @@
     "74": 1.0,
     "75": 1.0,
     "76": 0.2545454545454545,
-    "77": 0.10804597701149425,
+    "77": 0.1032258064516129,
     "78": 0.046511627906976744,
     "79": 0.32142857142857145,
-    "80": 0.11695906432748537,
+    "80": 0.11052631578947368,
     "81": 0.42857142857142855,
     "82": 0.3333333333333333,
     "83": 0.15384615384615385,
-    "84": 0.1736842105263158,
+    "84": 0.1568627450980392,
     "85": 1.0,
     "86": 0.3333333333333333,
     "87": 1.0,
@@ -2073,7 +2066,7 @@
     "90": 1.0,
     "91": 0.5238095238095238,
     "92": 1.0,
-    "93": 0.21568627450980393,
+    "93": 0.13054187192118227,
     "94": 1.0,
     "95": 0.08695652173913043,
     "96": 1.0,
@@ -2082,21 +2075,21 @@
     "99": 1.0,
     "100": 1.0,
     "101": 0.0907258064516129,
-    "102": 0.16339869281045752,
+    "102": 0.21978021978021978,
     "103": 1.0,
     "104": 1.0,
     "105": 0.8333333333333334,
     "106": 0.6666666666666666,
     "107": 0.3333333333333333,
     "108": 0.6666666666666666,
-    "109": 0.24242424242424243,
-    "110": 0.09848484848484848,
-    "111": 0.22794117647058823,
-    "112": 0.13043478260869565,
+    "109": 0.1503267973856209,
+    "110": 0.0796221322537112,
+    "111": 0.2967032967032967,
+    "112": 0.1794871794871795,
     "113": 1.0,
     "114": 0.3333333333333333,
     "115": 0.2857142857142857,
-    "116": 0.2,
+    "116": 0.13333333333333333,
     "117": 0.225,
     "118": 0.24242424242424243,
     "119": 1.0,
@@ -2111,13 +2104,9 @@
     "128": 1.0,
     "129": 1.0,
     "130": 0.2777777777777778,
-    "131": 0.2222222222222222,
-    "132": 0.19047619047619047,
     "133": 1.0,
-    "134": 0.23636363636363636,
     "135": 0.3333333333333333,
-    "136": 0.42857142857142855,
-    "137": 0.4,
+    "136": 0.1619047619047619,
     "138": 0.6666666666666666
   },
   "gods": [
@@ -2177,7 +2166,7 @@
       "source": "public.tg_pedido_jetski_uso()",
       "target": "public.jetski_usos",
       "source_files": [
-        "supabase/sql/2026-11-15_jetski-cortesia-opcional.sql",
+        "supabase/sql/2026-11-15_jetski-revisao-geral.sql",
         "supabase/sql/2026-11-15_jetski.sql"
       ],
       "confidence": "EXTRACTED",
@@ -2188,7 +2177,7 @@
       "source": "public.tg_pedido_jetski_uso()",
       "target": "public.jetski_usos",
       "source_files": [
-        "supabase/sql/2026-11-15_jetski-revisao-geral.sql",
+        "supabase/sql/2026-11-15_jetski-lucas.sql",
         "supabase/sql/2026-11-15_jetski.sql"
       ],
       "confidence": "EXTRACTED",
@@ -2207,21 +2196,21 @@
       "why": "bridges separate communities; peripheral node `public.apagar_avaliacao_google()` unexpectedly reaches hub `public.avaliacoes_google`"
     },
     {
-      "source": "public.tg_pedido_jetski_uso()",
-      "target": "public.jetski_usos",
+      "source": "jetski_sempre_aprendiz",
+      "target": "public.jetskis",
       "source_files": [
-        "supabase/sql/2026-11-15_jetski-lucas.sql",
+        "supabase/sql/2026-11-17_jetski-dono.sql",
         "supabase/sql/2026-11-15_jetski.sql"
       ],
       "confidence": "EXTRACTED",
-      "relation": "reads_from",
-      "why": "bridges separate communities; peripheral node `public.tg_pedido_jetski_uso()` unexpectedly reaches hub `public.jetski_usos`"
+      "relation": "triggers",
+      "why": "bridges separate communities"
     },
     {
-      "source": "public.jetski_do_passeio()",
+      "source": "public.meus_jetski_alugueis()",
       "target": "public.jetski_usos",
       "source_files": [
-        "supabase/sql/2026-11-15_jetski-revisao-geral.sql",
+        "supabase/sql/2026-11-17_jetski-dono.sql",
         "supabase/sql/2026-11-15_jetski.sql"
       ],
       "confidence": "EXTRACTED",
@@ -2232,8 +2221,8 @@
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.consultas`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+      "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?",
+      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2243,7 +2232,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.trocar_horario_pedido()` connect `public.salvar_netos_v3` to `public.pp_vaga_h`?",
-      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2252,8 +2241,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.consultas`, `public.pedidos`?",
-      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?",
+      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
