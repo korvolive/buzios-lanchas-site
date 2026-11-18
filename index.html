@@ -2242,7 +2242,7 @@ async function markSlots(b){
 const STACK_SKIP = ["Marinheiro","Marinheiro experiente","Serviço de churrasqueiro","Comandante e marinheiro habilitados"];
 /* destaque dourado (: esses itens vêm primeiro na lista */
 const STACK_GOLD = ["Wi-Fi Starlink","Ar-condicionado","Som na proa","Piscina inflável","Gelo filtrado","Televisão"]; /* igual a GOLD_ITEMS no app */
-const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...STACK_GOLD.filter(i=>l.includes(i)),...l.filter(i=>!STACK_GOLD.includes(i))].map(itemChip).join(""); };
+const stackItems = b => { const l=boatItems(b).filter(i=>!STACK_SKIP.includes(i)); return [...PAGE_GOLD.filter(i=>l.includes(i)),...l.filter(i=>!PAGE_GOLD.includes(i))].map(itemChip).join(""); };
 /* card da página inicial: itens básicos de todas (azul) e depois os destaques que a lancha tem (dourado) */
 const CARD_BASIC = ["Combustível","Gelo escama","Carvão","Água mineral","Churrasqueira","Cooler","Som Bluetooth"];
 const CARD_EXTRA = ["Tapete flutuante"]; /* aparece no card só nas lanchas que têm (2026-11-14) */
@@ -2277,8 +2277,12 @@ const ITEM_ICON = {
 };
 Object.assign(ITEM_ICON, {"Coletes salva-vidas para todos":ITEM_ICON["Coletes para todos"], "Gelo escama (1 caixa)":ITEM_ICON["Gelo escama"], "Carvão (1 saco)":ITEM_ICON["Carvão"], "Som ambiente":ITEM_ICON["Som Bluetooth"]}); /* itens das escunas (2026-11-14) */
 const CARD_LABEL = {"Televisão":"TV"}; /* nome curto no card da página inicial (2026-11-14) */
-const chipHTML = (i,label) => `<li${STACK_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${label}</li>`;
-const itemChip = i => chipHTML(i, tx(i));
+const PAGE_GOLD = [...STACK_GOLD, "Gerador de energia", "Geladeira", "Air fryer", "Toalhas de banho"]; /* na página da lancha Gerador, Frigobar, Air fryer e Toalhas também são dourados (Rodrigo 2026-11-18); o card da home segue STACK_GOLD */
+const chipHTML = (i,label) => `<li${PAGE_GOLD.includes(i)?' class="gold"':""}>${ITEM_ICON[i]||""}${label}</li>`;
+/* nome curto dos itens nos chips (pt, en, es), para os cards ficarem compactos (Rodrigo 2026-11-18); o nome cadastrado no painel continua o mesmo */
+const ITEM_SHORT = {"Wi-Fi Starlink":["Wi-Fi","Wi-Fi","Wi-Fi"],"Coletes para todos":["Coletes","Life jackets","Chalecos"],"Toldo com sombra":["Toldo","Canopy","Toldo"],"Toalhas de banho":["Toalhas","Towels","Toallas"],"Macarrão flutuante":["Macarrão","Pool noodles","Fideos"],"Máscaras de mergulho":["Máscaras","Snorkel masks","Máscaras"],"Gerador de energia":["Gerador","Generator","Generador"],"Geladeira":["Frigobar","Minibar","Frigobar"]};
+const itemLabel = i => ITEM_SHORT[i] ? ITEM_SHORT[i][lang==="en"?1:lang==="es"?2:0] : tx(i);
+const itemChip = i => chipHTML(i, itemLabel(i));
 const cardChip = i => chipHTML(i, CARD_LABEL[i] || tx(i));
 const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...STACK_GOLD.filter(i=>has.includes(i)), ...CARD_EXTRA.filter(i=>has.includes(i))].map(cardChip).join(""); };
 const stackHTML = b => `<ol class="stack">
