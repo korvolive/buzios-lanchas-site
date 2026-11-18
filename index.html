@@ -874,6 +874,51 @@ html:not(.on-boat) #roteiro{margin-bottom:12px}
 html:not(.on-boat) .how div{border-radius:22px}
 html:not(.on-boat) .faq details{border-radius:16px}
 @media (max-width:600px){html:not(.on-boat) #roteiro,html:not(.on-boat) #duvidas{border-radius:24px}}
+
+/* Versão mais ousada (prévia 2026-11-18): topo limpo só com título e botões, filtro de data sobre o pé da foto,
+   confiança numa seção clara depois das lanchas, nome da lancha por cima da foto do cartão */
+@media (min-width:761px){
+  html:not(.on-boat) .hero.hero-foto .hero-grid{grid-template-columns:minmax(0,640px)}
+  html:not(.on-boat) .hero.hero-foto .wrap{padding-block:96px 120px}
+  html:not(.on-boat) .hero.hero-foto::after{background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/mb-mar.webp) center bottom/auto 100% no-repeat}
+  @media (min-width:1400px){html:not(.on-boat) .hero.hero-foto .wrap.hero-grid{grid-template-columns:minmax(0,640px)}}
+}
+html:not(.on-boat) .when-top{position:relative;z-index:3;margin-top:-52px}
+html:not(.on-boat) .when-top .when{max-width:880px;margin:0 auto;box-shadow:0 18px 40px -22px rgba(4,33,44,.45);flex-wrap:nowrap;align-items:flex-end;gap:14px 18px;padding:16px 18px 16px 24px;border-radius:999px}
+html:not(.on-boat) .when-top .when > strong{width:auto;flex:0 0 auto;max-width:150px;align-self:center;font-size:16px;line-height:1.2}
+html:not(.on-boat) .when-top .when-range{flex:1 1 360px;max-width:none}
+@media (min-width:761px){html:not(.on-boat) .when-top .when::after{display:none}}
+html:not(.on-boat) .when-top .when > label{flex:0 0 130px}
+html:not(.on-boat) .when-top .when-res{position:absolute;left:0;right:0;top:100%;text-align:center;margin-top:10px}
+html:not(.on-boat) .when-top + .faixa{margin-top:22px}
+@media (max-width:760px){
+  html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:84px!important}
+  html:not(.on-boat) .when-top{margin-top:-60px}
+  html:not(.on-boat) .when-top .when{border-radius:24px;flex-wrap:wrap;padding:16px}
+  html:not(.on-boat) .when-top .when > strong{max-width:none;width:100%;text-align:left}
+  html:not(.on-boat) .when-top .when-res{position:static}
+  html:not(.on-boat) .when-top .when > label{flex:.8 1 0}
+  html:not(.on-boat) .when-top .when-range{flex:2 1 0}
+}
+/* confiança: seção clara, seis blocos numa fileira e a garantia dourada ao lado */
+html:not(.on-boat) .confia{padding-block:24px 64px}
+html:not(.on-boat) .confia .trust{background:none;color:var(--ink);padding:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:8px 32px;align-items:start}
+html:not(.on-boat) .confia .trust h2{color:var(--ink);font-size:clamp(30px,4.6vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1.02;grid-column:1/-1}
+html:not(.on-boat) .confia .trust-sub{grid-column:1/-1;color:var(--muted);opacity:1;font-size:17px;margin-bottom:14px}
+html:not(.on-boat) .confia .trust ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+html:not(.on-boat) .confia .trust li{background:var(--surface);border:0;border-radius:20px;padding:18px;color:var(--ink);min-height:0}
+html:not(.on-boat) .confia .trust li strong{color:var(--ink)}
+html:not(.on-boat) .confia .trust-ic{color:var(--brass)}
+html:not(.on-boat) .confia .trust .guar{display:block;margin:0;color:var(--ink);background:color-mix(in srgb,var(--brass) 16%,var(--surface));border:0;border-radius:22px;padding:22px}
+html:not(.on-boat) .confia .guar b{color:#7a5a12}
+@media (max-width:900px){html:not(.on-boat) .confia .trust{grid-template-columns:1fr}html:not(.on-boat) .confia .trust ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* cartões: foto maior, nome e tamanho por cima da foto */
+html:not(.on-boat) .ph-wrap{position:relative}
+html:not(.on-boat) .card .ph{aspect-ratio:1/1}
+html:not(.on-boat) .ph-wrap .c-head{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:56px 16px 14px;background:linear-gradient(180deg,rgba(4,33,44,0),rgba(4,33,44,.8));justify-content:flex-start;flex-direction:column;align-items:flex-start;gap:4px}
+html:not(.on-boat) .ph-wrap .c-head h3{color:#fff;font-size:26px;margin:0}
+html:not(.on-boat) .ph-wrap .specs,html:not(.on-boat) .ph-wrap .specs b{color:#fff}
+html:not(.on-boat) .card .body{padding-top:14px}
 </style>
 
 <header class="top">
@@ -1282,7 +1327,7 @@ const UI = {
     seoDesc:"Aluguel de lancha em Búzios (RJ) com marinheiro, combustível, carvão, gelo e água mineral inclusos. Passeios privativos de 4 ou 7 horas para até 16 pessoas. Consulte pelo WhatsApp.",
     seoBoatTitle:"{name}: lancha de {feet} pés para até {cap} pessoas em Búzios | Búzios Lanchas",
     seoBoatTail:"Passeio privativo em Búzios, com marinheiro e combustível inclusos.",
-    heroTitle:"Aluguel de lancha em Búzios", heroLead:"No tamanho certo para o seu grupo, com marinheiro e combustível inclusos.", barT:"Lanchas em Búzios", barSub:"Com marinheiro", barGo:"Ver as lanchas", fx:["Passeio privativo, só o seu grupo a bordo","Gelo, carvão, água mineral e cooler inclusos","Traga as carnes que a equipe faz o churrasco"], heroPhotoAlt:"Grupo de amigas na proa da lancha Miss Bardot, em despedida de solteira em Búzios",
+    heroTitle:"Seu dia no mar de Búzios.", heroLead:"Aluguel de lancha com marinheiro e combustível inclusos, no tamanho certo para o seu grupo.", barT:"Lanchas em Búzios", barSub:"Com marinheiro", barGo:"Ver as lanchas", fx:["Passeio privativo, só o seu grupo a bordo","Gelo, carvão, água mineral e cooler inclusos","Traga as carnes que a equipe faz o churrasco"], heroPhotoAlt:"Grupo de amigas na proa da lancha Miss Bardot, em despedida de solteira em Búzios",
     heroText:"Passeios privativos com marinheiro, combustível, carvão, gelo e água mineral inclusos. Traga suas bebidas e carnes que a equipe prepara o churrasco a bordo. De casais a grupos de até 16 pessoas.",
     heroMeet:"Conhecer a Miss Bardot", heroAll:"Ver as lanchas disponíveis", heroRev:"+100 avaliações 5 estrelas no Google",
     fleetEyebrow:"Nossas lanchas", fleetTitle:"Escolha pelo tamanho do grupo",
@@ -1339,7 +1384,7 @@ const UI = {
     seoDesc:"Private boat rental in Búzios, Rio de Janeiro, with skipper, fuel, charcoal, ice and mineral water included. 4 or 7 hour tours for up to 16 people. Ask on WhatsApp.",
     seoBoatTitle:"{name}: {feet}-foot boat for up to {cap} people in Búzios | Búzios Lanchas",
     seoBoatTail:"Private boat tour in Búzios, Brazil, with skipper and fuel included.",
-    heroTitle:"Boat rental in Búzios", heroLead:"The right size for your group, with skipper and fuel included.", barT:"Boats in Búzios", barSub:"With skipper", barGo:"See the boats", fx:["Private tour, only your group on board","Ice, charcoal, water and cooler included","Bring the meat and the crew grills it for you"], heroPhotoAlt:"Group of friends on the bow of the Miss Bardot, at a bachelorette party in Búzios",
+    heroTitle:"Your day at sea in Búzios.", heroLead:"Boat rental with skipper and fuel included, the right size for your group.", barT:"Boats in Búzios", barSub:"With skipper", barGo:"See the boats", fx:["Private tour, only your group on board","Ice, charcoal, water and cooler included","Bring the meat and the crew grills it for you"], heroPhotoAlt:"Group of friends on the bow of the Miss Bardot, at a bachelorette party in Búzios",
     heroText:"Private tours with skipper, fuel, charcoal, ice and mineral water included. Bring your drinks and meat and the crew will grill on board. From couples to groups of up to 16 people.",
     heroMeet:"Meet Miss Bardot", heroAll:"See available boats", heroRev:"100+ five-star reviews on Google",
     fleetEyebrow:"Our boats", fleetTitle:"Choose by group size",
@@ -1396,7 +1441,7 @@ const UI = {
     seoDesc:"Alquiler de lanchas en Búzios (Río de Janeiro) con marinero, combustible, carbón, hielo y agua mineral incluidos. Paseos privados de 4 o 7 horas para hasta 16 personas. Consulta por WhatsApp.",
     seoBoatTitle:"{name}: lancha de {feet} pies para hasta {cap} personas en Búzios | Búzios Lanchas",
     seoBoatTail:"Paseo privado en Búzios, Brasil, con marinero y combustible incluidos.",
-    heroTitle:"Alquiler de lanchas en Búzios", heroLead:"Del tamaño ideal para tu grupo, con marinero y combustible incluidos.", barT:"Lanchas en Búzios", barSub:"Con marinero", barGo:"Ver las lanchas", fx:["Paseo privado, solo tu grupo a bordo","Hielo, carbón, agua mineral y cooler incluidos","Trae la carne y el equipo hace el asado"], heroPhotoAlt:"Grupo de amigas en la proa de la lancha Miss Bardot, en una despedida de soltera en Búzios",
+    heroTitle:"Tu día en el mar de Búzios.", heroLead:"Alquiler de lanchas con marinero y combustible incluidos, del tamaño ideal para tu grupo.", barT:"Lanchas en Búzios", barSub:"Con marinero", barGo:"Ver las lanchas", fx:["Paseo privado, solo tu grupo a bordo","Hielo, carbón, agua mineral y cooler incluidos","Trae la carne y el equipo hace el asado"], heroPhotoAlt:"Grupo de amigas en la proa de la lancha Miss Bardot, en una despedida de soltera en Búzios",
     heroText:"Paseos privados con marinero, combustible, carbón, hielo y agua mineral incluidos. Trae tus bebidas y carnes, y la tripulación prepara el asado a bordo. Desde parejas hasta grupos de hasta 16 personas.",
     heroMeet:"Conocer la Miss Bardot", heroAll:"Ver lanchas disponibles", heroRev:"+100 reseñas de 5 estrellas en Google",
     fleetEyebrow:"Nuestras lanchas", fleetTitle:"Elige según el tamaño del grupo",
@@ -3104,28 +3149,11 @@ function home(){
   /* a lancha destaque (Miss Bardot) vem sempre em primeiro */
   const list = [...sorted.filter(b=>b.featured), ...sorted.filter(b=>!b.featured)];
   const q = [when.de&&`data=${when.de}`, when.people&&`pessoas=${when.people}`].filter(Boolean).join("&");
-  return `
-  <section class="hero${CID?"":" hero-foto"}" id="inicio">
-    <div class="wrap hero-grid"><div class="hero-text">
-      <h1>${t("heroTitle")}</h1>
-      <p class="hero-lead">${t("heroLead")}</p>
-      ${CID?`<a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
-      <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
-      ${guarHTML(false)}
-    </div>
-    ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
-    <aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
+  /* versão mais ousada (prévia 2026-11-18): em Búzios o filtro de data fica sobre o pé da foto do topo e o quadro de confiança vira seção depois das lanchas */
+  const trustH = `<aside class="trust" aria-labelledby="trust-title"><h2 id="trust-title">${t("trustTitle")}</h2><p class="trust-sub">${t("trustSub")}</p><ul>
       ${TRUST_ICONS.map((ic,i)=>`<li tabindex="0"><span class="trust-ic" aria-hidden="true">${ic}</span><div><strong>${t(`trust${i+1}t`)}</strong><span>${t(`trust${i+1}p`)}</span></div></li>`).join("\n      ")}
-    </ul>${guarHTML(false)}</aside>
-    </div>
-    <canvas id="waves" aria-hidden="true"></canvas>
-  </section>
-  ${CID?"":faixaHTML()}
-  <section class="section" id="frota"><div class="wrap">
-    <div class="section-head">
-      <div><span class="eyebrow">${t(catNow()==="escuna"?"escEyebrow":"fleetEyebrow")}</span><h2>${t(catNow()==="escuna"?"escTitle":"fleetTitle")}</h2></div>${catTabs()}
-    </div>
-    <div class="when" role="group" aria-label="${t("whenTitle")}">
+    </ul>${guarHTML(false)}</aside>`;
+  const whenH = `<div class="when" role="group" aria-label="${t("whenTitle")}">
       <strong>${t("whenTitle")}</strong>
       <div class="when-range">
       <div class="wl"><span>${t("whenFrom")}</span><button type="button" id="w-de" class="pk-dbtn${when.de?"":" ph"}" aria-expanded="false" aria-controls="w-cal">${when.de?dm(when.de):t("whenPick")}</button></div>
@@ -3134,16 +3162,36 @@ function home(){
       <label><span>${t("whenPeople")}</span><select id="w-people" aria-label="${t("pickPeople")}"><option value="">${t("whenPeoplePh")}</option>${Array.from({length:maxCap()},(_,i)=>`<option value="${i+1}"${+when.people===i+1?" selected":""}>${i+1}</option>`).join("")}</select></label>
       ${when.de||when.people?`<button type="button" class="when-clear" id="w-clear">${t("whenClear")}</button>`:""}
       <p class="when-res" id="w-res" aria-live="polite"></p>
+    </div>`;
+  return `
+  <section class="hero${CID?"":" hero-foto"}" id="inicio">
+    <div class="wrap hero-grid"><div class="hero-text">
+      <h1>${t("heroTitle")}</h1>
+      <p class="hero-lead">${t("heroLead")}</p>
+      ${CID?`<a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
+      <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
+      ${CID?guarHTML(false):""}
     </div>
+    ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
+    ${CID?trustH:""}
+    </div>
+    <canvas id="waves" aria-hidden="true"></canvas>
+  </section>
+  ${CID?"":`<div class="wrap when-top">${whenH}</div>`}
+  ${CID?"":faixaHTML()}
+  <section class="section" id="frota"><div class="wrap">
+    <div class="section-head">
+      <div><span class="eyebrow">${t(catNow()==="escuna"?"escEyebrow":"fleetEyebrow")}</span><h2>${t(catNow()==="escuna"?"escTitle":"fleetTitle")}</h2></div>${catTabs()}
+    </div>
+    ${CID?whenH:""}
     ${vendCard(null)}
     <div class="car-nav"${list.length>1?"":" hidden"}><span class="car-count" aria-live="polite"></span><div class="car-track" aria-hidden="true"><i></i></div><button type="button" class="car-btn prev" data-car="-1" aria-label="${t("carPrev")}" disabled>‹</button><button type="button" class="car-btn next" data-car="1" aria-label="${t("carNext")}">›</button></div><div class="fleet-car"><div class="grid">
       ${list.map((b,i)=>`
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" data-o="${i}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           <span class="c-rw" data-rate="${b.slug}" hidden><span class="c-rate" role="button" tabindex="0" aria-expanded="false"></span><span class="c-rev"></span></span>
-          ${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}
-          <div class="body">
-            <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>${isEsc(b)?"":`<p class="c-jet" data-jetc="${b.slug}" hidden></p>`}
+          <div class="ph-wrap">${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}<div class="c-head"><h3>${b.name}</h3>${specs(b)}</div></div>
+          <div class="body">${isEsc(b)?"":`<p class="c-jet" data-jetc="${b.slug}" hidden></p>`}
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
             <div class="price-from">${isEsc(b)?`<div><strong>${t("escCard")}</strong></div>`:`<div class="pf-v" data-pf="${b.slug}">${pfSemData(b)}</div>`}<span class="go">${t(isEsc(b)?"seeEsc":"seeBoat")}</span></div>
           </div>
@@ -3151,6 +3199,7 @@ function home(){
     </div></div>
     ${waCta()}
   </div></section>
+  ${CID?"":`<section class="section confia" id="confianca"><div class="wrap">${trustH}</div></section>`}
   ${CID ? "" : routeSection() /* roteiro e mapa só de Búzios por enquanto; as outras cidades ganham o delas depois */}
   <section class="section" id="como" style="padding-top:0"><div class="wrap">
     <div class="section-head"><div><span class="eyebrow">${t("howEyebrow")}</span><h2>${t("howTitle")}</h2></div></div>
