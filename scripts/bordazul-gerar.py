@@ -26,6 +26,9 @@ PATH = {"pt": "/", "en": "/en/", "es": "/es/"}
 BUZ = "/buzios"
 HL = {"pt": "pt-BR", "en": "en", "es": "es"}
 HOJE = "2026-11-15"
+# Trava de número negativo (2026-11-17): o bordazul.com.br não enxerga a raiz, então o /sem-negativo.js vai embutido no <head>.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sem-negativo.js"), encoding="utf-8") as _f:
+    SEM_NEG = "<script>/* igual a /sem-negativo.js do site de Búzios (o bordazul.com.br não enxerga a raiz) */\n" + _f.read().rstrip("\n") + "\n</script>\n"
 
 # Regiões e destinos. aberto = URL do site com barcos (por enquanto só Búzios). uf = estado.
 DEST = [
@@ -51,7 +54,7 @@ HERO_FOTOS = [("img/mar-buzios.jpg", 1600, 1080, 0, "center"),
 
 T = {
  "pt": dict(
-  title="Bordazul | Aluguel de barco com marinheiro no Brasil",
+  title="Bordazul | Aluguel de lancha com marinheiro no Brasil",
   desc="Aluguel de lancha, iate e escuna com marinheiro nos mares do Brasil. Embarque aberto em Búzios; em breve Arraial do Cabo, Rio, Angra, Paraty e outros destinos.",
   nav=[("#destinos", "Destinos"), ("#como", "Como funciona"), ("#barco", "Tem um barco?"), ("#perguntas", "Perguntas")],
   navcta="Barcos em Búzios", lang="Idioma",
@@ -107,7 +110,7 @@ T = {
   noscript="Para ver as lanchas, abra o site de Búzios.",
  ),
  "en": dict(
-  title="Bordazul | Boat rental with a skipper in Brazil",
+  title="Bordazul | Motorboat rental with a skipper in Brazil",
   desc="Rent a motorboat, yacht or schooner with a skipper on Brazil's waters. Now boarding in Búzios; coming soon to Arraial do Cabo, Rio, Angra, Paraty and more.",
   nav=[("#destinos", "Destinations"), ("#como", "How it works"), ("#barco", "Own a boat?"), ("#perguntas", "Questions")],
   navcta="Boats in Búzios", lang="Language",
@@ -163,7 +166,7 @@ T = {
   noscript="To see the boats, open the Búzios website.",
  ),
  "es": dict(
-  title="Bordazul | Alquiler de barco con marinero en Brasil",
+  title="Bordazul | Alquiler de lancha con marinero en Brasil",
   desc="Alquiler de lancha, yate y goleta con marinero en los mares de Brasil. Embarque abierto en Búzios; muy pronto Arraial do Cabo, Río, Angra, Paraty y más destinos.",
   nav=[("#destinos", "Destinos"), ("#como", "Cómo funciona"), ("#barco", "¿Tienes un barco?"), ("#perguntas", "Preguntas")],
   navcta="Barcos en Búzios", lang="Idioma",
@@ -429,7 +432,7 @@ var now=new Date(),iso=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2
 document.querySelectorAll("[data-step]").forEach(function(b){b.addEventListener("click",function(){var v=(+p.value||1)+(+b.dataset.step);p.value=Math.max(1,Math.min(60,v));});});
 function show(){var o=s.options[s.selectedIndex];out.innerHTML="";if(!o)return;
  if(o.dataset.url){out.textContent=f.dataset.aberto;}else{var c=o.dataset.nome,m=f.dataset.wa.replace("{c}",c);
-  out.innerHTML=f.dataset.breve.replace("{c}",c)+' <a href="https://wa.me/'+f.dataset.num+'?text='+encodeURIComponent(m)+'" rel="noopener">'+f.dataset.btn+'</a>';}}
+  out.innerHTML=f.dataset.breve.replace("{c}",c)+' <a href="https://wa.me/'+f.dataset.num+'?text='+encodeURIComponent(m)+'" target="_blank" rel="noopener">'+f.dataset.btn+'</a>';}}
 s.addEventListener("change",show);
 document.querySelectorAll("[data-pick]").forEach(function(a){a.addEventListener("click",function(ev){ev.preventDefault();s.value=a.dataset.pick;show();document.getElementById("busca").scrollIntoView({behavior:"smooth",block:"center"});});});
 f.addEventListener("submit",function(ev){var o=s.options[s.selectedIndex];ev.preventDefault();if(!o.dataset.url){show();var a=out.querySelector("a");a&&a.focus();return;}
@@ -496,7 +499,7 @@ def pagina(lang):
     return f"""<!doctype html>
 <html lang="{HL[lang]}">
 <head>
-<meta charset="utf-8">
+{SEM_NEG}<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(t["title"])}</title>
 <meta name="description" content="{e(t["desc"])}">
@@ -556,7 +559,7 @@ def pagina(lang):
 
 <section class="sec" id="perguntas"><div class="wrap">
 <div class="faq">
-<div class="side"><h2 class="rv">{e(t["faq_h"])}</h2><p class="rv">{e(t["faq_p"])}</p><a class="btn rv" href="{e(wa(t["wa_geral"]))}" rel="noopener">{ICON_WA}{e(t["cta_btn2"])}</a></div>
+<div class="side"><h2 class="rv">{e(t["faq_h"])}</h2><p class="rv">{e(t["faq_p"])}</p><a class="btn rv" href="{e(wa(t["wa_geral"]))}" target="_blank" rel="noopener">{ICON_WA}{e(t["cta_btn2"])}</a></div>
 <div class="rv">{faq}</div>
 </div>
 <div class="cta rv"><div><h2>{e(t["cta_h"])}</h2><p>{e(t["cta_l"])} {e(t["cta_p"])}</p></div>
@@ -568,9 +571,9 @@ def pagina(lang):
 <div class="row">
 <div><a class="logo" href="{home}">{LOGO}bordazul</a><p class="lema">{e(t["pe_lema"])}</p><p class="about">{e(t["pe_p"])}</p></div>
 <ul>
-<li><a href="{e(wa(t["wa_geral"]))}" rel="noopener">WhatsApp (21) 99927-2550</a></li>
+<li><a href="{e(wa(t["wa_geral"]))}" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a></li>
 <li><a href="{e(bz)}">Búzios, RJ</a></li>
-<li><a href="https://www.instagram.com/missbardotbuzios/" rel="noopener">@missbardotbuzios</a></li>
+<li><a href="https://www.instagram.com/missbardotbuzios/" target="_blank" rel="noopener">@missbardotbuzios</a></li>
 </ul>
 <ul>{nav.replace("<a ", "<li><a ").replace("</a>", "</a></li>")}</ul>
 </div>
