@@ -845,7 +845,7 @@ html:not(.on-boat) .hero.hero-foto{margin:var(--pm) var(--pm) 0;border-radius:28
 html:not(.on-boat) .hero.hero-foto #waves{display:none}
 html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:56px}
 @media (min-width:761px){
-  html:not(.on-boat) .hero.hero-foto::before{bottom:-6px;filter:blur(1.5px);background:linear-gradient(rgba(4,33,44,.45),rgba(4,33,44,.45)),url(/img/capa-festa-bg.webp) center bottom/100% 100%} /* laterais menos borradas (Rodrigo 2026-11-18) */
+  html:not(.on-boat) .hero.hero-foto::before{bottom:-6px;background:linear-gradient(rgba(4,33,44,.55),rgba(4,33,44,.55)),url(/img/capa-festa-bg.webp) center bottom/100% 100%}
   html:not(.on-boat) .hero.hero-foto::after{bottom:0;background:linear-gradient(90deg,rgba(4,33,44,.78) 0%,rgba(4,33,44,.42) 42%,rgba(4,33,44,.18) 60%,rgba(4,33,44,.5) 100%),url(/img/capa-festa.webp) center bottom/auto 100% no-repeat}
   html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px}
 }
@@ -883,8 +883,6 @@ html:not(.on-boat) .faq details{border-radius:16px}
   /* foto inteira no meio com a largura certa para a altura do topo e laterais sumindo suave no fundo desfocado (sem corte em tela larga, Rodrigo 2026-11-18) */
   html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:2048/880;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/capa-festa.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
   @media (min-width:1400px){html:not(.on-boat) .hero.hero-foto .wrap.hero-grid{grid-template-columns:minmax(0,640px)}}
-  /* ultrawide: foto encostada na direita (o lado claro do sol não é repetido) e só o mar da esquerda continua para o lado (Rodrigo 2026-11-18) */
-  @media (min-width:1600px){html:not(.on-boat) .hero.hero-foto::before{top:0;left:0;right:0;bottom:0;filter:none;border-radius:inherit;background:linear-gradient(rgba(4,33,44,.66),rgba(4,33,44,.66)),url(/img/capa-festa-amplo.webp) right bottom/auto 100% no-repeat}html:not(.on-boat) .hero.hero-foto::after{left:auto;right:0;transform:none;border-radius:0 28px 28px 0;--m:linear-gradient(90deg,transparent,#000 18%)}}
 }
 html:not(.on-boat) .when-top{position:relative;z-index:3;margin-top:-52px}
 html:not(.on-boat) .when-top .when{max-width:880px;margin:0 auto;box-shadow:0 18px 40px -22px rgba(4,33,44,.45);flex-wrap:nowrap;align-items:flex-end;gap:14px 18px;padding:16px 18px 16px 24px;border-radius:999px}
