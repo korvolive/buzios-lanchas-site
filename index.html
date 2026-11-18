@@ -2088,11 +2088,14 @@ function cardRatings(){
         rev.innerHTML=`<strong>${sub}</strong>
           <ul style="margin-top:8px">${g.slice(0,3).map(v=>`<li><span class="st" aria-label="${t("siteRevStars",{n:v.nota})}">${"★".repeat(v.nota)}${"☆".repeat(5-v.nota)}</span>${v.texto?`<q>${esc(v.texto)}</q>`:""}<small>${esc(v.autor)}${v.data?" · "+new Date(v.data+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"}):""}</small></li>`).join("")}</ul>
           <span class="all" role="link" tabindex="0">${t("cardRevAll")} ›</span>`; };
-      w.onmouseenter=fill; w.onfocusin=fill;
+      /* a janela cabe sempre inteira dentro do card (o card corta o que passa da borda): mesma margem de 12px dos dois lados (Rodrigo 2026-11-18) */
+      const fit=()=>{ rev.style.width=Math.min(300, card.clientWidth-24)+"px"; };
+      const abre=()=>{ fit(); fill(); };
+      w.onmouseenter=abre; w.onfocusin=abre;
       /* dentro do card (que é um link): tocar no selo abre/fecha os comentários sem abrir a lancha */
       w.onclick=e=>{ e.preventDefault(); e.stopPropagation();
         if(e.target.closest(".all")){ location.href=card.getAttribute("href").split("?")[0]+"#g-revs"; return; }
-        if(e.target.closest(".c-rate")){ fill(); const o=!w.classList.contains("open"); app.querySelectorAll(".c-rw.open").forEach(x=>{ x.classList.remove("open"); x.querySelector(".c-rate").setAttribute("aria-expanded","false"); }); w.classList.toggle("open",o); rate.setAttribute("aria-expanded",String(o)); } };
+        if(e.target.closest(".c-rate")){ abre(); const o=!w.classList.contains("open"); app.querySelectorAll(".c-rw.open").forEach(x=>{ x.classList.remove("open"); x.querySelector(".c-rate").setAttribute("aria-expanded","false"); }); w.classList.toggle("open",o); rate.setAttribute("aria-expanded",String(o)); } };
       w.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); e.target.click(); } if(e.key==="Escape"){ w.classList.remove("open"); rate.focus(); } };
     });
   });
