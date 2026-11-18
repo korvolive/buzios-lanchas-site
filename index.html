@@ -929,6 +929,8 @@ html:not(.on-boat) .confia .trust-ic{margin:0}
 @media (hover:none){html:not(.on-boat) .confia .trust li{cursor:pointer}}
 @media (max-width:400px){html:not(.on-boat) .confia .trust li{min-height:118px;padding:14px}html:not(.on-boat) .confia .trust li strong{font-size:15px}html:not(.on-boat) .confia .trust li div span{font-size:13.5px;padding:12px 14px}}
 @media (prefers-reduced-motion:reduce){html:not(.on-boat) .confia .trust li div span{transition:none}}
+/* WhatsApp ao lado do título "Lanchas de confiança" no computador (Rodrigo 2026-11-18); no celular continua embaixo dos blocos */
+@media (min-width:1240px){html:not(.on-boat) .confia .wrap{position:relative}html:not(.on-boat) .confia .wa-cta{position:absolute;top:4px;right:max(16px,env(safe-area-inset-right,0px));margin:0;max-width:none;flex-wrap:nowrap;white-space:nowrap}}
 /* idioma em botões, igual ao Bordazul (2026-11-18): no computador PT · EN · ES lado a lado; no celular fica a lista compacta */
 .langs{display:none;background:rgba(234,244,246,.1);border-radius:999px;padding:4px;gap:2px}
 .langs button{font:700 13px/1 var(--body);border:0;background:none;color:inherit;opacity:.8;padding:8px 11px;border-radius:999px;cursor:pointer}
