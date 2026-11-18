@@ -655,6 +655,20 @@ input.miss,select.miss{border-color:var(--bad)!important;box-shadow:0 0 0 2px co
 /* o painel nunca arrasta para os lados no celular (Rodrigo 2026-11-16): trava horizontal e nada fica mais largo que a tela */
 html{overflow-x:hidden}@supports (overflow:clip){html,body{overflow-x:clip}}
 html body main#app{max-width:min(560px,100vw)}
+/* abas do administrador em 2 linhas (2026-11-18): ícone com contador no celular; nome quando cabe; uma linha só quando tudo cabe */
+html body .tabs.adm2{display:flex;flex-wrap:wrap}
+html body .tabs.adm2>button{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:3px;padding:10px 2px;font-size:14px;white-space:nowrap;overflow:hidden}
+html body .tabs.adm2>.ntab{display:block;flex:1 1 auto;padding:10px 6px;text-overflow:ellipsis}
+html body .tabs.adm2 .tbr{flex:0 0 100%;height:4px}
+html body .tabs.adm2 .cnt{flex:none;margin:0;font-size:11px;min-width:18px;padding:0 5px;line-height:18px;text-align:center;font-style:normal}
+html body .tabs.adm2 .tl{min-width:0;overflow:hidden;text-overflow:clip}
+html body .tabs.adm2 .ti{display:none;position:relative;font-size:19px;line-height:22px}
+html body .tabs.adm2 .ti .cnt{position:absolute;top:-8px;left:calc(100% - 5px)}
+html body .tabs.adm2[data-m="one"]{flex-wrap:nowrap}html body .tabs.adm2[data-m="one"] .tbr{display:none}
+html body .tabs.adm2[data-m="one"]>button{flex:1 1 auto;padding:10px 3px;font-size:13px}
+html body .tabs.adm2[data-m="ico"]>.itab{overflow:visible;padding:8px 4px}
+html body .tabs.adm2[data-m="ico"] .ti{display:inline-block}
+html body .tabs.adm2[data-m="ico"] .tl,html body .tabs.adm2[data-m="ico"] .itab>.cnt{display:none}
 html body #app .card,html body #app details,html body #app .pseason,html body #app .msec,html body #app .pnet,html body #app .pg{min-width:0;max-width:100%;box-sizing:border-box}
 html body #app .pg{grid-template-columns:20px minmax(0,72px) minmax(0,64px) auto}html body #app .pg:has(.tpx){grid-template-columns:20px minmax(0,70px) minmax(0,118px) auto}
 html body #app .tpx,html body #app .tpp,html body #app .tpp input{min-width:0}
@@ -5637,7 +5651,7 @@ async function openEq(){
 function eqClosed(){ if(!eqOn) return; eqOn=false; clearInterval(eqTimer); eqTimer=null; loadEq().then(eqRefresh); }
 /* atualiza o card na tela (novas mensagens) sem redesenhar tudo */
 function eqRefresh(){ document.querySelectorAll("[data-eqgo]").forEach(c=>{ const h=eqCardHTML(); if(h) c.outerHTML=h; else c.remove(); });
-  const tb=document.querySelector('[data-tab="chat"]'); if(tb) tb.innerHTML = t("eqT") + (S.eq?.nao_lidas ? ` <b class="cnt ch">${S.eq.nao_lidas}</b>` : ""); }
+  const tb=document.querySelector('[data-tab="chat"]'); if(tb){ tb.innerHTML = t("eqT") + (S.eq?.nao_lidas ? ` <b class="cnt ch">${S.eq.nao_lidas}</b>` : ""); fitTabs(); } }
 /* ficha da pessoa para o moderador: advertência, bloqueio e histórico */
 async function eqFicha(uid){
   eqOn=false; clearInterval(eqTimer); eqTimer=null;
@@ -5853,7 +5867,7 @@ function convsChanged(){
   if(view!=="main" || sheetDay || tripRow || chatCid) return;
   const L=document.getElementById("cvlist");
   if(L && S.tab==="conversas" && S.admin){ L.innerHTML=cvListHTML(); bindConvs(L); const f=document.getElementById("cvfil"); if(f){ f.innerHTML=cvFilHTML(); bindConvTab(); }
-    const tb=app.querySelector('[data-tab="conversas"]'); if(tb) tb.innerHTML=`<span aria-hidden="true">💬</span>`+(S.chatUnread?`<b class="cnt ch">${S.chatUnread}</b>`:""); return; }
+    const tb=app.querySelector('[data-tab="conversas"]'); if(tb){ tb.innerHTML=admTabIn("conversas",S.chatUnread||0); fitTabs(); } return; }
   bgView();
 }
 /* lista de conversas para o cliente e para o vendedor */
@@ -6518,6 +6532,7 @@ function mainView(){
     + (S.tab==="vendas" ? (v=>asAvisoHTML(true) + recebHTML(true) + v)(vendHTML()) + asContaHTML(true) : S.tab==="planilha" ? `<div id="pvbox">${planilhaHTML()}</div>` : S.tab==="usuarios" ? usuariosHTML() : S.tab==="conversas" ? convsTabHTML() : S.tab==="pedidos" ? pedidosHTML() : S.jetSel && (S.tab==="lista" || S.tab==="lancha") ? jetHTML() : S.tab==="lista" ? listHTML() : S.tab==="lancha" ? foldCard("nosite",siteVisHTML()) + foldCard("rauto",autoResHTML()) + foldCard("info",boatInfoHTML()) + pricesHTML() /* desconto de grupo pequeno também fica dentro de "Valores da lancha", no fim (2026-10-31) */ /* períodos especiais ficam dentro de "Valores da lancha" (2026-10-23) */ /* "Mudanças feitas pelo dono" saiu (2026-10-26: os valores já têm limites) */ + foldCard("own",ownPricesHTML()) + foldCard("ph",photosHTML()) + foldCard("it",itemsHTML()) + foldCard("dono",ownersHTML()) + (S.asConta && S.asDocs?.status==="ok" ? "" : foldCard("as",asContaHTML())) + foldCard("pixd",donoPixHTML()) + foldCard("mar",marHTML()) + rankHTML() /* jet ski saiu daqui: é escolhido na lista de embarcações, como uma lancha (Rodrigo 2026-11-17) */ + foldCard("mnt",mntHTML()) /* manutenção no fim: uso raro (2026-10-23) */ + (S.asConta && S.asDocs?.status==="ok" ? foldCard("as",asContaHTML()) : "") /* conta aprovada: o selo vai no fim, como rodapé (Rodrigo 2026-11-14) */ : (isRO() ? "" : `<p class="how muted">${t("how")}</p>`) + calendarHTML())
     + (S.admin && !S.notes ? `<p class="msg err">${t("needSql")}</p>` : "") + PW_LINK();
   if(S.tab==="lancha") foldCards(app);
+  fitTabs();
   bindMain();
   if(S.tab==="planilha") pvBind(document.getElementById("pvbox"));
 }
@@ -6603,11 +6618,23 @@ function pvBind(root){ if(!root) return;
   root.querySelectorAll("[data-pvt]").forEach(x=>x.onclick=()=>pvRecibo({tipo:"transf", id:+x.dataset.pvt}, x)); }
 /* abas do painel: as de todos com o nome; as que só o administrador vê (Reservas, Usuários, Conversas) só com o ícone (2026-10-22) */
 const ADM_TABS = {planilha:["📊","tabPlan"], vendas:["💼","tabVend"], pedidos:["📖","tabReq"], usuarios:["👥","tabUsers"], conversas:["💬","chT"]};
+/* administrador (Rodrigo 2026-11-18): as abas só dele descem para uma 2ª linha, no mesmo estilo; com nome no lugar do ícone quando cabe,
+   e tudo numa linha só quando couber. Dono, vendedor, auditor e operador continuam como estavam. */
+const ADM_LBL = {planilha:"tabPlanS", vendas:"tabVend", pedidos:"tabReq", usuarios:"tabUsers", conversas:"tabConv"};
+Object.assign(T.pt,{tabPlanS:"Planilha", tabConv:"Conversas"}); Object.assign(T.en,{tabPlanS:"Sheet", tabConv:"Chats"}); Object.assign(T.es,{tabPlanS:"Planilla", tabConv:"Chats"});
+function admTabIn(k, n){ return `<span class="ti" aria-hidden="true">${ADM_TABS[k][0]}${n?`<b class="cnt${k==="conversas"?" ch":""}">${n}</b>`:""}</span><span class="tl">${t(ADM_LBL[k])}</span>${n?`<b class="cnt${k==="conversas"?" ch":""}">${n}</b>`:""}`; }
+function fitTabs(){ const el=document.querySelector(".tabs.adm2"); if(!el) return;
+  const cut=()=>[...el.querySelectorAll("button")].some(b=>{ const l=b.querySelector(".tl"); return l ? (getComputedStyle(l).display!=="none" && l.scrollWidth>l.clientWidth+.5) : b.scrollWidth>b.clientWidth+.5; });
+  for(const m of ["one","two"]){ el.dataset.m=m; if(!cut()) return; }
+  el.dataset.m="ico"; }
+addEventListener("resize", ()=>{ clearTimeout(fitTabs.tm); fitTabs.tm=setTimeout(fitTabs,80); });
 function tabsHTML(){
   if(S.papel){ const named=[["lista","tabList"]], icons=S.papel==="auditor" ? ["pedidos","usuarios"] : ["pedidos"];
     return `<p class="papelbar" style="margin:0 0 10px;font-size:14px;font-weight:600;padding:8px 12px;border:1.5px solid var(--brass);border-radius:12px">${t(S.papel==="auditor"?"papelAud":"papelOp")}</p><div class="tabs itabs" role="tablist" style="grid-template-columns:auto repeat(${icons.length},40px)">${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span></button>`).join("")}</div>`; }
   const named=[["lista","tabList"],...(isRO()?[]:[["lancha","tabBoat"]]),...(S.vend && !S.admin?[["vendas",S.vend.parceiro?"role_parc":"tabVend"]]:[]),...(S.eq?.membro?[["chat","eqT"]]:[])] /* área do vendedor numa aba própria (2026-10-23); Calendário foi para dentro de Passeios e o Chat Náutico é a última aba (2026-10-25) */, icons=S.admin ? [...(S.vend?["vendas"]:[]),"pedidos","planilha","usuarios",...(S.convs===false?[]:["conversas"])] : [];
   const cnt=k=> k==="pedidos"&&S.reqCount ? `<b class="cnt">${S.reqCount}</b>` : k==="usuarios"&&((S.comPend?.length||0)+(S.vmPend?.length||0)+leadsNew()+rppN()) ? `<b class="cnt">${(S.comPend?.length||0)+(S.vmPend?.length||0)+leadsNew()+rppN()}</b>` : k==="conversas"&&S.chatUnread ? `<b class="cnt ch">${S.chatUnread}</b>` : "";
+  const cntN=k=> k==="pedidos" ? S.reqCount||0 : k==="usuarios" ? (S.comPend?.length||0)+(S.vmPend?.length||0)+leadsNew()+rppN() : k==="conversas" ? S.chatUnread||0 : 0;
+  if(icons.length) return `<div class="tabs adm2" role="tablist" data-m="ico">${named.map(([k,l])=>`<button type="button" role="tab" class="ntab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="chat"&&S.eq?.nao_lidas?` <b class="cnt ch">${S.eq.nao_lidas}</b>`:""}</button>`).join("")}<i class="tbr" aria-hidden="true"></i>${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}">${admTabIn(k,cntN(k))}</button>`).join("")}</div>`;
   return `<div class="tabs${icons.length||named.length>3?" itabs":""}" role="tablist"${icons.length?` style="grid-template-columns:repeat(${named.length},auto) repeat(${icons.length},${icons.length>3?32:40}px)"`:""}>${named.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t(l)}${k==="chat"&&S.eq?.nao_lidas?` <b class="cnt ch">${S.eq.nao_lidas}</b>`:""}</button>`).join("")}${icons.map(k=>`<button type="button" role="tab" class="itab" data-tab="${k}" aria-selected="${S.tab===k}" aria-label="${t(ADM_TABS[k][1])}" title="${t(ADM_TABS[k][1])}"><span aria-hidden="true">${ADM_TABS[k][0]}</span>${cnt(k)}</button>`).join("")}</div>`;
 }
 /* área do vendedor: o link dele, a comissão por período (1% ao teto) e as vendas. O valor neto e o link de cada passeio ficam no site, na página da lancha */
