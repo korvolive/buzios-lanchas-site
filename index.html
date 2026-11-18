@@ -918,6 +918,17 @@ html:not(.on-boat) .hero-foto .hero-text .guar{display:block;max-width:560px;bac
 html:not(.on-boat) .confia .trust .guar{display:none!important}
 html:not(.on-boat) .confia .trust{grid-template-columns:1fr}
 @media (max-width:760px){html:not(.on-boat) .hero-foto .hero-text .guar{text-align:left;margin-top:4px}}
+/* confiança como no topo antigo (Rodrigo 2026-11-18): blocos iguais só com ícone e título; a descrição cobre o bloco ao passar o mouse ou tocar */
+html:not(.on-boat) .confia .trust ul{grid-auto-rows:1fr}
+html:not(.on-boat) .confia .trust li{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;padding:20px;min-height:120px;overflow:hidden;cursor:default;outline:none;border:1.5px solid transparent;transition:border-color .2s}
+html:not(.on-boat) .confia .trust li strong{font-size:17px;line-height:1.25}
+html:not(.on-boat) .confia .trust li div span{position:absolute;inset:0;margin:0;padding:16px 20px;display:flex;align-items:center;font-size:15px;line-height:1.4;color:#eaf4f6;background:var(--sea-deep);opacity:0;transition:opacity .2s;pointer-events:none}
+html:not(.on-boat) .confia .trust li:hover,html:not(.on-boat) .confia .trust li:focus{border-color:var(--brass)}
+html:not(.on-boat) .confia .trust li:hover div span,html:not(.on-boat) .confia .trust li:focus div span{opacity:1}
+html:not(.on-boat) .confia .trust-ic{margin:0}
+@media (hover:none){html:not(.on-boat) .confia .trust li{cursor:pointer}}
+@media (max-width:400px){html:not(.on-boat) .confia .trust li{min-height:118px;padding:14px}html:not(.on-boat) .confia .trust li strong{font-size:15px}html:not(.on-boat) .confia .trust li div span{font-size:13.5px;padding:12px 14px}}
+@media (prefers-reduced-motion:reduce){html:not(.on-boat) .confia .trust li div span{transition:none}}
 /* cartões: foto maior, nome e tamanho por cima da foto */
 html:not(.on-boat) .ph-wrap{position:relative}
 html:not(.on-boat) .card .ph{aspect-ratio:1/1}
