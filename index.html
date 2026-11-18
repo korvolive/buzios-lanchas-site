@@ -854,7 +854,7 @@ html:not(.on-boat) .hero-text .guar{background:rgba(4,33,44,.66)}
 html:not(.on-boat) .hero-foto .trust li{background:rgba(255,255,255,.08);border:0}
 @media (max-width:760px){
   html:not(.on-boat) .hero.hero-foto{border-radius:24px}
-  html:not(.on-boat) .hero-ph::after{display:none}
+  html:not(.on-boat) .hero-ph::after{height:22%;background:linear-gradient(180deg,rgba(4,33,44,0),#04212c)} /* transição suave da foto para o azul (Rodrigo 2026-11-18) */
   html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:24px}
 }
 /* faixa e filtro de data */
@@ -879,8 +879,9 @@ html:not(.on-boat) .faq details{border-radius:16px}
    confiança numa seção clara depois das lanchas, nome da lancha por cima da foto do cartão */
 @media (min-width:761px){
   html:not(.on-boat) .hero.hero-foto .hero-grid{grid-template-columns:minmax(0,640px)}
-  html:not(.on-boat) .hero.hero-foto .wrap{padding-block:96px 120px}
-  html:not(.on-boat) .hero.hero-foto::after{background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/mb-mar.webp) center bottom/auto 100% no-repeat}
+  html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px 96px}
+  /* foto inteira no meio com a largura certa para a altura do topo e laterais sumindo suave no fundo desfocado (sem corte em tela larga, Rodrigo 2026-11-18) */
+  html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:2048/880;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/mb-mar.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
   @media (min-width:1400px){html:not(.on-boat) .hero.hero-foto .wrap.hero-grid{grid-template-columns:minmax(0,640px)}}
 }
 html:not(.on-boat) .when-top{position:relative;z-index:3;margin-top:-52px}
@@ -912,6 +913,30 @@ html:not(.on-boat) .confia .trust-ic{color:var(--brass)}
 html:not(.on-boat) .confia .trust .guar{display:block;margin:0;color:var(--ink);background:color-mix(in srgb,var(--brass) 16%,var(--surface));border:0;border-radius:22px;padding:22px}
 html:not(.on-boat) .confia .guar b{color:#7a5a12}
 @media (max-width:900px){html:not(.on-boat) .confia .trust{grid-template-columns:1fr}html:not(.on-boat) .confia .trust ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* garantia de volta ao topo (Rodrigo 2026-11-18: "é algo importante que chama atenção"), no computador e no celular; some da seção de confiança para não repetir */
+html:not(.on-boat) .hero-foto .hero-text .guar{display:block;max-width:560px;background:rgba(4,33,44,.62);border:1px solid rgba(224,181,77,.55);border-radius:20px}
+html:not(.on-boat) .confia .trust .guar{display:none!important}
+html:not(.on-boat) .confia .trust{grid-template-columns:1fr}
+@media (max-width:760px){html:not(.on-boat) .hero-foto .hero-text .guar{text-align:left;margin-top:4px}}
+/* confiança como no topo antigo (Rodrigo 2026-11-18): blocos iguais só com ícone e título; a descrição cobre o bloco ao passar o mouse ou tocar */
+html:not(.on-boat) .confia .trust ul{grid-auto-rows:1fr}
+html:not(.on-boat) .confia .trust li{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;padding:20px;min-height:120px;overflow:hidden;cursor:default;outline:none;border:1.5px solid transparent;transition:border-color .2s}
+html:not(.on-boat) .confia .trust li strong{font-size:17px;line-height:1.25}
+html:not(.on-boat) .confia .trust li div span{position:absolute;inset:0;margin:0;padding:16px 20px;display:flex;align-items:center;font-size:15px;line-height:1.4;color:#eaf4f6;background:var(--sea-deep);opacity:0;transition:opacity .2s;pointer-events:none}
+html:not(.on-boat) .confia .trust li:hover,html:not(.on-boat) .confia .trust li:focus{border-color:var(--brass)}
+html:not(.on-boat) .confia .trust li:hover div span,html:not(.on-boat) .confia .trust li:focus div span{opacity:1}
+html:not(.on-boat) .confia .trust-ic{margin:0}
+@media (hover:none){html:not(.on-boat) .confia .trust li{cursor:pointer}}
+@media (max-width:400px){html:not(.on-boat) .confia .trust li{min-height:118px;padding:14px}html:not(.on-boat) .confia .trust li strong{font-size:15px}html:not(.on-boat) .confia .trust li div span{font-size:13.5px;padding:12px 14px}}
+@media (prefers-reduced-motion:reduce){html:not(.on-boat) .confia .trust li div span{transition:none}}
+/* idioma em botões, igual ao Bordazul (2026-11-18): no computador PT · EN · ES lado a lado; no celular fica a lista compacta */
+.langs{display:none;background:rgba(234,244,246,.1);border-radius:999px;padding:4px;gap:2px}
+.langs button{font:700 13px/1 var(--body);border:0;background:none;color:inherit;opacity:.8;padding:8px 11px;border-radius:999px;cursor:pointer}
+.langs button:hover{opacity:1}
+.langs button[aria-pressed="true"]{background:var(--brass);color:var(--brass-ink);opacity:1}
+@media (min-width:761px){.langs{display:inline-flex}.lang-pick{display:none!important}}
+html:not(.on-boat) .langs{background:var(--bg)}
+html:not(.on-boat) .langs button[aria-pressed="true"]{background:var(--sea-deep);color:#fff}
 /* cartões: foto maior, nome e tamanho por cima da foto */
 html:not(.on-boat) .ph-wrap{position:relative}
 html:not(.on-boat) .card .ph{aspect-ratio:1/1}
@@ -919,6 +944,19 @@ html:not(.on-boat) .ph-wrap .c-head{position:absolute;left:0;right:0;bottom:0;z-
 html:not(.on-boat) .ph-wrap .c-head h3{color:#fff;font-size:26px;margin:0}
 html:not(.on-boat) .ph-wrap .specs,html:not(.on-boat) .ph-wrap .specs b{color:#fff}
 html:not(.on-boat) .card .body{padding-top:14px}
+/* celular (Rodrigo 2026-11-18): card cabe na tela junto com as setas; foto mais baixa, etiquetas menores, menos espaço */
+@media (max-width:700px){
+  html:not(.on-boat) .card .ph{aspect-ratio:16/10}
+  html:not(.on-boat) .ph-wrap .c-head{padding:40px 14px 10px}
+  html:not(.on-boat) .ph-wrap .c-head h3{font-size:22px}
+  html:not(.on-boat) .card .body{padding:12px 12px 14px;gap:10px}
+  html:not(.on-boat) .fleet-car .c-items{gap:4px}
+  html:not(.on-boat) .fleet-car .c-items li{font-size:11.5px;padding:3px 6px;gap:4px;border-radius:7px}
+  html:not(.on-boat) .fleet-car .c-items svg{width:12px;height:12px}
+  html:not(.on-boat) .card .price-from{padding-top:10px;gap:6px}
+  html:not(.on-boat) .card>.tag{padding:6px 10px}
+  html:not(.on-boat) .car-nav{margin-bottom:10px}
+}
 </style>
 
 <header class="top">
@@ -938,6 +976,7 @@ html:not(.on-boat) .card .body{padding-top:14px}
         </select>
         <svg class="caret" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 3h8L5 8z"/></svg>
       </label>
+      <div class="langs" role="group" aria-label="Idioma · Language · Idioma"><button type="button" data-lg="pt" lang="pt-BR">PT</button><button type="button" data-lg="en" lang="en">EN</button><button type="button" data-lg="es" lang="es">ES</button></div>
       <a class="btn" id="hdr-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
       <a class="login-a" id="hdr-login" href="/login/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span id="hdr-login-t"></span></a>
     </nav>
@@ -3030,6 +3069,7 @@ function applyStatic(){
   }
   setupGetApp(); checkAppUpdate();
   document.getElementById("lang").value = lang;
+  document.querySelectorAll(".langs [data-lg]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.lg===lang ? "true" : "false"));
   document.getElementById("logo").href = BASE ? (lang==="pt"?"/":`/${lang}/`) /* Bordazul: o logo leva ao início do Bordazul */ : pathFor(lang);
   document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
 }
@@ -3038,6 +3078,8 @@ document.getElementById("lang").onchange = e => {
   try{ localStorage.setItem("lang",e.target.value); }catch(err){}
   location.href = pathFor(e.target.value, route.slug);
 };
+/* idioma em botões PT · EN · ES, igual ao Bordazul (Rodrigo 2026-11-18); no celular continua a lista compacta */
+document.querySelectorAll(".langs [data-lg]").forEach(x=>x.onclick=()=>{ const v=x.dataset.lg; if(v===lang) return; try{ localStorage.setItem("lang",v); }catch(err){} location.href = pathFor(v, route.slug); });
 
 /* ============ etiquetas para o Google e para prévias de link (WhatsApp, Instagram) ============ */
 function headTag(sel,tag,attrs){
@@ -3170,7 +3212,7 @@ function home(){
       <p class="hero-lead">${t("heroLead")}</p>
       ${CID?`<a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
       <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
-      ${CID?guarHTML(false):""}
+      ${guarHTML(false)}
     </div>
     ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
     ${CID?trustH:""}
