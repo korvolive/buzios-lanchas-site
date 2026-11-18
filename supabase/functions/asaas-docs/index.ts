@@ -167,6 +167,7 @@ async function d360Key() {
   return String(data?.valor || "");
 }
 // modelo criado sozinho (no máximo 1 tentativa por dia); sem aprovação da Meta o WhatsApp não sai, só o push
+let situacaoModelos: any[] = [];
 async function modeloRej(key: string, cfg: any) {
   const r = await fetch(`${D360}/v1/configs/templates?limit=1000`, { headers: { "D360-API-KEY": key } });
   if (!r.ok) return [] as string[];
@@ -174,6 +175,7 @@ async function modeloRej(key: string, cfg: any) {
   const ts: any[] = jt.waba_templates || jt.data || [];
   const meus = ts.filter((t) => t?.name === MOD_REJ);
   const ok = meus.filter((t) => String(t.status).toLowerCase() === "approved" && String(t.category).toUpperCase() === "UTILITY").map((t) => String(t.language));
+  situacaoModelos = meus.map((t) => ({ idioma: t.language, status: t.status, categoria: t.category, motivo: t.rejected_reason || null }));
   if (!cfg?.docrej_modelo_em || Date.parse(cfg.docrej_modelo_em) < Date.now() - 864e5) {
     await db.from("resgate_config").update({ docrej_modelo_em: new Date().toISOString() }).eq("id", 1);
     for (const lc of Object.keys(MOD_REJ_TXT).filter((lc) => !meus.some((t) => String(t.language) === lc))) {
@@ -306,7 +308,7 @@ Deno.serve(async (req) => {
         const key = await d360Key();
         if (!key) return json({ erro: "sem_chave" });
         await db.from("resgate_config").update({ docrej_modelo_em: null }).eq("id", 1);
-        return json({ aprovados: await modeloRej(key, {}) });
+        return json({ aprovados: await modeloRej(key, {}), modelos: situacaoModelos });
       }
       return json(await avisarRejeitados(b.simular === true));
     }
