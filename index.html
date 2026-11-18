@@ -56,7 +56,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#06394a"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Buzios Lanchas">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- fontes sem travar a primeira pintura no celular: o texto aparece na fonte do aparelho e troca quando a fonte chega -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Urbanist:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Urbanist:wght@500;600;700;800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <script>/* foto do topo da página inicial: pede logo no começo, antes de o navegador achar o fundo no CSS */if(/^(\/buzios)?\/((en|es)\/)?$/.test(location.pathname)&&!document.querySelector('link[rel="preload"][imagesrcset*="mb-c12"]')){var hl=document.createElement("link");hl.rel="preload";hl.as="image";hl.href="/img/mb-c12.webp";hl.setAttribute("imagesrcset","/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w");hl.setAttribute("imagesizes","100vw");hl.setAttribute("fetchpriority","high");document.head.appendChild(hl);}</script>
 <style>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
@@ -826,6 +826,54 @@ html.is-app .barra{display:none}
 .hero-foto .guar b{display:flex;align-items:center;gap:8px;font-size:17px;color:#f3d48a;margin-bottom:6px}
 .guar-ic{display:none}.hero-foto .guar-ic{display:block;width:22px;height:22px;flex:none} /* escudo só na home de Búzios: nas lanchas e no Bordazul fica escondido */
 .hero-foto .guar p{font-size:15px;opacity:.95}
+
+/* Meio-termo com o Bordazul (2026-11-18, pedido do Rodrigo): só a página inicial (html sem .on-boat).
+   Fonte Urbanist, cabeçalho claro, topo como um quadro de foto arredondado com margem (sem a onda), filtro e cartões
+   mais arredondados e sem linha, seções escuras como painéis arredondados. Continua dourado + azul-petróleo da Búzios Lanchas. */
+html:not(.on-boat){--display:"Urbanist",ui-sans-serif,system-ui,sans-serif;--body:"Urbanist",ui-sans-serif,system-ui,sans-serif;--pm:clamp(8px,1.3vw,22px)}
+html:not(.on-boat) body{font-weight:500}
+html:not(.on-boat) header.top{background:#fff;color:var(--ink)}
+html:not(.on-boat) header.top .logo small{opacity:.6}
+html:not(.on-boat) nav.top a:not(.btn):not(.login-a){font-weight:600}
+html:not(.on-boat) .login-a{color:var(--ink);border-color:var(--line);background:var(--bg)}
+html:not(.on-boat) .lang{color:var(--brass-ink)}
+html:not(.on-boat) h1,html:not(.on-boat) h2,html:not(.on-boat) h3{font-family:var(--display)}
+html:not(.on-boat) .hero h1{font-weight:800;letter-spacing:-.03em;line-height:.98}
+html:not(.on-boat) .section-head h2{font-weight:800;letter-spacing:-.03em}
+/* topo: quadro de foto com cantos arredondados e margem, como no Bordazul */
+html:not(.on-boat) .hero.hero-foto{margin:var(--pm) var(--pm) 0;border-radius:28px;isolation:isolate}
+html:not(.on-boat) .hero.hero-foto #waves{display:none}
+html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:56px}
+@media (min-width:761px){
+  html:not(.on-boat) .hero.hero-foto::before{bottom:-6px;background:linear-gradient(rgba(4,33,44,.55),rgba(4,33,44,.55)),url(/img/mb-mar.webp) center bottom/100% 100%}
+  html:not(.on-boat) .hero.hero-foto::after{bottom:0;background:linear-gradient(90deg,rgba(4,33,44,.78) 0%,rgba(4,33,44,.42) 42%,rgba(4,33,44,.18) 60%,rgba(4,33,44,.5) 100%),url(/img/mb-mar.webp) center bottom/auto 100% no-repeat}
+  html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px}
+}
+html:not(.on-boat) .hero-foto .trust{background:rgba(4,33,44,.5)}
+html:not(.on-boat) .hero-text .guar{background:rgba(4,33,44,.66)}
+html:not(.on-boat) .hero-foto .trust li{background:rgba(255,255,255,.08);border:0}
+@media (max-width:760px){
+  html:not(.on-boat) .hero.hero-foto{border-radius:24px}
+  html:not(.on-boat) .hero-ph::after{display:none}
+  html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:24px}
+}
+/* faixa e filtro de data */
+html:not(.on-boat) .faixa{background:transparent;padding:18px 0 4px}
+html:not(.on-boat) .when{border:0;border-radius:24px;padding:18px 22px}
+html:not(.on-boat) .when .pk-dbtn,html:not(.on-boat) .when select{border:0;border-radius:14px;background-color:var(--bg)}
+html:not(.on-boat) .when > strong{font-weight:800;font-size:17px}
+/* cartões das lanchas: mais arredondados, sem linha em volta (o branco sobre o fundo claro já separa) */
+html:not(.on-boat) .card{border-radius:22px;border-color:transparent}
+html:not(.on-boat) .card.feat{border-color:var(--brass)}
+html:not(.on-boat) .card h3{font-weight:800;letter-spacing:-.02em}
+html:not(.on-boat) .cat-tabs,html:not(.on-boat) .car-btn{border:0}
+/* seções escuras viram painéis arredondados com margem */
+html:not(.on-boat) #roteiro,html:not(.on-boat) #duvidas{margin:0 var(--pm);border-radius:28px}
+html:not(.on-boat) #duvidas{margin-bottom:var(--pm);padding-bottom:64px}
+html:not(.on-boat) #roteiro{margin-bottom:12px}
+html:not(.on-boat) .how div{border-radius:22px}
+html:not(.on-boat) .faq details{border-radius:16px}
+@media (max-width:600px){html:not(.on-boat) #roteiro,html:not(.on-boat) #duvidas{border-radius:24px}}
 </style>
 
 <header class="top">
