@@ -944,6 +944,19 @@ html:not(.on-boat) .ph-wrap .c-head{position:absolute;left:0;right:0;bottom:0;z-
 html:not(.on-boat) .ph-wrap .c-head h3{color:#fff;font-size:26px;margin:0}
 html:not(.on-boat) .ph-wrap .specs,html:not(.on-boat) .ph-wrap .specs b{color:#fff}
 html:not(.on-boat) .card .body{padding-top:14px}
+/* celular (Rodrigo 2026-11-18): card cabe na tela junto com as setas; foto mais baixa, etiquetas menores, menos espaço */
+@media (max-width:700px){
+  html:not(.on-boat) .card .ph{aspect-ratio:16/10}
+  html:not(.on-boat) .ph-wrap .c-head{padding:40px 14px 10px}
+  html:not(.on-boat) .ph-wrap .c-head h3{font-size:22px}
+  html:not(.on-boat) .card .body{padding:12px 12px 14px;gap:10px}
+  html:not(.on-boat) .fleet-car .c-items{gap:4px}
+  html:not(.on-boat) .fleet-car .c-items li{font-size:11.5px;padding:3px 6px;gap:4px;border-radius:7px}
+  html:not(.on-boat) .fleet-car .c-items svg{width:12px;height:12px}
+  html:not(.on-boat) .card .price-from{padding-top:10px;gap:6px}
+  html:not(.on-boat) .card>.tag{padding:6px 10px}
+  html:not(.on-boat) .car-nav{margin-bottom:10px}
+}
 </style>
 
 <header class="top">
