@@ -929,6 +929,14 @@ html:not(.on-boat) .confia .trust-ic{margin:0}
 @media (hover:none){html:not(.on-boat) .confia .trust li{cursor:pointer}}
 @media (max-width:400px){html:not(.on-boat) .confia .trust li{min-height:118px;padding:14px}html:not(.on-boat) .confia .trust li strong{font-size:15px}html:not(.on-boat) .confia .trust li div span{font-size:13.5px;padding:12px 14px}}
 @media (prefers-reduced-motion:reduce){html:not(.on-boat) .confia .trust li div span{transition:none}}
+/* idioma em botões, igual ao Bordazul (2026-11-18): no computador PT · EN · ES lado a lado; no celular fica a lista compacta */
+.langs{display:none;background:rgba(234,244,246,.1);border-radius:999px;padding:4px;gap:2px}
+.langs button{font:700 13px/1 var(--body);border:0;background:none;color:inherit;opacity:.8;padding:8px 11px;border-radius:999px;cursor:pointer}
+.langs button:hover{opacity:1}
+.langs button[aria-pressed="true"]{background:var(--brass);color:var(--brass-ink);opacity:1}
+@media (min-width:761px){.langs{display:inline-flex}.lang-pick{display:none!important}}
+html:not(.on-boat) .langs{background:var(--bg)}
+html:not(.on-boat) .langs button[aria-pressed="true"]{background:var(--sea-deep);color:#fff}
 /* cartões: foto maior, nome e tamanho por cima da foto */
 html:not(.on-boat) .ph-wrap{position:relative}
 html:not(.on-boat) .card .ph{aspect-ratio:1/1}
@@ -955,6 +963,7 @@ html:not(.on-boat) .card .body{padding-top:14px}
         </select>
         <svg class="caret" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 3h8L5 8z"/></svg>
       </label>
+      <div class="langs" role="group" aria-label="Idioma · Language · Idioma"><button type="button" data-lg="pt" lang="pt-BR">PT</button><button type="button" data-lg="en" lang="en">EN</button><button type="button" data-lg="es" lang="es">ES</button></div>
       <a class="btn" id="hdr-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
       <a class="login-a" id="hdr-login" href="/login/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg><span id="hdr-login-t"></span></a>
     </nav>
@@ -3047,6 +3056,7 @@ function applyStatic(){
   }
   setupGetApp(); checkAppUpdate();
   document.getElementById("lang").value = lang;
+  document.querySelectorAll(".langs [data-lg]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.lg===lang ? "true" : "false"));
   document.getElementById("logo").href = BASE ? (lang==="pt"?"/":`/${lang}/`) /* Bordazul: o logo leva ao início do Bordazul */ : pathFor(lang);
   document.querySelectorAll("nav.top [data-scroll]").forEach(a=>a.href=pathFor(lang)+"#"+a.dataset.scroll);
 }
@@ -3055,6 +3065,8 @@ document.getElementById("lang").onchange = e => {
   try{ localStorage.setItem("lang",e.target.value); }catch(err){}
   location.href = pathFor(e.target.value, route.slug);
 };
+/* idioma em botões PT · EN · ES, igual ao Bordazul (Rodrigo 2026-11-18); no celular continua a lista compacta */
+document.querySelectorAll(".langs [data-lg]").forEach(x=>x.onclick=()=>{ const v=x.dataset.lg; if(v===lang) return; try{ localStorage.setItem("lang",v); }catch(err){} location.href = pathFor(v, route.slug); });
 
 /* ============ etiquetas para o Google e para prévias de link (WhatsApp, Instagram) ============ */
 function headTag(sel,tag,attrs){
