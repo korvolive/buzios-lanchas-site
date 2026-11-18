@@ -3,7 +3,7 @@
 // Por dentro, a conta ganha um e-mail que não existe (wa<celular>@sem-email.lanchaembuzios.com.br): ninguém manda nada para ele.
 // POST { acao: "status" }                                   -> { ativo }
 // POST { acao: "enviar", tel, lang, para: "cadastro"|"senha" } -> { ok } | { erro: "ja_tem" | "sem_conta" | "espere" | "limite" | "tel" | "nao_configurado" | "envio" }
-// POST { acao: "criar", tel, codigo, senha, nome, cpf, whatsapp, nascimento, lang } -> a sessão | { erro: "codigo" | "tentativas" | "ja_tem" | "tel_ja" | "cpf_ja" | "cpf" | "dados" }
+// POST { acao: "criar", tel, codigo, senha, nome, cpf?, whatsapp, nascimento?, lang } -> a sessão | { erro: "codigo" | "tentativas" | "ja_tem" | "tel_ja" | "cpf_ja" | "cpf" | "dados" }
 // POST { acao: "trocar", tel, codigo, senha }               -> a sessão | { erro: "codigo" | "tentativas" | "sem_conta" | "dados" }
 // POST { acao: "email", novo } (logado, conta sem e-mail)   -> { ok } (manda o código de confirmação para o e-mail novo) | { erro: "email" | "usado" | "tem_email" }
 // POST { acao: "email_cancelar" } (logado)                  -> { ok } (volta a conta para sem e-mail, se o novo não foi confirmado)
@@ -262,13 +262,13 @@ Deno.serve(async req => {
     if (b.acao === "criar") {
       const nome = String(b.nome || "").replace(/\s+/g, " ").trim(), senha = String(b.senha || ""), cpf = dig(b.cpf) || null, nasc = String(b.nascimento || "");
       const whatsapp = String(b.whatsapp || "").trim();
-      if (nome.length < 5 || !nome.includes(" ") || senha.length < 6 || !/^\d{4}-\d{2}-\d{2}$/.test(nasc) || dig(whatsapp) !== t) return json({ erro: "dados" }, 400);
+      if (nome.length < 5 || nome.length > 120 || !nome.includes(" ") || senha.length < 6 || (nasc && !/^\d{4}-\d{2}-\d{2}$/.test(nasc)) || dig(whatsapp) !== t) return json({ erro: "dados" }, 400); // nascimento e CPF podem ficar para depois: a janelinha "Ver valor desta data" do site cria a conta só com nome e WhatsApp (Rodrigo 2026-11-18); o app pede o resto antes do pagamento
       const e = await confere(t, b.codigo, "cadastro"); if (e) return json({ erro: e }, e === "tentativas" ? 429 : 400);
       if ((await contas(t)).length) return json({ erro: "ja_tem" });
       const email = `wa${t}${SEM}`;
       const { data: nu, error } = await db.auth.admin.createUser({ email, password: senha, email_confirm: true, user_metadata: { lang: b.lang || "pt", full_name: nome, sem_email: true } });
       if (error || !nu?.user) return json({ erro: /already|registered|exists/i.test(error?.message || "") ? "ja_tem" : "falhou" }, 400);
-      const { error: ce } = await db.from("clientes").insert({ user_id: nu.user.id, nome, cpf, whatsapp, nascimento: nasc, whatsapp_ok_em: new Date().toISOString() });
+      const { error: ce } = await db.from("clientes").insert({ user_id: nu.user.id, nome, cpf, whatsapp, nascimento: nasc || null, whatsapp_ok_em: new Date().toISOString() });
       if (ce) {
         await db.auth.admin.deleteUser(nu.user.id);
         return json({ erro: ce.code === "23505" ? (/whatsapp/i.test(ce.message) ? "tel_ja" : "cpf_ja") : /check|cpf/i.test(ce.message) ? "cpf" : "dados" }, 400);
