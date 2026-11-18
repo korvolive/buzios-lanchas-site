@@ -8196,10 +8196,10 @@ function renderTrip(){
   const divb=document.getElementById("divbox");
   /* passeio lançado pelo administrador (cliente ainda não viu valor): a parte da Búzios vai até 20% do neto do dono, ou até o valor da tabela se ele for maior (Réveillon com Búzios a mais) (2026-10-29) */
   const bzCap = (row, N) => Math.max(Math.round(N*1.2/10)*10, +pedCalc(row).tot || 0);
-  if(divb){ const drow={lancha:tripRow.lancha, data:tripRow.data, horario:tripRow.horario};
+  if(divb){ let drow={lancha:tripRow.lancha, data:tripRow.data, horario:tripRow.horario};
     divb.innerHTML=`<span id="divin"></span><label id="divedit" class="divedit" hidden><span>✏️ ${t("divNeto")}</span><input type="number" inputmode="decimal" min="0" step="any" id="n-netodono" value="${+tripRow.nota?.neto_dono>0?+tripRow.nota.neto_dono:""}"></label>`;
     const divin=divb.querySelector("#divin"), divedit=divb.querySelector("#divedit");
-    const paint=()=>{ const og=sheet.querySelector('[data-o][aria-checked="true"]')?.dataset.o || tripRow.nota?.origem;
+    const paint=()=>{ drow={lancha:nboat||tripRow.lancha, data:nd||tripRow.data, horario:nslot||tripRow.horario}; /* segue a lancha, a data e o período escolhidos no formulário (2026-11-18: diária mostrava a tabela de meio dia) */ const og=sheet.querySelector('[data-o][aria-checked="true"]')?.dataset.o || tripRow.nota?.origem;
       const V=+String(document.getElementById("n-valor")?.value||"").replace(",",".")||0, Sn=+String(document.getElementById("n-sinal")?.value||"").replace(",",".")||0;
       if(og!=="buzios" || !(V>0)){ divb.hidden=true; return; }
       const mb=SEM_REPASSE.includes(drow.lancha), NT=mb ? 0 : pedCalc(drow).net, ov=+String(document.getElementById("n-netodono")?.value||"").replace(",",".")||0, N=ov>0 && !mb ? ov : NT, resto=Math.max(V-Sn,0);
@@ -8213,8 +8213,8 @@ function renderTrip(){
         + `<span><b>${Sn>0 ? (rep>=0 ? t("divRep",{v:brl(rep)}) : t("divRepNeg",{v:brl(-rep)})) : t("divRep0",{v:brl(N)})}</b></span>`; }
       divin.innerHTML=h; divb.hidden=false; };
     (async()=>{ if(!S.avNet || !S.avPr) [S.avPr, S.avNet] = await Promise.all([db("precos?select=*").catch(()=>[]), db("precos_neto?select=lancha,chave,neto").catch(()=>[])]); if(divb.isConnected) paint(); })();
-    sheet.querySelector("#nform")?.addEventListener("input", ()=>{ if(S.avNet) paint(); });
-    sheet.querySelector("#nform")?.addEventListener("click", e=>{ if(e.target.closest("[data-o]") && S.avNet) setTimeout(paint,0); }); }
+    sheet.querySelector("#nform")?.addEventListener("input", ()=>{ if(S.avNet) setTimeout(paint,0); });
+    sheet.querySelector("#nform")?.addEventListener("click", e=>{ if(e.target.closest("[data-o],[data-ns]") && S.avNet) setTimeout(paint,0); }); }
   const vdc=document.getElementById("vdc"); S.vdcBase=null; S.vdcChk=null;
   if(vdc && tel){ let tmr=0, seq=0;
     const chk=async()=>{ const my=++seq, d=(ddi?.value||"55")+(tel.value||"").replace(/\D/g,""); S.vdcBase=null; if(d.length<10){ vdc.hidden=true; return; }
