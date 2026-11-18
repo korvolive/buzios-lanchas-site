@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-18)
 
 ## Corpus Check
-- 221 files · ~446,165 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1714 nodes · 2826 edges · 134 communities (79 shown, 55 thin omitted)
@@ -462,14 +460,14 @@ Nodes (6): a_pedido_jetski_segurado, public._jetski_segura(), public.lancar_rese
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
 - **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`, `public.origem_reserva`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.anotacoes`, `public.clientes`, `public.anotacoes`, `public._ligar_passeio`, `b`, `public.bloqueios`, `public.ativar_conta_cliente`?**
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.050200803212851405 - nodes in this community are weakly interconnected._
