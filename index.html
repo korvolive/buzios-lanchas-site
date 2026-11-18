@@ -264,6 +264,22 @@ html.is-app #hdr-login{display:none}
 .cur-sw:empty{display:none}
 .cur-sw button{font:inherit;color:var(--sea);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .price-from .go{font-weight:600;color:var(--sea);font-size:14px}
+/* valor só com data (Rodrigo 2026-11-18): chamada para escolher a data ou entrar, valor final, ocupada na data e meia diária */
+.price-from .pf-cta{font:700 16px/1.1 var(--body);color:var(--sea);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.price-from .pf-cta:focus-visible{outline:2px solid var(--sea);outline-offset:2px;border-radius:4px}
+.card.feat .price-from .pf-cta{color:var(--brass)}
+.price-from strong .mny{font:inherit;color:inherit}
+.price-from .pf-fin{display:block;margin-top:4px;font-size:11.5px;color:var(--muted)}
+.card.feat .price-from .pf-fin{color:#b9d0d8}
+.price-from .pf-off{font:600 14px/1.3 var(--body);color:var(--muted)}
+.card.off{opacity:.55}.card.off .ph img{filter:grayscale(.85)}.card.off:hover{transform:none;border-color:var(--line)}
+.card.feat.off .price-from .pf-off{color:#b9d0d8}
+.c-slots{display:flex;flex-wrap:wrap;gap:6px;margin:0;font:600 12.5px/1 var(--body)}
+.c-slots b,.c-slots s{padding:6px 9px;border-radius:999px;white-space:nowrap}
+.c-slots b{background:var(--chip);color:var(--sea);font-weight:700}
+.c-slots s{color:var(--muted);border:1px dashed var(--line);font-weight:500}
+.card.feat .c-slots b{background:rgba(255,255,255,.12);color:#fff}.card.feat .c-slots s{color:#9fb9c2;border-color:rgba(255,255,255,.2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* Placeholder de foto */
 .ph{position:relative;background:linear-gradient(180deg,var(--sea) 0%,var(--sea-deep) 100%);display:grid;place-items:center;color:#d8ecf1;max-width:100%}
@@ -1218,7 +1234,7 @@ const UI = {
     heroMeet:"Conhecer a Miss Bardot", heroAll:"Ver as lanchas disponíveis", heroRev:"+100 avaliações 5 estrelas no Google",
     fleetEyebrow:"Nossas lanchas", fleetTitle:"Escolha pelo tamanho do grupo",
     fitWa:"Olá! Vi no site Búzios Lanchas e gostaria de uma embarcação para {people}.", fitN:"{n} lanchas para {people}", fit1:"1 lancha para {people}", forPeople:", para {people}",
-    boatPhoto:"Foto da embarcação", featured:"Destaque", waCtaP:"Ficou com dúvida? Respondemos na hora.", waCtaB:"Fale conosco no WhatsApp", carPrev:"Lancha anterior", carNext:"Próxima embarcação", carCount:"{i} de {n}", carHint:"Deslize e veja as lanchas", seeMoreStops:"Ver todas as {n} paradas", seeMoreFaq:"Ver mais perguntas", seeLess:"Ver menos", example:"Exemplo", from4h:"Passeio de 4h · a partir de", cardOn:"Passeio de 4h · {d}", vendOn:"Valor neto · 4h · {d}", cardRange:"{de} a {ate}", cardFrom:"a partir de", onRequest:"Sob consulta", seeBoat:"Ver lancha →",
+    boatPhoto:"Foto da embarcação", featured:"Destaque", waCtaP:"Ficou com dúvida? Respondemos na hora.", waCtaB:"Fale conosco no WhatsApp", carPrev:"Lancha anterior", carNext:"Próxima embarcação", carCount:"{i} de {n}", carHint:"Deslize e veja as lanchas", seeMoreStops:"Ver todas as {n} paradas", seeMoreFaq:"Ver mais perguntas", seeLess:"Ver menos", example:"Exemplo", from4h:"Passeio de 4h · a partir de", cardOn:"Passeio de 4h · {d}", vendOn:"Valor neto · 4h · {d}", cardRange:"{de} a {ate}", cardFrom:"a partir de", onRequest:"Sob consulta", pfSee:"Para ver o valor", cvNoAcc:"Não achamos conta com esse WhatsApp. Toque em Criar grátis.", cvBadEm:"E-mail ou senha incorretos.", pfPick:"Escolha a data", pfVer:"Ver valor desta data", pfFinal:"Valor final para esta data", pfDay:"Valor final ao escolher o dia", pfOff:"Indisponível nesta data", pfOffR:"Indisponível neste período", pfFree:"livre", pfBusy:"ocupado", lockConta:"Entre ou crie sua conta grátis para ver o valor exato desta data.", cvT:"Veja o valor desta data", cvSub:"Crie sua conta grátis, só com nome e WhatsApp. O valor aparece na hora, aqui mesmo.", cvName:"Nome e sobrenome", cvBadName:"Digite seu nome e sobrenome.", cvCode:"Receber código no WhatsApp", cvPw:"Crie uma senha", cvPwHint:"mínimo 6 caracteres", cvPwShort:"A senha precisa ter pelo menos 6 caracteres.", cvGo:"Criar conta e ver o valor", cvJa:"Esse WhatsApp já tem conta. Entre com a sua senha.", cvTerms:"Ao criar a conta, você aceita os <a href=\"/privacidade/\" target=\"_blank\" rel=\"noopener\">termos de uso</a>.", cvNew:"Não tem conta? <b>Criar grátis</b>", cvErr:"Não deu para criar a conta agora. Tente de novo.", cvOff:"O envio de código está fora do ar agora. Tente de novo em alguns minutos.", seeBoat:"Ver lancha →",
     feet:"pés", people:"pessoas", upTo:"até",
     boardingTitle:"Local de embarque", boardingTbd:"A combinar pelo WhatsApp.", boardingPickSlot:"Escolha o horário para ver o local de embarque.", boardFee:"Taxa do píer: R$ {v} por pessoa, paga no local.", waBoard:" Embarque: {p}.", routeEyebrow:"Roteiro", stops:["Na orla central de Búzios, pertinho da Rua das Pedras e da estátua da Brigitte Bardot.", "Uma das praias mais antigas da cidade, com barquinhos coloridos e casario histórico.", "Águas calmas e transparentes, cercada de verde. Só se chega por trilha ou pelo mar.", "Pequena e tranquila, vizinha da Azeda, ótima para um mergulho.", "Água clara e calma, uma das melhores para snorkel em Búzios.", "Menor e mais reservada, colada na João Fernandes.", "Ilhota de pedras claras, com água azul e cristalina ao redor.", "Ilha em mar aberto, famosa pela água transparente e pelo mergulho.", "Águas verdes e calmas, com peixinhos perto da areia. Uma das mais famosas de Búzios.", "Pequena enseada entre pedras, pertinho da Tartaruga.", "Prainha escondida entre as pedras, quase só se chega de barco.", "No centro, ao lado da Armação, com barcos ancorados e vista da orla."], stopTap:"Toque numa parada para ver como é.", zoomIn:"Aproximar", zoomOut:"Afastar", zoomHint:"Use + e − ou dois dedos para dar zoom e arraste para explorar o mapa.", photoBy:"Foto", stopPrev:"Parada anterior", stopNext:"Próxima parada", stopClose:"Fechar", routeTitle:"Passeio de lancha em Búzios: o roteiro", routeText:"Este é o roteiro padrão de todas as lanchas, pelas praias e ilhas mais bonitas de Búzios, passando pela Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia e Tartaruga.", routeFlex:"Você escolhe como aproveitar: fazer o roteiro completo, passar o dia inteiro na sua praia preferida ou fazer um roteiro mais rápido e ficar em uma praia o resto do passeio. É só combinar com a gente.", routeNote:"Mapa ilustrativo, fora de escala. As paradas podem variar conforme o mar e o vento.", routeMapAria:"Mapa do roteiro do passeio de lancha em Búzios",
     faqEyebrow:"Dúvidas", faqTitle:"Perguntas frequentes", aboutTitle:"Lanchas em Búzios para alugar", about1:"A Búzios Lanchas reúne lanchas em Búzios para aluguel privativo, de vários tamanhos, para casais, famílias e grupos de amigos. Todas saem com marinheiro, combustível, gelo, carvão e água mineral inclusos.", about2:"O passeio de lancha em Búzios passa pelas praias e ilhas mais bonitas da cidade, como João Fernandes, Azeda, Ossos e Ilha Feia, e você escolhe quanto tempo ficar em cada uma. Há passeios de 4 e de 7 horas e, no Réveillon, o passeio noturno do dia 31.",
@@ -1275,7 +1291,7 @@ const UI = {
     heroMeet:"Meet Miss Bardot", heroAll:"See available boats", heroRev:"100+ five-star reviews on Google",
     fleetEyebrow:"Our boats", fleetTitle:"Choose by group size",
     fitWa:"Hi! I saw the Búzios Lanchas website and I'm looking for a boat for {people}.", fitN:"{n} boats for {people}", fit1:"1 boat for {people}", forPeople:", for {people}",
-    boatPhoto:"Boat photo", featured:"Featured", waCtaP:"Questions? We reply right away.", waCtaB:"Chat with us on WhatsApp", carPrev:"Previous boat", carNext:"Next boat", carCount:"{i} of {n}", carHint:"Swipe to see the boats", seeMoreStops:"See all {n} stops", seeMoreFaq:"See more questions", seeLess:"See less", example:"Example", from4h:"4-hour tour · from", cardOn:"4-hour tour · {d}", vendOn:"Net price · 4h · {d}", cardRange:"{de} to {ate}", cardFrom:"from", onRequest:"On request", seeBoat:"See boat →",
+    boatPhoto:"Boat photo", featured:"Featured", waCtaP:"Questions? We reply right away.", waCtaB:"Chat with us on WhatsApp", carPrev:"Previous boat", carNext:"Next boat", carCount:"{i} of {n}", carHint:"Swipe to see the boats", seeMoreStops:"See all {n} stops", seeMoreFaq:"See more questions", seeLess:"See less", example:"Example", from4h:"4-hour tour · from", cardOn:"4-hour tour · {d}", vendOn:"Net price · 4h · {d}", cardRange:"{de} to {ate}", cardFrom:"from", onRequest:"On request", pfSee:"To see the price", cvNoAcc:"We couldn't find an account with this WhatsApp. Tap Create one free.", cvBadEm:"Wrong email or password.", pfPick:"Pick a date", pfVer:"See price for this date", pfFinal:"Final price for this date", pfDay:"Final price once you pick the day", pfOff:"Unavailable on this date", pfOffR:"Unavailable in this period", pfFree:"available", pfBusy:"booked", lockConta:"Sign in or create a free account to see the exact price for this date.", cvT:"See the price for this date", cvSub:"Create a free account with just your name and WhatsApp. The price shows up right away, right here.", cvName:"First and last name", cvBadName:"Enter your first and last name.", cvCode:"Get code on WhatsApp", cvPw:"Create a password", cvPwHint:"at least 6 characters", cvPwShort:"The password needs at least 6 characters.", cvGo:"Create account and see price", cvJa:"This WhatsApp already has an account. Sign in with your password.", cvTerms:"By creating the account, you accept the <a href=\"/privacidade/\" target=\"_blank\" rel=\"noopener\">terms of use</a>.", cvNew:"No account? <b>Create one free</b>", cvErr:"Couldn't create the account right now. Please try again.", cvOff:"Code sending is down right now. Try again in a few minutes.", seeBoat:"See boat →",
     feet:"ft", people:"people", upTo:"up to",
     boardingTitle:"Boarding point", boardingTbd:"To be arranged on WhatsApp.", boardingPickSlot:"Choose a time to see the boarding point.", boardFee:"Pier fee: R$ {v} per person, paid at the pier.", waBoard:" Boarding: {p}.", routeEyebrow:"Route", stops:["On Búzios' central waterfront, close to Rua das Pedras and the Brigitte Bardot statue.", "One of the town's oldest beaches, with colorful boats and historic houses.", "Calm, clear water surrounded by green. Reachable only by trail or by sea.", "Small and quiet, next to Azeda, great for a swim.", "Clear, calm water, one of the best snorkeling spots in Búzios.", "Smaller and more secluded, right next to João Fernandes.", "A small island of pale rocks surrounded by clear blue water.", "An island in open sea, famous for its transparent water and diving.", "Calm green water with small fish near the sand. One of Búzios' most famous beaches.", "A small cove between rocks, close to Tartaruga.", "A tiny beach hidden between rocks, reachable almost only by boat.", "Downtown, next to Armação, with anchored boats and a view of the waterfront."], stopTap:"Tap a stop to see what it's like.", zoomIn:"Zoom in", zoomOut:"Zoom out", zoomHint:"Use + and − or two fingers to zoom, and drag to explore the map.", photoBy:"Photo", stopPrev:"Previous stop", stopNext:"Next stop", stopClose:"Close", routeTitle:"Boat tour in Búzios: the route", routeText:"This is the standard route for every boat, along the most beautiful beaches and islands of Búzios, passing Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia and Tartaruga.", routeFlex:"You choose how to enjoy it: do the full route, spend the whole day at your favorite beach, or take a shorter route and stay at one beach for the rest of the tour. Just let us know.", routeNote:"Illustrative map, not to scale. Stops may vary with the sea and wind.", routeMapAria:"Map of the Búzios boat tour route",
     faqEyebrow:"Questions", faqTitle:"Frequently asked questions", aboutTitle:"Boats for rent in Búzios", about1:"Búzios Lanchas brings together boats in Búzios for private rental, in several sizes, for couples, families and groups of friends. Every boat comes with a skipper, fuel, ice, charcoal and mineral water included.", about2:"A boat tour in Búzios passes the most beautiful beaches and islands in town, such as João Fernandes, Azeda, Ossos and Ilha Feia, and you choose how long to stay at each one. There are 4 and 7 hour tours and, on New Year's Eve, the night tour on the 31st.",
@@ -1332,7 +1348,7 @@ const UI = {
     heroMeet:"Conocer la Miss Bardot", heroAll:"Ver lanchas disponibles", heroRev:"+100 reseñas de 5 estrellas en Google",
     fleetEyebrow:"Nuestras lanchas", fleetTitle:"Elige según el tamaño del grupo",
     fitWa:"¡Hola! Vi el sitio de Búzios Lanchas y busco una embarcación para {people}.", fitN:"{n} lanchas para {people}", fit1:"1 lancha para {people}", forPeople:", para {people}",
-    boatPhoto:"Foto de la embarcación", featured:"Destacada", waCtaP:"¿Tienes dudas? Respondemos al instante.", waCtaB:"Habla con nosotros por WhatsApp", carPrev:"Lancha anterior", carNext:"Siguiente embarcación", carCount:"{i} de {n}", carHint:"Desliza y mira las lanchas", seeMoreStops:"Ver las {n} paradas", seeMoreFaq:"Ver más preguntas", seeLess:"Ver menos", example:"Ejemplo", from4h:"Paseo de 4 h · desde", cardOn:"Paseo de 4 h · {d}", vendOn:"Valor neto · 4 h · {d}", cardRange:"{de} al {ate}", cardFrom:"desde", onRequest:"A consultar", seeBoat:"Ver lancha →",
+    boatPhoto:"Foto de la embarcación", featured:"Destacada", waCtaP:"¿Tienes dudas? Respondemos al instante.", waCtaB:"Habla con nosotros por WhatsApp", carPrev:"Lancha anterior", carNext:"Siguiente embarcación", carCount:"{i} de {n}", carHint:"Desliza y mira las lanchas", seeMoreStops:"Ver las {n} paradas", seeMoreFaq:"Ver más preguntas", seeLess:"Ver menos", example:"Ejemplo", from4h:"Paseo de 4 h · desde", cardOn:"Paseo de 4 h · {d}", vendOn:"Valor neto · 4 h · {d}", cardRange:"{de} al {ate}", cardFrom:"desde", onRequest:"A consultar", pfSee:"Para ver el valor", cvNoAcc:"No encontramos una cuenta con ese WhatsApp. Toca Crear gratis.", cvBadEm:"Correo o contraseña incorrectos.", pfPick:"Elige la fecha", pfVer:"Ver valor de esta fecha", pfFinal:"Valor final para esta fecha", pfDay:"Valor final al elegir el día", pfOff:"No disponible en esta fecha", pfOffR:"No disponible en este período", pfFree:"libre", pfBusy:"ocupado", lockConta:"Entra o crea tu cuenta gratis para ver el valor exacto de esta fecha.", cvT:"Mira el valor de esta fecha", cvSub:"Crea tu cuenta gratis, solo con nombre y WhatsApp. El valor aparece al instante, aquí mismo.", cvName:"Nombre y apellido", cvBadName:"Escribe tu nombre y apellido.", cvCode:"Recibir código por WhatsApp", cvPw:"Crea una contraseña", cvPwHint:"mínimo 6 caracteres", cvPwShort:"La contraseña necesita al menos 6 caracteres.", cvGo:"Crear cuenta y ver el valor", cvJa:"Este WhatsApp ya tiene cuenta. Entra con tu contraseña.", cvTerms:"Al crear la cuenta, aceptas los <a href=\"/privacidade/\" target=\"_blank\" rel=\"noopener\">términos de uso</a>.", cvNew:"¿No tienes cuenta? <b>Crear gratis</b>", cvErr:"No se pudo crear la cuenta ahora. Inténtalo de nuevo.", cvOff:"El envío de códigos no funciona ahora. Inténtalo en unos minutos.", seeBoat:"Ver lancha →",
     feet:"pies", people:"personas", upTo:"hasta",
     boardingTitle:"Lugar de embarque", boardingTbd:"A combinar por WhatsApp.", boardingPickSlot:"Elige el horario para ver el lugar de embarque.", boardFee:"Tasa del muelle: R$ {v} por persona, se paga en el lugar.", waBoard:" Embarque: {p}.", routeEyebrow:"Recorrido", stops:["En la costanera central de Búzios, cerca de la Rua das Pedras y de la estatua de Brigitte Bardot.", "Una de las playas más antiguas de la ciudad, con botes de colores y casas históricas.", "Aguas calmas y transparentes, rodeada de verde. Solo se llega por sendero o por mar.", "Pequeña y tranquila, vecina de Azeda, ideal para un chapuzón.", "Agua clara y calma, uno de los mejores lugares para snorkel en Búzios.", "Más pequeña y reservada, al lado de João Fernandes.", "Islote de rocas claras rodeado de agua azul y cristalina.", "Isla en mar abierto, famosa por su agua transparente y el buceo.", "Aguas verdes y calmas, con peces cerca de la arena. Una de las más famosas de Búzios.", "Pequeña ensenada entre rocas, cerca de Tartaruga.", "Playita escondida entre las rocas, casi solo se llega en barco.", "En el centro, al lado de Armação, con barcos anclados y vista de la costanera."], stopTap:"Toca una parada para ver cómo es.", zoomIn:"Acercar", zoomOut:"Alejar", zoomHint:"Usa + y − o dos dedos para hacer zoom y arrastra para explorar el mapa.", photoBy:"Foto", stopPrev:"Parada anterior", stopNext:"Próxima parada", stopClose:"Cerrar", routeTitle:"Paseo en lancha en Búzios: el recorrido", routeText:"Este es el recorrido estándar de todas las lanchas, por las playas e islas más lindas de Búzios, pasando por Armação, Ossos, Azeda, João Fernandes, Ilha Branca, Ilha Feia y Tartaruga.", routeFlex:"Tú eliges cómo disfrutarlo: hacer el recorrido completo, pasar el día entero en tu playa favorita o hacer un recorrido más corto y quedarte en una playa el resto del paseo. Solo avísanos.", routeNote:"Mapa ilustrativo, fuera de escala. Las paradas pueden variar según el mar y el viento.", routeMapAria:"Mapa del recorrido del paseo en lancha en Búzios",
     faqEyebrow:"Dudas", faqTitle:"Preguntas frecuentes", aboutTitle:"Lanchas en Búzios para alquilar", about1:"Búzios Lanchas reúne lanchas en Búzios para alquiler privado, de varios tamaños, para parejas, familias y grupos de amigos. Todas salen con marinero, combustible, hielo, carbón y agua mineral incluidos.", about2:"El paseo en lancha en Búzios pasa por las playas e islas más lindas de la ciudad, como João Fernandes, Azeda, Ossos e Ilha Feia, y tú eliges cuánto tiempo quedarte en cada una. Hay paseos de 4 y de 7 horas y, en Año Nuevo, el paseo nocturno del día 31.",
@@ -1662,7 +1678,8 @@ const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(l
   if(q.get("reserva")==="1" || q.get("o")){ localStorage.setItem("reserva-link",String(Date.now())); q.delete("reserva"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
   return Date.now()-(+localStorage.getItem("reserva-link")||0) < 3*864e5; }catch(e){ return false; } })();
 let VEND = null, ME = null, VEND_LIGADO = false, ADM = false; /* ADM: administrador logado vê os valores de cliente nos cards e páginas (Rodrigo 2026-11-18) */ /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
-const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || ADM || FOREIGN || RECORRENTE; /* cliente que já fez passeio (ganhou cupom) vê o valor e reserva online (2026-11-05) */ /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (2026-10-23) */
+const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || ADM || FOREIGN || RECORRENTE || logado(); /* Brasil, Argentina e Chile: logado vê o valor da data; sem login, "Ver valor desta data" abre a janelinha de conta (Rodrigo 2026-11-18) */
+const logado = () => { try{ return !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; }catch(e){ return false; } }; /* cliente que já fez passeio (ganhou cupom) vê o valor e reserva online (2026-11-05) */ /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (2026-10-24) */
 const VEND_TETO = 10, VEND_PADRAO = 3, PARC_PCT = 5; /* link do vendedor: 3% padrão; o administrador pode subir a % de cada vendedor até 10%; parceiro: comissão de 1% a 10% escolhida pelo administrador, 5% se vazio (2026-11-16) */
 const VEND_MAN_PCT = 30, VEND_MAN_MAX = 1000; /* link feito pelo vendedor para um cliente: comissão em R$ até R$ 1.000 e 30% do valor (2026-11-02) */
@@ -2300,8 +2317,9 @@ const cupLine = (b,v) => { if(!v || !CUPS?.length) return ""; const L=CUPS.filte
 function showPrices(b){
   const box=document.getElementById("pr-val"); if(!box) return;
   const sl=pick.slot && slotOf(pick.slot);
-  if(!showPrice()){ box.innerHTML=`<p class="pr-wait">${t("priceAsk")}</p>`; return; }
   if(precoTrancado()){ box.innerHTML=lockHTML(); return; }
+  /* Brasil, Argentina e Chile sem login (Rodrigo 2026-11-18): com data e horário, "Ver valor desta data" abre a janelinha para entrar ou criar a conta ali mesmo */
+  if(!showPrice()){ box.innerHTML = !pick.date || !sl ? `<p class="pr-wait">${t("priceWait")}</p>` : `<div class="pr-lock"><p>${t("lockConta")}</p><button type="button" class="btn" data-ver-valor>${t("pfVer")}</button></div>`; return; }
   if(ME && !VEND) return sellerBox(b, box, sl);
   if(!pick.date || !sl){ box.innerHTML=`<p class="pr-wait">${t("priceWait")}</p>`; return; }
   const np=+pick.people;
@@ -2614,6 +2632,116 @@ function bindLeadLogin(dl,$,upd,later){
     upd(); later();
   };
 }
+/* janelinha "Ver valor desta data" (Rodrigo 2026-11-18): quem é do Brasil, Argentina ou Chile e não está logado entra ou cria a conta aqui mesmo,
+   sem sair da página, e o valor aparece na hora. Cadastro curto: nome, WhatsApp com código (cadastro-whatsapp: enviar + criar) e uma senha.
+   Quem chegou pelo link de vendedor/parceiro segue a janelinha do vendedor (o contato fica com ele); a conta criada aqui passa pelo vincular_vendedor ao recarregar os dados */
+function openContaValor(){
+  if(VEND && precoTrancado()) return openVendLead(true);
+  document.getElementById("cv-dlg")?.remove();
+  const dl=document.createElement("dialog"); dl.id="cv-dlg"; dl.className="stop-dlg lead-dlg"; dl.setAttribute("aria-labelledby","cv-t"); document.body.appendChild(dl);
+  const sv=lsGet("consulta-dados")||{}, reg=detectReg(), ddi0=sv.ddi || (LEAD_DDI.find(x=>x[0]===reg)||LEAD_DDI[0])[1];
+  const flag=r=>r.replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
+  const ddiSel=(id,v)=>`<select id="${id}" aria-label="DDI">${LEAD_DDI.map(([r,c])=>`<option value="${c}"${c===v?" selected":""}>${flag(r)} +${c}</option>`).join("")}</select>`;
+  const X=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button>`;
+  const CW=SB_URL+"/functions/v1/cadastro-whatsapp", H={apikey:AGENDA_KEY,"content-type":"application/json"};
+  const cw=body=>fetch(CW,{method:"POST",headers:H,body:JSON.stringify({...body, lang})}).then(r=>r.json()).catch(()=>({erro:"rede"}));
+  const set=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(x){} };
+  let st={nome:sv.nome||"", ddi:ddi0, tel:sv.tel||""}, by=lsGet("dono-by")==="email" ? "email" : "tel";
+  const $=id=>dl.querySelector("#"+id);
+  const fim=async(s, b, show, email)=>{ /* sessão nova: grava como o /login/ e o resto do site esperam, e redesenha com o valor */
+    const ses={access_token:s.access_token, refresh_token:s.refresh_token, expires_at:s.expires_at||Math.floor(Date.now()/1000)+(+s.expires_in||3600), user:s.user};
+    set("dono-ses",ses); set("dono-by",b); if(b==="tel") set("dono-tel",show); else set("dono-email",email);
+    const c=await fetch(SB_URL+"/rest/v1/clientes?select=nome&user_id=eq."+ses.user.id,{headers:{...H,authorization:"Bearer "+ses.access_token}}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+    set("conta-tipo", c[0] ? "cliente" : "equipe");
+    try{ (window.dataLayer=window.dataLayer||[]).push({event:"conta_ver_valor"}); }catch(e){} dl.close(); loadCli(); loadVend(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); };
+  const telOk=(ddi,d)=> ddi==="55" ? /^\d{10,11}$/.test(d) : d.length>=6 && d.length<=13;
+  function cadastro(msg){
+    dl.innerHTML=`${X}<h3 id="cv-t">${t("cvT")}</h3><p>${t("cvSub")}</p>
+      <label>${t("cvName")}<input id="cv-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(st.nome)}"></label>
+      <label>${t("leadWa")}<span class="lphone">${ddiSel("cv-c",st.ddi)}<input id="cv-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(st.tel)}" placeholder="${st.ddi==="55"?"(22) 99999-9999":""}"></span></label>
+      <p class="lerr" id="cv-err" aria-live="polite">${msg||""}</p>
+      <button type="button" class="btn" id="cv-go">${t("cvCode")}</button>
+      <p class="lrow"><button type="button" class="lacc" id="cv-acc">${t("accHave")}</button></p>
+      <small>${t("vlPriv")}</small>`;
+    dl.querySelector(".lx").onclick=()=>dl.close();
+    dl.querySelectorAll("input,select").forEach(x=>x.oninput=()=>{ $("cv-err").textContent=""; });
+    $("cv-acc").onclick=()=>{ st.nome=$("cv-n").value; st.ddi=$("cv-c").value; st.tel=$("cv-w").value; if($("cv-w").value) by="tel"; entrar(); };
+    $("cv-go").onclick=async()=>{
+      const nome=$("cv-n").value.trim().replace(/\s+/g," "), ddi=$("cv-c").value, tel=$("cv-w").value.trim(), d=tel.replace(/\D/g,"");
+      st={nome, ddi, tel};
+      if(nome.length<5 || !nome.includes(" ")){ $("cv-err").textContent=t("cvBadName"); return $("cv-n").focus(); }
+      if(!telOk(ddi,d)){ $("cv-err").textContent=t("leadBadWa"); return $("cv-w").focus(); }
+      try{ localStorage.setItem("consulta-dados",JSON.stringify({...sv, nome, ddi, tel})); }catch(e){}
+      const b=$("cv-go"); b.disabled=true;
+      const r=await cw({acao:"enviar", tel:ddi+d, para:"cadastro"});
+      if(r.ok) return codigo();
+      b.disabled=false;
+      if(r.erro==="ja_tem"){ by="tel"; return entrar(t("cvJa")); }
+      $("cv-err").textContent=t(r.erro==="espere"?"vcEsp":r.erro==="limite"?"vcLim":r.erro==="nao_configurado"||r.erro==="envio"?"cvOff":"vcNet"); };
+    if(!st.nome) $("cv-n").focus();
+  }
+  function codigo(msg){
+    const tel=st.ddi+st.tel.replace(/\D/g,""), show="+"+st.ddi+" "+st.tel;
+    dl.innerHTML=`${X}<h3 id="cv-t">${t("vcT")}</h3><p>${t("vcSub",{w:esc(show)})}</p>
+      <label>${t("vcT")}<input id="cv-k" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"></label>
+      <label>${t("cvPw")} <small>(${t("cvPwHint")})</small><input id="cv-p" type="password" autocomplete="new-password"></label>
+      <p class="lerr" id="cv-err" aria-live="polite">${msg||""}</p>
+      <button type="button" class="btn" id="cv-go">${t("cvGo")}</button>
+      <p class="lrow"><button type="button" class="lacc" id="cv-re" disabled></button><button type="button" class="lacc" id="cv-back">${t("vcBack")}</button></p>
+      <small>${t("cvTerms")}</small>`;
+    dl.querySelector(".lx").onclick=()=>dl.close();
+    const err=$("cv-err"), re=$("cv-re"), k=$("cv-k");
+    let n=60; const tick=()=>{ if(!dl.isConnected || !re.isConnected) return; if(n>0){ re.disabled=true; re.textContent=t("vcWait",{s:n}); n--; setTimeout(tick,1000); } else { re.disabled=false; re.textContent=t("vcRe"); } }; tick();
+    re.onclick=async()=>{ re.disabled=true; const r=await cw({acao:"enviar", tel, para:"cadastro"}); if(r.ok){ err.textContent=""; n=60; tick(); } else { err.textContent=t(r.erro==="limite"?"vcLim":r.erro==="espere"?"vcEsp":"vcNet"); re.disabled=false; } };
+    $("cv-back").onclick=()=>cadastro();
+    k.oninput=()=>{ err.textContent=""; k.value=k.value.replace(/\D/g,"").slice(0,6); if(k.value.length===6) $("cv-p").focus(); };
+    $("cv-p").oninput=()=>{ err.textContent=""; };
+    $("cv-go").onclick=async()=>{
+      const c=k.value, pw=$("cv-p").value;
+      if(c.length!==6){ err.textContent=t("vcBad"); return k.focus(); }
+      if(pw.length<6){ err.textContent=t("cvPwShort"); return $("cv-p").focus(); }
+      const b=$("cv-go"); b.disabled=true;
+      const r=await cw({acao:"criar", tel, codigo:c, senha:pw, nome:st.nome, whatsapp:show});
+      if(r.access_token) return fim(r, "tel", show);
+      b.disabled=false;
+      if(r.erro==="ja_tem" || r.erro==="tel_ja"){ by="tel"; return entrar(t("cvJa")); }
+      err.textContent=t(r.erro==="codigo"?"vcBad":r.erro==="tentativas"?"vcMany":r.erro==="rede"?"vcNet":"cvErr"); if(r.erro==="codigo") k.select(); };
+    k.focus();
+  }
+  function entrar(msg){
+    dl.innerHTML=`${X}<h3 id="cv-t">${t("accT")}</h3><form id="cv-in" novalidate><p>${t("accSub")}</p>
+      <div class="lby" role="group"><button type="button" data-by="tel" aria-pressed="${by==="tel"}">📱 ${t("leadWa")}</button><button type="button" data-by="email" aria-pressed="${by==="email"}">✉ ${t("leadEmail")}</button></div>
+      <label data-f="tel"${by==="tel"?"":" hidden"}>${t("leadWa")}<span class="lphone">${ddiSel("li-c",st.ddi)}<input id="li-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(st.tel)}"></span></label>
+      <label data-f="email"${by==="email"?"":" hidden"}>${t("leadEmail")}<input id="li-e" type="email" inputmode="email" autocomplete="username" autocapitalize="off" value="${esc(lsGet("dono-email")||"")}"></label>
+      <label>${t("accPw")}<input id="li-p" type="password" autocomplete="current-password"></label>
+      <p class="lerr" id="li-err" aria-live="polite">${msg||""}</p>
+      <button class="btn" id="li-go">${t("accGo")}</button>
+      <p class="lrow"><button type="button" class="lacc" id="cv-new">${t("cvNew")}</button><a href="/login/" target="_blank" rel="noopener">${t("accForgot")}</a></p></form>`;
+    dl.querySelector(".lx").onclick=()=>dl.close();
+    const fm=$("cv-in"), err=$("li-err");
+    fm.querySelectorAll("[data-by]").forEach(x=>x.onclick=()=>{ by=x.dataset.by; fm.querySelectorAll("[data-by]").forEach(y=>y.setAttribute("aria-pressed",y.dataset.by===by)); fm.querySelectorAll("[data-f]").forEach(y=>y.hidden=y.dataset.f!==by); err.textContent=""; $(by==="tel"?"li-w":"li-e").focus(); });
+    $("cv-new").onclick=()=>{ st.ddi=$("li-c").value; st.tel=$("li-w").value; cadastro(); };
+    fm.querySelectorAll("input,select").forEach(x=>x.oninput=()=>{ err.textContent=""; });
+    fm.onsubmit=async e=>{ e.preventDefault(); const go=$("li-go"), pw=$("li-p").value;
+      const ddi=$("li-c").value, w=$("li-w").value.trim(), tel=ddi+w.replace(/\D/g,""), email=$("li-e").value.trim().toLowerCase();
+      if(by==="email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err.textContent=t("leadBadEmail");
+      if(by==="tel" && tel.length<10) return err.textContent=t("leadBadWa");
+      if(!pw) return err.textContent=t(by==="tel"?"accBadTel":"cvBadEm");
+      go.disabled=true; err.innerHTML=""; let s=null;
+      try{
+        if(by==="tel"){ const j=await fetch(SB_URL+"/functions/v1/entrar-celular",{method:"POST",headers:H,body:JSON.stringify({tel,senha:pw})}).then(r=>r.json());
+          if(j.access_token) s=j; else err.innerHTML=t(j.erro==="sem_conta"?"cvNoAcc":j.erro==="senha"?"accBadTel":j.erro==="muitas"?"accMany":j.erro==="confirmar"?"accConfirm":"accNet"); }
+        else { const r=await fetch(SB_URL+"/auth/v1/token?grant_type=password",{method:"POST",headers:H,body:JSON.stringify({email,password:pw})}), j=await r.json().catch(()=>({}));
+          if(r.ok) s=j; else err.innerHTML=t(/confirm/i.test((j.error_code||"")+(j.msg||j.error_description||"")) ? "accConfirm" : r.status===429 ? "accMany" : "cvBadEm"); }
+      }catch(x){ err.textContent=t("accNet"); }
+      if(!s){ go.disabled=false; return; }
+      fim(s, by, "+"+ddi+" "+w, email); };
+    $(by==="tel"?(st.tel?"li-p":"li-w"):"li-e").focus();
+  }
+  dl.addEventListener("close",()=>dl.remove(),{once:true});
+  dl.onclick=e=>{ if(e.target===dl) dl.close(); };
+  cadastro(); dl.showModal(); if(st.nome) $("cv-w").focus();
+}
 /* cliente com conta que já vê "Reservar online": some o "Consultar no WhatsApp" e o online vira o botão principal (2026-10-24) */
 const soOnline = btn => { if(!isClient()) return; btn.hidden=true; document.getElementById("book-online")?.classList.remove("sec"); };
 /* lanchas cujo dono dá desconto para quem volta, com o valor (2026-10-25); sem o v2 no banco, o selo sai sem o valor */
@@ -2907,7 +3035,7 @@ function home(){
           <div class="body">
             <div class="c-head"><h3>${b.name}</h3>${specs(b)}</div>${isEsc(b)?"":`<p class="c-jet" data-jetc="${b.slug}" hidden></p>`}
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
-            <div class="price-from">${isEsc(b)?`<div><strong>${t("escCard")}</strong></div>`:precoTrancado()?`<div><strong>${t(VEND?.parceiro?"lockCardP":"lockCard")}</strong></div>`:showPrice()?`<div class="pf-v" data-pf="${b.slug}"><span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong></div>`:`<div><strong>${t("priceOnRequest")}</strong></div>`}<span class="go">${t(isEsc(b)?"seeEsc":"seeBoat")}</span></div>
+            <div class="price-from">${isEsc(b)?`<div><strong>${t("escCard")}</strong></div>`:`<div class="pf-v" data-pf="${b.slug}">${pfSemData(b)}</div>`}<span class="go">${t(isEsc(b)?"seeEsc":"seeBoat")}</span></div>
           </div>
         </a>`).join("")}
     </div></div>
@@ -3104,22 +3232,50 @@ document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if
    Período com vários dias: só os dias livres da lancha; valores diferentes = "a partir de" o menor. Sem data volta ao "a partir de" geral */
 const cardDia = (b, iso) => { const tab=price4(b,iso); if(!tab) return null; const k=seasonOf(iso,b)?.key||"baixa", base=Math.max(tab-bzMapa(b,k,false),0);
   return ME&&!VEND ? base : cliPrice(base,pctKey(k,iso),VEND,b); };
-function cardPreco(c, b, dias){
+/* sem data, o card não mostra valor (Rodrigo 2026-11-18: o "a partir de" fazia o cliente achar que era o preço): "Para ver o valor / Escolha a data", que abre o calendário.
+   Administrador e vendedor logados continuam vendo o "a partir de" (eles não se confundem) */
+const pfSemData = b => (ADM || (ME&&!VEND)) && showPrice() && !precoTrancado()
+  ? `<span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong>`
+  : `<span>${t("pfSee")}</span><br><strong class="pf-cta" role="button" tabindex="0" data-pick-date>${t("pfPick")}</strong>`;
+/* com data: valor exato daquele dia (4h) para quem pode ver; sem conta (Brasil, Argentina, Chile), "Ver valor desta data" abre a janelinha de conta;
+   link de vendedor/parceiro sem WhatsApp confirmado: o cadeado de sempre. Lancha ocupada o dia todo: fica no fim, esmaecida, "Indisponível nesta data" */
+function cardPreco(c, b, dias, off){
   const el=c.querySelector(".pf-v"); if(!el) return;
-  if(el.dataset.orig==null) el.dataset.orig=el.innerHTML;
-  const vs=(dias||[]).map(d=>cardDia(b,d)).filter(v=>v>0);
-  if(!vs.length){ el.innerHTML=el.dataset.orig; return; }
-  const mn=Math.min(...vs), mx=Math.max(...vs), de=when.de||dias[0], ate=when.ate||de; /* rótulo = período escolhido; valor = dias livres */
-  const d = de===ate ? fmtShort(de) : t("cardRange",{de:fmtShort(de),ate:fmtShort(ate)});
-  el.innerHTML=`<span>${t(ME&&!VEND?"vendOn":"cardOn",{d})}${mn<mx?" · "+t("cardFrom"):""}</span><br><strong>${money(mn)}</strong>`;
+  if(!dias && !off){ el.innerHTML=pfSemData(b); return; }
+  const de=when.de||dias?.[0], ate=when.ate||de;
+  if(off){ el.innerHTML=`<strong class="pf-off">${t(de===ate?"pfOff":"pfOffR")}</strong>`; return; }
+  const d = de===ate ? fmtShort(de) : t("cardRange",{de:fmtShort(de),ate:fmtShort(ate)}), lab=t(ME&&!VEND?"vendOn":"cardOn",{d});
+  if(precoTrancado()){ el.innerHTML=`<span>${lab}</span><br><strong class="pf-cta" role="button" tabindex="0" data-unlock>${t(VEND?.parceiro?"lockCardP":"lockCard")}</strong>`; return; }
+  if(!showPrice()){ el.innerHTML=`<span>${lab}</span><br><strong class="pf-cta" role="button" tabindex="0" data-ver-valor>${t("pfVer")}</strong>`; return; }
+  const vs=(dias||[]).map(x=>cardDia(b,x)).filter(v=>v>0);
+  if(!vs.length){ el.innerHTML=`<span>${lab}</span><br><strong>${t("onRequest")}</strong>`; return; }
+  const mn=Math.min(...vs), mx=Math.max(...vs);
+  el.innerHTML=`<span>${lab}${mn<mx?" · "+t("cardFrom"):""}</span><br><strong>${money(mn)}</strong><small class="pf-fin">${t(mn<mx?"pfDay":"pfFinal")}</small>`;
 }
+/* meia diária ocupada numa data só: a lancha continua entre as livres e o card mostra os horários de 4h, o livre em destaque e o ocupado riscado (Rodrigo 2026-11-18) */
+function cardSlots(c, b, busy){
+  c.querySelector(".c-slots")?.remove();
+  const d=when.de; if(!d || (when.ate && when.ate!==d) || !busy) return null;
+  const s=busyOn(busy,b,d); if(!s || !s.size || isBusy(s,"",d)) return null;
+  const st=["manha","tarde"].map(k=>[k, isBusy(s,k,d)]); if(!st.some(x=>x[1]) || st.every(x=>x[1])) return null;
+  const p=document.createElement("p"); p.className="c-slots";
+  p.innerHTML=st.map(([k,o])=>o?`<s>${t("slot_"+k)}<span class="sr"> (${t("pfBusy")})</span></s>`:`<b>✓ ${t("slot_"+k)}<span class="sr"> (${t("pfFree")})</span></b>`).join("");
+  c.querySelector(".price-from")?.before(p);
+  return st.find(x=>!x[1])[0];
+}
+document.addEventListener("click", e => { const p=e.target.closest("[data-pick-date]"), v=!p && e.target.closest("[data-ver-valor]"); if(!p && !v) return;
+  e.preventDefault(); e.stopPropagation();
+  if(v) return openContaValor();
+  const w=document.getElementById("w-de"); if(!w) return;
+  w.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>{ if(w.getAttribute("aria-expanded")!=="true") w.click(); }, 380); }, true);
+document.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && e.target.matches?.(".pf-cta")){ e.preventDefault(); e.stopPropagation(); e.target.click(); } }, true);
 /* ordem da vitrine com filtro (Rodrigo 2026-11-18): sem filtro vale a ordem do app (data-o); com qualquer filtro (data ou pessoas)
    a destaque (Miss Bardot) continua em primeiro e as outras vão da mais barata para a mais cara, sozinhas.
    Preço = o mesmo valor de 4h que o card mostra: com data, o da data (ou o menor dos dias livres do período); sem data, o "a partir de" (menor 4h do ano) */
 function ordenaCards(cards, preco){
   const g=cards[0]?.parentNode; if(!g) return;
-  const o=c=>+c.dataset.o, feat=c=>c.classList.contains("feat")?0:1, v=c=>preco&&preco.get(c)>0?preco.get(c):Infinity;
-  const ord = cards.slice().sort((a,b)=> preco ? (feat(a)-feat(b)) || (v(a)-v(b)) || (o(a)-o(b)) : o(a)-o(b));
+  const o=c=>+c.dataset.o, feat=c=>c.classList.contains("feat")?0:1, v=c=>preco&&preco.get(c)>0?preco.get(c):Infinity, off=c=>c.classList.contains("off")?1:0; /* ocupadas na data vão para o fim */
+  const ord = cards.slice().sort((a,b)=> (off(a)-off(b)) || (preco ? (feat(a)-feat(b)) || (v(a)-v(b)) || (o(a)-o(b)) : o(a)-o(b)));
   if(ord.every((c,i)=>g.children[i]===c)) return;
   ord.forEach(c=>g.appendChild(c));
 }
@@ -3127,16 +3283,17 @@ async function applyWhen(){
   const res=document.getElementById("w-res"); if(!res) return;
   if(+when.people>maxCap()) when.people=""; /* grupo maior que a maior lancha (veio pelo endereço): mostra todas em vez de nenhuma */
   const cards=[...app.querySelectorAll(".card[data-boat]")], d=when.de, np=+when.people, key=when.de+when.ate+when.people;
-  if(!d && !np){ cards.forEach(c=>{ c.hidden=false; cardPreco(c,null,null); }); ordenaCards(cards,null); res.textContent=""; carSync(true); return; }
+  if(!d && !np){ cards.forEach(c=>{ c.hidden=false; c.classList.remove("off"); c.querySelector(".c-slots")?.remove(); cardPreco(c,null,null); }); ordenaCards(cards,null); res.textContent=""; carSync(true); return; }
   if(d) res.textContent=t("checking");
   const busy = d ? await loadAgenda() : null; if(key!==when.de+when.ate+when.people) return;
   let n=0; const preco=new Map(); cards.forEach(c=>{ const b=BOATS.find(x=>x.slug===c.dataset.boat);
-    const free = d && firstFree(busy,b);
-    c.hidden = !!((np && b.capacity<np) || (d && !free)); if(!c.hidden) n++;
-    /* o link leva ao primeiro dia livre do período; lá a pessoa escolhe o dia e o horário exatos */
-    if(free){ const u=new URL(c.href); u.searchParams.set("data",free); c.href=u.pathname+u.search; }
+    const free = d && firstFree(busy,b), off = !!(d && !free); /* ocupada no período todo: continua aparecendo, no fim e esmaecida (Rodrigo 2026-11-18) */
+    c.hidden = !!(np && b.capacity<np); c.classList.toggle("off", off); if(!c.hidden && !off) n++;
+    /* o link leva ao primeiro dia livre do período (e ao horário livre, se metade do dia estiver ocupada); lá a pessoa escolhe o dia e o horário exatos */
+    const livre = cardSlots(c, b, busy);
+    { const u=new URL(c.href); u.searchParams.delete("horario"); if(free){ u.searchParams.set("data",free); if(livre) u.searchParams.set("horario",livre); } else u.searchParams.delete("data"); c.href=u.pathname+u.search; }
     const dias = d && free ? periodDays().filter(x=>!isBusy(busyOn(busy,b,x),"",x)) : null;
-    cardPreco(c, b, dias);
+    cardPreco(c, b, dias, off);
     const vs=(dias||[]).map(x=>cardDia(b,x)).filter(v=>v>0);
     preco.set(c, vs.length ? Math.min(...vs) : minCli(b)); });
   ordenaCards(cards, preco);
