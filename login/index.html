@@ -3829,6 +3829,7 @@ Object.assign(T.pt, {grpNoQ:"Isso vale para as {n} embarcações deste grupo.", 
 Object.assign(T.pt, {csMesmo:"Mais {n} do mesmo cliente: {b}"});
 Object.assign(T.en, {csMesmo:"{n} more from the same client: {b}"});
 Object.assign(T.es, {csMesmo:"{n} más del mismo cliente: {b}"});
+Object.assign(T.pt, {rpaSemCp:"Pago por fora · falta o comprovante", rpaAnexa:"Anexar comprovante", rpaDepois:"Já paguei, comprovante depois", rpaDepoisQ:"Marcar como já pago por fora? O envio automático não acontece mais. O comprovante você anexa depois aqui mesmo."}); Object.assign(T.en, {rpaSemCp:"Paid separately · receipt missing", rpaAnexa:"Attach receipt", rpaDepois:"Already paid, receipt later", rpaDepoisQ:"Mark as already paid separately? The automatic payout will no longer happen. You can attach the receipt here later."}); Object.assign(T.es, {rpaSemCp:"Pagado por fuera · falta el comprobante", rpaAnexa:"Adjuntar comprobante", rpaDepois:"Ya pagué, comprobante después", rpaDepoisQ:"¿Marcar como ya pagado por fuera? El envío automático ya no ocurre. El comprobante lo adjuntas aquí después."});
 Object.assign(T.pt, {pedBoxT:"📋 Pedidos e pré-reservas ({n})"}); Object.assign(T.en, {pedBoxT:"📋 Requests and pre-bookings ({n})"}); Object.assign(T.es, {pedBoxT:"📋 Pedidos y prerreservas ({n})"});
 Object.assign(T.pt, {crT:"🚫 Recusadas", crSub:"Consultas recusadas por você ou que ficaram 48 horas sem resposta depois da nossa mensagem. Se o cliente voltar a se interessar, toque em Resgatar: ela volta para as consultas, desde que a embarcação ainda esteja livre nesse dia e horário. Quando a data passa, ela é apagada sozinha.", crAuto:"sem resposta, recusada {d}", crMan:"recusada {d}", crPrazo:"sem resposta, vai para Recusadas {d}", crResp:"Cliente respondeu", crRespOk:"Anotado. O prazo agora vai até {d}.", crRes:"Resgatar", crResQ:"Resgatar a consulta de {name}? Ela volta para as consultas se a embarcação ainda estiver livre.", crResOk:"Consulta resgatada.", crOk:"Consulta recusada. Ela fica em Recusadas até a data do passeio."});
 Object.assign(T.en, {grpNoQ:"This applies to all {n} boats in this group.", grpResPart:"{a} of {n} group boats came back. The others are already booked on that day and time.", grpEdH:"Group request: if you change the date or time, the other boats in the group change too."});
@@ -5967,7 +5968,7 @@ function bindVreq(){
 /* comissões a pagar (2026-10-25): passeio já acabou e aconteceu, comissão ainda não paga. Aparece em Usuários, com o número na aba */
 async function loadComPend(){ if(!S.admin) return;
   await RPC("repasses_pp_pendentes",{}).then(r=>{ S.rpp=r||[]; }, ()=>{ S.rpp=null; }); /* repasses do PayPal, escondido até a homologação */
-  await RPC("repasses_asaas_pendentes",{}).then(r=>{ S.rpa=r||[]; }, ()=>{ S.rpa=null; }); /* parte do dono ainda não enviada (Pix/cartão sem divisão automática) */
+  await Promise.all([RPC("repasses_asaas_pendentes",{}).then(r=>{ S.rpa=r||[]; }, ()=>{ S.rpa=null; }), RPC("repasses_sem_comprovante",{}).then(r=>{ S.rpaSem=new Set((r||[]).map(x=>+(x?.repasses_sem_comprovante ?? x))); }, ()=>{ S.rpaSem=new Set(); })]); /* parte do dono ainda não enviada (Pix/cartão sem divisão automática) */
   await loadAprov();
   /* parte de quem convidou o sócio (2026-10-27): o pedido fica na lista até as duas partes serem pagas */
   const sel="id,lancha,data,horario,bloqueio_id,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,comissao_comprovante,status";
@@ -6051,8 +6052,9 @@ function rpaHTML(){ const L=(S.rpa||[]).filter(r=>!r.enviando); if(!L.length) re
     <div class="rpah"><span>${esc(boatName(r.lancha))}</span><span>${brl(+r.valor)}</span></div>
     <p class="muted">${esc(fmtShort(r.data))}${r.cliente?` · ${t("rpaCli",{n:esc(r.cliente)})}`:""}</p>
     ${r.dono_nome||r.pix_chave?`<p class="muted">${r.dono_nome?t("rpaDono",{n:esc(r.dono_nome)}):""}${r.pix_chave?`${r.dono_nome?" · ":""}🔑 ${esc(pixShow(r.pix_tipo,r.pix_chave))}`:""}</p>`:""}
-    <div class="rpachips">${st(r)}</div>
-    <div class="rpab">${r.pix_chave?`<button type="button" class="btn sec" data-pxk="${esc(r.pix_chave)}">${t("pxCopyKey")}</button>`:""}<label class="btn sec">${t("rpaFora")}<input type="file" accept="image/*,application/pdf" data-rpf="${r.pedido}" hidden></label></div></div>`).join("")}</div>`; }
+    <div class="rpachips">${S.rpaSem?.has(+r.pedido)?chip("ok",t("rpaSemCp")):st(r)}</div>
+    <div class="rpab">${S.rpaSem?.has(+r.pedido) ? `<label class="btn sec">📎 ${t("rpaAnexa")}<input type="file" accept="image/*,application/pdf" data-rpf="${r.pedido}" hidden></label>` /* pago por fora sem comprovante (18/11): só falta anexar */
+      : `${r.pix_chave?`<button type="button" class="btn sec" data-pxk="${esc(r.pix_chave)}">${t("pxCopyKey")}</button>`:""}<label class="btn sec">${t("rpaFora")}<input type="file" accept="image/*,application/pdf" data-rpf="${r.pedido}" hidden></label><button type="button" class="btn sec" data-rpsem="${r.pedido}">${t("rpaDepois")}</button>`}</div></div>`).join("")}</div>`; }
 function bindRpp(){
   const g=document.getElementById("rppgo"); if(g) g.onclick=async()=>{ const ok=(S.rpp||[]).filter(r=>r.tem_conta && !r.enviando), tot=ok.reduce((a,r)=>a+(+r.valor),0);
     if(!confirm(t("rppQ",{v:brl(tot)}))) return; g.disabled=true;
@@ -6063,12 +6065,16 @@ function bindRpp(){
     catch(e){ g.disabled=false; toast(e.message==="saldo" ? t("rppFalta",{s:brl(+e.saldo||0), v:brl(+e.precisa||0)}) : e.message==="asaas" ? (e.det||t("rppErr")) : t("rppErr")); } };
   /* "Já repassei por fora" só com o comprovante anexado (2026-10-29): o dono vê o arquivo em Meus recebimentos */
   app.querySelectorAll("[data-rpf]").forEach(x=>x.onchange=async()=>{ const f=x.files[0], pid=+x.dataset.rpf; x.value=""; if(!f) return;
-    if(f.size>5*1024*1024){ toast(t("cpBig")); return; } if(!confirm(t("rppForaQ"))) return;
+    if(f.size>5*1024*1024){ toast(t("cpBig")); return; } if(!S.rpaSem?.has(pid) && !confirm(t("rppForaQ"))) return;
     const arq=`repasses/${pid}-${Date.now()}.${cpExt(f)}`; toast(t("cpSending"));
     try{ await cpStore(arq, f);
       await RPC("repasse_por_fora",{pid, arq}).catch(e=>e.status===404 ? RPC("repasse_por_fora",{pid}) : Promise.reject(e)); /* sem o SQL novo ainda: marca como antes */
-      S.rpp=(S.rpp||[]).filter(r=>r.pedido!==pid); S.rpa=(S.rpa||[]).filter(r=>r.pedido!==pid); toast(t("rppForaOk")); mainView(); }
+      S.rpp=(S.rpp||[]).filter(r=>r.pedido!==pid); S.rpa=(S.rpa||[]).filter(r=>r.pedido!==pid); S.rpaSem?.delete(pid); toast(t("rppForaOk")); mainView(); }
     catch(e){ toast(errMsg(e)); } });
+  /* "Já paguei, comprovante depois" (Rodrigo 18/11: o comprovante do Asaas demora até 30 min): já trava o envio automático; o cartão fica com "Anexar comprovante" */
+  app.querySelectorAll("[data-rpsem]").forEach(x=>x.onclick=async()=>{ const pid=+x.dataset.rpsem; if(!confirm(t("rpaDepoisQ"))) return; x.disabled=true;
+    try{ await RPC("repasse_por_fora",{pid, arq:null}); (S.rpaSem ||= new Set()).add(pid); S.rpp=(S.rpp||[]).filter(r=>r.pedido!==pid); toast(t("rppForaOk")); mainView(); }
+    catch(e){ x.disabled=false; toast(errMsg(e)); } });
 }
 /* parte de quem convidou o sócio, em reais (igual ao banco: centavos arredondados) */
 const shareOf = p => { const v=S.vpix?.[p.vendedor]; return v?.indicado_por && +v.indicacao_pct ? Math.round(Math.max((+p.preco_cliente||0)-(+p.preco_base||0),0)*v.indicacao_pct)/100 : 0; };
