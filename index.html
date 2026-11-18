@@ -62,7 +62,7 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 /* Layout: faixa de cabeçalho fixa, vitrine em grade de cartões, página da lancha em duas colunas (fotos + ficha/preços) */
 :root{
   --bg:#f3f7f8; --surface:#ffffff; --ink:#0c2430; --muted:#55707b; --line:#d6e2e6;
-  --sea:#0b5c73; --sea-deep:#06394a; --brass:#c99a2e; --brass-ink:#3d2c06; --chip:#e3eff2;
+  --off:#b42318; --sea:#0b5c73; --sea-deep:#06394a; --brass:#c99a2e; --brass-ink:#3d2c06; --chip:#e3eff2;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -70,11 +70,11 @@ if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#071a22; --surface:#0d2531; --ink:#e6f1f4; --muted:#93aeb8; --line:#1d3a47;
-  --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark;
+  --off:#f29b90; --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark;
   --rt-sea:#0f3442; --rt-land:#25403f; --rt-shore:#35554f}}
 :root[data-theme="dark"]{
   --bg:#071a22; --surface:#0d2531; --ink:#e6f1f4; --muted:#93aeb8; --line:#1d3a47;
-  --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark;
+  --off:#f29b90; --sea:#4fb3cc; --sea-deep:#0a2e3b; --brass:#e0b54d; --brass-ink:#2a1e03; --chip:#123241; color-scheme:dark;
   --rt-sea:#0f3442; --rt-land:#25403f; --rt-shore:#35554f}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
@@ -271,9 +271,11 @@ html.is-app #hdr-login{display:none}
 .price-from strong .mny{font:inherit;color:inherit}
 .price-from .pf-fin{display:block;margin-top:4px;font-size:11.5px;color:var(--muted)}
 .card.feat .price-from .pf-fin{color:#b9d0d8}
-.price-from .pf-off{font:600 14px/1.3 var(--body);color:var(--muted)}
-.card.off{opacity:.55}.card.off .ph img{filter:grayscale(.85)}.card.off:hover{transform:none;border-color:var(--line)}
-.card.feat.off .price-from .pf-off{color:#b9d0d8}
+.price-from .pf-off{font:600 14px/1.3 var(--body);color:var(--off)}
+.price-from .pf-v{min-width:0}.fleet-car .price-from .pf-off,.fleet-car .price-from .pf-cta{white-space:normal}.fleet-car .price-from .pf-off{font-size:14px}
+/* ocupada na data: só a foto e as informações ficam apagadas; o "Indisponível nesta data" fica em vermelho discreto (Rodrigo 2026-11-18) */
+.card.off .ph,.card.off .c-head,.card.off .c-items,.card.off>.tag,.card.off .c-rw,.card.off .go{opacity:.5}.card.off .ph img{filter:grayscale(.85)}.card.off:hover{transform:none;border-color:var(--line)}
+.card.feat.off .price-from .pf-off{color:#ff9b8f}
 .lead-dlg .gbtn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:999px;padding:11px 16px;font:600 15px/1.2 var(--body);text-decoration:none;margin:4px 0 0;box-sizing:border-box}
 a[data-gsi]{position:relative;overflow:hidden}.gsio{position:absolute;inset:0;opacity:.011;z-index:2}.gsio iframe{margin:0!important;width:100%!important}
 .lead-dlg .cv-or{display:flex;align-items:center;gap:10px;margin:12px 0 4px;color:var(--muted);font-size:13px}.lead-dlg .cv-or::before,.lead-dlg .cv-or::after{content:"";flex:1;border-top:1px solid var(--line)}
