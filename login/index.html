@@ -669,7 +669,7 @@ html body .tabs.adm2 .tl{min-width:0;overflow:hidden;text-overflow:clip}
 html body .tabs.adm2 .ti{display:none;position:relative;font-size:19px;line-height:22px}
 html body .tabs.adm2 .ti .cnt{position:absolute;top:-8px;left:calc(100% - 5px)}
 html body .tabs.adm2[data-m="one"]{flex-wrap:nowrap}html body .tabs.adm2[data-m="one"] .tbr{display:none}
-html body .tabs.adm2[data-m="one"]>button{flex:1 1 auto;padding:10px 3px;font-size:13px}
+html body .tabs.adm2[data-m="one"]>button{flex:1 1 auto;padding:10px 3px;font-size:13px}html body .tabs.adm2[data-m="nat"]{flex-wrap:nowrap}html body .tabs.adm2[data-m="nat"] .tbr{display:none}html body .tabs.adm2[data-m="nat"]>button{flex:0 0 auto;padding:10px 14px;font-size:13px;overflow:visible}html body .tabs.adm2[data-m="nat"] .tl{overflow:visible}
 html body .tabs.adm2[data-m="ico"]>.itab{overflow:visible;padding:8px 4px}
 html body .tabs.adm2[data-m="ico"] .ti{display:inline-block}
 html body .tabs.adm2[data-m="ico"] .tl,html body .tabs.adm2[data-m="ico"] .itab>.cnt{display:none}
@@ -6643,7 +6643,10 @@ Object.assign(T.pt,{tabPlanS:"Planilha", tabConv:"Conversas"}); Object.assign(T.
 function admTabIn(k, n){ return `<span class="ti" aria-hidden="true">${ADM_TABS[k][0]}${n?`<b class="cnt${k==="conversas"?" ch":""}">${n}</b>`:""}</span><span class="tl">${t(ADM_LBL[k])}</span>${n?`<b class="cnt${k==="conversas"?" ch":""}">${n}</b>`:""}`; }
 function fitTabs(){ const el=document.querySelector(".tabs.adm2"); if(!el) return;
   const cut=()=>[...el.querySelectorAll("button")].some(b=>{ const l=b.querySelector(".tl"); return l ? (getComputedStyle(l).display!=="none" && l.scrollWidth>l.clientWidth+.5) : b.scrollWidth>b.clientWidth+.5; });
-  for(const m of ["one","two"]){ el.dataset.m=m; if(!cut()) return; }
+  /* uma linha só com folga: cada aba no tamanho natural, com respiro dos dois lados; espremida não vale (Rodrigo 2026-11-18) */
+  el.dataset.m="nat"; const bs=[...el.querySelectorAll("button")], cs=getComputedStyle(el), livre=el.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  if(bs.reduce((s,b)=>s+b.getBoundingClientRect().width,0) <= livre){ el.dataset.m="one"; return; }
+  for(const m of ["two"]){ el.dataset.m=m; if(!cut()) return; }
   el.dataset.m="ico"; }
 addEventListener("resize", ()=>{ clearTimeout(fitTabs.tm); fitTabs.tm=setTimeout(fitTabs,80); });
 function tabsHTML(){
