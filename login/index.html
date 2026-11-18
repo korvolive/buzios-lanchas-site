@@ -267,6 +267,7 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .pvbar{display:flex;gap:8px;margin-top:10px}.pvbar .in{padding:9px 12px;font-size:15px;margin:0}.pvbar input{flex:1;min-width:0}.pvbar select{flex:none;width:auto;max-width:44%}.pvtf h2{font-size:16px}
 .pvfs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pvf{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}.pvf[aria-pressed="true"]{background:var(--brass);color:var(--brass-ink);border-color:var(--brass);font-weight:700}
 .pvlist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.plbox{display:inline-block;max-width:100%;vertical-align:top}.plbox>.plwrap{max-height:calc(100vh - 256px)}
 .pvnav{display:flex;align-items:center;gap:10px;margin:0 0 10px}.pvcount{flex:none;min-width:44px;margin:0;white-space:nowrap;color:var(--muted);font-weight:600;font-size:14px;line-height:1}
 .pvtrack{flex:1;min-width:40px;height:4px;margin:0 4px;border-radius:4px;background:var(--line);overflow:hidden}.pvtrack i{display:block;height:100%;border-radius:4px;background:var(--ink);transition:width .3s ease}
 .pvpg{flex:none;display:grid;place-items:center;width:36px;height:36px;margin:0;border-radius:50%;border:0;background:var(--ink);color:var(--surface);font:600 22px/1 var(--body);padding:0 0 3px;cursor:pointer}.pvpg:disabled{background:var(--line);color:var(--muted);cursor:default}
@@ -6585,7 +6586,7 @@ function pvCard(v){
    Totais, filtros e busca continuam valendo para tudo; só a lista mostra a página. */
 const PV_POR=10;
 const pvPg = n => { const tot=Math.max(1,Math.ceil(n/PV_POR)); S.pvP=Math.min(Math.max(0,S.pvP||0),tot-1); return S.pvP; };
-function pvNavHTML(n){ const tot=Math.ceil(n/PV_POR); if(tot<2) return ""; const p=pvPg(n);
+function pvNavHTML(n, pg){ const tot=Math.ceil(n/PV_POR); if(tot<2) return ""; const p=pg ?? pvPg(n);
   return `<div class="pvnav"><p class="pvcount" aria-live="polite">${t("pvPag",{a:p+1,b:tot})}</p><span class="pvtrack" aria-hidden="true"><i style="width:${(p+1)/tot*100}%"></i></span><button type="button" class="pvpg" data-pvpg="-1" aria-label="${t("pvAnt2")}"${p?"":" disabled"}>‹</button><button type="button" class="pvpg" data-pvpg="1" aria-label="${t("pvProx")}"${p<tot-1?"":" disabled"}>›</button></div>`; }
 function planilhaHTML(){
   if(S.pvErr && !S.pv) return `<div class="card"><p class="msg err" style="margin:0">${t("loadErr")} <button class="link" id="pvretry">${t("retry")}</button></p></div>`;
@@ -7666,6 +7667,9 @@ function planView(){
   if(S.planM && !meses.includes(S.planM)) S.planM="";
   const rows = S.planM ? pool.filter(r=>r.data.slice(0,7)===S.planM).sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:0) : (S.upcoming||[]).filter(r=>r.nota);
   const sum=k=>rows.reduce((a,r)=>a+(+r.nota?.[k]||0),0);
+  /* 10 passeios por página com "1 de N" e setas, como a planilha de vendas (Rodrigo 2026-11-18); o total continua somando todos */
+  const plTotP=Math.max(1,Math.ceil(rows.length/PV_POR)); S.planP=Math.min(Math.max(0,S.planP||0),plTotP-1);
+  const pRows=rows.slice(S.planP*PV_POR, S.planP*PV_POR+PV_POR), plNav=pvNavHTML(rows.length,S.planP);
   const mesNome = k => cap(dateOf(k+"-01").toLocaleDateString(t("locale"),{month:"long",year:"numeric"}));
   const plMes=`<select class="in plmes" id="plmes" aria-label="${t("plMes")}"><option value="">${t("plMesAll")}</option>${meses.map(k=>`<option value="${k}"${k===S.planM?" selected":""}>${mesNome(k)}</option>`).join("")}</select>`;
   const dis=(r,k)=>planLock(r,k)?` disabled title="${esc(t("plLocked"))}"`:"";
@@ -7717,16 +7721,17 @@ function planView(){
   /* "+ Novo passeio" também no modo planilha (2026-10-28) */
   const plNew=`<button type="button" class="btn plnew" id="plnew">${t("newTrip")}</button>`;
   app.innerHTML = mob ? `<div id="plan" class="plm"><div class="plhead"><button type="button" class="btn sec" id="plback">‹ ${t("plBack")}</button><h2>📊 ${t("plT")}${all?"":` · ${esc(boatName(S.cur))}`}</h2>${plMes}${plNew}<button type="button" class="plx" id="plx" aria-label="${t("close")}" title="${t("close")}">✕</button></div>
-    ${rows.length ? `<div class="pltot"><span>${t("plTot",{n:rows.length})}</span><span>${t("plVal")} <b>${brl(sum("valor"))}</b> · ${t("plSin")} <b>${brl(sum("sinal"))}</b> · ${t("plFalta")} <b>${brl(Math.max(0,sum("valor")-sum("sinal")))}</b></span></div><div class="plcs">${rows.map(card).join("")}</div>`
+    ${rows.length ? `<div class="pltot"><span>${t("plTot",{n:rows.length})}</span><span>${t("plVal")} <b>${brl(sum("valor"))}</b> · ${t("plSin")} <b>${brl(sum("sinal"))}</b> · ${t("plFalta")} <b>${brl(Math.max(0,sum("valor")-sum("sinal")))}</b></span></div>${plNav}<div class="plcs">${pRows.map(card).join("")}</div>`
       : `<p class="muted">${t("plNone")}</p>`}</div>` : `<div id="plan"><div class="plhead"><button type="button" class="btn sec" id="plback">‹ ${t("plBack")}</button><h2>📊 ${t("plT")}${all?"":` · ${esc(boatName(S.cur))}`}</h2>${plMes}${plNew}<button type="button" class="plx" id="plx" aria-label="${t("close")}" title="${t("close")}">✕</button></div>
     <p class="muted plhint">${t("plHint")}</p>
-    ${rows.length ? `<div class="plwrap"><table class="pltab"><thead><tr>${cols.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead><tbody>
-      ${rows.map(r=>`<tr data-prow="${r.id}"${isPending(r.nota)?' class="plpend"':""}>${cols.map(c=>cellOf(r,c[0])).join("")}</tr>`).join("")}
-      </tbody><tfoot><tr><td colspan="${iv}">${t("plTot",{n:rows.length})}</td><td>${brl(sum("valor"))}</td><td>${brl(sum("sinal"))}</td><td>${brl(Math.max(0,sum("valor")-sum("sinal")))}</td><td colspan="2"></td></tr></tfoot></table></div>`
+    ${rows.length ? `<div class="plbox">${plNav}<div class="plwrap"><table class="pltab"><thead><tr>${cols.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead><tbody>
+      ${pRows.map(r=>`<tr data-prow="${r.id}"${isPending(r.nota)?' class="plpend"':""}>${cols.map(c=>cellOf(r,c[0])).join("")}</tr>`).join("")}
+      </tbody><tfoot><tr><td colspan="${iv}">${t("plTot",{n:rows.length})}</td><td>${brl(sum("valor"))}</td><td>${brl(sum("sinal"))}</td><td>${brl(Math.max(0,sum("valor")-sum("sinal")))}</td><td colspan="2"></td></tr></tfoot></table></div></div>`
       : `<p class="muted">${t("plNone")}</p>`}</div>`;
   document.getElementById("plback").onclick=document.getElementById("plx").onclick=planClose; { const ph=document.querySelector("#plan .plhead"); if(ph) ph.style.top=(top_.offsetHeight||0)+"px"; }
   document.getElementById("plnew").onclick=()=>{ pedidoFor=null; consultaFor=null; openTrip(null); };
-  document.getElementById("plmes").onchange=e=>{ S.planM=e.target.value; planView(); scrollTo(0,0); };
+  document.getElementById("plmes").onchange=e=>{ S.planM=e.target.value; S.planP=0; planView(); scrollTo(0,0); };
+  app.querySelectorAll("#plan [data-pvpg]").forEach(b=>b.onclick=()=>{ planQ.then(()=>{ S.planP=(S.planP||0)+ +b.dataset.pvpg; planView(); document.querySelector("#plan .pvnav")?.scrollIntoView({block:"nearest"}); }); });
   app.querySelectorAll("[data-popen]").forEach(b=>b.onclick=()=>{ const r=S.upcoming.find(x=>x.id===+b.dataset.popen); if(mob) return openTrip(r); planLeave(); openTrip(r); });
   /* texto comprido (2026-11-03): a célula para no limite com "…"; passando o mouse mostra tudo, e clicando no campo ele abre por inteiro */
   const tip=el=>{ if(!el.disabled) el.title = el.tagName==="SELECT" ? (el.selectedOptions[0]?.textContent||"") : el.value; };
