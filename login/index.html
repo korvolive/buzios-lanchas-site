@@ -1195,13 +1195,13 @@ const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
 const todayISO = () => iso(new Date());
 /* prazo da pré-reserva sem sinal (2026-10-30): 7 dias ou mais antes do passeio 12 h, 2 a 6 dias 6 h, véspera 2 h, mesmo dia 1 h. Igual ao notificar (vencerPre) e ao vencer_pre_pedidos */
 const holdHrs = d => { const n=Math.round((Date.parse(d+"T12:00:00Z")-Date.parse(todayISO()+"T12:00:00Z"))/864e5); return n>=7 ? 12 : n>=2 ? 6 : n===1 ? (["baixa","media"].includes(seasonKey(d)) ? 3 : 2) : 1; }; /* véspera: 3h na baixa e média, 2h no verão e feriados (Rodrigo 2026-11-11) */
-/* fim do prazo (Rodrigo 2026-11-18, casos Paulo/Joaquin): dias contados da criação; passeio a 2+ dias nunca vence entre 22h e 10h (vai para as 10h). Igual ao _prazo_pre_fim do banco */
+/* fim do prazo (Rodrigo 2026-11-18, casos Paulo/Joaquin): dias contados da criação; passeio a 2+ dias nunca vence entre 23h e 9h (vai para as 9h; Rodrigo 18/11: mensagens das 7h às 23h). Igual ao _prazo_pre_fim do banco */
 const spH = ms => +new Date(ms).toLocaleString("en-US",{timeZone:"America/Sao_Paulo",hour:"2-digit",hourCycle:"h23"});
 const holdEnd = (criado, d) => { const ini=Date.parse(criado), dl=new Date(ini-3*36e5).toISOString().slice(0,10), n=Math.round((Date.parse(d+"T12:00:00Z")-Date.parse(dl+"T12:00:00Z"))/864e5);
   const h=n>=7 ? 12 : n>=2 ? 6 : n===1 ? (["baixa","media"].includes(seasonKey(d)) ? 3 : 2) : 1, fim=ini+h*36e5; if(n<2) return fim;
-  const hr=spH(fim); if(hr>=10 && hr<22) return fim; const dia=new Date(fim-3*36e5).toISOString().slice(0,10); return Date.parse(dia+"T13:00:00Z")+(hr>=22?864e5:0); };
-/* lembrete do sinal nunca de madrugada: pontos entre 21h e 8h (Brasília) são pulados */
-const quietSP = ms => { const h=spH(ms); return h>=21 || h<8; };
+  const hr=spH(fim); if(hr>=9 && hr<23) return fim; const dia=new Date(fim-3*36e5).toISOString().slice(0,10); return Date.parse(dia+"T12:00:00Z")+(hr>=23?864e5:0); };
+/* lembrete do sinal nunca de madrugada: pontos entre 23h e 7h (Brasília) são pulados */
+const quietSP = ms => { const h=spH(ms); return h>=23 || h<7; };
 const fmtAte = x => new Date(x).toLocaleString(t("locale"),{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"});
 const holdDur = d => { const n=holdHrs(d); return n===1 ? t("hold1") : t("holdN",{n}); };
 const maxISO = () => { const d=new Date(); d.setFullYear(d.getFullYear()+2); return iso(d); }; /* passeio novo, manutenção, preço especial e buscas: no máximo 2 anos à frente (2026-10-26: mudou um, muda todos) */

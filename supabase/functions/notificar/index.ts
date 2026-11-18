@@ -590,7 +590,7 @@ async function inicios() {
 // pré-reserva (valor lançado, sinal zero) que passou do prazo sem sinal: apaga, a data volta livre no site e o administrador é avisado (Rodrigo 2026-10-25).
 // Prazo contado da criação (Rodrigo 2026-10-30): passeio a 7 dias ou mais 12 h, de 2 a 6 dias 6 h, véspera 2 h, mesmo dia 1 h (igual ao app e ao vencer_pre_pedidos).
 // Só passeios de hoje em diante e sem pedido do site ligado (pedido aprovado tem fluxo próprio).
-// 2026-11-18: dias contados da criação e, com passeio a 2+ dias, o prazo nunca vence entre 22h e 10h (vai para as 10h), igual ao _prazo_pre_fim do banco.
+// 2026-11-18: dias contados da criação e, com passeio a 2+ dias, o prazo nunca vence entre 23h e 9h (vai para as 9h), igual ao _prazo_pre_fim do banco.
 // Véspera aqui fica em 2 h; a trava a0_pre_prazo_segura do banco segura até o prazo certo (3 h na baixa/média).
 const spHora = (ms: number) => new Date(ms - 3 * 3600e3).getUTCHours();
 const prazoFim = (criado: string, data: string) => {
@@ -598,8 +598,8 @@ const prazoFim = (criado: string, data: string) => {
   const n = Math.round((Date.parse(data + "T12:00:00Z") - Date.parse(dl + "T12:00:00Z")) / 864e5);
   const fim = ini + (n >= 7 ? 12 : n >= 2 ? 6 : n === 1 ? 2 : 1) * 3600e3;
   if (n < 2) return fim;
-  const h = spHora(fim); if (h >= 10 && h < 22) return fim;
-  return Date.parse(new Date(fim - 3 * 3600e3).toISOString().slice(0, 10) + "T13:00:00Z") + (h >= 22 ? 864e5 : 0);
+  const h = spHora(fim); if (h >= 9 && h < 23) return fim;
+  return Date.parse(new Date(fim - 3 * 3600e3).toISOString().slice(0, 10) + "T12:00:00Z") + (h >= 23 ? 864e5 : 0);
 };
 async function vencerPre() {
   // pedido da pré-reserva (cliente com conta) sem sinal no prazo: o banco cancela, solta a pré-reserva e escreve no chat; aqui o cliente é avisado
