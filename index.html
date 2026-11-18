@@ -841,11 +841,11 @@ html:not(.on-boat) h1,html:not(.on-boat) h2,html:not(.on-boat) h3{font-family:va
 html:not(.on-boat) .hero h1{font-weight:800;letter-spacing:-.03em;line-height:.98}
 html:not(.on-boat) .section-head h2{font-weight:800;letter-spacing:-.03em}
 /* topo: quadro de foto com cantos arredondados e margem, como no Bordazul */
-html:not(.on-boat) .hero.hero-foto{margin:var(--pm) var(--pm) 0;border-radius:28px;isolation:isolate;overflow:hidden}
+html:not(.on-boat) .hero.hero-foto{margin:var(--pm) var(--pm) 0;border-radius:28px;isolation:isolate}
 html:not(.on-boat) .hero.hero-foto #waves{display:none}
 html:not(.on-boat) .hero.hero-foto .wrap{padding-bottom:56px}
 @media (min-width:761px){
-  html:not(.on-boat) .hero.hero-foto::before{inset:0;filter:blur(2px);background:linear-gradient(90deg,rgba(4,33,44,.62),rgba(4,33,44,.3) 50%,rgba(4,33,44,.25)),url(/img/capa-festa-bg.webp) center/auto 100% no-repeat,#0b4f5e} /* fundo = a mesma foto, com as pontas espelhadas só para telas muito largas */
+  html:not(.on-boat) .hero.hero-foto::before{bottom:-6px;filter:blur(1.5px);background:linear-gradient(rgba(4,33,44,.45),rgba(4,33,44,.45)),url(/img/capa-festa-bg.webp) center bottom/100% 100%} /* laterais menos borradas (Rodrigo 2026-11-18) */
   html:not(.on-boat) .hero.hero-foto::after{bottom:0;background:linear-gradient(90deg,rgba(4,33,44,.78) 0%,rgba(4,33,44,.42) 42%,rgba(4,33,44,.18) 60%,rgba(4,33,44,.5) 100%),url(/img/capa-festa.webp) center bottom/auto 100% no-repeat}
   html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px}
 }
@@ -881,8 +881,10 @@ html:not(.on-boat) .faq details{border-radius:16px}
   html:not(.on-boat) .hero.hero-foto .hero-grid{grid-template-columns:minmax(0,640px)}
   html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px 96px}
   /* foto inteira no meio com a largura certa para a altura do topo e laterais sumindo suave no fundo desfocado (sem corte em tela larga, Rodrigo 2026-11-18) */
-  html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:3200/840;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.62) 0%,rgba(4,33,44,.62) 18%,rgba(4,33,44,.3) 40%,rgba(4,33,44,.06) 62%,rgba(4,33,44,.25) 100%),url(/img/capa-festa.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
+  html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:2048/880;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/capa-festa.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
   @media (min-width:1400px){html:not(.on-boat) .hero.hero-foto .wrap.hero-grid{grid-template-columns:minmax(0,640px)}}
+  /* ultrawide: foto encostada na direita (o lado claro do sol não é repetido) e só o mar da esquerda continua para o lado (Rodrigo 2026-11-18) */
+  @media (min-width:1600px){html:not(.on-boat) .hero.hero-foto::before{top:0;left:0;right:0;bottom:0;filter:none;border-radius:inherit;background:linear-gradient(rgba(4,33,44,.66),rgba(4,33,44,.66)),url(/img/capa-festa-amplo.webp) right bottom/auto 100% no-repeat}html:not(.on-boat) .hero.hero-foto::after{left:auto;right:0;transform:none;border-radius:0 28px 28px 0;--m:linear-gradient(90deg,transparent,#000 18%)}}
 }
 html:not(.on-boat) .when-top{position:relative;z-index:3;margin-top:-52px}
 html:not(.on-boat) .when-top .when{max-width:880px;margin:0 auto;box-shadow:0 18px 40px -22px rgba(4,33,44,.45);flex-wrap:nowrap;align-items:flex-end;gap:14px 18px;padding:16px 18px 16px 24px;border-radius:999px}
@@ -920,7 +922,7 @@ html:not(.on-boat) .confia .trust{grid-template-columns:1fr}
 @media (max-width:760px){html:not(.on-boat) .hero-foto .hero-text .guar{text-align:left;margin-top:4px}}
 /* garantia no computador: uma linha curta embaixo dos botões (Rodrigo 2026-11-18: no canto da foto não ficou bom); no celular fica onde está */
 .guar-s{display:none}
-@media (min-width:1100px){html:not(.on-boat) .hero-foto .hero-text .guar{display:inline-flex;align-items:center;gap:10px;justify-self:start;max-width:none;padding:9px 18px 9px 14px;border-radius:999px;background:rgba(4,33,44,.55);border:1px solid rgba(224,181,77,.55)}html:not(.on-boat) .hero-foto .hero-text .guar b{margin:0;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}html:not(.on-boat) .hero-foto .hero-text .guar b::after{content:"·";margin-left:2px;opacity:.6}html:not(.on-boat) .hero-foto .hero-text .guar p{display:none}html:not(.on-boat) .hero-foto .hero-text .guar .guar-s{display:inline;color:#eaf4f6;font-size:14.5px;white-space:nowrap}}
+@media (min-width:1100px){html:not(.on-boat) .hero-foto .hero-text .guar{display:inline-flex;align-items:center;gap:12px;justify-self:start;max-width:none;padding:12px 22px 12px 16px;border-radius:16px;background:linear-gradient(135deg,#f3d27a,#d4a537)!important;border:0!important;color:#2b1d00;box-shadow:0 10px 28px rgba(0,0,0,.28)}html:not(.on-boat) .hero-foto .hero-text .guar b{margin:0;white-space:nowrap;display:inline-flex;align-items:center;gap:9px;color:#2b1d00;font-size:18px;font-weight:800}html:not(.on-boat) .hero-foto .hero-text .guar b svg{width:24px;height:24px}html:not(.on-boat) .hero-foto .hero-text .guar b::after{content:"";width:1px;height:22px;background:rgba(43,29,0,.3);margin-left:4px}html:not(.on-boat) .hero-foto .hero-text .guar p{display:none}html:not(.on-boat) .hero-foto .hero-text .guar .guar-s{display:inline;color:#2b1d00;font-size:16px;font-weight:600;white-space:nowrap}}
 /* confiança como no topo antigo (Rodrigo 2026-11-18): blocos iguais só com ícone e título; a descrição cobre o bloco ao passar o mouse ou tocar */
 html:not(.on-boat) .confia .trust ul{grid-auto-rows:1fr}
 html:not(.on-boat) .confia .trust li{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;padding:20px;min-height:120px;overflow:hidden;cursor:default;outline:none;border:1.5px solid transparent;transition:border-color .2s}
