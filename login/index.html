@@ -2059,7 +2059,7 @@ function lembHTML(){
   const L=(S.lemb||[]).filter(x=>!lembPlan(x).venceu && waOf(x.nota.telefone).length>=8); if(!L.length) return "";
   /* 18/11 (Rodrigo): link e "conseguiu pagar?" saem sozinhos; sem sininho, sem "próximo lembrete" e sem botão de lembrar */
   return `<details class="card cfm rvpend fold" data-fold="lemb"${foldOpen("lemb")?" open":""}>${foldSum(t("lbT",{n:L.length}))}<p class="muted" style="margin-top:0">${t("lbSub")}</p><ul class="owners">${L.map(x=>{ const k=lembPlan(x), nm=x.nota.cliente||"";
-    return `<li><span class="who">${avatar(x.lancha,"bav")}<span><strong>${esc(boatName(x.lancha))}</strong><br><small class="muted">${fmtLong(x.data)} · ${t("slot_"+x.horario)}${nm?" · "+esc(nome2(nm)):""}</small><br><small>⏳ ${t("lbAte",{d:fmtAte(k.fim)})}</small></span></span><span class="cfb"><button type="button" class="btn sec" data-lbopen="${x.id}">💰 ${t("lbOpen")}</button><button type="button" class="btn sec" data-ativar="${x.id}">🔑 ${t("acBtn")}</button></span></li>`; }).join("")}</ul></details>`; }
+    return `<li><span class="who">${avatar(x.lancha,"bav")}<span><strong>${esc(boatName(x.lancha))}</strong><br><small class="muted">${fmtLong(x.data)} · ${t("slot_"+x.horario)}${nm?" · "+esc(nome2(nm)):""}</small><br><small>⏳ ${t("lbAte",{d:fmtAte(k.fim)})}</small></span></span><span class="cfb"><button type="button" class="btn sec" data-lbopen="${x.id}">💰 ${t("lbOpen")}</button><button type="button" class="btn sec" data-ativar="${x.id}">🔑 ${t("acBtn")}</button>${S.papel==="auditor"?"":`<button type="button" class="btn sec" data-lbno="${x.id}">🚫 ${t("lbNo")}</button>`}</span></li>`; }).join("")}</ul></details>`; }
 
 /* ===== crédito do cliente (2026-11-02): o cliente desiste, o sinal vira crédito para usar em até 1 ano só na mesma lancha.
    Virar crédito apaga o passeio (a data volta livre no site); o cliente vê o crédito em Meus passeios e é avisado no chat, no celular e por e-mail.
@@ -2182,6 +2182,11 @@ async function lembrar(x){
     try{ await RPC("cancelar_pre_reserva",{bid:x.id}); S.lemb=S.lemb.filter(r=>r.id!==x.id); closeDay(); toast(t("lbNoOk")); await loadReqs(); loadBlocks(); mainView(); }
     catch(e){ no.disabled=false; toast(e.status===404 ? t("opSql2") : errMsg(e)); } };
 }
+/* cliente desistiu: cancela a pré-reserva sem sinal direto do quadro (18/11, o botão de lembrar saiu) */
+document.addEventListener("click", async e=>{ const b=e.target.closest("[data-lbno]"); if(!b) return; const x=(S.lemb||[]).find(r=>r.id===+b.dataset.lbno); if(!x) return;
+  if(!confirm(t("lbNoQ",{name:x.nota?.cliente||""}))) return; b.disabled=true;
+  try{ await RPC("cancelar_pre_reserva",{bid:x.id}); S.lemb=S.lemb.filter(r=>r.id!==x.id); toast(t("lbNoOk")); await loadReqs(); loadBlocks(); mainView(); }
+  catch(err){ b.disabled=false; toast(err.status===404 ? t("opSql2") : errMsg(err)); } });
 /* o cliente pagou: abre a reserva direto do quadro para lançar o sinal e anexar o comprovante (2026-10-31) */
 document.addEventListener("click", async e=>{ const b=e.target.closest("[data-lbopen]"); if(!b) return; b.disabled=true;
   try{ const [r]=await fetchRows(`id=eq.${+b.dataset.lbopen}`); if(r) openTrip(r); else toast(t("loadErr")); }catch(err){ toast(errMsg(err)); } b.disabled=false; });
