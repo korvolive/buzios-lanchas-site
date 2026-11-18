@@ -16,7 +16,7 @@
 // POST { tipo: "op_alteracao", id: <alteração> }  (o operador, logo depois de pedir a alteração) avisa o administrador para aprovar (celular e e-mail)
 // POST { tipo: "credito", id: <crédito>, acao: "novo" | "removido" }  (só o administrador) avisa o cliente com conta do crédito novo ou removido (celular e e-mail; o chat já foi escrito pelo banco)
 // POST { tipo: "teste", ep? }                  avisa só quem chamou (com ep: só aquele aparelho)
-// POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) avisa quando um passeio termina (da Búzios Lanchas: o administrador; de fora: os donos),
+// POST { tipo: "fim" }  (agendado a cada 15 min pelo pg_cron) quando um passeio termina: o da Búzios Lanchas se conclui sozinho e pede a avaliação ao cliente (Rodrigo 2026-11-18); o de fora avisa os donos,
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 //                       Na mesma rodada avisa o cliente com conta 1 hora antes do início do passeio (celular e e-mail), com embarque, mapa e contatos
 //                       (dono da lancha; nos passeios da Búzios Lanchas também a Búzios Lanchas). Uma vez por passeio (tabela inicio_avisos).
@@ -520,9 +520,9 @@ async function fins() {
   const nomesPs = Object.fromEntries((ps || []).map(x => [x.user_id, x.nome]));
   for (const b of prontos.filter(b => ok.has(b.id))) {
     const a = um(b.anotacoes), fora = a?.origem !== "buzios", alvo = fora ? donos.get(b.lancha) || [] : adms;
-    // Miss Bardot da Búzios (Rodrigo 2026-10-31): confirma sozinho que aconteceu e já pede a avaliação ao cliente com conta.
-    // Pré-reserva sem sinal continua no quadro para o administrador confirmar à mão.
-    if (b.lancha === AUTO_CONFIRMA && !fora && !(+a?.valor > 0 && !(+a?.sinal > 0))) {
+    // Passeio da Búzios (Rodrigo 2026-11-18, antes só a Miss Bardot): terminou, está concluído sozinho e já pede a avaliação
+    // ao cliente com conta (celular e e-mail); sem conta, o WhatsApp oficial manda o pedido de avaliação. O administrador não confirma mais.
+    if (!fora) {
       const auto = await autoConfirma(b, a, nomes.get(b.lancha) || b.lancha).catch(e => (console.error("auto", e), false));
       if (auto) continue;
     }
@@ -534,7 +534,6 @@ async function fins() {
   return n;
 }
 
-const AUTO_CONFIRMA = "miss-bardot";
 async function autoConfirma(b: any, a: any, lancha: string) {
   const { error } = await db.from("realizados").upsert({ bloqueio_id: b.id, aconteceu: true, por: null }, { onConflict: "bloqueio_id", ignoreDuplicates: true });
   if (error) { console.error("auto realizados", error.message); return false; }
