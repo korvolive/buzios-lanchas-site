@@ -757,13 +757,26 @@ function paypalCobertos(entradas: { em: number; valor: number }[], pedidos: { id
   return cob;
 }
 const veioDoPaypal = (t: any) => /paypal/i.test(`${t?.description || ""} ${t?.type || ""}`);
+// o saque do PayPal chega como Pix recebido (18/11/2026: "Pix de PAYPAL (BANCO CITIBANK S.A.)"); o Asaas registra Pix recebido
+// como uma cobrança própria (paymentId). Vale como PayPal se não é cobrança nossa de cliente (externalReference PED<id>) e
+// o nome PayPal aparece na movimentação, na cobrança ou na transação Pix.
+async function entradaPaypal(t: any) {
+  if (!t?.id || !(+t.value > 0) || NAO_ENTRADA.test(String(t.type || ""))) return false;
+  if (!t.paymentId) return veioDoPaypal(t);
+  const pg = await asaas("/payments/" + encodeURIComponent(t.paymentId)).catch(() => null);
+  if (!pg || /^PED\d+$/.test(String(pg.externalReference || ""))) return false;
+  if ((await db.from("pagamentos_asaas").select("id").eq("asaas_id", String(t.paymentId)).maybeSingle()).data) return false;
+  if (veioDoPaypal(t) || /paypal/i.test(JSON.stringify(pg))) return true;
+  const px = pg.pixTransaction ? await asaas("/pix/transactions/" + encodeURIComponent(pg.pixTransaction)).catch(() => null) : null;
+  return !!px && /paypal/i.test(JSON.stringify(px));
+}
 // lê o extrato da conta principal e registra as entradas vindas do PayPal (paypal_entradas, uma linha por movimentação)
 async function lerEntradasPaypal(desde: string) {
   const ini = new Date(Date.parse(desde) - 3 * 36e5).toISOString().slice(0, 10);
   const novas: any[] = [];
   for (let off = 0, i = 0; i < 10; i++, off += 100) {
     const l = await asaas(`/financialTransactions?startDate=${ini}&order=asc&limit=100&offset=${off}`);
-    for (const t of l?.data || []) if (t?.id && +t.value > 0 && !t.paymentId && !NAO_ENTRADA.test(String(t.type || "")) && veioDoPaypal(t)) novas.push(t);
+    for (const t of l?.data || []) if (+t.value > 0 && await entradaPaypal(t)) novas.push(t);
     if (!l?.hasMore) break;
   }
   if (novas.length) {
@@ -1021,7 +1034,8 @@ Deno.serve(async req => {
       const dias = Math.min(Math.max(Number(b.dias) || 30, 1), 90);
       const ini = new Date(Date.now() - dias * 864e5).toISOString().slice(0, 10);
       const l = await asaas(`/financialTransactions?startDate=${ini}&order=desc&limit=100`).catch((e: any) => ({ erro: e?.message }));
-      const sem = (l?.data || []).filter((t: any) => +t.value > 0 && !t.paymentId).map((t: any) => ({ data: t.date, tipo: t.type, valor: +t.value, paypal: veioDoPaypal(t) }));
+      const sem: any[] = [];
+      for (const t of (l?.data || []).filter((t: any) => +t.value > 0).slice(0, 30)) sem.push({ data: t.date, tipo: t.type, valor: +t.value, cobranca: !!t.paymentId, paypal: await entradaPaypal(t).catch(() => null) });
       if (pc?.paypal_desde && b.ler === true) await lerEntradasPaypal(pc.paypal_desde);
       const f = pc?.paypal_pedidos_desde ? await filaPaypal(pc) : null;
       const { data: rp } = f?.fila.length ? await db.from("repasses_pp").select("pedido, enviado_em").in("pedido", f.fila.map((p: any) => p.id)) : { data: [] };
