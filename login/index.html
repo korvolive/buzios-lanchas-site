@@ -3111,7 +3111,7 @@ function pricesBody(){
   const apc = (c, lab, mx, v, pp) => `<div class="apct"><span>${lab}</span><span class="mnpi"><input type="number" class="in" inputmode="numeric" min="0" max="${mx}" step="5" data-apc="${c}" value="${v ?? 0}"><i>%</i></span></div>${pp?`<small class="pprev" data-pp="${pp}"></small>`:""}`;
   return prWrap("", "💰 "+t("pricesT"), "", `
     <div class="pnet">${SEASON3.map(k=>{ const on=aepOn(k), pv=EP_PREV[k] && !aepOn(EP_PREV[k]) ? EP_PREV[EP_PREV[k]] || EP_PREV[k] : EP_PREV[k];
-      return `<details class="pseason msec" data-mo="a_${k}"${S.mnOpen?.["a_"+k]?" open":""}><summary class="msum"><b>${t("pr_"+k).split(" · ")[0]}</b><span class="mdt">${t("prm_"+k)}</span><span class="msv" data-msum="${k}"></span></summary>
+      return `<details class="pseason msec" data-mo="a_${k}"${S.mnOpen?.["a_"+k]?" open":""}><summary class="msum"><b>${t("pr_"+k).split(" · ")[0]}</b><span class="mdt">${t("prm_"+k)}</span></summary>
       ${EP_PREV[k] ? `<button type="button" class="epsw" data-aep="${k}" aria-pressed="${on}"><i></i><span>${t("aep_"+k)}</span></button>
       <p class="muted epoff" data-aepo="${k}"${on?" hidden":""}>${t("epOff",{s:t("pr_"+pv).split(" · ")[0]})} ${t("aepHow")}</p>` : ""}
       <div data-aepb="${k}"${on?"":" hidden"}><div class="pg"><span></span><b>${t("prNet")}</b><b>${t("prBl")}${S.hasTaxa?"":` ${S.cur===SEM_TAXA?"0":TAXA_BUZIOS}%`}</b><b>${t("prTotal")}</b>
@@ -3271,7 +3271,7 @@ function ownPricesHTML(){
       <output class="mnfp" data-fp="${c}"></output>`; }).join("")}</div>
     <label class="mnd1"><span>${t("mnDs")}</span><span class="mnpi"><input type="number" class="in" inputmode="decimal" min="0" max="${PAIR.ds.max}" step="any" data-xp="ds:${k}" data-both="1" data-k="ds_${k}" value="${dr["ds_"+k] ?? pctTxt(dsv(k))}"${dis}><i>%</i></span></label>`;
   /* tela do dono enxuta (Rodrigo 2026-11-14): cada época e o Feriados ficam recolhidos e mostram só o resumo (valores / %); toca para abrir. Aberto/fechado fica em S.mnOpen */
-  const sec = (k, name, body, dt) => `<details class="pseason msec" data-mo="${k}"${S.mnOpen?.[k]?" open":""}><summary class="msum"><b>${name}</b>${dt?`<span class="mdt">${dt}</span>`:""}<span class="msv" data-msum="${k}"></span></summary>${body}</details>`; /* datas da temporada já na linha recolhida (Rodrigo 2026-11-18) */
+  const sec = (k, name, body, dt) => `<details class="pseason msec" data-mo="${k}"${S.mnOpen?.[k]?" open":""}><summary class="msum"><b>${name}</b>${dt?`<span class="mdt">${dt}</span>`:`<span class="msv" data-msum="${k}"></span>`}</summary>${body}</details>`; /* datas da temporada já na linha recolhida; o resumo dos valores saiu das temporadas, só fica no Feriados (Rodrigo 2026-11-18) */
   const ferOn = FERIADOS.filter(k=>ferProx(k).length), ferN = ferOn.filter(k=>!off.includes(k)).length;
   return prWrap("mnet", "💰 "+t("mnT"), "", `
     ${lock?`<p class="msg">${t("mnLock",{d:dm(S.mn.prox)})}</p>`:""}
