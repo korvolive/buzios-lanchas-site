@@ -879,8 +879,9 @@ html:not(.on-boat) .faq details{border-radius:16px}
    confiança numa seção clara depois das lanchas, nome da lancha por cima da foto do cartão */
 @media (min-width:761px){
   html:not(.on-boat) .hero.hero-foto .hero-grid{grid-template-columns:minmax(0,640px)}
-  html:not(.on-boat) .hero.hero-foto .wrap{padding-block:96px 120px}
-  html:not(.on-boat) .hero.hero-foto::after{background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/mb-mar.webp) center bottom/auto 100% no-repeat}
+  html:not(.on-boat) .hero.hero-foto .wrap{padding-block:64px 96px}
+  /* foto inteira no meio com a largura certa para a altura do topo e laterais sumindo suave no fundo desfocado (sem corte em tela larga, Rodrigo 2026-11-18) */
+  html:not(.on-boat) .hero.hero-foto::after{left:50%;right:auto;top:0;bottom:0;width:auto;aspect-ratio:2048/880;transform:translateX(-50%);background:linear-gradient(90deg,rgba(4,33,44,.72) 0%,rgba(4,33,44,.35) 40%,rgba(4,33,44,.08) 65%,rgba(4,33,44,.3) 100%),url(/img/mb-mar.webp) center/100% 100% no-repeat;--m:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-image:var(--m);mask-image:var(--m)}
   @media (min-width:1400px){html:not(.on-boat) .hero.hero-foto .wrap.hero-grid{grid-template-columns:minmax(0,640px)}}
 }
 html:not(.on-boat) .when-top{position:relative;z-index:3;margin-top:-52px}
@@ -912,6 +913,11 @@ html:not(.on-boat) .confia .trust-ic{color:var(--brass)}
 html:not(.on-boat) .confia .trust .guar{display:block;margin:0;color:var(--ink);background:color-mix(in srgb,var(--brass) 16%,var(--surface));border:0;border-radius:22px;padding:22px}
 html:not(.on-boat) .confia .guar b{color:#7a5a12}
 @media (max-width:900px){html:not(.on-boat) .confia .trust{grid-template-columns:1fr}html:not(.on-boat) .confia .trust ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* garantia de volta ao topo (Rodrigo 2026-11-18: "é algo importante que chama atenção"), no computador e no celular; some da seção de confiança para não repetir */
+html:not(.on-boat) .hero-foto .hero-text .guar{display:block;max-width:560px;background:rgba(4,33,44,.62);border:1px solid rgba(224,181,77,.55);border-radius:20px}
+html:not(.on-boat) .confia .trust .guar{display:none!important}
+html:not(.on-boat) .confia .trust{grid-template-columns:1fr}
+@media (max-width:760px){html:not(.on-boat) .hero-foto .hero-text .guar{text-align:left;margin-top:4px}}
 /* cartões: foto maior, nome e tamanho por cima da foto */
 html:not(.on-boat) .ph-wrap{position:relative}
 html:not(.on-boat) .card .ph{aspect-ratio:1/1}
@@ -3170,7 +3176,7 @@ function home(){
       <p class="hero-lead">${t("heroLead")}</p>
       ${CID?`<a class="hero-rev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
       <div class="ctas">${noWaBtns()?"":`<a class="btn wa-btn" href="${greenWa()}" target="_blank" rel="noopener">${WA_SVG}${t("waCtaB")}</a>`}${HERO_MEET?`<a class="btn" href="${pathFor(lang,"miss-bardot")}">${t("heroMeet")}</a>`:""}<a class="btn${HERO_MEET?" ghost":""}" href="${pathFor(lang)}#frota" data-scroll="frota">${t("heroAll")}</a></div>
-      ${CID?guarHTML(false):""}
+      ${guarHTML(false)}
     </div>
     ${CID?"":`<figure class="hero-ph"><img src="/img/mb-c12.webp" srcset="/img/mb-c12-m.webp 800w, /img/mb-c12.webp 1600w" sizes="100vw" width="1600" height="1280" alt="${t("heroPhotoAlt")}" fetchpriority="high" decoding="async"></figure>`}
     ${CID?trustH:""}
