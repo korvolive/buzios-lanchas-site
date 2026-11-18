@@ -3293,10 +3293,8 @@ document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if
 const cardDia = (b, iso) => { const tab=price4(b,iso); if(!tab) return null; const k=seasonOf(iso,b)?.key||"baixa", base=Math.max(tab-bzMapa(b,k,false),0);
   return ME&&!VEND ? base : cliPrice(base,pctKey(k,iso),VEND,b); };
 /* sem data, o card não mostra valor (Rodrigo 2026-11-18: o "a partir de" fazia o cliente achar que era o preço): "Para ver o valor / Escolha a data", que abre o calendário.
-   Administrador e vendedor logados continuam vendo o "a partir de" (eles não se confundem) */
-const pfSemData = b => (ADM || (ME&&!VEND)) && showPrice() && !precoTrancado()
-  ? `<span>${t(ME&&!VEND?"vendFrom":"from4h")}</span><br><strong>${minCli(b)?money(minCli(b)):t("onRequest")}</strong>`
-  : `<span>${t("pfSee")}</span><br><strong class="pf-cta" role="button" tabindex="0" data-pick-date>${t("pfPick")}</strong>`;
+   Vale para todos, inclusive administrador e vendedor */
+const pfSemData = () => `<span>${t("pfSee")}</span><br><strong class="pf-cta" role="button" tabindex="0" data-pick-date>${t("pfPick")}</strong>`; /* ninguém vê valor sem data, nem administrador nem vendedor (Rodrigo 2026-11-18: o vendedor achava que era o valor a cobrar) */
 /* com data: valor exato daquele dia (4h) para quem pode ver; sem conta (Brasil, Argentina, Chile), "Ver valor desta data" abre a janelinha de conta;
    link de vendedor/parceiro sem WhatsApp confirmado: o cadeado de sempre. Lancha ocupada o dia todo: fica no fim, esmaecida, "Indisponível nesta data" */
 function cardPreco(c, b, dias, off){
