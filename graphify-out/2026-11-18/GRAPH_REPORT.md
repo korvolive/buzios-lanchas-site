@@ -1,15 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-18)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 217 files · ~442,518 words
+- Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
-- 1701 nodes · 2800 edges · 135 communities (82 shown, 53 thin omitted)
+- 1702 nodes · 2803 edges · 136 communities (82 shown, 54 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `55b62594`
+- Built from commit: `c8b1b431`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -67,12 +69,12 @@
 - CLAUDE.md
 - htaccess.sh
 - 2026-11-13_auditoria-e-registro-de-acessos.sql
-- 2026-10-30_asaas-validacao-saques.sql
+- paginas.mjs
 - public.lanchas
 - public.marcar_wa
 - 2026-11-05_revisao-diaria.sql
 - 2026-11-08_app-versao-minima.sql
-- asaas-transferir/index.ts
+- ref_node_fs
 - asaas-docs/index.ts
 - steps
 - asaas-chaves-girar/index.ts
@@ -99,7 +101,7 @@
 - public.origem_reserva
 - paypal-fatura/index.ts
 - aviso-lucas/index.ts
-- ref_npm_supabase
+- aviso-equipe/index.ts
 - registros-exportar.mjs
 - 2026-11-16_bordazul-cadastro-dono.sql
 - asaas_contas_reenvio_token
@@ -108,6 +110,7 @@
 - aviso-comprovante/index.ts
 - 2026-11-17_paypal-cai-no-asaas-repasse-auto.sql
 - 2026-11-17_retencao-registros-5-anos.sql
+- db-mudou.mjs
 - traduzir-chat/index.ts
 - 2026-11-15_jetski-lucas.sql
 - 2026-11-05_socios-nome-completo-e-convites-pendentes.sql
@@ -116,11 +119,11 @@
 1. `public.jetski_usos` - 28 edges
 2. `public.jetskis` - 27 edges
 3. `public._ligar_passeio()` - 17 edges
-4. `public.cancelar_pre_reserva()` - 14 edges
+4. `asaas()` - 14 edges
 5. `public.cancelar_pre_reserva()` - 14 edges
-6. `public._ligar_passeio()` - 14 edges
-7. `X()` - 13 edges
-8. `asaas()` - 13 edges
+6. `public.cancelar_pre_reserva()` - 14 edges
+7. `public._ligar_passeio()` - 14 edges
+8. `X()` - 13 edges
 9. `avisarDonos()` - 13 edges
 10. `public.vendas_manuais` - 13 edges
 
@@ -139,7 +142,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (135 total, 53 thin omitted)
+## Communities (136 total, 54 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.07
@@ -151,7 +154,7 @@ Nodes (26): a(), D(), e(), f(), Ft(), G(), h(), I() (+18 more)
 
 ### Community 2 - "asaas/index.ts"
 Cohesion: 0.05
-Nodes (76): acabou(), API(), APROVADA, asaas(), atualizarCredito(), AV_DEV, avisarAdmins(), avisarAntecipadas() (+68 more)
+Nodes (77): acabou(), API(), APROVADA, asaas(), atualizarCredito(), AV_DEV, avisarAdmins(), avisarAntecipadas() (+69 more)
 
 ### Community 3 - "notificar/index.ts"
 Cohesion: 0.07
@@ -174,12 +177,12 @@ Cohesion: 0.14
 Nodes (9): pre_pedido_fim, pre_pedido_sinal, public.aprovar_consulta(), public._ligar_passeio(), public._pre_pedido_fim(), public._pre_pedido_sinal(), public._ligar_passeio(), public.lancar_grupo_operador() (+1 more)
 
 ### Community 8 - "prerender.mjs"
-Cohesion: 0.06
-Nodes (34): m, web, SOURCE, web, erros, fotosDB(), lanchasDB(), precosDB() (+26 more)
+Cohesion: 0.13
+Nodes (15): alt(), boatUrl(), DB_READ, FC, guias, LANGS, pages, pathFor() (+7 more)
 
 ### Community 9 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.13
-Nodes (8): CAT, CORS, db, db, T, CORS, db, T
+Cohesion: 0.09
+Nodes (13): CORS, db, CAT, CORS, db, CORS, db, T (+5 more)
 
 ### Community 10 - "steps"
 Cohesion: 0.08
@@ -207,7 +210,7 @@ Nodes (18): avisar(), Aviso, BUZIOS, COSTA, dataZ(), db, dentro(), inmet() (+10 
 
 ### Community 16 - "2026-11-15_preco-cotado-garantido.sql"
 Cohesion: 0.07
-Nodes (20): public.aprovar_foto(), public.lancar_pedido_operador(), bloqueio_trazido_por, public._bloqueio_trazido_por(), a_consulta_neto_garantido, cotacoes_garantidas_busca, cotacoes_garantidas_lancha, public.cotacoes_abertas_dono() (+12 more)
+Nodes (21): public.aprovar_foto(), public.lancar_pedido_operador(), bloqueio_trazido_por, public._bloqueio_trazido_por(), a_consulta_neto_garantido, cotacoes_garantidas_busca, cotacoes_garantidas_lancha, public.cotacoes_abertas_dono() (+13 more)
 
 ### Community 17 - "consulta-resgate/index.ts"
 Cohesion: 0.15
@@ -222,8 +225,8 @@ Cohesion: 0.16
 Nodes (15): public.aprovar_alteracao(), public.mover_passeio(), public.mover_passeio(), public.alteracoes_pedidas, public.aprovar_alteracao(), public.solicitar_alteracao(), public.registrar_alteracao(), public._credito_chat() (+7 more)
 
 ### Community 20 - "pedido-indisponivel/index.ts"
-Cohesion: 0.17
-Nodes (12): CORS, dataBR(), db, ddiLang(), email(), ES_DDI, lang(), livres() (+4 more)
+Cohesion: 0.10
+Nodes (20): API(), asaas(), avisar(), AVISO, brl(), CORS, db, KEY() (+12 more)
 
 ### Community 21 - "aviso-vendedor/index.ts"
 Cohesion: 0.15
@@ -329,21 +332,21 @@ Nodes (3): Mapa do projeto (Graphify), Publicar no Supabase sem confirmação, S
 Cohesion: 0.17
 Nodes (10): auditoria_em, auditoria_tabela_registro, auditoria_trava, auditoria_trava_tudo, public.auditoria, public.copiar_acessos(), public.registro_acessos, registro_acessos_em (+2 more)
 
-### Community 66 - "2026-10-30_asaas-validacao-saques.sql"
-Cohesion: 0.67
-Nodes (3): asaas_validacoes_id, public.asaas_chaves, public.asaas_validacoes
+### Community 66 - "paginas.mjs"
+Cohesion: 0.22
+Nodes (11): boatPath(), C, esc(), faqPreco, gerarPaginas(), guiaPath(), GUIAS, homePath() (+3 more)
 
 ### Community 67 - "public.lanchas"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (17): public.tg_pedido_jetski(), public._jetski_confere(), public.tg_pedido_jetski(), public.tg_pedido_jetski_segurado(), public.jetskis, public.tg_pedido_jetski(), public.tirar_jetski(), public.painel_sinais_desde() (+9 more)
 
 ### Community 69 - "2026-11-05_revisao-diaria.sql"
 Cohesion: 0.38
 Nodes (5): public.apagar_avaliacao_google(), public.trava_cond_aviso(), public.trava_grupo(), trava_cond_aviso, trava_grupo
 
-### Community 76 - "asaas-transferir/index.ts"
-Cohesion: 0.25
-Nodes (8): API(), asaas(), avisar(), AVISO, brl(), CORS, db, KEY()
+### Community 76 - "ref_node_fs"
+Cohesion: 0.20
+Nodes (4): m, web, web, erros
 
 ### Community 77 - "asaas-docs/index.ts"
 Cohesion: 0.10
@@ -374,7 +377,7 @@ Cohesion: 0.15
 Nodes (7): public.lancar_pedido_operador(), pre_reserva_volta, public.codigo_convite(), public._confere_valor_op(), public.descontos_grupo, public.lancar_pedido_operador(), public._piso_grupo()
 
 ### Community 84 - "public.jetski_usos"
-Cohesion: 0.16
+Cohesion: 0.17
 Nodes (12): public.tg_pedido_jetski_uso(), jetski_uso_confere, jetski_usos_dia, public.jetski_choca(), public.jetski_desmarcar(), public.jetski_marcar(), public.jetski_ocupado(), public.jetski_salvar() (+4 more)
 
 ### Community 86 - "asaas-saude/index.ts"
@@ -390,8 +393,8 @@ Cohesion: 0.52
 Nodes (5): caminho(), no(), titulo(), troca(), zap()
 
 ### Community 93 - "public.ativar_conta_cliente"
-Cohesion: 0.13
-Nodes (10): public.papeis_painel, public.papel_painel(), public.ativar_conta_cliente(), public.ativar_conta_cliente(), public._convite_pagar(), public._uid_email_informado(), public.ativar_conta_cliente(), public._convite_pagar() (+2 more)
+Cohesion: 0.11
+Nodes (13): asaas_validacoes_id, public.asaas_chaves, public.asaas_validacoes, public.papeis_painel, public.papel_painel(), public.ativar_conta_cliente(), public.ativar_conta_cliente(), public._convite_pagar() (+5 more)
 
 ### Community 95 - "env"
 Cohesion: 0.09
@@ -418,19 +421,19 @@ Cohesion: 0.33
 Nodes (5): db, ES_DDI, langOf(), responder(), TXT
 
 ### Community 109 - "public.pedidos"
-Cohesion: 0.15
-Nodes (11): public.mb_libera_sinal_sozinho(), public.jetski_avisa_conflito(), a_msg_expirou_pre_reserva, a_pre_reserva_prazo_vale, public.tg_msg_expirou_pre_reserva(), public.tg_pre_reserva_prazo_vale(), jetski_sempre_aprendiz, public.meus_jetski_alugueis() (+3 more)
+Cohesion: 0.11
+Nodes (12): public.mb_libera_sinal_sozinho(), public.jetski_avisa_conflito(), public.mover_passeio_v2(), a_msg_expirou_pre_reserva, a_pre_reserva_prazo_vale, public.tg_msg_expirou_pre_reserva(), public.tg_pre_reserva_prazo_vale(), jetski_sempre_aprendiz (+4 more)
 
 ### Community 110 - "public.bloqueios"
-Cohesion: 0.08
-Nodes (17): public.auto_confirmar_fora(), zz_anotacao_jetski_segura, public.jetski_do_passeio(), public.tg_pedido_jetski_uso(), public.virar_credito(), public.mover_passeio_v2(), passeio_sem_manutencao, public._passeio_sem_manutencao() (+9 more)
+Cohesion: 0.11
+Nodes (14): public.auto_confirmar_fora(), public.jetski_do_passeio(), public.tg_pedido_jetski_uso(), public.virar_credito(), passeio_sem_manutencao, public._passeio_sem_manutencao(), public._aprovar_consulta(), public._soltar_anterior_mesmo_cliente() (+6 more)
 
 ### Community 111 - "public._desc_parceiro"
 Cohesion: 0.30
 Nodes (6): public.meus_socios(), public.definir_desc_parceiro(), public.definir_pct_vendedor(), public._desc_parceiro(), public.meu_vendedor(), public.vendedor_publico()
 
 ### Community 112 - "public.origem_reserva"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (5): public.origem_reserva(), public._preco_vendedor(), public.meus_repasses_pp(), public.repasses_feitos(), public.saude_checagens
 
 ### Community 114 - "paypal-fatura/index.ts"
@@ -441,12 +444,8 @@ Nodes (3): CORS, db, ITEM
 Cohesion: 0.29
 Nodes (3): CORS, db, TXT
 
-### Community 116 - "ref_npm_supabase"
-Cohesion: 0.13
-Nodes (7): CORS, db, CORS, db, CORS, db, T
-
 ### Community 117 - "registros-exportar.mjs"
-Cohesion: 0.23
+Cohesion: 0.21
 Nodes (12): api(), chamar(), chaveServidor(), dormir(), exportarFonte(), feitos, FONTES, gravar() (+4 more)
 
 ### Community 118 - "2026-11-16_bordazul-cadastro-dono.sql"
@@ -465,27 +464,31 @@ Nodes (4): CORS, db, SLOT, TXT
 Cohesion: 0.28
 Nodes (4): cofre_registros_trava, public.registros_exportados, registros_exportados_trava, registros_exportados_trava_tudo
 
+### Community 131 - "db-mudou.mjs"
+Cohesion: 0.53
+Nodes (4): SOURCE, fotosDB(), lanchasDB(), precosDB()
+
 ### Community 136 - "2026-11-15_jetski-lucas.sql"
-Cohesion: 0.16
-Nodes (6): a_pedido_jetski_segurado, public._jetski_segura(), public.lancar_reserva_com_jetski(), public.tg_anotacao_jetski_segura(), public.tg_pedido_jetski_uso(), public.tg_anotacao_jetski_segura()
+Cohesion: 0.15
+Nodes (7): a_pedido_jetski_segurado, public._jetski_segura(), public.lancar_reserva_com_jetski(), public.tg_anotacao_jetski_segura(), public.tg_pedido_jetski_uso(), zz_anotacao_jetski_segura, public.tg_anotacao_jetski_segura()
 
 ## Knowledge Gaps
-- **53 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public.origem_reserva`, `public.bloqueios`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Should `vendedores` be split into smaller, more focused modules?**
   _Cohesion score 0.06531204644412192 - nodes in this community are weakly interconnected._
-- **Why does `public.trocar_horario_pedido()` connect `public.salvar_netos_v3` to `public.pp_vaga_h`?**
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?**
+- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.origem_reserva`, `public.clientes`, `public.marcar_wa`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.050543637966500146 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.050200803212851405 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07312925170068027 - nodes in this community are weakly interconnected._
