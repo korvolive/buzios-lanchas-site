@@ -3012,8 +3012,10 @@ document.getElementById("ano").textContent = new Date().getFullYear();
 /* app instalado (Búzios Lanchas): quem já está logado abre direto na agenda; quem não está (ou saiu) vê o site */
 if(new URLSearchParams(location.search).get("app")==="1"){
   try{ sessionStorage.setItem("is-app","1"); }catch(e){}
-  let logged=false, client=false; try{ logged = !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; client = JSON.parse(localStorage.getItem("conta-tipo"))==="cliente"; }catch(e){}
-  if(logged && !client) location.replace("/login/"); /* donos, marinheiros e equipe abrem na agenda; clientes ficam no site */ else history.replaceState(null,"",location.pathname+location.hash);
+  let logged=false, ini=null; try{ logged = !!JSON.parse(localStorage.getItem("dono-ses"))?.refresh_token; ini = JSON.parse(localStorage.getItem("app-inicio")); }catch(e){}
+  /* equipe, donos, marinheiros e vendedores abrem no painel; cliente comum fica no site, já logado (Rodrigo 2026-11-18).
+     Sem saber ainda quem é (login antigo), o painel confere e devolve o cliente comum para cá */
+  if(logged && ini!=="site") location.replace(ini==="painel" ? "/login/" : "/login/?de=app"); else history.replaceState(null,"",location.pathname+location.hash);
 }
 if("serviceWorker" in navigator && !/bot|crawl|spider|headless/i.test(navigator.userAgent)) navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(()=>{});
 /* aviso do app (passeio confirmado, mensagem no chat...) chegando com o site aberto: toca o mesmo som do app, e a notificação aparece normal (2026-10-22) */

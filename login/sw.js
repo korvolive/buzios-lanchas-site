@@ -39,7 +39,9 @@ self.addEventListener("push", e => {
 /* toque na notificação: abre (ou traz para frente) a agenda */
 self.addEventListener("notificationclick", e => {
   e.notification.close();
-  const url = new URL((e.notification.data && e.notification.data.url) || "/login/", location.origin).href;
+  const u = new URL((e.notification.data && e.notification.data.url) || "/login/", location.origin);
+  if (u.pathname.startsWith("/login/") && !u.search) u.searchParams.set("aviso", "1"); /* aberto pelo aviso: fica no painel mesmo com o app recém-aberto */
+  const url = u.href;
   e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(ws => {
     const w = ws.find(x => new URL(x.url).pathname.startsWith("/login/"));
     if (w) return w.focus().then(x => (x || w).navigate ? (x || w).navigate(url) : null).catch(() => clients.openWindow(url));
