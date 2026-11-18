@@ -3424,12 +3424,15 @@ function render(toTop=true){
   if(!b && !itens && app.querySelector("[data-items]")) loadItens().then(m=>{ if(m) app.querySelectorAll("[data-items]").forEach(u=>{ const x=BOATS.find(y=>y.slug===u.dataset.items); if(x) u.innerHTML=cardItems(x); }); });
   if(b && !itens) loadItens().then(m=>{ const ul=document.getElementById("inc-list"); if(m && ul && route.slug===b.slug) ul.innerHTML=incItems(b); const si=document.getElementById("stack-items"); if(m && si && route.slug===b.slug) si.innerHTML=stackItems(b); });
 }
+/* largura de um cartão + espaço e quantos cabem por vez; a seta e o "1 de N" usam a mesma conta (antes a seta passava 3 e o contador contava 4, e a última lancha ficava numa página escondida, Rodrigo 2026-11-18) */
+function carPasso(g){ const c=g.querySelector(".card:not([hidden])"); if(!c) return {st:300,por:1};
+  const gap=parseFloat(getComputedStyle(g).columnGap)||14, st=c.getBoundingClientRect().width+gap; return {st, por:Math.max(1,Math.round((g.clientWidth+gap)/st))}; }
 /* carrossel da vitrine no celular: setas e "1 de N" acompanham o arraste */
 function carSync(reset){
   const g=app.querySelector(".fleet-car .grid"); if(!g) return;
   if(reset) g.scrollLeft=0;
-  const cs=[...g.querySelectorAll(".card")].filter(c=>!c.hidden), n=cs.length, w=cs[0]?cs[0].offsetWidth+14:1;
-  const on=g.scrollWidth>g.clientWidth+4, por=Math.max(1,Math.floor((g.clientWidth+8)/w)), pags=Math.max(1,Math.ceil(n/por)); /* conta páginas: 4 lanchas por página no computador, 1 no celular */
+  const cs=[...g.querySelectorAll(".card")].filter(c=>!c.hidden), n=cs.length, {st:w,por}=carPasso(g);
+  const on=g.scrollWidth>g.clientWidth+4, pags=Math.max(1,Math.ceil(n/por)); /* conta páginas: 4 lanchas por página no computador, 1 no celular */
   const fim=g.scrollLeft>g.scrollWidth-g.clientWidth-8, i=fim?pags:Math.min(pags,Math.round(g.scrollLeft/(w*por))+1);
   const tr=app.querySelector(".car-track i"); if(tr) tr.style.width=(on?i/pags*100:0)+"%";
   const pv=app.querySelector(".car-btn.prev"), nx=app.querySelector(".car-btn.next"), ct=app.querySelector(".car-count");
@@ -3441,8 +3444,7 @@ function carSync(reset){
 document.addEventListener("scroll",e=>{ if(e.target.classList&&e.target.matches(".fleet-car .grid")) carSync(); },true);
 addEventListener("resize",()=>carSync());
 document.addEventListener("click",e=>{ const bt=e.target.closest(".car-btn"); if(!bt) return;
-  const g=app.querySelector(".fleet-car .grid"), c=g.querySelector(".card:not([hidden])");
-  const st=c?c.offsetWidth+parseFloat(getComputedStyle(g).columnGap||14):300, por=Math.max(1,Math.floor((g.clientWidth+8)/st));
+  const g=app.querySelector(".fleet-car .grid"), {st,por}=carPasso(g);
   g.scrollBy({left:+bt.dataset.car*st*por,behavior:"smooth"}); }); /* só as setas passam; no computador passam o grupo visível inteiro (2026-11-16) */
 /* filtro da vitrine: esconde as lanchas que não comportam o grupo ou não têm nenhum horário livre no período */
 /* card com data no filtro (Rodrigo 2026-11-17): mostra o valor de 4h daquela data (temporada, feriado, Réveillon, Carnaval, preço especial), não o "a partir de" da baixa.
