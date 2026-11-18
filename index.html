@@ -1661,8 +1661,8 @@ const AS_TESTE = (()=>{ try{ const q=new URLSearchParams(location.search).get("a
 const RLINK = (()=>{ if(IS_BOT) return false; try{ const q=new URLSearchParams(location.search);
   if(q.get("reserva")==="1" || q.get("o")){ localStorage.setItem("reserva-link",String(Date.now())); q.delete("reserva"); history.replaceState(history.state,"",location.pathname+(q.toString()?"?"+q:"")+location.hash); }
   return Date.now()-(+localStorage.getItem("reserva-link")||0) < 3*864e5; }catch(e){ return false; } })();
-let VEND = null, ME = null, VEND_LIGADO = false; /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
-const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || FOREIGN || RECORRENTE; /* cliente que já fez passeio (ganhou cupom) vê o valor e reserva online (2026-11-05) */ /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (2026-10-23) */
+let VEND = null, ME = null, VEND_LIGADO = false, ADM = false; /* ADM: administrador logado vê os valores de cliente nos cards e páginas (Rodrigo 2026-11-18) */ /* VEND: vendedor do link {codigo, teto, pcts}; ME: o vendedor logado */
+const showPrice = () => PRECOS_PUBLICOS || !!VEND || !!ME || ADM || FOREIGN || RECORRENTE; /* cliente que já fez passeio (ganhou cupom) vê o valor e reserva online (2026-11-05) */ /* Brasil, Argentina e Chile não veem valor, nem logados: só consultam no WhatsApp (2026-10-23) */
 /* comissão do vendedor: só baixa, média e alta (1% a 10%, padrão 5%); feriado, Carnaval e Réveillon usam a % da época da data (2026-10-24) */
 const VEND_TETO = 10, VEND_PADRAO = 3, PARC_PCT = 5; /* link do vendedor: 3% padrão; o administrador pode subir a % de cada vendedor até 10%; parceiro: comissão de 1% a 10% escolhida pelo administrador, 5% se vazio (2026-11-16) */
 const VEND_MAN_PCT = 30, VEND_MAN_MAX = 1000; /* link feito pelo vendedor para um cliente: comissão em R$ até R$ 1.000 e 30% do valor (2026-11-02) */
@@ -2390,9 +2390,10 @@ function loadVend(){
   else if(lsGet("dono-ses")?.refresh_token){ dropV(); if(c) setTimeout(equipeDlg, 800); } /* equipe (dono, marinheiro, vendedor, administrador) nunca fica com vendedor nem vê preço de vendedor (2026-10-24); link ou QR de vendedor só avisa (2026-10-25) */
   else if(cod) jobs.push(pub(cod).catch(()=>{}));
   if(lsGet("dono-ses")?.refresh_token) jobs.push(clientToken().then(tok=>vRpc("meu_vendedor",{},tok)).then(r=>{ if(r[0]) ME=r[0]; }).catch(()=>{}));
+  if(isTeam()) jobs.push(clientToken().then(tok=>vRpc("e_admin",{},tok)).then(r=>{ ADM = r===true; }).catch(()=>{})); /* o banco diz se é administrador */
   /* cliente logado de parceiro: o desconto é só no 1º passeio com ele (2026-11-02) */
   const parcJa = () => VEND?.parceiro && isClient() ? clientToken().then(tok=>fetch(SB_URL+"/rest/v1/pedidos?select=id&vendedor_cod=eq."+encodeURIComponent(VEND.codigo)+"&status=in.(pendente,aprovado)&limit=1",{headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok}})).then(r=>r.ok?r.json():[]).then(r=>{ PARC_JA = Array.isArray(r) && r.length>0; }).catch(()=>{}) : null;
-  if(jobs.length) Promise.all(jobs).then(parcJa).then(bzCarrega).then(()=>{ if(VEND && vendOkLs()) VEND_LIGADO = true; /* WhatsApp já confirmado neste aparelho */ applyStatic(); if(VEND||ME){ const y=scrollY; render(false); scrollTo(0,y); } if(vendLeadDue()) setTimeout(openVendLead, 1500); });
+  if(jobs.length) Promise.all(jobs).then(parcJa).then(bzCarrega).then(()=>{ if(VEND && vendOkLs()) VEND_LIGADO = true; /* WhatsApp já confirmado neste aparelho */ applyStatic(); if(VEND||ME||ADM){ const y=scrollY; render(false); scrollTo(0,y); } if(vendLeadDue()) setTimeout(openVendLead, 1500); });
 }
 /* quem já é da equipe abriu o link ou QR de um vendedor: nada muda, só avisa e deixa entrar normal (2026-10-25) */
 function equipeDlg(){
