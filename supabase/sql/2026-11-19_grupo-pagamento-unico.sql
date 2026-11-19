@@ -35,7 +35,7 @@ CREATE OR REPLACE FUNCTION public._ligar_passeio(bid bigint, uid uuid)
  SET search_path TO 'public'
 AS $function$
 declare b record; n record; nm text; adm boolean := public.e_admin(); pb numeric; sv numeric; tg numeric; pid bigint; cid bigint; tx text; ate timestamptz;
-        princ bigint; nl int; m record; bp record;
+        princ bigint; nl int; m record; bc timestamptz;
 begin
   select * into b from public.bloqueios where id = bid;
   select * into n from public.anotacoes where bloqueio_id = bid;
@@ -50,8 +50,9 @@ begin
   if not exists (select 1 from public.pedidos where bloqueio_id = bid) then
     if n.origem = 'buzios' and n.valor > 0 and coalesce(n.sinal, 0) = 0 then
       -- o grupo inteiro vence junto, no prazo da reserva principal
-      if n.grupo is not null then select * into bp from public.bloqueios where id = princ; end if;
-      ate := public._prazo_pre_fim(coalesce(bp.criado_em, b.criado_em), b.data);
+      bc := null;
+      if n.grupo is not null then select x.criado_em into bc from public.bloqueios x where x.id = princ; end if;
+      ate := public._prazo_pre_fim(coalesce(bc, b.criado_em), b.data);
       sv := coalesce(nullif(n.sinal_combinado, 0), round(n.valor / 2));
       begin
         insert into public.pedidos (cliente, lancha, data, horario, pessoas, embarque, status, bloqueio_id, preco_base, preco_cliente,
