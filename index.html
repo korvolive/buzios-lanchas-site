@@ -3286,8 +3286,10 @@ const galP = b => b.photos.map(p => FOTO_C[p[0]] ? [FOTO_C[p[0]], ...p.slice(1)]
 /* ajuste manual do administrador (2026-11-15): item da lista com g = {d:"X% Y%", m:"X% Y%", zd, zm} vale acima do automático */
 const okZ = z => { z=+z; return z>=1 && z<=3 ? Math.round(z*100)/100 : 1; };
 const okG = g => g && typeof g==="object" && typeof g.d==="string" && typeof g.m==="string" ? {d:okPos(g.d), m:okPos(g.m), zd:okZ(g.zd), zm:okZ(g.zm)} : null;
-const enq = p => { const g=okG(p[3]); if(g) return `--gd:${g.d};--gm:${g.m};--zd:${g.zd};--zm:${g.zm}`;
-  const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
+/* 2026-11-19 (pedido do dono: "isso tem que ser automático", só zoom e enquadramento mostrando o máximo da lancha):
+   o ajuste manual salvo (g) não vale mais na galeria. Zoom acima de 1 só tirava informação (Spartana foto 2 ficou com 1,88x e
+   a lancha saiu do quadro). O g continua guardado no banco, sem uso */
+const enq = p => { const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
 const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? (thumb==="m"&&!jpg&&FOTO_M[p[0]] ? FOTO_M[p[0]] : p[0] + (thumb===1?"-t":"") + ".jpg") : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
 const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
 /* texto das fotos: o do app vale em português; em inglês e espanhol, e nas fotos sem texto, entra o do Claude (lanchas_ia) se houver */
