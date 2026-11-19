@@ -26,19 +26,20 @@
 /* link curto do convite (?c= / ?w=) e do vendedor para criar conta (?criar=1): abre o cadastro */(function(){var q=location.search;if(location.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q))location.replace("/login/"+(/[?&]criar=1/.test(q)?q:"?criar=1&"+q.slice(1)));})();
 /* idioma logo no começo (aprovado 2026-10-31): quem chega na versão em português com o aparelho em outra língua vai para /en/ ou /es/ antes de baixar o resto da página; mesma regra do roteador mais abaixo, que continua cuidando dos casos especiais */(function(){try{var L=location,q=L.search,B=window.MARCA_BASE||"",P=B&&L.pathname.indexOf(B)===0?(L.pathname.slice(B.length)||"/"):L.pathname,m=P.match(/^\/(lancha\/([a-z0-9-]+)\/?)?(index\.html)?$/);if(!m||/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)||/[?&](lang|o)=/.test(q)||/^#lancha-|access_token=/.test(L.hash)||(!B&&L.pathname==="/"&&/[?&](c|w|s)=|[?&]criar=1/.test(q)))return;var s=null;try{s=localStorage.getItem("lang")}catch(e){}var n=(navigator.language||"pt").slice(0,2).toLowerCase(),l=/^(pt|en|es)$/.test(s||"")?s:(n==="pt"||n==="es"?n:"en");if(l!=="pt")L.replace(B+"/"+l+"/"+(m[2]?"lancha/"+m[2]+"/":"")+q+L.hash)}catch(e){}})();</script>
 <!-- Google Tag Manager (mesmo contêiner do site antigo: Google Ads, conversão no clique do WhatsApp e Google Analytics) -->
-<script>(function(w,d,s,l,i){if(/BuziosLanchasIOS/.test(navigator.userAgent))return;w[l]=w[l]||[];w[l].push({'gtm.start':
+<script>/* consentimento negado (página de privacidade ou GPC do navegador): o Google entra em modo negado antes do GTM carregar */try{if(localStorage.getItem("rastreio-consentimento")==="negado"||navigator.globalPrivacyControl===true){window.dataLayer=window.dataLayer||[];(function(){dataLayer.push(arguments)})("consent","default",{ad_storage:"denied",analytics_storage:"denied",ad_user_data:"denied",ad_personalization:"denied"});}}catch(e){}
+(function(w,d,s,l,i){if(/BuziosLanchasIOS/.test(navigator.userAgent))return;w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-NVP9L5DF');</script>
-<script src="/rastreio.js?v=1"></script>
+<script src="/rastreio.js?v=2"></script>
 <!-- Meta Pixel (Facebook e Instagram), o mesmo do site antigo -->
 <script>!function(f,b,e,v,n,t,s){if(f.fbq||/BuziosLanchasIOS/.test(navigator.userAgent))return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,'script','https://connect.facebook.net/en_US/fbevents.js');
-if(window.fbq){fbq('init','1672637870274530');fbq('track','PageView');}</script>
+if(window.fbq){if(window.rastreioNegado&&rastreioNegado())fbq('consent','revoke');fbq('init','1672637870274530');fbq('track','PageView');}</script>
 <title>Aluguel de Lancha em Búzios | Búzios Lanchas - Passeios Privativos</title><meta name="description" content="Passeios privativos de lancha em Armação dos Búzios, RJ. Miss Bardot (35 pés, até 16 pessoas) e outras lanchas para o seu grupo. Reservas pelo WhatsApp."><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{touch-action:manipulation}
 /* jetski (2026-11-15) */
 .jet-box{margin:0 0 6px}.jet-box .pk-cup{margin-top:12px}
@@ -2135,14 +2136,18 @@ async function clientToken(){
 }
 const isTeam = () => !!lsGet("dono-ses")?.refresh_token && !isClient(); /* donos e marinheiros não reservam pelo site */
 let lastReq = "";
-/* conversões: avisa o Google Tag Manager (Google Ads/GA4) e o Meta Pixel com lancha, data, horário e valor */
-function track(ev,b){
+/* conversões: avisa o Google Tag Manager (Google Ads/GA4) com lancha, data, horário e valor.
+   Server-side (2026-11-19): o "Contact" da Meta sai do clique no link do WhatsApp (rastreio.js, Pixel + API de Conversões com o mesmo id);
+   o Lead/generate_lead sai só quando o banco aceitou o pedido (aqui, com o número do pedido) ou a consulta (leadConsulta) */
+function track(ev,b,pid){
   const v=priceFor(b,pick.date,pick.slot), d={event:ev, value:Number.isFinite(v)?v:0, currency:"BRL", lancha:b.name, data:pick.date, horario:pick.slot, pessoas:+pick.people||null};
   try{ (window.dataLayer=window.dataLayer||[]).push(d); }catch(e){}
-  try{ if(window.fbq) fbq("track", ev==="pedido_reserva"?"Lead":"Contact", {value:d.value, currency:"BRL", content_name:b.name}); }catch(e){}
-  /* Google Analytics (rastreio.js): consulta pelo WhatsApp e pedido de reserva online (generate_lead), com lancha e valor */
-  try{ if(window.rastreio) rastreio(ev==="pedido_reserva"?"generate_lead":"consulta_whatsapp", {value:d.value, currency:"BRL", lancha:b.name, data_passeio:pick.date, horario:pick.slot, pessoas:d.pessoas}); }catch(e){}
+  const g={value:d.value, currency:"BRL", lancha:b.name, data_passeio:pick.date, horario:pick.slot, pessoas:d.pessoas};
+  if(ev==="pedido_reserva"){ try{ if(window.rastreioLead && pid>0) rastreioLead("pedido", pid, g); }catch(e){} return; }
+  /* Google Analytics (rastreio.js): consulta pelo WhatsApp, com lancha e valor */
+  try{ if(window.rastreio) rastreio("consulta_whatsapp", g); }catch(e){}
 }
+const leadConsulta=(b,k)=>{ try{ const v=priceFor(b,pick.date,pick.slot); window.rastreioLead&&rastreioLead("consulta", k, {value:Number.isFinite(v)?v:0, currency:"BRL", lancha:b.name, data_passeio:pick.date, horario:pick.slot, pessoas:+pick.people||null}); }catch(e){} };
 /* depois do pedido: o chat com a Búzios Lanchas, onde já chegou a mensagem do pedido e depois chega o Pix (2026-10-22) */
 async function chatId(){ try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/abrir_chat",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({com:"suporte"})}); return r.ok ? +(await r.json())||0 : 0; }catch(e){ return 0; } }
 /* cupons do cliente logado: aparecem só se ele tem cupom; ele toca para usar (um por passeio) */
@@ -2195,7 +2200,7 @@ async function sendPedido(b){
   if(id) fetch(SB_URL+"/functions/v1/notificar",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({tipo:"pedido",id})}).catch(()=>{});
   if(VEND?.parceiro) PARC_JA=true; /* desconto do parceiro só no 1º passeio: o próximo pedido já sai sem ele (revisão 2026-11-03) */
   if(id && VEND) fetch(SB_URL+"/functions/v1/aviso-vendedor",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({id})}).catch(()=>{}); /* pedido pelo link: o vendedor também fica sabendo */
-  return true;
+  return id||true; /* o número do pedido vai para o Lead (rastreio server-side) */
 }
 /* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
 /* lancha em manutenção (tabela manutencoes, o dono marca no app): todos os horários desses dias ficam ocupados, então ela some das buscas */
@@ -2682,7 +2687,7 @@ document.addEventListener("change", e => { const x=e.target; if(x.matches && x.m
 const novaChave = () => crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
 const consultaSave = (b,k,v,chamou) => fetch(SB_URL+"/rest/v1/rpc/criar_consulta",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
     body:JSON.stringify({p_chave:k, p_chamou:chamou, p_lancha:b.slug, p_data:pick.date, p_horario:pick.slot, p_pessoas:+pick.people||null, p_embarque:pick.board||"", p_nome:v.nome, p_tel:"+"+v.ddi+" "+v.tel.replace(/\D/g,""), p_email:v.email, p_lang:lang, p_pais:detectReg()||null})})
-  .then(r=>r.ok, ()=>false);
+  .then(r=>{ if(r.ok) leadConsulta(b,k); return r.ok; }, ()=>false); /* Lead só depois que o banco aceitou a consulta */
 const consultaAviso = k => fetch(SB_URL+"/functions/v1/consulta-aviso",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({k})}).catch(()=>{});
 /* cliente já logado (2026-10-24): não pede os dados de novo; usa o cadastro dele (nome, WhatsApp e e-mail) e vai direto para o WhatsApp */
 let CLI = null;
@@ -3004,7 +3009,7 @@ async function showBoatStatus(b){
       try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, jet:pick.jet||null, t:Date.now()})); }catch(e){}
       location.href="/login/?criar=1"; return; }
     ob.disabled=true; lastReq="";
-    sendPedido(b).then(async()=>{ track("pedido_reserva",b); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt()) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt())}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
+    sendPedido(b).then(async(pid)=>{ track("pedido_reserva",b,typeof pid==="number"?pid:0); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt()) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt())}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
       e=>{ out.innerHTML=`<p class="pk-res busy">${t(typeof e==="string" ? e : "bookErr")}</p>`; }).finally(()=>{ ob.disabled=!!ob.dataset.sent; }); };
   if(ob && ob.dataset.sent && sentKey!==pickKey()){ delete ob.dataset.sent; ob.disabled=false; ob.textContent=t("bookOnline"); } /* mudou data, horário ou pessoas: pode pedir de novo */
   if(pick.date) document.getElementById("pk-date").classList.remove("pk-missing");

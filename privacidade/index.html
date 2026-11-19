@@ -25,6 +25,7 @@ p,li{color:var(--ink)}
 section{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px 18px 18px;margin-top:16px}
 a{color:var(--sea)}
 [data-l]{display:none}[data-l].on{display:block}
+.rastreio-op button{border:1px solid currentColor;background:none;color:inherit;border-radius:999px;padding:4px 12px;font:inherit;font-weight:600;cursor:pointer;margin-left:4px}
 </style>
 </head>
 <body>
@@ -53,8 +54,9 @@ a{color:var(--sea)}
 <li>Identificar você e evitar cadastros falsos (o CPF, quando você informa, serve para isso e não é mostrado a outros clientes).</li>
 <li>Falar com você sobre os seus pedidos e passeios, pelo WhatsApp ou e-mail.</li>
 <li>Passar ao dono da lancha reservada os dados necessários para o passeio (nome, WhatsApp, número de pessoas e, se você informou, o CPF). Marinheiros e funcionários das lanchas não veem o seu CPF.</li>
-<li>Melhorar o site e medir anúncios (Google Analytics, Google Ads e Meta Pixel, que usam cookies).</li>
+<li>Melhorar o site e medir anúncios (Google Analytics, Google Ads e Meta Pixel, que usam cookies). Quando você toca no WhatsApp, faz uma consulta ou paga o sinal, nosso servidor também avisa o Google e a Meta, para sabermos qual anúncio trouxe a reserva. Ao Google vão só identificadores da visita e o valor; à Meta, o WhatsApp e o e-mail vão embaralhados (hash), nunca em texto. O conteúdo das conversas nunca é enviado.</li>
 </ul>
+<p class="rastreio-op" data-sem-rastreio>Não quer ser medido neste aparelho? <button type="button" data-rastreio="nao">Não rastrear</button><button type="button" data-rastreio="sim" hidden>Voltar a permitir</button> <small data-rastreio-st></small></p>
 <p>Não vendemos os seus dados. Eles ficam guardados em servidores seguros (Supabase) e só a Búzios Lanchas e o dono da lancha que você reservou têm acesso a eles.</p>
 <h2>5. Seus direitos (LGPD)</h2>
 <p>Você pode pedir a qualquer momento para ver, corrigir ou apagar os seus dados, ou para encerrar a sua conta. Basta falar com a gente pelo <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp (21) 99927-2550</a>.</p>
@@ -91,8 +93,9 @@ a{color:var(--sea)}
 <li>To identify you and avoid fake accounts (that is what the CPF is for, when you give it; other customers never see it).</li>
 <li>To talk to you about your requests and tours, on WhatsApp or by email.</li>
 <li>To give the owner of the boat you booked the details needed for the tour (name, WhatsApp, number of people and, if you gave it, the CPF). Skippers and boat staff don't see your CPF.</li>
-<li>To improve the website and measure ads (Google Analytics, Google Ads and Meta Pixel, which use cookies).</li>
+<li>To improve the website and measure ads (Google Analytics, Google Ads and Meta Pixel, which use cookies). When you tap WhatsApp, send a request or pay the deposit, our server also tells Google and Meta, so we know which ad brought the booking. Google only gets visit identifiers and the amount; Meta gets your WhatsApp and email scrambled (hashed), never in plain text. The content of your messages is never sent.</li>
 </ul>
+<p class="rastreio-op" data-sem-rastreio>Don't want to be measured on this device? <button type="button" data-rastreio="nao">Do not track</button><button type="button" data-rastreio="sim" hidden>Allow again</button> <small data-rastreio-st></small></p>
 <p>We don't sell your data. It is stored on secure servers (Supabase) and only Búzios Lanchas and the owner of the boat you booked can access it.</p>
 <h2>5. Your rights (Brazil's LGPD)</h2>
 <p>You can ask at any time to see, correct or delete your data, or to close your account. Just message us on <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp +55 21 99927-2550</a>.</p>
@@ -129,8 +132,9 @@ a{color:var(--sea)}
 <li>Identificarte y evitar registros falsos (para eso sirve el CPF, cuando lo informas; otros clientes nunca lo ven).</li>
 <li>Hablar contigo sobre tus pedidos y paseos, por WhatsApp o correo.</li>
 <li>Pasar al dueño de la lancha reservada los datos necesarios para el paseo (nombre, WhatsApp, número de personas y, si lo informaste, el CPF). Los marineros y el personal de las lanchas no ven tu CPF.</li>
-<li>Mejorar el sitio y medir anuncios (Google Analytics, Google Ads y Meta Pixel, que usan cookies).</li>
+<li>Mejorar el sitio y medir anuncios (Google Analytics, Google Ads y Meta Pixel, que usan cookies). Cuando tocas WhatsApp, haces una consulta o pagas la seña, nuestro servidor también avisa a Google y a Meta, para saber qué anuncio trajo la reserva. A Google solo van identificadores de la visita y el valor; a Meta, tu WhatsApp y correo van cifrados (hash), nunca en texto. El contenido de los mensajes nunca se envía.</li>
 </ul>
+<p class="rastreio-op" data-sem-rastreio>¿No quieres ser medido en este dispositivo? <button type="button" data-rastreio="nao">No rastrear</button><button type="button" data-rastreio="sim" hidden>Volver a permitir</button> <small data-rastreio-st></small></p>
 <p>No vendemos tus datos. Quedan guardados en servidores seguros (Supabase) y solo Búzios Lanchas y el dueño de la lancha que reservaste tienen acceso.</p>
 <h2>5. Tus derechos (LGPD de Brasil)</h2>
 <p>Puedes pedir en cualquier momento ver, corregir o borrar tus datos, o cerrar tu cuenta. Escríbenos por <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp +55 21 99927-2550</a>.</p>
@@ -157,6 +161,13 @@ a{color:var(--sea)}
     document.documentElement.lang = x==="pt" ? "pt-BR" : x; document.title = document.querySelector(`[data-l=${x}] h1`).textContent + " · Búzios Lanchas"; };
   document.querySelectorAll("[data-set]").forEach(b=>b.onclick=()=>set(b.dataset.set));
   set(l);
+  /* "Não rastrear" (2026-11-19): guarda a escolha neste aparelho; o site, o /pagar e o servidor deixam de mandar dados à Meta e ao Google */
+  const ST={pt:["Rastreio desligado neste aparelho.","Rastreio permitido."],en:["Tracking is off on this device.","Tracking allowed."],es:["Rastreo desactivado en este dispositivo.","Rastreo permitido."]};
+  const neg=()=>{ try{ return localStorage.getItem("rastreio-consentimento")==="negado"; }catch(e){ return false; } };
+  const pinta=()=>document.querySelectorAll(".rastreio-op").forEach(p=>{ const n=neg(), k=p.closest("[data-l]")?.dataset.l||"pt";
+    p.querySelector('[data-rastreio="nao"]').hidden=n; p.querySelector('[data-rastreio="sim"]').hidden=!n; p.querySelector("[data-rastreio-st]").textContent=n?ST[k][0]:""; });
+  document.querySelectorAll("[data-rastreio]").forEach(b=>b.onclick=()=>{ try{ if(b.dataset.rastreio==="nao"){ localStorage.setItem("rastreio-consentimento","negado"); localStorage.removeItem("rastreio-origem"); } else localStorage.removeItem("rastreio-consentimento"); }catch(e){} pinta(); });
+  pinta();
 })();
 </script>
 </body>
