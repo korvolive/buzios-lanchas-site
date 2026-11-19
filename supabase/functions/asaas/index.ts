@@ -190,8 +190,30 @@ async function carregar(pid: number, k: string) {
   const { data: c } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
   const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor, prazo_vencido_em, pagar_ate").eq("id", pid).maybeSingle();
-  return p ? { c, p } : null;
+  if (!p) return null;
+  // várias lanchas num pagamento só (Rodrigo 2026-11-19): o link de qualquer lancha do grupo cobra pela reserva principal
+  const g = await grupo(p.id);
+  if (g.length > 1) {
+    const pr = g.find((m: any) => m.principal);
+    if (!pr) return null;
+    if (pr.id !== p.id) {
+      const { data: c2 } = await db.from("pagamentos_pp").select("pedido, pago_em, moeda, captura").eq("pedido", pr.id).maybeSingle();
+      const { data: p2 } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, bloqueio_id, status, sinal_valor, sinal_liberado_em, comprovante_em, repasse_dono, jetski_valor, prazo_vencido_em, pagar_ate").eq("id", pr.id).maybeSingle();
+      return c2 && p2 ? { c: c2, p: p2, g } : null;
+    }
+  }
+  return { c, p, g: g.length > 1 ? g : [] };
 }
+// grupo do pedido (principal primeiro); [] fora de grupo. Erro no banco: para tudo, nunca cobra valor errado
+async function grupo(pid: number): Promise<any[]> {
+  const { data, error } = await db.rpc("pedido_grupo", { pid });
+  if (error) { console.error("pedido_grupo", pid, error.message); throw new Error("grupo"); }
+  return data || [];
+}
+// o que o cliente paga online pelo pedido inteiro: no grupo, a soma das lanchas (e jetskis) ainda pendentes
+const onlineTotal = (p: any, g: any[]) => g.length > 1
+  ? Math.round(g.filter((m: any) => m.status === "pendente").reduce((a: number, m: any) => a + online(m), 0) * 100) / 100
+  : online(p);
 
 // Prazo vencido com preço novo do dono: devolve a resposta de "preço novo" (409) enquanto o cliente não concordar com o valor exato;
 // concordou, atualiza o pedido pelo alterar_pedido (o sinal acompanha) e devolve null para a cobrança seguir com o valor novo.
@@ -389,7 +411,8 @@ function creditoFinal(r: any) {
 }
 async function atualizarCredito(r: any) {
   if (!r?.asaas_id) return null;
-  const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
+  const real = r.asaas_real || r.asaas_id; // grupo: a linha de cada lancha aponta para a cobrança verdadeira
+  const pg = await asaas(`/payments/${encodeURIComponent(real)}`);
   const n: any = { status: pg.status || r.status, conferido_em: new Date().toISOString() };
   // antecipação (Rodrigo 2026-11-17): a automática do Asaas pede uma antecipação POR PARCELA (cada cobrança tem a sua).
   // Pedida = em análise no Asaas; creditada = o dinheiro já entrou no saldo (antes da data da parcela), com o líquido da antecipação.
@@ -426,6 +449,19 @@ async function atualizarCredito(r: any) {
     n.antecipada = cred;
     n.credito_previsto = rec || a ? null : (pg.estimatedCreditDate || pg.creditDate || null);
     n.credito_em = rec ? (pg.creditDate || pg.paymentDate || null) : cred ? a.data : null;
+  }
+  // grupo (2026-11-19): a cobrança é de várias lanchas; cada linha fica com a sua parte, proporcional ao valor
+  const { data: irm } = await db.from("pagamentos_asaas").select("id, valor").or(`asaas_id.eq.${real},asaas_real.eq.${real}`);
+  if ((irm || []).length > 1) {
+    const total = (irm || []).reduce((a: number, x: any) => a + +x.valor, 0);
+    let meu: any = n;
+    for (const x of irm || []) {
+      const f = total > 0 ? +x.valor / total : 0, c2 = (v: any) => v == null ? v : Math.round(+v * f * 100) / 100;
+      const m = { ...n, liquido: c2(n.liquido), ...(Array.isArray(n.parcelas) ? { parcelas: n.parcelas.map((q: any) => ({ ...q, valor: c2(q.valor), liquido: c2(q.liquido) })) } : {}) };
+      await db.from("pagamentos_asaas").update(m).eq("id", x.id);
+      if (x.id === r.id) meu = m;
+    }
+    return meu;
   }
   await db.from("pagamentos_asaas").update(n).eq("id", r.id);
   return n;
@@ -466,7 +502,7 @@ async function refrescar(rows: any[]) {
     if (n) Object.assign(r, n);
   }
 }
-const COLS_PG = "id, pedido, metodo, asaas_id, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, antecipada, conferido_em";
+const COLS_PG = "id, pedido, metodo, asaas_id, asaas_real, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, antecipada, conferido_em";
 // nome de cada pessoa para a planilha: perfil, cadastro de cliente, conta Asaas ou empresa do vendedor
 async function nomes(ids: string[], contas: Map<string, any>) {
   const m = new Map<string, string>();
@@ -503,7 +539,22 @@ async function conferir(asaasId: string, status = false) {
   // primeiro registra e confirma a reserva (o robô de 1 hora antes não cancela pedido com pagamento); depois cancela as outras cobranças
   const { data: ppMarcou } = await db.from("pagamentos_pp").update({ pago_em: agora, pago_valor: texto, atualizado_em: agora }).eq("pedido", row.pedido).is("pago_em", null).select("pedido");
   const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data").eq("id", row.pedido).maybeSingle();
+  // grupo: uma linha paga por lancha e cada reserva confirmada (cada dono recebe o aviso da sua)
+  let outros: number[] = [];
+  if (Array.isArray(row.partes) && row.partes.length > 1) {
+    const { data: ms, error: eg } = await db.rpc("espelhar_pagamento_grupo", { p_row: row.id });
+    if (eg) {
+      console.error("espelhar_pagamento_grupo", row.id, eg.message);
+      await pushAdmins({ title: "Pagamento de grupo: conferir ⚠️", body: `O pedido ${row.pedido} (várias lanchas) foi pago, mas não deu para separar as lanchas. Confira no painel.` }, `grupo-${row.pedido}`).catch(e => console.error(e));
+    } else outros = (ms || []).map(Number);
+  }
   const ok = p ? await confirmarSozinho(p.id) : false;
+  for (const m of outros) await confirmarSozinho(m).catch(e => console.error("confirmar grupo", m, e));
+  if (outros.length) { // lancha do grupo cancelada enquanto a cobrança estava aberta: o dinheiro entrou, alguém confere
+    const { data: st } = await db.from("pedidos").select("id, status").in("id", outros);
+    const fora = (st || []).filter((x: any) => x.status === "cancelado" || x.status === "recusado");
+    if (fora.length) await pushAdmins({ title: "Pagamento de grupo: lancha cancelada ⚠️", body: `O pedido ${row.pedido} foi pago com a parte do(s) pedido(s) ${fora.map((x: any) => x.id).join(", ")}, que já estava(m) cancelado(s). Confira e devolva essa parte.` }, `grupo-cancel-${row.pedido}`).catch(e => console.error(e));
+  }
   const { data: dobro } = await db.from("pagamentos_asaas").select("id").eq("pedido", row.pedido).neq("id", row.id).not("pago_em", "is", null);
   // pago também pelo PayPal (a central já estava paga): avisa para estornar um dos dois
   const { data: ppJa } = ppMarcou?.length ? { data: null } : await db.from("pagamentos_pp").select("captura").eq("pedido", row.pedido).maybeSingle();
@@ -986,7 +1037,7 @@ Deno.serve(async req => {
       const u = new URL(req.url);
       const x = await carregar(Number(u.searchParams.get("p")), u.searchParams.get("k") || "");
       if (!x) return json({ erro: "link" }, 404);
-      const s = online(x.p);
+      const s = onlineTotal(x.p, x.g);
       const { data: cl } = await db.from("clientes").select("cpf").eq("user_id", x.p.cliente).maybeSingle();
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
@@ -1051,9 +1102,9 @@ Deno.serve(async req => {
       if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
       const conf = await asaas("/anticipations/configurations").catch((e: any) => ({ erro: e?.message }));
       if (b.ver && Number(b.ver) > 0) { // diagnóstico: campos de antecipação das parcelas de um pedido (sem dados do cliente)
-        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id").eq("pedido", Number(b.ver)).not("pago_em", "is", null).maybeSingle();
+        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id, asaas_real").eq("pedido", Number(b.ver)).not("pago_em", "is", null).maybeSingle();
         if (!r) return json({ erro: "pedido" }, 404);
-        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
+        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_real || r.asaas_id)}`);
         const l = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []) : [pg];
         const an = await asaas(`/anticipations?limit=20`).catch((e: any) => ({ erro: e?.message }));
         return json({ parcelas: l.map((x: any) => ({ n: x.installmentNumber, status: x.status, anticipated: x.anticipated, anticipable: x.anticipable, creditDate: x.creditDate, estimatedCreditDate: x.estimatedCreditDate, netValue: x.netValue })),
@@ -1062,12 +1113,16 @@ Deno.serve(async req => {
       const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG + ", antecipacao").eq("metodo", "cartao").not("pago_em", "is", null);
       const so = Array.isArray(b.pids) ? new Set(b.pids.map(Number)) : null;
       const out: any[] = [];
+      const vistos = new Set<string>(); // grupo: várias linhas, uma cobrança só; antecipa uma vez
       for (const r of rs || []) {
         if (so && !so.has(+r.pedido)) continue;
         if (creditoFinal(r) || situacaoCredito(r) !== "liberar" || r.antecipacao) continue;
-        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`).catch(() => null);
+        const real = r.asaas_real || r.asaas_id;
+        if (vistos.has(real)) continue;
+        vistos.add(real);
+        const pg = await asaas(`/payments/${encodeURIComponent(real)}`).catch(() => null);
         if (!pg) continue;
-        const alvo = pg.installment ? { installment: pg.installment } : { payment: r.asaas_id };
+        const alvo = pg.installment ? { installment: pg.installment } : { payment: real };
         const sim = await asaas("/anticipations/simulate", alvo).catch((e: any) => ({ erro: e?.message, status: e?.status }));
         const item: any = { pedido: r.pedido, anticipable: pg.anticipable ?? null, sim: { valor: sim?.value, liquido: sim?.netValue, taxa: sim?.fee, dias: sim?.anticipationDays, documentos: sim?.isDocumentationRequired, erro: sim?.erro } };
         if (b.pedir === true && !sim?.erro && sim?.isDocumentationRequired !== true) {
@@ -1115,7 +1170,9 @@ Deno.serve(async req => {
       let fora = 0;
       for (const pid of ids) {
         const p = (ps || []).find((x: any) => x.id === pid);
-        const ruim = !p || p.status !== "pendente" || (abertas || []).some((r: any) => r.pedido === pid && +r.sinal !== online(p));
+        let esperado = p ? online(p) : 0;
+        if (p && p.status === "pendente") { const g = await grupo(pid).catch(() => null); if (g === null) continue; esperado = onlineTotal(p, g); }
+        const ruim = !p || p.status !== "pendente" || (abertas || []).some((r: any) => r.pedido === pid && +r.sinal !== esperado);
         if (ruim) fora += await cancelarAbertas(pid).catch(e => (console.error("fora", pid, e), 0));
       }
       // PayPal em análise: confere se o PayPal já liberou (ou recusou)
@@ -1146,6 +1203,7 @@ Deno.serve(async req => {
       if (p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "status" }, 409);
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       // prazo vencido e o dono subiu o preço (Rodrigo 2026-11-15): mostra o valor novo e só cobra depois de o cliente concordar
+      if (p.prazo_vencido_em && x.g.length > 1) return json({ erro: "status" }, 409); // grupo com prazo vencido: a pré-reserva acabou (sem preço novo por lancha)
       if (p.prazo_vencido_em) {
         const r = await precoNovo(p, b.aceito);
         if (r) return r;
@@ -1157,18 +1215,37 @@ Deno.serve(async req => {
       if (vg === "ocupada") return json({ erro: "ocupada" }, 409);
       if (vg === "pagando") return json({ erro: "pagando" }, 409); // outro cliente gerou o pagamento antes e está com a data segurada
       if (vg === "jetski") return json({ erro: "jetski" }, 409); // prazo vencido e o jetski foi para outro cliente: não cobra (Rodrigo 2026-11-15)
-      const metodo = b.metodo === "cartao" ? "cartao" : "pix", sinal = online(p); // sinal da lancha + jetski
-      if (metodo === "cartao" && !cartaoOk(p.data, p.lancha)) return json({ erro: "cartao_prazo" }, 409);
-      if (!(sinal > 0)) return json({ erro: "valor" }, 400);
-      const wallet = await carteira(p.lancha);
-      const rep = wallet ? +(p.repasse_dono ?? -1) : 0;
-      if (wallet && rep < 0) return json({ erro: "repasse" }, 409); // o administrador ainda não definiu a parte do dono
-      if (rep > sinal) return json({ erro: "repasse" }, 409);
+      for (const m of x.g.length > 1 ? x.g.filter((m: any) => m.id !== p.id) : []) { // grupo: cada lancha tem de continuar livre para este cliente
+        const v2 = await vaga(+m.id, true);
+        if (v2 === "ocupada" || v2 === "pagando" || v2 === "jetski") return json({ erro: v2 }, 409);
+      }
+      const metodo = b.metodo === "cartao" ? "cartao" : "pix"; // sinal da lancha + jetski
+      // grupo: uma cobrança só, com a parte de cada dono separada (cada lancha com o seu sinal, jetski e repasse)
+      const membros = x.g.length > 1 ? x.g.filter((m: any) => m.status === "pendente") : [p];
+      if (x.g.length > 1 && (membros.length !== x.g.length || membros[0]?.id !== p.id)) return json({ erro: "status" }, 409);
+      if (metodo === "cartao" && membros.some((m: any) => !cartaoOk(p.data, m.lancha))) return json({ erro: "cartao_prazo" }, 409);
+      const partes: any[] = [];
+      for (const m of membros) {
+        const s1 = online(m);
+        if (!(s1 > 0)) return json({ erro: "valor" }, 400);
+        const w1 = await carteira(m.lancha);
+        const r1 = w1 ? +(m.repasse_dono ?? -1) : 0;
+        if (w1 && r1 < 0) return json({ erro: "repasse" }, 409); // o administrador ainda não definiu a parte do dono
+        if (r1 > s1) return json({ erro: "repasse" }, 409);
+        partes.push({ pedido: +m.id, sinal: s1, repasse: r1, wallet_id: w1 || null });
+      }
+      const sinal = Math.round(partes.reduce((a, q) => a + q.sinal, 0) * 100) / 100;
+      const wallet = partes[0].wallet_id, rep = Math.round(partes.reduce((a, q) => a + q.repasse, 0) * 100) / 100;
+      const divisao = Object.entries(partes.filter((q) => q.wallet_id && q.repasse > 0).reduce((acc: Record<string, number>, q) => { acc[q.wallet_id] = Math.round(((acc[q.wallet_id] || 0) + q.repasse) * 100) / 100; return acc; }, {}));
+      const ehGrupo = partes.length > 1;
       const tt = await totais(sinal), np = metodo === "cartao" && !fora ? Math.min(PARCELAS, Math.max(1, Math.floor(+b.n || 1))) : 1;
       const op = tt.parcelas[np - 1], tot = metodo === "cartao" ? op.total : tt.pix;
       const velha = (cobs || []).find((r: any) => r.metodo === metodo);
+      // grupo: a cobrança velha só vale se as lanchas, os sinais e as partes dos donos são os mesmos
+      const chaveP = (ps: any) => JSON.stringify((Array.isArray(ps) ? ps : []).map((q: any) => [+q.pedido, +q.sinal, +q.repasse, q.wallet_id || null]));
+      const mesmoGrupo = !ehGrupo ? !velha?.partes : chaveP(velha?.partes) === chaveP(partes) || (chaveP((velha?.partes || []).map((q: any) => ({ ...q, repasse: 0, wallet_id: null }))) === chaveP(partes.map((q) => ({ ...q, repasse: 0, wallet_id: null }))) && !velha?.wallet_id && !(+velha?.repasse > 0));
       // sem divisão (split desligado no Asaas): a cobrança velha sem divisão continua valendo, a parte do dono sai depois pelo saldo
-      if (velha && vale(velha, p.pagar_ate) && +velha.valor === tot && ((+velha.repasse === rep && velha.wallet_id === (wallet || null)) || (!velha.wallet_id && !(+velha.repasse > 0)))) {
+      if (velha && mesmoGrupo && vale(velha, p.pagar_ate) && +velha.valor === tot && ((+velha.repasse === rep && velha.wallet_id === (wallet || null)) || (!velha.wallet_id && !(+velha.repasse > 0)))) {
         return json({ metodo, valor: tot, pix_payload: velha.pix_payload, pix_img: velha.pix_img, url: velha.invoice_url });
       }
       if (velha) {
@@ -1190,8 +1267,8 @@ Deno.serve(async req => {
       const corpo: any = {
         customer: cus, billingType: metodo === "pix" ? "PIX" : "CREDIT_CARD", dueDate: venc,
         ...(np > 1 ? { installmentCount: np, installmentValue: op.parcela } : { value: tot }),
-        description: `Sinal da reserva · ${lancha}${+p.jetski_valor > 0 ? " + jetski" : ""} · ${dataBR(p.data)}${np > 1 ? ` · ${np}x` : ""}`.slice(0, 500), externalReference: `PED${p.id}`,
-        ...(wallet && rep > 0 ? { split: [{ walletId: wallet, ...(np > 1 ? { totalFixedValue: rep } : { fixedValue: rep }) }] } : {}),
+        description: `Sinal da reserva · ${ehGrupo ? `${partes.length} lanchas` : lancha}${membros.some((m: any) => +m.jetski_valor > 0) ? " + jetski" : ""} · ${dataBR(p.data)}${np > 1 ? ` · ${np}x` : ""}`.slice(0, 500), externalReference: `PED${p.id}`,
+        ...(divisao.length ? { split: divisao.map(([w, v]) => ({ walletId: w, ...(np > 1 ? { totalFixedValue: v } : { fixedValue: v }) })) } : {}),
       };
       // Split desligado na conta Asaas (2026-11-16, caso Rafaella): o cliente nunca fica sem pagar. Cobra sem divisão,
       // registra sem carteira/repasse e a parte do dono vai pelo saldo (enviarSaldos, "pago sem divisão"), como dono sem conta aprovada.
@@ -1226,7 +1303,14 @@ Deno.serve(async req => {
       let payload = null, img = null;
       try {
         if (metodo === "pix") { const q = await asaas(`/payments/${pg.id}/pixQrCode`); payload = q.payload; img = q.encodedImage; }
-        const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: semSplit ? 0 : rep, wallet_id: semSplit ? null : wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status });
+        // grupo: guarda a parte de cada lancha (valor pago proporcional ao sinal); pago, vira uma linha por pedido (espelhar_pagamento_grupo)
+        let resto = tot;
+        const pts = ehGrupo ? partes.map((q, i) => {
+          const v = i === partes.length - 1 ? Math.round(resto * 100) / 100 : Math.round(tot * q.sinal / sinal * 100) / 100;
+          resto = Math.round((resto - v) * 100) / 100;
+          return { ...q, repasse: semSplit ? 0 : q.repasse, wallet_id: semSplit ? null : q.wallet_id, valor: v };
+        }) : null;
+        const { error: ei } = await db.from("pagamentos_asaas").insert({ pedido: p.id, metodo, asaas_id: pg.id, valor: tot, sinal, repasse: semSplit ? 0 : rep, wallet_id: semSplit ? null : wallet, invoice_url: pg.invoiceUrl, pix_payload: payload, pix_img: img, status: pg.status, partes: pts });
         if (ei) throw new Error(ei.message);
         // gerou de novo: volta a valer, e o horário do jetski volta para este cliente (o banco recusa se outro pegou no meio tempo)
         const { error: ev } = await db.from("pedidos").update({ prazo_vencido_em: null }).eq("id", p.id);
@@ -1655,9 +1739,9 @@ Deno.serve(async req => {
       const nomeDe = async (uid: string | null) => uid ? ((await nomes([uid], new Map((await db.from("asaas_contas").select("user_id, nome").eq("user_id", uid)).data?.map((c: any) => [c.user_id, c]) || []))).get(uid) || null) : null;
       if (b.tipo === "pagamento") {
         const pid = Number(b.pid);
-        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id, metodo").eq("pedido", pid).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
+        const { data: r } = await db.from("pagamentos_asaas").select("asaas_id, asaas_real, metodo").eq("pedido", pid).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
         if (!r?.asaas_id) return json({ erro: "sem" }, 404);
-        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_id)}`);
+        const pg = await asaas(`/payments/${encodeURIComponent(r.asaas_real || r.asaas_id)}`);
         const { data: p } = await db.from("pedidos").select("cliente, lancha, data").eq("id", pid).maybeSingle();
         const n = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`).catch(() => null))?.data || []).length : 1;
         const linhas: [string, string][] = [];

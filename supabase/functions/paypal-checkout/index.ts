@@ -136,7 +136,7 @@ async function pixTopo(uid: string) {
 }
 const niceUp = (x: number) => { const step = x < 100 ? 5 : x < 1000 ? 10 : x < 10000 ? 50 : 10 ** (Math.floor(Math.log10(x)) - 1); return Math.ceil(x / step) * step; };
 // deno-lint-ignore no-explicit-any
-async function moedaDoCliente(c: any, p: any) {
+async function moedaDoCliente(c: any, p: any, g: any[] = []) {
   if (Deno.env.get("CENTRAL_MOEDA_OFF") === "1") return;
   if (c.moeda !== "BRL" || p.vendedor || p.status !== "pendente" || c.pago_em || c.order_id || c.captura || p.comprovante_em) return;
   const { data: cl } = await db.from("clientes").select("pais, whatsapp").eq("user_id", p.cliente).maybeSingle();
@@ -147,7 +147,7 @@ async function moedaDoCliente(c: any, p: any) {
   const moeda = cc === "34" || COB_EUR.has(cc) ? "EUR" : cc === "44" ? "GBP" : "USD";
   const fx = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/cambio").then(r => r.json()).catch(() => null);
   const r = +fx?.rates?.[moeda.toLowerCase()];
-  const brl = +p.sinal_valor + (+p.jetski_valor || 0);
+  const brl = g.length ? totalGrupo(g) : +p.sinal_valor + (+p.jetski_valor || 0);
   if (!(r > 0) || !(brl > 0)) return;
   const valor = niceUp(brl * r * 1.10);
   const { data: up } = await db.from("pagamentos_pp").update({ moeda, valor, atualizado_em: new Date().toISOString() })
@@ -158,15 +158,57 @@ async function moedaDoCliente(c: any, p: any) {
   console.log("central em moeda do cliente", p.id, moeda);
 }
 
+const COLS_P = "id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, prazo_vencido_em";
 async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
   if (!c) return null;
-  const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, prazo_vencido_em").eq("id", pid).maybeSingle();
+  const { data: p } = await db.from("pedidos").select(COLS_P).eq("id", pid).maybeSingle();
   if (!p) return null;
-  const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
-  const nome = String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
-  return { c, p, lancha, nome };
+  // várias lanchas num pagamento só (Rodrigo 2026-11-19): o link de qualquer lancha do grupo abre a reserva principal
+  let g = await grupo(p.id);
+  let cc = c, pc = p;
+  if (g.length > 1) {
+    const pr = g.find((m: any) => m.principal);
+    if (!pr) return null;
+    if (pr.id !== p.id) {
+      cc = (await db.from("pagamentos_pp").select("*").eq("pedido", pr.id).maybeSingle()).data;
+      pc = (await db.from("pedidos").select(COLS_P).eq("id", pr.id).maybeSingle()).data;
+      if (!cc || !pc) return null;
+    }
+  } else g = [];
+  const nomeL = async (slug: string) => (await db.from("lanchas").select("nome").eq("slug", slug).maybeSingle()).data?.nome || slug;
+  const lancha = g.length ? (await Promise.all(g.map((m: any) => nomeL(m.lancha)))).join(" + ") : await nomeL(pc.lancha);
+  const nome = String((await db.from("clientes").select("nome").eq("user_id", pc.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0];
+  return { c: cc, p: pc, lancha, nome, g };
+}
+// grupo do pedido (principal primeiro); [] fora de grupo. Erro no banco: para tudo, nunca mostra nem cobra valor errado
+async function grupo(pid: number): Promise<any[]> {
+  const { data, error } = await db.rpc("pedido_grupo", { pid });
+  if (error) { console.error("pedido_grupo", pid, error.message); throw new Error("grupo"); }
+  return data || [];
+}
+const sinalDe = (m: any) => +m.sinal_valor > 0 ? Math.round((+m.sinal_valor + (+m.jetski_valor || 0)) * 100) / 100 : 0;
+// grupo: o que o cliente paga agora = soma das lanchas (e jetskis) ainda pendentes
+const totalGrupo = (g: any[]) => Math.round(g.filter((m: any) => m.status === "pendente").reduce((a: number, m: any) => a + sinalDe(m), 0) * 100) / 100;
+// grupo: a central guarda o total do grupo (em reais ou convertido); lancha nova no grupo muda o total
+async function ajustarGrupo(c: any, p: any, g: any[]) {
+  if (!g.length || p.status !== "pendente" || c.pago_em || c.order_id || c.captura || p.comprovante_em) return;
+  const brl = totalGrupo(g);
+  if (!(brl > 0)) return;
+  let moeda = String(c.moeda || "BRL"), valor = brl;
+  if (moeda !== "BRL") {
+    const fx = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/cambio").then(r => r.json()).catch(() => null);
+    const r = +fx?.rates?.[moeda.toLowerCase()];
+    if (!(r > 0)) return;
+    valor = niceUp(brl * r * 1.10);
+  }
+  if (Math.abs(+c.valor - valor) < 0.005) return;
+  const { data: up } = await db.from("pagamentos_pp").update({ valor, atualizado_em: new Date().toISOString() })
+    .eq("pedido", p.id).eq("moeda", moeda).is("pago_em", null).is("order_id", null).is("captura", null).select("pedido").maybeSingle();
+  if (!up) return;
+  await db.from("pedidos").update({ paypal_valor: fmt(moeda, valor) }).eq("id", p.id);
+  c.valor = valor;
 }
 
 const MAIL_PIX: Record<string, (l: string, d: string) => string> = {
@@ -335,8 +377,9 @@ Deno.serve(async req => {
       const u = new URL(req.url);
       const x = await carregar(Number(u.searchParams.get("p")), u.searchParams.get("k") || "");
       if (!x) return json({ erro: "link" }, 404);
-      const { c, p, lancha, nome } = x;
-      await moedaDoCliente(c, p).catch(e => console.error("moedaDoCliente", e));
+      const { c, p, lancha, nome, g } = x;
+      await moedaDoCliente(c, p, g).catch(e => console.error("moedaDoCliente", e));
+      await ajustarGrupo(c, p, g).catch(e => console.error("ajustarGrupo", e));
       const sup = (await db.from("conversas").select("id").eq("tipo", "suporte").eq("cliente", p.cliente).maybeSingle()).data?.id || null;
       const vc = p.vendedor ? (await db.from("conversas").select("id").eq("tipo", "vendedor").eq("cliente", p.cliente).eq("vendedor", p.vendedor).maybeSingle()).data?.id || null : null;
       let vn = "";
@@ -344,7 +387,7 @@ Deno.serve(async req => {
         const n = (await db.from(t).select("nome").eq("user_id", p.vendedor).limit(1).maybeSingle()).data?.nome;
         if (n) { vn = String(n).trim().split(/\s+/)[0]; break; }
       }
-      const pp = c.moeda !== "BRL" && !p.vendedor && ppPrazo(p);
+      const pp = c.moeda !== "BRL" && !p.vendedor && ppPrazo(p) && !g.length; // grupo: só Pix e cartão (Asaas), que separam a parte de cada dono
       const vg = p.status === "pendente" && !c.pago_em && !p.comprovante_em ? await vaga(p.id) : "livre";
       // restante que o cliente paga no embarque (Rodrigo 2026-10-25): confirmado = o que está no passeio; antes = valor do pedido − cupom − sinal (igual ao confirmar_pago)
       let resto: number | null = null;
@@ -357,10 +400,34 @@ Deno.serve(async req => {
         const tot = (+p.preco_cliente || +p.preco_base || 0) - (+p.cupom_valor || 0);
         if (tot > 0 && +p.sinal_valor > 0 && tot >= +p.sinal_valor) resto = tot - +p.sinal_valor;
       }
+      // grupo (Rodrigo 2026-11-19): a página explica quanto vai para cada lancha e cada jetski, tudo num pagamento só
+      let itens: any[] | null = null;
+      if (g.length) {
+        itens = [];
+        for (const m of g) {
+          let rm: number | null = null;
+          if (m.status === "aprovado" && m.bloqueio_id) {
+            const { data: a } = await db.from("anotacoes").select("valor, sinal").eq("bloqueio_id", m.bloqueio_id).maybeSingle();
+            if (+a?.valor > 0) rm = Math.max(0, +a.valor - (+a.sinal || 0));
+          }
+          if (rm === null) {
+            const tot = (+m.preco_cliente || +m.preco_base || 0) - (m.id === p.id ? +p.cupom_valor || 0 : 0);
+            if (tot > 0 && +m.sinal_valor > 0 && tot >= +m.sinal_valor) rm = tot - +m.sinal_valor;
+          }
+          itens.push({ lancha: (await db.from("lanchas").select("nome").eq("slug", m.lancha).maybeSingle()).data?.nome || m.lancha, pessoas: m.pessoas,
+            sinal: +m.sinal_valor || 0, resto: rm,
+            jetski: (+m.jetski_valor > 0 || +m.jetski_cortesia > 0) && m.jetski_ini ? { min: +m.jetski_min || 0, cort: +m.jetski_cortesia || 0, ini: String(m.jetski_ini || "").slice(0, 5), valor: +m.jetski_valor || 0 } : null });
+        }
+        resto = itens.every((i: any) => typeof i.resto === "number") ? itens.reduce((a: number, i: any) => a + i.resto, 0) : null;
+      }
       // recibo (Rodrigo 2026-10-29): só depois do pagamento conferido (PayPal/Asaas automático) ou da reserva confirmada pelo administrador (Pix com comprovante)
       let recibo: Record<string, unknown> | null = null;
       if ((p.status === "aprovado" && p.bloqueio_id) || (c.pago_em && p.status === "pendente")) { // recusado ou cancelado: sem recibo
-        const { data: pa } = await db.from("pagamentos_asaas").select("metodo, valor, pago_em").eq("pedido", p.id).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
+        const { data: pa } = await db.from("pagamentos_asaas").select("metodo, valor, pago_em, asaas_id").eq("pedido", p.id).not("pago_em", "is", null).order("pago_em", { ascending: false }).limit(1).maybeSingle();
+        if (pa && g.length) { // grupo: a linha da principal ficou só com a parte dela; o recibo mostra a cobrança inteira
+          const { data: irm } = await db.from("pagamentos_asaas").select("valor").eq("asaas_real", pa.asaas_id);
+          pa.valor = Math.round(((+pa.valor || 0) + (irm || []).reduce((a: number, x: any) => a + (+x.valor || 0), 0)) * 100) / 100;
+        }
         const a = p.bloqueio_id ? (await db.from("anotacoes").select("sinal").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data : null;
         const forma = pa ? (pa.metodo === "cartao" ? "cartao" : "pix") : c.pago_em && c.moeda !== "BRL" ? "paypal" : "pix";
         recibo = { nome: String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().slice(0, 80), forma,
@@ -375,12 +442,12 @@ Deno.serve(async req => {
         else if (pn?.mudou) preco_novo = { antigo: +pn.antigo, valor: +pn.valor };
       }
       const pix_topo = c.moeda !== "BRL" ? await pixTopo(p.cliente).catch(() => true) : true;
-      return json({ pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
-        pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
-        sinal_brl: +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto,
+      return json({ pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p) || !!g.length, ambiente: API.includes("sandbox") ? "sandbox" : "live",
+        pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: g.length ? g.reduce((a: number, m: any) => a + (+m.pessoas || 0), 0) || p.pessoas : p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
+        sinal_brl: g.length ? (g.reduce((a: number, m: any) => a + sinalDe(m), 0) || null) : +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto, itens,
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
-        lancha_sinal: +p.sinal_valor || null, lancha_total: resto !== null && +p.sinal_valor > 0 ? resto + +p.sinal_valor : null,
-        jetski: (+p.jetski_valor > 0 || +p.jetski_cortesia > 0) && p.jetski_ini ? { min: +p.jetski_min || 0, cort: +p.jetski_cortesia || 0, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor || 0 } : null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
+        lancha_sinal: g.length ? null : +p.sinal_valor || null, lancha_total: !g.length && resto !== null && +p.sinal_valor > 0 ? resto + +p.sinal_valor : null,
+        jetski: !g.length && (+p.jetski_valor > 0 || +p.jetski_cortesia > 0) && p.jetski_ini ? { min: +p.jetski_min || 0, cort: +p.jetski_cortesia || 0, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor || 0 } : null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
         confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", jetski_fora: vg === "jetski" /* prazo vencido e o jetski foi para outro (2026-11-15) */, chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
     }
     const b = await req.json().catch(() => ({}));
@@ -406,8 +473,16 @@ Deno.serve(async req => {
       const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, status, sinal_liberado_em, vendedor, sinal_valor, jetski_valor").eq("id", pid).maybeSingle();
       if (!p || p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "pedido" }, 400);
       if (!admL && !(+p.sinal_valor > 0)) return json({ erro: "sinal" }, 400);
+      // grupo (2026-11-19): só a principal tem link, com o total do grupo; as outras lanchas usam o mesmo link
+      const gL = await grupo(pid);
+      if (gL.length > 1) {
+        if (!gL[0]?.principal || +gL[0].id !== pid) return json({ erro: "grupo" }, 409);
+        if (moeda !== "BRL") return json({ erro: "moeda" }, 400); // a página converte sozinha para o estrangeiro
+        valor = totalGrupo(gL);
+        if (!(valor > 0)) return json({ erro: "sinal" }, 400);
+      }
       // em reais o valor vem do banco, não da tela: sinal da lancha + jetski inteiro (revisão de segurança 2026-11-15)
-      if (moeda === "BRL" && +p.sinal_valor > 0) valor = Math.round((+p.sinal_valor + (+p.jetski_valor || 0)) * 100) / 100;
+      if (moeda === "BRL" && +p.sinal_valor > 0 && gL.length < 2) valor = Math.round((+p.sinal_valor + (+p.jetski_valor || 0)) * 100) / 100;
       if (p.vendedor && moeda !== "BRL") return json({ erro: "vendedor" }, 400); // com vendedor: só Pix, sem cobrança automática (Rodrigo, 2026-10-22)
       const { data: old } = await db.from("pagamentos_pp").select("token, pago_em, captura").eq("pedido", pid).maybeSingle();
       if (old?.pago_em || old?.captura) return json({ erro: "pago" }, 409); // pago ou em análise no PayPal: o valor não muda mais
@@ -476,6 +551,8 @@ Deno.serve(async req => {
       if (!servico && !adm && !opr) return json({ erro: "admin" }, 403);
       const { data: pd } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, bloqueio_id").eq("id", Number(b.pid)).maybeSingle();
       if (!pd) return json({ erro: "pedido" }, 404);
+      // grupo: as lanchas ficam sempre no mesmo horário; mudar uma só quebraria isso (muda antes de juntar)
+      if ((await grupo(pd.id)).length > 1) return json({ erro: "grupo" }, 409);
       const x = { p: pd, lancha: (await db.from("lanchas").select("nome").eq("slug", pd.lancha).maybeSingle()).data?.nome || pd.lancha,
         nome: String((await db.from("clientes").select("nome").eq("user_id", pd.cliente).maybeSingle()).data?.nome || "").trim().split(/\s+/)[0] };
       if (await tardeCombinado(x.p)) return json({ erro: "passou" }, 409);
@@ -530,6 +607,7 @@ Deno.serve(async req => {
     if (p.status !== "pendente") return json({ erro: p.status === "recusado" ? "ocupada" : "status" }, 409);
 
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
+    if ((b.acao === "criar" || b.acao === "capturar") && x.g.length) return json({ erro: "pix" }, 400); // grupo: só Asaas (separa a parte de cada dono)
     if (b.acao === "criar") {
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       if (!ppPrazo(p)) return json({ erro: "pix" }, 400); // outra lancha com menos de 3 dias: só Pix
