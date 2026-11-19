@@ -531,6 +531,44 @@ async function nomes(ids: string[], contas: Map<string, any>) {
   return m;
 }
 
+// Pix sem vencimento para estrangeiro (2026-11-19): o Mercado Pago da Argentina recusou o QR com vencimento (cobv) do Asaas.
+// QR estático com o valor, na chave da Búzios; quem paga gera uma cobrança no Asaas com pixQrCodeId. ligarEstatico acha o pedido
+// (pelo QR, ou pelo valor exato quando o cliente digitou a chave e só um pedido espera esse valor) e cria a linha de pagamento
+// sem divisão: a parte do dono sai pelo saldo assim que o Pix cai (enviarSaldos), como em qualquer Pix sem split.
+async function chavePix(): Promise<string | null> {
+  const l = await asaas("/pix/addressKeys?status=ACTIVE&limit=20").catch(() => null);
+  const ks = (l?.data || []).filter((k: any) => String(k.status || "ACTIVE") === "ACTIVE" && k.key);
+  return (ks.find((k: any) => k.type === "CNPJ") || ks.find((k: any) => k.type === "EVP") || ks[0])?.key || null;
+}
+async function pixEstatico(pid: number, valor: number) {
+  const { data: ja } = await db.from("pix_estatico").select("*").eq("pedido", pid).maybeSingle();
+  if (ja && Math.abs(+ja.valor - valor) < 0.005 && !ja.pago_asaas) return ja;
+  const chave = await chavePix();
+  if (!chave) throw new Error("sem chave Pix ativa no Asaas");
+  const q = await asaas("/pix/qrCodes/static", { addressKey: chave, description: `Reserva ${pid}`, value: valor, format: "ALL", allowsMultiplePayments: false });
+  if (!q?.id || !q?.payload) throw new Error("QR estático sem resposta");
+  const lin = { pedido: pid, valor, qr_id: String(q.id), payload: String(q.payload), img: q.encodedImage || null, chave, pago_asaas: null, criado_em: new Date().toISOString() };
+  await db.from("pix_estatico").upsert(lin, { onConflict: "pedido" });
+  return lin;
+}
+async function ligarEstatico(asaasId: string) {
+  if ((await db.from("pagamentos_asaas").select("id").eq("asaas_id", asaasId).maybeSingle()).data) return;
+  const pg = await asaas(`/payments/${encodeURIComponent(asaasId)}`).catch(() => null);
+  if (!pg || pg.billingType !== "PIX" || /^PED\d+$/.test(String(pg.externalReference || ""))) return;
+  let est: any = null;
+  if (pg.pixQrCodeId) est = (await db.from("pix_estatico").select("*").eq("qr_id", String(pg.pixQrCodeId)).maybeSingle()).data;
+  else if (!/paypal/i.test(JSON.stringify(pg))) { // digitou a chave: só um pedido esperando exatamente este valor, nos últimos 3 dias
+    const { data: l } = await db.from("pix_estatico").select("*").is("pago_asaas", null).gte("criado_em", new Date(Date.now() - 3 * 864e5).toISOString());
+    const c = (l || []).filter((e: any) => Math.abs(+e.valor - +pg.value) < 0.005);
+    if (c.length === 1) est = c[0];
+  }
+  if (!est || Math.abs(+est.valor - +pg.value) > 0.005) return;
+  const { data: pa } = await db.from("pix_estatico").update({ pago_asaas: asaasId }).eq("pedido", est.pedido).is("pago_asaas", null).select("pedido");
+  if (!pa?.length) return;
+  const { error } = await db.from("pagamentos_asaas").insert({ pedido: est.pedido, metodo: "pix", asaas_id: asaasId, valor: +est.valor, sinal: +est.valor, repasse: 0, wallet_id: null, status: pg.status, pix_qr: est.qr_id, criado_em: new Date().toISOString() });
+  if (error) console.error("ligarEstatico", est.pedido, error.message);
+}
+
 // confere a cobrança direto no Asaas e, se paga, marca o pedido como pago e confirma a reserva sozinha
 async function conferir(asaasId: string, status = false) {
   const { data: row } = await db.from("pagamentos_asaas").select("*").eq("asaas_id", asaasId).maybeSingle();
@@ -544,7 +582,7 @@ async function conferir(asaasId: string, status = false) {
   await db.from("pagamentos_asaas").update({ status: pg.status }).eq("id", row.id);
   // parcelado: o registro guarda o total (parcela × n), e a primeira parcela vale total / n
   const n = pg.installment ? Math.round(+row.valor / +pg.value) : 1;
-  if (!["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(pg.status) || n < 1 || n > PARCELAS || Math.abs(+pg.value * n - +row.valor) > 0.005 || pg.externalReference !== `PED${row.pedido}`) return false;
+  if (!["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(pg.status) || n < 1 || n > PARCELAS || Math.abs(+pg.value * n - +row.valor) > 0.005 || (pg.externalReference !== `PED${row.pedido}` && !row.pix_qr)) return false; // pix_qr: Pix sem vencimento (ligarEstatico)
   const agora = new Date().toISOString(), texto = `${brl(+row.valor)} (${row.metodo === "pix" ? "Pix" : n > 1 ? `cartão em ${n}x` : "cartão"} · Asaas)`;
   const { data: marcou } = await db.from("pagamentos_asaas").update({ pago_em: agora }).eq("id", row.id).is("pago_em", null).select("id");
   if (!marcou?.length) return true; // outro aviso já marcou
@@ -1142,6 +1180,7 @@ Deno.serve(async req => {
 
     // aviso do Asaas: não confia no corpo, confere a cobrança direto no Asaas
     if (b?.event && b?.payment?.id) {
+      if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await ligarEstatico(String(b.payment.id)).catch(e => console.error("webhook estatico", e?.message));
       if (/^PAYMENT_(RECEIVED|CONFIRMED)/.test(String(b.event))) await conferir(String(b.payment.id), true).catch(e => console.error("webhook", e));
       if (/^PAYMENT_/.test(String(b.event)) && b.payment?.id) { const { data: rw } = await db.from("pagamentos_asaas").select("id, asaas_id").eq("asaas_id", String(b.payment.id)).not("pago_em", "is", null).maybeSingle(); if (rw) await atualizarCredito(rw).catch(e => console.error("webhook credito", e?.message)); }
       return json({ ok: true });
@@ -1281,6 +1320,19 @@ Deno.serve(async req => {
       return json({ expiradas: n, vencidos: (venc || []).length, prazo_vencido: (semPg || []).length, canceladas: fora, paypal: ppr, saldos, entradas });
     }
 
+    if (b.acao === "pix_estatico") {
+      const x = await carregar(Number(b.p), b.k);
+      if (!x) return json({ erro: "link" }, 404);
+      const { p, c } = x;
+      if (String(c.moeda || "BRL") === "BRL" || x.g.length > 1) return json({ erro: "pix" }, 400);
+      if (c.pago_em) return json({ pago: true });
+      if (p.status !== "pendente" || !p.sinal_liberado_em || p.prazo_vencido_em) return json({ erro: "status" }, 409);
+      if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
+      const s = onlineTotal(p, x.g);
+      if (!(s > 0)) return json({ erro: "status" }, 409);
+      const e = await pixEstatico(p.id, Math.round(s * 100) / 100);
+      return json({ payload: e.payload, img: e.img, chave: e.chave, valor: +e.valor });
+    }
     if (b.acao === "pagar" || b.acao === "conferir") {
       const x = await carregar(Number(b.p), b.k);
       if (!x) return json({ erro: "link" }, 404);
@@ -1289,6 +1341,12 @@ Deno.serve(async req => {
       if (b.acao === "conferir") {
         let pago = !!c.pago_em;
         for (const r of cobs || []) if (!pago) pago = await conferir(r.asaas_id).catch(() => false);
+        // Pix sem vencimento: se o aviso do Asaas se perdeu, procura o pagamento pelo QR
+        const { data: est } = pago ? { data: null } : await db.from("pix_estatico").select("qr_id").eq("pedido", p.id).maybeSingle();
+        if (est) for (const y of (await asaas(`/payments?pixQrCodeId=${encodeURIComponent(est.qr_id)}&limit=5`).catch(() => null))?.data || []) {
+          await ligarEstatico(String(y.id)).catch(e => console.error("conferir estatico", e?.message));
+          if (!pago) pago = await conferir(String(y.id)).catch(() => false);
+        }
         return json({ pago });
       }
       if (c.pago_em || (cobs || []).some((r: any) => r.pago_em)) return json({ pago: true });
