@@ -357,7 +357,7 @@ export function gerarPaginas(ROOT, SITE, dados) {
 <meta property="og:url" content="${url}"><meta property="og:image" content="${abs(heroImg).replace(/-m\.webp$/, ".jpg").replace(/\.webp$/, ".jpg")}"><meta property="og:locale" content="${c.og}"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#06394a"><link rel="icon" href="/login/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="preload" as="image" href="${heroImg}" fetchpriority="high">
 ${TRACK}
-<style>${CSS}.hero{background-image:url(${heroImg})}</style>
+<style>html{touch-action:manipulation}${CSS}.hero{background-image:url(${heroImg})}</style>
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
 </head><body>
 <header><div class="in"><a class="brand" href="${homePath(l)}">Búzios Lanchas</a><nav class="langs" aria-label="Idioma / Language">${["pt", "en", "es"].map(x => `<a href="${guiaPath(g, x)}" hreflang="${x}"${x === l ? ' aria-current="page"' : ""}>${x.toUpperCase()}</a>`).join("")}</nav></div></header>

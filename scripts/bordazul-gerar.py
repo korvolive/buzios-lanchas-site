@@ -512,7 +512,7 @@ def pagina(lang):
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <script type="application/ld+json">{json.dumps(ldf, ensure_ascii=False)}</script>
-<style>{CSS}</style>
+<style>html{{touch-action:manipulation}}{CSS}</style>
 </head>
 <body>
 <a class="skip" href="#busca">{e(t["f_btn"])}</a>
