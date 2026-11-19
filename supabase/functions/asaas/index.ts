@@ -540,14 +540,14 @@ async function chavePix(): Promise<string | null> {
   const ks = (l?.data || []).filter((k: any) => String(k.status || "ACTIVE") === "ACTIVE" && k.key);
   return (ks.find((k: any) => k.type === "CNPJ") || ks.find((k: any) => k.type === "EVP") || ks[0])?.key || null;
 }
-async function pixEstatico(pid: number, valor: number) {
+async function pixEstatico(pid: number, valor: number, sinal = valor) {
   const { data: ja } = await db.from("pix_estatico").select("*").eq("pedido", pid).maybeSingle();
   if (ja && Math.abs(+ja.valor - valor) < 0.005 && !ja.pago_asaas) return ja;
   const chave = await chavePix();
   if (!chave) throw new Error("sem chave Pix ativa no Asaas");
   const q = await asaas("/pix/qrCodes/static", { addressKey: chave, description: `Reserva ${pid}`, value: valor, format: "ALL", allowsMultiplePayments: false });
   if (!q?.id || !q?.payload) throw new Error("QR estático sem resposta");
-  const lin = { pedido: pid, valor, qr_id: String(q.id), payload: String(q.payload), img: q.encodedImage || null, chave, pago_asaas: null, criado_em: new Date().toISOString() };
+  const lin = { pedido: pid, valor, sinal, qr_id: String(q.id), payload: String(q.payload), img: q.encodedImage || null, chave, pago_asaas: null, criado_em: new Date().toISOString() };
   await db.from("pix_estatico").upsert(lin, { onConflict: "pedido" });
   return lin;
 }
@@ -567,8 +567,9 @@ async function ligarEstatico(asaasId: string) {
   if (!pa?.length) return;
   // uma linha de Pix por pedido (pedido, metodo único): a cobrança com vencimento que estava aberta vira este pagamento,
   // sem divisão (a parte do dono sai pelo saldo), e a cobrança velha é cancelada no Asaas (19/11: o insert batia na chave única)
-  const lin = { asaas_id: asaasId, valor: +est.valor, sinal: +est.valor, repasse: 0, wallet_id: null, status: pg.status, pix_qr: est.qr_id, pix_payload: null, pix_img: null, invoice_url: null };
-  const { data: velha } = await db.from("pagamentos_asaas").select("id, asaas_id, pago_em").eq("pedido", est.pedido).eq("metodo", "pix").maybeSingle();
+  const lin = { asaas_id: asaasId, valor: +est.valor, sinal: +(est.sinal ?? est.valor), repasse: 0, wallet_id: null, status: pg.status, pix_qr: est.qr_id, pix_payload: null, pix_img: null, invoice_url: null };
+  const { data: velha } = await db.from("pagamentos_asaas").select("id, asaas_id, pago_em, sinal").eq("pedido", est.pedido).eq("metodo", "pix").maybeSingle();
+  if (velha && +velha.sinal > 0) lin.sinal = +velha.sinal; // sinal sem a taxa do Pix, como na cobrança de antes
   let error: any = null;
   if (velha?.pago_em) error = { message: "Pix já pago neste pedido" };
   else if (velha) ({ error } = await db.from("pagamentos_asaas").update(lin).eq("id", velha.id).is("pago_em", null));
@@ -1343,7 +1344,7 @@ Deno.serve(async req => {
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       const s = onlineTotal(p, x.g);
       if (!(s > 0)) return json({ erro: "status" }, 409);
-      const e = await pixEstatico(p.id, (await totais(s)).pix); // mesmo valor do Pix com vencimento
+      const e = await pixEstatico(p.id, (await totais(s)).pix, s); // mesmo valor do Pix com vencimento
       return json({ payload: e.payload, img: e.img, chave: e.chave, valor: +e.valor });
     }
     if (b.acao === "pagar" || b.acao === "conferir") {
