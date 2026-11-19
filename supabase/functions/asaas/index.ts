@@ -102,8 +102,13 @@ function jetskiAcabou(p: any) {
 // cartão só com 5 dias ou mais até o passeio (Rodrigo 2026-10-25; era 7, mudou para 5 em 2026-10-29): o cartão cai em cerca de 2 dias mesmo com antecipação,
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
-// Miss Bardot (lancha da Búzios): cartão a qualquer prazo, sem a regra dos 5 dias (Rodrigo 2026-11-17); o fechamento 40 min antes continua
-const cartaoOk = (d: string, lancha?: string) => lancha === "miss-bardot" || ((Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS);
+// cartão estrangeiro (central em dólar/euro, cartão internacional sem CPF): o Asaas marca "não antecipável" e só libera uns 6 dias
+// depois (pedido 85, 2026-11-19: pago 19/11, cai 25/11). Lancha parceira: o dono recebe antes do passeio (Rodrigo 2026-11-19),
+// então o cartão estrangeiro só aparece com 10 dias ou mais; antes disso, Pix ou PayPal
+const CARTAO_DIAS_FORA = 10;
+// Miss Bardot (lancha da Búzios): cartão a qualquer prazo, sem a regra dos dias (Rodrigo 2026-11-17); o fechamento 40 min antes continua
+const cartaoDias = (lancha?: string, fora = false) => lancha === "miss-bardot" ? 0 : fora ? CARTAO_DIAS_FORA : CARTAO_DIAS;
+const cartaoOk = (d: string, lancha?: string, fora = false) => lancha === "miss-bardot" || ((Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= cartaoDias(lancha, fora));
 // chave da subconta cifrada (revisão de segurança 2026-10-28): no banco só fica "v1:<iv>:<cifra>"
 const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
 const de64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
@@ -899,6 +904,35 @@ async function repassarPaypal(saldo: number) {
   return { saldo, enviados, esperando };
 }
 
+// lancha parceira paga no cartão cujo dinheiro ainda não caiu a 2 dias do passeio (antecipação recusada, cartão não antecipável):
+// o dono não receberia antes de sair (Rodrigo 2026-11-19). Nunca adianta com dinheiro de outra venda: avisa o administrador uma vez
+// (pedidos.aviso_cartao_em) para ele decidir.
+async function avisarCartaoAtrasado() {
+  const hoje = new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10);
+  const ate = new Date(Date.now() - 3 * 36e5 + 2 * 864e5).toISOString().slice(0, 10);
+  const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG).eq("metodo", "cartao").not("pago_em", "is", null);
+  const ids = [...new Set((rs || []).map((r: any) => +r.pedido))];
+  if (!ids.length) return 0;
+  const { data: ps } = await db.from("pedidos").select("id, lancha, data, repasse_dono").in("id", ids).eq("status", "aprovado")
+    .gte("data", hoje).lte("data", ate).is("aviso_cartao_em", null).gt("repasse_dono", 0);
+  let n = 0;
+  for (const p of ps || []) {
+    if (SEM_REPASSE.includes(p.lancha)) continue;
+    const { data: feito } = await db.from("repasses_pp").select("pedido").eq("pedido", p.id).maybeSingle();
+    if (feito) continue;
+    const rows = (rs || []).filter((r: any) => +r.pedido === +p.id); await refrescar(rows);
+    const cx = caixaPedido(rows);
+    const q = quandoCobre(cx, +p.repasse_dono);
+    if (cx.estorno || q === null) continue;
+    const { data: foi } = await db.from("pedidos").update({ aviso_cartao_em: new Date().toISOString() }).eq("id", p.id).is("aviso_cartao_em", null).select("id");
+    if (!foi?.length) continue;
+    const { data: l } = await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle();
+    await pushAdmins({ title: "Cartão ainda não caiu: dono sem repasse", body: `Pedido ${p.id} (${l?.nome || p.lancha}, ${dataBR(p.data)}): o cartão do cliente ainda não caiu no Asaas${q && q !== "?" ? ` (previsto ${dataBR(q)})` : ""}. O dono não recebe a parte dele antes do passeio sem você decidir.` }, `cartao-atrasado-${p.id}`);
+    n++;
+  }
+  return n;
+}
+
 async function enviarSaldos() {
   const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
   if (!cfg?.saldo_auto) return { ligado: false };
@@ -1097,11 +1131,12 @@ Deno.serve(async req => {
       const x = await carregar(Number(u.searchParams.get("p")), u.searchParams.get("k") || "");
       if (!x) return json({ erro: "link" }, 404);
       const s = onlineTotal(x.p, x.g);
+      const foraG = String(x.c?.moeda || "BRL") !== "BRL"; // estrangeiro: prazo maior do cartão nas lanchas parceiras
       const { data: cl } = await db.from("clientes").select("cpf").eq("user_id", x.p.cliente).maybeSingle();
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
-        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: cartaoOk(x.p.data, x.p.lancha), cartao_dias: CARTAO_DIAS, segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
+        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: (x.g.length > 1 ? x.g : [x.p]).every((m: any) => cartaoOk(x.p.data, m.lancha, foraG)), cartao_dias: Math.max(...(x.g.length > 1 ? x.g : [x.p]).map((m: any) => cartaoDias(m.lancha, foraG))), segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -1240,6 +1275,7 @@ Deno.serve(async req => {
         .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
       const saldos = await enviarSaldos().catch(e => (console.error("saldos", e), null));
       await avisarAntecipadas().catch(e => console.error("antecipadas", e));
+      await avisarCartaoAtrasado().catch(e => console.error("cartao atrasado", e));
       await avisarAcertosJetski().catch(e => console.error("acertos jetski", e));
       const entradas = await avisarEntradas().catch(e => (console.error("entradas", e), null));
       return json({ expiradas: n, vencidos: (venc || []).length, prazo_vencido: (semPg || []).length, canceladas: fora, paypal: ppr, saldos, entradas });
@@ -1283,7 +1319,7 @@ Deno.serve(async req => {
       // grupo: uma cobrança só, com a parte de cada dono separada (cada lancha com o seu sinal, jetski e repasse)
       const membros = x.g.length > 1 ? x.g.filter((m: any) => m.status === "pendente") : [p];
       if (x.g.length > 1 && (membros.length !== x.g.length || membros[0]?.id !== p.id)) return json({ erro: "status" }, 409);
-      if (metodo === "cartao" && membros.some((m: any) => !cartaoOk(p.data, m.lancha))) return json({ erro: "cartao_prazo" }, 409);
+      if (metodo === "cartao" && membros.some((m: any) => !cartaoOk(p.data, m.lancha, fora))) return json({ erro: "cartao_prazo", dias: Math.max(...membros.map((m: any) => cartaoDias(m.lancha, fora))) }, 409);
       const partes: any[] = [];
       for (const m of membros) {
         const s1 = online(m);
