@@ -28,6 +28,7 @@ h2{font-size:16px;margin:0 0 10px}
 .rows li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:6px 0}
 .rows li span:first-child{color:var(--muted)}
 .rows li b{text-align:right}
+.rows li.gh{border-bottom:0;padding:10px 0 0}.rows li.gh span:first-child{color:var(--ink,inherit)}
 .amt{font-size:30px;font-weight:800;margin:4px 0 2px}
 .muted{color:var(--muted);font-size:14px}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
@@ -176,6 +177,14 @@ const jHr=s=>{ const [h,m]=String(s).split(":").map(Number); return lg==="en" ? 
 function jetRows(L){ const J=D.jetski; if(!J) return ""; const W=JL[lg], fim=(()=>{ const [h,m]=J.ini.split(":").map(Number), t=h*60+m+(J.min||0)+(J.cort||0); return `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`; })();
   const lt=+D.lancha_total||0, v=+J.valor||0, o={d:jDur(J.min||0),c:J.cort?`${J.cort} min`:"",a:jHr(J.ini),b:jHr(fim)}; /* cortesia opcional: só cortesia não soma nada (2026-11-15) */
   return (lt&&v?`<li><span>${W.boat}</span><b>${brl(lt)}</b></li>`:"")+`<li><span>${tf(!J.cort?W.jet:J.min?W.jetCP:W.jetC,o)}</span><b>${v?brl(v):W.free}</b></li>`+(lt&&v?`<li><span>${W.tot}</span><b>${brl(lt+v)}</b></li>`:""); }
+/* várias lanchas num pagamento só (Rodrigo 2026-11-19): quanto vai para cada lancha e cada jetski, tudo junto no mesmo pagamento */
+const GL={pt:{sn:"Sinal agora (50%)",emb:"Restante no embarque",dep:"Pague agora: sinal de cada lancha (50%), somado",depJ:"Pague agora: sinal de cada lancha (50%) + jetski, somado",boats:"Lanchas"},
+  en:{sn:"Deposit now (50%)",emb:"Balance at boarding",dep:"Pay now: each boat's deposit (50%), added up",depJ:"Pay now: each boat's deposit (50%) + jet ski, added up",boats:"Boats"},
+  es:{sn:"Seña ahora (50%)",emb:"Saldo al embarcar",dep:"Paga ahora: la seña de cada lancha (50%), sumada",depJ:"Paga ahora: la seña de cada lancha (50%) + moto de agua, sumada",boats:"Lanchas"}};
+function jetLine(J){ const W=JL[lg], fim=(()=>{ const [h,m]=J.ini.split(":").map(Number), t=h*60+m+(J.min||0)+(J.cort||0); return `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`; })(), o={d:jDur(J.min||0),c:J.cort?`${J.cort} min`:"",a:jHr(J.ini),b:jHr(fim)};
+  return `<li><span>${tf(!J.cort?W.jet:J.min?W.jetCP:W.jetC,o)}</span><b>${+J.valor?brl(+J.valor):W.free}</b></li>`; }
+function grpRows(){ const G=GL[lg]||GL.pt; return (D.itens||[]).map(i=>`<li class="gh"><span><b>${esc(i.lancha)}</b>${i.pessoas?` · ${esc(i.pessoas)} ${esc(T[lg].people.toLowerCase())}`:""}</span></li>`
+  +`<li><span>${G.sn}</span><b>${brl(+i.sinal||0)}</b></li>`+(i.jetski?jetLine(i.jetski):"")+(typeof i.resto==="number"?`<li><span>${G.emb}</span><b>${brl(i.resto)}</b></li>`:"")).join(""); }
 const SUP={pt:"Suporte Asaas",en:"Asaas support",es:"Soporte Asaas"}; /* linha do selo nos 3 idiomas (revisão 2026-11-16) */
 function render(){ const su=document.getElementById("asaas-sup"); if(su) su.textContent=`${SUP[lg]||SUP.pt}: 0800 009 0037 · contato@asaas.com.br`;
   const L=T[lg]; document.documentElement.lang=lg; document.title=L.title+" · Búzios Lanchas";
@@ -236,9 +245,9 @@ function render(){ const su=document.getElementById("asaas-sup"); if(su) su.text
   const my=(R?`<button type="button" class="btn" data-rc="1">${L.rcOpen}</button>`:"")+(conf||paid?`<a class="btn sec" href="/login/">${L.my}</a>`:"");
   const chats=!D.chat?`<div class="card"><h2>${L.chats}</h2>${waBtn()}${my}</div>`:my?`<div class="card">${my}</div>`:"";
   box.innerHTML=`<div class="card"><p class="muted" style="margin:0">${esc(L.hi(D.nome))}</p><h1>${L.title}</h1>
-    <ul class="rows"><li><span>${L.boat}</span><b>${esc(D.lancha)}</b></li><li><span>${L.date}</span><b>${esc(d)}</b></li>
-    <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li>${jetRows(L)}</ul>
-    <div class="muted">${D.jetski?.valor>0?JL[lg].dep:L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
+    <ul class="rows"><li><span>${D.itens?(GL[lg]||GL.pt).boats:L.boat}</span><b>${esc(D.lancha)}</b></li><li><span>${L.date}</span><b>${esc(d)}</b></li>
+    <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li>${D.itens?grpRows():jetRows(L)}</ul>
+    <div class="muted">${D.itens?((GL[lg]||GL.pt)[D.itens.some(i=>i.jetski&&+i.jetski.valor>0)?"depJ":"dep"]):D.jetski?.valor>0?JL[lg].dep:L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
   if(document.getElementById("pp")) mountPP();
   fabs();
 }
