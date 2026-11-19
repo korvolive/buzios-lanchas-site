@@ -38,6 +38,18 @@ OUTRAS = {
 }
 
 fonte = open(os.path.join(RAIZ, "index.html"), encoding="utf-8").read()
+# Rastreio padrão do Google (2026-11-19): o bloco entre <!--rastreio--> e <!--/rastreio--> é a cópia de /rastreio.js (atualizada aqui)
+import re
+_r = open(os.path.join(RAIZ, "..", "rastreio.js"), encoding="utf-8").read().rstrip("\n")
+_bloco = "<!--rastreio--><script>/* igual a /rastreio.js do site de Búzios */\n" + _r + "\n</script><!--/rastreio-->"
+if "<!--rastreio-->" in fonte:
+    fonte = re.sub(r"<!--rastreio-->.*?<!--/rastreio-->", lambda m: _bloco, fonte, flags=re.S)
+else:
+    _gtm = "})(window,document,'script','dataLayer','GTM-NVP9L5DF');</script>"
+    assert fonte.count(_gtm) == 1, "não achei o GTM no regiao/index.html"
+    fonte = fonte.replace(_gtm, _gtm + "\n" + _bloco)
+with open(os.path.join(RAIZ, "index.html"), "w", encoding="utf-8") as f:
+    f.write(fonte)
 for lg, novo in OUTRAS.items():
     s = fonte
     for k, v in PT.items():
