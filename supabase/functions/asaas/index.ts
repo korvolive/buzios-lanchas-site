@@ -232,6 +232,9 @@ async function vaga(pid: number, segurar = false) {
 
 // semDoc: estrangeiro (central em dólar/euro), cobrança sem CPF/CNPJ: cartão internacional (Mayara/Asaas 2026-11-11) e Pix pago
 // por app de fora (Mercado Pago da Argentina, Wise etc., Rodrigo 2026-11-17); se digitar um CPF, ele é usado
+// CNPJ da Búzios Lanchas: documento do cadastro de estrangeiro no Asaas quando o Pix exige CPF/CNPJ (2026-11-19)
+const CNPJ_BUZIOS = "32154099000172";
+
 async function cliente(uid: string, cpfNovo: string, semDoc = false) {
   const { data: ja } = await db.from("asaas_clientes").select("customer_id, cpf").eq("user_id", uid).maybeSingle();
   const { data: cl } = await db.from("clientes").select("nome, cpf, whatsapp").eq("user_id", uid).maybeSingle();
@@ -1195,16 +1198,30 @@ Deno.serve(async req => {
       let semSplit = false, pg: any;
       try { pg = await asaas("/payments", corpo); }
       catch (e: any) {
+        // O Asaas exige CPF/CNPJ no cliente para Pix (caso pedido 77, argentino, 2026-11-19). O Pix aceita pagamento de qualquer
+        // pagador, então o cadastro do estrangeiro no Asaas recebe o CNPJ da própria Búzios Lanchas e a cobrança sai na hora.
+        // asaas_clientes.cpf continua vazio: se um dia ele pagar com CPF dele, cliente() troca o documento.
         if (pixSemDoc && e?.asaas && e?.status === 400 && /cpf|cnpj|documento/i.test(String(e?.message || ""))) {
-          console.error("pix sem CPF recusado pelo Asaas", p.id, e?.message);
-          pushAdmins({ title: "Asaas recusou Pix sem CPF", body: `Pedido ${p.id}: o Asaas não aceitou Pix de estrangeiro sem CPF. A página voltou a pedir o CPF. Peça ao Asaas para liberar pagadores estrangeiros.` }, `pix-sem-cpf-${new Date().toISOString().slice(0, 10)}`).catch((x) => console.error("push pix sem cpf", x));
-          return json({ erro: "cpf" }, 400);
+          console.error("pix sem CPF recusado pelo Asaas; usando o CNPJ da Búzios no cadastro do estrangeiro", p.id, e?.message);
+          try {
+            await asaas(`/customers/${cus}`, { cpfCnpj: CNPJ_BUZIOS });
+            pg = await asaas("/payments", corpo);
+          } catch (e2: any) {
+            if (!corpo.split || !(e2?.asaas && e2?.status === 400 && /split/i.test(String(e2?.message || "")))) {
+              console.error("pix sem CPF: CNPJ da Búzios também recusado", p.id, e2?.message);
+              pushAdmins({ title: "Asaas recusou Pix sem CPF", body: `Pedido ${p.id}: o Asaas não aceitou Pix de estrangeiro nem com o CNPJ da Búzios. A página voltou a pedir o CPF.` }, `pix-sem-cpf-${new Date().toISOString().slice(0, 10)}`).catch((x) => console.error("push pix sem cpf", x));
+              return json({ erro: "cpf" }, 400);
+            }
+            delete corpo.split; semSplit = true;
+            pg = await asaas("/payments", corpo);
+          }
+        } else {
+          if (!corpo.split || !(e?.asaas && e?.status === 400 && /split/i.test(String(e?.message || "")))) throw e;
+          console.error("split desligado no Asaas: cobrando sem divisão", p.id, e?.message);
+          delete corpo.split; semSplit = true;
+          pg = await asaas("/payments", corpo);
+          pushAdmins({ title: "Asaas: split desligado", body: `A cobrança do pedido ${p.id} saiu sem divisão; a parte do dono vai pelo saldo. Ative o split em Integrações > Segurança no Asaas.` }, `split-off-${new Date().toISOString().slice(0, 10)}`).catch((x) => console.error("push split", x));
         }
-        if (!corpo.split || !(e?.asaas && e?.status === 400 && /split/i.test(String(e?.message || "")))) throw e;
-        console.error("split desligado no Asaas: cobrando sem divisão", p.id, e?.message);
-        delete corpo.split; semSplit = true;
-        pg = await asaas("/payments", corpo);
-        pushAdmins({ title: "Asaas: split desligado", body: `A cobrança do pedido ${p.id} saiu sem divisão; a parte do dono vai pelo saldo. Ative o split em Integrações > Segurança no Asaas.` }, `split-off-${new Date().toISOString().slice(0, 10)}`).catch((x) => console.error("push split", x));
       }
       let payload = null, img = null;
       try {
