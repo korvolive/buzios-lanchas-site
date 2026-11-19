@@ -596,9 +596,10 @@ const prazoFim = (criado: string, data: string) => {
   const ini = Date.parse(criado), dl = new Date(ini - 3 * 3600e3).toISOString().slice(0, 10);
   const n = Math.round((Date.parse(data + "T12:00:00Z") - Date.parse(dl + "T12:00:00Z")) / 864e5);
   const fim = ini + (n >= 7 ? 12 : n >= 2 ? 6 : n === 1 ? 2 : 1) * 3600e3;
-  if (n < 2) return fim;
-  const h = spHora(fim); if (h >= 9 && h < 23) return fim;
-  return Date.parse(new Date(fim - 3 * 3600e3).toISOString().slice(0, 10) + "T12:00:00Z") + (h >= 23 ? 864e5 : 0);
+  if (n < 1) return fim;
+  // véspera liberada à noite (pedido 77, 2026-11-19): vai para as 8h do dia do passeio; 2+ dias: 9h
+  const ab = n === 1 ? 8 : 9, h = spHora(fim); if (h >= ab && h < 23) return fim;
+  return Date.parse(new Date(fim - 3 * 3600e3).toISOString().slice(0, 10) + "T00:00:00Z") + (ab + 3) * 3600e3 + (h >= 23 ? 864e5 : 0);
 };
 async function vencerPre() {
   // pedido da pré-reserva (cliente com conta) sem sinal no prazo: o banco cancela, solta a pré-reserva e escreve no chat; aqui o cliente é avisado
