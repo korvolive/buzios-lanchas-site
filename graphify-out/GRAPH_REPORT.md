@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1860 nodes · 3073 edges · 153 communities (88 shown, 65 thin omitted)
+- 1860 nodes · 3076 edges · 154 communities (89 shown, 65 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f1de2401`
+- Built from commit: `487fc894`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -107,6 +107,7 @@
 - 2026-11-17_paypal-cai-no-asaas-repasse-auto.sql
 - 2026-11-17_retencao-registros-5-anos.sql
 - whatsapp-webhook/index.ts
+- pushAdmins
 - API
 - public.jetskis
 - 2026-11-16_bordazul-cadastro-dono.sql
@@ -150,7 +151,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (153 total, 65 thin omitted)
+## Communities (154 total, 65 thin omitted)
 
 ### Community 0 - "vendedores"
 Cohesion: 0.07
@@ -237,8 +238,8 @@ Cohesion: 0.17
 Nodes (12): CORS, dataBR(), db, ddiLang(), email(), ES_DDI, lang(), livres() (+4 more)
 
 ### Community 21 - "contato"
-Cohesion: 0.16
-Nodes (18): avisarAcertosJetski(), avisarAdmins(), avisarAntecipadas(), avisarAprovada(), avisarExpirou(), avisarPassou(), brl(), cancelar() (+10 more)
+Cohesion: 0.27
+Nodes (10): avisarAdmins(), avisarAntecipadas(), avisarAprovada(), avisarExpirou(), avisarPassou(), comQuem(), contato(), dataBR() (+2 more)
 
 ### Community 22 - "steps"
 Cohesion: 0.15
@@ -460,6 +461,10 @@ Nodes (4): cofre_registros_trava, public.registros_exportados, registros_exporta
 Cohesion: 0.33
 Nodes (5): db, ES_DDI, langOf(), responder(), TXT
 
+### Community 134 - "pushAdmins"
+Cohesion: 0.31
+Nodes (9): avisarAcertosJetski(), brl(), cancelar(), cancelarAbertas(), conferir(), confirmarSozinho(), diaCurto(), ligarEstatico() (+1 more)
+
 ### Community 135 - "API"
 Cohesion: 0.27
 Nodes (10): API(), avisarDocsLiberados(), avisarEntradas(), chaveSub(), conferirContas(), de64(), devolverAntecipada(), KEY() (+2 more)
@@ -485,8 +490,8 @@ Cohesion: 0.29
 Nodes (10): acabou(), carteira(), enviarSaldos(), filaPaypal(), jetskiAcabou(), jetskiLibera(), online(), onlineTotal() (+2 more)
 
 ### Community 147 - "asaas"
-Cohesion: 0.27
-Nodes (10): asaas(), chavePix(), entradaPaypal(), lerEntradasPaypal(), ligarEstatico(), nomeLancha(), pixEstatico(), refEntrada() (+2 more)
+Cohesion: 0.31
+Nodes (9): asaas(), chavePix(), entradaPaypal(), lerEntradasPaypal(), nomeLancha(), pixEstatico(), refEntrada(), valorTransf() (+1 more)
 
 ### Community 149 - "entrar-celular/index.ts"
 Cohesion: 0.33

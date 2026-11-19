@@ -565,8 +565,21 @@ async function ligarEstatico(asaasId: string) {
   if (!est || Math.abs(+est.valor - +pg.value) > 0.005) return;
   const { data: pa } = await db.from("pix_estatico").update({ pago_asaas: asaasId }).eq("pedido", est.pedido).is("pago_asaas", null).select("pedido");
   if (!pa?.length) return;
-  const { error } = await db.from("pagamentos_asaas").insert({ pedido: est.pedido, metodo: "pix", asaas_id: asaasId, valor: +est.valor, sinal: +est.valor, repasse: 0, wallet_id: null, status: pg.status, pix_qr: est.qr_id, criado_em: new Date().toISOString() });
-  if (error) console.error("ligarEstatico", est.pedido, error.message);
+  // uma linha de Pix por pedido (pedido, metodo único): a cobrança com vencimento que estava aberta vira este pagamento,
+  // sem divisão (a parte do dono sai pelo saldo), e a cobrança velha é cancelada no Asaas (19/11: o insert batia na chave única)
+  const lin = { asaas_id: asaasId, valor: +est.valor, sinal: +est.valor, repasse: 0, wallet_id: null, status: pg.status, pix_qr: est.qr_id, pix_payload: null, pix_img: null, invoice_url: null };
+  const { data: velha } = await db.from("pagamentos_asaas").select("id, asaas_id, pago_em").eq("pedido", est.pedido).eq("metodo", "pix").maybeSingle();
+  let error: any = null;
+  if (velha?.pago_em) error = { message: "Pix já pago neste pedido" };
+  else if (velha) ({ error } = await db.from("pagamentos_asaas").update(lin).eq("id", velha.id).is("pago_em", null));
+  else ({ error } = await db.from("pagamentos_asaas").insert({ pedido: est.pedido, metodo: "pix", ...lin, criado_em: new Date().toISOString() }));
+  if (error) {
+    console.error("ligarEstatico", est.pedido, error.message);
+    await db.from("pix_estatico").update({ pago_asaas: null }).eq("pedido", est.pedido).eq("pago_asaas", asaasId); // deixa tentar de novo
+    await pushAdmins({ title: "Pix recebido: conferir ⚠️", body: `Entrou um Pix de ${brl(+pg.value)} do pedido ${est.pedido} pelo QR sem vencimento, mas não deu para registrar sozinho (${String(error.message).slice(0, 80)}). Confira no painel.` }, `pix-est-${est.pedido}`).catch(e => console.error(e));
+    return;
+  }
+  if (velha?.asaas_id && velha.asaas_id !== asaasId) await cancelar(velha.asaas_id).catch(e => console.error("cancelar cobv", e?.message));
 }
 
 // confere a cobrança direto no Asaas e, se paga, marca o pedido como pago e confirma a reserva sozinha
@@ -1330,7 +1343,7 @@ Deno.serve(async req => {
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
       const s = onlineTotal(p, x.g);
       if (!(s > 0)) return json({ erro: "status" }, 409);
-      const e = await pixEstatico(p.id, Math.round(s * 100) / 100);
+      const e = await pixEstatico(p.id, (await totais(s)).pix); // mesmo valor do Pix com vencimento
       return json({ payload: e.payload, img: e.img, chave: e.chave, valor: +e.valor });
     }
     if (b.acao === "pagar" || b.acao === "conferir") {
