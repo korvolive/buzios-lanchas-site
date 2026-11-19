@@ -3559,7 +3559,7 @@ function jetHTML(){
     ${eps}<table class="jettab"><thead><tr><th>${t("jetTime")}</th><th>${t("jetYou")}</th><th>${t("jetClient")}</th></tr></thead><tbody>${tab}</tbody></table>
     <p class="muted">${t("jetPriceHelp")}</p>
     <h3>${t("jetCortT")}</h3>
-    <p class="muted" style="margin-top:0">${j.cortesia_lancha ? `${esc(boatName(j.cortesia_lancha)||j.cortesia_lancha)} · ${jetMin(+j.cortesia_min||0)}. ` : ""}${t("jetCortNote")}</p>
+    <p class="muted" style="margin-top:0">${Object.entries(j.cortesias||{}).map(([b,m])=>`${esc(boatName(b)||b)} · ${jetMin(+m||0)}`).join(" · ")}${Object.keys(j.cortesias||{}).length?". ":""}${t("jetCortNote")}</p>
     <h3>${t("jetPhotos")}</h3>
     <div class="jetph">${(j.fotos||[]).map((f,i)=>`<span><img src="${esc(f)}" alt="" loading="lazy"><button type="button" data-jetrm="${i}" aria-label="${t("jetPhRm")}">✕</button></span>`).join("")}<label class="btn sec">📷 ${t("jetPhAdd")}<input type="file" id="jet-ph" accept="image/*" multiple hidden></label></div>
 `;
@@ -3594,20 +3594,21 @@ function jetCortHTML(){
   const l=S.cur; if(!l || l==="*" || isEscB(l) || !S.jets?.length) return "";
   const donosL = S.admin ? (S.owners||[]).filter(o=>o.lancha===l).map(o=>o.user_id) : ((S.own||[]).includes(l) ? [ses.user.id] : []);
   const js=S.jets.filter(j=>j.ativo!==false && donosL.includes(j.dono)); if(!js.length) return "";
-  return `<div class="card"><h2>🎁 ${t("jcT")}</h2><p class="muted" style="margin-top:0">${t("jcHelp")}</p>${js.map(j=>{ const on=j.cortesia_lancha===l, outra=j.cortesia_lancha && !on;
-    return `<div class="jetrow" style="align-items:center"><label class="nbon" style="margin:0"><input type="checkbox" data-jcl="${j.id}"${on?" checked":""}> ${t("jcOn",{n:esc(j.nome)})}</label>${on?`<label>${t("jcMin")}<select data-jcm="${j.id}">${[15,30,45,60,90,120].map(m=>`<option value="${m}"${m===+j.cortesia_min?" selected":""}>${jetMin(m)}</option>`).join("")}</select></label>`:""}</div>${outra?`<p class="muted" style="margin:2px 0 8px;font-size:13px">${t("jcOutra",{b:esc(boatName(j.cortesia_lancha)||j.cortesia_lancha)})}</p>`:""}`; }).join("")}</div>`;
+  /* cada lancha do dono liga a sua (Rodrigo 2026-11-19): um jet ski pode dar cortesia em várias lanchas dele */
+  return `<div class="card"><h2>🎁 ${t("jcT")}</h2><p class="muted" style="margin-top:0">${t("jcHelp")}</p>${js.map(j=>{ const m=+(j.cortesias||{})[l]||0, on=m>0;
+    return `<div class="jetrow" style="align-items:center"><label class="nbon" style="margin:0"><input type="checkbox" data-jcl="${j.id}"${on?" checked":""}> ${t("jcOn",{n:esc(j.nome)})}</label>${on?`<label>${t("jcMin")}<select data-jcm="${j.id}">${[15,30,45,60,90,120].map(x=>`<option value="${x}"${x===m?" selected":""}>${jetMin(x)}</option>`).join("")}</select></label>`:""}</div>`; }).join("")}</div>`;
 }
-async function jetSaveId(id, body, okMsg){
+async function jetCortSet(id, min, okMsg){
   const j=(S.jets||[]).find(x=>x.id===id); if(!j) return false;
-  try{ await RPC("jetski_salvar",{p:{id, ...body}}); Object.assign(j, body); toast(okMsg||t("jetSaved")); return true; }
+  try{ j.cortesias = await RPC("jetski_cortesia",{p_jetski:id, p_lancha:S.cur, p_min:min}) || {}; toast(okMsg||t("jetSaved")); return true; }
   catch(e){ toast(/CORTESIA/.test(e.message) ? t("jetCortErr") : t("saveErr")); return false; }
 }
 document.addEventListener("change", async e=>{ const x=e.target;
   if(x.dataset?.jcl){ const on=x.checked; x.disabled=true;
-    const ok=await jetSaveId(x.dataset.jcl, on ? {cortesia_lancha:S.cur, cortesia_min:15} : {cortesia_lancha:null, cortesia_min:0}, t(on?"jcOk":"jcOff"));
+    const ok=await jetCortSet(x.dataset.jcl, on ? 15 : 0, t(on?"jcOk":"jcOff"));
     if(!ok) x.checked=!on; x.disabled=false; if(ok && view==="main" && S.tab==="lancha" && !sheetDay && !tripRow) mainView(); return; }
-  if(x.dataset?.jcm){ const j=(S.jets||[]).find(y=>y.id===x.dataset.jcm); if(!j) return;
-    if(!(await jetSaveId(j.id, {cortesia_lancha:j.cortesia_lancha, cortesia_min:+x.value}))) x.value=String(j.cortesia_min); return; }
+  if(x.dataset?.jcm){ const j=(S.jets||[]).find(y=>y.id===x.dataset.jcm); if(!j) return; const old=+(j.cortesias||{})[S.cur]||15;
+    if(!(await jetCortSet(j.id, +x.value))) x.value=String(old); return; }
 });
 /* calendário pequeno: mês com os dias marcados; tocando no dia, a lista do dia e o bloqueio */
 function jetCalHTML(j){

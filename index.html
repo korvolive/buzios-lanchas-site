@@ -2001,7 +2001,9 @@ function jetInicios(j, b, d, oc){
     if(!L.some(u=>{ const ui=tMin(u.ini), uf=tMin(u.fim), f=(u.tipo==="uso" && u.lancha===b.slug) ? 0 : 15; return ui < e+f && uf+f > s; })) out.push(s); }
   return out;
 }
-const jetCortOf = (j,b) => j.cortesia_lancha===b.slug && j.cortesia_min>0 ? j.cortesia_min : 0;
+/* cortesia por lancha (Rodrigo 2026-11-19): o dono de jet ski e de várias lanchas liga em cada lancha dele (cortesias = {lancha: min}) */
+const jetCortMin = (j,slug) => +(j.cortesias||{})[slug]>0 ? +(j.cortesias||{})[slug] : (j.cortesia_lancha===slug && j.cortesia_min>0 ? +j.cortesia_min : 0);
+const jetCortOf = (j,b) => jetCortMin(j,b.slug);
 /* card de cada jetski: galeria pequena (setas ou deslizar), nome, modelo, preço e chave aprendiz; com mais de um, toca no card para escolher (Rodrigo 2026-11-15) */
 const JET_GI = new Map(); let JET_SEL = null;
 function jetCardHTML(j, on, many, cm){
@@ -2081,7 +2083,7 @@ Object.assign(UI.en, {jetInfo:"See details", jetAdd:"Add to my tour", jetInfoNot
 Object.assign(UI.es, {jetInfo:"Ver detalles", jetAdd:"Agregar al paseo", jetInfoNote:"Va junto con tu paseo en lancha: el dueño lleva la moto de agua hasta la lancha y te acompaña. Se paga junto con la seña de la lancha."});
 Object.assign(UI.pt, {jetCard:"🎁 Ganhe {m} de jetski"}); Object.assign(UI.en, {jetCard:"🎁 Get {m} of jet ski free"}); Object.assign(UI.es, {jetCard:"🎁 Gana {m} de moto de agua"});
 function jetCards(){ const E=document.querySelectorAll("[data-jetc]:not([data-jok])"); if(!E.length || IS_BOT) return;
-  loadJets().then(L=>E.forEach(el=>{ el.dataset.jok=1; const j=L.find(x=>x.cortesia_lancha===el.dataset.jetc && x.cortesia_min>0); if(j){ el.textContent=t("jetCard",{m:jDur(j.cortesia_min)}); el.hidden=false; } })); }
+  loadJets().then(L=>E.forEach(el=>{ el.dataset.jok=1; const j=L.find(x=>jetCortMin(x,el.dataset.jetc)>0); if(j){ el.textContent=t("jetCard",{m:jDur(jetCortMin(j,el.dataset.jetc))}); el.hidden=false; } })); }
 { let jq=0; new MutationObserver(()=>{ if(!jq) jq=requestAnimationFrame(()=>{ jq=0; jetCards(); }); }).observe(document.documentElement,{childList:true,subtree:true}); }
 /* janela compacta do jet ski (Rodrigo 2026-11-17): faz o papel da página do jet ski, sem sair da página da lancha.
    Fotos, modelo, chave de aprendiz, valores de 1h a 3h, cortesia desta lancha e "Adicionar ao passeio" (vai para a escolha de tempo e horário) */
