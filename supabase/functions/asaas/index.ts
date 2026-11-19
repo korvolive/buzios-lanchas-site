@@ -92,6 +92,13 @@ async function jetskiLibera(p: any) {
   const ini = !error && data ? Date.parse(String(data).slice(0, 19) + "-03:00") : Date.parse(`${p.data}T${String(INICIO[p.horario] ?? 10).padStart(2, "0")}:00:00-03:00`);
   return !isNaN(ini) && ini - JETSKI_ANTES_MS <= Date.now();
 }
+// fim do horário do jet ski (Rodrigo 2026-11-19): início + tempo pago + cortesia, no dia do passeio (Brasília); sem horário anotado, o fim do passeio
+function jetskiAcabou(p: any) {
+  const ini = String(p.jetski_ini || "").slice(0, 5);
+  if (!/^\d{2}:\d{2}$/.test(ini)) return acabou(p.data, p.horario, p.hora_fim);
+  const t = Date.parse(`${p.data}T${ini}:00-03:00`) + ((+p.jetski_min || 0) + (+p.jetski_cortesia || 0)) * 60e3;
+  return !isNaN(t) && t <= Date.now();
+}
 // cartão só com 5 dias ou mais até o passeio (Rodrigo 2026-10-25; era 7, mudou para 5 em 2026-10-29): o cartão cai em cerca de 2 dias mesmo com antecipação,
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
@@ -691,11 +698,11 @@ async function avisarAntecipadas() {
 // marca o que já existia, sem avisar. Sem emoji, sem nome de pessoa da empresa.
 const ENT: Record<string, { tr: string; pg: string; corpo: (v: string, r: string) => string; ref: Record<string, (x: any) => string> }> = {
   pt: { tr: "Transferência recebida", pg: "Pagamento recebido", corpo: (v, r) => `Você recebeu ${v} na sua conta${r ? ` · ${r}` : ""}. Já disponível para saque.`,
-    ref: { rep: x => `repasse do passeio ${x.lancha} ${x.dia}`, div: x => `passeio ${x.lancha} ${x.dia}`, com: x => `comissão do passeio ${x.lancha} ${x.dia}`, jet: x => `jet ski do passeio ${x.dia}`, sal: x => x.motivo } },
+    ref: { rep: x => `repasse do passeio ${x.lancha} ${x.dia}`, div: x => `passeio ${x.lancha} ${x.dia}`, com: x => `comissão do passeio ${x.lancha} ${x.dia}`, jet: x => `jet ski do passeio ${x.dia}`, jet1: x => `metade do jet ski do passeio ${x.dia}. A outra metade cai sozinha às ${x.hora}, no fim do horário do jet ski`, jet1s: x => `metade do jet ski do passeio ${x.dia}. A outra metade cai sozinha no fim do passeio`, jet2: x => `segunda metade do jet ski do passeio ${x.dia}`, sal: x => x.motivo } },
   en: { tr: "Transfer received", pg: "Payment received", corpo: (v, r) => `You received ${v} in your account${r ? ` · ${r}` : ""}. Available to withdraw.`,
-    ref: { rep: x => `payout for the ${x.lancha} trip ${x.dia}`, div: x => `${x.lancha} trip ${x.dia}`, com: x => `commission for the ${x.lancha} trip ${x.dia}`, jet: x => `jet ski on the ${x.dia} trip`, sal: x => x.motivo } },
+    ref: { rep: x => `payout for the ${x.lancha} trip ${x.dia}`, div: x => `${x.lancha} trip ${x.dia}`, com: x => `commission for the ${x.lancha} trip ${x.dia}`, jet: x => `jet ski on the ${x.dia} trip`, jet1: x => `half of the jet ski on the ${x.dia} trip. The other half arrives automatically at ${x.hora}, when the jet ski time ends`, jet1s: x => `half of the jet ski on the ${x.dia} trip. The other half arrives automatically when the trip ends`, jet2: x => `second half of the jet ski on the ${x.dia} trip`, sal: x => x.motivo } },
   es: { tr: "Transferencia recibida", pg: "Pago recibido", corpo: (v, r) => `Recibiste ${v} en tu cuenta${r ? ` · ${r}` : ""}. Ya disponible para retirar.`,
-    ref: { rep: x => `pago del paseo ${x.lancha} ${x.dia}`, div: x => `paseo ${x.lancha} ${x.dia}`, com: x => `comisión del paseo ${x.lancha} ${x.dia}`, jet: x => `moto de agua del paseo ${x.dia}`, sal: x => x.motivo } },
+    ref: { rep: x => `pago del paseo ${x.lancha} ${x.dia}`, div: x => `paseo ${x.lancha} ${x.dia}`, com: x => `comisión del paseo ${x.lancha} ${x.dia}`, jet: x => `moto de agua del paseo ${x.dia}`, jet1: x => `mitad de la moto de agua del paseo ${x.dia}. La otra mitad llega sola a las ${x.hora}, al terminar el horario de la moto`, jet1s: x => `mitad de la moto de agua del paseo ${x.dia}. La otra mitad llega sola al terminar el paseo`, jet2: x => `segunda mitad de la moto de agua del paseo ${x.dia}`, sal: x => x.motivo } },
 };
 const NAO_ENTRADA = /REVERSAL|REFUND|CHARGEBACK|CANCEL|BLOCK|ESTORNO/i; // estorno, bloqueio e devolução não são "dinheiro recebido"
 const diaCurto = (d: string) => String(d || "").slice(0, 10).split("-").slice(1).reverse().join("/");
@@ -732,8 +739,17 @@ async function refEntrada(uid: string, t: any, usados: Set<string>) {
   for (const p of cs || []) if (!usados.has(`cm:${p.id}`) && igual(await valorTransf(p.comissao_comprovante))) return { k: "com", id: `cm:${p.id}`, lancha: await nomeLancha(p.lancha), dia: diaCurto(p.data) };
   const jets = ((await db.from("jetskis").select("id").eq("dono", uid)).data || []).map((j: any) => j.id);
   if (jets.length) {
-    const { data: js } = await db.from("pedidos").select("id, data, jetski_repasse").in("jetski", jets).gte("jetski_repasse_em", desde).like("jetski_repasse", "asaas:%").limit(10);
-    for (const p of js || []) if (!usados.has(`js:${p.id}`) && igual(await valorTransf(p.jetski_repasse))) return { k: "jet", id: `js:${p.id}`, dia: diaCurto(p.data) };
+    // duas metades (Rodrigo 2026-11-19): o aviso da 1ª já diz quando cai a 2ª
+    const { data: js } = await db.from("pedidos").select("id, data, jetski_repasse, jetski_metade1, jetski_repasse2, jetski_ini, jetski_min, jetski_cortesia").in("jetski", jets).or(`jetski_repasse_em.gte.${desde},jetski_repasse2_em.gte.${desde}`).limit(10);
+    for (const p of js || []) {
+      if (String(p.jetski_repasse2 || "").startsWith("asaas:") && !usados.has(`js2:${p.id}`) && igual(await valorTransf(p.jetski_repasse2))) return { k: "jet2", id: `js2:${p.id}`, dia: diaCurto(p.data) };
+      if (String(p.jetski_repasse || "").startsWith("asaas:") && !usados.has(`js:${p.id}`) && igual(await valorTransf(p.jetski_repasse))) {
+        if (p.jetski_metade1 == null) return { k: "jet", id: `js:${p.id}`, dia: diaCurto(p.data) };
+        const [h, m] = String(p.jetski_ini || "").split(":").map(Number), f = h * 60 + m + (+p.jetski_min || 0) + (+p.jetski_cortesia || 0);
+        const hora = isNaN(f) ? "" : `${String(Math.floor(f / 60) % 24).padStart(2, "0")}h${String(f % 60).padStart(2, "0")}`;
+        return { k: hora ? "jet1" : "jet1s", id: `js:${p.id}`, dia: diaCurto(p.data), hora };
+      }
+    }
   }
   return null;
 }
@@ -965,68 +981,111 @@ async function enviarSaldos() {
     if (em) console.error("comissao_paga", p.id, em.message);
     saldo -= com; n++;
   }
-  // 3. jetski: o líquido do jetski vai para o dono do jetski (pago online junto com o sinal).
-  // Rodrigo 2026-11-17: no dia do passeio, 2 h antes da saída da lancha (o dono recebe antes de sair de casa; cancelamento antes disso
-  // nunca tira dinheiro da conta dele). Era depois do passeio.
+  // 3. jetski: o líquido do jetski vai para o dono do jetski (pago online junto com o sinal), em duas metades (Rodrigo 2026-11-19):
+  // 1ª metade no dia do passeio, 2 h antes da saída da lancha (o dono nunca sai sem receber); 2ª metade sozinha no fim do horário
+  // do jet ski. Cancelado/devolvido depois da 1ª: a 2ª fica na Búzios e o administrador acerta direto com o dono (jetski_acertos).
   const hoje = new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10);
+  // pagamento do cliente que cobre o jetski: cobrança do Asaas com o sinal + jetski; PayPal em reais com o valor certo
+  const pagoJet = async (pid: number) => {
+    const { data: pq } = await db.from("pedidos").select("sinal_valor, jetski_valor").eq("id", pid).maybeSingle();
+    const deve = online(pq || {});
+    const pas = (await db.from("pagamentos_asaas").select("sinal").eq("pedido", pid).not("pago_em", "is", null)).data || [];
+    const pp = (await db.from("pagamentos_pp").select("moeda, valor").eq("pedido", pid).not("pago_em", "is", null).maybeSingle()).data;
+    const cobre = deve > 0 && (pas.some((r: any) => +r.sinal >= deve - 0.005) || (!!pp && (pp.moeda !== "BRL" || +pp.valor >= deve - 0.005)));
+    return { pq, asaas: pas.length > 0, algum: pas.length > 0 || !!pp, cobre };
+  };
   const { data: js } = await db.from("pedidos").select("id, data, horario, hora_ini, bloqueio_id, jetski, jetski_neto")
     .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse", null).lte("data", hoje).order("data").limit(100);
   for (const p of js || []) {
     if (!(await jetskiLibera(p))) continue;
     if (p.bloqueio_id && (await db.from("realizados").select("aconteceu").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.aconteceu === false) continue;
-    // só com o dinheiro do cliente já na Búzios (Asaas ou PayPal)
-    // e o valor pago tem de cobrir o jetski (revisão 2026-11-15): cobrança do Asaas com o sinal + jetski; PayPal em reais com o valor certo
-    const { data: pq } = await db.from("pedidos").select("sinal_valor, jetski_valor").eq("id", p.id).maybeSingle();
-    const deve = online(pq || {});
-    const pas = (await db.from("pagamentos_asaas").select("sinal").eq("pedido", p.id).not("pago_em", "is", null)).data || [];
-    const pp = (await db.from("pagamentos_pp").select("moeda, valor").eq("pedido", p.id).not("pago_em", "is", null).maybeSingle()).data;
-    if (!pas.length && !pp) continue; // pago fora do site (Pix com comprovante): a Búzios repassa à mão
-    const cobre = deve > 0 && (pas.some((r: any) => +r.sinal >= deve - 0.005) || (!!pp && (pp.moeda !== "BRL" || +pp.valor >= deve - 0.005)));
-    if (!cobre) { console.error("saldo jetski: pagamento não cobre o jetski", p.id); continue; }
+    const pg1 = await pagoJet(p.id);
+    if (!pg1.algum) continue; // pago fora do site (Pix com comprovante): a Búzios repassa à mão
+    if (!pg1.cobre) { console.error("saldo jetski: pagamento não cobre o jetski", p.id); continue; }
+    const v = Math.round(+p.jetski_neto * 50) / 100; // metade, em centavos (a 2ª leva o que sobrar)
     // Rodrigo 2026-11-17 (escolheu "2h antes, só se já caiu"): pago pelo Asaas, o dinheiro deste pedido já tem de estar no saldo
     // (Pix na hora; cartão ainda a cair espera a parcela cair, nunca adianta com dinheiro de outra venda)
-    if (pas.length) {
+    if (pg1.asaas) {
       const rows = doPedido(p.id); await refrescar(rows);
       const cx = caixaPedido(rows);
-      if (cx.estorno || quandoCobre(cx, +p.jetski_neto || 0) !== null) { esperando++; continue; }
+      if (cx.estorno || quandoCobre(cx, v) !== null) { esperando++; continue; }
     }
     const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono;
     const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue; // dono do jetski sem conta aprovada: a Búzios paga por Pix
-    const v = Math.round(+p.jetski_neto * 100) / 100;
     if (!(v > 0) || v > saldo) continue;
     // revisão de segurança 2026-11-17: o líquido nunca passa do que o cliente pagou pelo jetski
-    if (v > (+pq?.jetski_valor || 0) + 0.005) { console.error("saldo jetski: líquido maior que o valor pago", p.id); continue; }
-    // trava só se o pedido continua aprovado (cancelado entre a leitura e o envio não recebe)
-    const { data: trava } = await db.from("pedidos").update({ jetski_repasse: "asaas:enviando" }).eq("id", p.id).eq("status", "aprovado").is("jetski_repasse", null).select("id");
+    if (+p.jetski_neto > (+pg1.pq?.jetski_valor || 0) + 0.005) { console.error("saldo jetski: líquido maior que o valor pago", p.id); continue; }
+    // trava só se o pedido continua aprovado e com o mesmo jet ski (cancelado ou trocado entre a leitura e o envio não recebe)
+    const { data: trava } = await db.from("pedidos").update({ jetski_repasse: "asaas:enviando", jetski_metade1: v }).eq("id", p.id).eq("status", "aprovado").eq("jetski", p.jetski).is("jetski_repasse", null).select("id");
     if (!trava?.length) continue;
-    // dívida do dono (Rodrigo 2026-11-17): jet ski devolvido ao cliente ou trocado depois do repasse sai dos próximos repasses dele
-    const { data: liq, error: eab } = await db.rpc("jetski_abater", { p_pid: p.id, p_dono: dono, p_valor: v });
-    if (eab || liq == null || isNaN(+liq)) {
-      console.error("jetski_abater", p.id, eab?.message);
-      await db.from("pedidos").update({ jetski_repasse: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
-      continue;
-    }
-    const env = Math.round(Math.max(+liq, 0) * 100) / 100;
-    if (!(env > 0)) { // a dívida cobriu tudo: nada a transferir
-      const { error: ed } = await db.from("pedidos").update({ jetski_repasse: "divida", jetski_repasse_em: new Date().toISOString() }).eq("id", p.id);
-      if (ed) console.error("jetski_repasse divida", p.id, ed.message);
-      n++; continue;
-    }
     let tr: any;
-    try { tr = await asaas("/transfers", { value: env, walletId: w }); }
+    try { tr = await asaas("/transfers", { value: v, walletId: w }); }
     catch (e: any) {
       console.error("saldo jetski", p.id, e?.status, e?.message);
-      if (e?.status >= 400 && e?.status < 500) {
-        await db.rpc("jetski_abater_desfaz", { p_pid: p.id }).then(({ error }: any) => error && console.error("jetski_abater_desfaz", p.id, error.message));
-        await db.from("pedidos").update({ jetski_repasse: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
-      }
+      if (e?.status >= 400 && e?.status < 500) await db.from("pedidos").update({ jetski_repasse: null, jetski_metade1: null }).eq("id", p.id).eq("jetski_repasse", "asaas:enviando");
       continue; // sem resposta clara: fica travado para conferir no Asaas, nunca manda duas vezes
     }
     const { error: ej } = await db.from("pedidos").update({ jetski_repasse: "asaas:" + tr.id, jetski_repasse_em: new Date().toISOString() }).eq("id", p.id);
     if (ej) console.error("jetski_repasse", p.id, ej.message);
-    saldo -= env; n++;
+    saldo -= v; n++;
+  }
+  // 3b. 2ª metade do jetski: no fim do horário do jet ski. Cliente desistiu ou não apareceu (pedido aprovado, ou virou crédito):
+  // sai normalmente. Cancelado de outro jeito ou estornado: fica na Búzios e vira acerto com aviso ao administrador.
+  const { data: js2 } = await db.from("pedidos").select("id, data, horario, hora_fim, status, motivo, jetski, jetski_neto, jetski_metade1, jetski_ini, jetski_min, jetski_cortesia")
+    .not("jetski", "is", null).not("jetski_metade1", "is", null).like("jetski_repasse", "asaas:%").neq("jetski_repasse", "asaas:enviando")
+    .is("jetski_repasse2", null).lte("data", hoje).order("data").limit(100);
+  for (const p of js2 || []) {
+    if (!jetskiAcabou(p)) continue;
+    const v2 = Math.round((+p.jetski_neto - +p.jetski_metade1) * 100) / 100;
+    const pg2 = await pagoJet(p.id);
+    let cx: any = null;
+    if (pg2.asaas) { const rows = doPedido(p.id); await refrescar(rows); cx = caixaPedido(rows); }
+    const desistiu = p.status === "aprovado" || (p.status === "cancelado" && p.motivo === "credito");
+    if (!desistiu || cx?.estorno) {
+      const { data: tv } = await db.from("pedidos").update({ jetski_repasse2: "buzios", jetski_repasse2_em: new Date().toISOString() }).eq("id", p.id).is("jetski_repasse2", null).select("id");
+      if (!tv?.length) continue;
+      const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono || null;
+      const { error: ea } = await db.from("jetski_acertos").upsert({ pedido: p.id, jetski: p.jetski, dono, pago: +p.jetski_metade1, retido: Math.max(v2, 0),
+        motivo: cx?.estorno ? "pagamento estornado" : "pedido cancelado" }, { onConflict: "pedido,jetski", ignoreDuplicates: true });
+      if (ea) console.error("jetski_acertos", p.id, ea.message);
+      continue;
+    }
+    if (!(v2 > 0)) { await db.from("pedidos").update({ jetski_repasse2: "sem_valor", jetski_repasse2_em: new Date().toISOString() }).eq("id", p.id).is("jetski_repasse2", null); continue; }
+    if (!pg2.algum) continue; // pago fora do site: a Búzios repassa à mão
+    // o dinheiro do pedido inteiro do jetski tem de já ter caído (nunca adianta com dinheiro de outra venda)
+    if (cx && quandoCobre(cx, +p.jetski_neto || 0) !== null) { esperando++; continue; }
+    const dono = (await db.from("jetskis").select("dono").eq("id", p.jetski).maybeSingle()).data?.dono;
+    const w = ok.find((c: any) => c.user_id === dono)?.wallet_id; if (!w) continue;
+    if (v2 > saldo) continue;
+    if (+p.jetski_neto > (+pg2.pq?.jetski_valor || 0) + 0.005) { console.error("saldo jetski 2: líquido maior que o valor pago", p.id); continue; }
+    const { data: trava } = await db.from("pedidos").update({ jetski_repasse2: "asaas:enviando" }).eq("id", p.id).eq("jetski", p.jetski).eq("status", p.status).is("jetski_repasse2", null).select("id");
+    if (!trava?.length) continue;
+    let tr: any;
+    try { tr = await asaas("/transfers", { value: v2, walletId: w }); }
+    catch (e: any) {
+      console.error("saldo jetski 2", p.id, e?.status, e?.message);
+      if (e?.status >= 400 && e?.status < 500) await db.from("pedidos").update({ jetski_repasse2: null }).eq("id", p.id).eq("jetski_repasse2", "asaas:enviando");
+      continue;
+    }
+    const { error: ej } = await db.from("pedidos").update({ jetski_repasse2: "asaas:" + tr.id, jetski_repasse2_em: new Date().toISOString() }).eq("id", p.id);
+    if (ej) console.error("jetski_repasse2", p.id, ej.message);
+    saldo -= v2; n++;
   }
   return { ligado: true, enviados: n, esperando_dinheiro: esperando, antecipacao_auto: antAuto };
+}
+
+// jet ski cancelado/devolvido depois de o dono já ter recebido (Rodrigo 2026-11-19): avisa o administrador uma vez para acertar direto com o dono
+async function avisarAcertosJetski() {
+  const { data: L } = await db.from("jetski_acertos").select("id, pedido, jetski, pago, retido, motivo").is("avisado_em", null).is("resolvido_em", null).limit(20);
+  for (const a of L || []) {
+    const { data: tv } = await db.from("jetski_acertos").update({ avisado_em: new Date().toISOString() }).eq("id", a.id).is("avisado_em", null).select("id");
+    if (!tv?.length) continue;
+    const nome = a.jetski ? (await db.from("jetskis").select("nome").eq("id", a.jetski).maybeSingle()).data?.nome || "jet ski" : "jet ski";
+    const { data: p } = await db.from("pedidos").select("data").eq("id", a.pedido).maybeSingle();
+    await pushAdmins({ title: "Jet ski: acertar com o dono ⚠️",
+      body: `Pedido ${a.pedido}${p?.data ? ` (${diaCurto(p.data)})` : ""}: ${a.motivo || "cancelado"} depois de o dono do ${nome} receber ${brl(+a.pago)}.` +
+        (+a.retido > 0 ? ` A outra metade (${brl(+a.retido)}) ficou na Búzios.` : "") + " Combine direto com ele e marque como resolvido no painel." }, `jetacerto-${a.id}`);
+  }
 }
 
 let ultimaVarreduraConta = 0;
@@ -1181,6 +1240,7 @@ Deno.serve(async req => {
         .then(r => r.json()).catch(e => (console.error("pendentes", e), null));
       const saldos = await enviarSaldos().catch(e => (console.error("saldos", e), null));
       await avisarAntecipadas().catch(e => console.error("antecipadas", e));
+      await avisarAcertosJetski().catch(e => console.error("acertos jetski", e));
       const entradas = await avisarEntradas().catch(e => (console.error("entradas", e), null));
       return json({ expiradas: n, vencidos: (venc || []).length, prazo_vencido: (semPg || []).length, canceladas: fora, paypal: ppr, saldos, entradas });
     }

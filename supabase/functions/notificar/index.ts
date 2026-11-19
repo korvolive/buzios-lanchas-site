@@ -73,9 +73,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
   },
   // dono do jetski (revisão 2026-11-15): passeio confirmado com o jetski dele
   jetski: {
-    pt: p => ({ title: "Jetski reservado", body: `${p.lancha} · ${dataBR(p.data)} · jetski das ${p.jet}. Leve o jetski até a lancha nesse horário.` }),
-    en: p => ({ title: "Jet ski booked", body: `${p.lancha} · ${dataBR(p.data)} · jet ski from ${p.jetEn}. Take the jet ski to the boat at that time.` }),
-    es: p => ({ title: "Moto de agua reservada", body: `${p.lancha} · ${dataBR(p.data)} · moto de agua de ${p.jetEs}. Lleva la moto hasta la lancha en ese horario.` }),
+    pt: p => ({ title: "Jetski reservado", body: `${p.lancha} · ${dataBR(p.data)} · jetski das ${p.jet}. Leve o jetski até a lancha nesse horário. Você recebe metade 2 h antes da saída da lancha e a outra metade sozinha no fim do horário do jetski.` }),
+    en: p => ({ title: "Jet ski booked", body: `${p.lancha} · ${dataBR(p.data)} · jet ski from ${p.jetEn}. Take the jet ski to the boat at that time. You get half 2 h before the boat leaves and the other half automatically when the jet ski time ends.` }),
+    es: p => ({ title: "Moto de agua reservada", body: `${p.lancha} · ${dataBR(p.data)} · moto de agua de ${p.jetEs}. Lleva la moto hasta la lancha en ese horario. Recibes la mitad 2 h antes de la salida de la lancha y la otra mitad sola al terminar el horario de la moto.` }),
   },
   pedido: {
     pt: p => ({ title: "Pedido novo pelo site", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas` }),
