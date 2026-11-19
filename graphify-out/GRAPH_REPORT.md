@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1899 nodes · 3130 edges · 162 communities (93 shown, 69 thin omitted)
+- 1914 nodes · 3156 edges · 158 communities (91 shown, 67 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `486dc102`
+- Built from commit: `41f6c017`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -32,7 +32,7 @@
 - clima-alertas/index.ts
 - 2026-11-16_consultas-site-fecham-sozinhas.sql
 - consulta-resgate/index.ts
-- paginas.mjs
+- aviso-comprovante/index.ts
 - b
 - pedido-indisponivel/index.ts
 - contato
@@ -81,10 +81,10 @@
 - 2026-11-16_bordazul-cadastro-dono.sql
 - donos
 - asaas-saude/index.ts
-- ref_node_fs
 - marca.js
 - 2026-11-16_convite-consulta-vencida.sql
 - public.ativar_conta_cliente
+- 2026-11-19_rastreio-server-side.sql
 - env
 - aviso-aprovacao/index.ts
 - bordazul-anunciar/index.ts
@@ -99,7 +99,6 @@
 - trava_cond_aviso
 - public.salvar_netos_v3
 - registros-exportar.mjs
-- db-mudou.mjs
 - asaas_contas_reenvio_token
 - public.pp_vaga
 - public.tg_tel_padrao
@@ -123,8 +122,6 @@
 - paypal-fatura/index.ts
 - public.tg_anotacao_jetski_segura
 - public.anotacoes
-- aviso-preco/index.ts
-- conversoes-navegador.js
 - 2026-11-05_socios-nome-completo-e-convites-pendentes.sql
 
 ## God Nodes (most connected - your core abstractions)
@@ -154,7 +151,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (162 total, 69 thin omitted)
+## Communities (158 total, 67 thin omitted)
 
 ### Community 0 - "public.pp_vaga"
 Cohesion: 0.22
@@ -189,8 +186,8 @@ Cohesion: 0.14
 Nodes (9): pre_pedido_fim, pre_pedido_sinal, public.aprovar_consulta(), public._ligar_passeio(), public._pre_pedido_fim(), public._pre_pedido_sinal(), public._ligar_passeio(), public.lancar_grupo_operador() (+1 more)
 
 ### Community 8 - "prerender.mjs"
-Cohesion: 0.14
-Nodes (15): alt(), boatUrl(), DB_READ, FC, guias, LANGS, pages, pathFor() (+7 more)
+Cohesion: 0.06
+Nodes (36): m, web, SOURCE, web, erros, fotosDB(), iaDB(), lanchasDB() (+28 more)
 
 ### Community 9 - "env"
 Cohesion: 0.06
@@ -228,9 +225,9 @@ Nodes (5): a_consulta_resgate_limpa_pedido, public.tg_consulta_resgate_limpa_ped
 Cohesion: 0.15
 Nodes (19): avisarPasseios(), convidarVencidas(), d360Key(), dataLonga(), db, dig(), ES_DDI, hm() (+11 more)
 
-### Community 18 - "paginas.mjs"
-Cohesion: 0.22
-Nodes (11): boatPath(), C, esc(), faqPreco, gerarPaginas(), guiaPath(), GUIAS, homePath() (+3 more)
+### Community 18 - "aviso-comprovante/index.ts"
+Cohesion: 0.29
+Nodes (4): CORS, db, SLOT, TXT
 
 ### Community 19 - "b"
 Cohesion: 0.16
@@ -381,8 +378,8 @@ Cohesion: 0.43
 Nodes (5): public.transferencias_saldo, transferencias_saldo_user, zz_auditar, a_teto_diario, public._transferencia_teto()
 
 ### Community 82 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.12
-Nodes (9): CAT, CORS, db, CORS, db, SLOT, TXT, db (+1 more)
+Cohesion: 0.13
+Nodes (8): CAT, CORS, db, CORS, db, T, db, T
 
 ### Community 83 - "2026-11-16_bordazul-cadastro-dono.sql"
 Cohesion: 0.24
@@ -396,10 +393,6 @@ Nodes (7): public.meus_socios(), public.definir_desc_parceiro(), public.definir_
 Cohesion: 0.33
 Nodes (6): API(), asaas(), db, Item, KEY(), testarSplit()
 
-### Community 89 - "ref_node_fs"
-Cohesion: 0.20
-Nodes (4): m, web, web, erros
-
 ### Community 91 - "marca.js"
 Cohesion: 0.52
 Nodes (5): caminho(), no(), titulo(), troca(), zap()
@@ -407,6 +400,10 @@ Nodes (5): caminho(), no(), titulo(), troca(), zap()
 ### Community 93 - "public.ativar_conta_cliente"
 Cohesion: 0.09
 Nodes (16): public.papeis_painel, public.papel_painel(), bloqueio_trazido_por, public._bloqueio_trazido_por(), public.origem_reserva(), public.ativar_conta_cliente(), public.ativar_conta_cliente(), public._convite_pagar() (+8 more)
+
+### Community 94 - "2026-11-19_rastreio-server-side.sql"
+Cohesion: 0.19
+Nodes (13): conversao_asaas, conversao_paypal, conversoes_pendentes, public.conversao_asaas(), public.conversao_paypal(), public.conversoes, public.conversoes_chamar(), public.rastreio_visitas (+5 more)
 
 ### Community 95 - "env"
 Cohesion: 0.09
@@ -449,12 +446,8 @@ Cohesion: 0.11
 Nodes (7): public.salvar_lancha(), public.trocar_horario_pedido(), public.aplicar_netos(), public.salvar_netos_v3(), public._valor_na_data(), public.salvar_lancha(), public.bz_faixa()
 
 ### Community 117 - "registros-exportar.mjs"
-Cohesion: 0.21
+Cohesion: 0.23
 Nodes (12): api(), chamar(), chaveServidor(), dormir(), exportarFonte(), feitos, FONTES, gravar() (+4 more)
-
-### Community 118 - "db-mudou.mjs"
-Cohesion: 0.48
-Nodes (5): SOURCE, fotosDB(), iaDB(), lanchasDB(), precosDB()
 
 ### Community 123 - "public.pp_vaga"
 Cohesion: 0.16
@@ -524,26 +517,22 @@ Nodes (3): CORS, db, ITEM
 Cohesion: 0.17
 Nodes (9): a_comprovante_segura, public.anexar_comprovante_passeio(), public._comprovante_segura(), public.periodos_extra(), public.passeios_marinheiro_v2(), anotacoes_grupo_idx, public.anexar_comprovante_passeio(), public.aprovar_pre_pedido() (+1 more)
 
-### Community 158 - "aviso-preco/index.ts"
-Cohesion: 0.40
-Nodes (3): CORS, db, T
-
 ## Knowledge Gaps
-- **69 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **67 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.ativar_conta_cliente`, `public.bloqueios`, `public.clientes`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.bloqueios`, `public.clientes`, `public.consultas`, `public._ligar_passeio`, `b`, `public.anotacoes`, `public.ativar_conta_cliente`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06906906906906907 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.ativar_conta_cliente`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07312925170068027 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
