@@ -3506,7 +3506,7 @@ document.addEventListener("change", async e=>{ const x=e.target; if(x.id!=="vis-
 function autoResHTML(){
   const b=S.admin && boatRow(S.cur); if(!b || !("reserva_auto" in b)) return "";
   const on=!!b.reserva_auto;
-  return `<div class="card"><h2>${t("raT")}</h2><label class="nbon" style="margin:0 0 8px"><input type="checkbox" id="ra-on"${on?" checked":""}> ${t("raOn")}</label><p class="muted" style="margin:0">${t(on?"raHelpOn":"raHelpOff")}</p></div>`;
+  return `<div class="card"><h2>⚡ ${t("raT")}</h2><label class="nbon" style="margin:0 0 8px"><input type="checkbox" id="ra-on"${on?" checked":""}> ${t("raOn")}</label><p class="muted" style="margin:0">${t(on?"raHelpOn":"raHelpOff")}</p></div>`;
 }
 document.addEventListener("change", async e=>{ const x=e.target; if(x.id!=="ra-on") return; const ligado=x.checked, l=S.cur; x.disabled=true;
   try{ await db("rpc/definir_reserva_auto",{method:"POST",body:{s:l,ligado}}); const b=boatRow(l); if(b) b.reserva_auto=ligado; toast(t(ligado?"raOnOk":"raOffOk")); mainView(); }
@@ -3594,7 +3594,7 @@ function jetCortHTML(){
   const l=S.cur; if(!l || l==="*" || isEscB(l) || !S.jets?.length) return "";
   const donosL = S.admin ? (S.owners||[]).filter(o=>o.lancha===l).map(o=>o.user_id) : ((S.own||[]).includes(l) ? [ses.user.id] : []);
   const js=S.jets.filter(j=>j.ativo!==false && donosL.includes(j.dono)); if(!js.length) return "";
-  return `<div class="card"><h2>🚤 ${t("jcT")}</h2><p class="muted" style="margin-top:0">${t("jcHelp")}</p>${js.map(j=>{ const on=j.cortesia_lancha===l, outra=j.cortesia_lancha && !on;
+  return `<div class="card"><h2>🎁 ${t("jcT")}</h2><p class="muted" style="margin-top:0">${t("jcHelp")}</p>${js.map(j=>{ const on=j.cortesia_lancha===l, outra=j.cortesia_lancha && !on;
     return `<div class="jetrow" style="align-items:center"><label class="nbon" style="margin:0"><input type="checkbox" data-jcl="${j.id}"${on?" checked":""}> ${t("jcOn",{n:esc(j.nome)})}</label>${on?`<label>${t("jcMin")}<select data-jcm="${j.id}">${[15,30,45,60,90,120].map(m=>`<option value="${m}"${m===+j.cortesia_min?" selected":""}>${jetMin(m)}</option>`).join("")}</select></label>`:""}</div>${outra?`<p class="muted" style="margin:2px 0 8px;font-size:13px">${t("jcOutra",{b:esc(boatName(j.cortesia_lancha)||j.cortesia_lancha)})}</p>`:""}`; }).join("")}</div>`;
 }
 async function jetSaveId(id, body, okMsg){
@@ -4963,7 +4963,7 @@ const rkRows = () => { const L=rkLista(); if(!L.length) return `<p class="muted"
   return `<ul class="owners frees">${L.map(x=>{ const r=S.marRates?.[x.uid], p=S.rkPerf?.[x.uid], onde=x.lanchas.map(boatName).concat(x.free?[t("rkFree")]:[]).join(" · "), n=r?`${++pos}. `:"", ult=p?.avals?.[0]?.em;
     return `<li><span class="who mpl" data-mprof="${x.uid}" data-nm="${esc(x.nome)}" title="${t("mpTap")}">${face(x.uid,x.nome,"face")}<span class="frinfo"><strong>${n}${esc(x.nome)}</strong>${onde?`<small class="muted frl1">${esc(onde)}</small>`:""}<small class="muted frl1">${r?`★ ${String(r.media).replace(".",t("locale").startsWith("en")?".":",")} (${r.total})`:t("mpNoRate")}</small>${p?`<small class="muted frl1">${+p.passeios===1?t("mpTrip1"):t("mpTrips",{n:p.passeios||0})}</small>`:""}${ult?`<small class="muted frl1">${t("rkLast",{d:new Date(ult).toLocaleDateString(t("locale"),{day:"numeric",month:"short",year:"numeric"})})}</small>`:""}</span></span></li>`; }).join("")}</ul>`; };
 function rankHTML(){ if(!S.admin) return "";
-  return `<details class="card cfm fold" data-fold="rank"${foldOpen("rank",false)?" open":""}>${foldSum(t("rkT"))}<p class="muted" style="margin-top:0">${t("rkSub")}</p><div id="rkl">${rkRows()}</div></details>`; }
+  return `<details class="card cfm fold" data-fold="rank"${foldOpen("rank",false)?" open":""}>${foldSum("🏆 "+t("rkT"))}<p class="muted" style="margin-top:0">${t("rkSub")}</p><div id="rkl">${rkRows()}</div></details>`; }
 async function rkCarrega(){ if(S.rkPedido) return; S.rkPedido=true; S.rkPerf=S.rkPerf||{};
   await Promise.all(rkLista().map(x=>db("rpc/perfil_marinheiro",{method:"POST",body:{m:x.uid}}).then(p=>{ if(p) S.rkPerf[x.uid]=p; },()=>{})));
   const u=document.getElementById("rkl"); if(u) u.innerHTML=rkRows(); }
