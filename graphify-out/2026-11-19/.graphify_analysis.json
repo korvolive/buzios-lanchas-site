@@ -2143,6 +2143,9 @@
       "supabase_sql_2026_11_16_jetski_lucas_revisao_seguranca",
       "supabase_sql_2026_11_16_jetski_lucas_revisao_seguranca_public_tg_anotacao_jetski_segura"
     ],
+    "153": [
+      "supabase_sql_2026_11_19_paypal_excecao_por_pedido"
+    ],
     "154": [
       "public_freelancers",
       "supabase_sql_2026_10_30_ajustes_alteracao_sql_public_anotacoes",
@@ -2318,6 +2321,7 @@
     "150": 0.4,
     "151": 0.2857142857142857,
     "152": 0.42857142857142855,
+    "153": 1.0,
     "154": 0.17142857142857143,
     "155": 1.0
   },
@@ -2434,7 +2438,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.clientes`, `public._aprovar_consulta`, `public.pagamentos_asaas`?",
-      "why": "High betweenness centrality (0.025) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2454,7 +2458,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`, `public.pagamentos_asaas`?",
-      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",

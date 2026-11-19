@@ -443,7 +443,7 @@ Deno.serve(async req => {
         else if (pn?.mudou) preco_novo = { antigo: +pn.antigo, valor: +pn.valor };
       }
       const pix_topo = c.moeda !== "BRL" ? await pixTopo(p.cliente).catch(() => true) : true;
-      return json({ pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p) || !!g.length, ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      return json({ pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p) || !!g.length, pp_libera: c.moeda !== "BRL" && !p.vendedor && !g.length && !ppPrazo(p), ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: g.length ? g.reduce((a: number, m: any) => a + (+m.pessoas || 0), 0) || p.pessoas : p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: g.length ? (g.reduce((a: number, m: any) => a + sinalDe(m), 0) || null) : +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto, itens,
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
@@ -608,6 +608,17 @@ Deno.serve(async req => {
     if (p.status !== "pendente") return json({ erro: p.status === "recusado" ? "ocupada" : "status" }, 409);
 
     if (c.moeda === "BRL" || p.vendedor) return json({ erro: "pix" }, 400); // PayPal só para estrangeiro sem vendedor
+    // "O Pix não funcionou?" (2026-11-19, Mercado Pago da Argentina recusou o QR do Asaas): libera o PayPal só neste pedido, mesmo com menos de 3 dias,
+    // e avisa o admin para conferir se o dinheiro cai antes do passeio (o dono recebe antes de sair)
+    if (b.acao === "pix_falhou") {
+      if (x.g.length) return json({ erro: "pix" }, 400);
+      if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
+      if (!p.pp_excecao) {
+        await db.from("pedidos").update({ pp_excecao: true }).eq("id", p.id);
+        await pushAdmins({ title: "Pix não funcionou: PayPal liberado", body: `Pedido ${p.id} (${lancha}, ${dataBR(p.data)}): o cliente disse que o Pix não passou e ganhou o PayPal. Conferir se o dinheiro cai antes do passeio para pagar o dono.` }, `pix-falhou-${p.id}`).catch(e => console.error("push pix_falhou", e));
+      }
+      return json({ ok: true });
+    }
     if ((b.acao === "criar" || b.acao === "capturar") && x.g.length) return json({ erro: "pix" }, 400); // grupo: só Asaas (separa a parte de cada dono)
     if (b.acao === "criar") {
       if (await tardeCombinado(p)) return json({ erro: "passou" }, 409);
