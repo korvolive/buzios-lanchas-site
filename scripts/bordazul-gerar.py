@@ -29,6 +29,9 @@ HOJE = "2026-11-15"
 # Trava de número negativo (2026-11-17): o bordazul.com.br não enxerga a raiz, então o /sem-negativo.js vai embutido no <head>.
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sem-negativo.js"), encoding="utf-8") as _f:
     SEM_NEG = "<script>/* igual a /sem-negativo.js do site de Búzios (o bordazul.com.br não enxerga a raiz) */\n" + _f.read().rstrip("\n") + "\n</script>\n"
+# Rastreio padrão do Google (2026-11-19): GTM + evento em todo botão, igual ao site de Búzios. Embutido pelo mesmo motivo.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "rastreio.js"), encoding="utf-8") as _f:
+    RASTREIO = "<script>/* igual a /rastreio.js do site de Búzios */\n" + _f.read().rstrip("\n") + "\n</script>\n"
 
 # Regiões e destinos. aberto = URL do site com barcos (por enquanto só Búzios). uf = estado.
 DEST = [
@@ -499,7 +502,7 @@ def pagina(lang):
     return f"""<!doctype html>
 <html lang="{HL[lang]}">
 <head>
-{SEM_NEG}<meta charset="utf-8">
+{SEM_NEG}{RASTREIO}<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(t["title"])}</title>
 <meta name="description" content="{e(t["desc"])}">

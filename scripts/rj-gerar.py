@@ -221,6 +221,10 @@ def card(d, t, lang):
     return f'<div class="city off"{extra}>{inner}</div>'
 
 
+# Rastreio padrão do Google (2026-11-19): evento em todo botão, igual ao site de Búzios (embutido: outro domínio)
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "rastreio.js"), encoding="utf-8") as _f:
+    RASTREIO = "<script>/* igual a /rastreio.js do site de Búzios */\n" + _f.read().rstrip("\n") + "\n</script>"
+
 def pagina(lang):
     t = T[lang]
     url = DOM + PATH[lang]
@@ -242,6 +246,7 @@ def pagina(lang):
     return f"""<!doctype html><html lang="{HL[lang]}"><head><meta charset="utf-8">
 <!-- rjlanchas.com.br: gerado por scripts/rj-gerar.py (não edite à mão; edite o script e rode de novo) -->
 <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','GTM-NVP9L5DF');</script>
+{RASTREIO}
 <title>{t["title"]}</title>
 <meta name="description" content="{html.escape(t["desc"])}">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">

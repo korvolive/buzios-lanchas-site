@@ -31,6 +31,7 @@ new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-NVP9L5DF');</script>
+<script src="/rastreio.js?v=1"></script>
 <!-- Meta Pixel (Facebook e Instagram), o mesmo do site antigo -->
 <script>!function(f,b,e,v,n,t,s){if(f.fbq||/BuziosLanchasIOS/.test(navigator.userAgent))return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -2139,6 +2140,8 @@ function track(ev,b){
   const v=priceFor(b,pick.date,pick.slot), d={event:ev, value:Number.isFinite(v)?v:0, currency:"BRL", lancha:b.name, data:pick.date, horario:pick.slot, pessoas:+pick.people||null};
   try{ (window.dataLayer=window.dataLayer||[]).push(d); }catch(e){}
   try{ if(window.fbq) fbq("track", ev==="pedido_reserva"?"Lead":"Contact", {value:d.value, currency:"BRL", content_name:b.name}); }catch(e){}
+  /* Google Analytics (rastreio.js): consulta pelo WhatsApp e pedido de reserva online (generate_lead), com lancha e valor */
+  try{ if(window.rastreio) rastreio(ev==="pedido_reserva"?"generate_lead":"consulta_whatsapp", {value:d.value, currency:"BRL", lancha:b.name, data_passeio:pick.date, horario:pick.slot, pessoas:d.pessoas}); }catch(e){}
 }
 /* depois do pedido: o chat com a Búzios Lanchas, onde já chegou a mensagem do pedido e depois chega o Pix (2026-10-22) */
 async function chatId(){ try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/abrir_chat",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({com:"suporte"})}); return r.ok ? +(await r.json())||0 : 0; }catch(e){ return 0; } }
@@ -2341,7 +2344,7 @@ function calOutside(){
 function bindPicker(onChange, b){
   const di=document.getElementById("pk-date"), cb=document.getElementById("pk-cal"); if(!di) return;
   const open=v=>{ cb.hidden=!v; di.setAttribute("aria-expanded",v); };
-  const cal=calendar(cb,{sel:pick.date, onPick:d=>{ pick.date=d; di.textContent=fmtDate(d); di.parentElement.classList.remove("empty"); cal.set("sel",d); open(false); onChange(); }});
+  const cal=calendar(cb,{sel:pick.date, onPick:d=>{ pick.date=d; try{ window.rastreio&&rastreio("escolher_data",{data_passeio:d, lancha:b?.name||"", area:"lancha"}); }catch(e){} di.textContent=fmtDate(d); di.parentElement.classList.remove("empty"); cal.set("sel",d); open(false); onChange(); }});
   di.onclick=()=>open(cb.hidden); cb.addEventListener("click",e=>e.stopPropagation()); /* trocar de mês redesenha o calendário: o clique não pode contar como "fora" */
   if(b) loadAgenda().then(ag=>{ if(ag && document.getElementById("pk-cal")===cb) cal.set("busy", d=>isBusy(busyOn(ag,b,d),null,d)); });
   calOutside();
@@ -2501,7 +2504,7 @@ function sellerBox(b, box, sl){
   /* parceiro: porcentagem fixa, sem ajuste; vê o que o cliente paga (já com o desconto) e a comissão dele */
   if(ME.parceiro){ const p1=parcD(ME)>0 ? parcPreco(base,ME) : cli, com=Math.round(base*vPct(ME)/100);
     box.innerHTML=`<div class="vbox"><p class="vrow tot"><span>${t("parcCli")}</span><b>${brl(p1)}</b></p><p class="vrow"><span>${t("parcNext")}</span><b>${brl(cli)}</b></p><p class="vrow"><span>${t("parcCom")}</span><b>${brl(com)}</b></p>
-    <div class="vbtns"><button type="button" class="btn ghost" id="v-copy">${t("vendCopy")}</button><a class="btn" id="v-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(link)}">${t("vendSend")}</a></div></div>`;
+    <div class="vbtns"><button type="button" class="btn ghost" id="v-copy">${t("vendCopy")}</button><a class="btn" id="v-wa" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?text=${encodeURIComponent(link)}">${t("vendSend")}</a></div></div>`;
     document.getElementById("v-copy").onclick=()=>navigator.clipboard?.writeText(link).then(()=>{ document.getElementById("v-copy").textContent=t("copied"); },()=>prompt("",link)); return; }
   const teto$=Math.min(VEND_MAN_MAX, Math.round(base*VEND_MAN_PCT/100)), dflt=cli-base; let com=dflt, made={}, tm=null;
   box.innerHTML=`<div class="vbox"><p class="vrow"><span>${t("vendNet")}</span><b>${brl(base)}</b></p>
@@ -2509,10 +2512,10 @@ function sellerBox(b, box, sl){
     <input type="range" id="v-rg" min="0" max="${Math.min(VEND_MAN_PCT, Math.ceil(teto$/base*100))}" step="0.5" value="${pct}" aria-label="${t("vendPct")}">
     <p class="vrow tot"><span>${t("vendClient")}</span><b id="v-cli">${brl(cli)}</b></p>
     <p class="vnote">${t("vendNote",{v:brl(teto$)})}</p>
-    <div class="vbtns"><button type="button" class="btn ghost" id="v-copy">${t("vendCopy")}</button><a class="btn" id="v-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(link)}">${t("vendSend")}</a></div></div>`;
+    <div class="vbtns"><button type="button" class="btn ghost" id="v-copy">${t("vendCopy")}</button><a class="btn" id="v-wa" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?text=${encodeURIComponent(link)}">${t("vendSend")}</a></div></div>`;
   const P=document.getElementById("v-pct"), R=document.getElementById("v-rs"), G=document.getElementById("v-rg"), C=document.getElementById("v-cli"), W=document.getElementById("v-wa"), K=document.getElementById("v-copy");
   let cur=link;
-  const useLink = l => { cur=l; W.href="https://wa.me/?text="+encodeURIComponent(l); W.classList.remove("off"); W.removeAttribute("aria-disabled"); };
+  const useLink = l => { cur=l; W.href="https://api.whatsapp.com/send?text="+encodeURIComponent(l); W.classList.remove("off"); W.removeAttribute("aria-disabled"); };
   /* comissão diferente da padrão: cria o link no banco com esse valor (o cliente não consegue mexer) */
   const mkLink = async () => { if(com===dflt) return useLink(link);
     if(made[com]) return useLink(made[com]);
@@ -2829,7 +2832,7 @@ function openContaValor(){
     const nova = b==="google" && !c[0] && Date.now()-Date.parse(ses.user?.created_at||0) < 15*60e3;
     set("conta-tipo", c[0] || nova ? "cliente" : "equipe");
     return {nova, user:ses.user}; };
-  const pronto=()=>{ try{ (window.dataLayer=window.dataLayer||[]).push({event:"conta_ver_valor"}); }catch(e){} if(dl.open) dl.close(); loadCli(); loadVend(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); };
+  const pronto=()=>{ try{ (window.dataLayer=window.dataLayer||[]).push({event:"conta_ver_valor"}); }catch(e){} try{ window.rastreio&&rastreio("sign_up",{method:"site"}); }catch(e){} if(dl.open) dl.close(); loadCli(); loadVend(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); };
   const fim=async(s, b, show, email)=>{ const r=await salva(s, b, show, email); if(r.nova) return soWhats(r.user); pronto(); };
   /* entrou com o Google pela primeira vez: nome e e-mail já vêm do Google, falta só o WhatsApp (Rodrigo 2026-11-18). Fechar aqui não perde nada: já está logado e vê o valor */
   function soWhats(u){
@@ -3551,8 +3554,8 @@ function bind(){
     const open=k=>{ const btn=k==="de"?wd:wa2, other=k==="de"?wa2:wd;
       if(!wc2.hidden && btn.getAttribute("aria-expanded")==="true"){ wc2.hidden=true; btn.setAttribute("aria-expanded","false"); return; }
       other.setAttribute("aria-expanded","false"); btn.setAttribute("aria-expanded","true"); wc2.hidden=false;
-      calendar(wc2, k==="de" ? {sel:when.de, range:when.de&&[when.de,when.ate||when.de], onPick:d=>{ when.de=ok(d); if(!when.ate || when.ate<when.de) when.ate=when.de; fit(); calNext="ate"; go(); }}
-        : {sel:when.ate, min:when.de||todayISO(), max:when.de?lastDay():maxISO(), range:when.de&&[when.de,when.ate||when.de], onPick:d=>{ const v=ok(d); when.ate=v; if(!when.de){ when.de=v; } fit(); go(); }}); };
+      calendar(wc2, k==="de" ? {sel:when.de, range:when.de&&[when.de,when.ate||when.de], onPick:d=>{ when.de=ok(d); try{ window.rastreio&&rastreio("escolher_data",{data_passeio:when.de, area:"vitrine"}); }catch(e){} if(!when.ate || when.ate<when.de) when.ate=when.de; fit(); calNext="ate"; go(); }}
+        : {sel:when.ate, min:when.de||todayISO(), max:when.de?lastDay():maxISO(), range:when.de&&[when.de,when.ate||when.de], onPick:d=>{ const v=ok(d); when.ate=v; try{ window.rastreio&&rastreio("escolher_data",{data_passeio:v, area:"vitrine", fim:1}); }catch(e){} if(!when.de){ when.de=v; } fit(); go(); }}); };
     wd.onclick=()=>open("de"); wa2.onclick=()=>open("ate");
     if(calNext==="ate"){ calNext=null; open("ate"); }
     const wp=document.getElementById("w-people"); wp.onchange=()=>{ when.people=wp.value; when.cut=false; go(); };
