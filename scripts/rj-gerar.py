@@ -253,7 +253,7 @@ def pagina(lang):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
-<style>{CSS}</style></head><body>
+<style>html{{touch-action:manipulation}}{CSS}</style></head><body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NVP9L5DF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <header><div class="wrap">
 <a class="logo" href="{PATH[lang]}" aria-label="RJ Lanchas"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 20h22l-4 5H10z" fill="currentColor"/><path d="M14 19V9l7 10z" fill="#c99a2e"/></svg><span><b>RJ Lanchas</b><small>{t["by"]}</small></span></a>
