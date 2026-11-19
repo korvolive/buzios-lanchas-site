@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-19)
 
 ## Corpus Check
-- 240 files · ~464,232 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1866 nodes · 3082 edges · 161 communities (93 shown, 68 thin omitted)
@@ -538,15 +536,15 @@ Nodes (5): a_pedido_jetski_segurado, public._jetski_segura(), public.lancar_rese
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `public.clientes`, `public.ativar_conta_cliente`, `public.bloqueios`, `pedidos`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.consultas`, `public.bloqueios`, `public.jetski_usos`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06906906906906907 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.consultas`, `public.bloqueios`, `public.jetski_usos`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07312925170068027 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
