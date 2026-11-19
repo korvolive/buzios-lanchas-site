@@ -208,6 +208,7 @@ const nomeOk = (v: unknown) => { const n = String(v || "").trim().split(/\s+/)[0
 // (360dialog, segredo D360_API_KEY), com o modelo de Utilidade pre_reserva_v3, que leva o link no texto. O botão antigo do
 // pagamento_liberado chegava quebrado (a Meta codificava o "?" e o site dava 404). Sem a chave, usa o caminho antigo (0203).
 const D360 = Deno.env.get("D360_API_KEY") || "", D360_MODELO = Deno.env.get("D360_MODELO_PAGAMENTO") || "pre_reserva_v3";
+const D360_MODELO_CONTA = Deno.env.get("D360_MODELO_CONTA") || "pagamento_sinal";
 const SLOT_H: Record<string, [string, string]> = { manha: ["10", "14"], tarde: ["14", "18"], dia: ["10", "17"], noite: ["20", ""] };
 const hh = (x: unknown) => { const m = String(x || "").match(/^(\d{1,2}):(\d{2})/); return m ? (m[2] === "00" ? `${+m[1]}h` : `${+m[1]}h${m[2]}`) : ""; };
 function horaTxt(p: { horario?: string; hora_ini?: string | null; hora_fim?: string | null }, l: string) {
@@ -234,14 +235,22 @@ async function waPagamento(p: { id: number; cliente: string; data: string; horar
   const { data: pv, error: pe } = await db.from("wa_provas").insert({ tel_dig: to, origem: "pagamento" }).select("token").single();
   if (pe || !pv) { console.error("prova", pe?.message); return false; }
   const link = `${SITE}/pagar/?p=${p.id}&k=${k}&w=${pv.token}&l=${l}`;
-  const r = KEY360
-    ? await fetch("https://waba-v2.360dialog.io/messages", {
+  // quem recebe já tem conta (todo pedido tem cliente): primeiro o pagamento_sinal, que não manda "criar conta";
+  // enquanto a Meta não aprovar, a 360dialog recusa e cai no modelo antigo (Rodrigo 2026-11-19, pedido 78)
+  const env360 = (nome: string) => fetch("https://waba-v2.360dialog.io/messages", {
       method: "POST", headers: { "D360-API-KEY": KEY360, "content-type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
-        template: { name: D360_MODELO, language: { code: WA_LANG[l] }, components: [
+        template: { name: nome, language: { code: WA_LANG[l] }, components: [
           { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), horaTxt(p, l), valor, link].map(text => ({ type: "text", text })) },
         ] } }),
-    })
+    });
+  let r360: Response | null = null;
+  if (KEY360 && D360_MODELO_CONTA && D360_MODELO_CONTA !== D360_MODELO) {
+    r360 = await env360(D360_MODELO_CONTA).catch(() => null);
+    if (r360 && !r360.ok) { console.log("wa pagamento: modelo", D360_MODELO_CONTA, "recusado", r360.status, (await r360.text()).slice(0, 200)); r360 = null; }
+  }
+  const r = KEY360
+    ? (r360 || await env360(D360_MODELO))
     : await fetch(`https://graph.facebook.com/v21.0/${WA_PHONE}/messages`, {
       method: "POST", headers: { authorization: `Bearer ${WA_TOKEN}`, "content-type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template",
@@ -377,15 +386,26 @@ Deno.serve(async req => {
     const b = await req.json().catch(() => ({}));
 
     if (b.acao === "link") {
-      const auth = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-      const uid = (await db.auth.getUser(auth)).data?.user?.id;
-      if (!uid) return json({ erro: "login" }, 401);
-      if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const auth = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srkL = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      // robô da VPS (chave de serviço): cliente que já tem conta não recebe convite, então o painel manda o link sozinho
+      // depois do /lancar do Lucas (Rodrigo 2026-11-19, pedido 78: o link só saiu quando ele acordou e tocou no app)
+      // a VPS usa a sessão do painel, que é de operador: operador também pode (mesma regra do "trocar"/"alterar")
+      const servicoL = !!srkL && auth === srkL;
+      let admL = false;
+      if (!servicoL) {
+        const uid = (await db.auth.getUser(auth)).data?.user?.id;
+        if (!uid) return json({ erro: "login" }, 401);
+        admL = !!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data;
+        const oprL = !admL && !!(await db.from("papeis_painel").select("papel").eq("user_id", uid).eq("papel", "operador").maybeSingle()).data;
+        if (!admL && !oprL) return json({ erro: "admin" }, 403);
+      }
       const pid = Number(b.pid), moeda = String(b.moeda || "USD").toUpperCase();
       let valor = Math.round(Number(b.valor) * 100) / 100;
       if (!(valor > 0) || !SYM[moeda]) return json({ erro: "valor" }, 400);
+      if (!admL && moeda !== "BRL") return json({ erro: "moeda" }, 400); // robô/operador: só em reais, com o valor do banco
       const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, status, sinal_liberado_em, vendedor, sinal_valor, jetski_valor").eq("id", pid).maybeSingle();
       if (!p || p.status !== "pendente" || !p.sinal_liberado_em) return json({ erro: "pedido" }, 400);
+      if (!admL && !(+p.sinal_valor > 0)) return json({ erro: "sinal" }, 400);
       // em reais o valor vem do banco, não da tela: sinal da lancha + jetski inteiro (revisão de segurança 2026-11-15)
       if (moeda === "BRL" && +p.sinal_valor > 0) valor = Math.round((+p.sinal_valor + (+p.jetski_valor || 0)) * 100) / 100;
       if (p.vendedor && moeda !== "BRL") return json({ erro: "vendedor" }, 400); // com vendedor: só Pix, sem cobrança automática (Rodrigo, 2026-10-22)
