@@ -102,13 +102,13 @@ function jetskiAcabou(p: any) {
 // cartão só com 5 dias ou mais até o passeio (Rodrigo 2026-10-25; era 7, mudou para 5 em 2026-10-29): o cartão cai em cerca de 2 dias mesmo com antecipação,
 // e o dono está acostumado a receber a parte dele antes do passeio; mais em cima da hora, só Pix (cai na hora)
 const CARTAO_DIAS = 5;
-// cartão estrangeiro (central em dólar/euro, cartão internacional sem CPF): o Asaas marca "não antecipável" e só libera uns 6 dias
-// depois (pedido 85, 2026-11-19: pago 19/11, cai 25/11). Lancha parceira: o dono recebe antes do passeio (Rodrigo 2026-11-19),
-// então o cartão estrangeiro só aparece com 10 dias ou mais; antes disso, Pix ou PayPal
-const CARTAO_DIAS_FORA = 10;
+// cartão estrangeiro (central em dólar/euro, cartão internacional sem CPF): nunca antecipável no Asaas (risco de chargeback) e
+// compensa em 8 dias úteis (Mayara/Asaas 2026-11-19). Lancha parceira: o dono quer receber rápido, antes do passeio, então
+// estrangeiro NUNCA paga cartão pelo Asaas em parceira (Rodrigo 2026-11-19); fica Pix e PayPal. Só a Miss Bardot aceita
 // Miss Bardot (lancha da Búzios): cartão a qualquer prazo, sem a regra dos dias (Rodrigo 2026-11-17); o fechamento 40 min antes continua
-const cartaoDias = (lancha?: string, fora = false) => lancha === "miss-bardot" ? 0 : fora ? CARTAO_DIAS_FORA : CARTAO_DIAS;
-const cartaoOk = (d: string, lancha?: string, fora = false) => lancha === "miss-bardot" || ((Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= cartaoDias(lancha, fora));
+// cartaoDias: dias antes do passeio para o aviso da página (estrangeiro em parceira: -1 = nunca)
+const cartaoDias = (lancha?: string, fora = false) => lancha === "miss-bardot" ? 0 : fora ? -1 : CARTAO_DIAS;
+const cartaoOk = (d: string, lancha?: string, fora = false) => lancha === "miss-bardot" || (!fora && (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= CARTAO_DIAS);
 // chave da subconta cifrada (revisão de segurança 2026-10-28): no banco só fica "v1:<iv>:<cifra>"
 const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
 const de64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
@@ -1136,7 +1136,7 @@ Deno.serve(async req => {
       const { data: ja } = await db.from("asaas_clientes").select("user_id").eq("user_id", x.p.cliente).not("cpf", "is", null).maybeSingle();
       const { data: cob } = await db.from("pagamentos_asaas").select("metodo, valor, sinal, pix_payload, pix_img, invoice_url, pago_em, criado_em").eq("pedido", x.p.id);
       return json({ ativo: !!KEY(), sinal: s, ...(s > 0 ? await totais(s) : {}), cpf: !!(ja || cpfOk(dig(cl?.cpf))),
-        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: (x.g.length > 1 ? x.g : [x.p]).every((m: any) => cartaoOk(x.p.data, m.lancha, foraG)), cartao_dias: Math.max(...(x.g.length > 1 ? x.g : [x.p]).map((m: any) => cartaoDias(m.lancha, foraG))), segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
+        cob_pix: (cob || []).find((c: any) => c.metodo === "pix" && +c.sinal === s && vale(c, x.p.pagar_ate)) || null, cartao_ok: (x.g.length > 1 ? x.g : [x.p]).every((m: any) => cartaoOk(x.p.data, m.lancha, foraG)), cartao_dias: ((ds: number[]) => ds.includes(-1) ? -1 : Math.max(...ds))((x.g.length > 1 ? x.g : [x.p]).map((m: any) => cartaoDias(m.lancha, foraG))), segura_h: SEGURA_MS / 36e5, pago: !!(x.c.pago_em || (cob || []).some((c: any) => c.pago_em)) });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -1319,7 +1319,7 @@ Deno.serve(async req => {
       // grupo: uma cobrança só, com a parte de cada dono separada (cada lancha com o seu sinal, jetski e repasse)
       const membros = x.g.length > 1 ? x.g.filter((m: any) => m.status === "pendente") : [p];
       if (x.g.length > 1 && (membros.length !== x.g.length || membros[0]?.id !== p.id)) return json({ erro: "status" }, 409);
-      if (metodo === "cartao" && membros.some((m: any) => !cartaoOk(p.data, m.lancha, fora))) return json({ erro: "cartao_prazo", dias: Math.max(...membros.map((m: any) => cartaoDias(m.lancha, fora))) }, 409);
+      if (metodo === "cartao" && membros.some((m: any) => !cartaoOk(p.data, m.lancha, fora))) return json({ erro: "cartao_prazo", dias: ((ds: number[]) => ds.includes(-1) ? -1 : Math.max(...ds))(membros.map((m: any) => cartaoDias(m.lancha, fora))) }, 409);
       const partes: any[] = [];
       for (const m of membros) {
         const s1 = online(m);

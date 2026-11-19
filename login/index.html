@@ -4836,8 +4836,8 @@ function startMsg(row, q0, cupV){
 /* só as formas que valem para ESTA reserva (Rodrigo 2026-11-14): Pix sempre (estrangeiro que já está no Brasil também paga),
    cartão só com 5 dias ou mais (mesma conta do cartaoOk da função asaas, dia de São Paulo), PayPal só para estrangeiro; sem "Olá {nome}" no começo */
 const preKey = tel => { const cc=splitPhone(tel).cc; return cc && cc!=="55" ? "waPreX" : "waPre"; };
-/* estrangeiro: cartão internacional não é antecipado pelo Asaas e cai uns 6 dias depois; lancha parceira só com 10+ dias (Rodrigo 2026-11-19, mesmo CARTAO_DIAS_FORA da função asaas) */
-const cardOk = (d, fora) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now()-3*36e5).toISOString().slice(0,10)+"T00:00:00Z"))/864e5 >= (fora ? 10 : 5);
+/* estrangeiro em lancha parceira: nunca cartão pelo Asaas (não antecipável, 8 dias úteis; Rodrigo 2026-11-19), só Pix e PayPal. Mesma regra do cartaoOk da função asaas */
+const cardOk = (d, fora) => !fora && (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now()-3*36e5).toISOString().slice(0,10)+"T00:00:00Z"))/864e5 >= 5;
 /* PayPal: Miss Bardot sempre; outras lanchas só com 3 dias ou mais, senão só Pix (Rodrigo 2026-11-17) */
 /* Miss Bardot (lancha da Búzios): cartão e PayPal a qualquer prazo (Rodrigo 2026-11-17). Outras lanchas: cartão com 5+ dias, PayPal com 3+ dias */
 const ppDiasOk = d => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now()-3*36e5).toISOString().slice(0,10)+"T00:00:00Z"))/864e5 >= 3;
