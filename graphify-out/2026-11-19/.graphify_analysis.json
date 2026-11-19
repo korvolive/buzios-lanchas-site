@@ -2082,6 +2082,9 @@
       "supabase_sql_2026_11_19_jetski_repasse_metades_public_tg_donos_cortesia_jetski",
       "v_cortesias"
     ],
+    "145": [
+      "supabase_sql_2026_11_19_aviso_cartao_atrasado"
+    ],
     "146": [
       "supabase_functions_asaas_index_acabou",
       "supabase_functions_asaas_index_asaas",
@@ -2303,6 +2306,7 @@
     "142": 0.2857142857142857,
     "143": 1.0,
     "144": 0.0896551724137931,
+    "145": 1.0,
     "146": 0.18382352941176472,
     "147": 0.2857142857142857,
     "150": 0.4,
@@ -2433,7 +2437,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?",
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.ativar_conta_cliente`, `public.pedidos`?",
       "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
     },
     {
@@ -2443,7 +2447,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `vendedores`, `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `donos`, `public.meus_repasses_pp`?",
+      "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?",
       "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
