@@ -75,7 +75,8 @@ const ANTES_MS = 40 * 6e4;
 const tarde = (d: string, h: string) => Date.parse(`${d}T${String(INICIO[h] ?? 10).padStart(2, "0")}:00:00-03:00`) - ANTES_MS <= Date.now();
 // PayPal (Rodrigo 2026-11-14; 3 dias desde 2026-11-17): na Miss Bardot sempre; nas outras lanchas só com 3 dias ou mais (os donos querem receber antes do passeio),
 // com menos de 3 dias o cliente paga só por Pix. Conta de dias igual à do cartaoOk da função asaas (dia de São Paulo).
-const ppPrazo = (p: { lancha: string; data: string }) => p.lancha === "miss-bardot" ||
+// pp_excecao: liberação manual por pedido (ex. Pix do cliente estrangeiro recusado no Mercado Pago, 2026-11-19).
+const ppPrazo = (p: { lancha: string; data: string; pp_excecao?: boolean }) => p.lancha === "miss-bardot" || !!p.pp_excecao ||
   (Date.parse(`${p.data}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5 >= 3;
 async function tardeCombinado(p: any) {
   const { data, error } = await db.rpc("inicio_combinado", { d: p.data, h: p.horario, hi: p.hora_ini ?? null, bid: p.bloqueio_id ?? null });
@@ -158,7 +159,7 @@ async function moedaDoCliente(c: any, p: any, g: any[] = []) {
   console.log("central em moeda do cliente", p.id, moeda);
 }
 
-const COLS_P = "id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, prazo_vencido_em";
+const COLS_P = "id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, prazo_vencido_em, pp_excecao";
 async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
