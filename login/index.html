@@ -4952,16 +4952,17 @@ function freeHTML(){
       <button class="btn" id="fsub">${t("freeAdd")}</button></form></div>`;
 }
 /* Ranking dos marinheiros (Rodrigo, 2026-11-09): só administrador. Fixos e freelancers, pela média das notas dos clientes; sem nota vai para o fim. */
-Object.assign(T.pt, {rkT:"Ranking dos marinheiros", rkSub:"Pela média de estrelas dadas pelos clientes. Toque em um nome para ver o perfil.", rkNone:"Nenhum marinheiro cadastrado.", rkLast:"Última avaliação: {d}", rkFree:"Freelancer"});
-Object.assign(T.en, {rkT:"Skipper ranking", rkSub:"By the average stars given by customers. Tap a name to see the profile.", rkNone:"No skippers registered.", rkLast:"Last review: {d}", rkFree:"Freelancer"});
-Object.assign(T.es, {rkT:"Ranking de marineros", rkSub:"Por el promedio de estrellas de los clientes. Toca un nombre para ver el perfil.", rkNone:"No hay marineros registrados.", rkLast:"Última evaluación: {d}", rkFree:"Freelancer"});
+Object.assign(T.pt, {rkT:"Ranking dos marinheiros", rkSub:"Top 50, pela média de estrelas dadas pelos clientes. Toque em um nome para ver o perfil.", rkNone:"Nenhum marinheiro cadastrado.", rkLast:"Última avaliação: {d}", rkFree:"Freelancer"});
+Object.assign(T.en, {rkT:"Skipper ranking", rkSub:"Top 50, by the average stars given by customers. Tap a name to see the profile.", rkNone:"No skippers registered.", rkLast:"Last review: {d}", rkFree:"Freelancer"});
+Object.assign(T.es, {rkT:"Ranking de marineros", rkSub:"Top 50, por el promedio de estrellas de los clientes. Toca un nombre para ver el perfil.", rkNone:"No hay marineros registrados.", rkLast:"Última evaluación: {d}", rkFree:"Freelancer"});
 const rkLista = () => { const m=new Map(), add=(x,free)=>{ if(!x?.user_id || /rodrigo|korvo/i.test(x.nome||"")) return; const e=m.get(x.user_id)||{uid:x.user_id,nome:x.nome||"",lanchas:[],free:false}; if(x.lancha && !e.lanchas.includes(x.lancha)) e.lanchas.push(x.lancha); if(free) e.free=true; m.set(x.user_id,e); };
   (S.sailors||[]).forEach(x=>add(x,false)); (S.free||[]).forEach(x=>add(x,true));
   const nota=x=>S.marRates?.[x.uid];
   return [...m.values()].sort((a,b)=>{ const ra=nota(a), rb=nota(b); if(!!ra!==!!rb) return ra?-1:1; if(ra&&rb&&(rb.media-ra.media||rb.total-ra.total)) return rb.media-ra.media||rb.total-ra.total; return String(a.nome).localeCompare(String(b.nome)); }); };
-const rkRows = () => { const L=rkLista(); if(!L.length) return `<p class="muted" style="margin:0">${t("rkNone")}</p>`;
+const rkRows = () => { const pf=x=>+S.rkPerf?.[x.uid]?.passeios||0, L=rkLista().sort((a,b)=>!!S.marRates?.[a.uid]===!!S.marRates?.[b.uid] && !S.marRates?.[a.uid] ? pf(b)-pf(a) : 0).slice(0,50); /* posição para todos e só o top 50 (Rodrigo 2026-11-19); sem nota: quem tem mais passeios primeiro */
+  if(!L.length) return `<p class="muted" style="margin:0">${t("rkNone")}</p>`;
   let pos=0;
-  return `<ul class="owners frees">${L.map(x=>{ const r=S.marRates?.[x.uid], p=S.rkPerf?.[x.uid], onde=x.lanchas.map(boatName).concat(x.free?[t("rkFree")]:[]).join(" · "), n=r?`${++pos}. `:"", ult=p?.avals?.[0]?.em;
+  return `<ul class="owners frees">${L.map(x=>{ const r=S.marRates?.[x.uid], p=S.rkPerf?.[x.uid], onde=x.lanchas.map(boatName).concat(x.free?[t("rkFree")]:[]).join(" · "), n=`${++pos}. `, ult=p?.avals?.[0]?.em;
     return `<li><span class="who mpl" data-mprof="${x.uid}" data-nm="${esc(x.nome)}" title="${t("mpTap")}">${face(x.uid,x.nome,"face")}<span class="frinfo"><strong>${n}${esc(x.nome)}</strong>${onde?`<small class="muted frl1">${esc(onde)}</small>`:""}<small class="muted frl1">${r?`★ ${String(r.media).replace(".",t("locale").startsWith("en")?".":",")} (${r.total})`:t("mpNoRate")}</small>${p?`<small class="muted frl1">${+p.passeios===1?t("mpTrip1"):t("mpTrips",{n:p.passeios||0})}</small>`:""}${ult?`<small class="muted frl1">${t("rkLast",{d:new Date(ult).toLocaleDateString(t("locale"),{day:"numeric",month:"short",year:"numeric"})})}</small>`:""}</span></span></li>`; }).join("")}</ul>`; };
 /* ranking aberto pelo 🏆 do topo, numa janela por cima (Rodrigo 2026-11-19) */
 function openRank(){ if(!S.admin) return;
