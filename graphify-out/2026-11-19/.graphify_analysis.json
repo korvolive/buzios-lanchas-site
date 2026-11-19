@@ -2184,6 +2184,9 @@
       "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_oferta_vendedor",
       "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_salvar_pcts",
       "supabase_sql_2026_11_02_comissao_manual_ate_1000_public_teto_comissao_manual"
+    ],
+    "160": [
+      "supabase_sql_2026_11_19_les_zuzu_fotos_novas"
     ]
   },
   "cohesion": {
@@ -2346,7 +2349,8 @@
     "156": 0.28888888888888886,
     "157": 0.2222222222222222,
     "158": 0.32142857142857145,
-    "159": 0.3333333333333333
+    "159": 0.3333333333333333,
+    "160": 1.0
   },
   "gods": [
     {
@@ -2461,7 +2465,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `public.clientes`, `public.ativar_conta_cliente`, `public.bloqueios`, `pedidos`?",
-      "why": "High betweenness centrality (0.024) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.021) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2470,8 +2474,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?",
-      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.consultas`, `public.bloqueios`, `public.jetski_usos`?",
+      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2480,8 +2484,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.consultas`, `public.bloqueios`, `public.jetski_usos`?",
-      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
+      "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?",
+      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
