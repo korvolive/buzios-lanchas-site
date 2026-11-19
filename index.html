@@ -921,8 +921,8 @@ html:not(.on-boat) .confia .trust{grid-template-columns:1fr}
 @media (max-width:760px){html:not(.on-boat) .hero-foto .hero-text .guar{text-align:left;margin-top:4px}}
 /* guar-s: frase curta da garantia (reserva; hoje escondida) */
 .guar-s{display:none}
-.guar-band{display:none} /* Garantia no computador: caixa completa (título + texto) logo abaixo do filtro de data, fora da foto (Rodrigo 2026-11-18) */
-@media (min-width:1100px){html:not(.on-boat) .hero-foto .hero-text .guar{display:none}html:not(.on-boat) .guar-band{display:block;margin-top:44px}html:not(.on-boat) .guar-band .guar{max-width:880px;margin:0 auto;display:block;padding:18px 28px 18px 22px;border-radius:20px;background:linear-gradient(135deg,#fff7df,#fcecc2);border:1.5px solid #e0b54d;box-shadow:0 14px 34px -24px rgba(122,86,0,.55);color:#3d2e05}html:not(.on-boat) .guar-band .guar-ic{display:block;flex:none;width:36px;height:36px;padding:8px;border-radius:50%;background:linear-gradient(135deg,#f3d27a,#d4a537);color:#2b1d00;box-sizing:border-box}html:not(.on-boat) .guar-band .guar b{display:flex;align-items:center;gap:12px;margin:0 0 4px;font-size:19px;font-weight:800;color:#6b4a00}html:not(.on-boat) .guar-band .guar p{margin:0 0 0 48px;font-size:16px;line-height:1.45;opacity:1}}
+.guar-band{display:none} /* Garantia no computador: caixa completa (título + texto) logo acima de "Lanchas de confiança", depois das lanchas (Rodrigo 2026-11-19; antes ficava embaixo do filtro de data). Celular não muda */
+@media (min-width:1100px){html:not(.on-boat) .hero-foto .hero-text .guar{display:none}html:not(.on-boat) .guar-band{display:block;margin-top:8px;margin-bottom:16px}html:not(.on-boat) .guar-band .guar{max-width:880px;margin:0 auto;display:block;padding:18px 28px 18px 22px;border-radius:20px;background:linear-gradient(135deg,#fff7df,#fcecc2);border:1.5px solid #e0b54d;box-shadow:0 14px 34px -24px rgba(122,86,0,.55);color:#3d2e05}html:not(.on-boat) .guar-band .guar-ic{display:block;flex:none;width:36px;height:36px;padding:8px;border-radius:50%;background:linear-gradient(135deg,#f3d27a,#d4a537);color:#2b1d00;box-sizing:border-box}html:not(.on-boat) .guar-band .guar b{display:flex;align-items:center;gap:12px;margin:0 0 4px;font-size:19px;font-weight:800;color:#6b4a00}html:not(.on-boat) .guar-band .guar p{margin:0 0 0 48px;font-size:16px;line-height:1.45;opacity:1}}
 /* confiança como no topo antigo (Rodrigo 2026-11-18): blocos iguais só com ícone e título; a descrição cobre o bloco ao passar o mouse ou tocar */
 html:not(.on-boat) .confia .trust ul{grid-auto-rows:1fr}
 html:not(.on-boat) .confia .trust li{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;padding:20px;min-height:120px;overflow:hidden;cursor:default;outline:none;border:1.5px solid transparent;transition:border-color .2s}
@@ -3235,7 +3235,6 @@ function home(){
     <canvas id="waves" aria-hidden="true"></canvas>
   </section>
   ${CID?"":`<div class="wrap when-top">${whenH}</div>`}
-  ${CID?"":`<div class="wrap guar-band">${guarHTML(false)}</div>`}
   ${CID?"":faixaHTML()}
   <section class="section" id="frota"><div class="wrap">
     <div class="section-head">
@@ -3257,6 +3256,7 @@ function home(){
     </div></div>
     ${CID?waCta():""}
   </div></section>
+  ${CID?"":`<div class="wrap guar-band">${guarHTML(false)}</div>`}
   ${CID?"":`<section class="section confia" id="confianca"><div class="wrap">${trustH}${waCta()}</div></section>`}
   ${CID ? "" : routeSection() /* roteiro e mapa só de Búzios por enquanto; as outras cidades ganham o delas depois */}
   <section class="section" id="como" style="padding-top:0"><div class="wrap">
@@ -3288,8 +3288,10 @@ const galP = b => b.photos.map(p => FOTO_C[p[0]] ? [FOTO_C[p[0]], ...p.slice(1)]
 /* ajuste manual do administrador (2026-11-15): item da lista com g = {d:"X% Y%", m:"X% Y%", zd, zm} vale acima do automático */
 const okZ = z => { z=+z; return z>=1 && z<=3 ? Math.round(z*100)/100 : 1; };
 const okG = g => g && typeof g==="object" && typeof g.d==="string" && typeof g.m==="string" ? {d:okPos(g.d), m:okPos(g.m), zd:okZ(g.zd), zm:okZ(g.zm)} : null;
-const enq = p => { const g=okG(p[3]); if(g) return `--gd:${g.d};--gm:${g.m};--zd:${g.zd};--zm:${g.zm}`;
-  const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
+/* 2026-11-19 (pedido do dono: "isso tem que ser automático", só zoom e enquadramento mostrando o máximo da lancha):
+   o ajuste manual salvo (g) não vale mais na galeria. Zoom acima de 1 só tirava informação (Spartana foto 2 ficou com 1,88x e
+   a lancha saiu do quadro). O g continua guardado no banco, sem uso */
+const enq = p => { const e=FOTO_P[p[0]]; return e ? `--gd:${okPos(e[0])};--gm:${okPos(e[1])}` : ""; };
 const imgSrc = (p,thumb,jpg) => /^https?:/.test(p[0]) ? (thumb==="m"&&!jpg&&FOTO_M[p[0]] ? FOTO_M[p[0]] : p[0] + (thumb===1?"-t":"") + ".jpg") : "/img/"+p[0] + (thumb===1?"-t":thumb==="m"&&!jpg?"-m":"") + (jpg?".jpg":".webp");
 const absImg = p => /^https?:/.test(p[0]) ? imgSrc(p) : SITE+imgSrc(p,0,true);
 /* texto das fotos: o do app vale em português; em inglês e espanhol, e nas fotos sem texto, entra o do Claude (lanchas_ia) se houver */

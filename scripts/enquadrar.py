@@ -69,9 +69,10 @@ def pessoas(im, cx):
     return [b for b in cx if (b[3] - b[1]) >= 0.18 * im.height and (b[3] - b[1]) >= 0.45 * maior]
 
 
-def eixo(ini, fim, total, janela, cabeca=True):
+def eixo(ini, fim, total, janela, cabeca=True, fundo=False):
     """Posição (0 a 1) da janela no eixo: a mais perto do centro que mostra [ini, fim] inteiro; se não cabe, fica o começo (cabeça)
-    quando há pessoa, ou o meio do que importa quando é só a lancha."""
+    quando há pessoa, o fim (casco e linha d'água) quando é só a lancha na vertical, ou o meio do que importa nos lados.
+    (2026-11-19: com o meio, lancha em pé com antena alta perdia o casco; o que sobra em cima é antena, toldo e céu.)"""
     sobra = total - janela
     if sobra <= 1:
         return 0.5
@@ -79,7 +80,7 @@ def eixo(ini, fim, total, janela, cabeca=True):
     if fim - ini <= janela:
         pos = min(max(centro, fim - janela), ini)
     else:
-        pos = ini if cabeca else (ini + fim - janela) / 2
+        pos = ini if cabeca else (fim - janela) if fundo else (ini + fim - janela) / 2
     return min(max(pos / sobra, 0.0), 1.0)
 
 
@@ -90,7 +91,7 @@ def cabe(im, caixas):
     return W / H >= QUADROS[0] or alto <= W / QUADROS[0]
 
 
-def corte(im, caixas, cabeca=True):
+def corte(im, caixas, cabeca=True, fundo=False):
     W, H = im.size
     m = 0.02 * H  # folga para não encostar cabeça e pés na borda
     x0, y0 = max(min(b[0] for b in caixas) - m, 0), max(min(b[1] for b in caixas) - m, 0)
@@ -98,7 +99,7 @@ def corte(im, caixas, cabeca=True):
     saida = []
     for q in QUADROS:
         if W / H < q:  # foto mais em pé que o quadro: corta em cima e embaixo
-            px, py = 0.5, eixo(y0, y1, H, W / q, cabeca)
+            px, py = 0.5, eixo(y0, y1, H, W / q, cabeca, fundo)
         else:  # foto mais deitada: corta dos lados
             cx = (x0 + x1) / 2
             larg = H * q
@@ -120,7 +121,10 @@ def decide(im, gente, barco):
     """[pos computador, pos celular, inteira] para a foto."""
     W, H = im.size
     caixas = gente + ([barco] if barco else [])
-    pos = corte(im, caixas, bool(gente)) if caixas else ["50% 50%", "50% 50%"]
+    # lancha vista de fora (caixa não ocupa a foto toda e tem água embaixo): se não cabe, guarda o casco.
+    # Foto tirada a bordo (convés ocupa tudo ou encosta na borda de baixo) fica no meio, como antes
+    fundo = bool(barco) and not gente and (barco[3] - barco[1]) < 0.85 * H and barco[3] < 0.97 * H
+    pos = corte(im, caixas, bool(gente), fundo) if caixas else ["50% 50%", "50% 50%"]
     inteira = ""
     for q, k in zip(QUADROS, "dm"):
         visivel = min(W / H / q, q / (W / H))
