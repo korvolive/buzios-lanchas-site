@@ -2008,6 +2008,9 @@
       "supabase_sql_2026_11_18_textos_claude_public_ia_controle",
       "supabase_sql_2026_11_18_textos_claude_public_lanchas_ia"
     ],
+    "139": [
+      "supabase_sql_2026_11_19_pix_estatico_sinal"
+    ],
     "140": [
       "a",
       "anon",
@@ -2309,6 +2312,7 @@
     "136": 0.08,
     "137": 0.24242424242424243,
     "138": 0.6666666666666666,
+    "139": 1.0,
     "140": 0.13,
     "142": 0.2857142857142857,
     "143": 1.0,
@@ -2448,7 +2452,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `vendedores`, `public.bloqueios`, `public`, `2026-11-15_preco-cotado-garantido.sql`, `public.meus_repasses_pp`?",
-      "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2457,8 +2461,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.adicionar_lancha_pre_reserva()` connect `public.adicionar_lancha_pre_reserva` to `2026-11-15_preco-cotado-garantido.sql`, `public.jetskis`, `public`, `public.ativar_conta_cliente`?",
-      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`, `public.pedidos`?",
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
