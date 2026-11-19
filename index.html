@@ -2191,6 +2191,7 @@ async function sendPedido(b){
 /* devolve um mapa "lancha|data" → horários ocupados (dia, manha, tarde), ou null se não der para ler */
 /* lancha em manutenção (tabela manutencoes, o dono marca no app): todos os horários desses dias ficam ocupados, então ela some das buscas */
 function loadAgenda(){
+  if(agenda) return agenda; /* já carregada: não pede de novo manutenções, datas seguradas e períodos extra (revisão 2026-11-19: eram ~7 pedidos iguais por página) */
   const mnt = fetch(`${AGENDA_URL.replace("bloqueios","manutencoes")}?select=lancha,de,ate&ate=gte.${todayISO()}`, {headers:{apikey:AGENDA_KEY}}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
   /* data segurada: outro cliente gerou o pagamento há menos de 2 horas, ou já pagou (2026-10-25) */
   const seg = fetch(SB_URL+"/rest/v1/rpc/datas_seguradas", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
