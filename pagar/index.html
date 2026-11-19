@@ -186,16 +186,23 @@ function jetLine(J){ const W=JL[lg], fim=(()=>{ const [h,m]=J.ini.split(":").map
 function grpRows(){ const G=GL[lg]||GL.pt; return (D.itens||[]).map(i=>`<li class="gh"><span><b>${esc(i.lancha)}</b>${i.pessoas?` · ${esc(i.pessoas)} ${esc(T[lg].people.toLowerCase())}`:""}</span></li>`
   +`<li><span>${G.sn}</span><b>${brl(+i.sinal||0)}</b></li>`+(i.jetski?jetLine(i.jetski):"")+(typeof i.resto==="number"?`<li><span>${G.emb}</span><b>${brl(i.resto)}</b></li>`:"")).join(""); }
 const SUP={pt:"Suporte Asaas",en:"Asaas support",es:"Soporte Asaas"}; /* linha do selo nos 3 idiomas (revisão 2026-11-16) */
-/* pagamento concluído vai para o Google Analytics como "purchase" (rastreio padrão, 2026-11-19). Esta página não carrega o GTM
-   (o endereço tem a chave do pedido, que não pode sair daqui): só o Google tag do Analytics, com o endereço sem o "?" e sem a página vista.
-   Uma vez por pedido neste aparelho, só com pagamento recente (até 6 h); o Analytics também descarta purchase repetido pelo transaction_id. */
-let gaFoi=false;
-function gaPago(){ if(gaFoi || /BuziosLanchasIOS/.test(navigator.userAgent)) return; gaFoi=true;
-  try{ if(D.pago_em && Date.now()-Date.parse(D.pago_em) > 6*3600e3) return; const ch="ga-pago-"+P; if(localStorage.getItem(ch)) return; localStorage.setItem(ch,"1"); }catch(e){}
-  try{ const w=window; w.dataLayer=w.dataLayer||[]; const gtag=function(){ w.dataLayer.push(arguments); }; const GA="G-NYEL6BGFBF";
-    gtag("js", new Date()); gtag("config", GA, {send_page_view:false, page_location:location.origin+location.pathname, page_referrer:""});
-    gtag("event", "purchase", {send_to:GA, transaction_id:"pedido-"+P, value:+D.sinal_brl||0, currency:"BRL", items:[{item_name:String(D.lancha||"lancha"), price:+D.sinal_brl||0, quantity:1}], site:location.hostname.replace(/^www\./,"")});
-    const sc=document.createElement("script"); sc.async=true; sc.src="https://www.googletagmanager.com/gtag/js?id="+GA; document.head.appendChild(sc);
+/* Rastreio server-side (2026-11-19): o pagamento ("purchase" no Google Analytics e "Purchase" na Meta) sai só do servidor, quando o
+   Asaas ou o PayPal confirma, com o valor pago de verdade e o número do pedido (função conversoes, gatilho no banco). Esta página só
+   avisa ao servidor quais identificadores da visita (client_id/session_id do Analytics, _fbp/_fbc da Meta, clique do anúncio) estão
+   neste aparelho, para ligar o pagamento ao anúncio. O servidor confere o pedido pela chave k; daqui não sai pagamento nem valor.
+   Uma vez por carregamento; respeita o "Não rastrear" (privacidade) e o GPC do navegador; fora do app de iPhone. */
+let visFoi=false;
+function visitaPagar(){ if(visFoi || /BuziosLanchasIOS/.test(navigator.userAgent)) return; visFoi=true;
+  try{ if(localStorage.getItem("rastreio-consentimento")==="negado" || navigator.globalPrivacyControl===true) return; }catch(e){}
+  try{ const ck=n=>{ const m=document.cookie.match(new RegExp("(?:^|; )"+n+"=([^;]*)")); return m?decodeURIComponent(m[1]):""; };
+    const b={ev:"visita_pagar", consent:"ok", pedido:+P, k:K, pagina:location.pathname, site:location.hostname.replace(/^www\./,""), fbp:ck("_fbp"), fbc:ck("_fbc")};
+    const ga=ck("_ga").split("."); if(ga.length>=4) b.ga_cid=ga.slice(-2).join(".");
+    const gs=ck("_ga_NYEL6BGFBF"), m=gs.match(/^GS1\.\d\.(\d+)\./)||gs.match(/^GS2\.\d\.s(\d+)/); if(m) b.ga_sid=m[1];
+    let o=null; try{ o=JSON.parse(localStorage.getItem("rastreio-origem")||"null"); }catch(e){}
+    if(o && Date.now()-o.em<90*864e5){ ["gclid","gbraid","wbraid","utm_source","utm_medium","utm_campaign"].forEach(k=>{ if(o[k]) b[k]=o[k]; }); if(!b.fbc && o.fbclid) b.fbc="fb.1."+o.em+"."+o.fbclid; }
+    Object.keys(b).forEach(k=>{ if(b[k]==="" || b[k]==null) delete b[k]; });
+    const body=JSON.stringify(b), u="https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/conversoes";
+    if(!(navigator.sendBeacon && navigator.sendBeacon(u, new Blob([body],{type:"text/plain"})))) fetch(u,{method:"POST",body,keepalive:true,headers:{"content-type":"text/plain"}}).catch(()=>{});
   }catch(e){} }
 function render(){ const su=document.getElementById("asaas-sup"); if(su) su.textContent=`${SUP[lg]||SUP.pt}: 0800 009 0037 · contato@asaas.com.br`;
   const L=T[lg]; document.documentElement.lang=lg; document.title=L.title+" · Búzios Lanchas";
@@ -242,7 +249,7 @@ function render(){ const su=document.getElementById("asaas-sup"); if(su) su.text
     <p class="muted" style="margin:10px 0 0">${L.pixSend}</p>${D.chat?`<button type="button" class="btn" data-chat="${D.chat}">${L.sendRcpt}</button>`:""}</div>` : "";
   const pp = foreign && D.cliente_id ? `<div class="pay" data-m="paypal"><h3>${L.ppT}</h3><p class="muted" style="margin:0">${L.ppHow}</p><div id="pp"></div><div id="ppmsg"></div></div>` : "";
   let payArea="";
-  if(state==="paid"){ payArea=`<p class="msg ok">✓ ${L.paid}</p>`; gaPago(); }
+  if(state==="paid"){ payArea=`<p class="msg ok">✓ ${L.paid}</p>`; }
   else if(gone) payArea=`<p class="msg err">${tf(L.gone,{b:esc(D.lancha)})}</p><a class="btn" href="${livres}">${L.goneBtn}</a>`;
   /* com o Asaas na tela, o Pix manual some (dois QR codes diferentes levavam a pagar em dobro); outro cliente pagando: só o aviso (revisão 2026-10-25) */
   else if(open && !paid && D.jetski_fora) payArea=`<p class="msg err">${JL[lg].gone}</p>${D.chat?`<button type="button" class="btn" data-chat="${D.chat}">💬 ${L.chats}</button>`:""}`;
@@ -406,7 +413,7 @@ async function refresh(){ if(!D || state==="bad" || D.confirmada || document.hid
 setInterval(refresh, 20000); document.addEventListener("visibilitychange", refresh);
 (async()=>{ try{ if(!P||!K) throw 0; const r=await fetch(`${FN}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}); if(!r.ok) throw 0; D=await r.json(); state="show";
   if(AS){ try{ A=await fetch(`${FN_AS}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}).then(r=>r.json()); if(A.pago) state="paid"; else if(A.ativo) asWatch(); }catch(e){ A={ativo:false}; } }
-  }catch(e){ state="bad"; } render(); })();
+  }catch(e){ state="bad"; } render(); if(state!=="bad") visitaPagar(); })();
 </script>
 </body>
 </html>

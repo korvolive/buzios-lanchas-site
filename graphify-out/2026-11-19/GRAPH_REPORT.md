@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-19)
 
 ## Corpus Check
-- 242 files · ~470,911 words
+- 246 files · ~484,908 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
-- 1870 nodes · 3085 edges · 159 communities (91 shown, 68 thin omitted)
+- 1899 nodes · 3130 edges · 162 communities (93 shown, 69 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6eff26f9`
+- Built from commit: `486dc102`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -103,7 +103,7 @@
 - registros-exportar.mjs
 - db-mudou.mjs
 - asaas_contas_reenvio_token
-- public.minhas_conversas_v4
+- public.pp_vaga
 - public.tg_tel_padrao
 - ref_npm_supabase
 - 2026-11-17_paypal-cai-no-asaas-repasse-auto.sql
@@ -112,7 +112,7 @@
 - pushAdmins
 - API
 - public.lanchas
-- aviso-comprovante/index.ts
+- conversoes/index.ts
 - 2026-11-18_textos-claude.sql
 - public.adicionar_lancha_pre_reserva
 - public._soltar_anterior_mesmo_cliente
@@ -125,6 +125,9 @@
 - paypal-fatura/index.ts
 - public.tg_anotacao_jetski_segura
 - public.anotacoes
+- aviso-preco/index.ts
+- conversoes-navegador.js
+- 2026-11-05_socios-nome-completo-e-convites-pendentes.sql
 
 ## God Nodes (most connected - your core abstractions)
 1. `public.jetskis` - 35 edges
@@ -153,11 +156,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (159 total, 68 thin omitted)
+## Communities (162 total, 69 thin omitted)
 
 ### Community 0 - "public.pp_vaga"
-Cohesion: 0.16
-Nodes (7): public.alterar_pedido(), public.segredos_app, public.pedidos_prazo_vencido(), public.pp_vaga_h(), public._troca_ok(), public.trocas_pedido(), public.pp_vaga()
+Cohesion: 0.22
+Nodes (6): public.alterar_pedido(), public.segredos_app, public.pedidos_prazo_vencido(), public.pp_vaga_h(), public._troca_ok(), public.trocas_pedido()
 
 ### Community 1 - "sortable.min.js"
 Cohesion: 0.09
@@ -188,7 +191,7 @@ Cohesion: 0.14
 Nodes (9): pre_pedido_fim, pre_pedido_sinal, public.aprovar_consulta(), public._ligar_passeio(), public._pre_pedido_fim(), public._pre_pedido_sinal(), public._ligar_passeio(), public.lancar_grupo_operador() (+1 more)
 
 ### Community 8 - "prerender.mjs"
-Cohesion: 0.13
+Cohesion: 0.14
 Nodes (15): alt(), boatUrl(), DB_READ, FC, guias, LANGS, pages, pathFor() (+7 more)
 
 ### Community 9 - "env"
@@ -380,16 +383,16 @@ Cohesion: 0.43
 Nodes (5): public.transferencias_saldo, transferencias_saldo_user, zz_auditar, a_teto_diario, public._transferencia_teto()
 
 ### Community 82 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.13
-Nodes (8): CAT, CORS, db, db, T, CORS, db, T
+Cohesion: 0.12
+Nodes (9): CAT, CORS, db, CORS, db, SLOT, TXT, db (+1 more)
 
 ### Community 83 - "2026-11-16_bordazul-cadastro-dono.sql"
 Cohesion: 0.24
 Nodes (7): bz_cadastros_status, bz_cadastros_tel, public.bz_cadastro_decidir(), public.bz_cadastros, public.bz_cadastros_admin(), public.bz_wa_codigos, public.bz_wa_reservar()
 
 ### Community 84 - "donos"
-Cohesion: 0.22
-Nodes (7): public.convites_socio_pendentes(), public.meus_socios(), public.definir_desc_parceiro(), public.definir_pct_vendedor(), public._desc_parceiro(), public.meu_vendedor(), public.vendedor_publico()
+Cohesion: 0.24
+Nodes (7): public.meus_socios(), public.definir_desc_parceiro(), public.definir_pct_vendedor(), public._desc_parceiro(), public.meu_vendedor(), public.vendedor_publico(), public.minhas_conversas_v4()
 
 ### Community 86 - "asaas-saude/index.ts"
 Cohesion: 0.33
@@ -448,12 +451,16 @@ Cohesion: 0.11
 Nodes (7): public.salvar_lancha(), public.trocar_horario_pedido(), public.aplicar_netos(), public.salvar_netos_v3(), public._valor_na_data(), public.salvar_lancha(), public.bz_faixa()
 
 ### Community 117 - "registros-exportar.mjs"
-Cohesion: 0.23
+Cohesion: 0.21
 Nodes (12): api(), chamar(), chaveServidor(), dormir(), exportarFonte(), feitos, FONTES, gravar() (+4 more)
 
 ### Community 118 - "db-mudou.mjs"
-Cohesion: 0.39
+Cohesion: 0.48
 Nodes (5): SOURCE, fotosDB(), iaDB(), lanchasDB(), precosDB()
+
+### Community 123 - "public.pp_vaga"
+Cohesion: 0.16
+Nodes (4): public.liberar_sinal(), public.pp_vaga(), public.alterar_pedido(), public.trocar_horario_pedido()
 
 ### Community 125 - "ref_npm_supabase"
 Cohesion: 0.13
@@ -479,9 +486,9 @@ Nodes (10): API(), avisarDocsLiberados(), avisarEntradas(), chaveSub(), conferir
 Cohesion: 0.08
 Nodes (30): public.tg_pedido_jetski(), public.tg_pedido_jetski_uso(), jetski_uso_confere, jetski_usos_dia, a_pedido_jetski_segurado, public._jetski_confere(), public._jetski_segura(), public.lancar_reserva_com_jetski() (+22 more)
 
-### Community 137 - "aviso-comprovante/index.ts"
-Cohesion: 0.29
-Nodes (4): CORS, db, SLOT, TXT
+### Community 137 - "conversoes/index.ts"
+Cohesion: 0.13
+Nodes (20): filtra(), ga, match(), meta, T, caminho(), cors(), db (+12 more)
 
 ### Community 140 - "public.adicionar_lancha_pre_reserva"
 Cohesion: 0.13
@@ -500,8 +507,8 @@ Cohesion: 0.31
 Nodes (9): asaas(), chavePix(), entradaPaypal(), lerEntradasPaypal(), nomeLancha(), pixEstatico(), refEntrada(), valorTransf() (+1 more)
 
 ### Community 148 - "2026-11-15_jetski-pedido.sql"
-Cohesion: 0.15
-Nodes (8): pedido_jetski, pedido_jetski_uso, public.tg_pedido_jetski(), public.tg_pedido_jetski_uso(), public.tirar_jetski(), public.alterar_pedido(), public.tg_pedido_jetski(), public.trocar_horario_pedido()
+Cohesion: 0.23
+Nodes (6): pedido_jetski, pedido_jetski_uso, public.tg_pedido_jetski(), public.tg_pedido_jetski_uso(), public.tirar_jetski(), public.tg_pedido_jetski()
 
 ### Community 149 - "entrar-celular/index.ts"
 Cohesion: 0.33
@@ -519,21 +526,25 @@ Nodes (3): CORS, db, ITEM
 Cohesion: 0.17
 Nodes (9): a_comprovante_segura, public.anexar_comprovante_passeio(), public._comprovante_segura(), public.periodos_extra(), public.passeios_marinheiro_v2(), anotacoes_grupo_idx, public.anexar_comprovante_passeio(), public.aprovar_pre_pedido() (+1 more)
 
+### Community 158 - "aviso-preco/index.ts"
+Cohesion: 0.40
+Nodes (3): CORS, db, T
+
 ## Knowledge Gaps
-- **68 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **69 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.ativar_conta_cliente`, `public.bloqueios`, `public.clientes`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.ativar_conta_cliente`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.clientes`, `public.marcar_wa`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06906906906906907 - nodes in this community are weakly interconnected._
-- **Why does `public.adicionar_lancha_pre_reserva()` connect `public.adicionar_lancha_pre_reserva` to `public`, `public.lanchas`, `public.ativar_conta_cliente`?**
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.ativar_conta_cliente`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07312925170068027 - nodes in this community are weakly interconnected._
