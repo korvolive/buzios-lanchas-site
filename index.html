@@ -2352,7 +2352,7 @@ function bindPicker(onChange, b){
   const cal=calendar(cb,{sel:pick.date, onPick:d=>{ pick.date=d; try{ window.rastreio&&rastreio("escolher_data",{data_passeio:d, lancha:b?.name||"", area:"lancha"}); }catch(e){} di.textContent=fmtDate(d); di.parentElement.classList.remove("empty"); cal.set("sel",d); open(false); onChange(); }});
   di.onclick=()=>open(cb.hidden); cb.addEventListener("click",e=>e.stopPropagation()); /* trocar de mês redesenha o calendário: o clique não pode contar como "fora" */
   if(b) loadAgenda().then(ag=>{ if(ag && document.getElementById("pk-cal")===cb) cal.set("busy", d=>isBusy(busyOn(ag,b,d),null,d)); });
-  calOutside();
+  calOutside(); if(window.__pkAberto){ window.__pkAberto=false; open(true); }
   const pp=document.getElementById("pk-people"); pp.onchange=()=>{ pick.people=pp.value; onChange(); };
   app.querySelectorAll("[data-slot]").forEach(btn=>btn.onclick=()=>{ pick.slot=btn.dataset.slot;
     app.querySelectorAll("[data-slot]").forEach(x=>x.setAttribute("aria-checked", x===btn)); onChange(); });
@@ -2460,7 +2460,7 @@ const ITEM_ICON = {
 Object.assign(ITEM_ICON, {"Coletes salva-vidas para todos":ITEM_ICON["Coletes para todos"], "Gelo escama (1 caixa)":ITEM_ICON["Gelo escama"], "Carvão (1 saco)":ITEM_ICON["Carvão"], "Som ambiente":ITEM_ICON["Som Bluetooth"]}); /* itens das escunas (2026-11-14) */
 const chipHTML = (i,label) => `<li${STACK_GOLD.includes(i)?' class="gold"':CARD_BASIC.includes(i)?' class="basic"':""}>${ITEM_ICON[i]||""}${label}</li>`;
 /* nome curto dos itens (pt, en, es): fonte única para card da home, página da lancha e app (igual a ITEM_SHORT em login/index.html; o verificar.yml confere). O nome cadastrado no Supabase continua o mesmo (Rodrigo 2026-11-18) */
-const ITEM_SHORT = {"Wi-Fi Starlink":["Wi-Fi","Wi-Fi","Wi-Fi"],"Televisão":["TV","TV","TV"],"Coletes para todos":["Coletes","Life jackets","Chalecos"],"Toldo com sombra":["Toldo","Canopy","Toldo"],"Toalhas de banho":["Toalhas","Towels","Toallas"],"Macarrão flutuante":["Macarrão","Pool noodles","Fideos"],"Máscaras de mergulho":["Máscaras","Snorkel masks","Máscaras"],"Gerador de energia":["Gerador","Generator","Generador"],"Geladeira":["Frigobar","Minibar","Frigobar"]};
+const ITEM_SHORT = {"Wi-Fi Starlink":["Wi-Fi","Wi-Fi","Wi-Fi"],"Televisão":["TV","TV","TV"],"Coletes para todos":["Coletes","Life jackets","Chalecos"],"Toldo com sombra":["Toldo","Canopy","Toldo"],"Toalhas de banho":["Toalhas","Towels","Toallas"],"Macarrão flutuante":["Macarrão","Pool noodles","Flotadores"],"Máscaras de mergulho":["Máscaras","Snorkel masks","Máscaras"],"Gerador de energia":["Gerador","Generator","Generador"],"Geladeira":["Frigobar","Minibar","Frigobar"]};
 const itemLabel = i => ITEM_SHORT[i] ? ITEM_SHORT[i][lang==="en"?1:lang==="es"?2:0] : tx(i);
 const itemChip = i => chipHTML(i, itemLabel(i));
 const cardChip = itemChip;
@@ -3425,6 +3425,7 @@ function render(toTop=true){
   /* lancha cadastrada no app: espera o banco antes de decidir que a página não existe */
   if(route.slug && !b && !dbDone){ dbWait=true; if(!app.querySelector(".boat")) app.innerHTML=`<p style="padding:90px 16px;text-align:center;color:var(--muted)">…</p>`; return; } /* página já gerada na publicação: fica como está até o banco responder */
   if(b) takePending(b);
+  window.__pkAberto = document.getElementById("pk-date")?.getAttribute("aria-expanded")==="true"; /* preços/agenda chegando redesenham a página: o calendário aberto continua aberto */
   app.innerHTML = b ? boatPage(b) : home();
   seo(b);
   if(b && toTop) window.scrollTo(0,0);
