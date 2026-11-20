@@ -14,6 +14,7 @@
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
+// POST {acao:"transferir_buzios", user_id, valor, motivo, req} (login admin)  transfere do saldo só até a parte da Búzios (card da planilha)
 // POST {acao:"planilha"} / {acao:"recibo", tipo, pid|id} (login admin)  planilha de vendas: pagamentos, quando caem, repasses e comprovantes
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
 // POST {event, payment} (do Asaas)           aviso de pagamento: confere a cobrança direto no Asaas antes de marcar como paga
@@ -515,6 +516,59 @@ async function refrescar(rows: any[]) {
   }
 }
 const COLS_PG = "id, pedido, metodo, asaas_id, asaas_real, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, antecipada, conferido_em";
+// card do administrador na planilha (Rodrigo 2026-11-20): "meu saldo Asaas, quanto tenho a receber, quanto é meu e quanto não é".
+// Agora = saldo real do Asaas. De outros, já no saldo: repasse de dono e comissão ainda não pagos cujo dinheiro do pedido já caiu,
+// parte do jet ski ainda não paga. A receber = cartão que ainda não caiu (líquido) + PayPal a caminho (estimado, 90% do sinal,
+// a mesma conta da fila do PayPal). De outros, a receber: divisão automática do dono e repasses esperando o cartão/PayPal cair.
+async function contaBuzios(vendas: any[], CX: Map<number, any>, pids: number[], cts: any[], eu: string) {
+  const r2 = (v: number) => Math.round(v * 100) / 100;
+  const disponivel = r2(+(await asaas("/finance/balance")).balance || 0);
+  const { data: cfg } = await db.from("asaas_config").select("paypal_auto, paypal_desde, paypal_pedidos_desde").eq("id", 1).maybeSingle();
+  const ff: any = cfg?.paypal_pedidos_desde ? await filaPaypal(cfg).catch((e) => (console.error("conta paypal", e?.message), null)) : null;
+  const naFila = new Set<number>((ff?.fila || []).map((p: any) => +p.id));
+  const ppCaiu = (pid: number) => !naFila.has(+pid) || ff.cob.has(+pid); // fora da fila (antes da regra automática): já caiu
+  const agora: any[] = [], futuro: any[] = [];
+  let cartao = 0;
+  for (const cx of CX.values()) if (!cx.estorno) cartao += cx.fut.reduce((a: number, f: any) => a + (+f.v || 0), 0);
+  for (const v of vendas) {
+    if (v.situacao === "estornado") continue;
+    for (const r of v.repasses || []) {
+      if (r.ok) continue;
+      const it = { tipo: r.tipo, nome: r.nome, valor: +r.valor || 0 };
+      if (r.como === "divisao") futuro.push(it);
+      else if (v.metodo === "paypal") (ppCaiu(v.pid) ? agora : futuro).push(it);
+      else (r.motivo === "aguardando_credito" ? futuro : agora).push(it);
+    }
+  }
+  // jet ski (dono do jet ski): o que falta pagar das duas metades
+  const { data: js } = pids.length ? await db.from("pedidos").select("id, jetski, jetski_neto, jetski_metade1, jetski_repasse").in("id", pids)
+    .eq("status", "aprovado").not("jetski", "is", null).gt("jetski_neto", 0).is("jetski_repasse2", null) : { data: [] };
+  if (js?.length) {
+    const { data: jk } = await db.from("jetskis").select("id, nome").in("id", [...new Set(js.map((p: any) => p.jetski))]);
+    const JN = new Map((jk || []).map((j: any) => [j.id, j.nome]));
+    for (const p of js) {
+      const pago = String(p.jetski_repasse || "").startsWith("asaas:") && p.jetski_repasse !== "asaas:enviando" ? +p.jetski_metade1 || 0 : 0;
+      const falta = r2(+p.jetski_neto - pago); if (!(falta > 0)) continue;
+      const cx = CX.get(+p.id), caiu = cx ? !cx.estorno && cx.caiu >= falta - 0.005 : ppCaiu(+p.id);
+      (caiu ? agora : futuro).push({ tipo: "jetski", nome: JN.get(p.jetski) || "Jet ski", valor: falta });
+    }
+  }
+  const pend = (ff?.fila || []).filter((p: any) => !ff.cob.has(+p.id));
+  const paypal = r2(pend.reduce((a: number, p: any) => a + (+p.est || 0), 0));
+  const soma = (a: any[]) => r2(a.reduce((x, y) => x + y.valor, 0));
+  const outros = soma(agora), outrosF = soma(futuro);
+  cartao = r2(cartao);
+  // de quem é o que não é da Búzios (por pessoa, maior primeiro)
+  const G = new Map<string, any>();
+  for (const [lista, k] of [[agora, "agora"], [futuro, "futuro"]] as const) for (const x of lista) {
+    const c = `${x.tipo}|${x.nome}`; const g = G.get(c) || { tipo: x.tipo, nome: x.nome, agora: 0, futuro: 0 };
+    g[k] = r2(g[k] + x.valor); G.set(c, g);
+  }
+  const quem = [...G.values()].sort((a, z) => (z.agora + z.futuro) - (a.agora + a.futuro)).slice(0, 40);
+  const pessoas = cts.filter((c: any) => c.wallet_id && c.aprovada_em && c.user_id !== eu).map((c: any) => ({ id: c.user_id, nome: String(c.nome || "").trim() || "—" }))
+    .sort((a: any, z: any) => a.nome.localeCompare(z.nome, "pt-BR"));
+  return { disponivel, seu: r2(disponivel - outros), outros, cartao, paypal, paypal_n: pend.length, receber: r2(cartao + paypal), receber_seu: r2(cartao + paypal - outrosF), receber_outros: outrosF, quem, pessoas };
+}
 // nome de cada pessoa para a planilha: perfil, cadastro de cliente, conta Asaas ou empresa do vendedor
 async function nomes(ids: string[], contas: Map<string, any>) {
   const m = new Map<string, string>();
@@ -1875,7 +1929,24 @@ Deno.serve(async req => {
       }
       vendas.sort((a, z) => a.pago_em < z.pago_em ? 1 : -1);
       const transf = (trs || []).map((t: any) => ({ id: t.id, nome: N.get(t.user_id) || "—", valor: r2(+t.valor), motivo: String(t.motivo || "").slice(0, 140), quando: t.criado_em, status: t.status, comprovante: String(t.comprovante || "").startsWith("asaas:") && t.status === "enviado" }));
-      return json({ vendas, transf, em: new Date().toISOString() });
+      // card do administrador no topo (Rodrigo 2026-11-20): saldo do Asaas agora e a receber, quanto é da Búzios e quanto é de outros
+      const conta = await contaBuzios(vendas, CX, pids, cts || [], u.id).catch((e) => (console.error("planilha conta", e?.message), null));
+      return json({ vendas, transf, conta, em: new Date().toISOString() });
+    }
+    // transferir do card do administrador (Rodrigo 2026-11-20): só até a parte que é da Búzios; o dinheiro de donos, vendedores
+    // e jet skis fica. Confere a conta na hora (mesma conta do card) e usa a mesma transferência do "Transferir Saldo".
+    if (b.acao === "transferir_buzios") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const valor = Math.round(+b.valor * 100) / 100;
+      if (!(valor >= 1) || valor > 50000) return json({ erro: "valor" }, 400);
+      const h = { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" };
+      const pl: any = await fetch(FN_URL, { method: "POST", headers: h, body: JSON.stringify({ acao: "planilha" }) }).then((r) => r.ok ? r.json() : null).catch(() => null);
+      const seu = pl?.conta?.seu;
+      if (typeof seu !== "number") return json({ erro: "conta" }, 502);
+      if (valor > seu + 0.005) return json({ erro: "so_buzios", saldo: Math.max(0, seu) }, 409);
+      const r = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas-transferir", { method: "POST", headers: h,
+        body: JSON.stringify({ acao: "transferir", user_id: String(b.user_id || ""), valor, motivo: String(b.motivo || ""), req: String(b.req || "") }) });
+      return new Response(await r.text(), { status: r.status, headers: { ...CORS, "content-type": "application/json" } });
     }
     // comprovante na planilha (administrador): os dados do comprovante para o painel mostrar numa janela própria, sem sair da página
     // (Rodrigo 2026-11-17). Pagamento do cliente, repasse ao dono, comissão do vendedor ou transferência avulsa do saldo.
