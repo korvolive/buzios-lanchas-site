@@ -279,6 +279,13 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .pvchip{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}.pvchip.ok{background:var(--cfree);color:var(--cfree-ink)}.pvchip.wait{background:var(--half);color:var(--half-ink)}.pvchip.bad{border:1px solid var(--bad);color:var(--bad)}
 .pvd{list-style:none;margin:0;padding:0}.pvd li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.pvd li>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
 .pvb{width:auto;margin:0;padding:6px 10px;font-size:13px}.pvwarn{color:var(--bad)}
+/* card do administrador (Rodrigo 2026-11-20): saldo do Asaas e a receber, quanto é seu e quanto é de outros */
+.pvct .pvcr{display:flex;justify-content:space-between;align-items:center;gap:10px}.pvct .pvcs+.pvcr,.pvct .pvcr+.pvcr{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.pvct .pvl{display:flex;flex-direction:column;gap:2px}.pvbig{font-size:22px;line-height:1.15;white-space:nowrap}.pvct .pvl small{font-size:13px}
+.pvcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.pvcs .pvchip{font-weight:600}.pvchip.out{background:var(--chip);color:var(--ink)}
+.pvct .pvq{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.pvct .pvq>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--muted)}.pvct .pvq>summary::-webkit-details-marker{display:none}.pvct .pvq[open] .chev{transform:rotate(90deg)}.pvct .pvq .chev{display:inline-block;transition:transform .2s;font-style:normal;font-size:18px}
+.pvtrf{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}.pvtrf .in{margin:0;padding:9px 12px;font-size:15px}.pvtrf .row2{display:flex;gap:8px}.pvtrf .row2 .in:first-child{flex:0 0 38%;min-width:0}.pvtrf .row2 .in:last-child{flex:1;min-width:0}.pvtrf .btn{margin:0}
+@media (max-width:420px){.pvtrf .row2{flex-direction:column}.pvtrf .row2 .in:first-child{flex:none}}
 @media (max-width:420px){.pvsum b{font-size:14px}.pvc>summary{flex-wrap:wrap}.pvc>summary .pvr{margin-left:auto}}
 .owners li{padding:8px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
 .owners li span{word-break:break-all}
@@ -6678,12 +6685,48 @@ function planilhaHTML(){
     .filter(v=>!q || [v.cliente,v.lancha,"#"+v.pid,String(v.pid),pvMet(v),...(v.repasses||[]).map(r=>r.nome)].join(" ").toLowerCase().includes(q.replace(/^#/,"")) );
   const TF=(S.pv.transf||[]).filter(x=>!m || pvMes(x.quando)===m).filter(x=>!q || [x.nome,x.motivo].join(" ").toLowerCase().includes(q));
   const fb=[["todos","pvFT"],["liberar","pvFL"],["recebido","pvFR"],["repassar","pvFP"],["estornado","pvFE"]];
-  return `<div class="card pvtop"><div class="pvsum"><span><small class="muted">${t("pvSRec")}</small><b>${brl2(rec)}</b></span><span><small class="muted">${t("pvSLib")}</small><b>${brl2(lib)}</b></span><span><small class="muted">${t("pvSRep")}</small><b>${brl2(rep)}</b></span></div>
+  return `${pvContaHTML(S.pv.conta)}<div class="card pvtop"><div class="pvsum"><span><small class="muted">${t("pvSRec")}</small><b>${brl2(rec)}</b></span><span><small class="muted">${t("pvSLib")}</small><b>${brl2(lib)}</b></span><span><small class="muted">${t("pvSRep")}</small><b>${brl2(rep)}</b></span></div>
     <div class="pvbar"><input type="search" class="in" id="pvq" placeholder="🔍 ${t("pvQ")}" value="${esc(S.pvQ||"")}" aria-label="${t("pvQ")}"><select class="in" id="pvm" aria-label="${t("pvMes")}"><option value="">${t("pvTodos")}</option>${meses.map(x=>`<option value="${x}"${x===m?" selected":""}>${x.split("-").reverse().join("/")}</option>`).join("")}</select></div>
     <div class="pvfs" role="group">${fb.map(([k,l])=>`<button type="button" class="pvf" data-pvf="${k}" aria-pressed="${f===k}">${t(l)}</button>`).join("")}</div></div>
     ${L.length ? pvNavHTML(L.length) + `<div class="pvlist">${L.slice(pvPg(L.length)*PV_POR, pvPg(L.length)*PV_POR+PV_POR).map(pvCard).join("")}</div>` : `<p class="muted" style="text-align:center">${t("pvNada")}</p>`}
     ${TF.length ? `<details class="card fold pvtf" data-fold="pvtf"${foldOpen("pvtf",false)?" open":""}>${foldSum(t("pvTfT",{n:TF.length}))}<ul class="pvd">${TF.map(x=>`<li><span><strong>${esc(x.nome)}</strong><br><small class="muted">${esc(x.motivo)} · ${pvDH(x.quando)}${x.status!=="enviado"?` · ${esc(x.status)}`:""}</small></span><span class="pvr"><b>${brl2(x.valor)}</b>${x.comprovante?`<button type="button" class="btn sec pvb" data-pvt="${x.id}">${t("pvComp")}</button>`:""}</span></li>`).join("")}</ul></details>` : ""}
     <p class="muted" style="font-size:12px;text-align:center">${t("pvAt",{h:new Date(S.pv.em).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})})}</p>`; }
+/* card do administrador no topo da planilha (Rodrigo 2026-11-20): "meu saldo Asaas, quanto tenho a receber, quanto é meu e quanto não é,
+   e dali transferir para alguém". Conta feita no servidor (ação planilha, campo conta), lida ao abrir a aba, sem atualização automática.
+   Transferir: só para quem tem conta Asaas aprovada e só até a parte que é da Búzios (o servidor confere de novo na hora). */
+function pvContaHTML(c){ if(!c) return "";
+  const parte=(seu,out)=>`<span class="pvcs">${seu<0 ? `<b class="pvchip bad">${t("pcFalta",{v:brl2(-seu)})}</b>` : `<b class="pvchip ok">${t("pcSeu",{v:brl2(seu)})}</b>`}${out>0?`<b class="pvchip out">${t("pcOut",{v:brl2(out)})}</b>`:""}</span>`;
+  const rec=[c.cartao>0?t("pcCart",{v:brl2(c.cartao)}):"", c.paypal>0?t("pcPp",{v:brl2(c.paypal)}):""].filter(Boolean).join(" · ");
+  const Q=(c.quem||[]), tp=x=>t(x.tipo==="dono"?"pvDono":x.tipo==="vendedor"?"pvVend":"pcJet");
+  const podeTr=(c.pessoas||[]).length>0 && c.seu>=1;
+  return `<div class="card pvct">
+    <div class="pvcr"><span class="pvl"><small class="muted">${t("pcAgora")}</small><b class="pvbig">${brl2(c.disponivel)}</b></span>
+      ${podeTr?`<span class="pvr"><button type="button" class="btn sec pvb" id="pvtrb" aria-expanded="${!!S.pvTr}">💸 ${t("tsGo")}</button></span>`:""}</div>${parte(c.seu,c.outros)}
+    ${c.receber>0?`<div class="pvcr"><span class="pvl"><small class="muted">${t("pcRec")}</small><b class="pvbig">${brl2(c.receber)}</b>${rec?`<small class="muted">${rec}</small>`:""}${parte(c.receber_seu,c.receber_outros)}</span></div>`:""}
+    ${Q.length?`<details class="pvq"${S.pvQo?" open":""}><summary><span>${t("pcQuem")}</span><i class="chev" aria-hidden="true">›</i></summary><ul class="pvd">${Q.map(x=>`<li><span><strong>${esc(tp(x))} · ${esc(x.nome)}</strong>${x.futuro>0&&x.agora>0?`<br><small class="muted">${t("pcQAg",{v:brl2(x.agora)})} · ${t("pcQFu",{v:brl2(x.futuro)})}</small>`:x.futuro>0?`<br><small class="muted">${t("pcQFuS")}</small>`:""}</span><span class="pvr"><b>${brl2(x.agora+x.futuro)}</b></span></li>`).join("")}</ul></details>`:""}
+    ${podeTr && S.pvTr?`<div class="pvtrf" id="pvtrf"><select class="in" id="pvtrp" aria-label="${t("pcPara")}"><option value="">${t("pcPara")}</option>${c.pessoas.map(p=>`<option value="${esc(p.id)}"${S.pvTrP===p.id?" selected":""}>${esc(p.nome)}</option>`).join("")}</select>
+      <div class="row2"><input type="number" class="in" id="pvtrv" inputmode="decimal" min="1" step="0.01" max="${c.seu}" placeholder="${t("pcAte",{v:brl2(c.seu)})}" aria-label="${t("tsV")}"><input type="text" class="in" id="pvtrm" maxlength="140" placeholder="${t("tsM")}" aria-label="${t("tsM")}"></div>
+      <button type="button" class="btn" id="pvtrgo">${t("tsGo")}</button></div>`:""}</div>`; }
+function pvContaBind(root){
+  const dq=root.querySelector(".pvct .pvq"); if(dq) dq.ontoggle=()=>{ S.pvQo=dq.open; };
+  root.querySelector("#pvtrb")?.addEventListener("click", ()=>{ S.pvTr=!S.pvTr; pvPaint(); if(S.pvTr) document.getElementById("pvtrp")?.focus(); });
+  const sel=root.querySelector("#pvtrp"); if(sel) sel.onchange=()=>{ S.pvTrP=sel.value; };
+  const go=root.querySelector("#pvtrgo"); if(!go) return;
+  go.onclick=async()=>{ const c=S.pv?.conta, uid=sel.value, v=Math.round(+document.getElementById("pvtrv").value*100)/100, m=document.getElementById("pvtrm").value.trim();
+    if(!uid) return toast(t("pcE_para")); if(!(v>=1)) return toast(t("tsE_valor")); if(v>c.seu+0.005) return toast(t("pcE_so",{s:brl2(Math.max(0,c.seu))})); if(m.length<3) return toast(t("tsE_motivo"));
+    go.disabled=true;
+    try{ const i=await tsFn({acao:"info", user_id:uid}); if(!i?.pode) throw new Error("sem_conta");
+      const n=i.nome||c.pessoas.find(p=>p.id===uid)?.nome||"—";
+      if(!confirm(t("tsQ",{v:brl2(v), n, d:i.doc?` (${i.doc})`:""}))){ go.disabled=false; return; }
+      S.pvReq=S.pvReq||crypto.randomUUID();
+      const j=await asFn({acao:"transferir_buzios", user_id:uid, valor:v, motivo:m, req:S.pvReq});
+      S.pvReq=null; S.pvTr=false; toast(t("tsOk",{v:brl2(j.valor ?? v), n})); await loadPv(); pvPaint(); return; }
+    catch(e){ if(e.message==="asaas" || e.message==="falhou") S.pvReq=null;
+      toast(e.message==="so_buzios" ? t("pcE_so",{s:brl2(e.saldo||0)}) : e.message==="saldo" ? t("tsE_saldo",{s:brl2(e.saldo||0)}) : e.message==="valor" ? t("tsE_valor") : e.message==="motivo" ? t("tsE_motivo") : e.message==="sem_conta" ? t("pcE_conta") : t("tsE")); }
+    go.disabled=false; }; }
+Object.assign(T.pt,{pcAgora:"Saldo no Asaas agora", pcRec:"A receber", pcSeu:"Seu {v}", pcOut:"De outros {v}", pcFalta:"Faltam {v} para cobrir o de outros", pcCart:"Cartão a liberar {v}", pcPp:"PayPal a caminho ≈ {v}", pcQuem:"De quem é o que não é seu", pcQAg:"no saldo {v}", pcQFu:"a receber {v}", pcQFuS:"quando cair", pcJet:"Jet ski", pcPara:"Para quem", pcAte:"Até {v}", pcE_para:"Escolha para quem.", pcE_so:"Só dá para transferir até {s}, que é a parte da Búzios.", pcE_conta:"Essa pessoa não tem conta Asaas aprovada."});
+Object.assign(T.en,{pcAgora:"Asaas balance now", pcRec:"To receive", pcSeu:"Yours {v}", pcOut:"Others' {v}", pcFalta:"{v} short to cover others'", pcCart:"Card pending {v}", pcPp:"PayPal on the way ≈ {v}", pcQuem:"Who the rest belongs to", pcQAg:"in balance {v}", pcQFu:"to receive {v}", pcQFuS:"when it clears", pcJet:"Jet ski", pcPara:"To whom", pcAte:"Up to {v}", pcE_para:"Choose who to send to.", pcE_so:"You can only transfer up to {s}, the Búzios share.", pcE_conta:"This person has no approved Asaas account."});
+Object.assign(T.es,{pcAgora:"Saldo en Asaas ahora", pcRec:"Por recibir", pcSeu:"Tuyo {v}", pcOut:"De otros {v}", pcFalta:"Faltan {v} para cubrir lo de otros", pcCart:"Tarjeta por liberar {v}", pcPp:"PayPal en camino ≈ {v}", pcQuem:"De quién es lo que no es tuyo", pcQAg:"en el saldo {v}", pcQFu:"por recibir {v}", pcQFuS:"cuando caiga", pcJet:"Jet ski", pcPara:"Para quién", pcAte:"Hasta {v}", pcE_para:"Elige para quién.", pcE_so:"Solo puedes transferir hasta {s}, la parte de Búzios.", pcE_conta:"Esta persona no tiene cuenta Asaas aprobada."});
 /* comprovante numa janela dentro do painel, sem sair da página (Rodrigo 2026-11-17): dados lidos no Asaas pelo servidor,
    ou o arquivo do Pix por fora (imagem ou PDF). O comprovante oficial do Asaas fica num link pequeno, opcional. */
 async function pvRecibo(body, b){ if(b) b.disabled=true;
@@ -6704,6 +6747,7 @@ function pvJanela(j){
 function pvPaint(){ const box=document.getElementById("pvbox"); if(!box) return mainView(); const q=document.activeElement?.id==="pvq", pos=q?document.activeElement.selectionStart:null;
   box.innerHTML=planilhaHTML(); pvBind(box); if(q){ const i=document.getElementById("pvq"); i.focus(); try{ i.setSelectionRange(pos,pos); }catch(e){} } }
 function pvBind(root){ if(!root) return;
+  pvContaBind(root);
   root.querySelector("#pvretry")?.addEventListener("click", ()=>{ S.pvErr=false; loadBlocks(); });
   const q=root.querySelector("#pvq"); if(q) q.oninput=()=>{ S.pvQ=q.value; S.pvP=0; clearTimeout(pvBind.tm); pvBind.tm=setTimeout(pvPaint,200); };
   const m=root.querySelector("#pvm"); if(m) m.onchange=()=>{ S.pvM=m.value; S.pvP=0; pvPaint(); };
