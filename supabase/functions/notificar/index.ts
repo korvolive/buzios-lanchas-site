@@ -148,9 +148,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Tu reserva fue cambiada", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. La seña sigue valiendo. Toca para ver.` }),
   },
   avaliar: {
-    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} no Google e depois o marinheiro. Leva menos de 1 minuto.${p.cup ? ` Avalie o marinheiro e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha.` : ""}` }),
-    en: p => ({ title: "How was your tour?", body: `Review ${p.lancha} on Google, then rate the skipper. It takes less than a minute.${p.cup ? ` Rate the skipper and get a discount coupon for your next tour on this same boat.` : ""}` }),
-    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Evalúa ${p.lancha} en Google y después al marinero. Lleva menos de 1 minuto.${p.cup ? ` Califica al marinero y gana un cupón de descuento para tu próximo paseo en esta misma lancha.` : ""}` }),
+    pt: p => ({ title: "Como foi o seu passeio?", body: `Avalie a ${p.lancha} no Google e depois o marinheiro. Leva menos de 1 minuto.${p.cup ? ` Avalie o marinheiro e ganhe um cupom de desconto ${p.cup.site ? "para o seu próximo passeio com a gente, em qualquer embarcação" : "para o seu próximo passeio nesta mesma lancha"}.` : ""}` }),
+    en: p => ({ title: "How was your tour?", body: `Review ${p.lancha} on Google, then rate the skipper. It takes less than a minute.${p.cup ? ` Rate the skipper and get a discount coupon ${p.cup.site ? "for your next tour with us, on any boat" : "for your next tour on this same boat"}.` : ""}` }),
+    es: p => ({ title: "¿Cómo fue tu paseo?", body: `Evalúa ${p.lancha} en Google y después al marinero. Lleva menos de 1 minuto.${p.cup ? ` Califica al marinero y gana un cupón de descuento ${p.cup.site ? "para tu próximo paseo con nosotros, en cualquier embarcación" : "para tu próximo paseo en esta misma lancha"}.` : ""}` }),
   },
   inicio: {
     pt: p => ({ title: "Seu passeio começa em breve", body: `${p.lancha} · ${p.hora}${p.embarque ? " · Embarque: " + p.embarque : ""}. Toque para ver o local e os contatos.` }),
@@ -255,9 +255,9 @@ async function enviar(users: string[], tipo: string, p: any, url: string, so?: s
 
 // cupom de fidelidade do passeio: vai junto do pedido de avaliação, no celular e no e-mail (Rodrigo 2026-10-23)
 const CUP_TXT: Record<string, (c: any) => string> = {
-  pt: c => `Avalie o marinheiro e ganhe um cupom de desconto para o seu próximo passeio nesta mesma lancha, válido por 6 meses.`,
-  en: c => `Rate the skipper and get a discount coupon for your next tour on this same boat, valid for 6 months.`,
-  es: c => `Califica al marinero y gana un cupón de descuento para tu próximo paseo en esta misma lancha, válido por 6 meses.`,
+  pt: c => `Avalie o marinheiro e ganhe um cupom de desconto ${c?.site ? "para o seu próximo passeio com a gente, em qualquer embarcação" : "para o seu próximo passeio nesta mesma lancha"}, válido por 6 meses.`,
+  en: c => `Rate the skipper and get a discount coupon ${c?.site ? "for your next tour with us, on any boat" : "for your next tour on this same boat"}, valid for 6 months.`,
+  es: c => `Califica al marinero y gana un cupón de descuento ${c?.site ? "para tu próximo paseo con nosotros, en cualquier embarcación" : "para tu próximo paseo en esta misma lancha"}, válido por 6 meses.`,
 };
 const CUP_USO: Record<string, string> = {
   pt: "O cupom aparece na sua conta assim que você avaliar o marinheiro. Para usar, na hora de reservar toque em Usar meu cupom.",
@@ -271,10 +271,12 @@ async function cupomDo(bid: number, cli: string) {
   const { data: b } = await db.from("bloqueios").select("data").eq("id", bid).maybeSingle();
   if (!b || b.data < "2026-10-22") return null;
   if ((await db.from("avaliacoes").select("pedido_id").eq("pedido_id", p.id).maybeSingle()).data) return null; // já avaliou
-  // só o cupom do dono, que vale na mesma lancha (Rodrigo 2026-10-25: a Búzios não dá mais cupom da comissão)
+  // cupom do dono, que vale na mesma lancha; lancha sem cupom do dono: cupom do site, em qualquer lancha (Rodrigo 2026-11-20)
   const { data: cd, error } = await db.from("cupom_dono").select("valor").eq("lancha", p.lancha).maybeSingle();
-  if (error || !cd) return null;
-  return { valor: `R$ ${cd.valor}` };
+  if (!error && cd && Number(cd.valor) > 0) return { valor: `R$ ${cd.valor}` };
+  const { data: cfg } = await db.from("cupom_site_config").select("aval_ativo, aval_desde").eq("id", 1).maybeSingle();
+  if (cfg?.aval_ativo && b.data >= cfg.aval_desde) return { site: true };
+  return null;
 }
 
 // e-mail pelo Supabase (modelo "Magic Link", SMTP da Brevo): com user_metadata.msg preenchido o modelo mostra esta mensagem,
