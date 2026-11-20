@@ -536,11 +536,19 @@ async function fins() {
   return n;
 }
 
+// cliente reclamou na conversa (o servidor grava em avaliacao_pausada): nenhum pedido de avaliação para esse passeio (Rodrigo 2026-11-20)
+async function avaliacaoPausada(bid: number) {
+  const { data, error } = await db.from("avaliacao_pausada").select("bloqueio_id").eq("bloqueio_id", bid).maybeSingle();
+  if (error) { console.error("avaliacao_pausada", error.message); return false; }
+  return !!data;
+}
+
 async function autoConfirma(b: any, a: any, lancha: string) {
   const { error } = await db.from("realizados").upsert({ bloqueio_id: b.id, aconteceu: true, por: null }, { onConflict: "bloqueio_id", ignoreDuplicates: true });
   if (error) { console.error("auto realizados", error.message); return false; }
   const cli = a?.cliente_conta || (await db.from("pedidos").select("cliente").eq("bloqueio_id", b.id).eq("status", "aprovado").limit(1).maybeSingle()).data?.cliente;
   if (!cli) return true; // sem conta: o pedido de avaliação vai pelo WhatsApp (quadro "Falta pedir a avaliação no WhatsApp")
+  if (await avaliacaoPausada(b.id)) return true; // cliente reclamou: não pede avaliação (Rodrigo 2026-11-20)
   const cup = await cupomDo(b.id, cli).catch(e => (console.error(e), null));
   await enviar([cli], "avaliar", { id: b.id, data: b.data, horario: b.horario, lancha, cup }, "/login/").catch(e => console.error(e));
   const { data: c } = await db.from("clientes").select("nome").eq("user_id", cli).maybeSingle();
@@ -862,6 +870,7 @@ Deno.serve(async req => {
       const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, hora_ini, hora_fim").eq("bloqueio_id", b.id).maybeSingle();
       const cli = an?.cliente_conta || (await db.from("pedidos").select("cliente").eq("bloqueio_id", b.id).eq("status", "aprovado").limit(1).maybeSingle()).data?.cliente;
       if (!cli) return json({ enviados: 0, email: false });
+      if (await avaliacaoPausada(b.id)) return json({ enviados: 0, email: false, pausada: true }); // cliente reclamou (Rodrigo 2026-11-20)
       const lancha = await nomeLancha(b.lancha);
       const cup = await cupomDo(b.id, cli).catch(e => (console.error(e), null));
       const enviados = await enviar([cli], "avaliar", { ...b, lancha, cup }, "/login/");
