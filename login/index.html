@@ -285,6 +285,9 @@ input:focus,select.in:focus{outline:none;border-color:var(--sea)}
 .pvcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.pvcs .pvchip{font-weight:600}.pvchip.out{background:var(--chip);color:var(--ink)}
 .pvct .pvq{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.pvct .pvq>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:14px;color:var(--muted)}.pvct .pvq>summary::-webkit-details-marker{display:none}.pvct .pvq[open] .chev{transform:rotate(90deg)}.pvct .pvq .chev{display:inline-block;transition:transform .2s;font-style:normal;font-size:18px}
 .pvtrf{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}.pvtrf .in{margin:0;padding:9px 12px;font-size:15px}.pvtrf .row2{display:flex;gap:8px}.pvtrf .row2 .in:first-child{flex:0 0 38%;min-width:0}.pvtrf .row2 .in:last-child{flex:1;min-width:0}.pvtrf .btn{margin:0}
+.pvbus{position:relative}.pvbus .in{width:100%}.pvres{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}.pvres:empty{display:none}.pvres>li.muted{font-size:14px;padding:4px 2px}
+.pvres button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:9px 12px;font:inherit;font-size:14px;cursor:pointer}.pvres button small{font-size:12.5px}
+.pvsel{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 12px}.pvsel .pvl{display:flex;flex-direction:column;gap:2px;font-size:14px}.pvsel small{font-size:12.5px}
 @media (max-width:420px){.pvtrf .row2{flex-direction:column}.pvtrf .row2 .in:first-child{flex:none}}
 @media (max-width:420px){.pvsum b{font-size:14px}.pvc>summary{flex-wrap:wrap}.pvc>summary .pvr{margin-left:auto}}
 .owners li{padding:8px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
@@ -6704,29 +6707,40 @@ function pvContaHTML(c){ if(!c) return "";
       ${podeTr?`<span class="pvr"><button type="button" class="btn sec pvb" id="pvtrb" aria-expanded="${!!S.pvTr}">💸 ${t("tsGo")}</button></span>`:""}</div>${parte(c.seu,c.outros)}
     ${c.receber>0?`<div class="pvcr"><span class="pvl"><small class="muted">${t("pcRec")}</small><b class="pvbig">${brl2(c.receber)}</b>${rec?`<small class="muted">${rec}</small>`:""}${parte(c.receber_seu,c.receber_outros)}</span></div>`:""}
     ${Q.length?`<details class="pvq"${S.pvQo?" open":""}><summary><span>${t("pcQuem")}</span><i class="chev" aria-hidden="true">›</i></summary><ul class="pvd">${Q.map(x=>`<li><span><strong>${esc(tp(x))} · ${esc(x.nome)}</strong>${x.futuro>0&&x.agora>0?`<br><small class="muted">${t("pcQAg",{v:brl2(x.agora)})} · ${t("pcQFu",{v:brl2(x.futuro)})}</small>`:x.futuro>0?`<br><small class="muted">${t("pcQFuS")}</small>`:""}</span><span class="pvr"><b>${brl2(x.agora+x.futuro)}</b></span></li>`).join("")}</ul></details>`:""}
-    ${podeTr && S.pvTr?`<div class="pvtrf" id="pvtrf"><select class="in" id="pvtrp" aria-label="${t("pcPara")}"><option value="">${t("pcPara")}</option>${c.pessoas.map(p=>`<option value="${esc(p.id)}"${S.pvTrP===p.id?" selected":""}>${esc(p.nome)}</option>`).join("")}</select>
+    ${podeTr && S.pvTr?`<div class="pvtrf" id="pvtrf">${S.pvTrP?`<div class="pvsel"><span class="pvl"><strong>${esc(S.pvTrP.nome)}</strong><small class="muted">${esc(pvPapel(S.pvTrP))}</small></span><button type="button" class="btn sec pvb" id="pvtrx">${t("pcTroca")}</button></div>`
+        :`<div class="pvbus"><input type="search" class="in" id="pvtrq" autocomplete="off" placeholder="🔍 ${t("pcBusca")}" aria-label="${t("pcPara")}" value="${esc(S.pvTrQ||"")}"><ul class="pvres" id="pvtrl" role="listbox"></ul></div>`}
       <div class="row2"><input type="number" class="in" id="pvtrv" inputmode="decimal" min="1" step="0.01" max="${c.seu}" placeholder="${t("pcAte",{v:brl2(c.seu)})}" aria-label="${t("tsV")}"><input type="text" class="in" id="pvtrm" maxlength="140" placeholder="${t("tsM")}" aria-label="${t("tsM")}"></div>
       <button type="button" class="btn" id="pvtrgo">${t("tsGo")}</button></div>`:""}</div>`; }
+const pvPapel = x => [x.papel?.startsWith("dono:") ? t("pvDono")+" · "+x.papel.slice(5) : x.papel==="vendedor" ? t("pvVend") : "", x.doc||""].filter(Boolean).join(" · ");
+pvContaBind.seq=0;
 function pvContaBind(root){
   const dq=root.querySelector(".pvct .pvq"); if(dq) dq.ontoggle=()=>{ S.pvQo=dq.open; };
-  root.querySelector("#pvtrb")?.addEventListener("click", ()=>{ S.pvTr=!S.pvTr; pvPaint(); if(S.pvTr) document.getElementById("pvtrp")?.focus(); });
-  const sel=root.querySelector("#pvtrp"); if(sel) sel.onchange=()=>{ S.pvTrP=sel.value; };
+  root.querySelector("#pvtrb")?.addEventListener("click", ()=>{ S.pvTr=!S.pvTr; pvPaint(); if(S.pvTr) document.getElementById("pvtrq")?.focus(); });
+  root.querySelector("#pvtrx")?.addEventListener("click", ()=>{ S.pvTrP=null; S.pvTrQ=""; pvPaint(); document.getElementById("pvtrq")?.focus(); });
+  const bq=root.querySelector("#pvtrq"), bl=root.querySelector("#pvtrl");
+  if(bq){ const pinta=()=>{ const L=S.pvTrL||[], q=(S.pvTrQ||"").trim();
+      bl.innerHTML = q.length<2 ? "" : !L.length ? `<li class="muted">${t(S.pvTrBusy?"pcBuscando":"pcNada")}</li>` : L.map((x,i)=>`<li><button type="button" role="option" data-pvi="${i}"><strong>${esc(x.nome)}</strong><small class="muted">${esc(pvPapel(x))}</small></button></li>`).join("");
+      bl.querySelectorAll("[data-pvi]").forEach(b=>b.onclick=()=>{ S.pvTrP=L[+b.dataset.pvi]; S.pvTrL=[]; pvPaint(); document.getElementById("pvtrv")?.focus(); }); };
+    pinta();
+    bq.oninput=()=>{ S.pvTrQ=bq.value; clearTimeout(pvContaBind.tm); const q=bq.value.trim(); if(q.length<2){ S.pvTrL=[]; return pinta(); }
+      S.pvTrBusy=true; pinta();
+      pvContaBind.tm=setTimeout(async()=>{ const my=++pvContaBind.seq; try{ const j=await asFn({acao:"buscar_recebedor", q}); if(my!==pvContaBind.seq) return; S.pvTrL=j.lista||[]; }catch(e){ if(my===pvContaBind.seq) S.pvTrL=[]; } S.pvTrBusy=false; pinta(); }, 350); }; }
   const go=root.querySelector("#pvtrgo"); if(!go) return;
-  go.onclick=async()=>{ const c=S.pv?.conta, uid=sel.value, v=Math.round(+document.getElementById("pvtrv").value*100)/100, m=document.getElementById("pvtrm").value.trim();
+  go.onclick=async()=>{ const c=S.pv?.conta, uid=S.pvTrP?.id, v=Math.round(+document.getElementById("pvtrv").value*100)/100, m=document.getElementById("pvtrm").value.trim();
     if(!uid) return toast(t("pcE_para")); if(!(v>=1)) return toast(t("tsE_valor")); if(v>c.seu+0.005) return toast(t("pcE_so",{s:brl2(Math.max(0,c.seu))})); if(m.length<3) return toast(t("tsE_motivo"));
     go.disabled=true;
     try{ const i=await tsFn({acao:"info", user_id:uid}); if(!i?.pode) throw new Error("sem_conta");
-      const n=i.nome||c.pessoas.find(p=>p.id===uid)?.nome||"—";
+      const n=i.nome||S.pvTrP?.nome||"—";
       if(!confirm(t("tsQ",{v:brl2(v), n, d:i.doc?` (${i.doc})`:""}))){ go.disabled=false; return; }
       S.pvReq=S.pvReq||crypto.randomUUID();
       const j=await asFn({acao:"transferir_buzios", user_id:uid, valor:v, motivo:m, req:S.pvReq});
-      S.pvReq=null; S.pvTr=false; toast(t("tsOk",{v:brl2(j.valor ?? v), n})); await loadPv(); pvPaint(); return; }
+      S.pvReq=null; S.pvTr=false; S.pvTrP=null; S.pvTrQ=""; S.pvTrL=[]; toast(t("tsOk",{v:brl2(j.valor ?? v), n})); await loadPv(); pvPaint(); return; }
     catch(e){ if(e.message==="asaas" || e.message==="falhou") S.pvReq=null;
       toast(e.message==="so_buzios" ? t("pcE_so",{s:brl2(e.saldo||0)}) : e.message==="saldo" ? t("tsE_saldo",{s:brl2(e.saldo||0)}) : e.message==="valor" ? t("tsE_valor") : e.message==="motivo" ? t("tsE_motivo") : e.message==="sem_conta" ? t("pcE_conta") : t("tsE")); }
     go.disabled=false; }; }
-Object.assign(T.pt,{pcAgora:"Saldo no Asaas agora", pcRec:"A receber", pcSeu:"Seu {v}", pcOut:"De outros {v}", pcFalta:"Faltam {v} para cobrir o de outros", pcCart:"Cartão a liberar {v}", pcPp:"PayPal a caminho ≈ {v}", pcQuem:"De quem é o que não é seu", pcQAg:"no saldo {v}", pcQFu:"a receber {v}", pcQFuS:"quando cair", pcJet:"Jet ski", pcPara:"Para quem", pcAte:"Até {v}", pcE_para:"Escolha para quem.", pcE_so:"Só dá para transferir até {s}, que é a parte da Búzios.", pcE_conta:"Essa pessoa não tem conta Asaas aprovada."});
-Object.assign(T.en,{pcAgora:"Asaas balance now", pcRec:"To receive", pcSeu:"Yours {v}", pcOut:"Others' {v}", pcFalta:"{v} short to cover others'", pcCart:"Card pending {v}", pcPp:"PayPal on the way ≈ {v}", pcQuem:"Who the rest belongs to", pcQAg:"in balance {v}", pcQFu:"to receive {v}", pcQFuS:"when it clears", pcJet:"Jet ski", pcPara:"To whom", pcAte:"Up to {v}", pcE_para:"Choose who to send to.", pcE_so:"You can only transfer up to {s}, the Búzios share.", pcE_conta:"This person has no approved Asaas account."});
-Object.assign(T.es,{pcAgora:"Saldo en Asaas ahora", pcRec:"Por recibir", pcSeu:"Tuyo {v}", pcOut:"De otros {v}", pcFalta:"Faltan {v} para cubrir lo de otros", pcCart:"Tarjeta por liberar {v}", pcPp:"PayPal en camino ≈ {v}", pcQuem:"De quién es lo que no es tuyo", pcQAg:"en el saldo {v}", pcQFu:"por recibir {v}", pcQFuS:"cuando caiga", pcJet:"Jet ski", pcPara:"Para quién", pcAte:"Hasta {v}", pcE_para:"Elige para quién.", pcE_so:"Solo puedes transferir hasta {s}, la parte de Búzios.", pcE_conta:"Esta persona no tiene cuenta Asaas aprobada."});
+Object.assign(T.pt,{pcAgora:"Saldo no Asaas agora", pcRec:"A receber", pcSeu:"Seu {v}", pcOut:"De outros {v}", pcFalta:"Faltam {v} para cobrir o de outros", pcCart:"Cartão a liberar {v}", pcPp:"PayPal a caminho ≈ {v}", pcQuem:"De quem é o que não é seu", pcQAg:"no saldo {v}", pcQFu:"a receber {v}", pcQFuS:"quando cair", pcJet:"Jet ski", pcPara:"Para quem", pcAte:"Até {v}", pcE_para:"Escolha para quem.", pcE_so:"Só dá para transferir até {s}, que é a parte da Búzios.", pcE_conta:"Essa pessoa não tem conta Asaas aprovada.", pcBusca:"Para quem: nome, e-mail, telefone ou CPF", pcNada:"Ninguém com conta Asaas aprovada com esse dado.", pcBuscando:"Procurando…", pcTroca:"Trocar"});
+Object.assign(T.en,{pcAgora:"Asaas balance now", pcRec:"To receive", pcSeu:"Yours {v}", pcOut:"Others' {v}", pcFalta:"{v} short to cover others'", pcCart:"Card pending {v}", pcPp:"PayPal on the way ≈ {v}", pcQuem:"Who the rest belongs to", pcQAg:"in balance {v}", pcQFu:"to receive {v}", pcQFuS:"when it clears", pcJet:"Jet ski", pcPara:"To whom", pcAte:"Up to {v}", pcE_para:"Choose who to send to.", pcE_so:"You can only transfer up to {s}, the Búzios share.", pcE_conta:"This person has no approved Asaas account.", pcBusca:"To whom: name, email, phone or tax ID", pcNada:"No one with an approved Asaas account matches.", pcBuscando:"Searching…", pcTroca:"Change"});
+Object.assign(T.es,{pcAgora:"Saldo en Asaas ahora", pcRec:"Por recibir", pcSeu:"Tuyo {v}", pcOut:"De otros {v}", pcFalta:"Faltan {v} para cubrir lo de otros", pcCart:"Tarjeta por liberar {v}", pcPp:"PayPal en camino ≈ {v}", pcQuem:"De quién es lo que no es tuyo", pcQAg:"en el saldo {v}", pcQFu:"por recibir {v}", pcQFuS:"cuando caiga", pcJet:"Jet ski", pcPara:"Para quién", pcAte:"Hasta {v}", pcE_para:"Elige para quién.", pcE_so:"Solo puedes transferir hasta {s}, la parte de Búzios.", pcE_conta:"Esta persona no tiene cuenta Asaas aprobada.", pcBusca:"Para quién: nombre, e-mail, teléfono o documento", pcNada:"Nadie con cuenta Asaas aprobada con ese dato.", pcBuscando:"Buscando…", pcTroca:"Cambiar"});
 /* comprovante numa janela dentro do painel, sem sair da página (Rodrigo 2026-11-17): dados lidos no Asaas pelo servidor,
    ou o arquivo do Pix por fora (imagem ou PDF). O comprovante oficial do Asaas fica num link pequeno, opcional. */
 async function pvRecibo(body, b){ if(b) b.disabled=true;
