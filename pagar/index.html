@@ -308,7 +308,7 @@ const CPF_NEED={pt:"Este Pix precisa do CPF de quem vai pagar. Digite acima e to
 /* Pix sem vencimento para estrangeiro (2026-11-19): o Mercado Pago da Argentina recusou o QR com vencimento. Outro QR (estático, com valor) e a chave para digitar; o pagamento é reconhecido sozinho */
 const PIXALT={pt:{b:"Seu app não aceitou o QR? Mostrar outro código",t:"Outro código Pix",k:"Ou digite a chave Pix e o valor exato",v:"Valor",ck:"Copiar chave",e:"Não deu para gerar agora. Fale com a gente no WhatsApp."},
  en:{b:"Your app didn't accept the QR? Show another code",t:"Another Pix code",k:"Or type the Pix key and the exact amount",v:"Amount",ck:"Copy key",e:"We couldn't generate it right now. Please message us on WhatsApp."},
- es:{b:"¿Tu app no aceptó el QR? Mostrar otro código",t:"Otro código Pix",k:"O ingresá la chave Pix y el monto exacto",v:"Monto",ck:"Copiar chave",e:"No pudimos generarlo ahora. Escribinos por WhatsApp."}};
+ es:{b:"¿Tu app no aceptó el QR? Mostrar otro código",t:"Otro código Pix",k:"O ingresa la clave Pix y el monto exacto",v:"Monto",ck:"Copiar clave",e:"No pudimos generarlo ahora. Escríbenos por WhatsApp."}};
 function pixAltHTML(main){ const T2=PIXALT[lg]||PIXALT.pt, x=AX.alt, L=T[lg]||T.pt;
   if(!x) return `<div id="pixalt" style="margin-top:12px"><button type="button" class="btn sec" id="pixalt-b">${T2.b}</button><div id="pixalt-m"></div></div>`;
   return `<div id="pixalt" style="${main?"":"margin-top:14px;border-top:1px solid var(--line);padding-top:12px"}">${main?"":`<h3 style="margin:0 0 8px">${T2.t}</h3>`}${x.img?`<img class="qr" style="display:block;width:100%" alt="QR code Pix" src="data:image/png;base64,${esc(x.img)}">`:`<div class="qr">${qrSvg(x.payload)}</div>`}<button type="button" class="btn sec" data-copy="${esc(x.payload)}">${L.copyCC}</button>${x.chave?`<p class="muted" style="margin:12px 0 4px">${T2.k}</p><p style="margin:0;font-weight:600;word-break:break-all">${esc(x.chave)}</p><p style="margin:2px 0 8px">${T2.v}: <b>${brl(x.valor)}</b></p><button type="button" class="btn sec" data-copy="${esc(x.chave)}">${T2.ck}</button>`:""}</div>`; }
@@ -406,6 +406,7 @@ document.addEventListener("click", async e=>{ const b=e.target.closest("[data-pn
     if(!j.ok) throw 0;
     const r=await fetch(`${FN}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}); if(!r.ok) throw 0; D=await r.json();
     if(AS){ try{ A=await fetch(`${FN_AS}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}).then(r=>r.json()); if(A.pago) state="paid"; }catch(x){} }
+    AX.alt=null; AX.altLoading=0; AX.altErr=0; /* QR sem vencimento: busca de novo com o valor novo */
     render(); scrollTo(0,0);
   }catch(x){ b.disabled=false; if(m) m.innerHTML=`<p class="msg err">${T[lg].pnErr}</p>`; } });
 async function refresh(){ if(!D || state==="bad" || D.confirmada || document.hidden) return;

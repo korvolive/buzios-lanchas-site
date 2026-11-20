@@ -184,6 +184,10 @@ async function enviarPendentes() {
       upd.meta_status = "sem_consentimento"; upd.ga_status = "sem_consentimento";
       await db.from("conversoes").update(upd).eq("id", c.id); continue;
     }
+    // sem nenhuma visita registrada não há consentimento conhecido (quem recusa não grava visita): nada pessoal sai;
+    // a Meta fica sem envio e o Analytics recebe a venda com consentimento de anúncios negado
+    const semConsent = vs.length === 0;
+    if (semConsent && (c.meta_status === "pendente" || c.meta_status === "erro")) { upd.meta_status = "sem_consentimento"; c.meta_status = "sem_consentimento"; }
     const comFb = vs.find((x) => x.fbc) || null, comFbp = vs.find((x) => x.fbp) || null, comUa = vs.find((x) => x.ua) || null;
     const comGa = vs.find((x) => x.ga_client_id && x.ga_session_id) || vs.find((x) => x.ga_client_id) || null;
     const tempo = Math.floor(Date.parse(c.pago_em) / 1000);
@@ -216,7 +220,7 @@ async function enviarPendentes() {
       const r = await ga4({
         client_id: cid,
         ...(microsAtras < 70 * 3600e3 ? { timestamp_micros: Date.parse(c.pago_em) * 1000 } : {}),
-        consent: { ad_user_data: "GRANTED", ad_personalization: "GRANTED" },
+        consent: semConsent ? { ad_user_data: "DENIED", ad_personalization: "DENIED" } : { ad_user_data: "GRANTED", ad_personalization: "GRANTED" },
         events: [{ name: "purchase", params }],
       });
       upd.ga_status = r.status; upd.ga_resposta = r.resposta.slice(0, 500); upd.ga_tentativas = c.ga_tentativas + 1;

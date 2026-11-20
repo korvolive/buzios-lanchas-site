@@ -1,4 +1,4 @@
-# Graph Report - buzios-lanchas-site  (2026-11-19)
+# Graph Report - buzios-lanchas-site  (2026-11-20)
 
 ## Corpus Check
 - cluster-only mode — file stats not available
@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `41f6c017`
+- Built from commit: `26a0d439`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
