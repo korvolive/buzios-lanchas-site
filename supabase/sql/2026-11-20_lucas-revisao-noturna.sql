@@ -17,3 +17,14 @@ create table if not exists public.lucas_revisao (
 alter table public.lucas_revisao enable row level security;
 revoke all on public.lucas_revisao from anon, authenticated;
 grant select, insert, update, delete on public.lucas_revisao to service_role;
+
+-- A VPS grava/lê pelo Postgres direto com o papel limitado da ponte (wa_ponte_box): só esta tabela, sem apagar.
+do $$ begin
+  if exists (select 1 from pg_roles where rolname = 'wa_ponte_box') then
+    grant usage on schema public to wa_ponte_box;
+    grant select, insert, update on public.lucas_revisao to wa_ponte_box;
+    if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'lucas_revisao' and policyname = 'vps_revisao') then
+      create policy vps_revisao on public.lucas_revisao for all to wa_ponte_box using (true) with check (true);
+    end if;
+  end if;
+end $$;
