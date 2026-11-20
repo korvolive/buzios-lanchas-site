@@ -1,7 +1,7 @@
 name: Tarefas do Claude (noturno)
 
 # Usa os créditos de API do Claude em segundo plano: traduz descrições das lanchas (pt -> en/es),
-# escreve o texto para o Google, o texto das fotos e o resumo das avaliações (scripts/claude-noturno.mjs).
+# escreve o texto para o Google, o texto das fotos, o resumo das avaliações e revisa as conversas do Lucas (scripts/claude-noturno.mjs).
 # Não roda no site: se a chave faltar ou a API falhar, só pula e o site fica como está.
 # Segredos: ANTHROPIC_API_KEY (console.anthropic.com) e SUPABASE_ACCESS_TOKEN. Sem a chave, fica desligado.
 # Teto de gasto: LIMITE_MES_USD (padrão US$ 60 por mês); ao chegar nele, para até o mês seguinte.
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       tarefas:
-        description: "Quais (traducao, seo, alt, resumo). Vazio = todas."
+        description: "Quais (traducao, seo, alt, resumo, lucas). Vazio = todas."
         required: false
         default: ""
       simular:
