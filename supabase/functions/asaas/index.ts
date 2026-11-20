@@ -14,6 +14,7 @@
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
+// POST {acao:"sacar_buzios", valor, chave, req} (login admin)  saque Pix para chave no CNPJ da Búzios, só até a parte da Búzios
 // POST {acao:"buscar_recebedor", q} (login admin)  procura quem tem conta Asaas aprovada para o Transferir do card
 // POST {acao:"transferir_buzios", user_id, valor, motivo, req} (login admin)  transfere do saldo só até a parte da Búzios (card da planilha)
 // POST {acao:"planilha"} / {acao:"recibo", tipo, pid|id} (login admin)  planilha de vendas: pagamentos, quando caem, repasses e comprovantes
@@ -517,6 +518,11 @@ async function refrescar(rows: any[]) {
   }
 }
 const COLS_PG = "id, pedido, metodo, asaas_id, asaas_real, valor, sinal, repasse, wallet_id, status, pago_em, liquido, credito_previsto, credito_em, parcelas, antecipada, conferido_em";
+// parte da Búzios no saldo agora, pela mesma conta do card (chama a ação planilha com a sessão do administrador)
+async function seuAgora(h: Record<string, string>): Promise<number | null> {
+  const pl: any = await fetch(FN_URL, { method: "POST", headers: h, body: JSON.stringify({ acao: "planilha" }) }).then((r) => r.ok ? r.json() : null).catch(() => null);
+  return typeof pl?.conta?.seu === "number" ? pl.conta.seu : null;
+}
 // card do administrador na planilha (Rodrigo 2026-11-20): "meu saldo Asaas, quanto tenho a receber, quanto é meu e quanto não é".
 // Agora = saldo real do Asaas. De outros, já no saldo: repasse de dono e comissão ainda não pagos cujo dinheiro do pedido já caiu,
 // parte do jet ski ainda não paga. A receber = cartão que ainda não caiu (líquido) + PayPal a caminho (estimado, 90% do sinal,
@@ -568,7 +574,8 @@ async function contaBuzios(vendas: any[], CX: Map<number, any>, pids: number[], 
   const quem = [...G.values()].sort((a, z) => (z.agora + z.futuro) - (a.agora + a.futuro)).slice(0, 40);
   const pessoas = cts.filter((c: any) => c.wallet_id && c.aprovada_em && c.user_id !== eu).map((c: any) => ({ id: c.user_id, nome: String(c.nome || "").trim() || "—" }))
     .sort((a: any, z: any) => a.nome.localeCompare(z.nome, "pt-BR"));
-  return { disponivel, seu: r2(disponivel - outros), outros, cartao, paypal, paypal_n: pend.length, receber: r2(cartao + paypal), receber_seu: r2(cartao + paypal - outrosF), receber_outros: outrosF, quem, pessoas };
+  const { data: ult } = await db.from("saques_buzios").select("chave").eq("status", "enviado").order("criado_em", { ascending: false }).limit(1).maybeSingle();
+  return { saque_chave: ult?.chave || "", disponivel, seu: r2(disponivel - outros), outros, cartao, paypal, paypal_n: pend.length, receber: r2(cartao + paypal), receber_seu: r2(cartao + paypal - outrosF), receber_outros: outrosF, quem, pessoas };
 }
 // nome de cada pessoa para a planilha: perfil, cadastro de cliente, conta Asaas ou empresa do vendedor
 async function nomes(ids: string[], contas: Map<string, any>) {
@@ -1961,6 +1968,48 @@ Deno.serve(async req => {
         return { id: c.user_id, nome: String(c.nome || PF.get(c.user_id)?.nome || "—").trim(), doc: doc(c.cpf_cnpj), papel: ls.length ? "dono:" + ls.join(", ") : VD.has(c.user_id) ? "vendedor" : "" };
       }) });
     }
+    // Sacar do card do administrador (Rodrigo 2026-11-20: "sacar pro meu pix, só uma parte se eu quiser"). Vai para uma chave Pix
+    // no CNPJ da própria Búzios: chave CPF ou CNPJ de outro recusada aqui; e-mail/telefone/aleatória de outro dono é recusada pela
+    // validação de saques do Asaas (asaas-saques só aprova saída sem registro para o próprio CNPJ). Só até a parte da Búzios.
+    if (b.acao === "sacar_buzios") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const valor = Math.round(+b.valor * 100) / 100, chave = String(b.chave || "").trim().slice(0, 80), pedido = String(b.req || "").slice(0, 64);
+      if (!(valor >= 1) || valor > 50000) return json({ erro: "valor" }, 400);
+      if (pedido.length < 8) return json({ erro: "req" }, 400);
+      const d = chave.replace(/\D/g, "");
+      const tipo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(chave) ? "EMAIL" : /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(chave) ? "EVP"
+        : /^\+?55/.test(chave.replace(/[\s()-]/g, "")) && (d.length === 12 || d.length === 13) ? "PHONE" : d.length === 14 ? "CNPJ" : d.length === 11 ? "CPF" : "";
+      if (!tipo) return json({ erro: "chave" }, 400);
+      const ci: any = await asaas("/myAccount/commercialInfo").catch(() => null), meu = String(ci?.cpfCnpj || "").replace(/\D/g, "");
+      if (tipo === "CPF" || (tipo === "CNPJ" && meu && d !== meu)) return json({ erro: "chave_cnpj" }, 409);
+      const h = { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" };
+      const seu = await seuAgora(h);
+      if (seu === null) return json({ erro: "conta" }, 502);
+      if (valor > seu + 0.005) return json({ erro: "so_buzios", saldo: Math.max(0, seu) }, 409);
+      const ja = (await db.from("saques_buzios").select("status, valor").eq("req", pedido).maybeSingle()).data;
+      if (ja) return ja.status === "falhou" ? json({ erro: "falhou" }, 409) : json({ ok: true, valor: +ja.valor, repetido: true });
+      const key = tipo === "PHONE" ? "+" + d : tipo === "CNPJ" ? d : chave;
+      const { data: row, error: ei } = await db.from("saques_buzios").insert({ req: pedido, valor, chave: key, criado_por: u.id }).select("id").single();
+      if (ei) return ei.code === "23505" ? json({ ok: true, valor, repetido: true }) : json({ erro: "registro" }, 500);
+      let tr: any;
+      try { tr = await asaas("/transfers", { value: valor, operationType: "PIX", pixAddressKey: key, pixAddressKeyType: tipo, description: "Saque Búzios Lanchas" }); }
+      catch (e: any) {
+        await db.from("saques_buzios").update({ status: "falhou", erro: String(e?.message || e).slice(0, 300) }).eq("id", row.id);
+        return json({ erro: "asaas", detalhe: String(e?.message || "").slice(0, 200) }, 502);
+      }
+      await db.from("saques_buzios").update({ asaas_id: String(tr.id), status: "enviado" }).eq("id", row.id);
+      // a validação do Asaas responde uns 5 s depois: espera até ~14 s para dizer se foi recusada (chave de outro CPF/CNPJ)
+      let st = String(tr.status || "");
+      for (let i = 0; i < 7 && ["PENDING", ""].includes(st); i++) {
+        await new Promise((r) => setTimeout(r, 2000));
+        st = String((await asaas("/transfers/" + encodeURIComponent(tr.id)).catch(() => null))?.status || st);
+      }
+      if (st === "CANCELLED" || st === "FAILED") {
+        await db.from("saques_buzios").update({ status: "falhou", erro: "recusado: " + st }).eq("id", row.id);
+        return json({ erro: "recusado" }, 409);
+      }
+      return json({ ok: true, valor, status: st });
+    }
     // transferir do card do administrador (Rodrigo 2026-11-20): só até a parte que é da Búzios; o dinheiro de donos, vendedores
     // e jet skis fica. Confere a conta na hora (mesma conta do card) e usa a mesma transferência do "Transferir Saldo".
     if (b.acao === "transferir_buzios") {
@@ -1968,9 +2017,8 @@ Deno.serve(async req => {
       const valor = Math.round(+b.valor * 100) / 100;
       if (!(valor >= 1) || valor > 50000) return json({ erro: "valor" }, 400);
       const h = { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" };
-      const pl: any = await fetch(FN_URL, { method: "POST", headers: h, body: JSON.stringify({ acao: "planilha" }) }).then((r) => r.ok ? r.json() : null).catch(() => null);
-      const seu = pl?.conta?.seu;
-      if (typeof seu !== "number") return json({ erro: "conta" }, 502);
+      const seu = await seuAgora(h);
+      if (seu === null) return json({ erro: "conta" }, 502);
       if (valor > seu + 0.005) return json({ erro: "so_buzios", saldo: Math.max(0, seu) }, 409);
       const r = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas-transferir", { method: "POST", headers: h,
         body: JSON.stringify({ acao: "transferir", user_id: String(b.user_id || ""), valor, motivo: String(b.motivo || ""), req: String(b.req || "") }) });
