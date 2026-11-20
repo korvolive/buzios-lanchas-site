@@ -2875,7 +2875,7 @@ function openContaValor(op){
     gLoad().then(()=>{ if(!a.isConnected) return; a.dataset.gsi="1"; const d=document.createElement("div"); d.className="gsio"; a.appendChild(d);
       google.accounts.id.renderButton(d,{type:"standard", theme:"outline", size:"large", shape:"pill", width:Math.min(400,Math.max(200,a.offsetWidth)), locale:lang==="pt"?"pt-BR":lang}); }, ()=>{}); };
   function cadastro(msg){
-    dl.innerHTML=`${X}<h3 id="cv-t">${CUPM?cupTx("cvT"):t("cvT")}</h3><p>${CUPM?cupTx("cvSub"):t("cvSub")}</p>${gHTML()}
+    dl.innerHTML=`${X}<h3 id="cv-t">${CUPM?cupTx("cvT"):t("cvT")}</h3><p>${CUPM?cupTx("cvSub"):t("cvSub")}</p>${CUPM?"":gHTML() /* cupom: só cadastro com código no WhatsApp (o Google não confirma o número) */}
       <label>${t("cvName")}<input id="cv-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(st.nome)}"></label>
       <label>${t("leadWa")}<span class="lphone">${ddiSel("cv-c",st.ddi)}<input id="cv-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(st.tel)}" placeholder="${st.ddi==="55"?"(22) 99999-9999":""}"></span></label>
       <p class="lerr" id="cv-err" aria-live="polite">${msg||""}</p>

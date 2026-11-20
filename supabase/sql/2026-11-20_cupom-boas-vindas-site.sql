@@ -186,6 +186,21 @@ begin
         insert into mensagens(conversa, autor, texto, sistema, pedido) values (cid, null, tx, 'sinal:' || coalesce(tg, sv)::text || ':' || (extract(epoch from ate) * 1000)::bigint, pid);
         update conversas set ultima_em = now(), ultima_msg = left(tx, 80), anexo_liberado = true, encerrada_em = null where id = cid;
       end if;
+      -- com cupom: o valor do passeio na agenda passa a ser o que o cliente paga (como no confirmar_pago), para o dono
+      -- cobrar no embarque o valor certo, e a parte do dono no sinal é recalculada com esse valor
+      if pid is not null and cup is not null then
+        begin
+          select coalesce(cupom_valor, 0) into tg from public.pedidos where id = pid;
+          if tg > 0 then
+            perform set_config('app.auto_op', '1', true);
+            update public.anotacoes set valor = valor - tg where bloqueio_id = bid and valor > tg;
+            update public.pedidos set repasse_dono = null where id = pid;
+            perform set_config('app.auto_op', '', true);
+          end if;
+        exception when others then null;
+        end;
+        tg := null;
+      end if;
     else
       insert into public.pedidos (cliente, lancha, data, horario, pessoas, status, bloqueio_id, preco_base, preco_cliente)
         values (uid, b.lancha, b.data, b.horario, greatest(1, least(99, coalesce(n.pessoas, 1))), 'aprovado', bid,
@@ -219,3 +234,31 @@ begin
 end $f$;
 revoke all on function public.cupom_do_cliente_operador(text) from public, anon;
 grant execute on function public.cupom_do_cliente_operador(text) to authenticated;
+
+-- 10) parte do dono com cupom (achado na revisão): o cliente paga no embarque o total MENOS o cupom inteiro,
+--     então o repasse do sinal precisa cobrir o que falta para o dono receber o neto dele (menos só a parte do cupom que é do dono).
+--     Sem isso, um cupom da Búzios de R$ 50 faria o dono receber R$ 50 a menos.
+CREATE OR REPLACE FUNCTION public.tg_repasse_auto()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare a record; neto numeric; tot numeric; r numeric; cv numeric := greatest(coalesce(new.cupom_valor, 0), 0); cd numeric := greatest(coalesce(new.cupom_dono, 0), 0);
+begin
+  -- Parte do dono preenchida sozinha (2026-11-11): neto do dono (menos a parte do cupom que é dele) menos o que ele recebe no embarque (total pago pelo cliente - sinal).
+  -- Só quando ninguém definiu ainda; o administrador pode mudar depois (definir_repasse). Miss Bardot nunca tem repasse.
+  if new.repasse_dono is not null or new.lancha = 'miss-bardot' or coalesce(new.sinal_valor,0) <= 0 then return new; end if;
+  begin
+    select * into a from anotacoes where bloqueio_id = new.bloqueio_id;
+    neto := coalesce(a.neto_dono, public.preco_neto_tabela(new.lancha, new.data, new.horario));
+    -- a.valor (agenda) já é o que o cliente paga, com o cupom descontado (confirmar_pago e _ligar_passeio);
+    -- sem agenda ainda, o total do pedido menos o cupom
+    tot := coalesce(a.valor, coalesce(new.preco_cliente, new.preco_base) - cv);
+    if neto is null or tot is null or neto - least(cd, cv) <= 0 or neto - least(cd, cv) > tot then return new; end if;
+    r := round((neto - least(cd, cv)) - (tot - new.sinal_valor), 2);
+    if r >= 0 and r <= new.sinal_valor then new.repasse_dono := r; end if;
+  exception when others then return new;
+  end;
+  return new;
+end $function$;
