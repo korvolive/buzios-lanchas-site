@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-20)
 
 ## Corpus Check
-- 249 files · ~491,334 words
+- 249 files · ~491,882 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `51b3fb02`
+- Built from commit: `42187b6b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

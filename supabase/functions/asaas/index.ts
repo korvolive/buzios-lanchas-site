@@ -14,6 +14,7 @@
 // POST {acao:"comprovante", pid} (vendedor do pedido ou admin) link do comprovante da comissão (Asaas ou o anexo do Pix)
 // POST {acao:"aprovar"}                       (admin) quantas transferências estão esperando aprovação do Rodrigo no Asaas
 // POST {acao:"cancelar", pid|pids} (admin ou chave de serviço) cancela as cobranças abertas do pedido (recusado, sinal trocado)
+// POST {acao:"buscar_recebedor", q} (login admin)  procura quem tem conta Asaas aprovada para o Transferir do card
 // POST {acao:"transferir_buzios", user_id, valor, motivo, req} (login admin)  transfere do saldo só até a parte da Búzios (card da planilha)
 // POST {acao:"planilha"} / {acao:"recibo", tipo, pid|id} (login admin)  planilha de vendas: pagamentos, quando caem, repasses e comprovantes
 // POST {acao:"webhook"} (login admin)         registra o aviso de pagamento no Asaas apontando para esta função
@@ -1932,6 +1933,33 @@ Deno.serve(async req => {
       // card do administrador no topo (Rodrigo 2026-11-20): saldo do Asaas agora e a receber, quanto é da Búzios e quanto é de outros
       const conta = await contaBuzios(vendas, CX, pids, cts || [], u.id).catch((e) => (console.error("planilha conta", e?.message), null));
       return json({ vendas, transf, conta, em: new Date().toISOString() });
+    }
+    // busca de quem recebe no Transferir (Rodrigo 2026-11-20: "lista vai ser uma loucura; quero digitar nome ou qualquer informação").
+    // Só quem tem conta Asaas aprovada. Procura no servidor (nome, e-mail, telefone, CPF/CNPJ); devolve só nome, documento mascarado e papel.
+    if (b.acao === "buscar_recebedor") {
+      if (!(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "admin" }, 403);
+      const q = String(b.q || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").slice(0, 60), dq = q.replace(/\D/g, "");
+      if (q.length < 2) return json({ lista: [] });
+      const { data: cs } = await db.from("asaas_contas").select("user_id, nome, email, cpf_cnpj").not("wallet_id", "is", null).not("aprovada_em", "is", null).neq("user_id", u.id).limit(2000);
+      const ids = (cs || []).map((c: any) => c.user_id);
+      const { data: pf } = ids.length ? await db.from("perfis").select("user_id, nome, telefone").in("user_id", ids) : { data: [] };
+      const PF = new Map((pf || []).map((x: any) => [x.user_id, x]));
+      const sem = (t: unknown) => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const ach = (cs || []).filter((c: any) => {
+        const p: any = PF.get(c.user_id) || {};
+        if (sem(`${c.nome} ${p.nome || ""} ${c.email || ""}`).includes(q)) return true;
+        return dq.length >= 4 && (String(c.cpf_cnpj || "").replace(/\D/g, "").includes(dq) || String(p.telefone || "").replace(/\D/g, "").includes(dq));
+      }).slice(0, 8);
+      const aid = ach.map((c: any) => c.user_id);
+      const { data: dn } = aid.length ? await db.from("donos").select("user_id, lancha").in("user_id", aid) : { data: [] };
+      const { data: vd } = aid.length ? await db.from("vendedores").select("user_id").in("user_id", aid) : { data: [] };
+      const { data: ln } = (dn || []).length ? await db.from("lanchas").select("slug, nome").in("slug", [...new Set((dn || []).map((d: any) => d.lancha))]) : { data: [] };
+      const LN = new Map((ln || []).map((l: any) => [l.slug, l.nome])), VD = new Set((vd || []).map((v: any) => v.user_id));
+      const doc = (d: unknown) => { const x = String(d ?? "").replace(/\D/g, ""); return x.length === 11 ? `***.${x.slice(3, 6)}.${x.slice(6, 9)}-**` : x.length === 14 ? `**.${x.slice(2, 5)}.${x.slice(5, 8)}/${x.slice(8, 12)}-**` : ""; };
+      return json({ lista: ach.map((c: any) => {
+        const ls = (dn || []).filter((d: any) => d.user_id === c.user_id).map((d: any) => LN.get(d.lancha) || d.lancha);
+        return { id: c.user_id, nome: String(c.nome || PF.get(c.user_id)?.nome || "—").trim(), doc: doc(c.cpf_cnpj), papel: ls.length ? "dono:" + ls.join(", ") : VD.has(c.user_id) ? "vendedor" : "" };
+      }) });
     }
     // transferir do card do administrador (Rodrigo 2026-11-20): só até a parte que é da Búzios; o dinheiro de donos, vendedores
     // e jet skis fica. Confere a conta na hora (mesma conta do card) e usa a mesma transferência do "Transferir Saldo".
