@@ -868,8 +868,8 @@ html:not(.on-boat) .when{border:0;border-radius:24px;padding:18px 22px}
 html:not(.on-boat) .when .pk-dbtn,html:not(.on-boat) .when select{border:0;border-radius:14px;background-color:var(--bg)}
 html:not(.on-boat) .when > strong{font-weight:800;font-size:17px}
 /* cartões das lanchas: mais arredondados, sem linha em volta (o branco sobre o fundo claro já separa) */
-html:not(.on-boat) .card{border-radius:22px;border-color:transparent}
-html:not(.on-boat) .card.feat{border-color:var(--brass)}
+html:not(.on-boat) .card{border-radius:22px;border:1.5px solid var(--sea)} /* borda no azul do site para o card não sumir no fundo claro (Rodrigo 2026-11-20) */
+html:not(.on-boat) .card.feat{border-width:1px;border-color:var(--brass)}
 html:not(.on-boat) .card h3{font-weight:800;letter-spacing:-.02em}
 html:not(.on-boat) .cat-tabs,html:not(.on-boat) .car-btn{border:0}
 /* seções escuras viram painéis arredondados com margem */
