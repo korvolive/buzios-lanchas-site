@@ -2151,17 +2151,20 @@ const leadConsulta=(b,k)=>{ try{ const v=priceFor(b,pick.date,pick.slot); window
 /* depois do pedido: o chat com a Búzios Lanchas, onde já chegou a mensagem do pedido e depois chega o Pix (2026-10-22) */
 async function chatId(){ try{ const tok=await clientToken(); const r=await fetch(SB_URL+"/rest/v1/rpc/abrir_chat",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify({com:"suporte"})}); return r.ok ? +(await r.json())||0 : 0; }catch(e){ return 0; } }
 /* cupons do cliente logado: aparecem só se ele tem cupom; ele toca para usar (um por passeio) */
-let CUPS=null, RECORRENTE=false; /* RECORRENTE: já ganhou algum cupom (tem passeio concluído), mesmo usado ou vencido */
+let CUPS=null, RECORRENTE=false;
+/* cupom de boas-vindas do site (2026-11-20): um cupom só, R$ 100 na Miss Bardot ou R$ 50 nas outras (o banco limita à comissão da Búzios) */
+const cupBvSite = c => c && c.origem==="boas-vindas" && !c.lancha && c.valor_outras!=null;
+const cupVal = (c,b) => cupBvSite(c) && b?.slug!=="miss-bardot" ? +c.valor_outras : +c.valor; /* RECORRENTE: já ganhou algum cupom (tem passeio concluído), mesmo usado ou vencido */
 async function loadCups(){ if(CUPS) return CUPS; if(!isClient()) return [];
   try{ const tok=await clientToken(); const rq=fn=>fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"});
-    let r=await rq("meus_cupons_v2"); if(!r.ok) r=await rq("meus_cupons"); /* v2 traz a parte do dono (cupom do dono, 2026-10-25) */
+    let r=await rq("meus_cupons_v3"); if(!r.ok) r=await rq("meus_cupons_v2"); if(!r.ok) r=await rq("meus_cupons"); /* v2 traz a parte do dono (cupom do dono, 2026-10-25); v3 traz o cupom de boas-vindas do site (valor na Miss Bardot e nas outras, 2026-11-20) */
     const d=new Date(), today=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-    const all = r.ok ? await r.json() : []; RECORRENTE = all.length>0; CUPS = all.filter(c=>!c.pedido && c.expira_em>=today); }catch(e){ CUPS=[]; } return CUPS; }
+    const all = r.ok ? await r.json() : []; RECORRENTE = all.some(c=>!cupBvSite(c)); /* o cupom de boas-vindas do site não faz do cliente um recorrente */ CUPS = all.filter(c=>!c.pedido && c.expira_em>=today); }catch(e){ CUPS=[]; } return CUPS; }
 /* cupom do dono (2026-10-25): vale só na lancha dele; os cupons não somam, o site oferece o de maior valor que vale nesta lancha */
 async function showCup(out,b){
   const L=(await loadCups()).filter(c=>!c.lancha || (b && c.lancha===b.slug)); if(!L.length || !out.isConnected || out.querySelector(".pk-cup")) return;
   if(!L.some(c=>c.id===pick.cup)) pick.cup=null;
-  const c=[...L].sort((x,y)=>(+y.valor)-(+x.valor) || (x.expira_em<y.expira_em?-1:1))[0], v=+c.valor, brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
+  const c=[...L].sort((x,y)=>cupVal(y,b)-cupVal(x,b) || (x.expira_em<y.expira_em?-1:1))[0], v=cupVal(c,b), brlS=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=c.expira_em.split("-").reverse().join("/");
   if(pick.cup && pick.cup!==c.id) pick.cup=c.id;
   out.insertAdjacentHTML("afterbegin", `<label class="pk-cup"><input type="checkbox" id="pk-cupcb"${pick.cup?" checked":""}><span><b>${t("cupUse",{v:brlS(v)})}</b><small>${t("cupUntil",{d})}${pick.cup?" · "+t("cupOn",{v:brlS(v)}):""}</small></span></label>`);
   out.querySelector("#pk-cupcb").onchange=e=>{ pick.cup=e.target.checked?c.id:null; out.querySelector(".pk-cup").remove(); showCup(out,b); };
@@ -2475,7 +2478,7 @@ const stackHTML = b => `<ol class="stack">
 /* o valor só aparece depois de escolher data e horário, e só o daquela data ( */
 /* cliente com cupom vê quanto fica o passeio com o desconto (2026-11-05); cupons não somam: vale o maior desta lancha */
 const cupLine = (b,v) => { if(!v || !CUPS?.length) return ""; const L=CUPS.filter(c=>!c.lancha || c.lancha===b.slug); if(!L.length) return "";
-  const c=Math.max(...L.map(x=>+x.valor||0)); return c>0 ? `<p class="pr-cup">🎟️ ${t("cupPrice",{c:money(c),v:money(Math.max(0,v-c))})}</p>` : ""; };
+  const c=Math.max(...L.map(x=>cupVal(x,b)||0)); return c>0 ? `<p class="pr-cup">🎟️ ${t("cupPrice",{c:money(c),v:money(Math.max(0,v-c))})}</p>` : ""; };
 function showPrices(b){
   const box=document.getElementById("pr-val"); if(!box) return;
   const sl=pick.slot && slotOf(pick.slot);
@@ -2815,7 +2818,8 @@ const gHref = () => SB_URL+"/auth/v1/authorize?provider=google&prompt=select_acc
 /* janelinha "Ver valor desta data" (Rodrigo 2026-11-18): quem é do Brasil, Argentina ou Chile e não está logado entra ou cria a conta aqui mesmo,
    sem sair da página, e o valor aparece na hora. Cadastro curto: nome, WhatsApp com código (cadastro-whatsapp: enviar + criar) e uma senha.
    Quem chegou pelo link de vendedor/parceiro segue a janelinha do vendedor (o contato fica com ele); a conta criada aqui passa pelo vincular_vendedor ao recarregar os dados */
-function openContaValor(){
+function openContaValor(op){
+  const CUPM=!!op?.cupom; /* aberto pelo pop-up do cupom (2026-11-20) */
   if(VEND && precoTrancado()) return openVendLead(true);
   document.getElementById("cv-dlg")?.remove();
   const dl=document.createElement("dialog"); dl.id="cv-dlg"; dl.className="stop-dlg lead-dlg"; dl.setAttribute("aria-labelledby","cv-t"); document.body.appendChild(dl);
@@ -2837,7 +2841,7 @@ function openContaValor(){
     const nova = b==="google" && !c[0] && Date.now()-Date.parse(ses.user?.created_at||0) < 15*60e3;
     set("conta-tipo", c[0] || nova ? "cliente" : "equipe");
     return {nova, user:ses.user}; };
-  const pronto=()=>{ try{ (window.dataLayer=window.dataLayer||[]).push({event:"conta_ver_valor"}); }catch(e){} try{ window.rastreio&&rastreio("sign_up",{method:"site"}); }catch(e){} if(dl.open) dl.close(); loadCli(); loadVend(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); };
+  const pronto=()=>{ if(CUPM) cupSiteResgatar(); try{ (window.dataLayer=window.dataLayer||[]).push({event:"conta_ver_valor"}); if(CUPM) dataLayer.push({event:"cupom_cadastro"}); }catch(e){} try{ window.rastreio&&rastreio("sign_up",{method:"site"}); }catch(e){} if(dl.open) dl.close(); loadCli(); loadVend(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); };
   const fim=async(s, b, show, email)=>{ const r=await salva(s, b, show, email); if(r.nova) return soWhats(r.user); pronto(); };
   /* entrou com o Google pela primeira vez: nome e e-mail já vêm do Google, falta só o WhatsApp (Rodrigo 2026-11-18). Fechar aqui não perde nada: já está logado e vê o valor */
   function soWhats(u){
@@ -2871,7 +2875,7 @@ function openContaValor(){
     gLoad().then(()=>{ if(!a.isConnected) return; a.dataset.gsi="1"; const d=document.createElement("div"); d.className="gsio"; a.appendChild(d);
       google.accounts.id.renderButton(d,{type:"standard", theme:"outline", size:"large", shape:"pill", width:Math.min(400,Math.max(200,a.offsetWidth)), locale:lang==="pt"?"pt-BR":lang}); }, ()=>{}); };
   function cadastro(msg){
-    dl.innerHTML=`${X}<h3 id="cv-t">${t("cvT")}</h3><p>${t("cvSub")}</p>${gHTML()}
+    dl.innerHTML=`${X}<h3 id="cv-t">${CUPM?cupTx("cvT"):t("cvT")}</h3><p>${CUPM?cupTx("cvSub"):t("cvSub")}</p>${CUPM?"":gHTML() /* cupom: só cadastro com código no WhatsApp (o Google não confirma o número) */}
       <label>${t("cvName")}<input id="cv-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(st.nome)}"></label>
       <label>${t("leadWa")}<span class="lphone">${ddiSel("cv-c",st.ddi)}<input id="cv-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(st.tel)}" placeholder="${st.ddi==="55"?"(22) 99999-9999":""}"></span></label>
       <p class="lerr" id="cv-err" aria-live="polite">${msg||""}</p>
@@ -2892,7 +2896,7 @@ function openContaValor(){
       const r=await cw({acao:"enviar", tel:ddi+d, para:"cadastro"});
       if(r.ok) return codigo();
       b.disabled=false;
-      if(r.erro==="ja_tem"){ by="tel"; return entrar(t("cvJa")); }
+      if(r.erro==="ja_tem"){ by="tel"; return entrar(CUPM?cupTx("ja"):t("cvJa")); }
       $("cv-err").textContent=t(r.erro==="espere"?"vcEsp":r.erro==="limite"?"vcLim":r.erro==="nao_configurado"||r.erro==="envio"?"cvOff":"vcNet"); };
     if(!st.nome) $("cv-n").focus();
   }
@@ -2972,7 +2976,8 @@ async function showBoatStatus(b){
   const nb=app.querySelector("[data-slot=noite]"); if(nb){ nb.hidden=!hasNight(pick.date); if(nb.hidden && pick.slot==="noite"){ pick.slot=""; nb.setAttribute("aria-checked","false"); } }
   markSlots(b); showPrices(b);
   const out=document.getElementById("pk-out"), btn=document.getElementById("book-btn"); if(!out||!btn) return;
-  const bkOn=document.getElementById("bk-on"); if(bkOn && !bkOn.hidden) soOnline(btn); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; soOnline(btn); if(btn.dataset.ready) showCup(out,b); } });
+  const bkOn=document.getElementById("bk-on"), soBv=()=>!RECORRENTE && (CUPS||[]).length>0 && CUPS.every(cupBvSite); /* só tem o cupom de boas-vindas do site: o WhatsApp continua aparecendo (2026-11-20) */
+  if(bkOn && !bkOn.hidden && !soBv()) soOnline(btn); if(bkOn && bkOn.hidden) loadCups().then(L=>{ if((L.length || RECORRENTE) && bkOn.isConnected){ bkOn.hidden=false; if(!soBv()) soOnline(btn); if(btn.dataset.ready) showCup(out,b); } });
   if(isClient() && !isTeam() && !showPrice()) loadCups().then(()=>{ if(showPrice() && document.getElementById("pr-val")) showPrices(b); }); /* recorrente: o valor aparece assim que o site sabe que ele já fez passeio */
   if(+pick.people>b.capacity) pick.people="";
   /* embarque: um local só aparece fixo; mais de um vira escolha, já marcando o primeiro */
@@ -3755,4 +3760,103 @@ if(location.hash.length>1) document.getElementById(location.hash==="#escunas"?"f
   new MutationObserver(ms=>{ if(ms.some(m=>m.target.closest?.(".fleet-car")||[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.(".fleet-car,.c-items")||n.querySelector?.(".fleet-car"))))) run(); }).observe(document.body,{childList:true,subtree:true});
   addEventListener("resize",run); if(document.fonts) document.fonts.ready.then(run); run();
 })();</script>
+<style>/* pop-up do cupom de boas-vindas (Rodrigo 2026-11-20) */
+#cupPop{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(4,20,27,.6);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+#cupPop.on{display:flex;animation:cupIn .25s ease-out}
+@keyframes cupIn{from{opacity:0}to{opacity:1}}
+#cupPop .cp{position:relative;width:100%;max-width:400px;max-height:calc(100dvh - 32px);overflow:auto;background:#0d2531;color:#eaf4f7;border-radius:22px;border:1px solid #c99a2e;box-shadow:0 24px 70px rgba(0,0,0,.45);padding:34px 26px 22px;text-align:center}
+#cupPop .cp:focus{outline:none}
+#cupPop .cx{position:absolute;top:10px;right:10px;width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:#9fbac3;font-size:22px;line-height:40px;cursor:pointer}
+#cupPop .cx:hover,#cupPop .cx:focus-visible{background:rgba(255,255,255,.08);color:#fff}
+#cupPop .ck{font:800 12px var(--display,"Urbanist",sans-serif);letter-spacing:.24em;color:#e0b54d;text-transform:uppercase;margin:0}
+#cupPop .cs{font:500 17px/1.4 var(--body,"Figtree",sans-serif);color:#c8dde3;margin:10px 0 18px}
+#cupPop .tk{position:relative;margin:0 6px 22px;padding:20px 12px 18px;border:2px dashed rgba(224,181,77,.75);border-radius:16px;background:radial-gradient(120% 90% at 50% 0%,rgba(224,181,77,.18),rgba(224,181,77,.04) 70%)}
+#cupPop .tk:before,#cupPop .tk:after{content:"";position:absolute;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:#0d2531;border:2px dashed rgba(224,181,77,.75)}
+#cupPop .tk:before{left:-13px;clip-path:inset(0 0 0 50%)}#cupPop .tk:after{right:-13px;clip-path:inset(0 50% 0 0)}
+#cupPop .tk b{display:block;font:800 clamp(30px,9vw,40px)/1.02 "Bricolage Grotesque",var(--display,sans-serif);color:#e0b54d;letter-spacing:-.01em;text-transform:uppercase;text-shadow:0 0 28px rgba(224,181,77,.35)}
+#cupPop .cg{display:block;width:100%;border:0;border-radius:999px;padding:17px 18px;background:linear-gradient(180deg,#e9c463,#d9a93b);color:#2a1e03;font:800 15px var(--display,"Urbanist",sans-serif);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 26px rgba(224,181,77,.28)}
+#cupPop .cg:hover{filter:brightness(1.05)}#cupPop .cg:focus-visible{outline:3px solid #8fd6e8;outline-offset:3px}
+#cupPop .cf{margin:14px 0 0;font:500 13px var(--body,"Figtree",sans-serif);color:#7fa3ae}
+@media (prefers-reduced-motion:reduce){#cupPop.on{animation:none}}
+</style>
+<div id="cupPop" role="dialog" aria-modal="true" aria-labelledby="cupPopT"><div class="cp" tabindex="-1">
+  <button type="button" class="cx" data-cup-x>✕</button>
+  <p class="ck" id="cupPopK"></p>
+  <p class="cs" id="cupPopS"></p>
+  <div class="tk"><b id="cupPopT"></b></div>
+  <button type="button" class="cg" id="cupPopGo"></button>
+  <p class="cf" id="cupPopF"></p>
+</div></div>
+<script>/* cupom de boas-vindas do site (Rodrigo 2026-11-20): pop-up sem valor e sem nome de lancha; o botão abre o cadastro do site.
+   Só para quem nunca entrou neste aparelho (logado ou já logou alguma vez não vê). Quando a conta nova confirma o WhatsApp, o banco cria o cupom
+   (resgatar_cupom_site): R$ 100 na Miss Bardot ou R$ 50 nas outras lanchas, limitado à comissão da Búzios. Conta antiga não ganha.
+   Aparece uma vez, 20 s depois de entrar ou quando a pessoa vai sair (computador: mouse indo fechar a aba; celular: volta de outro app).
+   Nunca segura o botão voltar (regra do Google Ads). Fechou: some por 7 dias. */
+const CUP_TXT={
+  pt:{k:"Espera aí!", s:"Crie sua conta e garanta seu", t:"Cupom de desconto", go:"Garantir meu cupom", f:"Oferta por tempo limitado", x:"Fechar",
+      cvT:"Garanta seu cupom de desconto", cvSub:"Crie sua conta grátis, só com nome e WhatsApp. O cupom fica guardado na sua conta.",
+      ja:"Esse WhatsApp já tem conta. Entre com ela (o cupom de boas-vindas é só para conta nova).",
+      okT:"Seu cupom está guardado!", okP:"{mb} de desconto na Miss Bardot ou {ou} em qualquer outra lancha. Ele aparece sozinho na hora de reservar, até {d}.", okB:"Ver as lanchas"},
+  en:{k:"Wait!", s:"Create your account and get your", t:"Discount coupon", go:"Get my coupon", f:"Limited-time offer", x:"Close",
+      cvT:"Get your discount coupon", cvSub:"Create a free account with just your name and WhatsApp. The coupon is saved in your account.",
+      ja:"This WhatsApp already has an account. Log in with it (the welcome coupon is for new accounts only).",
+      okT:"Your coupon is saved!", okP:"{mb} off on Miss Bardot or {ou} off on any other boat. It shows up by itself when you book, until {d}.", okB:"See the boats"},
+  es:{k:"¡Espera!", s:"Crea tu cuenta y asegura tu", t:"Cupón de descuento", go:"Quiero mi cupón", f:"Oferta por tiempo limitado", x:"Cerrar",
+      cvT:"Asegura tu cupón de descuento", cvSub:"Crea tu cuenta gratis, solo con nombre y WhatsApp. El cupón queda guardado en tu cuenta.",
+      ja:"Ese WhatsApp ya tiene cuenta. Entra con ella (el cupón de bienvenida es solo para cuentas nuevas).",
+      okT:"¡Tu cupón está guardado!", okP:"{mb} de descuento en la Miss Bardot o {ou} en cualquier otra lancha. Aparece solo al reservar, hasta el {d}.", okB:"Ver las lanchas"}};
+const cupTx=(k,v)=>{ let s=(CUP_TXT[lang]||CUP_TXT.pt)[k]||CUP_TXT.pt[k]||""; if(v) for(const x in v) s=s.split("{"+x+"}").join(v[x]); return s; };
+const CUP_FLAG="cupom-site"; /* tocou no botão do pop-up: o cupom é pedido ao banco assim que a conta nova existir (até 3 dias) */
+async function cupSiteResgatar(){
+  const f=lsGet(CUP_FLAG); if(!f) return; if(Date.now()-(+f||0) > 3*864e5){ try{ localStorage.removeItem(CUP_FLAG); }catch(e){} return; }
+  if(!isClient()) return;
+  let tok=""; try{ tok=await clientToken(); }catch(e){ return; } if(!tok) return;
+  const r=await fetch(SB_URL+"/rest/v1/rpc/resgatar_cupom_site",{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"}).then(x=>x.ok?x.json():null).catch(()=>null);
+  if(!r) return; /* rede: tenta de novo na próxima visita */
+  if(!r.ok && ["whatsapp","sem_cliente","login"].includes(r.motivo)) return; /* cadastro ainda não terminou */
+  try{ localStorage.removeItem(CUP_FLAG); }catch(e){}
+  if(!r.ok || r.ja) return; /* conta antiga ou WhatsApp que já ganhou: não mostra nada */
+  try{ (window.dataLayer=window.dataLayer||[]).push({event:"cupom_ganho"}); }catch(e){}
+  CUPS=null; loadCups().then(()=>{ try{ const y=scrollY; render(false); scrollTo(0,y); }catch(e){} });
+  const brl=v=>"R$ "+(+v).toLocaleString("pt-BR"), d=String(r.expira_em||"").split("-").reverse().join("/");
+  document.getElementById("cup-ok")?.remove();
+  const dl=document.createElement("dialog"); dl.id="cup-ok"; dl.className="stop-dlg lead-dlg sent-dlg"; dl.setAttribute("aria-labelledby","cup-ok-t");
+  dl.innerHTML=`<div class="sent-ok" aria-hidden="true">✓</div><h3 id="cup-ok-t">${cupTx("okT")}</h3><p>${cupTx("okP",{mb:brl(r.valor),ou:brl(r.valor_outras),d})}</p><button type="button" class="btn" id="cup-ok-x">${cupTx("okB")}</button>`;
+  document.body.appendChild(dl);
+  dl.querySelector("#cup-ok-x").onclick=()=>{ dl.close(); const fr=document.getElementById("frota"); if(fr) fr.scrollIntoView({behavior:"smooth"}); };
+  dl.onclick=e=>{ if(e.target===dl) dl.close(); };
+  const abre=()=>{ if(document.querySelector("dialog[open]:not(#cup-ok)")) return setTimeout(abre,600); dl.showModal(); }; abre();
+}
+(function(){
+  const pop=document.getElementById("cupPop"); if(!pop) return;
+  setTimeout(cupSiteResgatar, 1500); /* voltou do /login/ ou do Google depois de tocar no pop-up */
+  const conhecido=()=>!!(lsGet("dono-ses") || lsGet("conta-tipo") || lsGet("dono-by") || lsGet(CUP_FLAG));
+  const pode=()=>!IS_BOT && !/BuziosLanchasIOS/.test(navigator.userAgent) && !conhecido() && !VEND && !lsGet("vend") && !document.querySelector("dialog[open]")
+    && (Date.now()-(+lsGet("cupom-pop-fechou")||0)) > 7*864e5 && !sessionStorage.getItem("cupom-pop-viu");
+  let last=null;
+  function fecha(){ pop.classList.remove("on"); try{ localStorage.setItem("cupom-pop-fechou",JSON.stringify(Date.now())); }catch(e){} if(last?.focus) last.focus(); }
+  function abre(tipo){
+    if(pop.classList.contains("on") || !pode()) return;
+    try{ sessionStorage.setItem("cupom-pop-viu","1"); }catch(e){}
+    pop.querySelector("#cupPopK").textContent=cupTx("k"); pop.querySelector("#cupPopS").textContent=cupTx("s");
+    pop.querySelector("#cupPopT").textContent=cupTx("t"); pop.querySelector("#cupPopGo").textContent=cupTx("go");
+    pop.querySelector("#cupPopF").textContent=cupTx("f"); pop.querySelector("[data-cup-x]").setAttribute("aria-label",cupTx("x"));
+    last=document.activeElement; pop.classList.add("on"); pop.querySelector(".cp").focus({preventScroll:true});
+    try{ (window.dataLayer=window.dataLayer||[]).push({event:"cupom_janela", tipo, idioma:lang}); }catch(e){}
+  }
+  pop.querySelector("[data-cup-x]").onclick=fecha;
+  pop.addEventListener("click",e=>{ if(e.target===pop) fecha(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape" && pop.classList.contains("on")) fecha(); });
+  pop.querySelector("#cupPopGo").onclick=()=>{
+    try{ localStorage.setItem(CUP_FLAG,JSON.stringify(Date.now())); }catch(e){}
+    try{ (window.dataLayer=window.dataLayer||[]).push({event:"cupom_click", idioma:lang}); }catch(e){}
+    pop.classList.remove("on"); openContaValor({cupom:true});
+  };
+  const t0=Date.now();
+  setTimeout(()=>abre("entrada"), 20000);
+  document.addEventListener("mouseout",e=>{ if(!e.relatedTarget && e.clientY<=0 && Date.now()-t0>5000) abre("saida"); });
+  let saiu=0; document.addEventListener("visibilitychange",()=>{ if(document.hidden) saiu=Date.now(); else if(saiu && Date.now()-t0>8000) abre("saida"); });
+  if(location.hash==="#cupom") abre("link");
+})();
+</script>
 </body></html>
