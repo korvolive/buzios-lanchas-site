@@ -54,6 +54,7 @@ Deno.serve(async req => {
     const { data: b } = await db.from("bloqueios").select("id, lancha, data, horario").eq("id", bid).maybeSingle();
     if (!b) return json({ erro: "passeio" }, 404);
     if (!(await db.from("realizados").select("aconteceu").eq("bloqueio_id", b.id).eq("aconteceu", true).maybeSingle()).data) return json({ erro: "passeio não confirmado" }, 409);
+    if ((await db.from("avaliacao_pausada").select("bloqueio_id").eq("bloqueio_id", b.id).maybeSingle()).data) return json({ status: "pausada" }); // cliente reclamou: não pede avaliação (Rodrigo 2026-11-20)
     const { data: an } = await db.from("anotacoes").select("cliente, cliente_conta, telefone").eq("bloqueio_id", b.id).maybeSingle();
     let email = "", nome = an?.cliente || "";
     if (an?.cliente_conta) email = (await db.auth.admin.getUserById(an.cliente_conta)).data.user?.email?.replace(/^.*@sem-email\.lanchaembuzios\.com\.br$/, "") || ""; // conta só com WhatsApp: tenta o e-mail do convite
