@@ -1,4 +1,4 @@
--- TESTE (nunca grava: termina com erro de propósito, tudo volta atrás). Apagar depois.
+-- publicar: auto
 -- Cupom de boas-vindas do site (Rodrigo 2026-11-20).
 -- Quem vê o pop-up "Garanta seu cupom de desconto", toca no botão e cria uma conta NOVA (WhatsApp confirmado)
 -- ganha um cupom: R$ 100 se usar na Miss Bardot (lancha do Rodrigo) ou R$ 50 em qualquer outra lancha.
@@ -219,25 +219,3 @@ begin
 end $f$;
 revoke all on function public.cupom_do_cliente_operador(text) from public, anon;
 grant execute on function public.cupom_do_cliente_operador(text) to authenticated;
-do $t$
-declare u uuid := gen_random_uuid(); r jsonb; pid bigint; v numeric; d numeric; l text; dt date := current_date + 40; res text := '';
-begin
-  insert into auth.users (id, instance_id, aud, role, email, created_at, updated_at) values (u, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'teste-cupom-'||left(u::text,8)||'@exemplo.invalid', now(), now());
-  insert into public.clientes (user_id, nome, whatsapp) values (u, 'Teste Cupom', '+55 21 90000-'||lpad((floor(random()*9999))::text,4,'0')) on conflict (user_id) do nothing;
-  update public.clientes set whatsapp_ok_em = now(), criado_em = now() where user_id = u;
-  perform set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated')::text, true);
-  r := public.resgatar_cupom_site(); res := res || 'resgate1=' || r::text || E'\n';
-  r := public.resgatar_cupom_site(); res := res || 'resgate2=' || r::text || E'\n';
-  -- outra lancha (não MB)
-  select slug into l from public.lanchas where slug <> 'miss-bardot' and public.preco_tabela(slug, dt, 'manha') > 0 and public.preco_neto_tabela(slug, dt, 'manha') > 0 limit 1;
-  insert into public.pedidos (cliente, lancha, data, horario, pessoas, status, preco_base, cupom)
-    values (u, l, dt, 'manha', 2, 'pendente', public.preco_tabela(l, dt, 'manha'), (select id from cupons where cliente = u)) returning id, cupom_valor, cupom_dono into pid, v, d;
-  res := res || format('outra %s tab=%s neto=%s cupom_valor=%s cupom_dono=%s', l, public.preco_tabela(l, dt, 'manha'), public.preco_neto_tabela(l, dt, 'manha'), v, d) || E'\n';
-  update public.pedidos set status = 'cancelado' where id = pid;
-  res := res || 'liberado=' || (select (pedido is null)::text from cupons where cliente = u) || E'\n';
-  insert into public.pedidos (cliente, lancha, data, horario, pessoas, status, preco_base, cupom)
-    values (u, 'miss-bardot', dt, 'manha', 2, 'pendente', public.preco_tabela('miss-bardot', dt, 'manha'), (select id from cupons where cliente = u)) returning id, cupom_valor, cupom_dono into pid, v, d;
-  res := res || format('mb cupom_valor=%s cupom_dono=%s', v, d) || E'\n';
-  res := res || 'melhor_mb=' || coalesce(public._melhor_cupom(u,'miss-bardot')::text,'null') || E'\n';
-  res := res || 'operador_fn=' || (to_regprocedure('public.cupom_do_cliente_operador(text)') is not null)::text; raise exception 'RESULTADO %', res;
-end $t$;
