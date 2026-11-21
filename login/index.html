@@ -3982,6 +3982,8 @@ const TAXA = {"Porto Veleiro (Praia dos Ossos)":["Porto Veleiro",10], "Píer do 
 const feeTxt = e => TAXA[e] ? t("embFee",{place:TAXA[e][0], v:TAXA[e][1]}) : "";
 const feeS = e => TAXA[e] ? t("embFeeS",{v:TAXA[e][1]}) : ""; /* versão curta para o WhatsApp do cliente */
 const mapLink = e => (!mapUrl(e) ? `<span class="tmap">📍 ${esc(e)}</span>` : `<a class="tmap" href="${mapUrl(e)}" target="_blank" rel="noopener">📍 ${esc(e)} <u>${t("mapOpen")}</u></a>`) + (TAXA[e] ? `<span class="tfee">ℹ️ ${esc(feeTxt(e))}</span>` : "");
+/* passeio sem local salvo: já vem marcado o local da lancha para aquele período quando ela só tem um (2026-11-21) */
+const embPadrao = (l,h) => { const e=l && h ? boatRow(l)?.dados?.embarque : null; if(!e) return null; const L=(h==="dia"?e["7"]:(e[h]?.length?e[h]:e["4"]))||[]; return L.length===1 ? L[0] : null; };
 const boarding = (l,h) => { const e=boatRow(l)?.dados?.embarque; if(e){ const L=(h==="dia"?e["7"]:(e[h]?.length?e[h]:e["4"]))||[]; return L.length ? L.join(" / ") : t("nbTbd"); } return boardingCode(l,h); };
 const boardingCode = (l,h) => BOARD_PV.includes(l) ? (h==="dia" ? "Porto Veleiro (Praia dos Ossos) / BR Marina" : "Porto Veleiro (Praia dos Ossos)") : "Píer do Golfinho (Praia dos Ossos)";
 /* ajudante (Rodrigo 2026-11-09): só o administrador dá o cargo, numa lancha, e escala no passeio; o ajudante vê só os passeios dele, sem nada do cliente */
@@ -8225,7 +8227,7 @@ function renderTrip(){
   const peopleOpts = () => `<option value="">—</option>${Array.from({length:Math.max(boatCap(), +n.pessoas||0)},(_,i)=>`<option${+n.pessoas===i+1?" selected":""}>${i+1}</option>`).join("")}`;
   const fromDay = !!sheetDay;
   /* marinheiro do passeio: já vem o fixo da lancha; o dono troca só naquela data */
-  let busy = [], pick = n.marinheiro || null, emb = n.embarque || null, embOther = !!emb && !BOARD_OPTS.includes(emb); /* "Outro": local escrito à mão (casa do cliente, outro píer...) */
+  let busy = [], pick = n.marinheiro || null, emb = n.embarque || embPadrao(r?.lancha, r?.horario), embOther = !!emb && !BOARD_OPTS.includes(emb); /* "Outro": local escrito à mão (casa do cliente, outro píer...) */
   const isBusy = uid => nslot && busy.some(b=>b.user_id===uid && b.bloqueio_id!==r?.id && choca(b.horario,nslot));
   const marField = () => { if(!S.marOk || !S.sailors) return ""; const own=[...sailorsOf(nboat), ...ownersOf(nboat).filter(o=>!sailorsOf(nboat).some(m=>m.user_id===o.user_id))], frAll=(S.free||[]).filter(f=>!own.some(m=>m.user_id===f.user_id)), fr=frAll.filter(f=>!isBusy(f.user_id)).sort(byNome); /* ocupados nem aparecem; em ordem alfabética */
     own.sort((a,b)=>(b.eu?1:0)-(a.eu?1:0) || (b.fixo?1:0)-(a.fixo?1:0) || byNome(a,b)); /* eu mesmo, o fixo e depois por nome */
