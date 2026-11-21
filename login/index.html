@@ -2283,7 +2283,7 @@ function donoAvHTML(){
   const cliOk=x=>waOf(x.nota.telefone).length>=8, semDono=x=>x.lancha==="miss-bardot" /* lancha do o dono: só o cliente (2026-11-05) */, L=(S.donoAv||[]).filter(x=>x.nota && !x.revenda && !((semDono(x) || waAt("dono",x.id)) && (waAt("confirma",x.id) || !cliOk(x))) && !(semDono(x) && !cliOk(x))); if(!L.length) return "";
   const os=l=>(S.owners||[]).filter(o=>o.lancha===l && waOf(o.telefone).length>=8);
   return `<details class="card cfm rvpend fold" data-fold="donoav" open>${foldSum(t("donoAvT",{n:L.length}))}<p class="muted" style="margin-top:0">${t("donoAvSub")}</p><ul class="owners">${L.map(x=>{ const n=x.nota, boat=boatName(x.lancha);
-    const btns=semDono(x) ? "" : os(x.lancha).map(o=>{ const msg=t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(x.data), slot:slotLine(x.horario,n), people:n.pessoas||"", client:n.cliente||"", emb:n.embarque?`📍 ${n.embarque}\n`:"", cob:donoCobTxt(n), url:location.origin+"/login/"});
+    const btns=semDono(x) ? "" : os(x.lancha).map(o=>{ const msg=t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(x.data), slot:slotLine(x.horario,n), people:n.pessoas||"", client:cliDono(n.cliente,n.telefone), emb:n.embarque?`📍 ${n.embarque}\n`:"", cob:donoCobTxt(n), url:location.origin+"/login/"});
       return `<a class="btn wa"${waAttr("dono",x.id)} href="https://wa.me/${waOf(o.telefone)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${WA_ICON} ${esc((o.nome||o.email||"").split(" ")[0])}${waTag("dono",x.id)}</a>`; }).join("") || `<small class="msg err">${t("notifyNone",{boat:esc(boat)})}</small>`;
     const cli=cliOk(x) ? `<a class="btn wa"${waAttr("confirma",x.id)} href="https://wa.me/${waOf(n.telefone)}?text=${encodeURIComponent(confCliMsg(x,n))}" target="_blank" rel="noopener">${WA_ICON} ${t("donoCliBtn")}${waTag("confirma",x.id)}</a>` : "";
     return `<li><span class="who">${avatar(x.lancha,"bav")}<span><strong>${esc(boat)}</strong><br><small class="muted">${fmtLong(x.data)} · ${t("slot_"+x.horario)}${n.cliente?" · "+esc(nome2(n.cliente)):""}</small><br><small>${donoCobTxt(n).trim()}</small></span></span><span class="cfb">${btns}${cli}</span></li>`; }).join("")}</ul></details>`; }
@@ -6563,7 +6563,7 @@ function notifyEmb(row, nota){
 }
 function notifyOwner(p, row, nota){
   const os=(S.owners||[]).filter(o=>o.lancha===row.lancha), boat=boatName(row.lancha);
-  const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:slotLine(row.horario,nota), people:nota.pessoas||p.pessoas, client:nota.cliente||"", emb:nota.embarque?`📍 ${nota.embarque}\n`:"", cob:donoCobTxt(nota), url:location.origin+"/login/"}); /* o dono sabe quanto cobrar no embarque (2026-11-05) */
+  const msg = o => t("waNotify",{name:(o.nome||"").split(" ")[0]||"", boat, date:fmtLong(row.data), slot:slotLine(row.horario,nota), people:nota.pessoas||p.pessoas, client:cliDono(nota.cliente,nota.telefone), emb:nota.embarque?`📍 ${nota.embarque}\n`:"", cob:donoCobTxt(nota), url:location.origin+"/login/"}); /* o dono sabe quanto cobrar no embarque (2026-11-05) */
   const cw=waOf(nota.telefone), cmsg=confCliMsg(row, nota, p);
   sheet.innerHTML = `<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><h2>✓ ${t("notifyT")}</h2><p class="muted" style="margin-top:0">${t("notifySub",{boat:esc(boat)})}</p>
     ${os.length ? os.map(o=>waOf(o.telefone).length>=8
@@ -8113,6 +8113,8 @@ function countryOpts(sel){
   const known = COUNTRIES.some(c=>c[1]===sel);
   return COUNTRIES.map(([r,c])=>`<option value="${c}"${c===sel?" selected":""}>${flag(r)} ${dn?dn.of(r):r} +${c}</option>`).join("") + (known?"":`<option value="${esc(sel)}" selected>+${esc(sel)}</option>`);
 }
+/* dono recebe o nome e o WhatsApp do cliente na mesma linha "Cliente:" (Rodrigo 2026-11-21); mesma linha para o modelo aviso_dono_passeio da VPS continuar casando */
+const cliDono = (nome, tel) => { const sp=splitPhone(tel), d=String(sp.num||"").replace(/\D/g,""); const w = d.length>=8 ? (sp.cc==="55" ? fmtBR(d) : `+${sp.cc} ${d}`) : ""; return (nome||"") + (w ? (nome ? " · " : "") + "WhatsApp " + w : ""); };
 function splitPhone(v){
   v=String(v||"").trim(); if(!v) return {cc:"55", num:""};
   const m=/^\+(\d{1,4})\s+(.*)$/.exec(v); if(m) return {cc:m[1], num:m[2]};
