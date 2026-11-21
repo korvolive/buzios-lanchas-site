@@ -4240,14 +4240,14 @@ function ownersHTML(){
 function marHTML(){
   if(S.sailors===null) return `<div class="card"><h2>⚓ ${t("tabMar")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
   const list=sailorsOf(S.cur), boat=boatName(S.cur);
-  /* o marinheiro fixo também vê a agenda toda (tabela visualizadores); o dono escolhe se ele vê os valores */
+  /* o marinheiro fixo também vê a agenda toda (tabela visualizadores); o dono escolhe se ele vê os valores; se o fixo é o próprio dono, não tem a pergunta: o dono já vê os valores (Rodrigo 2026-11-21) */
   const seesVals = email => { const v=(S.staff||[]).find(x=>x.lancha===S.cur && x.email===email); return v ? !!v.ver_valores : true; };
   const freeCard = S.free ? `<div class="marsec"><h3>${t("marFl")}</h3><p class="muted" style="margin-top:0">${t("freeCall")}</p>${freeWaList()}</div>` : "";
   /* um card só "Marinheiro" na aba Embarcação, com Fixo e Freelancer dentro (Rodrigo 2026-11-14) */
   return `<div class="card"><h2>⚓ ${t("tabMar")}</h2><div class="marsec"><h3>${t("marFx")}</h3><p class="muted" style="margin-top:0;line-height:1.5">${t("marSub",{boat:esc(boat)})}</p>
     <ul class="owners staff">${list.length ? list.map(m=>`<li style="flex-wrap:wrap;align-items:center"><span style="flex:1 1 0;min-width:0" class="who">${face(m.user_id,m.nome,"face")}<span><strong>${esc(m.nome)}</strong>${m.user_id===ses.user.id?` <small class="muted">(${t("you")})</small>`:""}${vb(m.user_id)}${marRate(m.user_id)}${m.telefone?`<br><small class="muted">${esc(m.telefone)}</small>`:""}</span></span>
       ${m.user_id===ses.user.id?"":waOf(m.telefone).length>=8?`<a class="twa" href="https://wa.me/${waOf(m.telefone)}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>`:""}
-      ${m.user_id===ses.user.id?"":`<span style="flex-basis:100%;height:0"></span><span class="vv">${t("staffValsQ")}<span class="yn" role="radiogroup">${[[true,"yes"],[false,"no"]].map(([v,k])=>`<button type="button" role="radio" data-sv="${esc(m.email)}" data-v="${v}" aria-checked="${seesVals(m.email)===v}">${t(k)}</button>`).join("")}</span></span>`}
+      ${m.user_id===ses.user.id||ownersOf(S.cur).some(o=>o.user_id===m.user_id)?"":`<span style="flex-basis:100%;height:0"></span><span class="vv">${t("staffValsQ")}<span class="yn" role="radiogroup">${[[true,"yes"],[false,"no"]].map(([v,k])=>`<button type="button" role="radio" data-sv="${esc(m.email)}" data-v="${v}" aria-checked="${seesVals(m.email)===v}">${t(k)}</button>`).join("")}</span></span>`}
       ${m.user_id===ses.user.id?"":`<button type="button" class="rm avs" data-avm="${esc(m.email)}" style="margin-left:auto">📣 ${t("teamAgain")}</button>`}<button type="button" class="rm" data-mrm="${esc(m.email)}" data-mn="${esc(m.nome)}"${m.user_id===ses.user.id?' style="margin-left:auto"':""}>${t("remove")}</button></li>`).join("") : `<li class="muted">${t("marNone")}</li>`}</ul>
     <div id="mmsg" style="margin-top:12px"></div>
     ${list.length ? `<p class="muted" style="margin:0;font-size:14px">${t("marOne")}</p>` : `${ownersOf(S.cur).length ? `${ownersOf(S.cur).map(o=>{ const fx=fixoElsewhere(o.user_id); return fx ? `<p class="muted" style="margin:4px 0 8px;font-size:14px">⚓ ${t(o.eu?"meFixoAt":"ownerFixoAt",{name:esc(o.nome), boat:esc(boatName(fx))})}</p>`
