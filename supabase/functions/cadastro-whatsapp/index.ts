@@ -152,7 +152,12 @@ Deno.serve(async req => {
       const r = r0 as { link?: string; erro?: string; precisa_conta?: boolean; nome?: string; tel?: string; wa?: string; email?: string };
       if (r.erro) return json({ erro: r.erro }, 400);
       if (r.link) return json({ ok: true, link: r.link });
-      if (b.acao === "convite_info") return json({ ok: true, conta: false, nome: String(r.nome || "").split(/\s+/)[0] || "" });
+      if (b.acao === "convite_info") {
+        // aviso do passeio (sinal já pago): a tela de senha não fala em pagamento (Rodrigo 2026-11-21, caso Oksana)
+        const { data: cv } = await db.from("convites").select("bloqueio_id").eq("codigo", c).maybeSingle();
+        const { data: an } = cv?.bloqueio_id ? await db.from("anotacoes").select("sinal").eq("bloqueio_id", cv.bloqueio_id).maybeSingle() : { data: null };
+        return json({ ok: true, conta: false, nome: String(r.nome || "").split(/\s+/)[0] || "", pago: Number(an?.sinal || 0) > 0 });
+      }
       const senha = String(b.senha || ""), tl = dig(r.tel);
       if (senha.length < 6 || senha.length > 72) return json({ erro: "senha" }, 400);
       if (tl.length < 10 || tl.length > 15) return json({ erro: "tel" }, 400);
