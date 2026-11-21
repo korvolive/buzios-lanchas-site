@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-21)
 
 ## Corpus Check
-- 254 files · ~494,966 words
+- 254 files · ~495,524 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `103176f6`
+- Built from commit: `ac58da9e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -554,15 +554,15 @@ Nodes (5): a_consulta_resgate_limpa_pedido, public.tg_consulta_resgate_limpa_ped
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.origem_reserva`, `public.bloqueios`, `public.clientes`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.origem_reserva`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07058823529411765 - nodes in this community are weakly interconnected._
-- **Why does `public.jetskis` connect `public.jetskis` to `public`, `public.bloqueios`, `2026-11-19_jetski-cortesia-varias-lanchas.sql`, `2026-11-15_jetski-pedido.sql`, `public.pedidos`, `public.ativar_conta_cliente`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.bloqueios`, `public.clientes`, `public.consultas`, `public._ligar_passeio`, `b`, `public.anotacoes`, `public.ativar_conta_cliente`?**
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07183673469387755 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**

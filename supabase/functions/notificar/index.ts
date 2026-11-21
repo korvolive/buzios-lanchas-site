@@ -582,8 +582,11 @@ async function inicios() {
     const donos = (pd || []).filter(x => x.nome).map(x => x.nome + (x.telefone ? ` · WhatsApp ${x.telefone}` : ""));
     const hora = a.hora_ini ? String(a.hora_ini).replace(/^0/, "").replace(":00", "h").replace(":", "h") : `${INI[b.horario]}h`;
     if (!a.cliente_conta) {
-      // cliente sem conta: avisa quem cuida do passeio (Búzios Lanchas: administrador; de fora: donos) para mandar a mensagem pronta no WhatsApp
-      const alvo = a.origem === "buzios" ? adms : (ds || []).map(d => d.user_id);
+      // cliente sem conta da Búzios Lanchas: o aviso sai sozinho pelo WhatsApp oficial (painel-worker da VPS; se falhar, ele passa para o Lucas/Diretor),
+      // então o administrador não recebe mais e-mail nem push pedindo para mandar (Rodrigo 2026-11-21)
+      if (a.origem === "buzios") continue;
+      // de fora: avisa os donos para mandar a mensagem pronta no WhatsApp
+      const alvo = (ds || []).map(d => d.user_id);
       n += await enviar(alvo, "avisarCli", { id: b.id, lancha, hora, cliente: a.cliente || "" }, `/login/?avisar=${b.id}`);
       const { data: ns } = await db.from("perfis").select("user_id, nome").in("user_id", alvo.concat(["00000000-0000-0000-0000-000000000000"]));
       for (const u of alvo) await mandarEmail(u, "avisarCli", { b, a, lancha, data: dataBR(b.data), embarque: a.embarque || "", cliente: a.cliente || "", nomes: Object.fromEntries((ns || []).map(x => [x.user_id, x.nome])) }).catch(e => console.error(e));
