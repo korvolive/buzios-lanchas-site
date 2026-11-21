@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-21)
 
 ## Corpus Check
-- 263 files · ~503,476 words
+- 263 files · ~503,807 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b2b99630`
+- Built from commit: `aff18b35`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -562,14 +562,14 @@ Nodes (14): cupons_boas_vindas_um_por_cliente, public.gerar_cupom_boas_vindas(),
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.origem_reserva`, `public.bloqueios`, `public._pre_reserva_volta`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.mb_libera_sinal_sozinho`, `2026-11-16_consultas-site-fecham-sozinhas.sql`?**
+- **Why does `public.creditos` connect `b` to `public.bloqueios`, `public._pre_reserva_volta`, `public.bloqueios`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07058823529411765 - nodes in this community are weakly interconnected._
-- **Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public._pre_reserva_volta`, `public.marcar_wa`, `public.origem_reserva`?**
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.mb_libera_sinal_sozinho`, `2026-11-16_consultas-site-fecham-sozinhas.sql`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._

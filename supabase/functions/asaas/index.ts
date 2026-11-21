@@ -1613,10 +1613,11 @@ Deno.serve(async req => {
       const { data: px } = await db.from("vendedores").select("pix_tipo, pix_chave").eq("user_id", u.id).maybeSingle();
       const TIPO: Record<string, string> = { cpf: "CPF", cnpj: "CNPJ", email: "EMAIL", telefone: "PHONE", aleatoria: "EVP" };
       if (!px?.pix_chave || !TIPO[px.pix_tipo]) return json({ erro: "sem_pix" }, 409);
-      // no máximo 3 saques por dia (Brasília) por pessoa (Rodrigo 2026-11-21); o trigger a0_limite_dia confere de novo no banco
+      // no máximo 3 saques por dia (Brasília) por pessoa, menos o administrador (Rodrigo 2026-11-21); o trigger a0_limite_dia confere de novo no banco
       const hojeBr = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
       const { count: nDia } = await db.from("saques").select("id", { count: "exact", head: true }).eq("user_id", u.id).neq("status", "falhou").gte("criado_em", hojeBr + "T03:00:00Z");
-      if ((nDia || 0) >= 3) return json({ erro: "limite_dia" }, 409);
+      // o administrador não tem limite (Rodrigo 2026-11-21)
+      if ((nDia || 0) >= 3 && !(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "limite_dia" }, 409);
       // trava: um saque por vez (índice único em saques com status "enviando")
       const { data: sq, error: es } = await db.from("saques").insert({ user_id: u.id, valor, chave: px.pix_chave, tipo: px.pix_tipo, status: "enviando" }).select("id").single();
       if (es || !sq) return json({ erro: /limite_dia/.test(es?.message || "") ? "limite_dia" : "andamento" }, 409);

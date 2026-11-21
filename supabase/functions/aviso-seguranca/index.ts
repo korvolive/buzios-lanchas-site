@@ -3,7 +3,7 @@
 // 2026-11-21_seguranca-saque.sql). Esta função manda o aviso:
 //  - para a própria pessoa: push (app e iPhone) e WhatsApp pelo número oficial (360dialog, modelos de Utilidade saque_pedido e
 //    chave_pix_trocada, que saem mesmo fora da janela de 24 h), no idioma do aparelho dela;
-//  - para o administrador: push e WhatsApp no número de alerta (segredos_app ALERTA_WA, fora do código).
+//  O administrador NÃO recebe (Rodrigo 2026-11-21): só o próprio dono/vendedor.
 // Os modelos são criados sozinhos (no máximo uma tentativa por dia); até a Meta aprovar, sai só o push.
 // A chave Pix aparece mascarada (CPF/CNPJ só com os dígitos do meio). Sem nomes de pessoas da empresa e sem emoji nos textos.
 // POST {acao:"enviar"} com x-chave (resgate_config.chave): pg_net na hora e cron de 15 em 15 min se sobrou aviso.
@@ -161,7 +161,6 @@ async function enviar() {
   if (!fila?.length) return { enviados: 0 };
   const key = await d360Key();
   const aprov = key ? await modelos(key).catch(() => ({ [MOD_SAQUE]: [], [MOD_PIX]: [] } as Record<string, string[]>)) : { [MOD_SAQUE]: [], [MOD_PIX]: [] };
-  const alerta = waNum((await db.from("segredos_app").select("valor").eq("nome", "ALERTA_WA").maybeSingle()).data?.valor);
   const { data: adm } = await db.from("admins").select("user_id");
   const admIds = (adm || []).map((a: any) => a.user_id);
   const out: any[] = [];
@@ -185,23 +184,12 @@ async function enviar() {
       const sq = a.tipo === "saque";
       const modelo = sq ? MOD_SAQUE : MOD_PIX;
       const params = (lg: string) => sq ? [brl(+a.valor, lg), nome, chaveTxt(lg, a.chave_tipo, a.chave)] : [nome, chaveTxt(lg, a.chave_tipo, a.chave)];
-      // a própria pessoa (o administrador recebe pelo alerta abaixo; não duplica no celular dele)
+      // só a própria pessoa: o administrador não recebe estes avisos (Rodrigo 2026-11-21, "senão fico recebendo mensagem o dia todo")
       if (!admIds.includes(a.user_id)) {
         if (ja.push === undefined) res.push = await push(subs || [], (lg) => sq ? PUSH_SAQUE[lg](brl(+a.valor, lg), chaveTxt(lg, a.chave_tipo, a.chave)) : PUSH_PIX[lg](chaveTxt(lg, a.chave_tipo, a.chave)), `seg-${a.tipo}-${a.id}`);
         if (ja.wa !== "enviado") res.wa = !to ? "sem_telefone" : !key ? "sem_chave" : !aprov[modelo].includes(LCW[l]) ? "modelo_em_aprovacao" : await wa(key, to, modelo, LCW[l], params(l));
       }
-      // administrador: push e WhatsApp no número de alerta
-      const { data: as } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").in("user_id", admIds);
-      const quem = nomeComp.split(/\s+/).slice(0, 2).join(" ") || nome;
-      if (ja.push_adm === undefined) res.push_adm = await push((as || []).map((s: any) => ({ ...s, lang: "pt" })), () => sq
-        ? { title: "Saque pedido no app", body: `${quem}: ${brl(+a.valor, "pt")} para ${chaveTxt("pt", a.chave_tipo, a.chave)}.` }
-        : { title: "Chave Pix trocada", body: `${quem} trocou a chave Pix para ${chaveTxt("pt", a.chave_tipo, a.chave)}. Confira antes de pagar por fora.` }, `seg-adm-${a.tipo}-${a.id}`);
-      if (ja.wa_adm === "enviado") { /* já foi */ }
-      else if (alerta && alerta !== to) {
-        const p = sq ? [brl(+a.valor, "pt"), quem, chaveTxt("pt", a.chave_tipo, a.chave)] : [quem, chaveTxt("pt", a.chave_tipo, a.chave)];
-        res.wa_adm = !key ? "sem_chave" : !aprov[modelo].includes("pt_BR") ? "modelo_em_aprovacao" : await wa(key, alerta, modelo, "pt_BR", p);
-      } else res.wa_adm = alerta ? "mesmo_numero" : "sem_numero";
-      const falhou = res.wa === "falhou" || res.wa_adm === "falhou";
+      const falhou = res.wa === "falhou";
       // WhatsApp falhou: volta para a fila (até 5 tentativas); modelo ainda em aprovação não volta (o push já avisou)
       await db.from("avisos_seguranca").update({ resultado: res, tentativas: a.tentativas + 1, ...(falhou && a.tentativas + 1 < 5 ? { enviado_em: null } : {}) }).eq("id", a.id);
     } catch (e) {
