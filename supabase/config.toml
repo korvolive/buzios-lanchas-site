@@ -118,3 +118,6 @@ verify_jwt = false
 
 [functions.conversoes]
 verify_jwt = false
+
+[functions.aviso-seguranca]
+verify_jwt = false
