@@ -549,7 +549,14 @@ td.season small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .phone{font:500 14px/1 var(--mono);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
 .phone button{font:500 12px/1 var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer}
 .cd-tag{background:var(--chip);border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 14px;line-height:1.35}
-.cd-tag-end{margin:16px 0 0}
+.st-head{position:relative}.st-head h2{padding-right:46px}@media (max-width:880px){.st-head h2{padding:0 46px}}
+.cd-gift{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:5}
+.cd-gift-btn{width:40px;height:40px;border-radius:50%;border:1px solid color-mix(in srgb,var(--brass) 45%,var(--line));background:color-mix(in srgb,var(--brass) 14%,var(--surface));font-size:22px;line-height:1;display:grid;place-items:center;cursor:pointer;padding:0;animation:cdPulse 2.4s ease-in-out 3}
+@keyframes cdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.cd-gift-btn{animation:none}}
+.cd-pop{display:none;position:absolute;right:0;top:calc(100% + 8px);width:min(260px,calc(100vw - 48px));margin:0;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.14);font-size:14px;line-height:1.4;text-align:left}
+.cd-gift.open .cd-pop{display:block}
+@media (hover:hover){.cd-gift:hover .cd-pop,.cd-gift:focus-within .cd-pop{display:block}}
 .example-banner{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--muted);margin-top:16px}
 
 /* Data e horário na página da lancha */
@@ -686,7 +693,7 @@ h1,h2,h3{line-height:1.15}
   .b-title{flex-direction:column-reverse;gap:10px}.b-title:not(.sel) .b-share{order:-1;margin:0 auto}.b-avatar{margin:0;top:0;width:88px;height:88px}
   .lead{font-size:16px;line-height:1.6}
   .spec-row{margin:18px 0 0}.spec-row div{text-align:center;padding:12px 8px}
-  .pricebox{padding:20px 18px}.pricebox > h2{text-align:center}
+  .pricebox{padding:20px 18px}.pricebox > h2,.pricebox .st-head h2{text-align:center}
   .block h2{text-align:center}
   .pr-wait,.pricebox .fine{text-align:center}
 }
@@ -1570,9 +1577,9 @@ const GUIAS = {roteiro:{pt:"passeio-de-lancha-em-buzios", en:"boat-tour-in-buzio
 Object.assign(UI.pt, {shareB:"Compartilhar", shareL:"Compartilhar o link desta embarcação", shareOk:"Link copiado ✓", shareTxt:"Olha essa embarcação em Búzios: {boat}"});
 Object.assign(UI.en, {shareB:"Share", shareL:"Share this boat's link", shareOk:"Link copied ✓", shareTxt:"Check out this boat in Búzios: {boat}"});
 Object.assign(UI.es, {shareB:"Compartir", shareL:"Compartir el enlace de esta embarcación", shareOk:"Enlace copiado ✓", shareTxt:"Mira esta embarcación en Búzios: {boat}"});
-Object.assign(UI.pt, {cdTag:"🎁 Passeou nesta embarcação? Ganhe um cupom de desconto para o próximo passeio.", cdTagV:"🎁 Passeou nesta embarcação? Ganhe {v} de desconto no próximo passeio."});
-Object.assign(UI.en, {cdTag:"🎁 Toured on this boat? Get a discount coupon for your next tour.", cdTagV:"🎁 Toured on this boat? Get {v} off your next tour."});
-Object.assign(UI.es, {cdTag:"🎁 ¿Paseaste en esta embarcación? Gana un cupón de descuento para el próximo paseo.", cdTagV:"🎁 ¿Paseaste en esta embarcación? Gana {v} de descuento en el próximo paseo."});
+Object.assign(UI.pt, {cdGiftAria:"Presente: cupom de desconto", cdTag:"🎁 Passeou nesta embarcação? Ganhe um cupom de desconto para o próximo passeio.", cdTagV:"🎁 Passeou nesta embarcação? Ganhe {v} de desconto no próximo passeio."});
+Object.assign(UI.en, {cdGiftAria:"Gift: discount coupon", cdTag:"🎁 Toured on this boat? Get a discount coupon for your next tour.", cdTagV:"🎁 Toured on this boat? Get {v} off your next tour."});
+Object.assign(UI.es, {cdGiftAria:"Regalo: cupón de descuento", cdTag:"🎁 ¿Paseaste en esta embarcación? Gana un cupón de descuento para el próximo paseo.", cdTagV:"🎁 ¿Paseaste en esta embarcación? Gana {v} de descuento en el próximo paseo."});
 Object.assign(UI.pt, {cupPrice:"Com o seu cupom de {c}: <strong>{v}</strong>", cupUse:"🎟️ Usar meu cupom de {v}", cupUntil:"vale até {d}", cupOn:"Desconto de {v} no valor do passeio."});
 Object.assign(UI.en, {cupPrice:"With your {c} coupon: <strong>{v}</strong>", cupUse:"🎟️ Use my {v} coupon", cupUntil:"valid until {d}", cupOn:"{v} off the tour price."});
 Object.assign(UI.es, {cupPrice:"Con tu cupón de {c}: <strong>{v}</strong>", cupUse:"🎟️ Usar mi cupón de {v}", cupUntil:"válido hasta {d}", cupOn:"Descuento de {v} en el valor del paseo."});
@@ -3173,6 +3180,8 @@ function seo(b){
 /* link de compartilhar do perfil no Google (2026-10-24): abre no navegador, em outra aba, só a Lancha Miss Bardot, sem anúncios de concorrentes como na busca */
 const GOOGLE_REVIEWS = "https://share.google/kUtKdkLJN0e9gmFWg";
 /* Garantia Búzios Lanchas (2026-10-29): no painel da lancha com a empresa e o recibo; na home, só a garantia, embaixo dos botões do topo */
+/* presente do cupom (ícone ao lado de "O que está incluso"): abre e fecha a explicação ao tocar (Rodrigo 2026-11-21) */
+document.addEventListener("click",e=>{ const g=document.getElementById("cd-tag"); if(!g) return; const bt=g.querySelector(".cd-gift-btn"); const o = !!bt && bt.contains(e.target) ? !g.classList.contains("open") : false; g.classList.toggle("open",o); if(bt) bt.setAttribute("aria-expanded",o); });
 const GUAR_IC = `<svg class="guar-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>`;
 const guarHTML = full => `<div class="guar"><b>${full?"":GUAR_IC}${t("guarT")}</b>${full?"":`<span class="guar-s">${t("guarS")}</span>`}<p>${t("guarP")}</p>${full?`<ul><li>${t("guarSea")}</li><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
 const HERO_MEET = false; // botão "Conhecer a Miss Bardot" escondido (2026-10-24); true volta com ele
@@ -3407,9 +3416,8 @@ function boatPage(b){
       </div>
       <aside class="pricebox" aria-label="${t("pricesAria")}">
         ${b.reviews?`<a class="pr-grev" href="${GOOGLE_REVIEWS}" target="_blank" rel="noopener"><span aria-hidden="true">★★★★★</span> ${t("heroRev")}</a>`:""}
-        ${isEsc(b) ? `<h2>${t("stackTitle")}</h2>${stackHTML(b)}<div style="height:18px"></div>` + escBoxHTML(b) /* escuna também tem "O que vem no seu passeio" (Rodrigo 2026-11-14) */ : `<h2>${t("stackTitle")}</h2>
+        ${isEsc(b) ? `<h2>${t("stackTitle")}</h2>${stackHTML(b)}<div style="height:18px"></div>` + escBoxHTML(b) /* escuna também tem "O que vem no seu passeio" (Rodrigo 2026-11-14) */ : `<div class="st-head"><h2>${t("stackTitle")}</h2><div class="cd-gift" id="cd-tag" hidden><button type="button" class="cd-gift-btn" aria-expanded="false" aria-controls="cd-pop" aria-label="${t("cdGiftAria")}">🎁</button><p class="cd-pop" id="cd-pop" role="tooltip">${t("cdTag").replace(/^🎁\s*/,"")}</p></div></div>${"" /* cupom vira só o ícone de presente ao lado do título; a explicação abre ao tocar ou passar o mouse (Rodrigo 2026-11-21) */}
         ${stackHTML(b)}
-        <p class="cd-tag cd-tag-end" id="cd-tag" hidden>${t("cdTag")}</p>${"" /* aviso do cupom depois das etiquetas, antes de Data, horário e pessoas (Rodrigo 2026-11-21) */}
         <h2 class="pk-h">${t("pickTitle")}</h2>
         ${pickerHTML(b)}<div id="pk-out" aria-live="polite"></div>
         <div class="jet-box" id="jet-box" hidden></div>
