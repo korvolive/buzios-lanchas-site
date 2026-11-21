@@ -1959,7 +1959,9 @@ setTimeout(()=>{ if(IS_BOT) return; let id=null; try{ const q=new URLSearchParam
       /* link curto só com o código: a data, o horário e as pessoas vêm do combinado */
       if(route.slug===OFERTA.lancha && new URLSearchParams(location.search).get("o")){ pick.date=OFERTA.data; pick.slot=OFERTA.horario; if(OFERTA.pessoas) pick.people=String(OFERTA.pessoas); }
       if(route.slug===OFERTA.lancha) render(false); } }).catch(()=>{}); }); /* depois do script inteiro: usa SB_URL e render */
-const slotLabel = k => ofMatch(route.slug, pick.date, k) && OFERTA.hora_ini && OFERTA.hora_fim ? ofHrs(OFERTA) : t("slot_"+k);
+var AJ = new Map(); /* lancha|data|horário → horário deslocado (periodos_ajustados) */
+const ajOf = (slug, iso, k) => AJ.get(slug+"|"+iso+"|"+k);
+const slotLabel = k => ofMatch(route.slug, pick.date, k) && OFERTA.hora_ini && OFERTA.hora_fim ? ofHrs(OFERTA) : ajOf(route.slug, pick.date, k) ? ofHrs(ajOf(route.slug, pick.date, k)) : t("slot_"+k);
 /* valor "a partir de" da lancha para a data e o horário escolhidos */
 const price4 = (b,iso) => valorNaData(b.prices, iso, false, valOpts(b));
 const price7 = (b,iso) => valorNaData(b.prices7, iso, false, {...valOpts(b), h7:true}); /* 7 horas por temporada; vazio = sob consulta */
@@ -2215,6 +2217,9 @@ function loadAgenda(){
   const seg = fetch(SB_URL+"/rest/v1/rpc/datas_seguradas", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
   /* passeio com horário fora do padrão (ex.: 13h às 17h) ocupa também o outro período que toca (2026-10-31); sem o SQL ainda, volta vazio */
   const ext = fetch(SB_URL+"/rest/v1/rpc/periodos_extra", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[]);
+  /* manhã que atrasou até 1h: a tarde continua à venda, deslocada (ex.: 14h30 às 18h30); o banco põe esse horário no pedido (2026-11-21) */
+  fetch(SB_URL+"/rest/v1/rpc/periodos_ajustados", {method:"POST", headers:{apikey:AGENDA_KEY,"content-type":"application/json"}, body:"{}"}).then(r=>r.ok ? r.json() : []).catch(()=>[])
+    .then(l=>{ AJ=new Map((l||[]).map(x=>[x.lancha+"|"+x.data+"|"+x.horario, x])); if(l?.length && route.slug) try{ render(false); }catch(e){} });
   return agenda ||= Promise.all([fetch(`${AGENDA_URL}?select=lancha,data,horario&data=gte.${todayISO()}&revenda=is.null`, {headers:{apikey:AGENDA_KEY}})
     .then(r=>r.ok ? r.json() : Promise.reject(r.status)), mnt, seg, ext])
     .then(([rows, mn, sg, ex])=>{ const m=new Map(), add=(k,h)=>{ if(!m.has(k)) m.set(k,new Set()); m.get(k).add(h); };
@@ -3508,7 +3513,7 @@ function cardSlots(c, b, busy){
   const s=busyOn(busy,b,d); if(!s || !s.size || isBusy(s,"",d)) return null;
   const st=["manha","tarde"].map(k=>[k, isBusy(s,k,d)]); if(!st.some(x=>x[1]) || st.every(x=>x[1])) return null;
   const p=document.createElement("p"); p.className="c-slots";
-  p.innerHTML=st.map(([k,o])=>o?`<s>${t("slot_"+k)}<span class="sr"> (${t("pfBusy")})</span></s>`:`<b>✓ ${t("slot_"+k)}<span class="sr"> (${t("pfFree")})</span></b>`).join("");
+  p.innerHTML=st.map(([k,o])=>o?`<s>${t("slot_"+k)}<span class="sr"> (${t("pfBusy")})</span></s>`:`<b>✓ ${ajOf(b.slug,d,k)?ofHrs(ajOf(b.slug,d,k)):t("slot_"+k)}<span class="sr"> (${t("pfFree")})</span></b>`).join("");
   c.querySelector(".price-from")?.before(p);
   return st.find(x=>!x[1])[0];
 }
