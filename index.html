@@ -517,7 +517,7 @@ a[data-gsi]{position:relative;overflow:hidden}.gsio{position:absolute;inset:0;op
 .stack small{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4}
 .st-items{margin-top:8px}
 .c-items.st-items{justify-content:flex-start}
-.st-items.st-top{margin-top:10px}
+.st-items.st-end{margin-top:14px}
 .pr-val .from em{display:block;font-style:normal;font-size:14px;color:var(--sea);margin-top:6px;font-weight:600}
 .pr-wait{margin:0;padding:12px 14px;border-radius:12px;background:var(--chip);color:var(--muted);font-size:14px}
 .pricebox .from{margin:8px 0 10px;color:var(--muted);font-size:14px}.pr-incl{margin:0 0 6px;font-size:13.5px;color:var(--muted)}.pr-human{margin:10px 0 16px;padding:10px 12px;border-radius:12px;background:var(--chip);font-size:14px;line-height:1.45}.pr-human a{display:block;margin-top:6px;font-weight:700}.pr-human small{display:block;margin-top:4px;color:var(--muted)}
@@ -1397,7 +1397,7 @@ const UI = {
     how2t:"Chame no WhatsApp", how2p:"Na página da embarcação, escolha a data, o horário e quantas pessoas vão. A mensagem já vai com tudo isso.",
     how3t:"Garanta com o sinal", how3p:"Um sinal de pagamento reserva o seu dia.",
     how4t:"Embarque", how4p:"Se o mar não estiver seguro, remarcamos sem custo adicional.",
-    guarT:"Garantia Búzios Lanchas", guarS:"Outra embarcação equivalente ou 100% do sinal de volta", guarP:"Se a embarcação tiver algum problema ou o dono desmarcar o seu passeio, colocamos outra equivalente ou devolvemos 100% do sinal.", guarCo:"Empresa registrada · CNPJ 32.154.099/0001-72", guarRec:"Pagamento feito para a empresa, com recibo",
+    guarT:"Garantia Búzios Lanchas", guarS:"Outra embarcação equivalente ou 100% do sinal de volta", guarP:"Se a embarcação tiver algum problema ou o dono desmarcar o seu passeio, colocamos outra equivalente ou devolvemos 100% do sinal.", guarSea:"Remarcação sem custo se o mar não estiver seguro", guarCo:"Empresa registrada · CNPJ 32.154.099/0001-72", guarRec:"Pagamento feito para a empresa, com recibo",
     trustTitle:"Lanchas de confiança", trustSub:"Todas as lanchas do nosso site seguem o mesmo padrão:",
     trust1t:"Marinheiros habilitados e experientes", trust1p:"Conhecem cada praia e cada canto do mar de Búzios.",
     trust2t:"Manutenção em dia", trust2p:"Motores e equipamentos com revisões periódicas.",
@@ -1454,7 +1454,7 @@ const UI = {
     how2t:"Message us on WhatsApp", how2p:"On the boat's page, pick the date, time and number of people. The message already includes all of it.",
     how3t:"Secure it with a deposit", how3p:"A deposit payment reserves your day.",
     how4t:"Come aboard", how4p:"If the sea isn't safe, we reschedule at no extra cost.",
-    guarT:"Búzios Lanchas Guarantee", guarS:"An equivalent boat or 100% of your deposit back", guarP:"If the boat has a problem or the owner cancels your tour, we provide another equivalent one or refund 100% of your deposit.", guarCo:"Registered company · CNPJ 32.154.099/0001-72", guarRec:"You pay the company and get a receipt",
+    guarT:"Búzios Lanchas Guarantee", guarS:"An equivalent boat or 100% of your deposit back", guarP:"If the boat has a problem or the owner cancels your tour, we provide another equivalent one or refund 100% of your deposit.", guarSea:"Free rescheduling if the sea is unsafe", guarCo:"Registered company · CNPJ 32.154.099/0001-72", guarRec:"You pay the company and get a receipt",
     trustTitle:"Boats you can trust", trustSub:"All the boats on our site meet the same standard:",
     trust1t:"Licensed, experienced skippers", trust1p:"They know every beach and corner of the Búzios sea.",
     trust2t:"Up-to-date maintenance", trust2p:"Engines and equipment serviced regularly.",
@@ -1511,7 +1511,7 @@ const UI = {
     how2t:"Escríbenos por WhatsApp", how2p:"En la página de la embarcación, elige la fecha, el horario y cuántas personas van. El mensaje ya va con todo eso.",
     how3t:"Asegúrala con una seña", how3p:"Un pago de seña reserva tu día.",
     how4t:"Embarca", how4p:"Si el mar no está seguro, reprogramamos sin costo adicional.",
-    guarT:"Garantía Búzios Lanchas", guarS:"Otra embarcación equivalente o el 100% de la seña de vuelta", guarP:"Si la embarcación tiene algún problema o el dueño cancela tu paseo, te damos otra equivalente o te devolvemos el 100% de la seña.", guarCo:"Empresa registrada · CNPJ 32.154.099/0001-72", guarRec:"Pagas a la empresa y recibes un recibo",
+    guarT:"Garantía Búzios Lanchas", guarS:"Otra embarcación equivalente o el 100% de la seña de vuelta", guarP:"Si la embarcación tiene algún problema o el dueño cancela tu paseo, te damos otra equivalente o te devolvemos el 100% de la seña.", guarSea:"Reprogramación sin costo si el mar no está seguro", guarCo:"Empresa registrada · CNPJ 32.154.099/0001-72", guarRec:"Pagas a la empresa y recibes un recibo",
     trustTitle:"Lanchas de confianza", trustSub:"Todas las lanchas de nuestro sitio siguen el mismo estándar:",
     trust1t:"Marineros habilitados y experimentados", trust1p:"Conocen cada playa y cada rincón del mar de Búzios.",
     trust2t:"Mantenimiento al día", trust2p:"Motores y equipos con revisiones periódicas.",
@@ -2476,14 +2476,13 @@ const itemLabel = i => ITEM_SHORT[i] ? ITEM_SHORT[i][lang==="en"?1:lang==="es"?2
 const itemChip = i => chipHTML(i, itemLabel(i));
 const cardChip = itemChip;
 const cardItems = b => { const has=boatItems(b); if(isEsc(b)) return has.slice(0,8).map(itemChip).join(""); return [...CARD_BASIC, ...CARD_EXTRA.filter(i=>has.includes(i)), ...STACK_GOLD.filter(i=>has.includes(i))].map(cardChip).join(""); }; /* ordem fixa: básicos, extras, dourados (Rodrigo 2026-11-18) */
-/* "O que está incluso": etiquetas primeiro, todas juntas, depois os 4 diferenciais; roteiro completo pelo nome (Rodrigo 2026-11-21) */
+/* "O que está incluso": os diferenciais e depois as etiquetas, todas juntas (Rodrigo escolheu a opção B); roteiro completo pelo nome (Rodrigo 2026-11-21) */
 const routeShort = () => ROUTE.map(r=>r[0].replace(/^Praia (da |do |das |dos |de )?/,"").replace(/ /g,"\u00a0")).join(" · "); /* nome não quebra no meio */
-const stackHTML = b => `<ul class="c-items st-items st-top" id="stack-items">${stackItems(b)}</ul><ol class="stack">
+const stackHTML = b => `<ol class="stack">
   <li><span class="st-ic" aria-hidden="true">🛥️</span><div><strong>${t(isEsc(b)?"stBoatTEsc":"stBoatT",{f:ftx(b)})}</strong><small>${t("stBoatP",{n:b.capacity})}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🏝️</span><div><strong>${t("stRouteT")}</strong><small>${routeShort()}. ${t("stRouteP")}</small></div></li>
   <li><span class="st-ic" aria-hidden="true">🧭</span><div><strong>${t(isEsc(b)?"stCrewTEsc":"stCrewT")}</strong><small>${t(isEsc(b)?"stCrewPEsc":"stCrewP")}</small></div></li>
-  <li><span class="st-ic" aria-hidden="true">🛟</span><div><strong>${t("stSafeT")}</strong><small>${t("stSafeP")}</small></div></li>
-</ol>`;
+</ol><ul class="c-items st-items st-end" id="stack-items">${stackItems(b)}</ul>`; /* "Segurança e tranquilidade" saiu daqui: a remarcação por mar ruim foi para a Garantia Búzios Lanchas, uma coisa só num lugar (Rodrigo 2026-11-21) */
 /* o valor só aparece depois de escolher data e horário, e só o daquela data ( */
 /* cliente com cupom vê quanto fica o passeio com o desconto (2026-11-05); cupons não somam: vale o maior desta lancha */
 const cupLine = (b,v) => { if(!v || !CUPS?.length) return ""; const L=CUPS.filter(c=>!c.lancha || c.lancha===b.slug); if(!L.length) return "";
@@ -3173,7 +3172,7 @@ function seo(b){
 const GOOGLE_REVIEWS = "https://share.google/kUtKdkLJN0e9gmFWg";
 /* Garantia Búzios Lanchas (2026-10-29): no painel da lancha com a empresa e o recibo; na home, só a garantia, embaixo dos botões do topo */
 const GUAR_IC = `<svg class="guar-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>`;
-const guarHTML = full => `<div class="guar"><b>${full?"":GUAR_IC}${t("guarT")}</b>${full?"":`<span class="guar-s">${t("guarS")}</span>`}<p>${t("guarP")}</p>${full?`<ul><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
+const guarHTML = full => `<div class="guar"><b>${full?"":GUAR_IC}${t("guarT")}</b>${full?"":`<span class="guar-s">${t("guarS")}</span>`}<p>${t("guarP")}</p>${full?`<ul><li>${t("guarSea")}</li><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
 const HERO_MEET = false; // botão "Conhecer a Miss Bardot" escondido (2026-10-24); true volta com ele
 const TRUST_ICONS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>`,
