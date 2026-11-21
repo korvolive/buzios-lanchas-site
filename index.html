@@ -2153,8 +2153,9 @@ async function chatId(){ try{ const tok=await clientToken(); const r=await fetch
 /* cupons do cliente logado: aparecem só se ele tem cupom; ele toca para usar (um por passeio) */
 let CUPS=null, RECORRENTE=false;
 /* cupom de boas-vindas do site (2026-11-20): um cupom só, R$ 100 na Miss Bardot ou R$ 50 nas outras (o banco limita à comissão da Búzios) */
-const cupBvSite = c => c && c.origem==="boas-vindas" && !c.lancha && c.valor_outras!=null;
-const cupVal = (c,b) => cupBvSite(c) && b?.slug!=="miss-bardot" ? +c.valor_outras : +c.valor; /* RECORRENTE: já ganhou algum cupom (tem passeio concluído), mesmo usado ou vencido */
+const cupDuplo = c => c && !c.lancha && c.valor_outras!=null; /* cupom do site (boas-vindas ou por avaliar): valor cheio na Miss Bardot, valor_outras nas outras */
+const cupBvSite = c => cupDuplo(c) && c.origem==="boas-vindas";
+const cupVal = (c,b) => cupDuplo(c) && b?.slug!=="miss-bardot" ? +c.valor_outras : +c.valor; /* RECORRENTE: já ganhou algum cupom (tem passeio concluído), mesmo usado ou vencido */
 async function loadCups(){ if(CUPS) return CUPS; if(!isClient()) return [];
   try{ const tok=await clientToken(); const rq=fn=>fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok,"content-type":"application/json"},body:"{}"});
     let r=await rq("meus_cupons_v3"); if(!r.ok) r=await rq("meus_cupons_v2"); if(!r.ok) r=await rq("meus_cupons"); /* v2 traz a parte do dono (cupom do dono, 2026-10-25); v3 traz o cupom de boas-vindas do site (valor na Miss Bardot e nas outras, 2026-11-20) */
