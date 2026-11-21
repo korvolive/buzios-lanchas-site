@@ -1083,7 +1083,7 @@ const BOATS = [
     included:["Marinheiro experiente","Combustível","Gelo escama","Gelo filtrado","Carvão","Água mineral","Churrasqueira","Serviço de churrasqueiro","Cooler","Som Bluetooth","Ar-condicionado","Som na proa","Piscina inflável","Wi-Fi Starlink","Banheiro","Gerador de energia","Air fryer","Cabine com cama","Televisão","Máscaras de mergulho","Ducha de água doce","Macarrão flutuante","Toalhas de banho","Coletes para todos"],
     prices:{baixa:2200, media:2500, alta:3000, pico:4000, reveillon:4500}, /* passeio de 4h: valor "a partir de" de cada temporada */
     price7h:null, /* não usado: o valor de 7 horas de cada temporada é editado no app (tabela precos) */
-    boarding:{4:["Píer do Golfinho (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marina"]}, /* local de embarque por duração do passeio (4 ou 7 horas); com mais de um, o cliente escolhe; null = "a combinar" */
+    boarding:{4:["Píer do Golfinho (Praia dos Ossos)"], 7:["Porto Veleiro (Praia dos Ossos)","BR Marina"], manha:["Porto Veleiro (Praia dos Ossos)"], tarde:["Píer do Golfinho (Praia dos Ossos)"]}, /* manhã 10h–14h no Porto Veleiro (fecha às 17h), tarde no Píer do Golfinho (Rodrigo 2026-11-21); local de embarque por duração do passeio (4 ou 7 horas); com mais de um, o cliente escolhe; null = "a combinar" */
   },
   {
     slug:"les-zuzu", name:"Les Zuzu", featured:false, example:false,
@@ -1975,7 +1975,8 @@ const peopleLabel = n => +n===1 ? t("person1") : t("peopleN",{n});
 /* locais de embarque da lancha para o horário escolhido; [] = a combinar */
 /* taxa cobrada pelo píer particular, paga pelo cliente no local (mesmos valores de TAXA no app e nos e-mails) */
 const boardFee = x => /porto veleiro/i.test(x||"") ? 10 : /golfinho/i.test(x||"") ? 5 : 0;
-const boardsFor = (b,slot) => (b.boarding && slot && b.boarding[slotOf(slot).hours]) || [];
+const boardsFor = (b,slot) => (b.boarding && slot && (b.boarding[slot] || b.boarding[slotOf(slot).hours])) || []; /* período (manha/tarde) vence a duração (Rodrigo 2026-11-21) */
+const embOf = e => { const e4=e?.["4"]||[], e7=e?.["7"]||[]; if(!e4.length && !e7.length) return null; const o={4:e4.length?e4:e7, 7:e7.length?e7:e4}; for(const k of ["manha","tarde"]) if(Array.isArray(e?.[k]) && e[k].length) o[k]=e[k]; return o; };
 const waBook = (b,iso,slot,n,bd) => { const v=VEND && cliPrice(bzBase(b,iso,slot,priceFor(b,iso,slot)), pctKey(seasonOf(iso,b).key,iso), VEND, b);
   return wa(t(slotOf(slot).night?"waNight":"waAvail",{name:b.name, date:fmtDate(iso), slot:slotLabel(slot), h:slotOf(slot).hours, people:peopleLabel(n)}) + (v?t("waPrice",{p:brl(v)}):"") + jetWaTxt() + (VEND?` (ref. ${VEND.codigo})`:"")); }; /* jetski escolhido vai junto (2026-11-15) */
 
@@ -3651,7 +3652,7 @@ const dbBoats = fetch(lanchasURL(",posicao"), {headers:{apikey:AGENDA_KEY}})
       cb.db=true; cb.name=r.nome||cb.name; cb.feet=+d.pes||cb.feet; cb.capacity=d.capacidade;
       cb.tagline=tr0(d.frase,"pt")||cb.tagline; cb.description=tr0(d.descricao,"pt")||cb.description;
       cb.i18n=Object.fromEntries(["en","es"].map(l=>[l,{...(cb.i18n?.[l]||{}), tagline:tr0(d.frase,l)||cb.i18n?.[l]?.tagline, description:tr0(d.descricao,l)||cb.i18n?.[l]?.description}]));
-      cb.boarding = e4.length||e7.length ? {4:e4.length?e4:e7, 7:e7.length?e7:e4} : null;
+      cb.boarding = embOf(d.embarque);
       if(antes!==JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding])) dbAdded++; return; }
     if((d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
@@ -3660,7 +3661,7 @@ const dbBoats = fetch(lanchasURL(",posicao"), {headers:{apikey:AGENDA_KEY}})
       tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
       i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
       included:[...BASICS_NEW], prices:{}, price7h:null,
-      boarding: e4.length||e7.length ? {4:e4.length?e4:e7, 7:e7.length?e7:e4} : null}); }))
+      boarding: embOf(d.embarque)}); }))
   .catch(()=>{})
   .then(()=>ocultas).then(list=>{ if(list && hideBoats(list)) dbAdded++; })
   .finally(()=>{ dbDone=true; window.dbBoatsDone=true;
