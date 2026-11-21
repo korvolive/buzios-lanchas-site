@@ -4971,7 +4971,7 @@ const marNm = uid => (S.free||[]).find(f=>f.user_id===uid)?.nome || (S.sailors||
 document.addEventListener("click", e => { const b=e.target.closest("[data-mprof]"); if(!b || e.target.closest("a")) return; e.preventDefault(); e.stopPropagation(); openMarProfile(b.dataset.mprof, b.dataset.nm || b.parentElement?.closest("[data-nm]")?.dataset.nm || marNm(b.dataset.mprof)); }, true); /* a estrela da nota abre o perfil com as avaliações */
 document.addEventListener("keydown", e => { const b=e.target.closest?.(".mrate[data-mprof]"); if(b && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); b.click(); } });
 const marCardHTML = sel => { const o=sel?.selectedOptions?.[0]; if(!o || !o.value || !o.dataset.nm) return "";
-  return `<button type="button" class="marcard" data-mprof="${o.value}" data-nm="${esc(o.dataset.nm)}">${face(o.value,o.dataset.nm,"face")}<span class="mcn"><strong>${esc(o.dataset.nm)}</strong>${marRate(o.value)}<br><small>${t("mpSee")} ›</small></span></button>`; };
+  return `<button type="button" class="marcard" data-mprof="${o.value}" data-nm="${esc(o.dataset.nm)}">${face(o.value,o.dataset.nm,"face")}<span class="mcn">${marRate(o.value) ? marRate(o.value)+"<br>" : ""}<small>${t("mpSee")} ›</small></span></button>`; }; /* o nome já está na caixa logo acima; o cartão só mostra a foto, a nota e o perfil (Rodrigo 2026-11-21: sem informação repetida) */
 document.addEventListener("change", e => { if(e.target.id!=="n-mar") return; const c=document.getElementById("marcard"); if(c) c.innerHTML=marCardHTML(e.target); });
 function freeHTML(){
   if(S.free===null) return `<div class="card"><h2>⚓ ${t("freeT")}</h2><p class="msg err" style="margin:0">${t("needSqlMar")}</p></div>`;
