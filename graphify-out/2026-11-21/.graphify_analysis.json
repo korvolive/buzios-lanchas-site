@@ -161,9 +161,11 @@
       "supabase_functions_dono_aprovacao_index_apnstoken",
       "supabase_functions_dono_aprovacao_index_aprovado",
       "supabase_functions_dono_aprovacao_index_avisarcliente",
+      "supabase_functions_dono_aprovacao_index_avisarclientedemora",
       "supabase_functions_dono_aprovacao_index_avisardonos",
       "supabase_functions_dono_aprovacao_index_avisarresolvidas",
       "supabase_functions_dono_aprovacao_index_brl",
+      "supabase_functions_dono_aprovacao_index_confirmadono",
       "supabase_functions_dono_aprovacao_index_cors",
       "supabase_functions_dono_aprovacao_index_criarmodelos",
       "supabase_functions_dono_aprovacao_index_d360key",
@@ -185,11 +187,14 @@
       "supabase_functions_dono_aprovacao_index_modelos",
       "supabase_functions_dono_aprovacao_index_nomelancha",
       "supabase_functions_dono_aprovacao_index_operadores",
+      "supabase_functions_dono_aprovacao_index_prazo_min",
+      "supabase_functions_dono_aprovacao_index_prazosdono",
       "supabase_functions_dono_aprovacao_index_primeiro",
       "supabase_functions_dono_aprovacao_index_push",
       "supabase_functions_dono_aprovacao_index_slot",
       "supabase_functions_dono_aprovacao_index_std",
       "supabase_functions_dono_aprovacao_index_textocliente",
+      "supabase_functions_dono_aprovacao_index_textodemora",
       "supabase_functions_dono_aprovacao_index_velho",
       "supabase_functions_dono_aprovacao_index_wanum"
     ],
@@ -1455,11 +1460,13 @@
       "supabase_functions_alerta_equipe_index_cors",
       "supabase_functions_alerta_equipe_index_db",
       "supabase_functions_alerta_equipe_index_json",
-      "supabase_functions_aviso_preco_index",
-      "supabase_functions_aviso_preco_index_cors",
-      "supabase_functions_aviso_preco_index_db",
-      "supabase_functions_aviso_preco_index_json",
-      "supabase_functions_aviso_preco_index_t",
+      "supabase_functions_aviso_comprovante_index",
+      "supabase_functions_aviso_comprovante_index_cors",
+      "supabase_functions_aviso_comprovante_index_databr",
+      "supabase_functions_aviso_comprovante_index_db",
+      "supabase_functions_aviso_comprovante_index_json",
+      "supabase_functions_aviso_comprovante_index_slot",
+      "supabase_functions_aviso_comprovante_index_txt",
       "supabase_functions_chat_inativo_index",
       "supabase_functions_chat_inativo_index_db",
       "supabase_functions_chat_inativo_index_lang",
@@ -1968,12 +1975,12 @@
       "supabase_functions_aviso_equipe_index_db",
       "supabase_functions_aviso_equipe_index_json",
       "supabase_functions_aviso_equipe_index_userbyemail",
-      "supabase_functions_traduzir_chat_index",
-      "supabase_functions_traduzir_chat_index_cors",
-      "supabase_functions_traduzir_chat_index_db",
-      "supabase_functions_traduzir_chat_index_google",
-      "supabase_functions_traduzir_chat_index_json",
-      "supabase_functions_traduzir_chat_index_participa"
+      "supabase_functions_paypal_fatura_index",
+      "supabase_functions_paypal_fatura_index_cors",
+      "supabase_functions_paypal_fatura_index_db",
+      "supabase_functions_paypal_fatura_index_item",
+      "supabase_functions_paypal_fatura_index_json",
+      "supabase_functions_paypal_fatura_index_pp"
     ],
     "126": [
       "supabase_sql_2026_11_17_repasse_so_quando_cair"
@@ -2126,12 +2133,12 @@
       "supabase_sql_2026_11_19_vespera_nao_vence_de_madrugada_public_prazo_pre_fim"
     ],
     "144": [
-      "supabase_functions_paypal_fatura_index",
-      "supabase_functions_paypal_fatura_index_cors",
-      "supabase_functions_paypal_fatura_index_db",
-      "supabase_functions_paypal_fatura_index_item",
-      "supabase_functions_paypal_fatura_index_json",
-      "supabase_functions_paypal_fatura_index_pp"
+      "supabase_functions_traduzir_chat_index",
+      "supabase_functions_traduzir_chat_index_cors",
+      "supabase_functions_traduzir_chat_index_db",
+      "supabase_functions_traduzir_chat_index_google",
+      "supabase_functions_traduzir_chat_index_json",
+      "supabase_functions_traduzir_chat_index_participa"
     ],
     "145": [
       "supabase_sql_2026_11_19_aviso_cartao_atrasado"
@@ -2163,13 +2170,11 @@
       "supabase_functions_asaas_index_veiodopaypal"
     ],
     "148": [
-      "supabase_functions_aviso_comprovante_index",
-      "supabase_functions_aviso_comprovante_index_cors",
-      "supabase_functions_aviso_comprovante_index_databr",
-      "supabase_functions_aviso_comprovante_index_db",
-      "supabase_functions_aviso_comprovante_index_json",
-      "supabase_functions_aviso_comprovante_index_slot",
-      "supabase_functions_aviso_comprovante_index_txt"
+      "supabase_functions_aviso_preco_index",
+      "supabase_functions_aviso_preco_index_cors",
+      "supabase_functions_aviso_preco_index_db",
+      "supabase_functions_aviso_preco_index_json",
+      "supabase_functions_aviso_preco_index_t"
     ],
     "149": [
       "supabase_functions_entrar_celular_index",
@@ -2306,7 +2311,7 @@
     "1": 0.0927536231884058,
     "2": 0.07058823529411765,
     "3": 0.07013574660633484,
-    "4": 0.11587301587301588,
+    "4": 0.12317073170731707,
     "5": 0.18666666666666668,
     "6": 0.06485671191553545,
     "7": 0.14,
@@ -2384,7 +2389,7 @@
     "79": 0.32142857142857145,
     "80": 0.10317460317460317,
     "81": 0.42857142857142855,
-    "82": 0.1,
+    "82": 0.09090909090909091,
     "83": 0.22727272727272727,
     "84": 0.24242424242424243,
     "85": 1.0,
@@ -2450,7 +2455,7 @@
     "145": 1.0,
     "146": 0.2545454545454545,
     "147": 0.2545454545454545,
-    "148": 0.2857142857142857,
+    "148": 0.4,
     "149": 0.3333333333333333,
     "150": 0.4,
     "151": 1.0,
@@ -2498,6 +2503,11 @@
     {
       "id": "supabase_functions_dono_aprovacao_index_avisardonos",
       "label": "avisarDonos()",
+      "degree": 16
+    },
+    {
+      "id": "supabase_functions_dono_aprovacao_index_prazosdono",
+      "label": "prazosDono()",
       "degree": 14
     },
     {
@@ -2514,11 +2524,6 @@
       "id": "supabase_sql_2026_10_30_pedido_do_operador_pela_central_public_ligar_passeio",
       "label": "public._ligar_passeio()",
       "degree": 14
-    },
-    {
-      "id": "login_sortable_min_x",
-      "label": "X()",
-      "degree": 13
     }
   ],
   "surprises": [
@@ -2582,7 +2587,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.ativar_conta_cliente`, `public.bloqueios`, `public._pre_reserva_volta`?",
-      "why": "High betweenness centrality (0.018) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2592,7 +2597,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `2026-11-15_preco-cotado-garantido.sql`, `public.mb_libera_sinal_sozinho`?",
-      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2601,8 +2606,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `public.donos`, `public.meus_repasses_pp`, `vendedores`?",
-      "why": "High betweenness centrality (0.009) - this node is a cross-community bridge."
+      "question": "Why does `public.papeis_painel` connect `public.ativar_conta_cliente` to `public.marcar_wa`, `public._pre_reserva_volta`?",
+      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2612,7 +2617,7 @@
     {
       "type": "low_cohesion",
       "question": "Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.11587301587301588 - nodes in this community are weakly interconnected."
+      "why": "Cohesion score 0.12317073170731707 - nodes in this community are weakly interconnected."
     }
   ]
 }
