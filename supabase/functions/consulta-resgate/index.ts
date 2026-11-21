@@ -88,12 +88,15 @@ async function avisarPasseios(modelo: string) {
   const hoje = new Date(agora - 3 * 3600e3).toISOString().slice(0, 10); // dia de hoje no Brasil
   const ate = new Date(agora - 3 * 3600e3 + 60 * 864e5).toISOString().slice(0, 10); // só passeios até 60 dias para frente
   const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, criado_em")
-    .lte("criado_em", new Date(agora - 10 * 60e3).toISOString()).gte("criado_em", new Date(agora - 24 * 3600e3).toISOString())
+    .lte("criado_em", new Date(agora - 2 * 60e3).toISOString()).gte("criado_em", new Date(agora - 24 * 3600e3).toISOString())
     .gte("data", hoje).lte("data", ate).is("revenda", null).order("criado_em").limit(40);
   if (error) { console.error("passeios", error.message); return 0; }
   if (!bs?.length) return 0;
   const { data: ns } = await db.from("anotacoes").select("bloqueio_id, cliente, telefone, cliente_conta, aviso_wa_em, hora_ini, hora_fim").in("bloqueio_id", bs.map(b => b.id));
-  const { data: ls } = await db.from("lanchas").select("slug, nome");
+  const { data: ls } = await db.from("lanchas").select("slug, nome, dados");
+  // Bordazul (dono confirma, Rodrigo 2026-11-21): o cliente já esperou o ok do dono, então o link sai logo (2 min), sem esperar o atendimento
+  const conf = (s: string) => { const d: any = ls?.find(l => l.slug === s)?.dados || {};
+    return Object.prototype.hasOwnProperty.call(d, "confirma_dono") ? d.confirma_dono === true || d.confirma_dono === "true" : String(d.cidade || "buzios") !== "buzios"; };
   const nomeL = (s: string) => ls?.find(l => l.slug === s)?.nome || s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   const { data: rec } = await db.from("anotacoes").select("bloqueio_id, telefone").gte("aviso_wa_em", new Date(agora - 864e5).toISOString());
   const ja = new Set((rec || []).map(r => dig(r.telefone)));
@@ -104,7 +107,8 @@ async function avisarPasseios(modelo: string) {
   let n = 0;
   for (const b of bs) {
     if (livre <= 0) break;
-    if (b.data > hoje && Date.parse(b.criado_em) > agora - 30 * 60e3) continue; // passeio de outro dia: espera 30 min
+    if (!conf(b.lancha) && Date.parse(b.criado_em) > agora - 10 * 60e3) continue; // Búzios: espera 10 min
+    if (!conf(b.lancha) && b.data > hoje && Date.parse(b.criado_em) > agora - 30 * 60e3) continue; // passeio de outro dia: espera 30 min
     const x = ns?.find(a => a.bloqueio_id === b.id);
     if (!x || x.cliente_conta || x.aviso_wa_em || !x.telefone) continue;
     if ((porL.get(b.lancha) || 0) >= POR_LANCHA_DIA) continue; // tenta de novo no próximo ciclo, dentro das 24 h
@@ -197,7 +201,10 @@ async function convidarVencidas(cfg: any) {
   const key = await d360Key().catch(() => "");
   const nome = cfg.convite_modelo || "consulta_encerrada";
   const pronto = key ? await modeloPronto(key, nome, cfg).catch(e => (console.error("convite modelos", e), new Set<string>())) : new Set<string>();
-  const { data: ls } = await db.from("lanchas").select("slug, nome");
+  const { data: ls } = await db.from("lanchas").select("slug, nome, dados");
+  // Bordazul (dono confirma, Rodrigo 2026-11-21): o cliente já esperou o ok do dono, então o link sai logo (2 min), sem esperar o atendimento
+  const conf = (s: string) => { const d: any = ls?.find(l => l.slug === s)?.dados || {};
+    return Object.prototype.hasOwnProperty.call(d, "confirma_dono") ? d.confirma_dono === true || d.confirma_dono === "true" : String(d.cidade || "buzios") !== "buzios"; };
   const nomeL = (s: string) => ls?.find(l => l.slug === s)?.nome || s.replace(/-/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
   const ja = new Set<string>();
   let n = 0;
@@ -270,7 +277,10 @@ Deno.serve(async req => {
       .eq("chamou", false).is("wa_enviado_em", null)
       .lte("criado_em", new Date(agora - 70e3).toISOString()).gte("criado_em", new Date(agora - 30 * 60e3).toISOString())
       .order("criado_em").limit(10);
-    const { data: ls } = await db.from("lanchas").select("slug, nome");
+    const { data: ls } = await db.from("lanchas").select("slug, nome, dados");
+  // Bordazul (dono confirma, Rodrigo 2026-11-21): o cliente já esperou o ok do dono, então o link sai logo (2 min), sem esperar o atendimento
+  const conf = (s: string) => { const d: any = ls?.find(l => l.slug === s)?.dados || {};
+    return Object.prototype.hasOwnProperty.call(d, "confirma_dono") ? d.confirma_dono === true || d.confirma_dono === "true" : String(d.cidade || "buzios") !== "buzios"; };
     const nomeL = (s: string) => ls?.find(l => l.slug === s)?.nome || s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     // números que já receberam nas últimas 24 h
     const { data: rec } = await db.from("consultas").select("telefone").gte("wa_enviado_em", new Date(agora - 864e5).toISOString());

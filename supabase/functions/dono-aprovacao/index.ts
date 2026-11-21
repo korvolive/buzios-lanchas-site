@@ -193,15 +193,23 @@ async function avisarDonos(cfg: any) {
     if (k) await criarModelos(k, await modelos(k), cfg).catch(e => console.error("criar modelos", e));
   }
   const fim = await avisarResolvidas().catch(e => (console.error("resolvidas", e), -1));
-  const { data: cs, error } = await db.from("consultas")
-    .select("id, lancha, data, horario, hora_ini, hora_fim, pessoas, telefone, neto_garantido, grupo, criado_em")
+  const { data: todas } = await db.from("lanchas").select("slug, nome, reserva_auto, dados");
+  const L = new Map((todas || []).map(l => [l.slug, l]));
+  const CONF = new Set((todas || []).filter(confirmaDono).map(l => l.slug));
+  const prazos = CONF.size ? await prazosDono(CONF, L).catch(e => (console.error("prazos", e), -1)) : 0;
+  const COLS = "id, lancha, data, horario, hora_ini, hora_fim, pessoas, telefone, neto_garantido, grupo, criado_em, criado_por";
+  const { data: cs0, error } = await db.from("consultas").select(COLS)
     .not("criado_por", "is", null).is("recusada_em", null).is("virou_pedido_em", null).is("grupo", null)
     .gte("data", hoje).gte("criado_em", new Date(agora - 864e5).toISOString()).order("id").limit(30);
   if (error) throw error;
-  if (!cs?.length) return { pendentes: 0, resolvidas: fim };
+  // Bordazul (dono confirma): o pedido feito direto no site também vai para o dono, 3 minutos depois (o cliente termina a janelinha)
+  const { data: cs1 } = CONF.size ? await db.from("consultas").select(COLS)
+    .is("criado_por", null).in("lancha", [...CONF]).is("recusada_em", null).is("virou_pedido_em", null).is("grupo", null)
+    .gte("data", hoje).gte("criado_em", new Date(agora - 864e5).toISOString()).lte("criado_em", new Date(agora - 3 * 60e3).toISOString())
+    .order("id").limit(20) : { data: [] as any[] };
+  const cs = [...(cs0 || []), ...(cs1 || [])];
+  if (!cs.length) return { pendentes: 0, resolvidas: fim, prazos };
   const slugs = [...new Set(cs.map(c => c.lancha))];
-  const { data: ls } = await db.from("lanchas").select("slug, nome, reserva_auto").in("slug", slugs);
-  const L = new Map((ls || []).map(l => [l.slug, l]));
   const { data: ds } = await db.from("donos").select("lancha, user_id").in("lancha", slugs);
   const donoIds = [...new Set((ds || []).map(d => d.user_id))];
   const { data: ps } = donoIds.length ? await db.from("perfis").select("user_id, telefone").in("user_id", donoIds) : { data: [] as any[] };
@@ -227,6 +235,20 @@ async function avisarDonos(cfg: any) {
   let n = 0, np = 0;
   for (const { c, dono, to } of alvos.slice(0, 10)) {
     if (!wa && !temApp.has(dono)) continue;
+    // Bordazul: o atendimento lançou o mesmo pedido que o cliente já tinha feito no site (que fecha sozinho).
+    // O dono já recebeu o botão: o mesmo botão passa a aprovar o pedido novo, sem segundo aviso.
+    if (CONF.has(c.lancha) && c.criado_por) {
+      const t8 = dig(c.telefone).slice(-8);
+      if (t8) {
+        const { data: ant } = await db.from("aprovacoes_dono").select("id").eq("dono", dono).eq("lancha", c.lancha).eq("data", c.data)
+          .eq("tel_fim", t8).is("resposta", null).neq("consulta_id", c.id).gte("criado_em", new Date(agora - 864e5).toISOString()).order("id", { ascending: false }).limit(1);
+        if (ant?.length) {
+          await db.from("aprovacoes_dono").update({ consulta_id: c.id, horario: c.horario }).eq("id", ant[0].id).is("resposta", null);
+          console.log("aviso dono reaproveitado", c.id);
+          continue;
+        }
+      }
+    }
     // registra antes de mandar: trava de duplicidade se o cron rodar duas vezes
     const { data: reg, error: re } = await db.from("aprovacoes_dono")
       .insert({ consulta_id: c.id, dono, lancha: c.lancha, data: c.data, horario: c.horario, tel_fim: dig(c.telefone).slice(-8) || null })
@@ -247,7 +269,102 @@ async function avisarDonos(cfg: any) {
     await db.from("aprovacoes_dono").update({ enviado_em: new Date().toISOString(), envio: [ok ? "whatsapp" : wa ? "whatsapp_falhou" : "", p ? "app" : ""].filter(Boolean).join("+") || "falhou" }).eq("id", reg.id);
     if (ok) { n++; console.log("aviso dono ok", c.id); }
   }
-  return { pendentes: cs.length, enviados: n, app: np, modelo: wa ? "aprovado" : "esperando a Meta" };
+  return { pendentes: cs.length, enviados: n, app: np, prazos, modelo: wa ? "aprovado" : "esperando a Meta" };
+}
+
+// ---------- Bordazul: o dono confirma antes do pagamento (Rodrigo 2026-11-21) ----------
+// Embarcação com dados.confirma_dono, ou de cidade diferente de Búzios: o dono não mantém a agenda, então todo pedido espera o ok dele.
+// Mesma regra do banco (lancha_confirma_dono). Em Búzios nada muda.
+// deno-lint-ignore no-explicit-any
+function confirmaDono(l: any) {
+  const d = l?.dados || {};
+  if (Object.prototype.hasOwnProperty.call(d, "confirma_dono")) return d.confirma_dono === true || d.confirma_dono === "true";
+  return String(d.cidade || "buzios") !== "buzios";
+}
+// Dono sem resposta: lembrete em 30 min (15 se o passeio é hoje), com aviso à equipe. Mais 30 min (15) sem resposta: o cliente
+// recebe UMA mensagem gentil (seguimos aguardando + até 2 opções parecidas para consultar) e a equipe é avisada. O pedido continua
+// valendo: se o dono aprovar depois, segue para o pagamento normalmente. Só roda das 7h às 22h (o cron sai antes fora disso).
+const PRAZO_MIN = (hoje: boolean) => hoje ? 15 : 30;
+// deno-lint-ignore no-explicit-any
+async function prazosDono(CONF: Set<string>, L: Map<string, any>) {
+  const agora = Date.now(), hoje = new Date(agora - 3 * 3600e3).toISOString().slice(0, 10);
+  const { data: rs, error } = await db.from("aprovacoes_dono").select("id, token, consulta_id, dono, lancha, data, horario, enviado_em, lembrete_em")
+    .is("resposta", null).is("sem_resposta_em", null).not("enviado_em", "is", null).in("lancha", [...CONF])
+    .gte("criado_em", new Date(agora - 3 * 864e5).toISOString()).order("id").limit(30);
+  if (error) throw error;
+  let n = 0, key = "";
+  const feitos = new Set<number>();
+  for (const a of rs || []) {
+    const min = PRAZO_MIN(a.data === hoje) * 60e3;
+    const base = a.lembrete_em ? Date.parse(a.lembrete_em) : Date.parse(a.enviado_em);
+    if (agora - base < min) continue;
+    const v = (await db.rpc("dono_aprovacao_ver", { tok: a.token })).data;
+    if (v?.estado !== "pendente") continue;
+    const nomeL = L.get(a.lancha)?.nome || a.lancha, quando = `${dataLonga(a.data, "pt")}, ${hora({ ...a, hora_ini: v.hora_ini, hora_fim: v.hora_fim }, "pt")}`;
+    const cli = v.cliente ? ` · ${v.cliente}` : "";
+    if (!a.lembrete_em) {
+      // marca antes de mandar: não repete se o cron rodar duas vezes
+      const { data: up } = await db.from("aprovacoes_dono").update({ lembrete_em: new Date().toISOString() }).eq("id", a.id).is("lembrete_em", null).select("id");
+      if (!up?.length) continue;
+      await push([a.dono], () => ({ title: `Pedido esperando você: ${nomeL}`, body: `${quando}, ${v.pessoas || "-"} pessoas. O cliente está aguardando a sua confirmação. Toque para responder.` }),
+        `/aprovar/?t=${a.token}`, `dono_aprov-${a.consulta_id}`).catch(() => 0);
+      const { data: pf } = await db.from("perfis").select("telefone").eq("user_id", a.dono).maybeSingle();
+      const to = waNum(pf?.telefone);
+      if (!key) key = await d360Key();
+      if (to && key && aprovado(await modelos(key), MOD_DONO, "pt_BR")) {
+        await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
+          template: { name: MOD_DONO, language: { code: "pt_BR" }, components: [
+            { type: "body", parameters: [nomeL, dataLonga(a.data, "pt"), hora({ ...a, hora_ini: v.hora_ini, hora_fim: v.hora_fim }, "pt"), String(v.pessoas || "-"), +v.neto > 0 ? brl(v.neto) : "a combinar"].map(text => ({ type: "text", text })) },
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: a.token }] },
+          ] } });
+      }
+      if (!feitos.has(a.consulta_id)) {
+        await push(await admins(), () => ({ title: `Dono ainda não respondeu: ${nomeL}`, body: `${quando}${cli}. Mandamos um lembrete ao dono.` }),
+          "/login/?pedidos=1", `op_pedido-${a.consulta_id}`).catch(() => 0);
+      }
+      feitos.add(a.consulta_id); n++;
+      continue;
+    }
+    // segundo prazo: uma vez por pedido (marca todas as linhas do pedido, mesmo com mais de um dono)
+    const { data: up } = await db.from("aprovacoes_dono").update({ sem_resposta_em: new Date().toISOString() }).eq("consulta_id", a.consulta_id).is("sem_resposta_em", null).select("id");
+    if (!up?.length || feitos.has(a.consulta_id)) continue;
+    feitos.add(a.consulta_id);
+    const { data: c } = await db.from("consultas").select("id, lancha, data, horario, hora_ini, hora_fim, pessoas, nome, telefone, lang, vendedor").eq("id", a.consulta_id).maybeSingle();
+    let envio = "sem_consulta";
+    if (c) {
+      const ops = (await db.rpc("alternativas_livres", { p_lancha: c.lancha, p_data: c.data, p_horario: c.horario, p_pessoas: c.pessoas, p_hi: c.hora_ini, p_hf: c.hora_fim, p_max: 2 })).data || [];
+      envio = await avisarClienteDemora({ ...c, opcoes: ops }, nomeL).catch(e => (console.error("cliente demora", e), "falhou"));
+    }
+    await db.from("aprovacoes_dono").update({ sem_resposta_envio: envio }).eq("consulta_id", a.consulta_id);
+    const avisado = envio === "texto";
+    await push(await admins(), () => ({ title: `Dono sem resposta: ${nomeL}`,
+      body: `${quando}${cli}. ` + (avisado ? "O cliente recebeu a mensagem de que seguimos aguardando, com outras opções." : c?.vendedor ? "Cliente de vendedor: o vendedor fala com ele." : "Não deu para avisar o cliente automaticamente: fale com ele.") }),
+      "/login/?pedidos=1", `op_pedido-${a.consulta_id}`).catch(() => 0);
+    n++;
+  }
+  return n;
+}
+// deno-lint-ignore no-explicit-any
+function textoDemora(l: string, r: any, nomeL: string) {
+  const nome = primeiro(r.nome), quando = `${dataLonga(r.data, l)} (${hora(r, l)})`, ops: any[] = r.opcoes || [];
+  const lista = ops.map(o => l === "en" ? `- ${o.nome}, up to ${o.cap} people, ${brl(o.preco)}` : l === "es" ? `- ${o.nome}, hasta ${o.cap} personas, ${brl(o.preco)}` : `- ${o.nome}, até ${o.cap} pessoas, ${brl(o.preco)}`).join("\n");
+  if (l === "en") return `Hello${nome ? " " + nome : ""}. The person in charge of the ${nomeL} has not confirmed ${quando} yet. We are still waiting and will let you know as soon as they reply.` +
+    (ops.length ? `\n\nIf you prefer, we can also check these similar options for the same time:\n${lista}\n\nJust reply here.` : "");
+  if (l === "es") return `Hola${nome ? ", " + nome : ""}. El responsable de la ${nomeL} todavía no confirmó el ${quando}. Seguimos esperando y te avisamos apenas responda.` +
+    (ops.length ? `\n\nSi prefieres, también podemos consultar estas opciones parecidas para el mismo horario:\n${lista}\n\nSolo responde aquí.` : "");
+  return `Olá${nome ? ", " + nome : ""}. O responsável pela ${nomeL} ainda não confirmou ${quando}. Seguimos aguardando e te avisamos assim que ele responder.` +
+    (ops.length ? `\n\nSe preferir, também podemos consultar estas opções parecidas para o mesmo horário:\n${lista}\n\nÉ só responder aqui.` : "");
+}
+// só texto livre: o cliente acabou de falar com a gente (janela de 24 h). Fora dela não manda nada (a equipe é avisada).
+// deno-lint-ignore no-explicit-any
+async function avisarClienteDemora(r: any, nomeL: string) {
+  if (r.vendedor) return "vendedor";
+  const to = waNum(r.telefone);
+  if (!to) return "sem_telefone";
+  const key = await d360Key();
+  if (!key) return "sem_chave";
+  const l = langCli(r, to);
+  return await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "text", text: { body: textoDemora(l, r, nomeL), preview_url: false } }) ? "texto" : "fora_24h";
 }
 
 // ---------- dono avisado quando a Búzios Lanchas resolveu antes dele (Rodrigo 2026-11-18) ----------

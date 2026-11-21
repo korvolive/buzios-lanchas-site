@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-21)
 
 ## Corpus Check
-- 257 files · ~496,945 words
+- 258 files · ~499,806 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
-- 1968 nodes · 3242 edges · 166 communities (96 shown, 70 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.85)
+- 1973 nodes · 3270 edges · 166 communities (95 shown, 71 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bf460cbd`
+- Built from commit: `76d29504`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -117,10 +117,10 @@
 - 2026-11-18_textos-claude.sql
 - ref_node_fs
 - public._soltar_anterior_mesmo_cliente
-- paypal-fatura/index.ts
+- traduzir-chat/index.ts
 - enviarSaldos
 - asaas
-- aviso-comprovante/index.ts
+- aviso-preco/index.ts
 - entrar-celular/index.ts
 - caixaPedido
 - public.tg_anotacao_jetski_segura
@@ -139,11 +139,11 @@
 3. `public.adicionar_lancha_pre_reserva()` - 19 edges
 4. `asaas()` - 18 edges
 5. `public._ligar_passeio()` - 17 edges
-6. `avisarDonos()` - 14 edges
-7. `public.cancelar_pre_reserva()` - 14 edges
+6. `avisarDonos()` - 16 edges
+7. `prazosDono()` - 14 edges
 8. `public.cancelar_pre_reserva()` - 14 edges
-9. `public._ligar_passeio()` - 14 edges
-10. `X()` - 13 edges
+9. `public.cancelar_pre_reserva()` - 14 edges
+10. `public._ligar_passeio()` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `public.tg_pedido_jetski_uso()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
@@ -160,7 +160,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (166 total, 70 thin omitted)
+## Communities (166 total, 71 thin omitted)
 
 ### Community 0 - "public.pp_vaga_h"
 Cohesion: 0.22
@@ -180,7 +180,7 @@ Nodes (46): apnsToken(), ASSUNTO, autoConfirma(), avaliacaoPausada(), avisarCred
 
 ### Community 4 - "dono-aprovacao/index.ts"
 Cohesion: 0.12
-Nodes (32): apnsToken(), aprovado(), avisarCliente(), avisarDonos(), avisarResolvidas(), brl(), CORS, criarModelos() (+24 more)
+Nodes (38): admins(), apnsToken(), aprovado(), avisarCliente(), avisarClienteDemora(), avisarDonos(), avisarResolvidas(), brl() (+30 more)
 
 ### Community 5 - "public.consultas"
 Cohesion: 0.19
@@ -383,8 +383,8 @@ Cohesion: 0.43
 Nodes (5): public.transferencias_saldo, transferencias_saldo_user, zz_auditar, a_teto_diario, public._transferencia_teto()
 
 ### Community 82 - "ref_npm_web_push_3_6_7"
-Cohesion: 0.10
-Nodes (11): CAT, CORS, db, CORS, db, T, db, T (+3 more)
+Cohesion: 0.09
+Nodes (12): CAT, CORS, db, CORS, db, SLOT, TXT, db (+4 more)
 
 ### Community 83 - "2026-11-15_jetski-pedido.sql"
 Cohesion: 0.23
@@ -472,7 +472,7 @@ Nodes (14): cupons_boas_vindas_um_por_cliente, public.gerar_cupom_boas_vindas(),
 
 ### Community 125 - "ref_npm_supabase"
 Cohesion: 0.12
-Nodes (6): CORS, db, CORS, db, CORS, db
+Nodes (7): CORS, db, CORS, db, CORS, db, ITEM
 
 ### Community 130 - "2026-11-17_retencao-registros-5-anos.sql"
 Cohesion: 0.28
@@ -498,10 +498,6 @@ Nodes (20): filtra(), ga, match(), meta, T, caminho(), cors(), db (+12 more)
 Cohesion: 0.20
 Nodes (4): m, web, web, erros
 
-### Community 144 - "paypal-fatura/index.ts"
-Cohesion: 0.33
-Nodes (3): CORS, db, ITEM
-
 ### Community 146 - "enviarSaldos"
 Cohesion: 0.25
 Nodes (11): acabou(), carteira(), contaBuzios(), enviarSaldos(), filaPaypal(), jetskiAcabou(), jetskiLibera(), online() (+3 more)
@@ -510,9 +506,9 @@ Nodes (11): acabou(), carteira(), contaBuzios(), enviarSaldos(), filaPaypal(), j
 Cohesion: 0.25
 Nodes (11): asaas(), cancelar(), cancelarAbertas(), chavePix(), conferir(), confirmarSozinho(), entradaPaypal(), lerEntradasPaypal() (+3 more)
 
-### Community 148 - "aviso-comprovante/index.ts"
-Cohesion: 0.29
-Nodes (4): CORS, db, SLOT, TXT
+### Community 148 - "aviso-preco/index.ts"
+Cohesion: 0.40
+Nodes (3): CORS, db, T
 
 ### Community 149 - "entrar-celular/index.ts"
 Cohesion: 0.33
@@ -547,7 +543,7 @@ Cohesion: 0.43
 Nodes (5): a_consulta_resgate_limpa_pedido, public.tg_consulta_resgate_limpa_pedido(), public.tg_fecha_consultas_site(), zz_anotacao_fecha_consultas, zz_consulta_lancada_fecha_site
 
 ## Knowledge Gaps
-- **70 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **71 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -557,12 +553,12 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `2026-11-15_preco-cotado-garantido.sql`, `public.mb_libera_sinal_sozinho`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07058823529411765 - nodes in this community are weakly interconnected._
-- **Why does `public.creditos` connect `b` to `public.bloqueios`, `public._pre_reserva_volta`, `public.bloqueios`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
+- **Why does `public.marcar_wa()` connect `public.marcar_wa` to `public.bloqueios`, `public._pre_reserva_volta`, `public.consultas`, `public._ligar_passeio`, `b`, `public.anotacoes`, `public.ativar_conta_cliente`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.11587301587301588 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.12317073170731707 - nodes in this community are weakly interconnected._
