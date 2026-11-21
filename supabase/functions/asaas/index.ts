@@ -1344,6 +1344,21 @@ Deno.serve(async req => {
       return json({ config: conf, itens: out });
     }
 
+    // nome do cliente no Asaas igual ao do cadastro (ex.: conta criada com o nome do perfil do Google "Acesso E-mail",
+    // Rodrigo 2026-11-21): só o robô (chave interna do resgate_config) ou a chave de serviço
+    if (b.acao === "nome_cliente") {
+      const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!((cfg?.chave && ch === cfg.chave) || (srk && tok === srk))) return json({ erro: "chave" }, 403);
+      const uid = String(b.uid || "");
+      if (!/^[0-9a-f-]{36}$/i.test(uid)) return json({ erro: "dados" }, 400);
+      const { data: ja } = await db.from("asaas_clientes").select("customer_id").eq("user_id", uid).maybeSingle();
+      const { data: cl } = await db.from("clientes").select("nome").eq("user_id", uid).maybeSingle();
+      const nome = String(cl?.nome || "").replace(/\s+/g, " ").trim();
+      if (!ja?.customer_id || nome.length < 3 || nome.length > 120) return json({ erro: "sem_cliente" }, 404);
+      const r = await asaas(`/customers/${ja.customer_id}`, { name: nome });
+      return json({ ok: true, nome: r?.name || null });
+    }
     if (b.acao === "expirar") {
       // só o robô (chave interna do resgate_config) ou a chave de serviço
       const ch = req.headers.get("x-chave") || "", tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
