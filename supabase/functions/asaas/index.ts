@@ -1980,14 +1980,16 @@ Deno.serve(async req => {
       const tipo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(chave) ? "EMAIL" : /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(chave) ? "EVP"
         : /^\+?55/.test(chave.replace(/[\s()-]/g, "")) && (d.length === 12 || d.length === 13) ? "PHONE" : d.length === 14 ? "CNPJ" : d.length === 11 ? "CPF" : "";
       if (!tipo) return json({ erro: "chave" }, 400);
+      // pedido repetido (rede caiu e o admin tocou de novo) responde antes de conferir o saldo, que já baixou (revisão 21/11)
+      const ja = (await db.from("saques_buzios").select("status, valor").eq("req", pedido).maybeSingle()).data;
+      if (ja) return ja.status === "falhou" ? json({ erro: "falhou" }, 409) : json({ ok: true, valor: +ja.valor, repetido: true });
       const ci: any = await asaas("/myAccount/commercialInfo").catch(() => null), meu = String(ci?.cpfCnpj || "").replace(/\D/g, "");
-      if (tipo === "CPF" || (tipo === "CNPJ" && meu && d !== meu)) return json({ erro: "chave_cnpj" }, 409);
+      // sem conseguir ler o CNPJ da conta, chave CNPJ não passa (na dúvida, recusa)
+      if (tipo === "CPF" || (tipo === "CNPJ" && (!meu || d !== meu))) return json({ erro: "chave_cnpj" }, 409);
       const h = { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" };
       const seu = await seuAgora(h);
       if (seu === null) return json({ erro: "conta" }, 502);
       if (valor > seu + 0.005) return json({ erro: "so_buzios", saldo: Math.max(0, seu) }, 409);
-      const ja = (await db.from("saques_buzios").select("status, valor").eq("req", pedido).maybeSingle()).data;
-      if (ja) return ja.status === "falhou" ? json({ erro: "falhou" }, 409) : json({ ok: true, valor: +ja.valor, repetido: true });
       const key = tipo === "PHONE" ? "+" + d : tipo === "CNPJ" ? d : chave;
       const { data: row, error: ei } = await db.from("saques_buzios").insert({ req: pedido, valor, chave: key, criado_por: u.id }).select("id").single();
       if (ei) return ei.code === "23505" ? json({ ok: true, valor, repetido: true }) : json({ erro: "registro" }, 500);
@@ -1997,7 +1999,7 @@ Deno.serve(async req => {
         await db.from("saques_buzios").update({ status: "falhou", erro: String(e?.message || e).slice(0, 300) }).eq("id", row.id);
         return json({ erro: "asaas", detalhe: String(e?.message || "").slice(0, 200) }, 502);
       }
-      await db.from("saques_buzios").update({ asaas_id: String(tr.id), status: "enviado" }).eq("id", row.id);
+      await db.from("saques_buzios").update({ asaas_id: String(tr.id) }).eq("id", row.id); // "enviado" só depois da validação do Asaas (revisão 21/11)
       // a validação do Asaas responde uns 5 s depois: espera até ~14 s para dizer se foi recusada (chave de outro CPF/CNPJ)
       let st = String(tr.status || "");
       for (let i = 0; i < 7 && ["PENDING", ""].includes(st); i++) {
@@ -2008,6 +2010,7 @@ Deno.serve(async req => {
         await db.from("saques_buzios").update({ status: "falhou", erro: "recusado: " + st }).eq("id", row.id);
         return json({ erro: "recusado" }, 409);
       }
+      await db.from("saques_buzios").update({ status: "enviado" }).eq("id", row.id);
       return json({ ok: true, valor, status: st });
     }
     // transferir do card do administrador (Rodrigo 2026-11-20): só até a parte que é da Búzios; o dinheiro de donos, vendedores
@@ -2017,7 +2020,10 @@ Deno.serve(async req => {
       const valor = Math.round(+b.valor * 100) / 100;
       if (!(valor >= 1) || valor > 50000) return json({ erro: "valor" }, 400);
       const h = { authorization: req.headers.get("authorization") || "", apikey: Deno.env.get("SUPABASE_ANON_KEY") || "", "content-type": "application/json" };
-      const seu = await seuAgora(h);
+      // pedido repetido: deixa o asaas-transferir responder "repetido" sem conferir o saldo, que já baixou (revisão 21/11)
+      const rq = String(b.req || "").slice(0, 64);
+      const jaTr = rq.length >= 8 ? (await db.from("transferencias_saldo").select("id").eq("req", rq).maybeSingle()).data : null;
+      const seu = jaTr ? Infinity : await seuAgora(h);
       if (seu === null) return json({ erro: "conta" }, 502);
       if (valor > seu + 0.005) return json({ erro: "so_buzios", saldo: Math.max(0, seu) }, 409);
       const r = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas-transferir", { method: "POST", headers: h,
