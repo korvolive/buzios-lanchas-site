@@ -48,7 +48,8 @@ const TIPO: Record<string, Record<string, string>> = {
 const chaveTxt = (l: string, tipo: string, k: string) => `${TIPO[l][tipo] || ""} ${mascara(tipo, k)}`.trim();
 
 // ---------- modelos de Utilidade (WhatsApp oficial) ----------
-const MOD_SAQUE = "saque_pedido", MOD_PIX = "chave_pix_trocada";
+// chave_pix_trocada (1ª versão) foi recusada pela Meta em pt_BR por "categoria incorreta" (21/11): texto novo, nome novo
+const MOD_SAQUE = "saque_pedido", MOD_PIX = "chave_pix_alterada";
 const TXT: Record<string, Record<string, string>> = {
   [MOD_SAQUE]: {
     pt_BR: "Aviso de segurança da Búzios Lanchas: foi pedido pelo app um saque de {{1}} da conta de recebimento de {{2}}, para a chave Pix {{3}}. Se não foi você, fale com a Búzios Lanchas agora.",
@@ -56,9 +57,9 @@ const TXT: Record<string, Record<string, string>> = {
     es: "Aviso de seguridad de Búzios Lanchas: se pidió en la app un retiro de {{1}} de la cuenta de cobro de {{2}}, a la llave Pix {{3}}. Si no fuiste tú, habla con Búzios Lanchas ahora.",
   },
   [MOD_PIX]: {
-    pt_BR: "Aviso de segurança da Búzios Lanchas: a chave Pix de recebimento de {{1}} foi trocada no app para {{2}}. Se não foi você, fale com a Búzios Lanchas agora.",
-    en: "Búzios Lanchas security notice: the payout Pix key of {{1}} was changed in the app to {{2}}. If this wasn't you, contact Búzios Lanchas now.",
-    es: "Aviso de seguridad de Búzios Lanchas: la llave Pix de cobro de {{1}} se cambió en la app a {{2}}. Si no fuiste tú, habla con Búzios Lanchas ahora.",
+    pt_BR: "Olá, {{1}}. Confirmamos a alteração da chave Pix de recebimento da sua conta na Búzios Lanchas. Nova chave: {{2}}. Se você não fez essa alteração, responda esta mensagem.",
+    en: "Hello, {{1}}. We confirm the change of the payout Pix key on your Búzios Lanchas account. New key: {{2}}. If you did not make this change, reply to this message.",
+    es: "Hola, {{1}}. Confirmamos el cambio de la llave Pix de cobro de tu cuenta en Búzios Lanchas. Nueva llave: {{2}}. Si no hiciste este cambio, responde este mensaje.",
   },
 };
 const EX: Record<string, Record<string, string[]>> = {
