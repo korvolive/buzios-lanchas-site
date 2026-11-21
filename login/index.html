@@ -1707,7 +1707,8 @@ function signupView(){
 }
 /* conta sem os dados de cliente (ou o CPF deu problema): completa aqui */
 /* quem entrou pelo Google já chega com o nome (e o celular, se a conta tiver) preenchidos; o que a pessoa digitou antes tem prioridade */
-const googleDraft = () => { const d=store.get("cli-draft")||{}, m=meta(); return {...d, nome:d.nome||m.full_name||m.name||"", whatsapp:d.whatsapp||(ses?.user?.phone?"+"+ses.user.phone:"")}; };
+const nomeGoogleOk=s=>{ s=String(s||"").trim(); return s.length>=5 && / /.test(s) && !/[0-9@_\/\\|#]/.test(s) && !/(^|[^a-zà-ÿ])(acesso|e-?mail|gmail|hotmail|outlook|icloud|yahoo|conta|trabalho|pessoal|teste|usu[aá]rio|user|admin|contato|empresa|loja|oficial|financeiro|comercial|vendas|suporte|cliente|celular|iphone|android|samsung|whatsapp|google)([^a-zà-ÿ]|$)/i.test(s) ? s : ""; }; /* nome do perfil do Google que não é de pessoa (ex.: "Acesso E-mail") não vem preenchido: o cliente escreve o dele (Rodrigo 2026-11-21) */
+const googleDraft = () => { const d=store.get("cli-draft")||{}, m=meta(); return {...d, nome:d.nome||nomeGoogleOk(m.full_name||m.name), whatsapp:d.whatsapp||(ses?.user?.phone?"+"+ses.user.phone:"")}; };
 function completeView(msg=""){
   const mj = mergeTel && waOn; /* WhatsApp de outra conta: dá para juntar as duas com o código (2026-10-23) */
   app.innerHTML = (S.teamFill ? `<button type="button" class="btn sec" id="tvback" style="width:auto;margin:0 0 10px">‹ ${t("plBack")}</button>` : "") + `<div class="card"><h2>📝 ${t(S.teamFill?"tvT":"completeT")}</h2><p class="muted" style="margin-top:0">${t(S.teamFill?"tvSub":"completeSub")}</p>

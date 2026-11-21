@@ -2852,8 +2852,9 @@ function openContaValor(op){
   const pronto=()=>{ if(CUPM) cupSiteResgatar(); try{ (window.dataLayer=window.dataLayer||[]).push({event:"conta_ver_valor"}); if(CUPM) dataLayer.push({event:"cupom_cadastro"}); }catch(e){} try{ window.rastreio&&rastreio("sign_up",{method:"site"}); }catch(e){} if(dl.open) dl.close(); loadCli(); loadVend(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); };
   const fim=async(s, b, show, email)=>{ const r=await salva(s, b, show, email); if(r.nova) return soWhats(r.user); pronto(); };
   /* entrou com o Google pela primeira vez: nome e e-mail já vêm do Google, falta só o WhatsApp (Rodrigo 2026-11-18). Fechar aqui não perde nada: já está logado e vê o valor */
+  const nomeGoogleOk=s=>{ s=String(s||"").trim(); return s.length>=5 && / /.test(s) && !/[0-9@_\/\\|#]/.test(s) && !/(^|[^a-zà-ÿ])(acesso|e-?mail|gmail|hotmail|outlook|icloud|yahoo|conta|trabalho|pessoal|teste|usu[aá]rio|user|admin|contato|empresa|loja|oficial|financeiro|comercial|vendas|suporte|cliente|celular|iphone|android|samsung|whatsapp|google)([^a-zà-ÿ]|$)/i.test(s) ? s : ""; }; /* nome do perfil do Google que não é de pessoa (ex.: "Acesso E-mail") não vem preenchido: o cliente escreve o dele (Rodrigo 2026-11-21) */
   function soWhats(u){
-    const m=u?.user_metadata||{}, nome=String(m.full_name||m.name||st.nome||"").trim();
+    const m=u?.user_metadata||{}, nome=nomeGoogleOk(m.full_name||m.name)||String(st.nome||"").trim();
     dl.innerHTML=`${X}<h3 id="cv-t">${t("cvWT")}</h3><p>${t("cvWSub")}</p>
       <label>${t("cvName")}<input id="cv-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(nome)}"></label>
       <label>${t("leadWa")}<span class="lphone">${ddiSel("cv-c",st.ddi)}<input id="cv-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(st.tel)}" placeholder="${st.ddi==="55"?"(22) 99999-9999":""}"></span></label>
