@@ -20,6 +20,7 @@
 //                       para ele confirmar que aconteceu (libera a avaliação do cliente). Cada passeio é avisado uma vez (tabela fim_avisos).
 //                       Na mesma rodada avisa o cliente com conta 1 hora antes do início do passeio (celular e e-mail), com embarque, mapa e contatos
 //                       (dono da lancha; nos passeios da Búzios Lanchas também a Búzios Lanchas). Uma vez por passeio (tabela inicio_avisos).
+//                       E lembra os donos no app ~2 horas antes do passeio da Búzios Lanchas (cliente, WhatsApp, embarque, restante; tabela dono_inicio_avisos).
 //                       Também avisa o cliente do crédito que vence em 30 dias e do crédito que venceu (chat, celular e e-mail; Rodrigo 2026-11-02).
 //                       E avisa o cliente com conta quando a meia diária condicional se resolve (ficou em 4 horas ou voltou para a diária).
 //                       E apaga a pré-reserva (valor lançado, sinal zero) que passou do prazo sem sinal (12 h, 6 h, 2 h ou 1 h, conforme a distância até o passeio): a data volta livre no site e o administrador é avisado.
@@ -161,6 +162,12 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     pt: p => ({ title: "Avise o cliente: passeio em breve", body: `${p.cliente || "Cliente"} · ${p.lancha} · ${p.hora}. Ele ainda não tem conta no app: toque para mandar o aviso no WhatsApp.` }),
     en: p => ({ title: "Tell the client: tour soon", body: `${p.cliente || "Client"} · ${p.lancha} · ${p.hora}. They have no app account yet: tap to send the reminder on WhatsApp.` }),
     es: p => ({ title: "Avisa al cliente: paseo pronto", body: `${p.cliente || "Cliente"} · ${p.lancha} · ${p.hora}. Todavía no tiene cuenta en la app: toca para mandar el aviso por WhatsApp.` }),
+  },
+  // lembrete ao dono no app, ~2h antes do passeio da Búzios Lanchas (Rodrigo 2026-11-21: os donos às vezes esquecem)
+  dono_inicio: {
+    pt: p => ({ title: `Passeio hoje às ${p.hora}: ${p.lancha}`, body: [`Cliente: ${p.cliente || "-"}${p.tel ? " · WhatsApp " + p.tel : ""}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.resto ? [`Receber a bordo: ${p.resto}`] : [])].join(" · ") }),
+    en: p => ({ title: `Tour today at ${p.hora}: ${p.lancha}`, body: [`Client: ${p.cliente || "-"}${p.tel ? " · WhatsApp " + p.tel : ""}`, ...(p.embarque ? [`Boarding: ${p.embarque}`] : []), ...(p.resto ? [`Collect on board: ${p.resto}`] : [])].join(" · ") }),
+    es: p => ({ title: `Paseo hoy a las ${p.hora}: ${p.lancha}`, body: [`Cliente: ${p.cliente || "-"}${p.tel ? " · WhatsApp " + p.tel : ""}`, ...(p.embarque ? [`Embarque: ${p.embarque}`] : []), ...(p.resto ? [`Cobrar a bordo: ${p.resto}`] : [])].join(" · ") }),
   },
   cred_novo: {
     pt: p => ({ title: "Você tem um crédito", body: `${p.valor} para usar na ${p.lancha} até ${dataBR(p.ate)}. Toque para ver.` }),
@@ -599,6 +606,38 @@ async function inicios() {
   return n;
 }
 
+// lembrete ao dono no app ~2h antes do passeio da Búzios Lanchas (Rodrigo 2026-11-21): o WhatsApp sai pela VPS (aviso-dono-dia); aqui é o push do app,
+// para "apitar" no celular de quem tem o app. Só passeio com sinal pago, sem revenda, fora a Miss Bardot (lancha da Búzios). Passeio antes das 9h: a partir das 7h.
+// Uma vez por passeio (tabela dono_inicio_avisos). Depois que o passeio começou, não manda mais.
+const telLeg = (t: string) => { const r = String(t || "").trim(), d = r.replace(/\D/g, ""); if (d.length < 8) return ""; const fora = r.startsWith("+") && !r.startsWith("+55");
+  const br = fora ? "" : d.startsWith("55") && (d.length === 12 || d.length === 13) ? d.slice(2) : (d.length === 10 || d.length === 11) ? d : "";
+  return br ? `(${br.slice(0, 2)}) ${br.slice(2, br.length - 4)}-${br.slice(-4)}` : `+${d}`; };
+async function donoInicios() {
+  const agora = new Date(Date.now() - 3 * 3600 * 1000), hoje = agora.toISOString().slice(0, 10), hora = agora.getUTCHours() + agora.getUTCMinutes() / 60;
+  const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, revenda, anotacoes(origem, cliente, telefone, embarque, hora_ini, valor, sinal), realizados(aconteceu), dono_inicio_avisos(bloqueio_id)").eq("data", hoje);
+  if (error) { console.error("dono_inicio", error.message); return 0; }
+  const um = (x: any) => Array.isArray(x) ? x[0] : x;
+  const prontos = (bs || []).filter(b => {
+    const a = um(b.anotacoes);
+    if (!a || a.origem !== "buzios" || b.lancha === "miss-bardot" || b.revenda || !(+a.sinal > 0) || um(b.realizados) || um(b.dono_inicio_avisos)) return false;
+    const ini = a.hora_ini ? (([h, m]) => h + m / 60)(String(a.hora_ini).split(":").map(Number)) : INI[b.horario] ?? 99;
+    return hora >= Math.max(ini - 2, 7) && hora < ini;
+  });
+  if (!prontos.length) return 0;
+  const { data: novos } = await db.from("dono_inicio_avisos").upsert(prontos.map(b => ({ bloqueio_id: b.id })), { onConflict: "bloqueio_id", ignoreDuplicates: true }).select("bloqueio_id");
+  const ok = new Set((novos || []).map(n => n.bloqueio_id));
+  const brl = (v: number) => "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let n = 0;
+  for (const b of prontos.filter(b => ok.has(b.id))) {
+    const a = um(b.anotacoes), lancha = (await db.from("lanchas").select("nome").eq("slug", b.lancha).maybeSingle()).data?.nome || b.lancha;
+    const { data: ds } = await db.from("donos").select("user_id").eq("lancha", b.lancha);
+    const hora = a.hora_ini ? String(a.hora_ini).slice(0, 5).replace(/^0/, "").replace(":00", "h").replace(":", "h") : `${INI[b.horario]}h`;
+    const resto = +a.valor > 0 && +a.sinal > 0 && +a.valor - +a.sinal > 0 ? brl(+a.valor - +a.sinal) : "";
+    n += await enviar((ds || []).map(d => d.user_id), "dono_inicio", { id: b.id, lancha, hora, cliente: a.cliente || "", tel: telLeg(a.telefone), embarque: a.embarque || "", resto }, "/login/");
+  }
+  return n;
+}
+
 // pré-reserva (valor lançado, sinal zero) que passou do prazo sem sinal: apaga, a data volta livre no site e o administrador é avisado (Rodrigo 2026-10-25).
 // Prazo contado da criação (Rodrigo 2026-10-30): passeio a 7 dias ou mais 12 h, de 2 a 6 dias 6 h, véspera 2 h, mesmo dia 1 h (igual ao app e ao vencer_pre_pedidos).
 // Só passeios de hoje em diante e sem pedido do site ligado (pedido aprovado tem fluxo próprio).
@@ -716,7 +755,7 @@ Deno.serve(async req => {
   try {
     if (req.method === "GET") return json({ publica: (await chaves()).publica });
     const corpo = await req.clone().json().catch(() => ({}));
-    if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)), vencidas: await vencerPre().catch(e => (console.error("vencer", e), 0)), creditos: await creditosAviso().catch(e => (console.error("creditos", e), 0)), condicionais: await condAviso().catch(e => (console.error("condicional", e), 0)) });
+    if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)), dono_inicio: await donoInicios().catch(e => (console.error("dono_inicio", e), 0)), vencidas: await vencerPre().catch(e => (console.error("vencer", e), 0)), creditos: await creditosAviso().catch(e => (console.error("creditos", e), 0)), condicionais: await condAviso().catch(e => (console.error("condicional", e), 0)) });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     // o próprio servidor (pagamento automático confirmou a reserva, função asaas/paypal-checkout) entra como administrador
     const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "", sistema = !!srk && token === srk;
