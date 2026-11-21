@@ -1919,6 +1919,9 @@
       "supabase_sql_2026_11_04_revisao_diaria_public_trava_cond_aviso",
       "supabase_sql_2026_11_04_revisao_diaria_trava_cond_aviso"
     ],
+    "115": [
+      "supabase_sql_2026_11_21_bordazul_origem_vigia"
+    ],
     "116": [
       "supabase_sql_2026_11_18_julho_na_baixa",
       "supabase_sql_2026_11_18_julho_na_baixa_public_epoca"
@@ -2425,6 +2428,7 @@
     "112": 0.15384615384615385,
     "113": 1.0,
     "114": 1.0,
+    "115": 1.0,
     "116": 1.0,
     "117": 0.225,
     "118": 0.4,
@@ -2585,7 +2589,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.ativar_conta_cliente`, `public.bloqueios`, `public._pre_reserva_volta`?",
-      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.021) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2594,7 +2598,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.consultas`?",
+      "question": "Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `public.bloqueios`, `public.consultas`, `public.adicionar_lancha_pre_reserva`, `public`, `vendedores`?",
       "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
     },
     {
@@ -2604,8 +2608,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `public.bloqueios`, `public.consultas`, `public.adicionar_lancha_pre_reserva`, `public`, `vendedores`?",
-      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.consultas`?",
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",

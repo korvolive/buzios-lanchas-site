@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1986 nodes · 3292 edges · 161 communities (92 shown, 69 thin omitted)
+- 1987 nodes · 3292 edges · 162 communities (92 shown, 70 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `11e894de`
+- Built from commit: `19a1016c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -153,7 +153,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (161 total, 69 thin omitted)
+## Communities (162 total, 70 thin omitted)
 
 ### Community 0 - "public.pp_vaga_h"
 Cohesion: 0.22
@@ -524,21 +524,21 @@ Cohesion: 0.11
 Nodes (14): cupons_boas_vindas_um_por_cliente, public.gerar_cupom_boas_vindas(), public.meus_cupons(), public.meus_cupons_v2(), pedido_zz_cupom_teto, public.cupom_do_cliente_operador(), public.cupom_site_config, public._melhor_cupom() (+6 more)
 
 ## Knowledge Gaps
-- **69 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **70 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public.ativar_conta_cliente`, `public.bloqueios`, `public._pre_reserva_volta`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.consultas`?**
+- **Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `public.bloqueios`, `public.consultas`, `public.adicionar_lancha_pre_reserva`, `public`, `vendedores`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07058823529411765 - nodes in this community are weakly interconnected._
-- **Why does `public.origem_reserva()` connect `public.ativar_conta_cliente` to `public.bloqueios`, `public.consultas`, `public.adicionar_lancha_pre_reserva`, `public`, `vendedores`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.bloqueios`, `public.pedidos`, `public.consultas`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
