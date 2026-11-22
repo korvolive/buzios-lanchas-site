@@ -42,20 +42,24 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, apikey, content-type, x-client-info", "access-control-allow-methods": "POST, OPTIONS" };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const dataBR = (d: string) => d.split("-").reverse().join("/");
+// horário combinado (hora_ini/hora_fim do pedido) vale sobre o padrão do período (revisão 2026-11-22)
+const hmTxt = (x: string, l: string) => { const [h, m] = String(x).slice(0, 5).split(":"); return l === "en" ? `${+h}:${m}` : `${+h}h${m === "00" ? "" : m}`; };
+const slotTxt = (l: string, p: any): string => /^\d{1,2}:\d{2}/.test(p.hora_ini || "") && /^\d{1,2}:\d{2}/.test(p.hora_fim || "")
+  ? `${hmTxt(p.hora_ini, l)} ${l === "pt" ? "às" : l === "es" ? "a" : "to"} ${hmTxt(p.hora_fim, l)}` : (SLOT[l]?.[p.horario] || p.horario);
 const SLOT: Record<string, Record<string, string>> = {
   pt: { manha: "10h às 14h", tarde: "14h às 18h", dia: "10h às 17h", noite: "noite" },
   en: { manha: "10am to 2pm", tarde: "2pm to 6pm", dia: "10am to 5pm", noite: "night" },
   es: { manha: "10h a 14h", tarde: "14h a 18h", dia: "10h a 17h", noite: "noche" },
 };
 const PUSH: Record<string, (p: any) => { title: string; body: string }> = {
-  pt: p => ({ title: "Pedido pelo seu link", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario} · ${p.pessoas} pessoas. Comissão só depois do passeio concluído.` }),
-  en: p => ({ title: "Request through your link", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario} · ${p.pessoas} people. Commission only after the tour is completed.` }),
-  es: p => ({ title: "Pedido por tu link", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario} · ${p.pessoas} personas. Comisión solo después del paseo concluido.` }),
+  pt: p => ({ title: "Pedido pelo seu link", body: `${p.lancha} · ${dataBR(p.data)} · ${slotTxt("pt", p)} · ${p.pessoas} pessoas. Comissão só depois do passeio concluído.` }),
+  en: p => ({ title: "Request through your link", body: `${p.lancha} · ${dataBR(p.data)} · ${slotTxt("en", p)} · ${p.pessoas} people. Commission only after the tour is completed.` }),
+  es: p => ({ title: "Pedido por tu link", body: `${p.lancha} · ${dataBR(p.data)} · ${slotTxt("es", p)} · ${p.pessoas} personas. Comisión solo después del paseo concluido.` }),
 };
 const MAIL: Record<string, (p: any) => any> = {
-  pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Um cliente pediu um passeio pelo seu link: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${dataBR(p.data)}`, `Horário: ${SLOT.pt[p.horario] || p.horario}`, `Pessoas: ${p.pessoas}`, ...(p.comissao ? [`Sua comissão: ${p.comissao}`] : [])], nota: "A Búzios Lanchas confirma o passeio com o cliente. Você recebe a sua comissão só depois que o passeio acontecer e terminar bem. Se for cancelado, não tem comissão. Acompanhe em Minhas vendas, no app.", botao: "Abrir o app" }),
-  en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A client requested a tour through your link: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${dataBR(p.data)}`, `Time: ${SLOT.en[p.horario] || p.horario}`, `People: ${p.pessoas}`, ...(p.comissao ? [`Your commission: ${p.comissao}`] : [])], nota: "Búzios Lanchas confirms the tour with the client. You get your commission only after the tour has happened and ended well. If it is cancelled, there is no commission. Follow it in My sales, in the app.", botao: "Open the app" }),
-  es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Un cliente pidió un paseo por tu link: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${dataBR(p.data)}`, `Horario: ${SLOT.es[p.horario] || p.horario}`, `Personas: ${p.pessoas}`, ...(p.comissao ? [`Tu comisión: ${p.comissao}`] : [])], nota: "Búzios Lanchas confirma el paseo con el cliente. Recibes tu comisión solo después de que el paseo sucede y termina bien. Si se cancela, no hay comisión. Síguelo en Mis ventas, en la app.", botao: "Abrir la app" }),
+  pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Um cliente pediu um passeio pelo seu link: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Data: ${dataBR(p.data)}`, `Horário: ${slotTxt("pt", p)}`, `Pessoas: ${p.pessoas}`, ...(p.comissao ? [`Sua comissão: ${p.comissao}`] : [])], nota: "A Búzios Lanchas confirma o passeio com o cliente. Você recebe a sua comissão só depois que o passeio acontecer e terminar bem. Se for cancelado, não tem comissão. Acompanhe em Minhas vendas, no app.", botao: "Abrir o app" }),
+  en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `A client requested a tour through your link: ${p.lancha}.`, linhas: [`Client: ${p.cliente}`, `Date: ${dataBR(p.data)}`, `Time: ${slotTxt("en", p)}`, `People: ${p.pessoas}`, ...(p.comissao ? [`Your commission: ${p.comissao}`] : [])], nota: "Búzios Lanchas confirms the tour with the client. You get your commission only after the tour has happened and ended well. If it is cancelled, there is no commission. Follow it in My sales, in the app.", botao: "Open the app" }),
+  es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Un cliente pidió un paseo por tu link: ${p.lancha}.`, linhas: [`Cliente: ${p.cliente}`, `Fecha: ${dataBR(p.data)}`, `Horario: ${slotTxt("es", p)}`, `Personas: ${p.pessoas}`, ...(p.comissao ? [`Tu comisión: ${p.comissao}`] : [])], nota: "Búzios Lanchas confirma el paseo con el cliente. Recibes tu comisión solo después de que el paseo sucede y termina bien. Si se cancela, no hay comisión. Síguelo en Mis ventas, en la app.", botao: "Abrir la app" }),
 };
 
 const PUSH_PAGO: Record<string, (p: any) => { title: string; body: string }> = {
@@ -64,9 +68,9 @@ const PUSH_PAGO: Record<string, (p: any) => { title: string; body: string }> = {
   es: p => ({ title: "Comisión pagada 💰", body: `${p.comissao} · ${p.lancha} · ${dataBR(p.data)}. Mira el comprobante en Mis ventas.` }),
 };
 const MAIL_PAGO: Record<string, (p: any) => any> = {
-  pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A Búzios Lanchas pagou a sua comissão do passeio na ${p.lancha}.`, linhas: [`Valor: ${p.comissao}`, `Passeio: ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}`, `Forma: ${p.forma === "asaas" ? "transferência para a sua conta Asaas" : "Pix"}`], nota: "O comprovante fica em Minhas vendas, no app, junto do passeio.", botao: "Abrir o app" }),
-  en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Búzios Lanchas paid your commission for the tour on ${p.lancha}.`, linhas: [`Amount: ${p.comissao}`, `Tour: ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}`, `Method: ${p.forma === "asaas" ? "transfer to your Asaas account" : "Pix"}`], nota: "The receipt is in My sales, in the app, next to the tour.", botao: "Open the app" }),
-  es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Búzios Lanchas pagó tu comisión del paseo en ${p.lancha}.`, linhas: [`Valor: ${p.comissao}`, `Paseo: ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}`, `Forma: ${p.forma === "asaas" ? "transferencia a tu cuenta Asaas" : "Pix"}`], nota: "El comprobante está en Mis ventas, en la app, junto al paseo.", botao: "Abrir la app" }),
+  pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A Búzios Lanchas pagou a sua comissão do passeio na ${p.lancha}.`, linhas: [`Valor: ${p.comissao}`, `Passeio: ${dataBR(p.data)} · ${slotTxt("pt", p)}`, `Forma: ${p.forma === "asaas" ? "transferência para a sua conta Asaas" : "Pix"}`], nota: "O comprovante fica em Minhas vendas, no app, junto do passeio.", botao: "Abrir o app" }),
+  en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Búzios Lanchas paid your commission for the tour on ${p.lancha}.`, linhas: [`Amount: ${p.comissao}`, `Tour: ${dataBR(p.data)} · ${slotTxt("en", p)}`, `Method: ${p.forma === "asaas" ? "transfer to your Asaas account" : "Pix"}`], nota: "The receipt is in My sales, in the app, next to the tour.", botao: "Open the app" }),
+  es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Búzios Lanchas pagó tu comisión del paseo en ${p.lancha}.`, linhas: [`Valor: ${p.comissao}`, `Paseo: ${dataBR(p.data)} · ${slotTxt("es", p)}`, `Forma: ${p.forma === "asaas" ? "transferencia a tu cuenta Asaas" : "Pix"}`], nota: "El comprobante está en Mis ventas, en la app, junto al paseo.", botao: "Abrir la app" }),
 };
 const ASSUNTO = (p: any) => ({ pt: `Pedido pelo seu link: ${p.lancha} · ${dataBR(p.data)}`, en: `Booking through your link: ${p.lancha} · ${dataBR(p.data)}`, es: `Pedido por tu enlace: ${p.lancha} · ${dataBR(p.data)}` }); // assunto com o motivo (Rodrigo 2026-10-22)
 const ASSUNTO_PAGO = (p: any) => ({ pt: `Comissão paga: ${p.comissao} · ${p.lancha}`, en: `Commission paid: ${p.comissao} · ${p.lancha}`, es: `Comisión pagada: ${p.comissao} · ${p.lancha}` });
@@ -115,7 +119,7 @@ Deno.serve(async req => {
     const { id, tipo } = await req.json().catch(() => ({}));
     if (tipo === "pago") {
       if (!(await db.from("admins").select("user_id").eq("user_id", uid).maybeSingle()).data) return json({ erro: "admin" }, 403);
-      const { data: p } = await db.from("pedidos").select("id, lancha, data, horario, vendedor, preco_base, preco_cliente, comissao_paga, comissao_comprovante").eq("id", id).maybeSingle();
+      const { data: p } = await db.from("pedidos").select("id, lancha, data, horario, hora_ini, hora_fim, vendedor, preco_base, preco_cliente, comissao_paga, comissao_comprovante").eq("id", id).maybeSingle();
       if (!p?.vendedor || !p.comissao_paga) return json({ enviados: 0 });
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
       const com = Math.max((p.preco_cliente || 0) - (p.preco_base || 0), 0);
@@ -125,7 +129,7 @@ Deno.serve(async req => {
       const mail = await email(p.vendedor, dados, MAIL_PAGO, ASSUNTO_PAGO).catch(e => (console.error(e), false));
       return json({ enviados, email: mail });
     }
-    const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, criado_em, vendedor, preco_base, preco_cliente, vendedor_avisado_em").eq("id", id).maybeSingle();
+    const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, criado_em, vendedor, preco_base, preco_cliente, vendedor_avisado_em").eq("id", id).maybeSingle();
     if (!p || p.cliente !== uid) return json({ erro: "pedido não encontrado" }, 404);
     if (!p.vendedor || p.vendedor_avisado_em || Date.now() - Date.parse(p.criado_em) > 10 * 60 * 1000) return json({ enviados: 0 });
     const { data: marcado } = await db.from("pedidos").update({ vendedor_avisado_em: new Date().toISOString() }).eq("id", p.id).is("vendedor_avisado_em", null).select("id");
