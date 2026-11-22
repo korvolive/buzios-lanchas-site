@@ -7,7 +7,7 @@
 // POST {acao:"link", pid, valor, moeda, email?}  só administrador: cria ou muda a cobrança e manda o e-mail
 // POST {acao:"criar", p, k}                       a página: cria a ordem no PayPal
 // POST {acao:"capturar", p, k, order}             a página: captura, confere e marca como pago
-// POST {acao:"aceite", p, k}                      a página: grava o aceite da política de cancelamento (uma vez)
+// POST {acao:"aceite", p, k, l?}                  a página: grava o aceite dos termos do passeio (data, IP, aparelho, nome, CPF, versão)
 // POST {acao:"wa", p, k, w}                        a página aberta pelo botão do WhatsApp oficial: confirma o WhatsApp do cliente
 // Ao liberar (primeira vez), também manda pelo WhatsApp oficial o modelo de Utilidade pagamento_liberado com o botão
 // "Pagar a reserva" (/pagar/?p&k&w). w = wa_provas.token, só foi para aquele número, então tocar confirma o WhatsApp (Rodrigo 2026-10-29).
@@ -52,7 +52,22 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
 const API = Deno.env.get("PAYPAL_ENV") === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
 const SITE = "https://www.lanchaembuzios.com.br";
-const POLITICA_VERSAO = "2026-11-19"; // versão da /cancelamento/ que o cliente aceita na página de pagamento
+// versão dos termos do passeio (/termos/, que incluem a /cancelamento/) aceitos na página de pagamento (Rodrigo 2026-11-22).
+// Mudou o texto: troque a versão aqui, em TERMO_VERSAO da função asaas e em /pagar/; quem ainda não pagou aceita de novo.
+const TERMO_VERSAO = "2026-11-22";
+const POLITICA_VERSAO = TERMO_VERSAO;
+const mascCpf = (c: unknown) => { const d = String(c || "").replace(/\D/g, ""); return d.length === 11 ? `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**` : d.length === 14 ? `${d.slice(0, 2)}.***.***/${d.slice(8, 12)}-**` : null; };
+// registro do aceite eletrônico (prova): IP e aparelho de quem marcou, nome e CPF que constam na conta
+async function gravarAceite(req: Request, p: any, idioma: unknown) {
+  const ip = (req.headers.get("cf-connecting-ip") || (req.headers.get("x-forwarded-for") || "").split(",")[0] || "").trim().slice(0, 64) || null;
+  const aparelho = String(req.headers.get("user-agent") || "").slice(0, 300) || null;
+  const { data: cl } = await db.from("clientes").select("nome, cpf").eq("user_id", p.cliente).maybeSingle();
+  const { data: ac } = await db.from("asaas_clientes").select("cpf").eq("user_id", p.cliente).maybeSingle();
+  const cpf = String(ac?.cpf || cl?.cpf || "").replace(/\D/g, "") || null;
+  const { error } = await db.from("aceites_termo").insert({ pedido: p.id, versao: TERMO_VERSAO, idioma: ["pt", "en", "es"].includes(String(idioma)) ? idioma : null,
+    ip, aparelho, nome: String(cl?.nome || "").trim().slice(0, 120) || null, cpf: cpf && (cpf.length === 11 || cpf.length === 14) ? cpf : null });
+  if (error) console.error("aceites_termo", p.id, error.message);
+}
 const SYM: Record<string, string> = { USD: "US$", EUR: "€", GBP: "£", BRL: "R$" };
 const fmt = (m: string, v: number) => `${SYM[m] || m} ${Number(v).toLocaleString(m === "BRL" ? "pt-BR" : "en-US", { minimumFractionDigits: Number.isInteger(+v) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "en");
@@ -159,7 +174,7 @@ async function moedaDoCliente(c: any, p: any, g: any[] = []) {
   console.log("central em moeda do cliente", p.id, moeda);
 }
 
-const COLS_P = "id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, prazo_vencido_em, pp_excecao";
+const COLS_P = "id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, status, sinal_valor, jetski_valor, jetski_min, jetski_ini, jetski_cortesia, sinal_liberado_em, comprovante_em, vendedor, bloqueio_id, preco_base, preco_cliente, cupom_valor, politica_aceita_em, politica_versao, prazo_vencido_em, pp_excecao";
 async function carregar(pid: number, k: string) {
   if (!pid || !/^[0-9a-f-]{36}$/i.test(String(k || ""))) return null;
   const { data: c } = await db.from("pagamentos_pp").select("*").eq("pedido", pid).eq("token", k).maybeSingle();
@@ -434,6 +449,12 @@ Deno.serve(async req => {
         recibo = { nome: String((await db.from("clientes").select("nome").eq("user_id", p.cliente).maybeSingle()).data?.nome || "").trim().slice(0, 80), forma,
           em: pa?.pago_em || c.pago_em || p.comprovante_em || null, valor_brl: pa ? +pa.valor : ((+a?.sinal || +p.sinal_valor) ? (+a?.sinal || +p.sinal_valor) + (+p.jetski_valor || 0) : (c.moeda === "BRL" ? +c.valor : 0)) || null,
           valor_txt: forma === "paypal" ? c.pago_valor || fmt(c.moeda, +c.valor) : null };
+        // recibo e termo de aceite (Rodrigo 2026-11-22): o registro do aceite vai junto no mesmo recibo
+        const { data: ta } = await db.from("aceites_termo").select("versao, aceito_em, ip, nome, cpf").eq("pedido", p.id).order("aceito_em", { ascending: false }).limit(1).maybeSingle();
+        if (ta) {
+          const cpf = ta.cpf || (await db.from("asaas_clientes").select("cpf").eq("user_id", p.cliente).maybeSingle()).data?.cpf;
+          recibo.termo = { versao: ta.versao, em: ta.aceito_em, ip: ta.ip || null, nome: ta.nome || recibo.nome || null, cpf: mascCpf(cpf) };
+        }
       }
       // prazo vencido e o dono mudou o preço: a página mostra o valor novo e pede o "concordo" antes de pagar (Rodrigo 2026-11-15)
       let preco_novo: unknown = null;
@@ -449,7 +470,7 @@ Deno.serve(async req => {
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
         lancha_sinal: g.length ? null : +p.sinal_valor || null, lancha_total: !g.length && resto !== null && +p.sinal_valor > 0 ? resto + +p.sinal_valor : null,
         jetski: !g.length && (+p.jetski_valor > 0 || +p.jetski_cortesia > 0) && p.jetski_ini ? { min: +p.jetski_min || 0, cort: +p.jetski_cortesia || 0, ini: String(p.jetski_ini || "").slice(0, 5), valor: +p.jetski_valor || 0 } : null, pago_em: c.pago_em, pago_valor: c.pago_valor, comprovante_em: p.comprovante_em, status: p.status,
-        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", jetski_fora: vg === "jetski" /* prazo vencido e o jetski foi para outro (2026-11-15) */, chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_aceita_em || null });
+        confirmada: p.status === "aprovado" && !!p.bloqueio_id, indisponivel: vg === "ocupada" || (p.status === "recusado" && !c.pago_em), pagando: vg === "pagando", jetski_fora: vg === "jetski" /* prazo vencido e o jetski foi para outro (2026-11-15) */, chat: sup, chat_vendedor: vc, vendedor: p.vendedor ? vn || "—" : null, aceite: p.politica_versao === TERMO_VERSAO ? p.politica_aceita_em || null : null });
     }
     const b = await req.json().catch(() => ({}));
 
@@ -589,14 +610,17 @@ Deno.serve(async req => {
       return r || json({ ok: true });
     }
 
-    // aceite da política de cancelamento (Rodrigo 2026-11-15): a página grava quando o cliente marca "Li e aceito"; só a primeira vez, só pedido pendente
+    // aceite dos termos do passeio (Rodrigo 2026-11-15, termos completos 2026-11-22): a página grava quando o cliente marca
+    // "Li e aceito"; uma vez por versão, só pedido pendente. O registro completo vai para aceites_termo.
     if (b.acao === "aceite") {
       const xa = await carregar(Number(b.p), String(b.k || ""));
       if (!xa) return json({ erro: "link" }, 404);
-      if (xa.p.politica_aceita_em) return json({ ok: true, em: xa.p.politica_aceita_em });
+      if (xa.p.politica_aceita_em && xa.p.politica_versao === TERMO_VERSAO) return json({ ok: true, em: xa.p.politica_aceita_em });
       if (xa.p.status !== "pendente") return json({ erro: "status" }, 409);
       const em = new Date().toISOString();
-      await db.from("pedidos").update({ politica_aceita_em: em, politica_versao: POLITICA_VERSAO }).eq("id", xa.p.id).is("politica_aceita_em", null);
+      const { data: up } = await db.from("pedidos").update({ politica_aceita_em: em, politica_versao: TERMO_VERSAO }).eq("id", xa.p.id)
+        .or(`politica_versao.is.null,politica_versao.neq.${TERMO_VERSAO}`).select("id");
+      if (up?.length) await gravarAceite(req, xa.p, b.l);
       return json({ ok: true, em });
     }
 

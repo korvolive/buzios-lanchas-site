@@ -1505,6 +1505,14 @@ Deno.serve(async req => {
       }
       const cus = await cliente(p.cliente, dig(b.cpf), fora);
       if (!cus) return json({ erro: "cpf" }, 400);
+      // termo de aceite (Rodrigo 2026-11-22): o CPF de quem paga costuma chegar só agora; completa o registro do aceite
+      {
+        const cpfAc = dig((await db.from("asaas_clientes").select("cpf").eq("user_id", p.cliente).maybeSingle()).data?.cpf);
+        if (cpfAc.length === 11 || cpfAc.length === 14) {
+          const { error: eac } = await db.from("aceites_termo").update({ cpf: cpfAc }).eq("pedido", p.id).is("cpf", null);
+          if (eac) console.error("aceites_termo cpf", p.id, eac.message);
+        }
+      }
       // Pix de estrangeiro sem CPF: se o Asaas recusar a cobrança sem documento, a página volta a pedir o CPF de quem paga (como antes)
       const pixSemDoc = fora && metodo === "pix" && !(await db.from("asaas_clientes").select("cpf").eq("user_id", p.cliente).maybeSingle()).data?.cpf;
       const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
