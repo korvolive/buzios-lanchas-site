@@ -1,7 +1,9 @@
 # Graph Report - buzios-lanchas-site  (2026-11-22)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 279 files · ~520,152 words
+- Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
 - 2095 nodes · 3494 edges · 174 communities (101 shown, 73 thin omitted)
@@ -9,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d1f87a6a`
+- Built from commit: `7730d460`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -143,8 +145,8 @@
 4. `asaas()` - 18 edges
 5. `public._ligar_passeio()` - 17 edges
 6. `avisarDonos()` - 16 edges
-7. `enviarSaldos()` - 14 edges
-8. `prazosDono()` - 14 edges
+7. `prazosDono()` - 14 edges
+8. `enviarSaldos()` - 14 edges
 9. `public.cancelar_pre_reserva()` - 14 edges
 10. `public.cancelar_pre_reserva()` - 14 edges
 
@@ -576,15 +578,15 @@ Nodes (12): public.tg_pedido_jetski(), public.tg_pedido_jetski_uso(), public.tg_
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `public.anotacoes`, `public.consultas`, `public.bloqueios`, `public.clientes`, `public._pre_reserva_volta`, `vendedores`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `public.adicionar_lancha_pre_reserva` be split into smaller, more focused modules?**
   _Cohesion score 0.13852813852813853 - nodes in this community are weakly interconnected._
-- **Why does `public.papeis_painel` connect `public` to `public._pre_reserva_volta`, `public.clientes`, `2026-10-30_operador-um-toque.sql`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `public.marcar_wa()` connect `2026-10-30_operador-um-toque.sql` to `public.bloqueios`, `public.anotacoes`, `public.consultas`, `public.consultas`, `public._pre_reserva_volta`, `public`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.marcar_wa()` connect `2026-10-30_operador-um-toque.sql` to `public.bloqueios`, `public.anotacoes`, `public.consultas`, `public.consultas`, `public._pre_reserva_volta`, `public`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public` to `public._pre_reserva_volta`, `public.clientes`, `2026-10-30_operador-um-toque.sql`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
