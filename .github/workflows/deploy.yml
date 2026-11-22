@@ -12,11 +12,16 @@ concurrency:
   group: deploy-hostgator-${{ github.event_name == 'schedule' && 'auto' || 'push' }} # a verificação automática fica numa fila à parte para não tomar o lugar de um envio de push
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -55,6 +60,8 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps # senha e arquivos sempre criptografados (revisão de segurança 22/11)
+          security: loose # servidor compartilhado da HostGator: certificado com outro nome; continua criptografado
           server-dir: ./
           exclude: |
             **/.git*
