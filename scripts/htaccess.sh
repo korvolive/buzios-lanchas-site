@@ -7,9 +7,11 @@ set -u
 rm -f .htaccess
 curl -sS --fail --ssl-reqd -o .htaccess.servidor --user "$FTP_USERNAME:$FTP_PASSWORD" "ftp://$FTP_SERVER/.htaccess" 2>/dev/null
 st=$?
-if [ $st -ne 0 ]; then
-  curl -sS --fail -o .htaccess.servidor --user "$FTP_USERNAME:$FTP_PASSWORD" "ftp://$FTP_SERVER/.htaccess" 2>/dev/null
+if [ $st -ne 0 ] && [ $st -ne 78 ]; then
+  # certificado com outro nome (servidor compartilhado): continua criptografado, só sem conferir o nome. Senha nunca vai sem TLS (revisão 22/11)
+  curl -sS --fail --ssl-reqd -k -o .htaccess.servidor --user "$FTP_USERNAME:$FTP_PASSWORD" "ftp://$FTP_SERVER/.htaccess" 2>/dev/null
   st=$?
+  [ $st -eq 0 ] && echo "htaccess: TLS sem conferir o nome do certificado"
 fi
 if [ $st -eq 78 ]; then
   : > .htaccess.servidor   # o servidor ainda não tem .htaccess
@@ -36,6 +38,11 @@ ExpiresByType video/mp4 "access plus 7 days"
 </IfModule>
 <IfModule mod_headers.c>
 Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
+# Proteção contra abrir o site/painel dentro de outro site (clickjacking) e outros reforços (revisão de segurança 22/11)
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
 # HTML sempre conferido no servidor: o Safari guardava a página de pagamento antiga e o cliente não via mudança publicada (María, 2026-11-14)
 <FilesMatch "\.html?$">
 Header set Cache-Control "no-cache, must-revalidate"

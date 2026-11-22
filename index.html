@@ -2198,7 +2198,7 @@ function sentDlg(b,cid){
   const msg=t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)}) + jetWaTxt(); /* jetski do pedido vai junto na mensagem (revisão 2026-11-15) */
   const dl=document.createElement("dialog"); dl.id="sent-dlg"; dl.className="stop-dlg lead-dlg sent-dlg"; dl.setAttribute("aria-labelledby","sent-t");
   dl.innerHTML=`<div class="sent-ok" aria-hidden="true">✓</div><h3 id="sent-t">${t("sentT")}</h3>
-    <p class="lsum"><b>${b.name}</b><span>${[fmtDate(pick.date), slotLabel(pick.slot), peopleLabel(pick.people), pick.board].filter(Boolean).join(" · ")}</span></p>
+    <p class="lsum"><b>${esc(b.name)}</b><span>${[fmtDate(pick.date), slotLabel(pick.slot), peopleLabel(pick.people), pick.board].filter(Boolean).join(" · ")}</span></p>
     <p>${t("sentSub")}</p>
     <a class="btn wa-btn" href="${viaVend(b) ? vendWaHref(b, msg) : wa(msg)}" target="_blank" rel="noopener">${WA_SVG} ${t("sentWa")}</a>
     ${cid?`<a class="btn sec" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a>`:`<a class="btn sec" href="/login/">${t("sentMy")}</a>`}<button type="button" class="btn sec" id="sent-x">${t("sentOk")}</button>`;
@@ -2744,7 +2744,7 @@ function openLead(b){
   const reg=detectReg(), ddi=sv.ddi || (LEAD_DDI.find(x=>x[0]===reg)||LEAD_DDI[0])[1];
   const flag=r=>r.replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
   dl.innerHTML=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button><h3 id="lead-t">${t("leadT")}</h3><div id="ld-f">
-    <p class="lsum"><b>${b.name}</b><span>${[fmtDate(pick.date), slotLabel(pick.slot), peopleLabel(pick.people), pick.board].filter(Boolean).join(" · ")}</span></p>${"" /* resumo do que a pessoa escolheu (2026-10-24) */}
+    <p class="lsum"><b>${esc(b.name)}</b><span>${[fmtDate(pick.date), slotLabel(pick.slot), peopleLabel(pick.people), pick.board].filter(Boolean).join(" · ")}</span></p>${"" /* resumo do que a pessoa escolheu (2026-10-24) */}
     <p>${t(CIDADE!=="buzios" ? "leadSubConf" : "leadSub")}</p>${"" /* Bordazul, cidades fora de Búzios: o dono confirma antes (2026-11-21) */}<p class="lok" id="ld-ok" aria-live="polite" hidden></p>
     <label>${t("leadName")}<input id="ld-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(nome)}"></label>
     <label>${t("leadWa")}<span class="lphone"><select id="ld-c" aria-label="DDI">${LEAD_DDI.map(([r,c])=>`<option value="${c}"${c===ddi?" selected":""}>${flag(r)} +${c}</option>`).join("")}</select><input id="ld-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(sv.tel||"")}" placeholder="${ddi==="55"?"(22) 99999-9999":""}"></span></label>
@@ -3331,7 +3331,7 @@ function home(){
         <a class="card${b.featured?" feat":""}" data-boat="${b.slug}" data-o="${i}" href="${pathFor(lang,b.slug)}${q?"?"+q:""}">
           ${b.featured?`<span class="tag">${t("featured")}</span>`:b.example?`<span class="tag ex">${t("example")}</span>`:""}
           <span class="c-rw" data-rate="${b.slug}" hidden><span class="c-rate" role="button" tabindex="0" aria-expanded="false"></span><span class="c-rev"></span></span>
-          <div class="ph-wrap">${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}<div class="c-head"><h3>${b.name}</h3>${specs(b)}</div></div>
+          <div class="ph-wrap">${b.photos?`<div class="ph"><img src="${imgSrc(b.photos[0],"m")}" srcset="${imgSrc(b.photos[0],1)} 360w, ${imgSrc(b.photos[0],"m")} 800w" sizes="(max-width:700px) 92vw, 380px" alt="${altOf(b,0)}" style="object-position:${b.photos[0][2]||"center"}" loading="lazy"></div>`:ph(t("boatPhoto"))}<div class="c-head"><h3>${esc(b.name)}</h3>${specs(b)}</div></div>
           <div class="body">${isEsc(b)?"":`<p class="c-jet" data-jetc="${b.slug}" hidden></p>`}
             <ul class="c-items" data-items="${b.slug}">${cardItems(b)}</ul>
             <div class="price-from">${isEsc(b)?`<div class="pf-esc"><strong>${t("escCard")}</strong></div>`:`<div class="pf-v" data-pf="${b.slug}">${pfSemData(b)}</div>`}<span class="go">${t(isEsc(b)?"seeEsc":"seeBoat")}</span></div>
@@ -3442,7 +3442,7 @@ function boatPage(b){
       <div class="b-info">
         <div>
           <div class="b-head"><span class="eyebrow">${t(isEsc(b)?"esc":"boat")}</span>
-          <div class="b-title${b.featured?" sel":""}"><h1>${b.name}</h1><button type="button" class="b-share" data-share="${b.slug}" aria-label="${t("shareL")}">${SHARE_ICO}<span>${t("shareB")}</span></button>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
+          <div class="b-title${b.featured?" sel":""}"><h1>${esc(b.name)}</h1><button type="button" class="b-share" data-share="${b.slug}" aria-label="${t("shareL")}">${SHARE_ICO}<span>${t("shareB")}</span></button>${b.featured?`<details class="selo"><summary>✦ ${t("seloT")}</summary><div class="selo-pop"><strong>${t("seloH")}</strong><ul>${t("seloL").split("|").map(x=>`<li>${x}</li>`).join("")}</ul></div></details>`:""}</div>
           </div>
           <div class="spec-row"${isEsc(b)?' style="grid-template-columns:repeat(2,1fr)"':""}>
             ${isEsc(b) ? "" : `<div><b>${ftx(b)??"—"}</b><span>${t("specFeet")}</span></div>`}${"" /* escuna sem pés (Rodrigo 2026-11-14) */}

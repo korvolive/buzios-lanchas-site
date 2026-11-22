@@ -1639,7 +1639,7 @@ function loginShell(title, sub, form){
   bindLang();
 }
 /* reserva online começada no site por quem ainda não tinha conta: depois do cadastro ou do login, volta para a lancha e o pedido sai */
-const pendRes = () => { const r=store.get("reserva-pendente"); return r && !r.voltou && Date.now()-r.t<7200000 && /^\//.test(r.path||"") ? r : null; };
+const pendRes = () => { const r=store.get("reserva-pendente"); return r && !r.voltou && Date.now()-r.t<7200000 && /^\/(?![\/\\])/.test(r.path||"") ? r : null; };
 /* link do aviso do passeio (ou o código já confirmado no site): o WhatsApp vem confirmado e o e-mail fica opcional (2026-10-27) */
 const waLinkOk = () => { const l=store.get("wa-link"); return l?.w && l.tel ? l : null; };
 function waLinkLoad(){
