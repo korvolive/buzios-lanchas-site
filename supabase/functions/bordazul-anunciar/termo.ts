@@ -1,6 +1,6 @@
 // Termo de parceria do dono (Bordazul). Rodrigo aprovou em 2026-11-16 ("pode subir esse termo").
 // Mudou o texto? Troque VERSAO: o dono assina de novo (o hash da versão assinada fica gravado no cadastro).
-export const VERSAO = "2026-11-16";
+export const VERSAO = "2026-11-22"; // 3.3 e 3.5: parte do Dono depois dos 7 dias de arrependimento do cliente
 
 export type Dados = Record<string, any>;
 const v = (x: unknown, alt = "[a preencher]") => (x === undefined || x === null || String(x).trim() === "" ? alt : String(x).trim());
@@ -24,9 +24,9 @@ export function termo(d: Dados, tel: string): { h: string; ps: string[] }[] {
     { h: "3. Preço, comissão, pagamentos e cancelamento", ps: [
       "3.1. O Dono define o valor neto de cada passeio no painel, dentro da faixa de preço mostrada para a cidade e o tamanho da Lancha. O valor neto é o que o Dono recebe.",
       "3.2. O Bordazul soma ao valor neto a sua comissão, no percentual mostrado no painel na data da reserva. O cliente vê e paga o valor final. Mudança no percentual só vale para reservas novas, com aviso no painel.",
-      "3.3. O cliente paga 50% de sinal pelo Bordazul. Na hora do pagamento, o sistema de pagamentos divide o sinal automaticamente: a parte do Dono vai para a conta de recebimento dele e a comissão fica com o Bordazul. O restante é pago pelo cliente diretamente ao Dono no embarque.",
+      "3.3. O cliente paga 50% de sinal pelo Bordazul. A parte do Dono vai automaticamente para a conta de recebimento dele 7 dias depois do pagamento, quando acaba o prazo legal de desistência do cliente (art. 49 do Código de Defesa do Consumidor), ou 7 dias antes do passeio, o que vier primeiro. Passeio a 7 dias ou menos: assim que o pagamento é confirmado. No cartão, depois que a operadora libera o valor. A comissão fica com o Bordazul. O restante é pago pelo cliente diretamente ao Dono no embarque.",
       "3.4. O Dono mantém a conta de recebimento ativa e com os dados corretos. O Bordazul não responde por atraso causado por dados errados ou conta bloqueada.",
-      "3.5. Cancelamento pelo cliente: segue a política mostrada na página de pagamento. Hoje: crédito válido por 1 ano, só na mesma embarcação (o sinal já foi repassado ao Dono); devolução total com 7 dias ou mais de antecedência; com menos de 7 dias, ficam retidos 20% do sinal, salvo se a data for vendida para outro cliente. Os valores retidos são divididos entre Dono e Bordazul na mesma proporção do sinal.",
+      "3.5. Cancelamento pelo cliente: segue a política mostrada na página de pagamento. Hoje: desistência em até 7 dias depois do pagamento, devolução total (a parte do Dono ainda não foi repassada); depois disso, crédito válido por 1 ano, só na mesma embarcação, ou devolução com retenção de 20% do valor do passeio, salvo se a data for vendida para outro cliente. Os valores retidos são divididos entre Dono e Bordazul na mesma proporção do sinal.",
       "3.6. Mar ou tempo sem segurança: o passeio é remarcado sem custo. Se não houver nova data possível, o cliente recebe o sinal de volta e a parte do Dono é estornada.",
       "3.7. Cancelamento pelo Dono ou Lancha sem condições: o Bordazul oferece ao cliente outra embarcação equivalente ou devolve 100% do sinal. A parte do Dono é estornada e, se houver custo extra para recolocar o cliente, ele pode ser descontado de valores futuros do Dono. Cancelamentos repetidos levam à suspensão da Lancha.",
     ] },
