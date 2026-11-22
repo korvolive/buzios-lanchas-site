@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-22)
 
 ## Corpus Check
-- 274 files · ~513,997 words
+- 275 files · ~514,090 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
-- 2070 nodes · 3437 edges · 169 communities (99 shown, 70 thin omitted)
+- 2071 nodes · 3437 edges · 170 communities (99 shown, 71 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `37a81833`
+- Built from commit: `f04c122a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -156,13 +156,13 @@
   supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
 - `public.apagar_avaliacao_google()` --writes_to--> `public.avaliacoes_google`  [EXTRACTED]
   supabase/sql/2026-11-05_revisao-diaria.sql → supabase/sql/2026-11-04_avaliacoes-google-por-lancha.sql
-- `public.jetski_do_passeio()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
-  supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
+- `public.tg_pedido_jetski()` --reads_from--> `public.jetskis`  [EXTRACTED]
+  supabase/sql/2026-11-15_jetski-cortesia-opcional.sql → supabase/sql/2026-11-15_jetski.sql
 
 ## Import Cycles
 - None detected.
 
-## Communities (169 total, 70 thin omitted)
+## Communities (170 total, 71 thin omitted)
 
 ### Community 0 - "public.adicionar_lancha_pre_reserva"
 Cohesion: 0.08
@@ -561,20 +561,20 @@ Cohesion: 0.15
 Nodes (5): passeio_sem_manutencao, public._passeio_sem_manutencao(), public._aprovar_consulta(), public.alternativas_livres(), public.usar_credito()
 
 ## Knowledge Gaps
-- **70 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **71 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `public.origem_reserva`, `vendedores`, `public._aprovar_consulta`, `public._pre_reserva_volta`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Should `public.adicionar_lancha_pre_reserva` be split into smaller, more focused modules?**
   _Cohesion score 0.08232118758434548 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.origem_reserva`, `public.bloqueios`, `2026-11-17_jetski-repasse-cancelado.sql`, `public.bloqueios`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.jetskis` connect `public.jetskis` to `public.adicionar_lancha_pre_reserva`, `public.donos`, `public.bloqueios`, `2026-11-15_jetski-pedido.sql`, `2026-11-17_jetski-repasse-cancelado.sql`, `public`?**
+- **Why does `public.origem_reserva()` connect `public.origem_reserva` to `public.bloqueios`, `donos`, `public`, `2026-11-19_rastreio-server-side.sql`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07058823529411765 - nodes in this community are weakly interconnected._

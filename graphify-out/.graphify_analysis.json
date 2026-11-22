@@ -1873,6 +1873,9 @@
       "supabase_sql_2026_11_22_revisao_diaria_public_tg_marinheiro_fixo_padrao",
       "x"
     ],
+    "111": [
+      "supabase_sql_2026_11_22_dono_aprovacao_valor_liquido"
+    ],
     "112": [
       "supabase_functions_aviso_vendedor_index",
       "supabase_functions_aviso_vendedor_index_assunto",
@@ -2521,6 +2524,7 @@
     "108": 0.6666666666666666,
     "109": 0.2,
     "110": 0.05380852550663871,
+    "111": 1.0,
     "112": 0.15384615384615385,
     "113": 1.0,
     "114": 1.0,
@@ -2703,7 +2707,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.origem_reserva`, `public.bloqueios`, `2026-11-17_jetski-repasse-cancelado.sql`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2712,8 +2716,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.jetskis` connect `public.jetskis` to `public.adicionar_lancha_pre_reserva`, `public.donos`, `public.bloqueios`, `2026-11-15_jetski-pedido.sql`, `2026-11-17_jetski-repasse-cancelado.sql`, `public`?",
-      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
+      "question": "Why does `public.origem_reserva()` connect `public.origem_reserva` to `public.bloqueios`, `donos`, `public`, `2026-11-19_rastreio-server-side.sql`?",
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
