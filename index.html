@@ -1570,6 +1570,9 @@ Object.assign(UI.pt, {faqPreco:["Quanto custa alugar uma lancha em Búzios?", "O
 Object.assign(UI.en, {faqPreco:["How much does it cost to rent a boat in Búzios?", "The private 4-hour tour starts at R$ {a} and the 7-hour tour at R$ {b}. The price is per boat, for the whole group (not per person), and varies with the boat, the date and the season. Skipper, fuel, ice, charcoal, mineral water and a cooler are included. For the price of the boat and date you want, ask us on WhatsApp: we reply right away."]});
 Object.assign(UI.es, {faqPreco:["¿Cuánto cuesta alquilar una lancha en Búzios?", "El paseo privado de 4 horas sale desde R$ {a} y el de 7 horas desde R$ {b}. El precio es por lancha, para todo el grupo (no por persona), y cambia según la lancha, la fecha y la temporada. Marinero, combustible, hielo, carbón, agua mineral y nevera ya están incluidos. Para saber el precio de la lancha y la fecha que quieres, consúltanos por WhatsApp: respondemos al instante."]});
 /* cliente do link de vendedor que já confirmou o WhatsApp: cria a conta na própria página para pedir a reserva (2026-11-22) */
+Object.assign(UI.pt, {vlSubR:"Para enviar o pedido de reserva, confirme seu WhatsApp. Leva menos de 1 minuto.", vlSubRP:"Para enviar o pedido com o desconto da parceria com {n}, confirme seu WhatsApp. Leva menos de 1 minuto."});
+Object.assign(UI.en, {vlSubR:"To send the booking request, confirm your WhatsApp. It takes less than 1 minute.", vlSubRP:"To send the request with the {n} partnership discount, confirm your WhatsApp. It takes less than 1 minute."});
+Object.assign(UI.es, {vlSubR:"Para enviar el pedido de reserva, confirma tu WhatsApp. Toma menos de 1 minuto.", vlSubRP:"Para enviar el pedido con el descuento de la alianza con {n}, confirma tu WhatsApp. Toma menos de 1 minuto."});
 Object.assign(UI.pt, {rqT:"Falta só criar sua senha", rqSub:"Seu WhatsApp {w} já está confirmado. Crie uma senha para enviar o pedido e acompanhar a reserva.", rqGo:"Criar conta e continuar"});
 Object.assign(UI.en, {rqT:"Just create your password", rqSub:"Your WhatsApp {w} is already confirmed. Create a password to send the request and follow your booking.", rqGo:"Create account and continue"});
 Object.assign(UI.es, {rqT:"Solo falta crear tu contraseña", rqSub:"Tu WhatsApp {w} ya está confirmado. Crea una contraseña para enviar el pedido y seguir tu reserva.", rqGo:"Crear cuenta y continuar"});
@@ -2601,7 +2604,7 @@ function loadVend(){
   if(isTeam()) jobs.push(clientToken().then(tok=>vRpc("e_admin",{},tok)).then(r=>{ ADM = r===true; }).catch(()=>{})); /* o banco diz se é administrador */
   /* cliente logado de parceiro: o desconto é só no 1º passeio com ele (2026-11-02) */
   const parcJa = () => VEND?.parceiro && isClient() ? clientToken().then(tok=>fetch(SB_URL+"/rest/v1/pedidos?select=id&vendedor_cod=eq."+encodeURIComponent(VEND.codigo)+"&status=in.(pendente,aprovado)&limit=1",{headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok}})).then(r=>r.ok?r.json():[]).then(r=>{ PARC_JA = Array.isArray(r) && r.length>0; }).catch(()=>{}) : null;
-  if(jobs.length) Promise.all(jobs).then(parcJa).then(bzCarrega).then(()=>{ if(VEND && vendOkLs()) VEND_LIGADO = true; /* WhatsApp já confirmado neste aparelho */ if(VEND && !isClient()) funil("abriu"); applyStatic(); if(VEND||ME||ADM){ const y=scrollY; render(false); scrollTo(0,y); } if(vendLeadDue()) setTimeout(openVendLead, 1500); });
+  if(jobs.length) Promise.all(jobs).then(parcJa).then(bzCarrega).then(()=>{ if(VEND && vendOkLs()) VEND_LIGADO = true; /* WhatsApp já confirmado neste aparelho */ if(VEND && !isClient()) funil("abriu"); applyStatic(); if(VEND||ME||ADM){ const y=scrollY; render(false); scrollTo(0,y); } }); /* a janelinha do WhatsApp não abre mais sozinha: os valores ficam abertos e o WhatsApp é pedido no Solicitar reserva (Rodrigo 2026-11-22) */
 }
 document.addEventListener("click", e => { if(e.target.closest?.("#vend-wa") && VEND && !VEND.parceiro) funil("wa_vendedor"); });
 /* quem já é da equipe abriu o link ou QR de um vendedor: nada muda, só avisa e deixa entrar normal (2026-10-25) */
@@ -2621,14 +2624,16 @@ const BZ_MARK = `<svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy=
 function dropVend(){ VEND=null; try{ localStorage.removeItem("vend"); sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} applyStatic(); const y=scrollY; render(false); scrollTo(0,y); }
 function vendLeadDue(force){ if(!VEND || ME || isClient() || isTeam() || VEND_LIGADO) return false;
   try{ if(!force && sessionStorage.getItem("vend-lead-skip")) return false; }catch(e){} return true; }
-function openVendLead(force){
+let VL_RESERVA = false; /* janelinha aberta pelo Solicitar reserva: confirmado o WhatsApp, segue direto para a conta e o pedido */
+function openVendLead(force, op){
   if(!vendLeadDue(force) || document.querySelector("dialog[open]")) return;
+  VL_RESERVA = !!op?.reserva;
   const dl=document.createElement("dialog"); dl.className="stop-dlg lead-dlg"; dl.setAttribute("aria-labelledby","vl-t"); document.body.appendChild(dl);
   const reg=detectReg(), sv=lsGet("consulta-dados")||{}, ddi=sv.ddi || (LEAD_DDI.find(x=>x[0]===reg)||LEAD_DDI[0])[1];
   const flag=r=>r.replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
   const plogo = VEND.parceiro && VEND.empresa ? `<div class="vlogos" hidden><span class="vlb" aria-label="Búzios Lanchas">${BZ_MARK}</span><span class="vlx">×</span><img alt="${esc(VEND.empresa)}" src="${parcLogo(VEND.codigo)}"></div>` : "";
   dl.innerHTML=`<button type="button" class="lx" aria-label="${t("leadClose")}">✕</button>${plogo}<h3 id="vl-t">${t("vlT")}</h3>
-    <p>${VEND.parceiro?t(VEND.empresa?"vlSubP":"vlSubPp",{n:esc(VEND.empresa||VEND.nome)}):t(VEND.empresa?"vlSubVe":"vlSubV",{n:esc(VEND.empresa||"")})}</p>
+    <p>${VL_RESERVA?t(VEND.parceiro?"vlSubRP":"vlSubR",{n:esc(VEND.empresa||VEND.nome)}):VEND.parceiro?t(VEND.empresa?"vlSubP":"vlSubPp",{n:esc(VEND.empresa||VEND.nome)}):t(VEND.empresa?"vlSubVe":"vlSubV",{n:esc(VEND.empresa||"")})}</p>
     <label>${t("leadName")}<input id="vl-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(sv.nome||"")}"></label>
     <label>${t("leadWa")}<span class="lphone"><select id="vl-c" aria-label="DDI">${LEAD_DDI.map(([r,c])=>`<option value="${c}"${c===ddi?" selected":""}>${flag(r)} +${c}</option>`).join("")}</select><input id="vl-w" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(sv.tel||"")}" placeholder="${ddi==="55"?"(22) 99999-9999":""}"></span></label>
     <p class="lerr" id="vl-err" aria-live="polite"></p>
@@ -2641,7 +2646,7 @@ function openVendLead(force){
   if(lg){ lg.onload=()=>{ lg.parentNode.hidden=false; }; lg.onerror=()=>lg.parentNode.remove(); if(lg.complete && lg.naturalWidth) lg.parentNode.hidden=false; }
   const skip=()=>{ try{ sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} funil("fechou"); dl.close(); };
   /* fechar pede confirmação (Rodrigo 2026-11-12): quem fecha perde o desconto e o parceiro perde a indicação */
-  const pergunta=()=>{ if(!dl.contains($("vl-go"))) return dl.close(); dl.classList.add("q"); dl.querySelector(".vlq").hidden=false; $("vl-qback").focus(); };
+  const pergunta=()=>{ if(!dl.contains($("vl-go")) || VL_RESERVA) return dl.close(); /* no Solicitar reserva, fechar só fecha (os valores continuam abertos) */ dl.classList.add("q"); dl.querySelector(".vlq").hidden=false; $("vl-qback").focus(); };
   const volta=()=>{ dl.classList.remove("q"); dl.querySelector(".vlq").hidden=true; $("vl-n").focus(); };
   dl.addEventListener("close",()=>{ if(dl.classList.contains("q")) try{ sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} dl.remove(); },{once:true});
   dl.addEventListener("cancel",e=>{ if(dl.contains($("vl-go")) && !dl.classList.contains("q")){ e.preventDefault(); pergunta(); } });
@@ -2665,6 +2670,7 @@ function openVendLead(force){
    neste aparelho e o contato fica ligado ao vendedor/parceiro (vendedor_leads.wa_ok_em). Se o envio não estiver disponível, libera sem código */
 const waLead = body => fetch(SB_URL+"/functions/v1/cadastro-whatsapp",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({...body, lang, cod:VEND?.codigo||""})}).then(r=>r.json()).catch(()=>({erro:"rede"}));
 function vlLibera(dl){ try{ localStorage.setItem("vend-ok",VEND.codigo); }catch(e){} VEND_LIGADO = true; funil("codigo");
+  if(VL_RESERVA){ VL_RESERVA=false; dl.close(); applyStatic(); const y=scrollY; render(false); scrollTo(0,y); return setTimeout(()=>openContaValor({reserva:true}), 60); } /* veio do Solicitar reserva: segue para a conta (só a senha) e volta para confirmar o pedido */
   /* Android fora do app: depois de confirmar o WhatsApp, convida para baixar o app da Play (2026-10-28). A indicação já ficou no banco
      com o WhatsApp, e o app divide a memória com o Chrome, então o vendedor ou parceiro não se perde. No iPhone vale igual quando APP_STORE_URL
      estiver preenchido: o app da Apple não divide a memória com o Safari, mas a indicação volta pelo WhatsApp quando a pessoa cria a conta */
@@ -3070,7 +3076,7 @@ async function showBoatStatus(b){
     if(jetFalta()) return;
     if(!isClient()){
       try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, jet:pick.jet||null, t:Date.now()})); }catch(e){}
-      if(viaVend(b)){ funil("reserva"); if(vendProva()) return openContaValor({reserva:true}); } /* veio pelo link e já confirmou o WhatsApp: cria a conta aqui mesmo, só com a senha, e volta para o pedido (2026-11-22) */
+      if(viaVend(b)){ funil("reserva"); if(!VEND_LIGADO) return openVendLead(true, {reserva:true}); if(vendProva()) return openContaValor({reserva:true}); } /* veio pelo link e já confirmou o WhatsApp: cria a conta aqui mesmo, só com a senha, e volta para o pedido (2026-11-22) */
       location.href="/login/?criar=1"; return; }
     ob.disabled=true; lastReq="";
     sendPedido(b).then(async(pid)=>{ track("pedido_reserva",b,typeof pid==="number"?pid:0); if(viaVend(b)) funil("pedido"); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt()) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt())}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
@@ -3122,7 +3128,7 @@ const WA_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="tru
    no banco (a venda não se perde), então vê os botões como qualquer cliente, com o código do vendedor na mensagem (2026-10-24) */
 /* link de vendedor/parceiro sem conta: os valores só aparecem depois de confirmar o WhatsApp com o código (2026-10-26) */
 const vendOkLs = () => { try{ return !!VEND && localStorage.getItem("vend-ok")===VEND.codigo; }catch(e){ return false; } };
-const precoTrancado = () => !!VEND && !ME && !isTeam() && !isClient() && !VEND_LIGADO;
+const precoTrancado = () => false; /* desde 2026-11-22 (Rodrigo) quem chega pelo link vê os valores sem confirmar o WhatsApp; a confirmação ficou no Solicitar reserva */
 const lockHTML = () => `<div class="pr-lock"><p>${t(VEND?.parceiro?"lockP":"lockV")}</p><button type="button" class="btn" data-unlock>${t("lockBtn")}</button></div>`;
 document.addEventListener("click", e => { if(e.target.closest("[data-unlock]")){ e.preventDefault(); e.stopPropagation(); openVendLead(true); } }, true);
 const noWaBtns = () => !!VEND && !ME && !isTeam() && !VEND_LIGADO;
