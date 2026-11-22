@@ -45,7 +45,14 @@ const ready = () => page.waitForFunction(() => window.dbBoatsDone && window.prec
   .then(() => page.waitForLoadState("networkidle", { timeout: 10000 })).catch(() => {});
 
 const pages = [];
+/* banco lento numa página (2026-11-22, envio falhou com "/en/lancha/vem-verao/ sem canonical"): tenta a mesma página até 3 vezes antes de desistir */
 async function snap(l, slug) {
+  for (let i = 1; ; i++) {
+    try { return await snap1(l, slug); }
+    catch (e) { if (i >= 3 || !/sem canonical/.test(e.message)) throw e; console.error(`${e.message}: tentando de novo (${i + 1}/3)`); }
+  }
+}
+async function snap1(l, slug) {
   const url = pathFor(l, slug);
   await page.goto(base + url, { waitUntil: "domcontentloaded" });
   const final = new URL(page.url()).pathname;
