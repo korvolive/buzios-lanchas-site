@@ -44,8 +44,12 @@ const T: Record<string, { title: string; body: string }> = {
 };
 const lang = (x: string) => (["pt", "en", "es"].includes(x) ? x : "pt");
 
-Deno.serve(async () => {
+Deno.serve(async req => {
   try {
+    // só o agendamento (pg_cron com a chave interna) roda a limpeza e os avisos (revisão 22/11)
+    const chave = req.headers.get("x-chave") || "";
+    const cfgK = chave ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+    if (!(cfgK?.chave && chave === cfgK.chave)) return new Response(JSON.stringify({ erro: "chave" }), { status: 403, headers: { "content-type": "application/json" } });
     const { data: rows, error } = await db.rpc("inativar_chats");
     if (error) throw error;
     if (!rows?.length) return new Response(JSON.stringify({ chats: 0 }), { headers: { "content-type": "application/json" } });
