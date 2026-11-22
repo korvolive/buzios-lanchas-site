@@ -260,8 +260,11 @@ async function avisarDonos(cfg: any) {
     let neto = c.neto_garantido;
     if (neto == null) neto = (await db.rpc("preco_neto_tabela", { l: c.lancha, d: c.data, h: c.horario })).data;
     const nomeL = L.get(c.lancha)!.nome, quando = `${dataLonga(c.data, "pt")}, ${hora(c, "pt")}`;
+    // Rodrigo 2026-11-22: o dono sabe até quando a lancha fica segura para o cliente pagar (prazo conta da aprovação)
+    const ate = (await db.rpc("_prazo_pre_fim", { criado: new Date().toISOString(), d: c.data }).then(r => r.data, () => null)) as string | null;
+    const ateTxt = ate && !isNaN(Date.parse(ate)) ? new Date(ate).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", " às") : "";
     const p = temApp.has(dono) ? await push([dono], () => ({ title: `Nova pré-reserva: ${nomeL}`,
-      body: `${quando}, ${c.pessoas || "-"} pessoas${+neto > 0 ? `. Você recebe ${brl(neto)}` : ""}. Toque para aprovar.` }),
+      body: `${quando}, ${c.pessoas || "-"} pessoas${+neto > 0 ? `. Você recebe ${brl(neto)}` : ""}.${ateTxt ? ` Aprovando agora, fica segura para o cliente pagar até ${ateTxt}.` : ""} Toque para aprovar.` }),
       `/aprovar/?t=${reg.token}`, `dono_aprov-${c.id}`).catch(e => (console.error("push dono", e), 0)) : 0;
     if (p) np++;
     const ok = wa && await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
