@@ -195,7 +195,7 @@ async function enviar() {
       await db.from("avisos_seguranca").update({ resultado: res, tentativas: a.tentativas + 1, ...(falhou && a.tentativas + 1 < 5 ? { enviado_em: null } : {}) }).eq("id", a.id);
     } catch (e) {
       console.error("aviso", a.id, e);
-      await db.from("avisos_seguranca").update({ enviado_em: null, tentativas: a.tentativas + 1, resultado: { erro: String(e).slice(0, 200) } }).eq("id", a.id);
+      await db.from("avisos_seguranca").update({ enviado_em: null, tentativas: a.tentativas + 1, resultado: { ...res, erro: String(e).slice(0, 200) } } /* guarda o push já enviado: a nova tentativa não repete */).eq("id", a.id);
       res.erro = true;
     }
     out.push({ id: a.id, ...res });
