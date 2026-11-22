@@ -65,9 +65,9 @@ const SLOT: Record<string, Record<string, string>> = {
   es: { manha: "mañana", tarde: "tarde", dia: "día completo", noite: "noche" },
 };
 const OK: Record<string, (b: string, d: string, h: string) => { title: string; body: string }> = {
-  pt: (b, d, h) => ({ title: "Passeio confirmado ✅", body: `${b} · ${d} · ${SLOT.pt[h] || h}. Toque para ver os detalhes do seu passeio.` }),
-  en: (b, d, h) => ({ title: "Tour confirmed ✅", body: `${b} · ${d} · ${SLOT.en[h] || h}. Tap to see your tour details.` }),
-  es: (b, d, h) => ({ title: "Paseo confirmado ✅", body: `${b} · ${d} · ${SLOT.es[h] || h}. Toca para ver los detalles de tu paseo.` }),
+  pt: (b, d, h) => ({ title: "Passeio confirmado", body: `${b} · ${d} · ${SLOT.pt[h] || h}. Toque para ver os detalhes do seu passeio.` }),
+  en: (b, d, h) => ({ title: "Tour confirmed", body: `${b} · ${d} · ${SLOT.en[h] || h}. Tap to see your tour details.` }),
+  es: (b, d, h) => ({ title: "Paseo confirmado", body: `${b} · ${d} · ${SLOT.es[h] || h}. Toca para ver los detalles de tu paseo.` }),
 };
 // mesmo horário: dia inteiro ocupa manhã e tarde; a noite é separada
 const choca = (a: string, b: string) => a === b || (a !== "noite" && b !== "noite" && (a === "dia" || b === "dia"));

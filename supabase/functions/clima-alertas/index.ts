@@ -178,6 +178,12 @@ const PUSH: Record<string, Record<string, string>> = {
 
 Deno.serve(async req => {
   try {
+    // só olhar (?ver) continua aberto; gravar, avisar e testar só com a chave interna do agendamento (revisão 22/11)
+    if (!new URL(req.url).searchParams.has("ver")) {
+      const chave = req.headers.get("x-chave") || "";
+      const cfgK = chave ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfgK?.chave && chave === cfgK.chave)) return new Response(JSON.stringify({ erro: "chave" }), { status: 403, headers: { "content-type": "application/json" } });
+    }
     const avisos: Aviso[] = [], erros: string[] = [];
     for (const f of [marinha, inmet]) { try { avisos.push(...await f()); } catch (e) { erros.push(String(e)); console.error(String(e)); } }
     const tk = new URL(req.url).searchParams.get("teste");

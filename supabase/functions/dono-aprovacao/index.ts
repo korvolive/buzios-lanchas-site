@@ -436,7 +436,7 @@ async function avisarCliente(r: any, nomeL: string) {
   if (!aprovado(ts, MOD_INDISP, LC[l])) return "fora_24h_sem_modelo";
   const ok = await enviar(key, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
     template: { name: MOD_INDISP, language: { code: LC[l] }, components: [
-      { type: "body", parameters: [primeiro(r.nome) || (l === "en" ? "there" : l === "es" ? "hola" : "tudo bem"), nomeL, dataLonga(r.data, l)].map(text => ({ type: "text", text })) },
+      { type: "body", parameters: [primeiro(r.nome) || (l === "en" ? "there" : l === "es" ? "cliente" : "tudo bem"), nomeL, dataLonga(r.data, l)].map(text => ({ type: "text", text })) },
     ] } });
   return ok ? "modelo" : "falhou";
 }

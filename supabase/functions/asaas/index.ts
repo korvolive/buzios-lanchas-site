@@ -1377,12 +1377,19 @@ Deno.serve(async req => {
       const r: any = rs[0], real = r.asaas_real || r.asaas_id;
       const pg = await asaas(`/payments/${encodeURIComponent(real)}`);
       const lista = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []) : [pg];
+      // grupo (várias lanchas numa cobrança só): estorno sem valor devolveria o grupo inteiro; parte do dono já repassada sai do bolso da Búzios
+      const { data: irm } = await db.from("pagamentos_asaas").select("pedido").eq("asaas_real", real).neq("pedido", pid);
+      const grupo = !!r.asaas_real || !!irm?.length;
+      const { data: rp } = await db.from("repasses_pp").select("pedido").eq("pedido", pid).limit(1);
       const info = { pedido: pid, status_pedido: ped.status, metodo: r.metodo, valor: +r.valor, parcelado: !!pg.installment,
+        grupo, pedidos_do_grupo: grupo ? [...new Set([pid, ...(irm || []).map((x: any) => +x.pedido)])] : undefined, repasse_feito: !!rp?.length,
         parcelas: lista.map((x: any) => ({ n: x.installmentNumber || 1, status: x.status, anticipated: !!x.anticipated, valor: +x.value })) };
       if (lista.every((x: any) => ESTORNO.test(String(x.status || "")))) { await atualizarCredito(r).catch(() => null); return json({ ...info, ja_estornado: true }); }
       if (b.fazer !== true) return json({ ...info, simulacao: true });
       if (ped.status !== "cancelado") return json({ ...info, erro: "pedido_nao_cancelado" }, 409);
       if (Math.abs(Number(b.valor) - +r.valor) > 0.005) return json({ ...info, erro: "valor_confere" }, 409);
+      if (grupo) return json({ ...info, erro: "grupo" }, 409);
+      if (info.repasse_feito && b.mesmo_repassado !== true) return json({ ...info, erro: "repasse_feito" }, 409);
       try {
         const feito = await asaas(pg.installment ? `/installments/${encodeURIComponent(pg.installment)}/refund` : `/payments/${encodeURIComponent(real)}/refund`, {});
         await atualizarCredito(r).catch(() => null);

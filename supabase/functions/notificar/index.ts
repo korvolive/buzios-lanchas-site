@@ -190,9 +190,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Crédito vencido", body: `Tu crédito de ${p.valor} en ${p.lancha} venció el ${dataBR(p.ate)}.` }),
   },
   cond_ok: {
-    pt: p => ({ title: "Passeio confirmado em 4 horas", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. O outro horário foi vendido. Toque para ver.` }),
-    en: p => ({ title: "Tour confirmed for 4 hours", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. The other time slot was sold. Tap to see.` }),
-    es: p => ({ title: "Paseo confirmado en 4 horas", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. El otro horario se vendió. Toca para ver.` }),
+    pt: p => ({ title: "Passeio de 4 horas confirmado", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. O outro horário foi vendido. Toque para ver.` }),
+    en: p => ({ title: "4-hour tour confirmed", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.en[p.horario] || p.horario}. The other time slot was sold. Tap to see.` }),
+    es: p => ({ title: "Paseo de 4 horas confirmado", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}. El otro horario se vendió. Toca para ver.` }),
   },
   cond_voltou: {
     pt: p => ({ title: "Seu passeio voltou para a diária", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. Valor total R$ ${brl(p.valor)}. Toque para ver.` }),
@@ -395,9 +395,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu crédito en ${p.lancha} fue cerrado.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido hasta: ${dataBR(p.ate)}`], nota: "Cualquier duda, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Abrir la app" }),
   },
   cond_ok: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Boa notícia: o outro horário da ${p.lancha} foi vendido, então o seu passeio fica confirmado em 4 horas`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.resto > 0 ? [`Restante no embarque: R$ ${brl(p.resto)}`] : [])], nota: "Qualquer dúvida, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Ver meu passeio" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Boa notícia: o outro horário da ${p.lancha} foi vendido, então o seu passeio fica confirmado como passeio de 4 horas`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.resto > 0 ? [`Restante no embarque: R$ ${brl(p.resto)}`] : [])], nota: "Qualquer dúvida, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Ver meu passeio" }),
     en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `Good news: the other time slot of ${p.lancha} was sold, so your tour is confirmed for 4 hours`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`, ...(p.resto > 0 ? [`Balance at boarding: R$ ${brl(p.resto)}`] : [])], nota: "Any questions, talk to us in the app chat or on WhatsApp +55 21 99927-2550.", botao: "See my tour" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Buena noticia: el otro horario de ${p.lancha} se vendió, así que tu paseo queda confirmado en 4 horas`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.resto > 0 ? [`Saldo en el embarque: R$ ${brl(p.resto)}`] : [])], nota: "Cualquier duda, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Ver mi paseo" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Buena noticia: el otro horario de ${p.lancha} se vendió, así que tu paseo queda confirmado como paseo de 4 horas`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`, ...(p.resto > 0 ? [`Saldo en el embarque: R$ ${brl(p.resto)}`] : [])], nota: "Cualquier duda, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Ver mi paseo" }),
   },
   cond_voltou: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `Como combinamos, o outro horário da ${p.lancha} não foi vendido, então o seu passeio voltou para a diária completa. O sinal que você pagou continua valendo.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, `Valor total: R$ ${brl(p.valor)}`, ...(p.resto > 0 ? [`Restante no embarque: R$ ${brl(p.resto)}`] : [])], nota: "Qualquer dúvida, fale com a gente no chat do app ou no WhatsApp (21) 99927-2550.", botao: "Ver meu passeio" }),
@@ -444,7 +444,7 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
 const dd = (p: any) => (p.data ? ` · ${p.data}` : "");
 const qa = (p: any, l: string) => (p.o?.tipo && p.o.tipo !== "site" && quemTxt(p.o, l) ? ` · ${quemTxt(p.o, l)}` : ""); /* assunto: quem trouxe (fora o site direto) */
 const ASSUNTO: Record<string, Record<string, (p: any) => string>> = {
-  cond_ok: { pt: p => `Passeio confirmado em 4 horas: ${p.lancha}${dd(p)}`, en: p => `Tour confirmed for 4 hours: ${p.lancha}${dd(p)}`, es: p => `Paseo confirmado en 4 horas: ${p.lancha}${dd(p)}` },
+  cond_ok: { pt: p => `Passeio de 4 horas confirmado: ${p.lancha}${dd(p)}`, en: p => `4-hour tour confirmed: ${p.lancha}${dd(p)}`, es: p => `Paseo de 4 horas confirmado: ${p.lancha}${dd(p)}` },
   cond_voltou: { pt: p => `Seu passeio voltou para a diária: ${p.lancha}${dd(p)}`, en: p => `Your tour is back to the full day: ${p.lancha}${dd(p)}`, es: p => `Tu paseo volvió al día completo: ${p.lancha}${dd(p)}` },
   dono: { pt: p => `Passeio confirmado: ${p.lancha}${dd(p)}`, en: p => `Tour confirmed: ${p.lancha}${dd(p)}`, es: p => `Paseo confirmado: ${p.lancha}${dd(p)}` },
   pedido: { pt: p => `Nova reserva pelo site: ${p.lancha}${dd(p)}${qa(p, "pt")}`, en: p => `New booking request: ${p.lancha}${dd(p)}${qa(p, "en")}`, es: p => `Nueva reserva por el sitio: ${p.lancha}${dd(p)}${qa(p, "es")}` },
@@ -755,6 +755,10 @@ Deno.serve(async req => {
   try {
     if (req.method === "GET") return json({ publica: (await chaves()).publica });
     const corpo = await req.clone().json().catch(() => ({}));
+    // rodada agendada (pg_cron): só com a chave interna, senão qualquer um com a chave pública disparava a rodada pesada em loop (revisão 22/11)
+    if (corpo.tipo === "fim") { const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403); }
     if (corpo.tipo === "fim") return json({ enviados: await fins(), inicio: await inicios().catch(e => (console.error("inicio", e), 0)), dono_inicio: await donoInicios().catch(e => (console.error("dono_inicio", e), 0)), vencidas: await vencerPre().catch(e => (console.error("vencer", e), 0)), creditos: await creditosAviso().catch(e => (console.error("creditos", e), 0)), condicionais: await condAviso().catch(e => (console.error("condicional", e), 0)) });
     const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     // o próprio servidor (pagamento automático confirmou a reserva, função asaas/paypal-checkout) entra como administrador

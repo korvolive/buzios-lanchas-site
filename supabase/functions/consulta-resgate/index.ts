@@ -18,7 +18,7 @@ const LANG: Record<string, string> = { pt: "pt_BR", en: "en", es: "es" };
 const SLOT: Record<string, Record<string, string>> = {
   pt: { dia: "10h às 17h", manha: "10h às 14h", tarde: "14h às 18h", noite: "Réveillon noturno" },
   en: { dia: "10am to 5pm", manha: "10am to 2pm", tarde: "2pm to 6pm", noite: "New Year's Eve night" },
-  es: { dia: "10 h a 17 h", manha: "10 h a 14 h", tarde: "14 h a 18 h", noite: "Nochevieja nocturno" },
+  es: { dia: "10 h a 17 h", manha: "10 h a 14 h", tarde: "14 h a 18 h", noite: "Noche de Nochevieja" },
 };
 // horário combinado (Entrada/Saída) vale mais que o padrão do período (Rodrigo 2026-10-31: cliente com 13h às 17h recebeu "14h às 18h")
 const hm = (x: string, l: string) => { const [h, m] = x.split(":").map(Number); if (l === "en") return (h % 12 || 12) + (m ? ":" + String(m).padStart(2, "0") : "") + (h < 12 ? "am" : "pm"); return l === "es" ? h + (m ? ":" + String(m).padStart(2, "0") : "") + " h" : h + "h" + (m ? String(m).padStart(2, "0") : ""); };

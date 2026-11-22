@@ -229,7 +229,7 @@ async function ajustarGrupo(c: any, p: any, g: any[]) {
 
 const MAIL_PIX: Record<string, (l: string, d: string) => string> = {
   pt: (l, d) => `A lancha ${l} está disponível em ${d}. Para confirmar a sua reserva, pague o sinal pela nossa central de pagamento:`,
-  en: (l, d) => `The boat ${l} is available on ${d}. To confirm your booking, pay the deposit in our payment page:`,
+  en: (l, d) => `The boat ${l} is available on ${d}. To confirm your booking, pay the deposit on our payment page:`,
   es: (l, d) => `La lancha ${l} está disponible el ${d}. Para confirmar tu reserva, paga la seña en nuestra central de pago:`,
 };
 async function email(uid: string, url: string, lancha: string, dia: string, valor: string, pix = false) {
@@ -240,7 +240,7 @@ async function email(uid: string, url: string, lancha: string, dia: string, valo
   const l = lang(meta.lang);
   const primeiro = String(meta.nome || meta.full_name || "").trim().split(" ")[0];
   const M = MAIL[l];
-  const msg = { lang: l, oi: M.oi(primeiro), texto: pix ? MAIL_PIX[l](lancha, dataBR(dia)) : M.texto(lancha, dataBR(dia)), linhas: [`${pix ? "🧾" : "💳"} ${valor}`], nota: M.nota, botao: M.botao, url };
+  const msg = { lang: l, oi: M.oi(primeiro), texto: pix ? MAIL_PIX[l](lancha, dataBR(dia)) : M.texto(lancha, dataBR(dia)), linhas: [valor], nota: M.nota, botao: M.botao, url };
   const assunto = { pt: `Pagamento da reserva: ${lancha} · ${dataBR(dia)}`, en: `Booking payment: ${lancha} · ${dataBR(dia)}`, es: `Pago de la reserva: ${lancha} · ${dataBR(dia)}` }[l]; // assunto com o motivo (Rodrigo 2026-10-22)
   await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: `${SITE}/login/` } });

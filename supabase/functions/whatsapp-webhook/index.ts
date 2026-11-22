@@ -14,9 +14,9 @@ const SECRET = Deno.env.get("WA_APP_SECRET") || "", VERIFY = Deno.env.get("WA_VE
 const SITE = "https://www.lanchaembuzios.com.br";
 const ES_DDI = ["34", "51", "52", "53", "54", "56", "57", "58", "502", "503", "504", "505", "506", "507", "591", "593", "595", "598"];
 const TXT: Record<string, { body: string; btn: string }> = {
-  pt: { body: "Olá! Este número da Búzios Lanchas só envia avisos automáticos e não recebe mensagens. 🙂\n\nPara falar com a gente, chame no WhatsApp (21) 99927-2550 pelo botão abaixo.", btn: "Falar no WhatsApp" },
-  en: { body: "Hi! This Búzios Lanchas number only sends automatic notices and can't receive messages. 🙂\n\nTo talk to us, message +55 21 99927-2550 on WhatsApp using the button below.", btn: "Chat on WhatsApp" },
-  es: { body: "¡Hola! Este número de Búzios Lanchas solo envía avisos automáticos y no recibe mensajes. 🙂\n\nPara hablar con nosotros, escríbenos al WhatsApp +55 21 99927-2550 con el botón de abajo.", btn: "Hablar por WhatsApp" },
+  pt: { body: "Olá! Este número da Búzios Lanchas só envia avisos automáticos e não recebe mensagens.\n\nPara falar com a gente, chame no WhatsApp (21) 99927-2550 pelo botão abaixo.", btn: "Falar no WhatsApp" },
+  en: { body: "Hi! This Búzios Lanchas number only sends automatic notices and can't receive messages.\n\nTo talk to us, message +55 21 99927-2550 on WhatsApp using the button below.", btn: "Chat on WhatsApp" },
+  es: { body: "¡Hola! Este número de Búzios Lanchas solo envía avisos automáticos y no recibe mensajes.\n\nPara hablar con nosotros, escríbenos al WhatsApp +55 21 99927-2550 con el botón de abajo.", btn: "Hablar por WhatsApp" },
 };
 const langOf = (to: string) => to.startsWith("55") ? "pt" : ES_DDI.some(d => to.startsWith(d)) ? "es" : "en";
 
