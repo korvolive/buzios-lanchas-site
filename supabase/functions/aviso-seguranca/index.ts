@@ -169,13 +169,29 @@ const ASSUNTO: Record<string, (sq: boolean) => string> = {
   es: (sq) => sq ? "Aviso de seguridad: retiro pedido" : "Aviso de seguridad: llave Pix cambiada",
 };
 async function email(uid: string, sq: boolean, nome: string, valor: number, ct: string, kc: string) {
+  return emailMsg(uid, (lang) => MAIL[lang](sq, nome, brl(valor, lang), chaveTxt(lang, ct, kc)), (lang) => ASSUNTO[lang](sq));
+}
+// telefone da conta trocado (Rodrigo 2026-11-22): sem modelo de WhatsApp, vai por push e e-mail
+const fimTel = (t: string) => { const d = dig(t); return d.length >= 4 ? `final ${d.slice(-4)}` : ""; };
+const PUSH_TEL: Record<string, (n: string) => { title: string; body: string }> = {
+  pt: (n) => ({ title: "Telefone da conta trocado", body: `O telefone da sua conta agora é o ${n}. Se não foi você, fale com a Búzios Lanchas agora.` }),
+  en: (n) => ({ title: "Account phone changed", body: `Your account phone is now the one ending ${n.replace("final ", "")}. If this wasn't you, contact Búzios Lanchas now.` }),
+  es: (n) => ({ title: "Teléfono de la cuenta cambiado", body: `El teléfono de tu cuenta ahora termina en ${n.replace("final ", "")}. Si no fuiste tú, habla con Búzios Lanchas ahora.` }),
+};
+const MAIL_TEL: Record<string, (nome: string, novo: string, antes: string) => any> = {
+  pt: (nome, novo, antes) => ({ oi: `Olá, ${nome}!`, texto: "O telefone da sua conta na Búzios Lanchas foi trocado.", linhas: [`Novo telefone: ${novo}`, ...(antes ? [`Telefone anterior: ${antes}`] : [])], nota: "Se não foi você, fale com a Búzios Lanchas agora pelo WhatsApp (21) 99927-2550. Por segurança, saques ficam em espera por 24 horas.", botao: "Abrir o app" }),
+  en: (nome, novo, antes) => ({ oi: `Hi, ${nome}!`, texto: "The phone number on your Búzios Lanchas account was changed.", linhas: [`New phone: ${novo}`, ...(antes ? [`Previous phone: ${antes}`] : [])], nota: "If this wasn't you, contact Búzios Lanchas now on WhatsApp +55 21 99927-2550. For security, withdrawals are on hold for 24 hours.", botao: "Open the app" }),
+  es: (nome, novo, antes) => ({ oi: `¡Hola, ${nome}!`, texto: "El teléfono de tu cuenta en Búzios Lanchas fue cambiado.", linhas: [`Nuevo teléfono: ${novo}`, ...(antes ? [`Teléfono anterior: ${antes}`] : [])], nota: "Si no fuiste tú, habla con Búzios Lanchas ahora por WhatsApp +55 21 99927-2550. Por seguridad, los retiros quedan en espera 24 horas.", botao: "Abrir la app" }),
+};
+const ASSUNTO_TEL: Record<string, string> = { pt: "Aviso de segurança: telefone da conta trocado", en: "Security notice: account phone changed", es: "Aviso de seguridad: teléfono de la cuenta cambiado" };
+async function emailMsg(uid: string, build: (lang: string) => any, assunto: (lang: string) => string) {
   const { data } = await db.auth.admin.getUserById(uid);
   const u = data?.user;
   if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return "sem_email";
   const meta = { ...(u.user_metadata || {}) };
   const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : "pt";
-  const msg = { lang, ...MAIL[lang](sq, nome, brl(valor, lang), chaveTxt(lang, ct, kc)) };
-  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto: ASSUNTO[lang](sq) } });
+  const msg = { lang, ...build(lang) };
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto: assunto(lang) } });
   const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: "https://www.lanchaembuzios.com.br/login/" } });
   await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
   if (error) { console.error("email", error.message); return "falhou"; }
@@ -208,6 +224,16 @@ async function enviar() {
       const { data: subs } = await db.from("push_subs").select("endpoint, p256dh, auth, lang").eq("user_id", a.user_id);
       const l0 = (subs || []).map((x: any) => x.lang).find((x: string) => ["pt", "en", "es"].includes(x));
       const l = l0 && !(l0 === "pt" && to && !to.startsWith("55")) ? l0 : !to || to.startsWith("55") ? "pt" : ES_DDI.some((d) => to.startsWith(d)) ? "es" : "en";
+      if (a.tipo === "telefone") {
+        const novo = fimTel(a.chave), antes = fimTel(a.chave_anterior || "");
+        if (!admIds.includes(a.user_id)) {
+          if (ja.push === undefined) res.push = await push(subs || [], (lg) => PUSH_TEL[lg](novo), `seg-tel-${a.id}`);
+          if (ja.email !== "enviado") res.email = await emailMsg(a.user_id, (lg) => MAIL_TEL[lg](nome, novo, antes), (lg) => ASSUNTO_TEL[lg]).catch(() => "falhou");
+        }
+        await db.from("avisos_seguranca").update({ resultado: res, tentativas: a.tentativas + 1 }).eq("id", a.id);
+        out.push({ id: a.id, ...res });
+        continue;
+      }
       const sq = a.tipo === "saque";
       const modelo = sq ? MOD_SAQUE : MOD_PIX;
       const params = (lg: string) => sq ? [brl(+a.valor, lg), nome, chaveTxt(lg, a.chave_tipo, a.chave)] : [nome, chaveTxt(lg, a.chave_tipo, a.chave)];

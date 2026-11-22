@@ -199,6 +199,27 @@ Deno.serve(async req => {
     const t = dig(b.tel);
     if (t.length < 10 || t.length > 15) return json({ erro: "tel" }, 400);
 
+    // ----- trocar o telefone da própria conta (Rodrigo 2026-11-22): cliente, dono ou vendedor. Código no WhatsApp do número NOVO;
+    // é a mesma conta (tudo fica ligado ao user_id), só muda o número. Passeios futuros passam a usar o número novo.
+    // A troca fica registrada (telefones_trocados): aviso de segurança no e-mail e saque espera 24 h.
+    if (b.acao === "telefone_enviar" || b.acao === "telefone") {
+      const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+      const u = (await db.auth.getUser(token)).data?.user;
+      if (!u) return json({ erro: "login" }, 401);
+      const m = String(b.wa || "").trim().match(/^\+(\d{1,4})\s+(.+)$/);
+      const wa = m ? `+${m[1]} ${dig(m[2])}` : "";
+      if (!wa || dig(wa) !== t) return json({ erro: "tel" }, 400);
+      if ((await contas(t)).some((x) => x.user_id !== u.id)) return json({ erro: "ja_tem" });
+      const para = `troca:${u.id}`;
+      if (b.acao === "telefone_enviar") return await mandaCodigo(t, para, b.lang);
+      const e = await confere(t, b.codigo, para); if (e) return json({ erro: e }, e === "tentativas" ? 429 : 400);
+      const { data: r, error: re } = await db.rpc("_trocar_telefone_conta", { u: u.id, novo: wa });
+      if (re) { console.error("trocar telefone", re.message); return json({ erro: /unique|23505/i.test(re.message) ? "ja_tem" : "falhou" }, 400); }
+      if ((u.email || "").endsWith(SEM)) // conta só com WhatsApp: o e-mail interno segue o número, para o login pelo celular
+        await db.auth.admin.updateUserById(u.id, { email: `wa${t}${SEM}`, email_confirm: true });
+      return json({ ok: true, ...(r as Record<string, unknown> || {}) });
+    }
+
     if (b.acao === "enviar") {
       const para = b.para === "senha" ? "senha" : "cadastro", acc = await contas(t);
       if (para === "cadastro" && acc.length) return json({ erro: "ja_tem" });
