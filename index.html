@@ -351,7 +351,7 @@ a[data-gsi]{position:relative;overflow:hidden}.gsio{position:absolute;inset:0;op
 /* vídeo (2026-11-04): celular e computador mostram só um botão pequeno; o vídeo abre em tela cheia */
 .vidrow{display:block}.vidrow .block+.block{margin-top:28px}
 .b-vid h2{display:none}
-.vidopen{display:flex;align-items:center;gap:14px;width:100%;max-width:440px;padding:10px 14px 10px 10px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit}
+.vidopen{display:flex;align-items:center;gap:14px;width:100%;max-width:440px;padding:10px 14px 10px 10px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit}@media(min-width:900px){.vidopen{max-width:none}}
 .vidopen:hover{border-color:var(--brass)}
 .vthumb{flex:none;width:58px;height:76px;border-radius:10px;background:var(--sea-deep) center/cover;display:grid;place-items:center;color:#fff;position:relative;overflow:hidden}
 .vthumb::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28)}.vthumb svg{position:relative;margin-left:3px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
@@ -2261,7 +2261,7 @@ function loadGRevs(b){
   p.then(rows=>{ const box=document.getElementById("g-revs"); if(!box || route.slug!==b.slug || !rows.length) return;
     const st = k => "★".repeat(k)+"☆".repeat(5-k), mes = d => d ? new Date(d.length===7 ? d+"-15T12:00" : d+"T12:00").toLocaleDateString(t("locale"),{month:"short",year:"numeric"}) : "";
     /* um sistema só (2026-11-04): quando o Grok já lançou avaliações, a página mostra só elas (as do código ficam só até lá) */
-    const list = rows.map(x=>({n:esc(x.autor), d:x.data, q:esc(x.texto||""), k:x.nota}));
+    const list = rows.map(x=>({n:esc(x.autor), d:x.data, q:esc(x.texto||""), k:x.nota})).sort((a,b)=>(!!b.q)-(!!a.q)); /* avaliação só com estrelas não abre a lista (revisão 22/11) */
     /* média e total em todas as lanchas (2026-11-04); o link da Miss Bardot vai para o perfil dela no Google */
     const mb = b.slug==="miss-bardot", gUrl = mb ? GOOGLE_REVIEWS : GOOGLE_BL, media = list.reduce((a,x)=>a+x.k,0)/list.length, mtxt = (Math.round(media*10)/10).toFixed(1).replace(".", lang==="en"?".":",");
     const ini = n => (String(n).replace(/<[^>]*>/g,"").trim()[0]||"?").toUpperCase(), cores = ["#1a73e8","#0b8043","#c5221f","#8e24aa","#e37400","#00796b"];
@@ -3230,7 +3230,7 @@ const GOOGLE_REVIEWS = "https://share.google/kUtKdkLJN0e9gmFWg";
 /* presente do cupom (ícone ao lado de "O que está incluso"): abre e fecha a explicação ao tocar (Rodrigo 2026-11-21) */
 document.addEventListener("click",e=>{ const g=document.getElementById("cd-tag"); if(!g) return; const bt=g.querySelector(".cd-gift-btn"); const o = !!bt && bt.contains(e.target) ? !g.classList.contains("open") : false; g.classList.toggle("open",o); if(bt) bt.setAttribute("aria-expanded",o); });
 const GUAR_IC = `<svg class="guar-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>`;
-const guarHTML = full => `<div class="guar"><b>${full?"":GUAR_IC}${t("guarT")}</b>${full?"":`<span class="guar-s">${t("guarS")}</span>`}<p>${t("guarP")}</p>${full?`<ul><li>${t("guarSea")}</li><li>${t("guarCo")}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
+const guarHTML = full => `<div class="guar"><b>${full?"":GUAR_IC}${t("guarT")}</b>${full?"":`<span class="guar-s">${t("guarS")}</span>`}<p>${t("guarP")}</p>${full?`<ul><li>${t("guarSea")}</li><li>${t("guarCo").replace(/CNPJ [\d./-]+/,'<span style="white-space:nowrap">$&</span>')}</li><li>${t("guarRec")}</li></ul>`:""}</div>`;
 const HERO_MEET = false; // botão "Conhecer a Miss Bardot" escondido (2026-10-24); true volta com ele
 const TRUST_ICONS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>`,

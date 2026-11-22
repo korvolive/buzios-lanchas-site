@@ -50,6 +50,9 @@ Header set Cache-Control "no-cache, must-revalidate"
 </IfModule>
 <IfModule mod_rewrite.c>
 RewriteEngine On
+# Arquivos internos que ficaram no servidor de envios antigos (código das funções, configurações): não ficam públicos (revisão 22/11)
+RewriteRule ^(supabase|scripts|graphify-out|\.claude|\.github|node_modules)(/|$) - [R=404,L]
+RewriteRule ^(CLAUDE|SEGURANCA|README)\.md$ - [R=404,L]
 # Sempre HTTPS (questionário de segurança do Asaas, 2026-11-13): http://... vai para https://www...
 RewriteCond %{HTTPS} off
 RewriteCond %{HTTP:X-Forwarded-Proto} !https
