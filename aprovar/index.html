@@ -22,6 +22,7 @@ h1{font-size:22px;margin:12px 0 4px}
 .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
 .row span{color:var(--muted)}
+.prz{margin:8px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
 .row b{text-align:right}
 .big{display:block;width:100%;border:0;border-radius:16px;background:var(--ok);color:#fff;font-family:inherit;font-weight:700;font-size:21px;line-height:1.2;padding:20px 16px;cursor:pointer}
 .big:disabled{opacity:.6}
@@ -80,13 +81,19 @@ async function chama(acao){
   const r = await fetch(FN, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({acao, t})});
   return r.json().catch(() => ({estado:"erro"}));
 }
+/* prazo da pré-reserva (Rodrigo 2026-11-22): o dono vê até quando a lancha fica segura para o cliente pagar o sinal, se aprovar agora */
+function ateTxt(iso){ const x=new Date(iso); if(isNaN(x)) return "";
+  const o={timeZone:"America/Sao_Paulo"}, hj=new Date().toLocaleDateString("pt-BR",o), am=new Date(Date.now()+864e5).toLocaleDateString("pt-BR",o), dx=x.toLocaleDateString("pt-BR",o);
+  const h=x.toLocaleTimeString("pt-BR",{...o,hour:"2-digit",minute:"2-digit"});
+  return (dx===hj ? "hoje" : dx===am ? "amanhã" : x.toLocaleDateString("pt-BR",{...o,weekday:"long",day:"numeric",month:"numeric"})) + " às " + h; }
 function cartao(d){
   const STD = {manha:["10:00","14:00"], tarde:["14:00","18:00"], dia:["10:00","17:00"]}[d.horario]; /* mesmo horário padrão do app */
   const hr = d.hora_ini && d.hora_fim ? `${String(d.hora_ini).slice(0,5)} às ${String(d.hora_fim).slice(0,5)}` : STD ? `${STD[0]} às ${STD[1]}` : (SLOT[d.horario] || d.horario || "");
   const rows = [["Embarcação", d.lancha], ["Data", d.data ? dataTxt(d.data) : ""], ["Horário", hr], ["Pessoas", d.pessoas], ["Cliente", d.cliente], ["Você recebe no total", +d.neto > 0 ? brl(d.neto) : ""],
     ...(d.embarque != null && +d.neto > 0 ? (+d.antecipado >= 0
       ? [["Você recebe antes", brl(d.antecipado)], ["Cobrar do cliente no dia", brl(d.embarque)]]
-      : [["Cobrar do cliente no dia", brl(d.embarque)], ["Você repassa à Búzios", brl(-d.antecipado)]]) : [])]
+      : [["Cobrar do cliente no dia", brl(d.embarque)], ["Você repassa à Búzios", brl(-d.antecipado)]]) : []),
+    ...(d.segura_ate ? [["Prazo do cliente para pagar", ateTxt(d.segura_ate)]] : [])]
     .filter(r => r[1] !== null && r[1] !== undefined && r[1] !== "");
   return rows.map(([k,v]) => `<div class="row"><span>${k}</span><b>${esc(v)}</b></div>`).join("");
 }
@@ -98,7 +105,7 @@ function fim(d, tipo, titulo, sub){
 }
 function mostra(d){
   const e = d && d.estado;
-  if(e === "pendente"){ $("dados").innerHTML = cartao(d); $("carregando").classList.add("hide"); $("pendente").classList.remove("hide"); return; }
+  if(e === "pendente"){ $("dados").innerHTML = cartao(d) + (d.segura_ate ? `<p class="prz">Conta a partir da sua aprovação. Até lá a lancha fica bloqueada para esse cliente; se ele não pagar o sinal no prazo, a data volta a ficar livre sozinha.</p>` : ""); $("carregando").classList.add("hide"); $("pendente").classList.remove("hide"); return; }
   /* resposta = o que o próprio dono respondeu; sem resposta, quem resolveu foi a Búzios Lanchas (Rodrigo 2026-11-18) */
   const eu = d && d.resposta;
   if(e === "aprovada") return fim(d, "ok", eu === "aprovou" ? "Você já aprovou essa reserva." : "Essa reserva já foi aprovada pela Búzios Lanchas.", "Não precisa fazer mais nada. Obrigado!");
@@ -117,7 +124,7 @@ $("sim").onclick = async () => {
   $("sim").disabled = true; $("sim").textContent = "Aprovando…";
   try{
     const r = await chama("aprovar");
-    if(r.estado === "aprovou") return fim(dados, "ok", "Reserva aprovada!", "O cliente já pode pagar. Você recebe o aviso quando o pagamento entrar.");
+    if(r.estado === "aprovou") return fim(dados, "ok", "Reserva aprovada!", (dados && dados.segura_ate ? "O cliente tem até " + ateTxt(dados.segura_ate) + " para pagar o sinal. " : "O cliente já pode pagar. ") + "Você recebe o aviso quando o pagamento entrar.");
     if(r.estado === "erro"){ $("sim").disabled = false; $("sim").textContent = "Está livre, aprovar";
       return fim(dados, "no", "Não deu para aprovar por aqui.", "A Búzios Lanchas vai confirmar com você. " + (r.msg ? "(" + r.msg + ")" : "")); }
     mostra({...dados, ...r});

@@ -54,7 +54,7 @@ const API = Deno.env.get("PAYPAL_ENV") === "sandbox" ? "https://api-m.sandbox.pa
 const SITE = "https://www.lanchaembuzios.com.br";
 // versão dos termos do passeio (/termos/, que incluem a /cancelamento/) aceitos na página de pagamento (Rodrigo 2026-11-22).
 // Mudou o texto: troque a versão aqui, em TERMO_VERSAO da função asaas e em /pagar/; quem ainda não pagou aceita de novo.
-const TERMO_VERSAO = "2026-11-22b"; // b: 7 dias de arrependimento, depois crédito ou 20% retido; taxa do cartão/PayPal não volta
+const TERMO_VERSAO = "2026-11-22c"; // b: 7 dias de arrependimento, depois crédito ou 20% retido; taxa do cartão/PayPal não volta. c: devolução total só com mais de 7 dias para o passeio
 const POLITICA_VERSAO = TERMO_VERSAO;
 const mascCpf = (c: unknown) => { const d = String(c || "").replace(/\D/g, ""); return d.length === 11 ? `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**` : d.length === 14 ? `${d.slice(0, 2)}.***.***/${d.slice(8, 12)}-**` : null; };
 // registro do aceite eletrônico (prova): IP e aparelho de quem marcou, nome e CPF que constam na conta
