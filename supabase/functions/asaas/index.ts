@@ -1344,6 +1344,36 @@ Deno.serve(async req => {
       return json({ config: conf, itens: out });
     }
 
+    // estorno do sinal de um pedido JÁ CANCELADO (Rodrigo decide no cartão do thread; dinheiro pago = só com o OK dele; 2026-11-22, Felipe/Spartana).
+    // Só o robô (chave interna). Sem fazer:true = simulação (mostra o que seria estornado). Com fazer:true exige o valor exato da cobrança
+    // (confirmação) e o pedido cancelado; cartão parcelado estorna o parcelamento inteiro. Já estornado = não repete.
+    if (b.acao === "estornar") {
+      const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
+      const pid = Number(b.pedido);
+      if (!Number.isInteger(pid) || pid <= 0) return json({ erro: "pedido" }, 400);
+      const { data: ped } = await db.from("pedidos").select("id, status").eq("id", pid).maybeSingle();
+      if (!ped) return json({ erro: "pedido" }, 404);
+      const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG).eq("pedido", pid).not("pago_em", "is", null);
+      if (!rs?.length) return json({ erro: "sem_pagamento" }, 404);
+      if (rs.length > 1) return json({ erro: "varios_pagamentos" }, 409);
+      const r: any = rs[0], real = r.asaas_real || r.asaas_id;
+      const pg = await asaas(`/payments/${encodeURIComponent(real)}`);
+      const lista = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []) : [pg];
+      const info = { pedido: pid, status_pedido: ped.status, metodo: r.metodo, valor: +r.valor, parcelado: !!pg.installment,
+        parcelas: lista.map((x: any) => ({ n: x.installmentNumber || 1, status: x.status, anticipated: !!x.anticipated, valor: +x.value })) };
+      if (lista.every((x: any) => ESTORNO.test(String(x.status || "")))) { await atualizarCredito(r).catch(() => null); return json({ ...info, ja_estornado: true }); }
+      if (b.fazer !== true) return json({ ...info, simulacao: true });
+      if (ped.status !== "cancelado") return json({ ...info, erro: "pedido_nao_cancelado" }, 409);
+      if (Math.abs(Number(b.valor) - +r.valor) > 0.005) return json({ ...info, erro: "valor_confere" }, 409);
+      try {
+        const feito = await asaas(pg.installment ? `/installments/${encodeURIComponent(pg.installment)}/refund` : `/payments/${encodeURIComponent(real)}/refund`, {});
+        await atualizarCredito(r).catch(() => null);
+        return json({ ...info, estornado: true, status: feito?.status || null });
+      } catch (e: any) { return json({ ...info, erro: e?.message || "asaas" }, 502); }
+    }
+
     // nome do cliente no Asaas igual ao do cadastro (ex.: conta criada com o nome do perfil do Google "Acesso E-mail",
     // Rodrigo 2026-11-21): só o robô (chave interna do resgate_config) ou a chave de serviço
     if (b.acao === "nome_cliente") {
