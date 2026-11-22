@@ -1635,7 +1635,7 @@ Deno.serve(async req => {
       if ((nDia || 0) >= 3 && !(await db.from("admins").select("user_id").eq("user_id", u.id).maybeSingle()).data) return json({ erro: "limite_dia" }, 409);
       // trava: um saque por vez (índice único em saques com status "enviando")
       const { data: sq, error: es } = await db.from("saques").insert({ user_id: u.id, valor, chave: px.pix_chave, tipo: px.pix_tipo, status: "enviando" }).select("id").single();
-      if (es || !sq) return json({ erro: /limite_dia/.test(es?.message || "") ? "limite_dia" : "andamento" }, 409);
+      if (es || !sq) return json({ erro: /limite_dia/.test(es?.message || "") ? "limite_dia" : /espera_troca/.test(es?.message || "") ? "espera_troca" : "andamento" }, 409); // espera_troca: telefone ou chave Pix trocados há menos de 24 h (Rodrigo 2026-11-22)
       let tr: any;
       try { tr = await sub("/transfers", { value: valor, operationType: "PIX", pixAddressKey: px.pix_chave, pixAddressKeyType: TIPO[px.pix_tipo], description: "Saque Búzios Lanchas" }); }
       catch (e: any) {
