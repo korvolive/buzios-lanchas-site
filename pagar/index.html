@@ -135,6 +135,7 @@ function polHTML(){ const X=POL[lg]||POL.pt; return `<div class="pay" data-m="po
 /* grava o aceite no pedido e em aceites_termo; se falhar, o cliente paga do mesmo jeito */
 document.addEventListener("change", e=>{ if(e.target.id==="pol-ok" && e.target.checked){ polOk=true; try{ localStorage.setItem(polKey(),"1"); }catch(x){}
   fetch(FN,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({acao:"aceite",p:P,k:K,l:lg})}).catch(()=>{}); render(); } });
+if(!q.get("l") && q.get("lang")) q.set("l", q.get("lang")); /* ?lang= também vale (revisão 22/11) */
 let lg=(()=>{ if(T[q.get("l")]) return q.get("l"); /* link com ?l= vence a escolha antiga (revisão 2026-11-16) */ try{ const s=localStorage.getItem("pagar-lang"); if(T[s]) return s; }catch(e){} const n=(navigator.language||"pt").slice(0,2); return T[q.get("l")]?q.get("l"):T[n]?n:"pt"; })();
 let D=null, state="wait", sdk=null, A=null, AX={}, rcOpen=q.get("recibo")==="1";
 const AS = true; /* Asaas ligado para todos os clientes em reais (Rodrigo 2026-11-11, BaaS liberado) */

@@ -294,8 +294,8 @@ header a{color:#fff;text-decoration:none}.brand{font-weight:800;font-size:18px}
 .hero .in{padding:64px 16px 40px;position:relative}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,30,40,.25),rgba(4,30,40,.75))}
 h1{font-size:clamp(28px,6vw,44px);line-height:1.15;margin:0 0 12px}
 .hero p{font-size:18px;max-width:640px;margin:0 0 20px}
-.btn{display:inline-block;background:var(--wa);color:#fff;text-decoration:none;font-weight:700;padding:13px 20px;border-radius:999px}
-.btn.alt{background:none;border:2px solid currentColor;color:inherit;margin:8px 0 0 8px;padding:11px 18px}
+.btn{display:inline-block;background:var(--wa);color:#fff;text-decoration:none;font-weight:700;padding:13px 20px;border-radius:999px;margin:8px 8px 0 0}
+.btn.alt{background:none;border:2px solid currentColor;color:inherit;margin:8px 0 0 0;padding:11px 18px}
 main section{padding:28px 0 4px}h2{font-size:24px;line-height:1.25;margin:0 0 10px}
 ul.list{padding-left:20px}ul.list li{margin:6px 0}
 .stops{list-style:none;padding:0;display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
