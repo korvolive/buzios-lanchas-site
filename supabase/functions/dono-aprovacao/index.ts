@@ -196,7 +196,10 @@ async function avisarDonos(cfg: any) {
   const { data: todas } = await db.from("lanchas").select("slug, nome, reserva_auto, dados");
   const L = new Map((todas || []).map(l => [l.slug, l]));
   const CONF = new Set((todas || []).filter(confirmaDono).map(l => l.slug));
-  const prazos = CONF.size ? await prazosDono(CONF, L).catch(e => (console.error("prazos", e), -1)) : 0;
+  // Prazo do dono vale para TODA lancha em que o dono aprova (sem reserva automática), em Búzios também (Rodrigo 22/11, viagem):
+  // lembrete ao dono + aviso à equipe; sem resposta, o cliente recebe "seguimos aguardando" + até 2 opções livres. Nada espera o Rodrigo.
+  const PRZ = new Set((todas || []).filter(l => !l.reserva_auto || confirmaDono(l)).map(l => l.slug));
+  const prazos = PRZ.size ? await prazosDono(PRZ, L).catch(e => (console.error("prazos", e), -1)) : 0;
   const COLS = "id, lancha, data, horario, hora_ini, hora_fim, pessoas, telefone, neto_garantido, grupo, criado_em, criado_por";
   const { data: cs0, error } = await db.from("consultas").select(COLS)
     .not("criado_por", "is", null).is("recusada_em", null).is("virou_pedido_em", null).is("grupo", null)
