@@ -1569,6 +1569,10 @@ document.addEventListener("click", async e=>{ const btn=e.target.closest("[data-
 Object.assign(UI.pt, {faqPreco:["Quanto custa alugar uma lancha em Búzios?", "O passeio privativo de 4 horas sai a partir de R$ {a} e o de 7 horas a partir de R$ {b}. O valor é por lancha, para o grupo todo (não é por pessoa), e muda conforme a lancha, a data e a temporada. Marinheiro, combustível, gelo, carvão, água mineral e cooler já estão inclusos. Para saber o valor da lancha e da data que você quer, consulte pelo WhatsApp: respondemos na hora."]});
 Object.assign(UI.en, {faqPreco:["How much does it cost to rent a boat in Búzios?", "The private 4-hour tour starts at R$ {a} and the 7-hour tour at R$ {b}. The price is per boat, for the whole group (not per person), and varies with the boat, the date and the season. Skipper, fuel, ice, charcoal, mineral water and a cooler are included. For the price of the boat and date you want, ask us on WhatsApp: we reply right away."]});
 Object.assign(UI.es, {faqPreco:["¿Cuánto cuesta alquilar una lancha en Búzios?", "El paseo privado de 4 horas sale desde R$ {a} y el de 7 horas desde R$ {b}. El precio es por lancha, para todo el grupo (no por persona), y cambia según la lancha, la fecha y la temporada. Marinero, combustible, hielo, carbón, agua mineral y nevera ya están incluidos. Para saber el precio de la lancha y la fecha que quieres, consúltanos por WhatsApp: respondemos al instante."]});
+/* cliente do link de vendedor que já confirmou o WhatsApp: cria a conta na própria página para pedir a reserva (2026-11-22) */
+Object.assign(UI.pt, {rqT:"Falta só criar sua senha", rqSub:"Seu WhatsApp {w} já está confirmado. Crie uma senha para enviar o pedido e acompanhar a reserva.", rqGo:"Criar conta e continuar"});
+Object.assign(UI.en, {rqT:"Just create your password", rqSub:"Your WhatsApp {w} is already confirmed. Create a password to send the request and follow your booking.", rqGo:"Create account and continue"});
+Object.assign(UI.es, {rqT:"Solo falta crear tu contraseña", rqSub:"Tu WhatsApp {w} ya está confirmado. Crea una contraseña para enviar el pedido y seguir tu reserva.", rqGo:"Crear cuenta y continuar"});
 /* guias de roteiro e de grupos (páginas geradas por scripts/paginas.mjs; os endereços aqui precisam ser os mesmos de lá) */
 Object.assign(UI.pt, {footGuides:"Guias", footGuideRoute:"Roteiro e praias do passeio", footGuideGroups:"Lancha para grupos e aniversários", footGuidePrices:"Quanto custa alugar uma lancha", footGuideSkipper:"Aluguel de lancha com marinheiro", footGuideBeaches:"Melhores praias de Búzios de lancha"});
 Object.assign(UI.en, {footGuides:"Guides", footGuideRoute:"Boat tour route and beaches", footGuideGroups:"Boat party for groups and birthdays", footGuidePrices:"Boat rental prices", footGuideSkipper:"Boat rental with skipper", footGuideBeaches:"Best beaches in Búzios by boat"});
@@ -2574,6 +2578,10 @@ const vendCard = b => { if(VEND?.parceiro && !ME) return `<div class="vcont">${p
   return `<div class="vcont">${t("vendBy",{n:esc(VEND.empresa||VEND.nome)})}<a id="vend-wa" href="${vendWaHref(b)}" target="_blank" rel="noopener">${b&&viaVend(b)?t("vendWaN",{n:esc(VEND.empresa||VEND.nome.split(" ")[0])}):t("vendWa")}</a></div>`; }; /* vendedor agência: aparece o nome da empresa, sem logo (2026-11-04) */
 /* link do vendedor (?v=CODIGO): fica guardado neste aparelho até chegar o link de outro vendedor (2026-10-22) */
 const vRpc = (f, body, tok) => fetch(SB_URL+"/rest/v1/rpc/"+f,{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json",...(tok?{authorization:"Bearer "+tok}:{})},body:JSON.stringify(body)}).then(r=>r.ok?r.json():Promise.reject(r.status));
+/* funil do link do vendedor (2026-11-22): cada etapa, uma vez por aparelho, sem dado pessoal (código do vendedor + etapa + número aleatório do aparelho) */
+const funil = e => { if(!VEND?.codigo || IS_BOT || ME || isTeam()) return; let s="";
+  try{ s=localStorage.getItem("fsid")||""; if(!/^[a-z0-9]{8,40}$/.test(s)){ s=(Math.random().toString(36).slice(2)+Date.now().toString(36)).slice(0,24); localStorage.setItem("fsid",s); } }catch(x){ return; }
+  fetch(SB_URL+"/rest/v1/rpc/funil_vendedor",{method:"POST",keepalive:true,headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({p_cod:VEND.codigo, p_etapa:e, p_sid:s})}).catch(()=>{}); };
 function loadVend(){
   if(IS_BOT) return;
   const q=new URLSearchParams(location.search), c=(q.get("v")||"").trim().toUpperCase();
@@ -2593,8 +2601,9 @@ function loadVend(){
   if(isTeam()) jobs.push(clientToken().then(tok=>vRpc("e_admin",{},tok)).then(r=>{ ADM = r===true; }).catch(()=>{})); /* o banco diz se é administrador */
   /* cliente logado de parceiro: o desconto é só no 1º passeio com ele (2026-11-02) */
   const parcJa = () => VEND?.parceiro && isClient() ? clientToken().then(tok=>fetch(SB_URL+"/rest/v1/pedidos?select=id&vendedor_cod=eq."+encodeURIComponent(VEND.codigo)+"&status=in.(pendente,aprovado)&limit=1",{headers:{apikey:AGENDA_KEY,authorization:"Bearer "+tok}})).then(r=>r.ok?r.json():[]).then(r=>{ PARC_JA = Array.isArray(r) && r.length>0; }).catch(()=>{}) : null;
-  if(jobs.length) Promise.all(jobs).then(parcJa).then(bzCarrega).then(()=>{ if(VEND && vendOkLs()) VEND_LIGADO = true; /* WhatsApp já confirmado neste aparelho */ applyStatic(); if(VEND||ME||ADM){ const y=scrollY; render(false); scrollTo(0,y); } if(vendLeadDue()) setTimeout(openVendLead, 1500); });
+  if(jobs.length) Promise.all(jobs).then(parcJa).then(bzCarrega).then(()=>{ if(VEND && vendOkLs()) VEND_LIGADO = true; /* WhatsApp já confirmado neste aparelho */ if(VEND && !isClient()) funil("abriu"); applyStatic(); if(VEND||ME||ADM){ const y=scrollY; render(false); scrollTo(0,y); } if(vendLeadDue()) setTimeout(openVendLead, 1500); });
 }
+document.addEventListener("click", e => { if(e.target.closest?.("#vend-wa") && VEND && !VEND.parceiro) funil("wa_vendedor"); });
 /* quem já é da equipe abriu o link ou QR de um vendedor: nada muda, só avisa e deixa entrar normal (2026-10-25) */
 function equipeDlg(){
   document.querySelector("dialog[open]")?.close();
@@ -2630,7 +2639,7 @@ function openVendLead(force){
       <button type="button" class="btn" id="vl-qback">${t(VEND.parceiro?"vlQBackP":"vlQBackV")}</button><button type="button" class="lacc vlqx" id="vl-qx">${t(VEND.parceiro?"vlQXP":"vlQXV")}</button></div>`;
   const $=id=>dl.querySelector("#"+id), err=$("vl-err"), lg=dl.querySelector(".vlogos img");
   if(lg){ lg.onload=()=>{ lg.parentNode.hidden=false; }; lg.onerror=()=>lg.parentNode.remove(); if(lg.complete && lg.naturalWidth) lg.parentNode.hidden=false; }
-  const skip=()=>{ try{ sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} dl.close(); };
+  const skip=()=>{ try{ sessionStorage.setItem("vend-lead-skip","1"); }catch(e){} funil("fechou"); dl.close(); };
   /* fechar pede confirmação (Rodrigo 2026-11-12): quem fecha perde o desconto e o parceiro perde a indicação */
   const pergunta=()=>{ if(!dl.contains($("vl-go"))) return dl.close(); dl.classList.add("q"); dl.querySelector(".vlq").hidden=false; $("vl-qback").focus(); };
   const volta=()=>{ dl.classList.remove("q"); dl.querySelector(".vlq").hidden=true; $("vl-n").focus(); };
@@ -2647,15 +2656,15 @@ function openVendLead(force){
     try{ const r=await fetch(SB_URL+"/rest/v1/rpc/criar_lead_vendedor",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},
         body:JSON.stringify({p_cod:VEND.codigo, p_nome:v.nome, p_tel:"+"+v.ddi+" "+d, p_email:null, p_lang:lang})});
       if(!r.ok){ const j=await r.json().catch(()=>({})); if(/equipe/.test(j.message||"")){ dropVend(); return equipeDlg(); } throw 0; } /* WhatsApp ou e-mail de alguém da equipe */
-      try{ localStorage.setItem("vend-lead",VEND.codigo); localStorage.setItem("consulta-dados",JSON.stringify(v)); }catch(e){}
+      try{ localStorage.setItem("vend-lead",VEND.codigo); localStorage.setItem("consulta-dados",JSON.stringify(v)); }catch(e){} funil("form");
       vlCodigo(dl, "+"+v.ddi+" "+d, v.ddi+d); }
     catch(e){ b.disabled=false; err.textContent=t("vlErr"); } };
-  dl.showModal(); $("vl-n").focus();
+  dl.showModal(); $("vl-n").focus(); funil("janela");
 }
 /* passo 2 da janelinha: o código no WhatsApp (só sai porque o cliente tocou em "Receber código"). Confirmado, libera os valores
    neste aparelho e o contato fica ligado ao vendedor/parceiro (vendedor_leads.wa_ok_em). Se o envio não estiver disponível, libera sem código */
 const waLead = body => fetch(SB_URL+"/functions/v1/cadastro-whatsapp",{method:"POST",headers:{apikey:AGENDA_KEY,"content-type":"application/json"},body:JSON.stringify({...body, lang, cod:VEND?.codigo||""})}).then(r=>r.json()).catch(()=>({erro:"rede"}));
-function vlLibera(dl){ try{ localStorage.setItem("vend-ok",VEND.codigo); }catch(e){} VEND_LIGADO = true;
+function vlLibera(dl){ try{ localStorage.setItem("vend-ok",VEND.codigo); }catch(e){} VEND_LIGADO = true; funil("codigo");
   /* Android fora do app: depois de confirmar o WhatsApp, convida para baixar o app da Play (2026-10-28). A indicação já ficou no banco
      com o WhatsApp, e o app divide a memória com o Chrome, então o vendedor ou parceiro não se perde. No iPhone vale igual quando APP_STORE_URL
      estiver preenchido: o app da Apple não divide a memória com o Safari, mas a indicação volta pelo WhatsApp quando a pessoa cria a conta */
@@ -2976,10 +2985,41 @@ function openContaValor(op){
       fim(s, by, "+"+ddi+" "+w, email); };
     $(by==="tel"?(st.tel?"li-p":"li-w"):"li-e").focus();
   }
+  /* veio pelo link do vendedor e já confirmou o WhatsApp (prova do código): a conta nasce só com nome e senha, sem outro código (2026-11-22) */
+  function rapida(pv, msg){
+    dl.innerHTML=`${X}<h3 id="cv-t">${t("rqT")}</h3><p>${t("rqSub",{w:esc(pv.show)})}</p>
+      <label>${t("cvName")}<input id="cv-n" type="text" autocomplete="name" autocapitalize="words" value="${esc(st.nome)}"></label>
+      <label>${t("cvPw")} <small>(${t("cvPwHint")})</small><input id="cv-p" type="password" autocomplete="new-password"></label>
+      <p class="lerr" id="cv-err" aria-live="polite">${msg||""}</p>
+      <button type="button" class="btn" id="cv-go">${t("rqGo")}</button>
+      <p class="lrow"><button type="button" class="lacc" id="cv-acc">${t("accHave")}</button></p>
+      <small>${t("cvTerms")}</small>`;
+    dl.querySelector(".lx").onclick=()=>dl.close();
+    const err=$("cv-err");
+    dl.querySelectorAll("input").forEach(x=>x.oninput=()=>{ err.textContent=""; });
+    $("cv-acc").onclick=()=>{ st.nome=$("cv-n").value; by="tel"; entrar(); };
+    $("cv-go").onclick=async()=>{
+      const nome=$("cv-n").value.trim().replace(/\s+/g," "), pw=$("cv-p").value; st.nome=nome;
+      if(nome.length<5 || !nome.includes(" ")){ err.textContent=t("cvBadName"); return $("cv-n").focus(); }
+      if(pw.length<6){ err.textContent=t("cvPwShort"); return $("cv-p").focus(); }
+      const b=$("cv-go"); b.disabled=true;
+      const r=await cw({acao:"criar_link", w:pv.w, senha:pw, nome, whatsapp:pv.show});
+      if(r.access_token){ try{ localStorage.removeItem("wa-link"); }catch(e){} funil("conta"); return fim(r, "tel", pv.show); }
+      b.disabled=false;
+      if(r.erro==="ja_tem" || r.erro==="tel_ja"){ by="tel"; return entrar(t("cvJa")); }
+      if(r.erro==="link"){ try{ localStorage.removeItem("wa-link"); }catch(e){} return cadastro(); } /* prova vencida ou de outro número: cadastro normal, com código */
+      err.textContent=t(r.erro==="rede"?"vcNet":"cvErr"); };
+    $(st.nome && st.nome.includes(" ") ? "cv-p" : "cv-n").focus();
+  }
   dl.addEventListener("close",()=>dl.remove(),{once:true});
   dl.onclick=e=>{ if(e.target===dl) dl.close(); };
+  const pv = op?.reserva ? vendProva() : null;
+  if(pv){ st.ddi=pv.ddi; st.tel=pv.d; dl.showModal(); return rapida(pv); }
   cadastro(); dl.showModal(); if(st.nome) $("cv-w").focus();
 }
+/* prova do código do WhatsApp guardada neste aparelho pela janelinha do vendedor (wa-link) + o número que a pessoa digitou */
+const vendProva = () => { if(!vendOkLs()) return null; const l=lsGet("wa-link"), c=lsGet("consulta-dados")||{}, d=String(c.tel||"").replace(/\D/g,""), ddi=String(c.ddi||"").replace(/\D/g,"");
+  return l && /^[0-9a-f-]{36}$/i.test(l.w||"") && ddi && d.length>=6 ? {w:l.w, ddi, d, show:"+"+ddi+" "+d} : null; };
 /* cliente com conta que já vê "Reservar online": some o "Consultar no WhatsApp" e o online vira o botão principal (2026-10-24) */
 const soOnline = btn => { if(!isClient()) return; btn.hidden=true; document.getElementById("book-online")?.classList.remove("sec"); };
 /* lanchas cujo dono dá desconto para quem volta, com o valor (2026-10-25); sem o v2 no banco, o selo sai sem o valor */
@@ -3030,9 +3070,10 @@ async function showBoatStatus(b){
     if(jetFalta()) return;
     if(!isClient()){
       try{ localStorage.setItem("reserva-pendente",JSON.stringify({slug:b.slug, nome:b.name, path:location.pathname, date:pick.date, slot:pick.slot, people:pick.people, board:pick.board, jet:pick.jet||null, t:Date.now()})); }catch(e){}
+      if(viaVend(b)){ funil("reserva"); if(vendProva()) return openContaValor({reserva:true}); } /* veio pelo link e já confirmou o WhatsApp: cria a conta aqui mesmo, só com a senha, e volta para o pedido (2026-11-22) */
       location.href="/login/?criar=1"; return; }
     ob.disabled=true; lastReq="";
-    sendPedido(b).then(async(pid)=>{ track("pedido_reserva",b,typeof pid==="number"?pid:0); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt()) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt())}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
+    sendPedido(b).then(async(pid)=>{ track("pedido_reserva",b,typeof pid==="number"?pid:0); if(viaVend(b)) funil("pedido"); const cid=await chatId(); sentDlg(b,cid); sentKey=pickKey(); ob.textContent=t("sentBtn"); ob.dataset.sent="1"; out.innerHTML=`<div class="pk-res ok"><p>${t("bookSent")}</p>${cid?`<a class="btn" href="/login/?chat=${cid}">💬 ${t("bookChat")}</a><small class="pk-or">${t("bookOrWa")}</small>`:""}<a class="btn${cid?" sec":""}" href="${viaVend(b) ? vendWaHref(b, t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt()) : wa(t("waDeposit",{name:b.name, date:fmtDate(pick.date), slot:slotLabel(pick.slot), people:peopleLabel(pick.people)})+jetWaTxt())}" target="_blank" rel="noopener">${t("depositBtn")}</a></div>`; out.scrollIntoView({block:"center",behavior:"smooth"}); },
       e=>{ out.innerHTML=`<p class="pk-res busy">${t(typeof e==="string" ? e : "bookErr")}</p>`; }).finally(()=>{ ob.disabled=!!ob.dataset.sent; }); };
   if(ob && ob.dataset.sent && sentKey!==pickKey()){ delete ob.dataset.sent; ob.disabled=false; ob.textContent=t("bookOnline"); } /* mudou data, horário ou pessoas: pode pedir de novo */
   if(pick.date) document.getElementById("pk-date").classList.remove("pk-missing");
