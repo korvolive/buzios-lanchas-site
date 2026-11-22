@@ -997,6 +997,7 @@ async function repassarPaypal(saldo: number) {
   for (const p of fila.sort((a: any, b: any) => a.pago - b.pago)) {
     if (p.status !== "aprovado" || SEM_REPASSE.includes(p.lancha) || !(+p.repasse_dono > 0) || ja.has(+p.id)) continue;
     if (!cob.has(+p.id)) { esperando++; continue; } // o dinheiro deste pedido ainda não caiu do PayPal
+    if (!donoLiberado(p.data, p.pago)) { esperando++; continue; } // ainda nos 7 dias de arrependimento do cliente
     const w = await carteira(p.lancha); if (!w) continue; // dono sem conta aprovada: fica no saldo dele e sai quando aprovar
     const v = Math.round(+p.repasse_dono * 100) / 100;
     if (v > online(p) + 0.005) { console.error("paypal repasse maior que o sinal", p.id); continue; }
@@ -1047,6 +1048,20 @@ async function avisarCartaoAtrasado() {
   return n;
 }
 
+// parte do dono de lancha (Rodrigo 2026-11-22): sai no 8º dia depois do pagamento, quando acaba o direito de arrependimento
+// do cliente (7 dias, CDC art. 49). Passeio que já está a 7 dias ou menos: sai assim que o dinheiro cai, para o dono receber antes
+// de sair. Jet ski e comissão seguem as regras deles.
+const ARREPENDIMENTO_DIAS = 7;
+const hojeBRT = () => new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10);
+const donoLiberaEm = (data: string, pagoEm: string | number | null) => {
+  const perto = new Date(new Date(String(data).slice(0, 10) + "T12:00:00Z").getTime() - ARREPENDIMENTO_DIAS * 864e5).toISOString().slice(0, 10);
+  const t = pagoEm == null ? NaN : typeof pagoEm === "number" ? pagoEm : Date.parse(pagoEm);
+  const fimArr = isNaN(t) ? null : new Date(t - 3 * 36e5 + ARREPENDIMENTO_DIAS * 864e5).toISOString().slice(0, 10);
+  return fimArr && fimArr < perto ? fimArr : perto;
+};
+const donoLiberado = (data: string, pagoEm: string | number | null) => donoLiberaEm(data, pagoEm) <= hojeBRT();
+const primeiroPago = (rows: any[]) => rows.map((r: any) => r.pago_em).filter(Boolean).sort()[0] || null;
+
 async function enviarSaldos() {
   const { data: cfg } = await db.from("asaas_config").select("saldo_auto").eq("id", 1).maybeSingle();
   if (!cfg?.saldo_auto) return { ligado: false };
@@ -1062,11 +1077,12 @@ async function enviarSaldos() {
   const semDiv = [...new Set((pg || []).filter((r: any) => !r.wallet_id || !(+r.repasse > 0)).map((r: any) => +r.pedido))]
     .filter((id) => !(pg || []).some((r: any) => +r.pedido === id && r.wallet_id && +r.repasse > 0));
   if (semDiv.length) {
-    const { data: ps } = await db.from("pedidos").select("id, lancha, data, repasse_dono").in("id", semDiv).eq("status", "aprovado").gt("repasse_dono", 0).order("data").limit(30);
+    const { data: ps } = await db.from("pedidos").select("id, lancha, data, repasse_dono").in("id", semDiv).eq("status", "aprovado").gt("repasse_dono", 0).order("data").limit(500); // 2026-11-22: agora quase todo pedido passa por aqui (sem divisão nos 7 dias de arrependimento)
     const { data: feitos } = await db.from("repasses_pp").select("pedido").in("pedido", semDiv);
     const ja = new Set((feitos || []).map((r: any) => +r.pedido));
     for (const p of ps || []) {
       if (SEM_REPASSE.includes(p.lancha) || ja.has(+p.id)) continue;
+      if (!donoLiberado(p.data, primeiroPago(doPedido(p.id)))) { esperando++; continue; } // ainda nos 7 dias de arrependimento do cliente
       const w = await carteira(p.lancha); if (!w) continue; // dono ainda sem conta aprovada: fica no saldo dele
       const v = Math.round(+p.repasse_dono * 100) / 100;
       // só com o dinheiro deste pedido já no saldo (cartão: parcelas que caíram); senão espera, nunca adianta com outra venda
@@ -1507,7 +1523,10 @@ Deno.serve(async req => {
         const r1 = w1 ? +(m.repasse_dono ?? -1) : 0;
         if (w1 && r1 < 0) return json({ erro: "repasse" }, 409); // o administrador ainda não definiu a parte do dono
         if (r1 > s1) return json({ erro: "repasse" }, 409);
-        partes.push({ pedido: +m.id, sinal: s1, repasse: r1, wallet_id: w1 || null });
+        // passeio a mais de 7 dias: sem divisão. A parte do dono sai pelo saldo (enviarSaldos) no 8º dia depois do pagamento, quando
+        // acaba o direito de arrependimento do cliente (CDC art. 49), para a Búzios não devolver dinheiro que já foi para o dono (Rodrigo 2026-11-22)
+        const ja = donoLiberado(m.data, null);
+        partes.push({ pedido: +m.id, sinal: s1, repasse: ja ? r1 : 0, wallet_id: ja ? (w1 || null) : null });
       }
       const sinal = Math.round(partes.reduce((a, q) => a + q.sinal, 0) * 100) / 100;
       const wallet = partes[0].wallet_id, rep = Math.round(partes.reduce((a, q) => a + q.repasse, 0) * 100) / 100;
@@ -1972,7 +1991,8 @@ Deno.serve(async req => {
         } else if (prim && !(base.split > 0) && p.status === "aprovado" && +p.repasse_dono > 0) {
           const ct = donoU ? C.get(donoU) : null;
           const cx = base.metodo !== "paypal" ? CX.get(+p.id) : null, prev = cx ? quandoCobre(cx, +p.repasse_dono) : null;
-          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : base.metodo === "paypal" ? "paypal" : prev ? "aguardando_credito" : "aguardando", previsto: prev && prev !== "?" ? prev : null, ok: false });
+          const arr = !donoLiberado(p.data, base.pago_em || null); // ainda nos 7 dias de arrependimento do cliente
+          rep.push({ tipo: "dono", nome: N.get(donoU) || "Dono", valor: r2(+p.repasse_dono), como: "pendente", motivo: !ct ? "sem_conta" : !ct.aprovada_em ? "conta_analise" : arr ? "arrependimento" : base.metodo === "paypal" ? "paypal" : prev ? "aguardando_credito" : "aguardando", previsto: arr ? [donoLiberaEm(p.data, base.pago_em || null), prev && prev !== "?" ? prev : ""].sort().pop() : prev && prev !== "?" ? prev : null, ok: false });
         }
         const com = prim && p.vendedor ? r2(Math.max(0, +p.preco_cliente - +p.preco_base)) : 0;
         if (com > 0) {
