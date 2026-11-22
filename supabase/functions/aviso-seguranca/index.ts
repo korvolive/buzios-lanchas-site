@@ -156,6 +156,32 @@ const PUSH_PIX: Record<string, (k: string) => { title: string; body: string }> =
   es: (k) => ({ title: "Llave Pix cambiada", body: `Tu llave Pix de cobro ahora es ${k}. Si no fuiste tú, habla con Búzios Lanchas ahora.` }),
 };
 
+// e-mail da conta (Rodrigo 2026-11-22: quem perdeu o telefone ainda recebe pelo e-mail). Mesmo caminho dos outros avisos
+// por e-mail do site (modelo do link mágico com msg/assunto no user_metadata). Conta só com WhatsApp não tem e-mail de verdade.
+const MAIL: Record<string, (sq: boolean, nome: string, v: string, k: string) => any> = {
+  pt: (sq, nome, v, k) => ({ oi: `Olá, ${nome}!`, texto: sq ? "Foi pedido um saque na sua conta da Búzios Lanchas." : "A chave Pix de recebimento da sua conta na Búzios Lanchas foi trocada.", linhas: sq ? [`Valor: ${v}`, `Chave Pix: ${k}`] : [`Nova chave Pix: ${k}`], nota: "Se não foi você, fale com a Búzios Lanchas agora pelo WhatsApp (21) 99927-2550.", botao: "Abrir o app" }),
+  en: (sq, nome, v, k) => ({ oi: `Hi, ${nome}!`, texto: sq ? "A withdrawal was requested on your Búzios Lanchas account." : "The payout Pix key on your Búzios Lanchas account was changed.", linhas: sq ? [`Amount: ${v}`, `Pix key: ${k}`] : [`New Pix key: ${k}`], nota: "If this wasn't you, contact Búzios Lanchas now on WhatsApp +55 21 99927-2550.", botao: "Open the app" }),
+  es: (sq, nome, v, k) => ({ oi: `¡Hola, ${nome}!`, texto: sq ? "Se pidió un retiro en tu cuenta de Búzios Lanchas." : "La llave Pix de cobro de tu cuenta en Búzios Lanchas fue cambiada.", linhas: sq ? [`Valor: ${v}`, `Llave Pix: ${k}`] : [`Nueva llave Pix: ${k}`], nota: "Si no fuiste tú, habla con Búzios Lanchas ahora por WhatsApp +55 21 99927-2550.", botao: "Abrir la app" }),
+};
+const ASSUNTO: Record<string, (sq: boolean) => string> = {
+  pt: (sq) => sq ? "Aviso de segurança: saque pedido" : "Aviso de segurança: chave Pix trocada",
+  en: (sq) => sq ? "Security notice: withdrawal requested" : "Security notice: Pix key changed",
+  es: (sq) => sq ? "Aviso de seguridad: retiro pedido" : "Aviso de seguridad: llave Pix cambiada",
+};
+async function email(uid: string, sq: boolean, nome: string, valor: number, ct: string, kc: string) {
+  const { data } = await db.auth.admin.getUserById(uid);
+  const u = data?.user;
+  if (!u?.email || !u.email_confirmed_at || /@sem-email\.lanchaembuzios\.com\.br$/.test(u.email)) return "sem_email";
+  const meta = { ...(u.user_metadata || {}) };
+  const lang = ["pt", "en", "es"].includes(meta.lang) ? meta.lang : "pt";
+  const msg = { lang, ...MAIL[lang](sq, nome, brl(valor, lang), chaveTxt(lang, ct, kc)) };
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg, assunto: ASSUNTO[lang](sq) } });
+  const { error } = await db.auth.signInWithOtp({ email: u.email, options: { shouldCreateUser: false, emailRedirectTo: "https://www.lanchaembuzios.com.br/login/" } });
+  await db.auth.admin.updateUserById(u.id, { user_metadata: { ...meta, msg: null, assunto: null } });
+  if (error) { console.error("email", error.message); return "falhou"; }
+  return "enviado";
+}
+
 async function enviar() {
   const { data: fila } = await db.from("avisos_seguranca").select("id").is("enviado_em", null).lt("tentativas", 5)
     .gt("criado_em", new Date(Date.now() - 2 * 864e5).toISOString()).order("id").limit(20);
@@ -189,8 +215,20 @@ async function enviar() {
       if (!admIds.includes(a.user_id)) {
         if (ja.push === undefined) res.push = await push(subs || [], (lg) => sq ? PUSH_SAQUE[lg](brl(+a.valor, lg), chaveTxt(lg, a.chave_tipo, a.chave)) : PUSH_PIX[lg](chaveTxt(lg, a.chave_tipo, a.chave)), `seg-${a.tipo}-${a.id}`);
         if (ja.wa !== "enviado") res.wa = !to ? "sem_telefone" : !key ? "sem_chave" : !aprov[modelo].includes(LCW[l]) ? "modelo_em_aprovacao" : await wa(key, to, modelo, LCW[l], params(l));
+        if (ja.email !== "enviado") res.email = await email(a.user_id, sq, nome, +a.valor || 0, a.chave_tipo, a.chave).catch(() => "falhou");
+        // telefone trocado nos 7 dias antes do aviso: avisa também o número que estava na conta antes da troca
+        // (quem roubou o login pode trocar o telefone antes da chave Pix; Rodrigo 2026-11-22, opção 1)
+        if (ja.wa_antigo !== "enviado") {
+          const { data: tt } = await db.from("telefones_trocados").select("antes").eq("user_id", a.user_id)
+            .gt("em", new Date(new Date(a.criado_em).getTime() - 7 * 864e5).toISOString()).lte("em", a.criado_em).order("em").limit(1);
+          const antigo = waNum(tt?.[0]?.antes);
+          if (antigo && antigo !== to) {
+            const la = antigo.startsWith("55") ? "pt" : ES_DDI.some((d) => antigo.startsWith(d)) ? "es" : "en";
+            res.wa_antigo = !key ? "sem_chave" : !aprov[modelo].includes(LCW[la]) ? "modelo_em_aprovacao" : await wa(key, antigo, modelo, LCW[la], params(la));
+          }
+        }
       }
-      const falhou = res.wa === "falhou";
+      const falhou = res.wa === "falhou" || res.wa_antigo === "falhou";
       // WhatsApp falhou: volta para a fila (até 5 tentativas); modelo ainda em aprovação não volta (o push já avisou)
       await db.from("avisos_seguranca").update({ resultado: res, tentativas: a.tentativas + 1, ...(falhou && a.tentativas + 1 < 5 ? { enviado_em: null } : {}) }).eq("id", a.id);
     } catch (e) {
