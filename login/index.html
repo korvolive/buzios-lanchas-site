@@ -6783,7 +6783,7 @@ async function loadPv(){ if(!S.admin) return;
 const pvD = s => s ? String(s).slice(0,10).split("-").reverse().slice(0,2).join("/") : "";
 const pvDH = s => { if(!s) return ""; const d=new Date(s); return isNaN(d) ? pvD(s) : d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"}); };
 const pvMes = s => { if(!s) return ""; const d=new Date(s); return isNaN(d) ? String(s).slice(0,7) : d.toLocaleDateString("en-CA",{timeZone:"America/Sao_Paulo"}).slice(0,7); };
-const pvFalta = v => (v.repasses||[]).some(r=>!r.ok);
+const pvFalta = v => v.situacao!=="estornado" && (v.repasses||[]).some(r=>!r.ok); /* estornado nunca fica "a repassar": só em Estornados (Rodrigo 2026-11-23) */
 const pvMet = v => v.metodo==="pix" ? "Pix" : v.metodo==="paypal" ? "PayPal" : v.n>1 ? t("pvCard",{n:v.n}) : t("pvCard1");
 const pvVal = v => v.moeda && v.moeda!=="BRL" ? `${v.moeda==="USD"?"US$":v.moeda} ${(+v.valor).toLocaleString("pt-BR")}` : brl2(v.valor);
 function pvChip(v){ /* selo principal = quem já recebeu (Rodrigo 2026-11-17); o cartão caindo para a Búzios fica só dentro do card */
