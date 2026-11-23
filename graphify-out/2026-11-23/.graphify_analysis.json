@@ -2531,6 +2531,9 @@
     ],
     "193": [
       "supabase_sql_2026_11_23_saude_ignora_estornado"
+    ],
+    "194": [
+      "supabase_sql_2026_11_23_zzzz_tira_claude_dos_custos"
     ]
   },
   "cohesion": {
@@ -2727,7 +2730,8 @@
     "190": 1.0,
     "191": 0.4,
     "192": 0.5,
-    "193": 1.0
+    "193": 1.0,
+    "194": 1.0
   },
   "gods": [
     {
@@ -2842,7 +2846,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.anotacoes` to `public.bloqueios`, `pedidos`, `public._aprovar_consulta`, `public.clientes`?",
-      "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2861,8 +2865,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.creditos` connect `b` to `public.bloqueios`, `public._aprovar_consulta`?",
-      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.anotacoes`, `public.bloqueios`, `public.consultas`?",
+      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
