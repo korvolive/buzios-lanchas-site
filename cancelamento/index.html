@@ -32,13 +32,21 @@ h2 .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--deep);
 h2+.row{border-top:0}
 .q{color:var(--muted)}
 .a{font-weight:600}
-.row.good{background:var(--okbg);border:0;border-radius:12px;padding:14px 16px;margin:6px -16px 4px}
-.row.good+.row{border-top:0}
+.row.good{background:var(--okbg);border:0;border-radius:12px;padding:14px 16px;margin:6px 0 4px}
 .row.good .q{color:var(--ink)}
 .big{display:block;font-size:17px}
 .big.ok{color:var(--ok)}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.opts div{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:400}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.card{background:var(--soft);border-radius:14px;padding:14px 16px 4px}
+.card h3{font-size:15.5px;margin:0 0 6px}
+.card .r{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.card h3+.r{border-top:0}
+.card .r span{color:var(--muted)}
+.card .r b{text-align:right;flex:0 0 42%}
+.card .r.ok b{color:var(--ok)}
+.how{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:15px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.opts div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
 .opts b{display:block}
 .fee{margin:10px 0 0;font-size:14px;color:var(--muted)}
 footer{text-align:center;padding:26px 8px 0}
@@ -47,22 +55,25 @@ footer p{margin:14px 0 0;color:var(--muted);font-size:14px}
 .wa:hover{background:#178547}
 a{color:var(--sea)}
 [data-l]{display:none}[data-l].on{display:block}
-@media (max-width:640px){.row.good{margin:6px -10px 4px;padding:12px 10px}.row{grid-template-columns:1fr;gap:4px}.opts{grid-template-columns:1fr}.hero h1{font-size:25px}section{padding:16px}}
+@media (max-width:640px){.cards{grid-template-columns:1fr}.row{grid-template-columns:1fr;gap:4px}.opts{grid-template-columns:1fr}.hero h1{font-size:25px}section{padding:16px}}
 </style>
 </head>
 <body>
 <header><div class="in"><a href="/">Búzios <span>Lanchas</span></a>
   <div class="langs" role="group" aria-label="Idioma / Language"><button type="button" data-set="pt">PT</button><button type="button" data-set="en">EN</button><button type="button" data-set="es">ES</button></div></div>
-<div class="hero" data-l="pt"><h1>Política de cancelamento</h1><p>Atualizada em 22 de novembro de 2026</p></div><div class="hero" data-l="en"><h1>Cancellation policy</h1><p>Updated on November 22, 2026</p></div><div class="hero" data-l="es"><h1>Política de cancelación</h1><p>Actualizada el 22 de noviembre de 2026</p></div></header>
+<div class="hero" data-l="pt"><h1>Política de cancelamento</h1><p>Atualizada em 23 de novembro de 2026</p></div><div class="hero" data-l="en"><h1>Cancellation policy</h1><p>Updated on November 23, 2026</p></div><div class="hero" data-l="es"><h1>Política de cancelación</h1><p>Actualizada el 23 de noviembre de 2026</p></div></header>
 <main>
 <div data-l="pt">
 <p class="intro">O que acontece se você precisar cancelar ou se o passeio não puder sair.</p>
 <section>
 <h2><span class="n">1</span>Se você desistir</h2>
-<div class="row good"><div class="q">Pagou há até 7 dias e faltam mais de 7 dias para o passeio</div><div class="a"><b class="big ok">Devolvemos tudo o que você pagou.</b></div></div>
-<div class="row other"><div class="q">Qualquer outro caso</div><div class="a"><b class="big">Você escolhe uma das duas opções:</b>
-<div class="opts"><div><b>Crédito</b>100% do sinal, para usar em até 1 ano na mesma lancha.</div><div><b>Dinheiro de volta</b>Devolvemos o sinal com desconto de 20% do valor do passeio. Se outra pessoa reservar a mesma data, devolvemos tudo.</div></div>
-<p class="fee">Taxa do cartão ou do PayPal: só volta no primeiro caso.</p></div></div>
+<div class="cards">
+<div class="card"><h3>Datas normais</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 48h antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 48h antes</span><b>sem devolução</b></div></div>
+<div class="card"><h3>Réveillon (27/12 a 05/01) e Carnaval</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 30 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 30 dias antes</span><b>sem devolução</b></div></div>
+</div>
+<div class="opts"><div><b>Crédito</b>100% do sinal, para usar em até 1 ano na mesma lancha.</div><div><b>Devolução com 30% retido</b>Devolvemos o sinal descontando 30% do valor do passeio. Se outra pessoa reservar a mesma data, devolvemos tudo.</div></div>
+<p class="fee">A taxa do cartão ou do PayPal só volta na devolução total.</p>
+<div class="how"><b>Como cancelar:</b> mande o pedido por escrito no <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Vale a data e a hora da sua mensagem, e confirmamos o recebimento.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Se o passeio não puder sair</h2>
@@ -85,10 +96,13 @@ a{color:var(--sea)}
 <p class="intro">What happens if you need to cancel or if the tour can't go out.</p>
 <section>
 <h2><span class="n">1</span>If you cancel</h2>
-<div class="row good"><div class="q">You paid up to 7 days ago and the tour is more than 7 days away</div><div class="a"><b class="big ok">We refund everything you paid.</b></div></div>
-<div class="row other"><div class="q">Any other case</div><div class="a"><b class="big">You choose one of two options:</b>
-<div class="opts"><div><b>Credit</b>100% of the deposit, to use within 1 year on the same boat.</div><div><b>Money back</b>We refund the deposit minus 20% of the tour price. If someone else books the same date, we refund everything.</div></div>
-<p class="fee">Card or PayPal fee: only refunded in the first case.</p></div></div>
+<div class="cards">
+<div class="card"><h3>Regular dates</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 48h before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 48h before</span><b>no refund</b></div></div>
+<div class="card"><h3>New Year's (Dec 27 to Jan 5) and Carnival</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 30 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 30 days before</span><b>no refund</b></div></div>
+</div>
+<div class="opts"><div><b>Credit</b>100% of the deposit, to use within 1 year on the same boat.</div><div><b>Refund keeping 30%</b>We refund the deposit minus 30% of the tour price. If someone else books the same date, we refund everything.</div></div>
+<p class="fee">The card or PayPal fee is only refunded with a full refund.</p>
+<div class="how"><b>How to cancel:</b> send your request in writing on our <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">official WhatsApp</a>. The date and time of your message count, and we confirm we received it.</div>
 </section>
 <section>
 <h2><span class="n">2</span>If the tour can't go out</h2>
@@ -111,10 +125,13 @@ a{color:var(--sea)}
 <p class="intro">Qué pasa si necesitas cancelar o si el paseo no puede salir.</p>
 <section>
 <h2><span class="n">1</span>Si cancelas tú</h2>
-<div class="row good"><div class="q">Pagaste hace hasta 7 días y faltan más de 7 días para el paseo</div><div class="a"><b class="big ok">Te devolvemos todo lo que pagaste.</b></div></div>
-<div class="row other"><div class="q">Cualquier otro caso</div><div class="a"><b class="big">Eliges una de dos opciones:</b>
-<div class="opts"><div><b>Crédito</b>El 100% de la seña, para usar en hasta 1 año en la misma lancha.</div><div><b>Devolución</b>Devolvemos la seña con un descuento del 20% del valor del paseo. Si otra persona reserva la misma fecha, devolvemos todo.</div></div>
-<p class="fee">Tasa de tarjeta o PayPal: solo se devuelve en el primer caso.</p></div></div>
+<div class="cards">
+<div class="card"><h3>Fechas normales</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 48h antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 48h antes</span><b>sin devolución</b></div></div>
+<div class="card"><h3>Año Nuevo (27/12 al 05/01) y Carnaval</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 30 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 30 días antes</span><b>sin devolución</b></div></div>
+</div>
+<div class="opts"><div><b>Crédito</b>El 100% de la seña, para usar en hasta 1 año en la misma lancha.</div><div><b>Devolución reteniendo 30%</b>Devolvemos la seña descontando el 30% del valor del paseo. Si otra persona reserva la misma fecha, devolvemos todo.</div></div>
+<p class="fee">La tasa de tarjeta o PayPal solo se devuelve en la devolución total.</p>
+<div class="how"><b>Cómo cancelar:</b> envía el pedido por escrito a nuestro <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Cuenta la fecha y la hora de tu mensaje, y confirmamos que lo recibimos.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Si el paseo no puede salir</h2>
