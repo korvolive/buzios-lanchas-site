@@ -441,6 +441,9 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 /* "Tenho empresa (agência)" discreto: não é o principal da área (Rodrigo 2026-11-23) */
 #vempw{margin:14px 0 0!important;padding-top:12px;border-top:1px solid var(--line)}#vempw .epsw{width:auto;margin:0;padding:2px 0;border:0;background:none;font-size:14px;font-weight:500;color:var(--muted);gap:8px}#vempw .epsw i{width:30px;height:17px;border-radius:9px}#vempw .epsw i::after{top:2.5px;left:2.5px;width:12px;height:12px}#vempw .epsw[aria-pressed="true"] i::after{left:15.5px}#vempw p.muted{font-size:12px!important;margin-top:2px!important}
 .vlinkb{margin-top:6px;padding-top:16px;border-top:1px solid var(--line)}
+#vpw{position:fixed;inset:0;z-index:45;background:rgba(4,16,22,.5);display:flex;align-items:center;justify-content:center;padding:16px}html.vpwon,html.vpwon body{overflow:hidden}
+.vpwin{width:100%;max-width:440px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;background:var(--bg);border-radius:20px;box-shadow:0 14px 44px rgba(0,0,0,.35);overflow:hidden}
+#vpw .plx{border-radius:50%;margin:0}.vpwh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px 8px}.vpwh h2{margin:0;font-size:18px}.vpwb{overflow-y:auto;padding:0 14px 14px}
 .vav.vsec{margin:16px 0 14px;padding:4px 0 4px;border-top:0}
 .vav.vsec .vsh{text-align:center;margin:0 auto 14px;max-width:420px}.vav.vsec .vsh h3{margin:0 0 6px;font-size:22px;line-height:1.2;text-align:center;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:700}
 .vav.vsec .vgoh{margin:0;font-size:14px;line-height:1.45;color:var(--muted);text-align:center;text-transform:none;letter-spacing:0;font-weight:400}.vav.vsec .vgoh .link{display:inline;padding:0;margin:0;min-height:0;line-height:inherit;vertical-align:baseline;font-size:14px;white-space:nowrap;text-transform:none;letter-spacing:0}
@@ -7447,6 +7450,20 @@ document.addEventListener("keydown", e=>{ if(e.key!=="Escape" || (view!=="planil
   if(!sheet.classList.contains("on") && !document.getElementById("obspop")?.offsetParent) planLeave(); });
 function vPlanView(){
   top_.hidden=false; top_.innerHTML=headerHTML(); bindLang(); document.getElementById("out").onclick=logout;
+  const mob=PLAN_MQ.matches, body=vPlanBody(mob);
+  app.innerHTML=`<div id="plan"${mob?' class="plm"':""}><div class="plhead"><button type="button" class="btn sec" id="plback">‹ ${t("plBack")}</button><h2>📊 ${t("vpT")}</h2><button type="button" class="plx" id="plx" aria-label="${t("close")}" title="${t("close")}">✕</button></div>${body}</div>`;
+  document.getElementById("plback").onclick=document.getElementById("plx").onclick=planClose; { const ph=document.querySelector("#plan .plhead"); if(ph) ph.style.top=(top_.offsetHeight||0)+"px"; }
+}
+/* planilha do vendedor numa janela compacta por cima do painel (Rodrigo 2026-11-23): cartões, total em cima, fecha no ✕, fora ou Esc */
+function openVPlanWin(){
+  document.getElementById("vpw")?.remove();
+  const w=document.createElement("div"); w.id="vpw"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true");
+  w.innerHTML=`<div class="vpwin plm"><div class="vpwh"><h2>📊 ${t("vpT")}</h2><button type="button" class="plx" id="vpwx" aria-label="${t("close")}" title="${t("close")}">✕</button></div><div class="vpwb">${vPlanBody(true)}</div></div>`;
+  document.body.appendChild(w); document.documentElement.classList.add("vpwon");
+  const fim=()=>{ w.remove(); document.documentElement.classList.remove("vpwon"); removeEventListener("keydown",esc_); }, esc_=e=>{ if(e.key==="Escape") fim(); };
+  w.onclick=e=>{ if(e.target===w) fim(); }; document.getElementById("vpwx").onclick=fim; addEventListener("keydown",esc_);
+}
+function vPlanBody(mob){
   const V=(S.vendas||[]).slice().sort((a,b)=>a.data<b.data?1:a.data>b.data?-1:(b.criado_em||"").localeCompare(a.criado_em||"")), hoje=todayISO();
   /* passeio terminado (igual ao admin, revisão 2026-11-16): no próprio dia, conta como "a receber" depois do horário de fim */
   const fim=x=>x.data<hoje || (x.data===hoje && tripEnded(x.data, x.horario, {hora_fim:x.hora_fim}));
@@ -7458,7 +7475,6 @@ function vPlanView(){
   const dsh=d=>dateOf(d).toLocaleDateString(t("locale"),{weekday:"short",day:"2-digit",month:"2-digit",year:"2-digit"}).replace(/\./g,"");
   const tot=`<div class="pltot"><span>${t("vpTot",{n:V.length})}</span><span>${t("vpPaid")} <b>${brl(pago)}</b> · ${t("vpToGet")} <b>${brl(receber)}</b>${depois?` · ${t("vpLater")} <b>${brl(depois)}</b>`:""}</span></div>`;
   const pill=x=>{ const [c,l]=st(x); return `<small class="vst ${c}">${l}</small>`; };
-  const mob=PLAN_MQ.matches;
   const body = !V.length ? `<p class="muted">${t("vpNone")}</p>` : mob
     ? `${tot}<div class="plcs">${V.map(x=>`<div class="plc"><div class="plc1"><b>${esc(dsh(x.data))}</b><span>🕙 ${esc(hora(x))}</span><span>🚤 ${esc(boatName(x.lancha))}</span></div>
         <div class="plc2"><span class="plcn">${esc(cli(x))}</span>${x.pessoas?`<span>👥 ${+x.pessoas}</span>`:""}${wa(x)?`<span>${wa(x)}</span>`:""}</div>
@@ -7466,8 +7482,7 @@ function vPlanView(){
     : `${tot}<div class="plwrap"><table class="pltab"><thead><tr>${["vpData","vpHora","vpBoat","vpCli","WhatsApp","vpPes","vpVal","vpCom","vpSt"].map(k=>`<th>${k==="WhatsApp"?k:t(k)}</th>`).join("")}</tr></thead><tbody>
         ${V.map(x=>`<tr><td class="pd">${esc(fmtShort(x.data))}</td><td class="pd">${esc(hora(x))}</td><td class="pd">${esc(boatName(x.lancha))}</td><td class="pd">${esc(cli(x))}</td><td class="pd">${wa(x)}</td><td class="pd">${x.pessoas||""}</td><td class="pd">${x.preco_cliente>0?brl(+x.preco_cliente):""}</td><td class="pd"><b>${x.comissao>0?brl(+x.comissao):"—"}</b></td><td class="pd">${pill(x)}</td></tr>`).join("")}
         </tbody></table></div>`;
-  app.innerHTML=`<div id="plan"${mob?' class="plm"':""}><div class="plhead"><button type="button" class="btn sec" id="plback">‹ ${t("plBack")}</button><h2>📊 ${t("vpT")}</h2><button type="button" class="plx" id="plx" aria-label="${t("close")}" title="${t("close")}">✕</button></div>${body}</div>`;
-  document.getElementById("plback").onclick=document.getElementById("plx").onclick=planClose; { const ph=document.querySelector("#plan .plhead"); if(ph) ph.style.top=(top_.offsetHeight||0)+"px"; }
+  return body;
 }
 function vSalesHTML(){
   if(S.vendas==null) return `<p class="muted">…</p>`;
@@ -7544,7 +7559,7 @@ function bindVend(){ bindVqr(); app.querySelectorAll("details.sqopen").forEach(d
   bindVemp();
   const c=document.getElementById("vcopy"); if(c) c.onclick=()=>navigator.clipboard?.writeText(vLink()).then(()=>toast(t("vdCopied")),()=>prompt("",vLink()));
   const vnc=document.getElementById("vnewcli"); if(vnc) vnc.onclick=openVendNewCli;
-  const vpb=document.getElementById("vplanbtn"); if(vpb) vpb.onclick=()=>{ planOpen("vplanilha", vPlanView); };
+  const vpb=document.getElementById("vplanbtn"); if(vpb) vpb.onclick=openVPlanWin;
   const vpl=document.getElementById("vplanca"); if(vpl) vpl.onclick=()=>openOpPed(true); /* vendedor também lança pedido para aprovar (2026-10-31) */
   const sv=document.getElementById("vpsave"); if(sv) sv.onclick=async()=>{ const p={}, teto=vTeto();
     for(const x of app.querySelectorAll("[data-vp]")){ const v=+x.value; if(!(v>=1 && v<=teto)){ x.focus(); return toast(t("vdPctBad",{n:teto})); } VEND_KEYS.forEach(k=>p[k]=v); }
