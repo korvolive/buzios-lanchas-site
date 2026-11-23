@@ -7307,8 +7307,9 @@ function openVendSell(slug){
   const paint=()=>{ const v=base(h); if(com==null) com=dflt(); com=Math.min(Math.max(com,0),mx());
     box.innerHTML = !v ? `<span>${t("vsNoPrice")}</span>` : `<span>${t("vsVal")}: <b>${brl(v)}</b></span>
       ${own?"":`<label class="f" style="margin:8px 0"><span>${t("vsCom")} <small class="muted" style="font-weight:400">(${lang==="en"?"max.":"máx."} ${brl(mx())})</small></span><input type="number" class="in" id="vsc" inputmode="numeric" min="0" max="${mx()}" step="10" value="${com}"></label>`}
-      <span>${t("vsCli")}: <b>${brl(v+com)}</b></span>`;
-    const c=document.getElementById("vsc"); if(c){ c.onchange=()=>{ com=Math.round(+String(c.value).replace(",",".")||0); paint(); }; } };
+      <span>${t("vsCli")}: <b id="vscli">${brl(v+com)}</b></span>`;
+    /* valor para o cliente muda a cada número digitado (Rodrigo 2026-11-23); nunca passa do máximo (30% e R$ 1.000) nem fica negativo */
+    const c=document.getElementById("vsc"); if(c){ c.oninput=()=>{ const raw=String(c.value).replace(",","."); if(raw===""){ com=0; } else { let n=Math.round(+raw||0); if(n<0){ n=0; c.value="0"; } if(n>mx()){ n=mx(); c.value=String(n); } com=n; } const o=document.getElementById("vscli"); if(o) o.textContent=brl(v+com); }; c.onchange=()=>{ com=Math.round(+String(c.value).replace(",",".")||0); paint(); }; } };
   sheet.querySelectorAll("[data-vsh]").forEach(x=>x.onclick=()=>{ h=x.dataset.vsh; com=null; sheet.querySelectorAll("[data-vsh]").forEach(y=>y.setAttribute("aria-checked",String(y===x))); paint(); });
   paint();
   if(S.bzV && !own && slug!=="miss-bardot") slots.forEach(x=>db("rpc/bz_reducao",{method:"POST",body:{cod:S.vend.codigo,l:slug,d,h:x}}).then(v=>{ bzX[x]=Math.max(+v||0,0); if(x===h && box.isConnected) paint(); }).catch(()=>{})); /* valor exato da data */
