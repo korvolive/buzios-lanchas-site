@@ -142,13 +142,14 @@ await tarefa("traducao", async l => {
 /* 2. texto para o Google (meta description) */
 await tarefa("seo", async l => {
   const d = l.dados, esc = d.tipo === "escuna";
-  const base = { nome: l.nome, tipo: esc ? "escuna" : "lancha", pes: esc ? null : d.pes, capacidade: d.capacidade, frase: d.frase?.pt || "", descricao: d.descricao?.pt || "",
+  const base = { nome: l.nome, tipo: esc ? "escuna" : "lancha", pes: esc ? null : d.pes, ...(d.modelo && !esc ? { modelo: d.modelo } : {}), capacidade: d.capacidade, frase: d.frase?.pt || "", descricao: d.descricao?.pt || "",
     cidade: d.cidade || "buzios", embarque: [...new Set(Object.values(d.embarque || {}).flat())] };
   const h = hash(base), atual = await lerIa(l.slug);
   if ((await controle(`seo:${l.slug}`))?.h === h && atual.seo) return null;
   const out = await pedir({
     sistema: REGRAS + `\nEscreva a descrição desta página para o Google (meta description), em português, inglês e espanhol.
-Cada uma com 130 a 155 caracteres, uma ou duas frases, falando de passeio privativo de ${base.tipo} em ${base.cidade === "buzios" ? "Búzios" : base.cidade}, com o nome, o tamanho e a capacidade, e terminando com um convite para ver datas e reservar.`,
+Cada uma com 130 a 155 caracteres, uma ou duas frases, falando de passeio privativo de ${base.tipo} em ${base.cidade === "buzios" ? "Búzios" : base.cidade}, com o nome, o tamanho e a capacidade, e terminando com um convite para ver datas e reservar.
+Use de forma natural as palavras que o cliente pesquisa no Google: em português "aluguel de ${base.tipo}" e "passeio de ${base.tipo}", em inglês "boat rental" ou "boat tour", em espanhol "alquiler de lancha" ou "paseo en lancha". Se houver modelo do barco nos dados, cite o modelo.`,
     conteudo: `<dados>${JSON.stringify(base)}</dados>`,
     schema: LANGS3,
   });
