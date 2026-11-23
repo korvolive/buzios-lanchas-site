@@ -2519,6 +2519,9 @@
     ],
     "189": [
       "supabase_sql_2026_11_23_cancelar_spartana_30_12"
+    ],
+    "190": [
+      "supabase_sql_2026_11_23_aviso_estorno_cliente"
     ]
   },
   "cohesion": {
@@ -2711,7 +2714,8 @@
     "186": 1.0,
     "187": 1.0,
     "188": 0.6666666666666666,
-    "189": 1.0
+    "189": 1.0,
+    "190": 1.0
   },
   "gods": [
     {
@@ -2825,8 +2829,8 @@
   "questions": [
     {
       "type": "bridge_node",
-      "question": "Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`?",
-      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+      "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `public._pre_reserva_volta`, `public._aprovar_consulta`, `2026-11-15_preco-cotado-garantido.sql`, `public.consultas`, `public.anotacoes`, `vendedores`?",
+      "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2835,8 +2839,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `public._pre_reserva_volta`, `public._aprovar_consulta`, `2026-11-15_preco-cotado-garantido.sql`, `public.consultas`, `public.anotacoes`, `vendedores`?",
-      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+      "question": "Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`?",
+      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2845,8 +2849,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.origem_reserva()` connect `2026-11-15_preco-cotado-garantido.sql` to `public.bloqueios`, `donos`, `public.bloqueios`, `public.meus_repasses_pp`, `2026-11-21_seguranca-saque.sql`, `public.papeis_painel`, `vendedores`, `public.clientes`?",
-      "why": "High betweenness centrality (0.011) - this node is a cross-community bridge."
+      "question": "Why does `public.creditos` connect `b` to `public._pre_reserva_volta`, `public.bloqueios`, `public._aprovar_consulta`, `public`?",
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
