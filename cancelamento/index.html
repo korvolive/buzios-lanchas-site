@@ -55,6 +55,9 @@ footer p{margin:14px 0 0;color:var(--muted);font-size:14px}
 .wa{display:inline-flex;align-items:center;gap:8px;background:#1f9d55;color:#fff!important;text-decoration:none;font-weight:700;border-radius:999px;padding:12px 22px;min-height:44px}
 .wa:hover{background:#178547}
 a{color:var(--sea)}
+.info{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--sea);background:none;color:var(--sea);font:700 12px/1 Georgia,serif;font-style:italic;cursor:pointer;vertical-align:1px;margin-left:4px;padding:0}
+.info[aria-expanded=true]{background:var(--sea);color:var(--surface)}
+.infotxt{grid-column:1/-1;margin:2px 0 0;background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14.5px;color:var(--ink)}
 [data-l]{display:none}[data-l].on{display:block}
 @media (max-width:640px){.cards{grid-template-columns:1fr}.row{grid-template-columns:1fr;gap:4px}.opts{grid-template-columns:1fr}.hero h1{font-size:25px}section{padding:16px}}
 </style>
@@ -69,16 +72,15 @@ a{color:var(--sea)}
 <section>
 <h2><span class="n">1</span>Se você desistir</h2>
 <div class="cards">
-<div class="card"><h3>Datas normais</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 48h antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 48h antes</span><b>sem devolução</b></div></div>
-<div class="card"><h3>Réveillon, Carnaval e feriados<small>Réveillon: de 27/12 a 05/01. Feriados: da véspera até o fim do feriadão.</small></h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 30 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 30 dias antes</span><b>sem devolução</b></div></div>
+<div class="card"><h3>Datas normais</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 7 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 7 dias antes</span><b>sem devolução</b></div></div>
+<div class="card"><h3>Réveillon, Carnaval e feriados</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 30 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 30 dias antes</span><b>sem devolução</b></div></div>
 </div>
 <div class="opts"><div><b>Crédito</b>100% do sinal, para usar em até 1 ano na mesma lancha.</div><div><b>Devolução com 30% retido</b>Devolvemos o sinal descontando 30% do valor do passeio. Se outra pessoa reservar a mesma data, devolvemos tudo.</div></div>
-<p class="fee">A taxa do cartão ou do PayPal só volta na devolução total.</p>
 <div class="how"><b>Como cancelar:</b> mande uma mensagem no nosso <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Os prazos acima contam a partir do dia e da hora dessa mensagem, e respondemos confirmando.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Imprevistos no dia do passeio</h2>
-<div class="row"><div class="q">Mar ruim</div><div class="a">Remarcamos para outra data, sem custo.</div></div>
+<div class="row"><div class="q">Mar ruim <button type="button" class="info" aria-expanded="false" aria-label="O que é mar ruim?" title="O que é mar ruim?">i</button></div><div class="a">Remarcamos para outra data, sem custo.</div><p class="infotxt" hidden>Mar ruim é quando não dá para navegar com segurança: vento muito forte, mar agitado ou tempestade. Quem decide é o comandante, sempre pela segurança. Vento ou chuva fraca não cancelam o passeio: o roteiro é ajustado para as praias mais abrigadas do dia.</p></div>
 <div class="row"><div class="q">A Marinha fecha o mar</div><div class="a">Você escolhe: remarcar ou receber o sinal de volta.</div></div>
 <div class="row"><div class="q">Problema na lancha ou o dono desmarcou</div><div class="a">Damos outra lancha equivalente ou devolvemos 100% do sinal.</div></div>
 </section>
@@ -98,16 +100,15 @@ a{color:var(--sea)}
 <section>
 <h2><span class="n">1</span>If you cancel</h2>
 <div class="cards">
-<div class="card"><h3>Regular dates</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 48h before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 48h before</span><b>no refund</b></div></div>
-<div class="card"><h3>New Year's, Carnival and holidays<small>New Year's: Dec 27 to Jan 5. Holidays: from the day before to the end of the long weekend.</small></h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 30 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 30 days before</span><b>no refund</b></div></div>
+<div class="card"><h3>Regular dates</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 7 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 7 days before</span><b>no refund</b></div></div>
+<div class="card"><h3>New Year's, Carnival and holidays</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 30 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 30 days before</span><b>no refund</b></div></div>
 </div>
 <div class="opts"><div><b>Credit</b>100% of the deposit, to use within 1 year on the same boat.</div><div><b>Refund keeping 30%</b>We refund the deposit minus 30% of the tour price. If someone else books the same date, we refund everything.</div></div>
-<p class="fee">The card or PayPal fee is only refunded with a full refund.</p>
 <div class="how"><b>How to cancel:</b> send a message to our <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">official WhatsApp</a>. The deadlines above count from the day and time of that message, and we reply to confirm.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Unexpected issues on the day</h2>
-<div class="row"><div class="q">Bad sea</div><div class="a">We move it to another date at no cost.</div></div>
+<div class="row"><div class="q">Bad sea <button type="button" class="info" aria-expanded="false" aria-label="What counts as bad sea?" title="What counts as bad sea?">i</button></div><div class="a">We move it to another date at no cost.</div><p class="infotxt" hidden>Bad sea means it isn't safe to sail: very strong wind, rough sea or a storm. The skipper decides, always with safety first. Light wind or light rain don't cancel the tour: the route is adjusted to the most sheltered beaches of the day.</p></div>
 <div class="row"><div class="q">The Navy closes the sea</div><div class="a">You choose: reschedule or get your deposit back.</div></div>
 <div class="row"><div class="q">Boat problem or the owner cancels</div><div class="a">We give you another equivalent boat or refund 100% of the deposit.</div></div>
 </section>
@@ -127,16 +128,15 @@ a{color:var(--sea)}
 <section>
 <h2><span class="n">1</span>Si cancelas tú</h2>
 <div class="cards">
-<div class="card"><h3>Fechas normales</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 48h antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 48h antes</span><b>sin devolución</b></div></div>
-<div class="card"><h3>Año Nuevo, Carnaval y feriados<small>Año Nuevo: del 27/12 al 05/01. Feriados: desde la víspera hasta el fin del fin de semana largo.</small></h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 30 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 30 días antes</span><b>sin devolución</b></div></div>
+<div class="card"><h3>Fechas normales</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 7 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 7 días antes</span><b>sin devolución</b></div></div>
+<div class="card"><h3>Año Nuevo, Carnaval y feriados</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 30 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 30 días antes</span><b>sin devolución</b></div></div>
 </div>
 <div class="opts"><div><b>Crédito</b>El 100% de la seña, para usar en hasta 1 año en la misma lancha.</div><div><b>Devolución reteniendo 30%</b>Devolvemos la seña descontando el 30% del valor del paseo. Si otra persona reserva la misma fecha, devolvemos todo.</div></div>
-<p class="fee">La tasa de tarjeta o PayPal solo se devuelve en la devolución total.</p>
 <div class="how"><b>Cómo cancelar:</b> envía un mensaje a nuestro <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Los plazos de arriba cuentan desde el día y la hora de ese mensaje, y te respondemos confirmando.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Imprevistos el día del paseo</h2>
-<div class="row"><div class="q">Mar malo</div><div class="a">Lo pasamos a otra fecha, sin costo.</div></div>
+<div class="row"><div class="q">Mar malo <button type="button" class="info" aria-expanded="false" aria-label="¿Qué es mar malo?" title="¿Qué es mar malo?">i</button></div><div class="a">Lo pasamos a otra fecha, sin costo.</div><p class="infotxt" hidden>Mar malo es cuando no se puede navegar con seguridad: viento muy fuerte, mar agitado o tormenta. Decide el capitán, siempre pensando en la seguridad. El viento o la lluvia leve no cancelan el paseo: el recorrido se ajusta a las playas más protegidas del día.</p></div>
 <div class="row"><div class="q">La Marina cierra el mar</div><div class="a">Eliges: reprogramar o recibir la seña de vuelta.</div></div>
 <div class="row"><div class="q">Problema con la lancha o el dueño cancela</div><div class="a">Te damos otra lancha equivalente o devolvemos el 100% de la seña.</div></div>
 </section>
@@ -162,6 +162,7 @@ a{color:var(--sea)}
     document.querySelectorAll("[data-set]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.set===x));
     document.documentElement.lang = x==="pt" ? "pt-BR" : x; document.title = document.querySelector(`.hero[data-l=${x}] h1`).textContent + " · Búzios Lanchas"; };
   document.querySelectorAll("[data-set]").forEach(b=>b.onclick=()=>set(b.dataset.set));
+  document.querySelectorAll(".info").forEach(b=>b.onclick=()=>{ const t=b.closest(".row").querySelector(".infotxt"); const o=t.hidden; t.hidden=!o; b.setAttribute("aria-expanded",o); });
   set(l);
 })();
 </script>
