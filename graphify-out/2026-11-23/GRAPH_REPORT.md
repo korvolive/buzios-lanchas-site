@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-23)
 
 ## Corpus Check
-- 290 files · ~526,066 words
+- 290 files · ~526,756 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0d28ccbe`
+- Built from commit: `666157fd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -583,15 +583,15 @@ Nodes (3): CORS, db, T
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `public._aprovar_consulta`, `public.consultas`, `public.consultas`, `pedidos`, `public._pre_reserva_volta`, `public.anotacoes`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.bloqueios`, `public.consultas`, `public.anotacoes`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
-- **Why does `public.creditos` connect `public.creditos` to `public.bloqueios`, `public._pre_reserva_volta`, `public._aprovar_consulta`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
+- **Why does `public.origem_reserva()` connect `public.consultas` to `public.bloqueios`, `public.pedido_oferta`, `public.pagamentos_pp`, `2026-11-19_rastreio-server-side.sql`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
