@@ -287,7 +287,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
 "use strict";
 var FN = "https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/bordazul-anunciar";
 var KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
-var COMISSAO = 15; /* % somado ao valor do dono (mesmo número do painel) */
+var COMISSAO = 20, COMISSAO_MIN = 300; /* % somado ao valor do dono, mínimo R$ 300 (mesma regra da função taxa_buzios do banco, 2026-11-23) */
+function comissaoDe(v){ return Math.max(Math.round(v * COMISSAO / 100 / 10) * 10, COMISSAO_MIN); }
 var LS = "bz_anunciar_tk";
 var CIDADES = [["buzios","Búzios (RJ)"],["arraial","Arraial do Cabo (RJ)"],["cabo-frio","Cabo Frio (RJ)"],["rio","Rio de Janeiro (RJ)"],["angra","Angra dos Reis (RJ)"],["paraty","Paraty (RJ)"],["ilhabela","Ilhabela (SP)"],["ubatuba","Ubatuba (SP)"],["guaruja","Guarujá (SP)"],["floripa","Florianópolis (SC)"],["bombinhas","Bombinhas (SC)"],["camboriu","Balneário Camboriú (SC)"],["salvador","Salvador (BA)"],["morro","Morro de São Paulo (BA)"],["porto-seguro","Porto Seguro (BA)"],["maragogi","Maragogi (AL)"],["porto-galinhas","Porto de Galinhas (PE)"],["noronha","Fernando de Noronha (PE)"],["capitolio","Capitólio (MG)"],["paranoa","Lago Paranoá, Brasília (DF)"],["manaus","Rio Negro, Manaus (AM)"],["outra","Outra cidade"]];
 var ITENS = [["banheiro","Banheiro"],["ar","Ar-condicionado"],["som","Som"],["gerador","Gerador"],["geladeira","Geladeira"],["churrasqueira","Churrasqueira"],["tapete","Tapete flutuante"],["snorkel","Snorkel"],["stand-up","Stand up paddle"],["toldo","Toldo"],["cozinha","Cozinha"],["cabine","Cabine"]];
@@ -547,7 +548,7 @@ function desenharFaixa(){
 function cliente(){
   ["baixa","baixa7","alta","alta7"].forEach(function(k){
     var v = +dig($(k).value), p = document.querySelector('[data-cli="' + k + '"]');
-    p.textContent = v ? "O cliente paga " + brl(v * (1 + COMISSAO / 100)) + " (com a comissão de " + COMISSAO + "% do Bordazul)." : "";
+    p.textContent = v ? "O cliente paga " + brl(v + comissaoDe(v)) + " (com a comissão de " + COMISSAO + "% do Bordazul, mínimo de R$ 300)." : "";
   });
 }
 ["baixa","baixa7","alta","alta7"].forEach(function(k){ $(k).addEventListener("input", cliente); });
