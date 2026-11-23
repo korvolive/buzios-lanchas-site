@@ -1389,7 +1389,7 @@ const UI = {
     coords:"22°45′S · 41°53′O — Lanchas em Búzios",
     seoTitle:"Aluguel de Lancha em Búzios | Búzios Lanchas - Passeios Privativos",
     seoDesc:"Aluguel de lancha em Búzios (RJ) com marinheiro, combustível, carvão, gelo e água mineral inclusos. Passeios privativos de 4 ou 7 horas para até 16 pessoas. Consulte pelo WhatsApp.",
-    seoBoatTitle:"Aluguel de lancha em Búzios: {name}{model}, {feet} pés, até {cap} pessoas | Búzios Lanchas",
+    seoBoatTitle:"Aluguel de lancha em Búzios: {name}, {feet} pés, até {cap} pessoas | Búzios Lanchas",
     seoBoatTail:"Passeio privativo em Búzios, com marinheiro e combustível inclusos.",
     heroTitle:"Seu dia no mar de Búzios.", heroLead:"Aluguel de lancha com marinheiro e combustível inclusos, no tamanho certo para o seu grupo.", barT:"Lanchas em Búzios", barSub:"Com marinheiro", barGo:"Ver as lanchas", fx:["Passeio privativo, só o seu grupo a bordo","Gelo, carvão, água mineral e cooler inclusos","Traga as carnes que a equipe faz o churrasco"], heroPhotoAlt:"Grupo de amigas na proa da lancha Miss Bardot, em despedida de solteira em Búzios",
     heroText:"Passeios privativos com marinheiro, combustível, carvão, gelo e água mineral inclusos. Traga suas bebidas e carnes que a equipe prepara o churrasco a bordo. De casais a grupos de até 16 pessoas.",
@@ -1446,7 +1446,7 @@ const UI = {
     coords:"22°45′S · 41°53′W — Boats in Búzios",
     seoTitle:"Boat Rental in Búzios, Brazil | Búzios Lanchas - Private Boat Tours",
     seoDesc:"Private boat rental in Búzios, Rio de Janeiro, with skipper, fuel, charcoal, ice and mineral water included. 4 or 7 hour tours for up to 16 people. Ask on WhatsApp.",
-    seoBoatTitle:"Boat rental in Búzios, Brazil: {name}{model}, {feet} ft, up to {cap} people | Búzios Lanchas",
+    seoBoatTitle:"Boat rental in Búzios, Brazil: {name}, {feet} ft, up to {cap} people | Búzios Lanchas",
     seoBoatTail:"Private boat tour in Búzios, Brazil, with skipper and fuel included.",
     heroTitle:"Your day at sea in Búzios.", heroLead:"Boat rental with skipper and fuel included, the right size for your group.", barT:"Boats in Búzios", barSub:"With skipper", barGo:"See the boats", fx:["Private tour, only your group on board","Ice, charcoal, water and cooler included","Bring the meat and the crew grills it for you"], heroPhotoAlt:"Group of friends on the bow of the Miss Bardot, at a bachelorette party in Búzios",
     heroText:"Private tours with skipper, fuel, charcoal, ice and mineral water included. Bring your drinks and meat and the crew will grill on board. From couples to groups of up to 16 people.",
@@ -1503,7 +1503,7 @@ const UI = {
     coords:"22°45′S · 41°53′O — Lanchas en Búzios",
     seoTitle:"Alquiler de Lancha en Búzios, Brasil | Búzios Lanchas - Paseos Privados",
     seoDesc:"Alquiler de lanchas en Búzios (Río de Janeiro) con marinero, combustible, carbón, hielo y agua mineral incluidos. Paseos privados de 4 o 7 horas para hasta 16 personas. Consulta por WhatsApp.",
-    seoBoatTitle:"Alquiler de lancha en Búzios: {name}{model}, {feet} pies, hasta {cap} personas | Búzios Lanchas",
+    seoBoatTitle:"Alquiler de lancha en Búzios: {name}, {feet} pies, hasta {cap} personas | Búzios Lanchas",
     seoBoatTail:"Paseo privado en Búzios, Brasil, con marinero y combustible incluidos.",
     heroTitle:"Tu día en el mar de Búzios.", heroLead:"Alquiler de lanchas con marinero y combustible incluidos, del tamaño ideal para tu grupo.", barT:"Lanchas en Búzios", barSub:"Con marinero", barGo:"Ver las lanchas", fx:["Paseo privado, solo tu grupo a bordo","Hielo, carbón, agua mineral y cooler incluidos","Trae la carne y el equipo hace el asado"], heroPhotoAlt:"Grupo de amigas en la proa de la lancha Miss Bardot, en una despedida de soltera en Búzios",
     heroText:"Paseos privados con marinero, combustible, carbón, hielo y agua mineral incluidos. Trae tus bebidas y carnes, y la tripulación prepara el asado a bordo. Desde parejas hasta grupos de hasta 16 personas.",
@@ -1896,7 +1896,6 @@ const wa = text => `https://wa.me/${WHATS}?text=${encodeURIComponent(text)}`;
 const waLink = name => wa(t("waBoat",{name}));
 const boatSVG = `<svg viewBox="0 0 200 90" aria-hidden="true"><path d="M8 58h184l-22 24H34z" fill="currentColor"/><path d="M52 58l16-22h70l18 22z" fill="currentColor" opacity=".55"/><rect x="80" y="40" width="40" height="8" rx="2" fill="currentColor" opacity=".35"/><path d="M0 86c20-6 40 6 60 0s40 6 60 0 40 6 60 0 20 4 20 4" stroke="currentColor" stroke-width="2" fill="none" opacity=".5"/></svg>`;
 const ph = (note) => `<div class="ph">${boatSVG}<span class="note">${note}</span></div>`;
-const mdlOf = d => { const m=String(d?.modelo||"").replace(/\s+/g," ").trim(); return m && m.length<=40 ? m : null; }; /* modelo do barco (ex.: Coral 26), opcional, cadastrado no painel (2026-11-23) */
 const ftx = b => b.feet==null ? null : lang==="en" ? String(b.feet) : String(b.feet).replace(".",","); /* 27,5 pés (2026-11-01) */
 const specs = b => `<span class="specs">${isEsc(b) ? "" : `<span><b>${ftx(b)??"—"}</b> ${t("feet")}</span>`}<span>${t("upTo")} <b>${b.capacity}</b> ${t("people")}</span></span>`; /* ao lado do nome, no card */
 
@@ -3188,7 +3187,7 @@ function headTag(sel,tag,attrs){
   return el;
 }
 function seo(b){
-  const title = b ? t(isEsc(b)?"seoEscTitle":"seoBoatTitle",{name:b.name, model:b.model?` (${b.model})`:"", feet:ftx(b)??"", cap:b.capacity}) : t("seoTitle"); /* título pensado no que o cliente digita no Google: "aluguel de lancha em Búzios" + modelo do barco, se cadastrado (Rodrigo 2026-11-23) */
+  const title = b ? t(isEsc(b)?"seoEscTitle":"seoBoatTitle",{name:b.name, feet:ftx(b)??"", cap:b.capacity}) : t("seoTitle"); /* título pensado no que o cliente digita no Google: "aluguel de lancha em Búzios" (Rodrigo 2026-11-23) */
   const desc = b ? (iaTx(b.ia?.seo) || `${bt(b,"tagline")} ${t("seoBoatTail")}`) : t("seoDesc"); /* texto escrito pelo Claude à noite (lanchas_ia), se houver */
   const url = SITE + pathFor(lang, b?.slug);
   const img = absImg((b?.photos||BOATS[0]?.photos||["/img/rt-08.jpg"])[0]);
@@ -3714,7 +3713,7 @@ const dbBoats = fetch(lanchasURL(",posicao"), {headers:{apikey:AGENDA_KEY}})
     /* lancha do código (Miss Bardot, Midas...): o que foi editado no app vale por cima do código; fotos, vídeo e avaliações continuam do código (2026-11-04: todas no mesmo padrão) */
     if(cb){ if(!d.capacidade || (d.cidade||"buzios")!==CIDADE) return; const e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[], antes=JSON.stringify([cb.name,cb.feet,cb.capacity,cb.tagline,cb.description,cb.i18n,cb.boarding]);
       if(pos!==(cb.pos??null)){ cb.pos=pos; dbAdded++; }
-      cb.db=true; cb.name=r.nome||cb.name; cb.feet=+d.pes||cb.feet; cb.capacity=d.capacidade; cb.model=mdlOf(d);
+      cb.db=true; cb.name=r.nome||cb.name; cb.feet=+d.pes||cb.feet; cb.capacity=d.capacidade;
       cb.tagline=tr0(d.frase,"pt")||cb.tagline; cb.description=tr0(d.descricao,"pt")||cb.description;
       cb.i18n=Object.fromEntries(["en","es"].map(l=>[l,{...(cb.i18n?.[l]||{}), tagline:tr0(d.frase,l)||cb.i18n?.[l]?.tagline, description:tr0(d.descricao,l)||cb.i18n?.[l]?.description}]));
       cb.boarding = embOf(d.embarque);
@@ -3722,7 +3721,7 @@ const dbBoats = fetch(lanchasURL(",posicao"), {headers:{apikey:AGENDA_KEY}})
     if((d.cidade||"buzios")!==CIDADE || (PUB!=null && !PUB.split(",").includes(r.slug)) || !d.capacidade) return;
     const tr = (o,l) => (o&&o[l]&&o[l].trim()) || undefined, e4=d.embarque?.["4"]||[], e7=d.embarque?.["7"]||[];
     dbAdded++; BOATS.push({slug:r.slug, name:r.nome, featured:false, example:false, db:true, dbNew:true, pos, kind:d.tipo==="escuna"?"escuna":"lancha",
-      feet:+d.pes||null, capacity:d.capacidade, model:mdlOf(d), crew:"Marinheiro habilitado", video:VIDEO_DB[r.slug]?.[0]||null, videoCapa:VIDEO_DB[r.slug]?.[1], photos:null,
+      feet:+d.pes||null, capacity:d.capacidade, crew:"Marinheiro habilitado", video:VIDEO_DB[r.slug]?.[0]||null, videoCapa:VIDEO_DB[r.slug]?.[1], photos:null,
       tagline:tr(d.frase,"pt")||"", description:tr(d.descricao,"pt")||"",
       i18n:Object.fromEntries(["en","es"].map(l=>[l,{tagline:tr(d.frase,l), description:tr(d.descricao,l)}])),
       included:[...BASICS_NEW], prices:{}, price7h:null,
