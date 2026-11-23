@@ -438,9 +438,13 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .vcard{border-color:#2f8f5b}
 /* "Fazer uma venda" no topo da área do vendedor + passo a passo da 1ª vez (Rodrigo 2026-11-23): o vendedor não achava o "Ver embarcações disponíveis" */
 .vgo{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;background:var(--sea);color:var(--surface)}
-.vgoh{margin:7px 2px 14px;font-size:13.5px;line-height:1.45;color:var(--muted);text-align:center}
-.vgoh .link{font-size:13.5px;white-space:nowrap;margin-left:4px}
-.vav.vpulse{animation:vpulse 1.6s ease-out 1}@keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(47,143,91,.55)}100%{box-shadow:0 0 0 14px rgba(47,143,91,0)}}
+.vgoc{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,var(--sea),#0f6f86);color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(10,46,59,.18)}
+.vgoi{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);font-size:22px}
+.vgot{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.vgot b{font-size:18px}.vgot small{font-size:13px;line-height:1.35;opacity:.88}.vgoa{flex:none;font-size:30px;line-height:1;opacity:.8}
+.vav.vsec{margin:22px 0 14px;padding:20px 0 4px;border-top:2px solid var(--line)}
+.vav.vsec .vsh{text-align:center;margin:0 auto 14px;max-width:420px}.vav.vsec .vsh h3{margin:0 0 6px;font-size:22px;line-height:1.2;text-align:center;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:700}
+.vav.vsec .vgoh{margin:0;font-size:14px;line-height:1.45;color:var(--muted);text-align:center;text-transform:none;letter-spacing:0;font-weight:400}.vav.vsec .vgoh .link{display:inline;padding:0;margin:0;min-height:0;line-height:inherit;vertical-align:baseline;font-size:14px;white-space:nowrap;text-transform:none;letter-spacing:0}
+.vav.vsec .avtop{max-width:420px;margin:0 auto}.vav.vsec .avh{font-size:17px}.vav.vsec .avh input,.vav.vsec .avh .dpb{min-height:50px;font-size:17px;border:1.5px solid var(--sea);border-radius:12px}
 .vtour{text-align:center;padding:4px 4px 0}.vtour .vtn{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--sea);color:var(--surface);font-size:24px;font-weight:700;margin:6px 0 10px}
 .vtour h3{margin:0 0 8px;font-size:19px}.vtour p{margin:0 auto;max-width:34ch;font-size:15px;line-height:1.5;color:var(--ink)}
 .vtdots{display:flex;justify-content:center;gap:7px;margin:16px 0 14px}.vtdots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.vtdots i.on{background:var(--sea)}
@@ -7090,18 +7094,13 @@ const vManCap = v => Math.min(1000, Math.round((+v||0)*30/100)); /* Vender: comi
 const vTeto = () => S.vend?.parceiro ? Math.min(Math.max(+S.vend?.teto || PARC_PCT, 1), 10) : Math.min(Math.max(+S.vend?.teto || VEND_PADRAO, 1), VEND_TETO);
 const pctKey = (key, iso) => key==="reveillon" ? "alta" : key==="pico" ? seasonBase(iso) : key;
 const vPc = k => vTeto();
-Object.assign(T.pt, {vgoT:"Fazer uma venda", vgoH:"Escolha o dia e a lancha, coloque a sua comissão e mande o link ao cliente.", vgoHow:"Como funciona", vtT1:"Escolha o dia", vtP1:"Toque em Fazer uma venda e escolha a data do passeio. Aparecem as lanchas livres nesse dia, com o valor neto.", vtT2:"Toque em Vender", vtP2:"Na lancha que o cliente quer, toque em Vender e coloque a sua comissão em reais (até 30% do valor, no máximo R$ 1.000).", vtT3:"Mande ao cliente", vtP3:"Preencha o nome e o WhatsApp do cliente e mande. Quando ele reservar, a venda chega no seu nome, com a sua comissão.", vtNext:"Próximo", vtOk:"Entendi"});
-Object.assign(T.en, {vgoT:"Make a sale", vgoH:"Pick the day and the boat, add your commission and send the link to the client.", vgoHow:"How it works", vtT1:"Pick the day", vtP1:"Tap Make a sale and choose the tour date. The boats free that day show up, with the net price.", vtT2:"Tap Sell", vtP2:"On the boat the client wants, tap Sell and add your commission in reais (up to 30% of the price, at most R$ 1,000).", vtT3:"Send it to the client", vtP3:"Fill in the client's name and WhatsApp and send. When they book, the sale arrives in your name, with your commission.", vtNext:"Next", vtOk:"Got it"});
-Object.assign(T.es, {vgoT:"Hacer una venta", vgoH:"Elige el día y la lancha, pon tu comisión y envía el link al cliente.", vgoHow:"Cómo funciona", vtT1:"Elige el día", vtP1:"Toca Hacer una venta y elige la fecha del paseo. Aparecen las lanchas libres ese día, con el valor neto.", vtT2:"Toca Vender", vtP2:"En la lancha que quiere el cliente, toca Vender y pon tu comisión en reales (hasta 30% del valor, como máximo R$ 1.000).", vtT3:"Envíalo al cliente", vtP3:"Completa el nombre y el WhatsApp del cliente y envía. Cuando reserve, la venta llega a tu nombre, con tu comisión.", vtNext:"Siguiente", vtOk:"Entendido"});
+Object.assign(T.pt, {vgoT:"Fazer uma venda", vgoH:"Escolha o dia e a lancha, coloque a sua comissão e mande o link ao cliente.", vgoHow:"Como funciona", vtT1:"Escolha o dia", vtP1:"Em Fazer uma venda, escolha a data do passeio. Aparecem as lanchas livres nesse dia, com o valor neto.", vtT2:"Toque em Vender", vtP2:"Na lancha que o cliente quer, toque em Vender e coloque a sua comissão em reais (até 30% do valor, no máximo R$ 1.000).", vtT3:"Mande ao cliente", vtP3:"Preencha o nome e o WhatsApp do cliente e mande. Quando ele reservar, a venda chega no seu nome, com a sua comissão.", vtNext:"Próximo", vtOk:"Entendi"});
+Object.assign(T.en, {vgoT:"Make a sale", vgoH:"Pick the day and the boat, add your commission and send the link to the client.", vgoHow:"How it works", vtT1:"Pick the day", vtP1:"Under Make a sale, choose the tour date. The boats free that day show up, with the net price.", vtT2:"Tap Sell", vtP2:"On the boat the client wants, tap Sell and add your commission in reais (up to 30% of the price, at most R$ 1,000).", vtT3:"Send it to the client", vtP3:"Fill in the client's name and WhatsApp and send. When they book, the sale arrives in your name, with your commission.", vtNext:"Next", vtOk:"Got it"});
+Object.assign(T.es, {vgoT:"Hacer una venta", vgoH:"Elige el día y la lancha, pon tu comisión y envía el link al cliente.", vgoHow:"Cómo funciona", vtT1:"Elige el día", vtP1:"En Hacer una venta, elige la fecha del paseo. Aparecen las lanchas libres ese día, con el valor neto.", vtT2:"Toca Vender", vtP2:"En la lancha que quiere el cliente, toca Vender y pon tu comisión en reales (hasta 30% del valor, como máximo R$ 1.000).", vtT3:"Envíalo al cliente", vtP3:"Completa el nombre y el WhatsApp del cliente y envía. Cuando reserve, la venta llega a tu nombre, con tu comisión.", vtNext:"Siguiente", vtOk:"Entendido"});
 /* só o vendedor que vende pelo "Vender" (parceiro vende só pelo link; administrador não precisa) */
 const vgoOn = () => !!S.vend && !S.vend.parceiro && !S.admin;
-const vgoHTML = () => vgoOn() ? `<button type="button" class="btn vgo" id="vgo">🚤 ${t("vgoT")}</button><p class="vgoh"><span>${t("vgoH")}</span><button type="button" class="link" id="vgohow">${t("vgoHow")}</button></p>` : "";
-/* toque em "Fazer uma venda": abre Minhas vendas, rola até a busca do dia e já abre o calendário (só tela; o fluxo do Vender não muda) */
-function vgoClick(){
-  const v=app.querySelector(".vav"); if(!v) return; const det=v.closest("details"); if(det) det.open=true;
-  v.scrollIntoView({behavior:"smooth", block:"start"}); v.classList.remove("vpulse"); void v.offsetWidth; v.classList.add("vpulse");
-  const d=document.getElementById("vavd"); if(d && !d.value){ try{ d.focus({preventScroll:true}); d.showPicker?.(); }catch(e){} }
-}
+/* a busca de lanchas livres vira a seção "Fazer uma venda": separada, título grande e centralizado (Rodrigo 2026-11-23: o card da conta continua no topo) */
+const vgoHead = () => vgoOn() ? `<div class="vsh"><h3>🚤 ${t("vgoT")}</h3><p class="vgoh">${t("vgoH")} <button type="button" class="link" id="vgohow">${t("vgoHow")}</button></p></div>` : "";
 const VT_KEY = () => "vend-tour1-"+(ses?.user?.id||"");
 function openVendTour(){
   let i=0; const paint=()=>{ sheet.innerHTML=`<div class="grab"></div><button type="button" class="shx" aria-label="${t("close")}">✕</button><div class="vtour"><span class="vtn">${i+1}</span><h3>${t("vtT"+(i+1))}</h3><p>${t("vtP"+(i+1))}</p><div class="vtdots" aria-hidden="true">${[0,1,2].map(k=>`<i${k===i?' class="on"':""}></i>`).join("")}</div><button type="button" class="btn vgo" id="vtgo">${t(i<2?"vtNext":"vtOk")}</button></div>`;
@@ -7109,10 +7108,18 @@ function openVendTour(){
   const fim=()=>{ store.set(VT_KEY(),1); closeDay(); };
   paint(); sheet.classList.add("on"); sheetBg.classList.add("on");
 }
+/* cartão "Fazer uma venda" no topo: leva até a seção de venda e já abre o calendário */
+let VGO_TOPO = true;
+const vgoHTML = () => vgoOn() && VGO_TOPO ? `<button type="button" class="vgoc" id="vgo"><span class="vgoi" aria-hidden="true">🚤</span><span class="vgot"><b>${t("vgoT")}</b></span><span class="vgoa" aria-hidden="true">›</span></button>` : "";
+function vgoClick(){
+  const v=app.querySelector(".vav"); if(!v) return; const det=v.closest("details"); if(det) det.open=true;
+  v.scrollIntoView({behavior:"smooth", block:"start"});
+  const d=document.getElementById("vavd"); if(d && !d.value){ try{ d.focus({preventScroll:true}); d.showPicker?.(); }catch(e){} }
+}
 function bindVgo(){
-  const b=document.getElementById("vgo"); if(!b) return; b.onclick=vgoClick;
-  const h=document.getElementById("vgohow"); if(h) h.onclick=openVendTour;
-  if(!store.get(VT_KEY()) && !sheet.classList.contains("on")){ store.set(VT_KEY(),1); setTimeout(()=>{ if(document.getElementById("vgo") && !sheet.classList.contains("on")) openVendTour(); }, 500); } /* 1ª vez: mostra uma vez só */
+  const b=document.getElementById("vgo"); if(b) b.onclick=vgoClick;
+  if(!vgoOn() || !document.querySelector(".vsh")) return;
+  if(!store.get(VT_KEY()) && !sheet.classList.contains("on")){ store.set(VT_KEY(),1); setTimeout(()=>{ if(document.querySelector(".vsh") && !sheet.classList.contains("on")) openVendTour(); }, 500); } /* 1ª vez: mostra uma vez só */
 }
 function vendHTML(){
   const v=S.vend, teto=vTeto(), pc=vPc;
@@ -7165,7 +7172,7 @@ function vAvHTML(){
     list=`<p class="avseason">${t(S.vend?.parceiro?"vavSeason":"vavSeasonV",{s:t("pr_"+(isCarn(S.vavD)?"carnaval":k)).split(" · ")[0], m:t("prm_"+(isCarn(S.vavD)?"carnaval":k), carnV(S.vavD)), p:String(pc).replace(".",",")})}${ferOf(S.vavD)&&k!=="reveillon"?" "+t("ferNote",{f:t("fer_"+ferOf(S.vavD))}):""} ${S.vend?.parceiro || !VEND_EDITA?"":`<button type="button" class="link" id="vpgo">${t("vavAdj")}</button>`}</p>
       ${rows.length>VAV_LIM?`<input type="search" class="in" id="vavq" placeholder="🔍 ${t("vavFind")}" autocomplete="off" style="margin:8px 0 2px">`:""}
       ${S.vend?.parceiro||!rows.some(r=>r.st<2)?"":`<div class="vavh" aria-hidden="true"><span class="vavhl">${t("vavNet")} (R$)</span><span class="vsell">${t("vsBtn")}</span></div>`}<ul class="avl" id="vavl">${rows.map((r,i)=>`${rows.some(x=>isEscB(x.b)) && (i===0 || isEscB(r.b)!==isEscB(rows[i-1].b)) ? `<li class="vavg" data-g="1">${t(isEscB(r.b)?"grpE":"grpL")}</li>` : ""}<li data-n="${esc(fold(r.b.nome))}"${rows.length>VAV_LIM && i>=VAV_MAX?" hidden":""}><button type="button" class="vavpic" data-vinfo="${esc(r.b.slug)}" aria-label="${t("biOpen",{b:esc(r.b.nome)})}">${avatar(r.b.slug,"vavav")}</button><span class="avr"><b data-vinfo="${esc(r.b.slug)}">${esc(r.b.nome)}${capTag(r.b)}${vCityTag(r.b)}</b>${r.st?`<span class="avs ${["ok","half","no"][r.st]}">${r.lab}</span>`:"" /* livre o dia todo é o normal: sem etiqueta, lista mais curta */}${r.st<2 && S.vend?.parceiro?`<small class="avp vp">${(val(r.b)+" · "+val(r.b,1)+(S.vavD.slice(5)==="12-31"?" · "+val(r.b,"noite"):"")).replace(/R\$\s?/g,"")}</small>`:""}</span>${r.st<2 && !S.vend?.parceiro?`<span class="vavv vp" title="${t("vavNet")}">${[val(r.b),val(r.b,1)].concat(S.vavD.slice(5)==="12-31"?[val(r.b,"noite")]:[]).map(x=>`<span>${x.replace(/R\$\s?/g,"")}</span>`).join("<i> · </i>")}</span>`:"" /* vendedor: lancha, valor neto e Vender na mesma linha; "Valor neto em R$" fica escrito uma vez no topo (2026-11-05) */}${r.st<2 && !S.vend?.parceiro?`<button type="button" class="vsell" data-vsell="${esc(r.b.slug)}" aria-label="${t("vsBtn")} ${esc(r.b.nome)}">${t("vsBtn")}</button>`:""}</li>`).join("")}</ul>${rows.length>VAV_LIM?`<p class="muted" id="vavnone" hidden style="margin:8px 0 0;font-size:14px">${t("vavNone")}</p><button type="button" class="btn sec" id="vavmore" style="margin:8px 0 0">${t("vavMore",{n:rows.length-VAV_MAX})}</button>`:""}<small class="muted">${t("vavHow")}</small>`; }
-  return `<div class="avq vav"><div class="avtop"><label class="avh">${t("avqT")} <input type="date" id="vavd" min="${todayISO()}" max="${maxISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
+  return `<div class="avq vav${vgoOn()?" vsec":""}">${vgoHead()}<div class="avtop"><label class="avh">${vgoOn()?"":t("avqT")} <input type="date" id="vavd" min="${todayISO()}" max="${maxISO()}" value="${S.vavD||""}"></label>${S.vavD?paxSel("vavn",S.vavN):""}${S.vavD?`<button type="button" class="avx" id="vavx" aria-label="${t("close")}">✕</button>`:""}</div>${list}</div>`;
 }
 let vavSeq=0;
 /* vendedor monta a reserva do cliente (2026-10-30): valor da tabela travado, só a comissão dele muda (R$, até o teto);
@@ -7385,6 +7392,7 @@ function bindVav(){
   const x=document.getElementById("vavx"); if(x) x.onclick=()=>{ S.vavD=""; S.vavN=0; ++vavSeq; paintVav(); };
   const n=document.getElementById("vavn"); if(n) n.onchange=()=>{ S.vavN=+n.value||0; paintVav(); };
   app.querySelectorAll("[data-vsell]").forEach(x=>x.onclick=()=>openVendSell(x.dataset.vsell));
+  const vh=document.getElementById("vgohow"); if(vh) vh.onclick=openVendTour;
   app.querySelectorAll(".vav [data-vinfo]").forEach(x=>x.onclick=()=>openBoatInfo(x.dataset.vinfo));
   const vl=document.getElementById("vavl"), vm=document.getElementById("vavmore"), vq=document.getElementById("vavq"), vn=document.getElementById("vavnone");
   if(vl && vm){ const L=[...vl.children].filter(li=>!li.dataset.g), G=[...vl.children].filter(li=>li.dataset.g);
