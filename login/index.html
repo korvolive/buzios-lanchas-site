@@ -438,9 +438,6 @@ html.chon #top,html.chon #app,html.chon .sheet-bg{display:none!important}html.ch
 .vcard{border-color:#2f8f5b}
 /* "Fazer uma venda" no topo da área do vendedor + passo a passo da 1ª vez (Rodrigo 2026-11-23): o vendedor não achava o "Ver embarcações disponíveis" */
 .vgo{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;background:var(--sea);color:var(--surface)}
-.vgoc{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,var(--sea),#0f6f86);color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(10,46,59,.18)}
-.vgoi{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);font-size:22px}
-.vgot{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.vgot b{font-size:18px}.vgot small{font-size:13px;line-height:1.35;opacity:.88}.vgoa{flex:none;font-size:30px;line-height:1;opacity:.8}
 .vav.vsec{margin:22px 0 14px;padding:20px 0 4px;border-top:2px solid var(--line)}
 .vav.vsec .vsh{text-align:center;margin:0 auto 14px;max-width:420px}.vav.vsec .vsh h3{margin:0 0 6px;font-size:22px;line-height:1.2;text-align:center;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:700}
 .vav.vsec .vgoh{margin:0;font-size:14px;line-height:1.45;color:var(--muted);text-align:center;text-transform:none;letter-spacing:0;font-weight:400}.vav.vsec .vgoh .link{display:inline;padding:0;margin:0;min-height:0;line-height:inherit;vertical-align:baseline;font-size:14px;white-space:nowrap;text-transform:none;letter-spacing:0}
@@ -7108,16 +7105,7 @@ function openVendTour(){
   const fim=()=>{ store.set(VT_KEY(),1); closeDay(); };
   paint(); sheet.classList.add("on"); sheetBg.classList.add("on");
 }
-/* cartão "Fazer uma venda" no topo: leva até a seção de venda e já abre o calendário */
-let VGO_TOPO = true;
-const vgoHTML = () => vgoOn() && VGO_TOPO ? `<button type="button" class="vgoc" id="vgo"><span class="vgoi" aria-hidden="true">🚤</span><span class="vgot"><b>${t("vgoT")}</b></span><span class="vgoa" aria-hidden="true">›</span></button>` : "";
-function vgoClick(){
-  const v=app.querySelector(".vav"); if(!v) return; const det=v.closest("details"); if(det) det.open=true;
-  v.scrollIntoView({behavior:"smooth", block:"start"});
-  const d=document.getElementById("vavd"); if(d && !d.value){ try{ d.focus({preventScroll:true}); d.showPicker?.(); }catch(e){} }
-}
 function bindVgo(){
-  const b=document.getElementById("vgo"); if(b) b.onclick=vgoClick;
   if(!vgoOn() || !document.querySelector(".vsh")) return;
   if(!store.get(VT_KEY()) && !sheet.classList.contains("on")){ store.set(VT_KEY(),1); setTimeout(()=>{ if(document.querySelector(".vsh") && !sheet.classList.contains("on")) openVendTour(); }, 500); } /* 1ª vez: mostra uma vez só */
 }
@@ -7128,7 +7116,7 @@ function vendHTML(){
   const pa=!!v.parceiro; /* parceiro: porcentagem fixa, sem ajuste (2026-10-25) */
   if(S.vParte===undefined){ S.vParte=null; RPC("minha_parte",{}).then(r=>{ S.vParte=+r>0&&+r<=1 ? +r : 1; }, ()=>{ S.vParte=0; /* sem o SQL dos sócios ainda: o convite não aparece */ }).then(()=>{ const x=document.getElementById("vsoc"); if(x){ x.outerHTML=socHTML(); bindSoc(); } paintVav(); }); }
   if(S.vVer===undefined){ S.vVer=null; RPC("verif_vendedores",{}).then(r=>{ S.vVer=(r||[]).find(x=>x.user_id===ses.user.id)||false; }, ()=>{ S.vVer=false; }).then(()=>{ const x=document.getElementById("vver"); if(x) x.outerHTML=vVerHTML(); }); }
-  return `<div class="card vcard">${"" /* sem título "Área do vendedor/parceiro" no cartão (Rodrigo 2026-11-14) */}${vgoHTML()}${saldoHTML(true,true)}${vVerHTML()}${vPixHTML()}${vEmpHTML()}    ${"" /* sem "Cadastrar cliente" e sem "Abrir o site como vendedor" (2026-11-05): o link já liga o cliente ao vendedor, e o site já reconhece o vendedor logado sozinho */}
+  return `<div class="card vcard">${"" /* sem título "Área do vendedor/parceiro" no cartão (Rodrigo 2026-11-14) */}${saldoHTML(true,true)}${vVerHTML()}${vPixHTML()}${vEmpHTML()}    ${"" /* sem "Cadastrar cliente" e sem "Abrir o site como vendedor" (2026-11-05): o link já liga o cliente ao vendedor, e o site já reconhece o vendedor logado sozinho */}
     ${pa || !VEND_EDITA ? "" : `<details class="vdet" id="vpdet"><summary>${t("vdPcts",{n:teto})}</summary><div class="vpcts">${"" /* um % só para todas as lanchas e épocas (2026-10-25) */}<label><span>${t("vdPctOne")}</span><span class="vpi"><input type="number" inputmode="decimal" min="1" max="${teto}" step="0.5" data-vp="all" value="${Math.max(...VEND_KEYS.map(pc))}"><i>%</i></span></label></div><p class="muted" style="margin:0 0 8px;font-size:13px">${t("vdPctNote")}</p>
       <button type="button" class="btn sec" id="vpsave">${t("save")}</button></details>`}
     ${"" /* sem lista de clientes no painel do vendedor: ele só é avisado de cada reserva (2026-10-24) */}
