@@ -1405,6 +1405,26 @@ Deno.serve(async req => {
       } catch (e: any) { return json({ ...info, erro: e?.message || "asaas" }, 502); }
     }
 
+    // comprovante do estorno (Rodrigo 2026-11-23, caso Felipe): o que o Asaas devolve de cada cobrança/parcela estornada. Só o robô.
+    if (b.acao === "estorno_info") {
+      const ch = req.headers.get("x-chave") || "";
+      const cfg = ch ? (await db.from("resgate_config").select("chave").eq("id", 1).maybeSingle()).data : null;
+      if (!(cfg?.chave && ch === cfg.chave)) return json({ erro: "chave" }, 403);
+      const pid = Number(b.pedido);
+      if (!Number.isInteger(pid) || pid <= 0) return json({ erro: "pedido" }, 400);
+      const { data: rs } = await db.from("pagamentos_asaas").select(COLS_PG).eq("pedido", pid).not("pago_em", "is", null);
+      if (!rs?.length) return json({ erro: "sem_pagamento" }, 404);
+      const r: any = rs[0], real = r.asaas_real || r.asaas_id;
+      const pg = await asaas(`/payments/${encodeURIComponent(real)}`);
+      const lista = pg.installment ? ((await asaas(`/payments?installment=${encodeURIComponent(pg.installment)}&limit=24`))?.data || []) : [pg];
+      const out = await Promise.all(lista.map(async (x: any) => {
+        const rf = await asaas(`/payments/${encodeURIComponent(x.id)}/refunds`).catch((e: any) => ({ erro: e?.message }));
+        return { n: x.installmentNumber || 1, status: x.status, valor: +x.value, recibo: x.transactionReceiptUrl || null,
+          estornos: (rf?.data || []).map((e: any) => ({ status: e.status, valor: +e.value, data: e.dateCreated || e.refundDate || null, comprovante: e.transactionReceiptUrl || null })), erro: rf?.erro };
+      }));
+      return json({ pedido: pid, parcelado: !!pg.installment, installment: pg.installment || null, parcelas: out });
+    }
+
     // nome do cliente no Asaas igual ao do cadastro (ex.: conta criada com o nome do perfil do Google "Acesso E-mail",
     // Rodrigo 2026-11-21): só o robô (chave interna do resgate_config) ou a chave de serviço
     if (b.acao === "nome_cliente") {
