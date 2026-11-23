@@ -1002,7 +1002,7 @@ Deno.serve(async req => {
     }
 
     if (tipo === "pedido") {
-      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, embarque, criado_em, avisado_em").eq("id", id).maybeSingle();
+      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, pessoas, embarque, criado_em, avisado_em, bloqueio_id").eq("id", id).maybeSingle();
       if (!p || p.cliente !== uid) return json({ erro: "pedido não encontrado" }, 404);
       if (p.avisado_em || Date.now() - Date.parse(p.criado_em) > 10 * 60 * 1000) return json({ enviados: 0 });
       const { data: marcado } = await db.from("pedidos").update({ avisado_em: new Date().toISOString() }).eq("id", p.id).is("avisado_em", null).select("id");
@@ -1011,7 +1011,9 @@ Deno.serve(async req => {
       const alvo = (ads || []).map(a => a.user_id), lancha = await nomeLancha(p.lancha), o = await origem({ p_pedido: p.id });
       const enviados = await enviar(alvo, "pedido", { ...p, lancha, o }, "/login/");
       const { data: c } = await db.from("clientes").select("nome, whatsapp").eq("user_id", uid).maybeSingle();
-      const dados = { b: p, a: null, lancha, data: dataBR(p.data), pessoas: String(p.pessoas || ""), embarque: p.embarque || "", cliente: c?.nome || "", whats: c?.whatsapp || "", o };
+      // Nome da reserva (o que o cliente deu no WhatsApp) vence o nome da conta.
+      const nomeReserva = p.bloqueio_id ? (await db.from("anotacoes").select("cliente").eq("bloqueio_id", p.bloqueio_id).maybeSingle()).data?.cliente : null;
+      const dados = { b: p, a: null, lancha, data: dataBR(p.data), pessoas: String(p.pessoas || ""), embarque: p.embarque || "", cliente: (nomeReserva || "").trim() || c?.nome || "", whats: c?.whatsapp || "", o };
       let emails = 0;
       for (const a of alvo) if (await mandarEmail(a, "pedido", dados).catch(e => (console.error(e), false))) emails++;
       return json({ enviados, emails });
