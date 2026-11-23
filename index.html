@@ -3146,7 +3146,7 @@ function applyStatic(){
   document.documentElement.lang = t("locale");
   document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
   document.getElementById("logo").setAttribute("aria-label",t("logoAria"));
-  { const fz=document.getElementById("foot-bz"); if(fz){ fz.hidden=!!BASE; if(!BASE) fz.innerHTML=t("footBz").replaceAll("{n}",esc(BRAND||"Búzios Lanchas")).replace("{b}",`<a href="https://www.bordazul.com.br/" rel="noopener">Bordazul</a>`); } } /* Bordazul no rodapé, em todas as cidades */
+  { const fz=document.getElementById("foot-bz"); if(fz){ fz.hidden=!!BASE; if(!BASE) fz.innerHTML=t("footBz").replaceAll("{n}",esc(BRAND||"Búzios Lanchas")).replace("{b}",`<a href="https://www.bordazul.com.br/" target="_blank" rel="noopener">Bordazul</a>`); } } /* Bordazul no rodapé, em todas as cidades */
   if(CID){ const lg=document.querySelector("#logo > span"); if(lg?.firstChild) lg.firstChild.nodeValue=BRAND; const fb=document.getElementById("foot-brand"); if(fb) fb.textContent=BRAND; } /* marca da cidade no topo e no rodapé */
   document.getElementById("hdr-wa").href = topWa();
   /* guias no rodapé: no idioma da página; os sites das outras cidades não têm (o roteiro é o de Búzios) */
