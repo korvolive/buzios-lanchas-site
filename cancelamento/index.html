@@ -8,134 +8,147 @@
 <meta name="description" content="Política de cancelamento da Búzios Lanchas: mar ruim, Marinha, desistência do cliente, crédito e reembolso do sinal.">
 <link rel="icon" href="/login/icon-192.png">
 <style>html{touch-action:manipulation}
-:root{--sea-deep:#06394a;--sea:#0b6e86;--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--surface:#fff;--line:#dfe7ea;--brass:#c9992f;--soft:#eaf4f6;--ok:#1f8f5a;--okbg:#e6f5ec;--warn:#9a6a00;--warnbg:#fdf3dc}
-@media (prefers-color-scheme:dark){:root{--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f;--surface:#12252c;--line:#24404a;--sea:#5cc0d8;--soft:#163039;--ok:#5fd39a;--okbg:#14352a;--warn:#f0c560;--warnbg:#3a2f14}}
+:root{--sea:#0b6e86;--deep:#06394a;--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--surface:#fff;--line:#e3eaed;--brass:#c9992f;--soft:#eef5f7;--ok:#1a7f4f;--okbg:#e7f6ee}
+@media (prefers-color-scheme:dark){:root{--sea:#5cc0d8;--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f;--surface:#12252c;--line:#22404a;--soft:#173139;--ok:#5fd39a;--okbg:#14352a}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{background:linear-gradient(135deg,#052c39 0%,#06394a 55%,#0b5a6e 100%);color:#fff;padding:14px 16px 0}
-header .in{max-width:820px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
-header a{color:#fff;text-decoration:none;font-weight:800;font-size:18px;letter-spacing:.2px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--deep);color:#fff;padding:14px 16px 24px}
+header .in,.hero{max-width:760px;margin:0 auto}
+header .in{display:flex;justify-content:space-between;align-items:center;gap:12px}
+header a{color:#fff;text-decoration:none;font-weight:800;font-size:18px}
 header a span{color:#f3d48a}
 .langs{display:flex;gap:6px}
 .langs button{border:1px solid rgba(255,255,255,.4);background:none;color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;cursor:pointer;min-height:36px}
 .langs button[aria-pressed=true]{background:var(--brass);border-color:var(--brass);color:#1d1503}
-.hero{max-width:820px;margin:0 auto;padding:26px 0 30px}
-.hero h1{font-size:30px;line-height:1.2;margin:0 0 6px;color:#fff}
-.hero p{margin:0;color:rgba(255,255,255,.78);font-size:14px}
-main{max-width:820px;margin:0 auto;padding:0 16px 56px}
-.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:-14px 0 8px;position:relative}
-.sum div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 6px 20px rgba(6,57,74,.08)}
-.sum small{display:block;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.sum b{display:block;font-size:17px;line-height:1.3}
-.sum div:nth-child(1){border-top:4px solid var(--ok)}.sum div:nth-child(2){border-top:4px solid var(--brass)}.sum div:nth-child(3){border-top:4px solid var(--sea)}
-section{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 20px 8px;margin-top:16px}
-section h2{display:flex;align-items:center;gap:10px;font-size:19px;line-height:1.3;margin:0 0 12px}
-section h2 i{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--sea);font-style:normal;font-size:17px}
-ul.it{list-style:none;padding:0;margin:0 0 12px}
-ul.it li{position:relative;padding:10px 0 10px 18px;border-top:1px solid var(--line)}
-ul.it li:first-child{border-top:0}
-ul.it li::before{content:"";position:absolute;left:2px;top:20px;width:7px;height:7px;border-radius:50%;background:var(--brass)}
-.steps{display:grid;gap:10px;margin:0 0 14px}
-.step{border-radius:14px;padding:14px 16px;border:1px solid var(--line)}
-.step.ok{background:var(--okbg);border-color:transparent}
-.step .tag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;padding:2px 10px;border-radius:999px;margin-bottom:6px}
-.step.ok .tag{background:var(--ok);color:#fff}
-.step.after .tag{background:var(--brass);color:#1d1503}
-.step p{margin:0}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.opts div{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:15px}
-.opts div b{display:block;margin-bottom:2px}
-.note{background:var(--warnbg);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:14.5px;margin:0 0 14px}
-.note b{color:var(--warn)}
-.foot{text-align:center;padding:22px 20px}
-.foot p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+.hero{padding-top:22px}
+.hero h1{font-size:28px;line-height:1.2;margin:0 0 4px}
+.hero p{margin:0;color:rgba(255,255,255,.75);font-size:14px}
+main{max-width:760px;margin:0 auto;padding:0 16px 48px}
+.intro{font-size:17px;margin:20px 0 4px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:14px}
+h2{display:flex;align-items:center;gap:10px;font-size:19px;line-height:1.3;margin:0 0 6px}
+h2 .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--deep);color:#fff;display:grid;place-items:center;font-size:14px}
+.row{display:grid;grid-template-columns:38% 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+h2+.row{border-top:0}
+.q{color:var(--muted)}
+.a{font-weight:600}
+.row.good{background:var(--okbg);border:0;border-radius:12px;padding:14px 16px;margin:6px 0 4px}
+.row.good .q{color:var(--ink)}
+.big{display:block;font-size:17px}
+.big.ok{color:var(--ok)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.card{background:var(--soft);border-radius:14px;padding:14px 16px 4px}
+.card h3{font-size:15.5px;margin:0 0 6px}
+.card .r{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.card h3+.r{border-top:0}
+.card .r span{color:var(--muted)}
+.card .r b{text-align:right;flex:0 0 42%}
+.card .r.ok b{color:var(--ok)}
+.how{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:15px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.opts div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
+.opts b{display:block}
+.fee{margin:10px 0 0;font-size:14px;color:var(--muted)}
+footer{text-align:center;padding:26px 8px 0}
+footer p{margin:14px 0 0;color:var(--muted);font-size:14px}
 .wa{display:inline-flex;align-items:center;gap:8px;background:#1f9d55;color:#fff!important;text-decoration:none;font-weight:700;border-radius:999px;padding:12px 22px;min-height:44px}
 .wa:hover{background:#178547}
-.links{margin-top:14px;font-size:14px}
 a{color:var(--sea)}
 [data-l]{display:none}[data-l].on{display:block}
-@media (max-width:640px){.sum{grid-template-columns:1fr;margin-top:-12px}.opts{grid-template-columns:1fr}.hero h1{font-size:26px}section{padding:16px 16px 6px}}
+@media (max-width:640px){.cards{grid-template-columns:1fr}.row{grid-template-columns:1fr;gap:4px}.opts{grid-template-columns:1fr}.hero h1{font-size:25px}section{padding:16px}}
 </style>
 </head>
 <body>
 <header><div class="in"><a href="/">Búzios <span>Lanchas</span></a>
   <div class="langs" role="group" aria-label="Idioma / Language"><button type="button" data-set="pt">PT</button><button type="button" data-set="en">EN</button><button type="button" data-set="es">ES</button></div></div>
-<div class="hero" data-l="pt"><h1>Política de cancelamento</h1><p>Búzios Lanchas · CNPJ 32.154.099/0001-72 · Atualizada em 22 de novembro de 2026</p></div><div class="hero" data-l="en"><h1>Cancellation policy</h1><p>Búzios Lanchas · CNPJ 32.154.099/0001-72 · Updated on November 22, 2026</p></div><div class="hero" data-l="es"><h1>Política de cancelación</h1><p>Búzios Lanchas · CNPJ 32.154.099/0001-72 · Actualizada el 22 de noviembre de 2026</p></div></header>
+<div class="hero" data-l="pt"><h1>Política de cancelamento</h1><p>Atualizada em 23 de novembro de 2026</p></div><div class="hero" data-l="en"><h1>Cancellation policy</h1><p>Updated on November 23, 2026</p></div><div class="hero" data-l="es"><h1>Política de cancelación</h1><p>Actualizada el 23 de noviembre de 2026</p></div></header>
 <main>
 <div data-l="pt">
-<div class="sum"><div><small>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</small><b>Devolução total</b></div><div><small>Depois disso</small><b>Crédito de 1 ano ou devolução com 20% retido</b></div><div><small>Mar ruim ou Marinha</small><b>Remarcamos sem custo</b></div></div>
+<p class="intro">O que acontece se você precisar cancelar ou se o passeio não puder sair.</p>
 <section>
-<h2><i aria-hidden="true">↩</i>Se a desistência for sua</h2>
-<div class="steps">
-<div class="step ok"><span class="tag">Até 7 dias depois de pagar</span><p>Devolvemos <b>tudo o que você pagou</b>, desde que ainda faltem <b>mais de 7 dias para o passeio</b>. Faltando 7 dias ou menos, a parte do dono já foi repassada a ele para preparar a lancha, e vale a regra abaixo.</p></div>
-<div class="step after"><span class="tag">Depois disso</span><p>Você escolhe uma das opções:</p>
-<div class="opts"><div><b>Crédito de 100% do sinal</b>Válido por 1 ano, para usar na mesma lancha que você reservou (a parte do sinal já foi repassada ao dono dela).</div><div><b>Dinheiro de volta</b>Colocamos a data à venda de novo. Se outra pessoa reservar, devolvemos o sinal inteiro. Se não, retemos 20% do valor do passeio e devolvemos o resto do sinal.</div></div></div>
+<h2><span class="n">1</span>Se você desistir</h2>
+<div class="cards">
+<div class="card"><h3>Datas normais</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 48h antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 48h antes</span><b>sem devolução</b></div></div>
+<div class="card"><h3>Réveillon (27/12 a 05/01) e Carnaval</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 30 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 30 dias antes</span><b>sem devolução</b></div></div>
 </div>
-<p class="note"><b>Taxa do cartão ou PayPal:</b> fora da devolução total, o acréscimo pago sobre o sinal não é devolvido, porque já foi cobrado pela operadora.</p>
+<div class="opts"><div><b>Crédito</b>100% do sinal, para usar em até 1 ano na mesma lancha.</div><div><b>Devolução com 30% retido</b>Devolvemos o sinal descontando 30% do valor do passeio. Se outra pessoa reservar a mesma data, devolvemos tudo.</div></div>
+<p class="fee">A taxa do cartão ou do PayPal só volta na devolução total.</p>
+<div class="how"><b>Como cancelar:</b> mande o pedido por escrito no <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Vale a data e a hora da sua mensagem, e confirmamos o recebimento.</div>
 </section>
 <section>
-<h2><i aria-hidden="true">🌊</i>Mudanças por tempo, Marinha ou lancha</h2>
-<ul class="it"><li><b>Mar ruim:</b> se o mar não estiver bom para navegar, remarcamos o passeio para outra data, sem custo.</li><li><b>Marinha proíbe a navegação:</b> você escolhe entre remarcar ou receber o sinal de volta.</li><li><b>Problema com a lancha ou o dono desmarcou:</b> colocamos outra lancha equivalente ou devolvemos 100% do sinal (Garantia Búzios Lanchas).</li></ul>
+<h2><span class="n">2</span>Se o passeio não puder sair</h2>
+<div class="row"><div class="q">Mar ruim</div><div class="a">Remarcamos para outra data, sem custo.</div></div>
+<div class="row"><div class="q">A Marinha fecha o mar</div><div class="a">Você escolhe: remarcar ou receber o sinal de volta.</div></div>
+<div class="row"><div class="q">Problema na lancha ou o dono desmarcou</div><div class="a">Damos outra lancha equivalente ou devolvemos 100% do sinal.</div></div>
 </section>
 <section>
-<h2><i aria-hidden="true">🚤</i>Jet ski (se você contratou junto)</h2>
-<ul class="it"><li><b>Desistência no dia do passeio:</b> o valor do jet ski não é devolvido nem vira crédito.</li><li><b>Passeio remarcado por mar ruim ou pela Marinha:</b> o jet ski vai junto para a nova data, sem pagar de novo. Se ele não puder ir, devolvemos o valor.</li></ul>
+<h2><span class="n">3</span>Jet ski contratado junto</h2>
+<div class="row"><div class="q">Desistência no dia do passeio</div><div class="a">O valor do jet ski não é devolvido nem vira crédito.</div></div>
+<div class="row"><div class="q">Passeio remarcado por mar ruim ou pela Marinha</div><div class="a">O jet ski vai junto para a nova data. Se ele não puder ir, devolvemos o valor.</div></div>
 </section>
-<section class="foot">
-<p>Seus direitos pelo Código de Defesa do Consumidor continuam valendo. Ao pagar o sinal, você declara que leu e aceita esta política.</p>
+<footer>
 <a class="wa" href="https://wa.me/5521999272550" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>Dúvidas? Fale no WhatsApp</a>
-<div class="links"><a href="/termos/?l=pt">Termos do passeio</a> · <a href="/privacidade/">Termos de uso e privacidade</a></div>
-</section>
+<p>Seus direitos pelo Código de Defesa do Consumidor continuam valendo. Ao pagar o sinal, você aceita esta política.</p>
+<p class="links"><a href="/termos/?l=pt">Termos do passeio</a> · <a href="/privacidade/">Termos de uso e privacidade</a></p>
+</footer>
 </div>
 <div data-l="en">
-<div class="sum"><div><small>Within 7 days of paying, more than 7 days before the tour</small><b>Full refund</b></div><div><small>After that</small><b>1-year credit or refund keeping 20%</b></div><div><small>Bad sea or Navy</small><b>We reschedule at no cost</b></div></div>
+<p class="intro">What happens if you need to cancel or if the tour can't go out.</p>
 <section>
-<h2><i aria-hidden="true">↩</i>If you cancel</h2>
-<div class="steps">
-<div class="step ok"><span class="tag">Within 7 days of paying</span><p>We refund <b>everything you paid</b>, as long as the tour is still <b>more than 7 days away</b>. With 7 days or less to go, the owner's share has already been paid to them to prepare the boat, and the rule below applies.</p></div>
-<div class="step after"><span class="tag">After that</span><p>You choose one option:</p>
-<div class="opts"><div><b>100% of the deposit as credit</b>Valid for 1 year, to use on the same boat you booked (the owner's share of the deposit has already been paid to them).</div><div><b>Money back</b>We put the date up for sale again. If someone else books it, we refund the full deposit. If not, we keep 20% of the tour price and refund the rest of the deposit.</div></div></div>
+<h2><span class="n">1</span>If you cancel</h2>
+<div class="cards">
+<div class="card"><h3>Regular dates</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 48h before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 48h before</span><b>no refund</b></div></div>
+<div class="card"><h3>New Year's (Dec 27 to Jan 5) and Carnival</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 30 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 30 days before</span><b>no refund</b></div></div>
 </div>
-<p class="note"><b>Card or PayPal fee:</b> outside the full refund, the surcharge paid on the deposit is not refunded, because the payment provider has already charged it.</p>
+<div class="opts"><div><b>Credit</b>100% of the deposit, to use within 1 year on the same boat.</div><div><b>Refund keeping 30%</b>We refund the deposit minus 30% of the tour price. If someone else books the same date, we refund everything.</div></div>
+<p class="fee">The card or PayPal fee is only refunded with a full refund.</p>
+<div class="how"><b>How to cancel:</b> send your request in writing on our <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">official WhatsApp</a>. The date and time of your message count, and we confirm we received it.</div>
 </section>
 <section>
-<h2><i aria-hidden="true">🌊</i>Changes due to weather, Navy or boat</h2>
-<ul class="it"><li><b>Bad sea:</b> if the sea isn't good for sailing, we move your tour to another date at no cost.</li><li><b>The Brazilian Navy closes the sea:</b> you choose to reschedule or get your deposit back.</li><li><b>Boat problem or the owner cancels:</b> we provide another equivalent boat or refund 100% of the deposit (Búzios Lanchas Guarantee).</li></ul>
+<h2><span class="n">2</span>If the tour can't go out</h2>
+<div class="row"><div class="q">Bad sea</div><div class="a">We move it to another date at no cost.</div></div>
+<div class="row"><div class="q">The Navy closes the sea</div><div class="a">You choose: reschedule or get your deposit back.</div></div>
+<div class="row"><div class="q">Boat problem or the owner cancels</div><div class="a">We give you another equivalent boat or refund 100% of the deposit.</div></div>
 </section>
 <section>
-<h2><i aria-hidden="true">🚤</i>Jet ski (if you booked one)</h2>
-<ul class="it"><li><b>Cancelling on the tour day:</b> the jet ski amount is not refunded or turned into credit.</li><li><b>Tour moved because of bad sea or the Navy:</b> the jet ski goes with you to the new date at no extra cost. If it can't go, we refund the amount.</li></ul>
+<h2><span class="n">3</span>Jet ski booked with the tour</h2>
+<div class="row"><div class="q">Cancelling on the tour day</div><div class="a">The jet ski amount is not refunded or turned into credit.</div></div>
+<div class="row"><div class="q">Tour moved because of bad sea or the Navy</div><div class="a">The jet ski goes with you to the new date. If it can't go, we refund the amount.</div></div>
 </section>
-<section class="foot">
-<p>Your rights under Brazilian consumer law still apply. By paying the deposit, you confirm you have read and accept this policy.</p>
+<footer>
 <a class="wa" href="https://wa.me/5521999272550" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>Questions? Message us on WhatsApp</a>
-<div class="links"><a href="/termos/?l=en">Tour terms</a> · <a href="/privacidade/">Terms of use and privacy</a></div>
-</section>
+<p>Your rights under Brazilian consumer law still apply. By paying the deposit, you accept this policy.</p>
+<p class="links"><a href="/termos/?l=en">Tour terms</a> · <a href="/privacidade/">Terms of use and privacy</a></p>
+</footer>
 </div>
 <div data-l="es">
-<div class="sum"><div><small>Hasta 7 días después de pagar, con más de 7 días para el paseo</small><b>Devolución total</b></div><div><small>Después de eso</small><b>Crédito de 1 año o devolución reteniendo 20%</b></div><div><small>Mar malo o Marina</small><b>Reprogramamos sin costo</b></div></div>
+<p class="intro">Qué pasa si necesitas cancelar o si el paseo no puede salir.</p>
 <section>
-<h2><i aria-hidden="true">↩</i>Si cancelas tú</h2>
-<div class="steps">
-<div class="step ok"><span class="tag">Hasta 7 días después de pagar</span><p>Devolvemos <b>todo lo que pagaste</b>, siempre que falten <b>más de 7 días para el paseo</b>. Con 7 días o menos, la parte del dueño ya se le pagó para preparar la lancha, y vale la regla de abajo.</p></div>
-<div class="step after"><span class="tag">Después de eso</span><p>Eliges una de las opciones:</p>
-<div class="opts"><div><b>Crédito del 100% de la seña</b>Válido por 1 año, para usar en la misma lancha que reservaste (la parte de la seña ya fue transferida a su dueño).</div><div><b>Devolución del dinero</b>Ponemos la fecha a la venta de nuevo. Si otra persona la reserva, devolvemos toda la seña. Si no, retenemos el 20% del valor del paseo y devolvemos el resto de la seña.</div></div></div>
+<h2><span class="n">1</span>Si cancelas tú</h2>
+<div class="cards">
+<div class="card"><h3>Fechas normales</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 48h antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 48h antes</span><b>sin devolución</b></div></div>
+<div class="card"><h3>Año Nuevo (27/12 al 05/01) y Carnaval</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 30 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 30 días antes</span><b>sin devolución</b></div></div>
 </div>
-<p class="note"><b>Tasa de tarjeta o PayPal:</b> fuera de la devolución total, el recargo pagado sobre la seña no se devuelve, porque la operadora ya lo cobró.</p>
+<div class="opts"><div><b>Crédito</b>El 100% de la seña, para usar en hasta 1 año en la misma lancha.</div><div><b>Devolución reteniendo 30%</b>Devolvemos la seña descontando el 30% del valor del paseo. Si otra persona reserva la misma fecha, devolvemos todo.</div></div>
+<p class="fee">La tasa de tarjeta o PayPal solo se devuelve en la devolución total.</p>
+<div class="how"><b>Cómo cancelar:</b> envía el pedido por escrito a nuestro <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Cuenta la fecha y la hora de tu mensaje, y confirmamos que lo recibimos.</div>
 </section>
 <section>
-<h2><i aria-hidden="true">🌊</i>Cambios por clima, Marina o lancha</h2>
-<ul class="it"><li><b>Mar malo:</b> si el mar no está bueno para navegar, pasamos el paseo a otra fecha sin costo.</li><li><b>La Marina de Brasil prohíbe navegar:</b> eliges entre reprogramar o recibir la seña de vuelta.</li><li><b>Problema con la lancha o el dueño cancela:</b> te damos otra lancha equivalente o devolvemos el 100% de la seña (Garantía Búzios Lanchas).</li></ul>
+<h2><span class="n">2</span>Si el paseo no puede salir</h2>
+<div class="row"><div class="q">Mar malo</div><div class="a">Lo pasamos a otra fecha, sin costo.</div></div>
+<div class="row"><div class="q">La Marina cierra el mar</div><div class="a">Eliges: reprogramar o recibir la seña de vuelta.</div></div>
+<div class="row"><div class="q">Problema con la lancha o el dueño cancela</div><div class="a">Te damos otra lancha equivalente o devolvemos el 100% de la seña.</div></div>
 </section>
 <section>
-<h2><i aria-hidden="true">🚤</i>Moto de agua (si la contrataste junto)</h2>
-<ul class="it"><li><b>Desistencia el mismo día del paseo:</b> el valor de la moto de agua no se devuelve ni se convierte en crédito.</li><li><b>Paseo reprogramado por mar malo o por la Marina:</b> la moto de agua pasa a la nueva fecha, sin pagar de nuevo. Si no puede ir, devolvemos el valor.</li></ul>
+<h2><span class="n">3</span>Moto de agua contratada junto</h2>
+<div class="row"><div class="q">Desistencia el día del paseo</div><div class="a">El valor de la moto de agua no se devuelve ni se convierte en crédito.</div></div>
+<div class="row"><div class="q">Paseo reprogramado por mar malo o por la Marina</div><div class="a">La moto de agua pasa a la nueva fecha. Si no puede ir, devolvemos el valor.</div></div>
 </section>
-<section class="foot">
-<p>Tus derechos según el Código de Defensa del Consumidor de Brasil siguen vigentes. Al pagar la seña, declaras que leíste y aceptas esta política.</p>
+<footer>
 <a class="wa" href="https://wa.me/5521999272550" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>¿Dudas? Escríbenos por WhatsApp</a>
-<div class="links"><a href="/termos/?l=es">Términos del paseo</a> · <a href="/privacidade/">Términos de uso y privacidad</a></div>
-</section>
+<p>Tus derechos según el Código de Defensa del Consumidor de Brasil siguen vigentes. Al pagar la seña, aceptas esta política.</p>
+<p class="links"><a href="/termos/?l=es">Términos del paseo</a> · <a href="/privacidade/">Términos de uso y privacidad</a></p>
+</footer>
 </div>
 </main>
 <script>
