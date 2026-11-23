@@ -2302,11 +2302,12 @@ document.addEventListener("click", e=>{ const b=e.target.closest("[data-avhoje]"
 /* avisar o dono (2026-11-05): passeio da Búzios confirmado (sinal pago) vai para o dono pelo WhatsApp, pelo Lucas ou pelo administrador,
    com o valor que ele cobra no embarque. Sai da lista depois do toque (marcar_wa 'dono'). Miss Bardot é do o dono: não entra */
 /* no dia do passeio o cliente fala direto com o responsável da lancha (Rodrigo 2026-11-21: clientes chamavam a Búzios ao chegar no píer); com o nome do dono desde 2026-11-23 (menos Midas) */
-/* marinheiro fixo do passeio (Rodrigo 2026-11-23): a confirmação traz o responsável (dono: nome e telefone) e o marinheiro fixo (nome e telefone), que estará na lancha esperando o cliente.
-   Miss Bardot: responsável é a Búzios Lanchas (número oficial). Fixo sem telefone próprio usa o do dono quando é o próprio dono */
+/* marinheiro do passeio (Rodrigo 2026-11-23): a confirmação traz o responsável (dono: nome e telefone) e o marinheiro (nome e telefone), que estará na lancha esperando o cliente.
+   Miss Bardot: responsável é a Búzios Lanchas (número oficial). Marinheiro sem telefone próprio usa o do dono quando é o próprio dono */
 const OFICIAL_TEL = "+55 21999272550";
 const donoNm = (l, o) => l==="midas" ? t("equipeL",{boat:boatName(l)}) : nome2(o.nome); /* Midas: o dono também se chama Rodrigo e o nome Rodrigo nunca sai para o cliente */
-const marFixoDe = (l, uid) => uid ? (S.sailors||[]).find(m=>m.lancha===l && m.user_id===uid && m.fixo) || null : null;
+/* desde 2026-11-23 18h (Rodrigo): qualquer marinheiro escalado no passeio, fixo da lancha ou freelancer; sem marinheiro, não cita */
+const marFixoDe = (l, uid) => uid ? (S.sailors||[]).find(m=>m.lancha===l && m.user_id===uid) || (S.free||[]).find(m=>m.user_id===uid) || null : null;
 function respMarTxt(l, uid){ const mar=marFixoDe(l, uid); if(!mar) return "";
   const os=(S.owners||[]).filter(o=>o.lancha===l && waOf(o.telefone).length>=8), me=os.find(o=>o.user_id===mar.user_id);
   const telMar = waOf(mar.telefone).length>=8 ? mar.telefone : me?.telefone || "";

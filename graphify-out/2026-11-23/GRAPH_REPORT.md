@@ -1,9 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-23)
 
 ## Corpus Check
-- 301 files · ~532,478 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 2144 nodes · 3571 edges · 194 communities (105 shown, 89 thin omitted)
@@ -605,7 +603,7 @@ Nodes (3): CORS, db, T
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.anotacoes` to `public.bloqueios`, `pedidos`, `public._aprovar_consulta`, `public.clientes`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `public.adicionar_lancha_pre_reserva` be split into smaller, more focused modules?**
   _Cohesion score 0.09885057471264368 - nodes in this community are weakly interconnected._
 - **Why does `public.bz_wa_reservar()` connect `2026-11-16_bordazul-cadastro-dono.sql` to `public.clientes`?**
@@ -613,7 +611,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public.creditos` connect `b` to `public.bloqueios`, `public._aprovar_consulta`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
