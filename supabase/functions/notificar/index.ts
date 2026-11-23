@@ -557,7 +557,7 @@ async function autoConfirma(b: any, a: any, lancha: string) {
   if (!cli) return true; // sem conta: o pedido de avaliação vai pelo WhatsApp (quadro "Falta pedir a avaliação no WhatsApp")
   if (await avaliacaoPausada(b.id)) return true; // cliente reclamou: não pede avaliação (Rodrigo 2026-11-20)
   const cup = await cupomDo(b.id, cli).catch(e => (console.error(e), null));
-  await enviar([cli], "avaliar", { id: b.id, data: b.data, horario: b.horario, lancha, cup }, "/login/").catch(e => console.error(e));
+  await enviar([cli], "avaliar", { id: b.id, data: b.data, horario: b.horario, lancha, cup }, "/login/?avaliar=1").catch(e => console.error(e));
   const { data: c } = await db.from("clientes").select("nome").eq("user_id", cli).maybeSingle();
   await mandarEmail(cli, "avaliar", { b, a, lancha, cup, data: dataBR(b.data), nomes: { [cli]: c?.nome || a?.cliente || "" } }).catch(e => console.error(e));
   return true;
@@ -919,7 +919,7 @@ Deno.serve(async req => {
       if (await avaliacaoPausada(b.id)) return json({ enviados: 0, email: false, pausada: true }); // cliente reclamou (Rodrigo 2026-11-20)
       const lancha = await nomeLancha(b.lancha);
       const cup = await cupomDo(b.id, cli).catch(e => (console.error(e), null));
-      const enviados = await enviar([cli], "avaliar", { ...b, lancha, cup }, "/login/");
+      const enviados = await enviar([cli], "avaliar", { ...b, lancha, cup }, "/login/?avaliar=1");
       const { data: c } = await db.from("clientes").select("nome").eq("user_id", cli).maybeSingle();
       // o administrador confirma pelo app, que já manda o e-mail da avaliação pela função "avaliacao" (link que entra logado): aqui só o dono manda e-mail, para o cliente não receber dois
       const email = admin ? false : await mandarEmail(cli, "avaliar", { b, a: an, lancha, cup, data: dataBR(b.data), nomes: { [cli]: c?.nome || an?.cliente || "" } }).catch(e => (console.error(e), false));

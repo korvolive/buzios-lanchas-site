@@ -2612,6 +2612,9 @@ function clientView(){
   const up=rows.filter(live).sort(cmpRows), past=rows.filter(p=>!live(p)), pend=rows.filter(rvPending).sort(cmpRows);
   /* vendedor/parceiro que também foi cliente: abas no topo, para não ficar tudo embolado (Rodrigo 2026-11-12) */
   const cred=S.vend?credCliHTML():"", cup=S.vend?cupHTML():"", temCli=!!(rows.length||pend.length||cred||cup), abas=!!S.vend && temCli;
+  /* link da avaliação no WhatsApp/e-mail (?avaliar=1, Rodrigo 2026-11-23): depois de entrar, abre direto a avaliação pendente mais recente */
+  const irAv = (()=>{ const ai=store.get("avaliar-ir"); if(!ai || !S.done) return null; store.set("avaliar-ir",0); return Date.now()-ai<864e5 ? (pend[0]||null) : null; })();
+  if(irAv && abas) S.ctab="cli";
   const ab = abas ? (S.ctab || store.get("ctab") || "parc") : "parc", pa=!!S.vend?.parceiro;
   S.cAbas=abas;
   const tabsH = abas ? `<div class="tabs" role="tablist"><button type="button" role="tab" data-ctab="parc" aria-selected="${ab==="parc"}">${t(pa?"ctParc":"ctVend")}</button><button type="button" role="tab" data-ctab="cli" aria-selected="${ab==="cli"}">${t("ctCli")}${pend.length?` <b class="cnt">${pend.length}</b>`:""}</button></div>` : "";
@@ -2640,6 +2643,7 @@ function clientView(){
   { const asg=document.getElementById("as-av-go"); if(asg) asg.onclick=()=>{ const f=app.querySelector("#as-f"); if(!f) return; const dd=f.closest("details"); if(dd) dd.open=true; f.closest(".card").scrollIntoView({behavior:"smooth",block:"start"}); }; } /* vendedor sem lancha: "Cadastrar agora" leva ao cadastro aqui mesmo (2026-11-11) */
   app.querySelectorAll("[data-ocx]").forEach(x=>x.onclick=()=>{ store.set("ocup-no",[...(store.get("ocup-no")||[]), +x.dataset.ocx]); x.closest(".ocup").remove(); });
   app.querySelectorAll("[data-rv]").forEach(x=>x.onclick=()=>openRate(rows.find(p=>p.id===+x.dataset.rv)));
+  if(irAv) setTimeout(()=>openRate(irAv), 300);
   app.querySelectorAll("[data-grv]").forEach(x=>x.onclick=()=>{ const p=rows.find(p=>p.id===+x.dataset.grv); if(p) goGoogle(p.lancha, S.revs.get(p.id)?.comentario||"", p.id); });
   app.querySelectorAll("[data-cp]").forEach(x=>x.onchange=()=>cpUpload(+x.dataset.cp, x.files[0]));
   app.querySelectorAll("[data-gu]").forEach(x=>x.onclick=async()=>{ if(!confirm(t("giveUpQ"))) return;
@@ -5005,7 +5009,7 @@ function cupAval(p){
 /* passeio confirmado: pede ao cliente que avalie (WhatsApp pronto e e-mail; sem conta, o link já abre o cadastro) */
 async function askReview(b, soWa){
   const n=(Array.isArray(b.anotacoes)?b.anotacoes[0]:b.anotacoes)||{}, wa=waOf(n.telefone), first=(n.cliente||"").split(" ")[0], boat=boatName(b.lancha);
-  const url = n.cliente_conta ? location.origin+"/login/" : location.origin+"/login/?"+(await convQ(b.id, new URLSearchParams({criar:"1"})));
+  const url = n.cliente_conta ? location.origin+"/login/?avaliar=1" : location.origin+"/login/?"+(await convQ(b.id, new URLSearchParams({criar:"1", avaliar:"1"})));
   /* cupom por avaliar o marinheiro: do dono (só nesta lancha) ou do site (qualquer lancha); a mensagem promete o cupom, que nasce depois da avaliação (2026-11-20) */
   const cav = await db("rpc/cupom_avaliacao_lanchas",{method:"POST",body:{}}).then(a=>(a||[]).find(x=>x.lancha===b.lancha && b.data>=(x.desde||"2026-10-22"))||null, ()=>null);
   /* passeio sem marinheiro marcado: o cupom já nasce sozinho na conta (sem condição); a mensagem só avisa do presente (Rodrigo 2026-11-20) */
@@ -8987,6 +8991,7 @@ document.documentElement.lang = lang==="pt"?"pt-BR":lang;
   const qs=new URLSearchParams(location.search);
   if(s2u(qs.get("s"))){ store.set("socio-c", s2u(qs.get("s"))); /* convite de sócio (2026-10-27): quem abriu vira vendedor ligado a quem convidou, depois de entrar */
     fetch(SB+"/rest/v1/rpc/convite_socio_info",{method:"POST", headers:{apikey:KEY, authorization:"Bearer "+KEY, "content-type":"application/json"}, body:JSON.stringify({c:s2u(qs.get("s"))})}).then(r=>r.ok?r.json():[]).then(j=>{ socNome=j?.[0]?.nome||""; if(view==="signup") show(); }).catch(()=>{}); }
+  if(qs.has("avaliar")){ store.set("avaliar-ir", Date.now()); const q3=new URLSearchParams(location.search); q3.delete("avaliar"); history.replaceState(null,"",location.pathname+(q3.toString()?"?"+q3:"")+location.hash); } /* link da avaliação: guarda para abrir depois do login */
   if(s2u(qs.get("c"))) store.set("conv-c", s2u(qs.get("c"))); /* convite pelo WhatsApp: o passeio entra na conta de quem abriu o link */
   if(s2u(qs.get("w"))) store.set("wa-link",{w:s2u(qs.get("w"))}); /* link do aviso do passeio: só chegou naquele WhatsApp, então confirma o número (2026-10-27) */
   if(qs.has("c")||qs.has("w")||qs.has("s")){ const q2=new URLSearchParams(location.search); q2.delete("c"); q2.delete("w"); q2.delete("s"); history.replaceState(null,"",location.pathname+(q2.toString()?"?"+q2:"")+location.hash); } /* o código secreto não fica no endereço (histórico, print, compartilhar) */
