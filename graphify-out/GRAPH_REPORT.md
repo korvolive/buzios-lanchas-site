@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2139 nodes · 3568 edges · 189 communities (101 shown, 88 thin omitted)
+- 2140 nodes · 3568 edges · 190 communities (101 shown, 89 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2eda44f8`
+- Built from commit: `ad8536a6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -172,7 +172,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (189 total, 88 thin omitted)
+## Communities (190 total, 89 thin omitted)
 
 ### Community 0 - "public.adicionar_lancha_pre_reserva"
 Cohesion: 0.19
@@ -579,21 +579,21 @@ Cohesion: 0.83
 Nodes (3): cliques_google_bloqueio, public.clique_google(), public.cliques_google
 
 ## Knowledge Gaps
-- **88 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **89 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `public.vendas_manuais` connect `public.bloqueios` to `public._pre_reserva_volta`, `public._aprovar_consulta`, `2026-11-15_preco-cotado-garantido.sql`, `public.consultas`, `public.anotacoes`, `vendedores`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`?**
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.bloqueios`, `2026-11-15_preco-cotado-garantido.sql`, `public.bloqueios`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `public.vendas_manuais` connect `public.bloqueios` to `public._pre_reserva_volta`, `public._aprovar_consulta`, `2026-11-15_preco-cotado-garantido.sql`, `public.consultas`, `public.anotacoes`, `vendedores`?**
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
-- **Why does `public.creditos` connect `b` to `public._pre_reserva_volta`, `public.bloqueios`, `public._aprovar_consulta`, `public`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public.origem_reserva()` connect `2026-11-15_preco-cotado-garantido.sql` to `public.bloqueios`, `donos`, `public.bloqueios`, `public.meus_repasses_pp`, `2026-11-21_seguranca-saque.sql`, `public.papeis_painel`, `vendedores`, `public.clientes`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
