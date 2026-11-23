@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2143 nodes · 3571 edges · 193 communities (105 shown, 88 thin omitted)
+- 2144 nodes · 3571 edges · 194 communities (105 shown, 89 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d13acb8d`
+- Built from commit: `667ab16c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -174,7 +174,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (193 total, 88 thin omitted)
+## Communities (194 total, 89 thin omitted)
 
 ### Community 0 - "public.adicionar_lancha_pre_reserva"
 Cohesion: 0.10
@@ -597,7 +597,7 @@ Cohesion: 0.40
 Nodes (3): CORS, db, T
 
 ## Knowledge Gaps
-- **88 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **89 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -611,7 +611,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public.creditos` connect `b` to `public.bloqueios`, `public._aprovar_consulta`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+  _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**

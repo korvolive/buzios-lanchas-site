@@ -2528,6 +2528,9 @@
       "scripts_testes_conversoes_navegador",
       "scripts_testes_conversoes_navegador_chromium_devices",
       "scripts_testes_conversoes_navegador_ok"
+    ],
+    "193": [
+      "supabase_sql_2026_11_23_saude_ignora_estornado"
     ]
   },
   "cohesion": {
@@ -2723,7 +2726,8 @@
     "189": 1.0,
     "190": 1.0,
     "191": 0.4,
-    "192": 0.5
+    "192": 0.5,
+    "193": 1.0
   },
   "gods": [
     {
@@ -2858,7 +2862,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.creditos` connect `b` to `public.bloqueios`, `public._aprovar_consulta`?",
-      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.010) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
