@@ -227,17 +227,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
 <section class="card oculto" data-passo="4">
   <p class="etq">Passo 4 de 5</p>
   <h1>Quanto você quer receber</h1>
-  <p class="lead">É o seu valor líquido por passeio, com marinheiro e combustível. O Bordazul soma a comissão dele por cima e o cliente vê o valor final.</p>
+  <p class="lead">É o seu valor líquido por passeio, com marinheiro e combustível. O Bordazul soma a comissão dele por cima e o cliente vê o valor final. A comissão a gente combina com você na conversa de cadastro.</p>
   <div class="faixa" id="faixa"></div>
   <h2>Baixa temporada <small>(01/05 a 31/10)</small></h2>
   <div class="g2">
-    <div><label for="baixa">Passeio de 4 horas (R$)</label><input id="baixa" data-nn inputmode="numeric"><p class="cliente" data-cli="baixa"></p></div>
-    <div><label for="baixa7">Passeio de 7 horas (R$)</label><input id="baixa7" data-nn inputmode="numeric"><p class="cliente" data-cli="baixa7"></p></div>
+    <div><label for="baixa">Passeio de 4 horas (R$)</label><input id="baixa" data-nn inputmode="numeric"></div>
+    <div><label for="baixa7">Passeio de 7 horas (R$)</label><input id="baixa7" data-nn inputmode="numeric"></div>
   </div>
   <h2>Alta temporada <small>(15/12 a 28/02)</small></h2>
   <div class="g2">
-    <div><label for="alta">Passeio de 4 horas (R$)</label><input id="alta" data-nn inputmode="numeric"><p class="cliente" data-cli="alta"></p></div>
-    <div><label for="alta7">Passeio de 7 horas (R$)</label><input id="alta7" data-nn inputmode="numeric"><p class="cliente" data-cli="alta7"></p></div>
+    <div><label for="alta">Passeio de 4 horas (R$)</label><input id="alta" data-nn inputmode="numeric"></div>
+    <div><label for="alta7">Passeio de 7 horas (R$)</label><input id="alta7" data-nn inputmode="numeric"></div>
   </div>
   <p class="cliente" style="margin-top:14px">Março, abril e de 01/11 a 14/12 ficam entre os dois. Você pode mudar os valores depois, no painel.</p>
   <div class="acoes"><button class="btn claro" data-ir="3" type="button">Voltar</button><button class="btn" data-ir="5" type="button">Continuar</button></div>
@@ -287,8 +287,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
 "use strict";
 var FN = "https://sqoperylsqcbcjpcrlnp.supabase.co/functions/v1/bordazul-anunciar";
 var KEY = "sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ";
-var COMISSAO = 20, COMISSAO_MIN = 300; /* % somado ao valor do dono, mínimo R$ 300 (mesma regra da função taxa_buzios do banco, 2026-11-23) */
-function comissaoDe(v){ return Math.max(Math.round(v * COMISSAO / 100 / 10) * 10, COMISSAO_MIN); }
+/* comissão não aparece na página pública (Rodrigo 2026-11-23): é combinada na conversa de cadastro; a regra fica na função taxa_buzios do banco */
 var LS = "bz_anunciar_tk";
 var CIDADES = [["buzios","Búzios (RJ)"],["arraial","Arraial do Cabo (RJ)"],["cabo-frio","Cabo Frio (RJ)"],["rio","Rio de Janeiro (RJ)"],["angra","Angra dos Reis (RJ)"],["paraty","Paraty (RJ)"],["ilhabela","Ilhabela (SP)"],["ubatuba","Ubatuba (SP)"],["guaruja","Guarujá (SP)"],["floripa","Florianópolis (SC)"],["bombinhas","Bombinhas (SC)"],["camboriu","Balneário Camboriú (SC)"],["salvador","Salvador (BA)"],["morro","Morro de São Paulo (BA)"],["porto-seguro","Porto Seguro (BA)"],["maragogi","Maragogi (AL)"],["porto-galinhas","Porto de Galinhas (PE)"],["noronha","Fernando de Noronha (PE)"],["capitolio","Capitólio (MG)"],["paranoa","Lago Paranoá, Brasília (DF)"],["manaus","Rio Negro, Manaus (AM)"],["outra","Outra cidade"]];
 var ITENS = [["banheiro","Banheiro"],["ar","Ar-condicionado"],["som","Som"],["gerador","Gerador"],["geladeira","Geladeira"],["churrasqueira","Churrasqueira"],["tapete","Tapete flutuante"],["snorkel","Snorkel"],["stand-up","Stand up paddle"],["toldo","Toldo"],["cozinha","Cozinha"],["cabine","Cabine"]];
@@ -543,16 +542,7 @@ function desenharFaixa(){
   $("faixa").innerHTML = fx
     ? "Para um barco de <b>" + String(pes).replace(/[^\d.,]/g, "") + " pés</b>, o passeio de 4 horas na baixa temporada vai de <b>" + brl(fx.min) + "</b> a <b>" + brl(fx.max) + "</b> (referência: " + brl(fx.ref) + ")."
     : "Volte ao passo 2 e informe o tamanho do barco para ver a faixa de preço.";
-  cliente();
 }
-function cliente(){
-  ["baixa","baixa7","alta","alta7"].forEach(function(k){
-    var v = +dig($(k).value), p = document.querySelector('[data-cli="' + k + '"]');
-    p.textContent = v ? "O cliente paga " + brl(v + comissaoDe(v)) + " (com a comissão de " + COMISSAO + "% do Bordazul, mínimo de R$ 300)." : "";
-  });
-}
-["baixa","baixa7","alta","alta7"].forEach(function(k){ $(k).addEventListener("input", cliente); });
-
 /* termo e assinatura */
 var codAssPedido = false;
 function desenharTermo(){
