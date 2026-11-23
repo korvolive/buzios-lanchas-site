@@ -42,9 +42,13 @@ h2+.row{border-top:0}
 .card h3 small{display:block;font-size:12.5px;font-weight:400;color:var(--muted);margin-top:2px}
 .card .r{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
 .card h3+.r{border-top:0}
+.card .r.th{padding:2px 0 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px}
+.card .r.th b{font-weight:700;color:var(--muted)}
 .card .r span{color:var(--muted)}
-.card .r b{text-align:right;flex:0 0 42%}
+.card .r b{text-align:right;flex:0 0 52%;font-weight:600}
 .card .r.ok b{color:var(--ok)}
+.hl{background:var(--okbg);border-radius:12px;padding:12px 14px;margin:8px 0 2px;font-size:15.5px}
+.hl b{color:var(--ok)}
 .how{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:15px}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .opts div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
@@ -68,26 +72,27 @@ a{color:var(--sea)}
 <div class="hero" data-l="pt"><h1>Política de cancelamento</h1><p>Atualizada em 23 de novembro de 2026</p></div><div class="hero" data-l="en"><h1>Cancellation policy</h1><p>Updated on November 23, 2026</p></div><div class="hero" data-l="es"><h1>Política de cancelación</h1><p>Actualizada el 23 de noviembre de 2026</p></div></header>
 <main>
 <div data-l="pt">
-<p class="intro">O que acontece se você precisar cancelar ou se o passeio não puder sair.</p>
+<p class="intro">Condições de cancelamento e remarcação dos passeios.</p>
 <section>
-<h2><span class="n">1</span>Se você desistir</h2>
+<h2><span class="n">1</span>Cancelamento pelo cliente</h2>
+<div class="hl"><b>Direito de arrependimento:</b> cancelamento em até 7 dias após o pagamento, com reembolso integral, para passeios com mais de 7 dias de antecedência.</div>
 <div class="cards">
-<div class="card"><h3>Datas normais</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 7 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 7 dias antes</span><b>sem devolução</b></div></div>
-<div class="card"><h3>Réveillon, Carnaval e feriados</h3><div class="r ok"><span>Até 7 dias depois de pagar, com mais de 7 dias para o passeio</span><b>devolução total</b></div><div class="r"><span>Depois disso, até 30 dias antes do passeio</span><b>crédito ou devolução com 30% retido</b></div><div class="r no"><span>Menos de 30 dias antes</span><b>sem devolução</b></div></div>
+<div class="card"><h3>Datas normais</h3><div class="r th"><span>Cancelamento</span><b>Condição</b></div><div class="r"><span>Antecedência superior a 7 dias</span><b>Crédito para nova data ou reembolso parcial</b></div><div class="r no"><span>Antecedência de 7 dias ou menos</span><b>Sem reembolso</b></div></div>
+<div class="card"><h3>Réveillon, Carnaval e feriados</h3><div class="r th"><span>Cancelamento</span><b>Condição</b></div><div class="r"><span>Antecedência superior a 30 dias</span><b>Crédito para nova data ou reembolso parcial</b></div><div class="r no"><span>Antecedência de 30 dias ou menos</span><b>Sem reembolso</b></div></div>
 </div>
-<div class="opts"><div><b>Crédito</b>100% do sinal, para usar em até 1 ano na mesma lancha.</div><div><b>Devolução com 30% retido</b>Devolvemos o sinal descontando 30% do valor do passeio. Se outra pessoa reservar a mesma data, devolvemos tudo.</div></div>
-<div class="how"><b>Como cancelar:</b> mande uma mensagem no nosso <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Os prazos acima contam a partir do dia e da hora dessa mensagem, e respondemos confirmando.</div>
+<div class="opts"><div><b>Crédito para nova data</b>100% do sinal, válido por 1 ano na mesma lancha.</div><div><b>Reembolso parcial</b>Devolvemos o sinal, descontados 30% do valor do passeio. Se a data for vendida para outro cliente, o reembolso é integral.</div></div>
+<div class="how"><b>Como cancelar:</b> envie sua solicitação pelo nosso <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Os prazos contam a partir da data e do horário da mensagem, e confirmamos o recebimento.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Imprevistos no dia do passeio</h2>
-<div class="row"><div class="q">Mar ruim <button type="button" class="info" aria-expanded="false" aria-label="O que é mar ruim?" title="O que é mar ruim?">i</button></div><div class="a">Remarcamos para outra data, sem custo.</div><p class="infotxt" hidden>Mar ruim é quando não dá para navegar com segurança: vento muito forte, mar agitado ou tempestade. Quem decide é o comandante, sempre pela segurança. Vento ou chuva fraca não cancelam o passeio: o roteiro é ajustado para as praias mais abrigadas do dia.</p></div>
-<div class="row"><div class="q">A Marinha fecha o mar</div><div class="a">Você escolhe: remarcar ou receber o sinal de volta.</div></div>
-<div class="row"><div class="q">Problema na lancha ou o dono desmarcou</div><div class="a">Damos outra lancha equivalente ou devolvemos 100% do sinal.</div></div>
+<div class="row"><div class="q">Mar ruim <button type="button" class="info" aria-expanded="false" aria-label="O que é mar ruim?" title="O que é mar ruim?">i</button></div><div class="a">Remarcação sem custo.</div><p class="infotxt" hidden>Mar ruim é quando não dá para navegar com segurança: vento muito forte, mar agitado ou tempestade. Quem decide é o comandante, sempre pela segurança. Vento ou chuva fraca não cancelam o passeio: o roteiro é ajustado para as praias mais abrigadas do dia.</p></div>
+<div class="row"><div class="q">Navegação proibida pela Marinha</div><div class="a">Remarcação ou reembolso integral do sinal, à sua escolha.</div></div>
+<div class="row"><div class="q">Problema na lancha ou cancelamento pelo proprietário</div><div class="a">Outra lancha equivalente ou reembolso integral do sinal.</div></div>
 </section>
 <section>
 <h2><span class="n">3</span>Jet ski contratado junto</h2>
-<div class="row"><div class="q">Desistência no dia do passeio</div><div class="a">O valor do jet ski não é devolvido nem vira crédito.</div></div>
-<div class="row"><div class="q">Passeio remarcado por mar ruim ou pela Marinha</div><div class="a">O jet ski vai junto para a nova data. Se ele não puder ir, devolvemos o valor.</div></div>
+<div class="row"><div class="q">Cancelamento no dia do passeio</div><div class="a">Sem reembolso ou crédito do jet ski.</div></div>
+<div class="row"><div class="q">Passeio remarcado por mar ruim ou pela Marinha</div><div class="a">O jet ski acompanha a nova data. Se não estiver disponível, reembolsamos o valor.</div></div>
 </section>
 <footer>
 <a class="wa" href="https://wa.me/5521999272550" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>Dúvidas? Fale no WhatsApp</a>
@@ -96,26 +101,27 @@ a{color:var(--sea)}
 </footer>
 </div>
 <div data-l="en">
-<p class="intro">What happens if you need to cancel or if the tour can't go out.</p>
+<p class="intro">Cancellation and rescheduling terms for our tours.</p>
 <section>
-<h2><span class="n">1</span>If you cancel</h2>
+<h2><span class="n">1</span>Cancellation by the guest</h2>
+<div class="hl"><b>Right of withdrawal:</b> cancel within 7 days of payment for a full refund, for tours booked more than 7 days in advance.</div>
 <div class="cards">
-<div class="card"><h3>Regular dates</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 7 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 7 days before</span><b>no refund</b></div></div>
-<div class="card"><h3>New Year's, Carnival and holidays</h3><div class="r ok"><span>Within 7 days of paying, more than 7 days before the tour</span><b>full refund</b></div><div class="r"><span>After that, up to 30 days before the tour</span><b>credit or refund keeping 30%</b></div><div class="r no"><span>Less than 30 days before</span><b>no refund</b></div></div>
+<div class="card"><h3>Regular dates</h3><div class="r th"><span>Cancellation</span><b>Terms</b></div><div class="r"><span>More than 7 days' notice</span><b>Credit for a new date or partial refund</b></div><div class="r no"><span>7 days' notice or less</span><b>No refund</b></div></div>
+<div class="card"><h3>New Year's, Carnival and holidays</h3><div class="r th"><span>Cancellation</span><b>Terms</b></div><div class="r"><span>More than 30 days' notice</span><b>Credit for a new date or partial refund</b></div><div class="r no"><span>30 days' notice or less</span><b>No refund</b></div></div>
 </div>
-<div class="opts"><div><b>Credit</b>100% of the deposit, to use within 1 year on the same boat.</div><div><b>Refund keeping 30%</b>We refund the deposit minus 30% of the tour price. If someone else books the same date, we refund everything.</div></div>
-<div class="how"><b>How to cancel:</b> send a message to our <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">official WhatsApp</a>. The deadlines above count from the day and time of that message, and we reply to confirm.</div>
+<div class="opts"><div><b>Credit for a new date</b>100% of the deposit, valid for 1 year on the same boat.</div><div><b>Partial refund</b>We refund the deposit, less 30% of the tour price. If the date is sold to another guest, the refund is in full.</div></div>
+<div class="how"><b>How to cancel:</b> send your request through our <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">official WhatsApp</a>. Deadlines are counted from the date and time of your message, and we will confirm receipt.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Unexpected issues on the day</h2>
-<div class="row"><div class="q">Bad sea <button type="button" class="info" aria-expanded="false" aria-label="What counts as bad sea?" title="What counts as bad sea?">i</button></div><div class="a">We move it to another date at no cost.</div><p class="infotxt" hidden>Bad sea means it isn't safe to sail: very strong wind, rough sea or a storm. The skipper decides, always with safety first. Light wind or light rain don't cancel the tour: the route is adjusted to the most sheltered beaches of the day.</p></div>
-<div class="row"><div class="q">The Navy closes the sea</div><div class="a">You choose: reschedule or get your deposit back.</div></div>
-<div class="row"><div class="q">Boat problem or the owner cancels</div><div class="a">We give you another equivalent boat or refund 100% of the deposit.</div></div>
+<div class="row"><div class="q">Bad sea <button type="button" class="info" aria-expanded="false" aria-label="What counts as bad sea?" title="What counts as bad sea?">i</button></div><div class="a">Free rescheduling.</div><p class="infotxt" hidden>Bad sea means it isn't safe to sail: very strong wind, rough sea or a storm. The skipper decides, always with safety first. Light wind or light rain don't cancel the tour: the route is adjusted to the most sheltered beaches of the day.</p></div>
+<div class="row"><div class="q">Sailing banned by the Navy</div><div class="a">Rescheduling or a full refund of the deposit, at your choice.</div></div>
+<div class="row"><div class="q">Boat issue or cancellation by the owner</div><div class="a">An equivalent boat or a full refund of the deposit.</div></div>
 </section>
 <section>
 <h2><span class="n">3</span>Jet ski booked with the tour</h2>
-<div class="row"><div class="q">Cancelling on the tour day</div><div class="a">The jet ski amount is not refunded or turned into credit.</div></div>
-<div class="row"><div class="q">Tour moved because of bad sea or the Navy</div><div class="a">The jet ski goes with you to the new date. If it can't go, we refund the amount.</div></div>
+<div class="row"><div class="q">Cancelling on the tour day</div><div class="a">No refund or credit for the jet ski.</div></div>
+<div class="row"><div class="q">Tour moved because of bad sea or the Navy</div><div class="a">The jet ski moves to the new date. If it is unavailable, we refund the amount.</div></div>
 </section>
 <footer>
 <a class="wa" href="https://wa.me/5521999272550" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>Questions? Message us on WhatsApp</a>
@@ -124,26 +130,27 @@ a{color:var(--sea)}
 </footer>
 </div>
 <div data-l="es">
-<p class="intro">Qué pasa si necesitas cancelar o si el paseo no puede salir.</p>
+<p class="intro">Condiciones de cancelación y reprogramación de los paseos.</p>
 <section>
-<h2><span class="n">1</span>Si cancelas tú</h2>
+<h2><span class="n">1</span>Cancelación por el cliente</h2>
+<div class="hl"><b>Derecho de arrepentimiento:</b> cancelación hasta 7 días después del pago, con reembolso total, para paseos reservados con más de 7 días de antelación.</div>
 <div class="cards">
-<div class="card"><h3>Fechas normales</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 7 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 7 días antes</span><b>sin devolución</b></div></div>
-<div class="card"><h3>Año Nuevo, Carnaval y feriados</h3><div class="r ok"><span>Hasta 7 días después de pagar, con más de 7 días para el paseo</span><b>devolución total</b></div><div class="r"><span>Después de eso, hasta 30 días antes del paseo</span><b>crédito o devolución reteniendo 30%</b></div><div class="r no"><span>Menos de 30 días antes</span><b>sin devolución</b></div></div>
+<div class="card"><h3>Fechas normales</h3><div class="r th"><span>Cancelación</span><b>Condición</b></div><div class="r"><span>Antelación superior a 7 días</span><b>Crédito para una nueva fecha o reembolso parcial</b></div><div class="r no"><span>Antelación de 7 días o menos</span><b>Sin reembolso</b></div></div>
+<div class="card"><h3>Año Nuevo, Carnaval y feriados</h3><div class="r th"><span>Cancelación</span><b>Condición</b></div><div class="r"><span>Antelación superior a 30 días</span><b>Crédito para una nueva fecha o reembolso parcial</b></div><div class="r no"><span>Antelación de 30 días o menos</span><b>Sin reembolso</b></div></div>
 </div>
-<div class="opts"><div><b>Crédito</b>El 100% de la seña, para usar en hasta 1 año en la misma lancha.</div><div><b>Devolución reteniendo 30%</b>Devolvemos la seña descontando el 30% del valor del paseo. Si otra persona reserva la misma fecha, devolvemos todo.</div></div>
-<div class="how"><b>Cómo cancelar:</b> envía un mensaje a nuestro <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Los plazos de arriba cuentan desde el día y la hora de ese mensaje, y te respondemos confirmando.</div>
+<div class="opts"><div><b>Crédito para una nueva fecha</b>El 100% de la seña, válido por 1 año en la misma lancha.</div><div><b>Reembolso parcial</b>Devolvemos la seña, descontado el 30% del valor del paseo. Si la fecha se vende a otro cliente, el reembolso es total.</div></div>
+<div class="how"><b>Cómo cancelar:</b> envía tu solicitud por nuestro <a href="https://wa.me/5521999272550" target="_blank" rel="noopener">WhatsApp oficial</a>. Los plazos se cuentan desde la fecha y la hora del mensaje, y confirmamos la recepción.</div>
 </section>
 <section>
 <h2><span class="n">2</span>Imprevistos el día del paseo</h2>
-<div class="row"><div class="q">Mar malo <button type="button" class="info" aria-expanded="false" aria-label="¿Qué es mar malo?" title="¿Qué es mar malo?">i</button></div><div class="a">Lo pasamos a otra fecha, sin costo.</div><p class="infotxt" hidden>Mar malo es cuando no se puede navegar con seguridad: viento muy fuerte, mar agitado o tormenta. Decide el capitán, siempre pensando en la seguridad. El viento o la lluvia leve no cancelan el paseo: el recorrido se ajusta a las playas más protegidas del día.</p></div>
-<div class="row"><div class="q">La Marina cierra el mar</div><div class="a">Eliges: reprogramar o recibir la seña de vuelta.</div></div>
-<div class="row"><div class="q">Problema con la lancha o el dueño cancela</div><div class="a">Te damos otra lancha equivalente o devolvemos el 100% de la seña.</div></div>
+<div class="row"><div class="q">Mar malo <button type="button" class="info" aria-expanded="false" aria-label="¿Qué es mar malo?" title="¿Qué es mar malo?">i</button></div><div class="a">Reprogramación sin costo.</div><p class="infotxt" hidden>Mar malo es cuando no se puede navegar con seguridad: viento muy fuerte, mar agitado o tormenta. Decide el capitán, siempre pensando en la seguridad. El viento o la lluvia leve no cancelan el paseo: el recorrido se ajusta a las playas más protegidas del día.</p></div>
+<div class="row"><div class="q">Navegación prohibida por la Marina</div><div class="a">Reprogramación o reembolso total de la seña, a tu elección.</div></div>
+<div class="row"><div class="q">Problema con la lancha o cancelación por el propietario</div><div class="a">Otra lancha equivalente o reembolso total de la seña.</div></div>
 </section>
 <section>
 <h2><span class="n">3</span>Moto de agua contratada junto</h2>
-<div class="row"><div class="q">Desistencia el día del paseo</div><div class="a">El valor de la moto de agua no se devuelve ni se convierte en crédito.</div></div>
-<div class="row"><div class="q">Paseo reprogramado por mar malo o por la Marina</div><div class="a">La moto de agua pasa a la nueva fecha. Si no puede ir, devolvemos el valor.</div></div>
+<div class="row"><div class="q">Cancelación el día del paseo</div><div class="a">Sin reembolso ni crédito de la moto de agua.</div></div>
+<div class="row"><div class="q">Paseo reprogramado por mar malo o por la Marina</div><div class="a">La moto de agua pasa a la nueva fecha. Si no está disponible, reembolsamos el valor.</div></div>
 </section>
 <footer>
 <a class="wa" href="https://wa.me/5521999272550" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>¿Dudas? Escríbenos por WhatsApp</a>
