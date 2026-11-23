@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-23)
 
 ## Corpus Check
-- 296 files · ~530,531 words
+- 296 files · ~531,282 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e70fc2f9`
+- Built from commit: `1ba482db`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -567,15 +567,15 @@ Nodes (5): a_consulta_resgate_limpa_pedido, public.tg_consulta_resgate_limpa_ped
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.pedidos` to `public.bloqueios`, `vendedores`, `public._aprovar_consulta`, `public.pagamentos_pp`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Should `public.adicionar_lancha_pre_reserva` be split into smaller, more focused modules?**
   _Cohesion score 0.10114942528735632 - nodes in this community are weakly interconnected._
-- **Why does `public.alteracoes_pedidas` connect `2026-10-30_operador-um-toque.sql` to `public.bloqueios`, `public.lancar_pedido_operador`, `public`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
+- **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.pedidos`, `public.consultas`, `public.bloqueios`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.marcar_wa()` connect `public` to `2026-10-30_operador-um-toque.sql`, `public.bloqueios`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
+- **Why does `public.alteracoes_pedidas` connect `2026-10-30_operador-um-toque.sql` to `public.bloqueios`, `public.lancar_pedido_operador`, `public`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**

@@ -488,14 +488,14 @@ async function atualizarCredito(r: any) {
 // última parcela); a divisão do Asaas (split) já faz isso sozinha, parcela por parcela.
 function caixaPedido(rows: any[]) {
   let caiu = 0, estorno = false;
-  const fut: { d: string | null; v: number }[] = [];
+  const fut: { d: string | null; v: number; a?: boolean }[] = [];
   for (const r of rows) {
     if (situacaoCredito(r) === "estornado") { estorno = true; continue; }
     const parc = Array.isArray(r.parcelas) && r.parcelas.length ? r.parcelas : null;
     const itens = parc ? parc.map((x: any) => ({ x, d: x.previsto || null })) : [{ x: r, d: r.credito_previsto || null }];
     for (const { x, d } of itens) {
       const v = +(x.liquido ?? x.valor) || 0;
-      if (CAIU(x)) caiu += v; else fut.push({ d, v });
+      if (CAIU(x)) caiu += v; else fut.push({ d, v, a: x.antecipacao === "pedida" || undefined }); // a = antecipação em análise no Asaas, sem data
     }
   }
   fut.sort((a, z) => String(a.d || "9999").localeCompare(String(z.d || "9999")));
@@ -537,11 +537,17 @@ async function contaBuzios(vendas: any[], CX: Map<number, any>, pids: number[], 
   const agora: any[] = [], futuro: any[] = [];
   let cartao = 0;
   for (const cx of CX.values()) if (!cx.estorno) cartao += cx.fut.reduce((a: number, f: any) => a + (+f.v || 0), 0);
+  // quando o cartão cai, por data (Rodrigo 2026-11-23): "não dá para saber quando exatamente vai ser liberado?"
+  // d = data prevista do Asaas; "ant" = antecipação em análise (o Asaas não dá data); null = sem data
+  const CD = new Map<string, number>();
+  for (const cx of CX.values()) if (!cx.estorno) for (const f of cx.fut) { const k = f.a ? "ant" : (f.d || ""); CD.set(k, (CD.get(k) || 0) + (+f.v || 0)); }
+  const cartao_datas = [...CD.entries()].map(([d, v]) => ({ d: d || null, v: Math.round(v * 100) / 100 }))
+    .sort((a, z) => String(a.d === "ant" ? "0" : a.d || "9999").localeCompare(String(z.d === "ant" ? "0" : z.d || "9999")));
   for (const v of vendas) {
     if (v.situacao === "estornado") continue;
     for (const r of v.repasses || []) {
       if (r.ok) continue;
-      const it = { tipo: r.tipo, nome: r.nome, valor: +r.valor || 0 };
+      const it: any = { tipo: r.tipo, nome: r.nome, valor: +r.valor || 0, quando: r.previsto || null };
       if (r.como === "divisao") futuro.push(it);
       else if (v.metodo === "paypal") (ppCaiu(v.pid) ? agora : futuro).push(it);
       else (r.motivo === "aguardando_credito" ? futuro : agora).push(it);
@@ -568,14 +574,16 @@ async function contaBuzios(vendas: any[], CX: Map<number, any>, pids: number[], 
   // de quem é o que não é da Búzios (por pessoa, maior primeiro)
   const G = new Map<string, any>();
   for (const [lista, k] of [[agora, "agora"], [futuro, "futuro"]] as const) for (const x of lista) {
-    const c = `${x.tipo}|${x.nome}`; const g = G.get(c) || { tipo: x.tipo, nome: x.nome, agora: 0, futuro: 0 };
-    g[k] = r2(g[k] + x.valor); G.set(c, g);
+    const c = `${x.tipo}|${x.nome}`; const g = G.get(c) || { tipo: x.tipo, nome: x.nome, agora: 0, futuro: 0, quando: undefined };
+    g[k] = r2(g[k] + x.valor);
+    if (k === "futuro") g.quando = g.quando === null || !x.quando ? null : (!g.quando || x.quando > g.quando ? x.quando : g.quando); // data em que tudo cai; sem data se faltar alguma
+    G.set(c, g);
   }
   const quem = [...G.values()].sort((a, z) => (z.agora + z.futuro) - (a.agora + a.futuro)).slice(0, 40);
   const pessoas = cts.filter((c: any) => c.wallet_id && c.aprovada_em && c.user_id !== eu).map((c: any) => ({ id: c.user_id, nome: String(c.nome || "").trim() || "—" }))
     .sort((a: any, z: any) => a.nome.localeCompare(z.nome, "pt-BR"));
   const { data: ult } = await db.from("saques_buzios").select("chave").eq("status", "enviado").order("criado_em", { ascending: false }).limit(1).maybeSingle();
-  return { saque_chave: ult?.chave || "", disponivel, seu: r2(disponivel - outros), outros, cartao, paypal, paypal_n: pend.length, receber: r2(cartao + paypal), receber_seu: r2(cartao + paypal - outrosF), receber_outros: outrosF, quem, pessoas };
+  return { saque_chave: ult?.chave || "", disponivel, seu: r2(disponivel - outros), outros, cartao, cartao_datas, paypal, paypal_n: pend.length, receber: r2(cartao + paypal), receber_seu: r2(cartao + paypal - outrosF), receber_outros: outrosF, quem, pessoas };
 }
 // nome de cada pessoa para a planilha: perfil, cadastro de cliente, conta Asaas ou empresa do vendedor
 async function nomes(ids: string[], contas: Map<string, any>) {
