@@ -7108,10 +7108,7 @@ function openVendTour(){
   const fim=()=>{ store.set(VT_KEY(),1); closeDay(); };
   paint(); sheet.classList.add("on"); sheetBg.classList.add("on");
 }
-function bindVgo(){
-  if(!vgoOn() || !document.querySelector(".vsh")) return;
-  if(!store.get(VT_KEY()) && !sheet.classList.contains("on")){ store.set(VT_KEY(),1); setTimeout(()=>{ if(document.querySelector(".vsh") && !sheet.classList.contains("on")) openVendTour(); }, 500); } /* 1ª vez: mostra uma vez só */
-}
+function bindVgo(){} /* o passo a passo só abre em "Como funciona", nunca sozinho (Rodrigo 2026-11-23) */
 function vendHTML(){
   const v=S.vend, teto=vTeto(), pc=vPc;
   if(S.vendas===undefined){ S.vendas=null; db("rpc/minhas_vendas_v2",{method:"POST",body:{}}).catch(()=>db("rpc/minhas_vendas",{method:"POST",body:{}})).then(r=>{ S.vendas=r; }, ()=>{ S.vendas=[]; }).then(()=>{ const x=document.getElementById("vsales"); if(x){ x.innerHTML=vSalesHTML(); bindVsales(); } }); }
