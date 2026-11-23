@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avaliar no Google · Búzios Lanchas</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/login/icon-192.png">
+<!-- link do pedido de avaliação (Rodrigo 2026-11-23): conta o clique (rpc clique_google, sem dado pessoal) e abre a avaliação no Google.
+     ?r=<id do passeio> opcional. Se o registro falhar ou demorar, abre o Google do mesmo jeito -->
+<style>html{touch-action:manipulation}
+:root{--ink:#10262e;--muted:#5b6f76;--bg:#f3f6f7;--go:#1a73e8}
+@media (prefers-color-scheme:dark){:root{--ink:#e8f0f2;--muted:#9fb3ba;--bg:#0c1a1f}}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center;padding:0 16px}
+img{width:72px;height:72px;border-radius:18px}
+h1{font-size:20px;margin:14px 0 6px}
+p{color:var(--muted);margin:0 0 18px}
+a.b{display:inline-block;background:var(--go);color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:999px}
+</style>
+</head>
+<body>
+<main><img src="/login/icon-192.png" alt=""><h1 id="t">Abrindo o Google…</h1><p id="s">Se não abrir sozinho, toque no botão.</p><a class="b" id="go" href="https://g.page/r/CeyZTdN08ml_ECE/review">Avaliar no Google</a></main>
+<script>
+const G="https://g.page/r/CeyZTdN08ml_ECE/review";
+const L={pt:["Abrindo o Google…","Se não abrir sozinho, toque no botão.","Avaliar no Google"],en:["Opening Google…","If it doesn't open, tap the button.","Review on Google"],es:["Abriendo Google…","Si no se abre solo, toca el botón.","Opinar en Google"]};
+const n=(navigator.language||"pt").slice(0,2).toLowerCase(), x=L[n]||L.pt;
+document.getElementById("t").textContent=x[0]; document.getElementById("s").textContent=x[1]; document.getElementById("go").textContent=x[2];
+const rq=new URLSearchParams(location.search).get("r"), r=/^\d{1,10}$/.test(rq||"")?+rq:null;
+let foi=false; const ir=()=>{ if(foi) return; foi=true; location.replace(G); };
+try{
+  fetch("https://sqoperylsqcbcjpcrlnp.supabase.co/rest/v1/rpc/clique_google",{method:"POST",keepalive:true,
+    headers:{apikey:"sb_publishable_Dvz6L37Nn7kTKyPmh0_CHw_5CJnQIuJ","content-type":"application/json"},body:JSON.stringify({r})}).then(ir,ir);
+}catch(e){ ir(); }
+setTimeout(ir,1200);
+</script>
+</body>
+</html>
