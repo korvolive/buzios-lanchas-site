@@ -1,7 +1,7 @@
 # Graph Report - buzios-lanchas-site  (2026-11-24)
 
 ## Corpus Check
-- 304 files · ~535,272 words
+- 304 files · ~536,152 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `485a7224`
+- Built from commit: `b79843d9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -157,14 +157,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `public.tg_pedido_jetski_uso()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
   supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
-- `cliques_google_criado` --indexes--> `public.cliques_google`  [EXTRACTED]
-  supabase/sql/2026-11-24_clique-google-so-passeio-real.sql → supabase/sql/2026-11-23_clique-avaliacao-google.sql
+- `public.tg_pedido_jetski()` --reads_from--> `public.jetski_usos`  [EXTRACTED]
+  supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
+- `public.tg_pedido_jetski()` --reads_from--> `public.jetskis`  [EXTRACTED]
+  supabase/sql/2026-11-15_jetski-revisao-geral.sql → supabase/sql/2026-11-15_jetski.sql
 - `public.salvar_pix()` --writes_to--> `public.avisos_seguranca`  [EXTRACTED]
   supabase/sql/2026-11-22_revisao-diaria.sql → supabase/sql/2026-11-21_seguranca-saque.sql
 - `public._trocar_telefone_conta()` --writes_to--> `public.avisos_seguranca`  [EXTRACTED]
   supabase/sql/2026-11-22_zzz-trocar-telefone-conta.sql → supabase/sql/2026-11-21_seguranca-saque.sql
-- `public.origem_reserva()` --reads_from--> `public.papeis_painel`  [EXTRACTED]
-  supabase/sql/2026-11-13_origem-da-reserva.sql → supabase/sql/2026-10-30_papeis-operador-auditor.sql
 
 ## Import Cycles
 - None detected.
@@ -570,15 +570,15 @@ Nodes (4): public.funil_vendedor(), public.funil_vendedor_resumo(), public.vende
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `vendedores`, `public._aprovar_consulta`, `public`, `public.consultas`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Should `public.pagamentos_pp` be split into smaller, more focused modules?**
   _Cohesion score 0.09009009009009009 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.consultas`, `public.bloqueios`, `public.bloqueios`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.marcar_wa()` connect `public` to `2026-10-30_operador-um-toque.sql`, `public.bloqueios`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public.creditos` connect `2026-10-30_operador-um-toque.sql` to `public._aprovar_consulta`, `public`, `public.bloqueios`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**

@@ -400,6 +400,7 @@ a.tag{background:var(--coral);color:var(--navy);text-decoration:none}
 .pe .logo{color:#fff}.pe .lema{margin-top:10px;font-weight:700;color:var(--coral);letter-spacing:.01em}.pe .about{max-width:40ch;margin-top:14px;color:rgba(255,255,255,.7)}
 .pe ul{list-style:none;margin:0;padding:0}.pe li+li{margin-top:10px}.pe ul a{text-decoration:none;color:rgba(255,255,255,.85);font-weight:600}.pe ul a:hover{color:#fff}
 .pe .imp{margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);font-size:.9rem}
+.imp a{color:rgba(255,255,255,.85);text-decoration:underline;text-underline-offset:2px}
 /* entradas */
 .js .rv{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .js .rv.in{opacity:1;transform:none}
@@ -580,7 +581,7 @@ def pagina(lang):
 </ul>
 <ul>{nav.replace("<a ", "<li><a ").replace("</a>", "</a></li>")}</ul>
 </div>
-<p class="imp">{e(t["pe_imp"])}</p>
+<p class="imp">{e(t["pe_imp"]).replace("Búzios Lanchas", '<a href="https://www.lanchaembuzios.com.br/" target="_blank" rel="noopener">Búzios Lanchas</a>', 1)}</p>
 </div></footer>
 <script>{JS}</script>
 </body>
