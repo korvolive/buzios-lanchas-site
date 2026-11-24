@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2161 nodes · 3612 edges · 190 communities (99 shown, 91 thin omitted)
+- 2162 nodes · 3612 edges · 191 communities (99 shown, 92 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `94d2b4c6`
+- Built from commit: `8b0139d9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -169,7 +169,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (190 total, 91 thin omitted)
+## Communities (191 total, 92 thin omitted)
 
 ### Community 0 - "public.pagamentos_pp"
 Cohesion: 0.11
@@ -568,20 +568,20 @@ Cohesion: 0.29
 Nodes (4): CORS, db, SLOT, TXT
 
 ## Knowledge Gaps
-- **91 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **92 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.bloqueios` to `public.bloqueios`, `public.bloqueios`, `2026-10-30_operador-um-toque.sql`, `public.consultas`, `public.bloqueios`, `public.creditos`, `pedidos`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `public.pagamentos_pp` be split into smaller, more focused modules?**
   _Cohesion score 0.10591133004926108 - nodes in this community are weakly interconnected._
 - **Why does `public.adicionar_lancha_pre_reserva()` connect `public.adicionar_lancha_pre_reserva` to `public.pagamentos_pp`, `public`, `public.jetskis`, `public.consultas`, `public.clientes`?**
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
-- **Why does `public.creditos` connect `public.creditos` to `public`, `2026-10-30_operador-um-toque.sql`, `public.bloqueios`, `public.bloqueios`?**
+- **Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.pagamentos_pp`, `public.pedidos`, `public.bloqueios`, `public.consultas`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
