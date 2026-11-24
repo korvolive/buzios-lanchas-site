@@ -193,6 +193,7 @@ async function avisarDonos(cfg: any) {
     if (k) await criarModelos(k, await modelos(k), cfg).catch(e => console.error("criar modelos", e));
   }
   const fim = await avisarResolvidas().catch(e => (console.error("resolvidas", e), -1));
+  await linkReservaAuto().catch(e => console.error("link auto", e));
   const { data: todas } = await db.from("lanchas").select("slug, nome, reserva_auto, dados");
   const L = new Map((todas || []).map(l => [l.slug, l]));
   const CONF = new Set((todas || []).filter(confirmaDono).map(l => l.slug));
@@ -373,6 +374,38 @@ async function prazosDono(CONF: Set<string>, L: Map<string, any>) {
       body: `${quando}${cli}. ` + (avisado ? "O cliente recebeu a mensagem de que seguimos aguardando, com outras opções." : c?.vendedor ? "Cliente de vendedor: o vendedor fala com ele." : "Não deu para avisar o cliente automaticamente: fale com ele.") }),
       "/login/?pedidos=1", `op_pedido-${refDe(a)}`).catch(() => 0);
     n++;
+  }
+  return n;
+}
+// Reserva automática (qualquer lancha com "Reserva automática", não só a Miss Bardot): o banco libera o sinal do pedido do site
+// sozinho, mas o link não ia pelo WhatsApp (só aparecia no app do cliente). Agora vai o mesmo WhatsApp do "Liberar pagamento",
+// igual quando o dono ou o administrador aprova (Rodrigo 2026-11-24). Pedidos liberados nas últimas 12 h, 1 minuto depois.
+async function linkReservaAuto() {
+  const agora = Date.now();
+  const { data: auto } = await db.from("lanchas").select("slug").eq("reserva_auto", true);
+  const slugs = (auto || []).map(l => l.slug);
+  if (!slugs.length) return 0;
+  const { data: ps, error } = await db.from("pedidos").select("id, sinal_valor, jetski_valor")
+    .eq("status", "pendente").in("lancha", slugs).is("wa_central_em", null).is("comprovante_em", null).gt("sinal_valor", 0)
+    // só o pedido que o cliente fez no site: o lançado pelo Lucas/vendedor já tem pré-reserva (bloqueio) e o link sai pelo caminho dele
+    .is("bloqueio_id", null).is("vendedor", null)
+    .gte("sinal_liberado_em", new Date(agora - 12 * 3600e3).toISOString()).lte("sinal_liberado_em", new Date(agora - 60e3).toISOString())
+    .order("id").limit(5);
+  if (error) throw error;
+  const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const call = (body: unknown) => fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-checkout`, { method: "POST",
+    headers: { authorization: `Bearer ${srk}`, apikey: srk, "content-type": "application/json" }, body: JSON.stringify(body) }).then(x => x.json()).catch(() => null);
+  let n = 0;
+  for (const p of ps || []) {
+    const { data: c } = await db.from("pagamentos_pp").select("pedido").eq("pedido", p.id).maybeSingle();
+    const r = c ? await call({ acao: "avisar_wa", pid: p.id })
+      : await call({ acao: "link", pid: p.id, valor: +p.sinal_valor + (+p.jetski_valor || 0), moeda: "BRL" });
+    console.log("link reserva automática", p.id, r?.wa ? "wa" : "sem_wa", JSON.stringify(r?.erro || ""));
+    if (r?.wa) { n++; continue; }
+    // não saiu (sem WhatsApp no cadastro, modelo recusado...): marca para não tentar de novo a cada minuto e avisa a equipe
+    const { data: up } = await db.from("pedidos").update({ wa_central_em: new Date().toISOString() }).eq("id", p.id).is("wa_central_em", null).select("id");
+    if (up?.length) await push(await admins(), () => ({ title: "Mande o link de pagamento", body: `Pedido ${p.id}: o sinal foi liberado sozinho, mas o WhatsApp automático com o link não saiu. Mande pelo app.` }),
+      "/login/?pedidos=1", `op_link-p${p.id}`).catch(() => 0);
   }
   return n;
 }

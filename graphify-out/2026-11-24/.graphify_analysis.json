@@ -2529,6 +2529,9 @@
       "supabase_functions_aviso_comprovante_index_slot",
       "supabase_functions_aviso_comprovante_index_txt"
     ],
+    "186": [
+      "supabase_sql_2026_11_24_dono_aprova_pedido_horario_mudou"
+    ],
     "189": [
       "supabase_sql_2026_11_23_cancelar_spartana_30_12"
     ],
@@ -2729,6 +2732,7 @@
     "183": 1.0,
     "184": 0.7,
     "185": 0.2857142857142857,
+    "186": 1.0,
     "189": 1.0,
     "190": 1.0,
     "193": 1.0,
@@ -2847,7 +2851,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.bloqueios` to `public.bloqueios`, `public.bloqueios`, `2026-10-30_operador-um-toque.sql`, `public.consultas`, `public.bloqueios`, `public.creditos`, `pedidos`?",
-      "why": "High betweenness centrality (0.025) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.020) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2866,7 +2870,7 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.creditos` connect `public.creditos` to `public`, `2026-10-30_operador-um-toque.sql`, `public.bloqueios`, `public.bloqueios`?",
+      "question": "Why does `public._aprovar_consulta()` connect `public.bloqueios` to `public.pagamentos_pp`, `public.pedidos`, `public.bloqueios`, `public.consultas`?",
       "why": "High betweenness centrality (0.016) - this node is a cross-community bridge."
     },
     {
