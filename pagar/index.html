@@ -51,6 +51,18 @@ h2{font-size:16px;margin:0 0 10px}
 #pp{min-height:60px;margin-top:8px}
 .qr{max-width:240px;margin:12px auto 0;background:#fff;padding:8px;border-radius:12px}.qr svg{display:block;width:100%;height:auto}.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0f2a33;color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
+/* mudar data ou horário (Rodrigo 2026-11-24): link discreto; o seletor só abre se o cliente tocar */
+.mudl{display:flex;justify-content:flex-end;margin:-10px 0 10px}
+.lk{background:none;border:0;padding:4px 0;font:inherit;font-size:13px;color:var(--muted);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.mud{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 14px}
+.mud h3{margin:0;font-size:15px}.mud .sub{margin:2px 0 10px;font-size:13px}
+.mdias{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.mdia{flex:none;scroll-snap-align:start;min-width:62px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;padding:7px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+.mdia small{font-size:11px;color:var(--muted);text-transform:capitalize}.mdia b{font-size:14px}
+.mdia i{width:5px;height:5px;border-radius:50%;background:var(--sea);margin-top:2px}.mdia i.no{background:transparent}
+.mdia[aria-pressed="true"]{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea)}
+.mud .po[aria-disabled="true"]{opacity:.6;cursor:default}
+.mud .acts{display:flex;flex-wrap:wrap;gap:0 8px}.mud .acts .btn{margin-top:10px;flex:1 1 auto;width:auto;white-space:nowrap;padding:12px 14px}.mud .acts .btn.sec{width:auto;flex:none}.mud .acts .btn:disabled{opacity:.45;cursor:default}
 /* recibo do sinal (2026-10-29): aberto pelo botão da página ou por &recibo=1 (Meus passeios); imprime só o recibo */
 .rc h1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.rc h1 small{font-size:14px;color:var(--muted);font-weight:600}
 .rc .rctx{margin:0 0 14px}.rc .rctm{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--line)}.rc .rctm h2{font-size:17px;margin:0 0 6px}.rc .rcco{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);line-height:1.5}.rc .rcco b{color:var(--ink)}
@@ -245,7 +257,7 @@ function render(){ const su=document.getElementById("asaas-sup"); if(su) su.text
   const step=conf?3:paid?2:1, cls=n=>n<step||(n===3&&conf)?"done":n===step?"now":"";
   const s2d = D.pago_em ? tf(L.s2pp,{v:esc(D.pago_valor||D.texto)}) + " " + L.s2d : D.comprovante_em ? L.s2px+" "+L.s2d : L.s2d;
   const steps=`<div class="card"><h2>${L.st}</h2><ol class="steps">
-    <li class="${cls(1)}"><i>${step>1?"✓":"1"}</i><span>${L.s1}${step===1?`<small>${L.s1d}</small>`:""}</span></li>
+    <li class="${cls(1)}"><i>${step>1?"✓":"1"}</i><span>${L.s1}${step===1&&!(open&&D.espera_dono)?`<small>${L.s1d}</small>`:""}</span></li>
     <li class="${cls(2)}"><i>${step>2?"✓":"2"}</i><span>${L.s2}${step===2?`<small>${s2d}</small>`:""}</span></li>
     <li class="${cls(3)}"><i>${conf?"✓":"3"}</i><span>${L.s3}${conf?`<small>${L.s3d}</small>`:""}</span></li></ol></div>`;
   const brlV=D.sinal_brl||(D.moeda==="BRL"?D.valor:0), foreign=D.moeda!=="BRL";
@@ -257,17 +269,21 @@ function render(){ const su=document.getElementById("asaas-sup"); if(su) su.text
     <textarea readonly rows="4" onfocus="this.select()" aria-label="Pix copia e cola" style="width:100%;margin-top:8px;font:12px/1.3 monospace;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);resize:none">${esc(pixPayload(PIX_CNPJ, brlV, "PED"+D.pedido))}</textarea>
     <p class="muted" style="margin:10px 0 0">${L.pixSend}</p>${D.chat?`<button type="button" class="btn" data-chat="${D.chat}">${L.sendRcpt}</button>`:""}</div>` : "";
   const pp = foreign && D.cliente_id ? `<div class="pay" data-m="paypal"><h3>${L.ppT}</h3><p class="muted" style="margin:0">${L.ppHow}</p><div id="pp"></div><div id="ppmsg"></div></div>` : "";
+  /* marcou num acesso em que a gravação falhou: grava de novo uma vez (revisão 22/11). Fica fora da escolha da área de pagamento:
+     dentro dela, o "else" seguinte passava por cima do aviso de pago, do termo, do preço novo e de "outro cliente pagando" (revisão 24/11) */
+  if(open && !paid && polOk && !D.aceite && !aceiteRe){ aceiteRe=true;
+    fetch(FN,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({acao:"aceite",p:P,k:K,l:lg})}).catch(()=>{}); }
   let payArea="";
   if(state==="paid"){ payArea=`<p class="msg ok">✓ ${L.paid}</p>`; }
   else if(gone) payArea=`<p class="msg err">${tf(L.gone,{b:esc(D.lancha)})}</p><a class="btn" href="${livres}">${L.goneBtn}</a>`;
   /* com o Asaas na tela, o Pix manual some (dois QR codes diferentes levavam a pagar em dobro); outro cliente pagando: só o aviso (revisão 2026-10-25) */
   else if(open && !paid && D.jetski_fora) payArea=`<p class="msg err">${JL[lg].gone}</p>${D.chat?`<button type="button" class="btn" data-chat="${D.chat}">💬 ${L.chats}</button>`:""}`;
   else if(open && !paid && D.pagando) payArea=`<p class="msg err">${L.busy}</p>`;
+  /* data/horário mudado em lancha parceira: o pagamento volta sozinho quando o dono confirmar (a página se atualiza a cada 20 s) */
+  else if(open && !paid && D.espera_dono) payArea=`<p class="msg ok">${MT[lg].wait}</p>`;
   /* prazo vencido e o dono mudou o preço (Rodrigo 2026-11-15): mostra o valor novo e só deixa pagar depois do "concordo" */
   else if(open && !paid && D.preco_novo) payArea=`<h2>${L.pnT}</h2><p>${tf(L.pnTx,{a:brl(D.preco_novo.antigo), v:`<b>${brl(D.preco_novo.valor)}</b>`})}</p><button type="button" class="btn" data-pn="1">${L.pnBtn}</button><div id="pnmsg"></div>`;
   else if(open && !paid && !polOk && !D.aceite) payArea = polHTML(); /* já aceitou neste pedido (em outro aparelho): não pergunta de novo */
-  if(open && !paid && polOk && !D.aceite && !aceiteRe){ aceiteRe=true; /* marcou num acesso em que a gravação falhou: grava de novo uma vez (revisão 22/11) */
-    fetch(FN,{method:"POST",headers:{apikey:KEY,"content-type":"application/json"},body:JSON.stringify({acao:"aceite",p:P,k:K,l:lg})}).catch(()=>{}); }
   else if(open && !paid) payArea = ((h=>foreign ? (pixUlt() ? h + pp + (AS && A && A.ativo && A.pix ? asPixHTML(L,true) : pix) : h.includes('data-m="as-pix"') ? h + pp : pix + h + pp) : h + pp + ((h.includes('data-m="as-pix"') || (AS && A && A.ativo)) ? "" : pix))(asHTML())) /* Asaas ligado: sem o Pix manual do CNPJ para brasileiro (Rodrigo 2026-11-11); estrangeiro vê o Pix do CNPJ primeiro, porque muitos já estão no Brasil (Rodrigo 2026-11-14) */ + (foreign && !D.cliente_id && !D.vendedor && !D.pp_prazo ? `<p class="msg err">${L.keys}</p>` : "") /* PayPal fora do prazo (outra lancha, menos de 3 dias): some sem aviso, só Pix (Rodrigo 2026-11-14) */;
   else if(!open && !conf) payArea=`<p class="msg err">${L.closed}</p>`;
   /* o chat fica só no botão Suporte do canto (2026-10-25); aqui sobra o WhatsApp (sem chat) e Ver meus passeios */
@@ -276,6 +292,7 @@ function render(){ const su=document.getElementById("asaas-sup"); if(su) su.text
   box.innerHTML=`<div class="card"><p class="muted" style="margin:0">${esc(L.hi(D.nome))}</p><h1>${L.title}</h1>
     <ul class="rows"><li><span>${D.itens?(GL[lg]||GL.pt).boats:L.boat}</span><b>${esc(D.lancha)}</b></li><li><span>${L.date}</span><b>${esc(d)}</b></li>
     <li><span>${L.time}</span><b>${esc(hrsTxt(L))}</b></li><li><span>${L.people}</span><b>${esc(D.pessoas)}</b></li>${D.itens?grpRows():jetRows(L)}</ul>
+    ${D.muda && open && !paid && !conf && !gone && state!=="paid" ? mudHTML() : ""}
     <div class="muted">${D.itens?((GL[lg]||GL.pt)[D.itens.some(i=>i.jetski&&+i.jetski.valor>0)?"depJ":"dep"]):D.jetski?.valor>0?JL[lg].dep:L.dep}</div><div class="amt">${esc(D.texto)}</div>${foreign&&brlV?`<div class="muted">${brl(brlV)}</div>`:""}${gone?"":`<p class="muted" style="margin:6px 0 0">${D.resto_brl>0 ? L.restV.replace("{v}", brl(D.resto_brl)) : D.resto_brl===0 ? L.rest0 : L.rest /* com o valor do restante, em reais (2026-10-25) */}</p>`}</div>${gone?"":steps}${payArea?`<div class="card">${payArea}</div>`:""}${chats}`;
   if(document.getElementById("pp")) mountPP();
   fabs();
@@ -404,10 +421,51 @@ async function mountPP(){
   }).render(el).catch(()=>{});
 }
 document.addEventListener("click", e=>{ if(e.target.closest("[data-rc]")){ rcOpen=true; render(); scrollTo(0,0); } });
+/* mudar data ou horário (Rodrigo 2026-11-24): link discreto embaixo dos dados; só dias e horários livres, até 7 dias da data pedida.
+   Tudo acontece nesta página: confirmou, os valores e o pagamento se atualizam aqui mesmo. Lancha parceira: espera o dono aprovar de novo. */
+const MT={
+  pt:{lk:"Mudar data ou horário",t:"Mudar data ou horário",sub:"Só aparecem os dias e horários livres desta lancha.",nm:{manha:"Manhã",tarde:"Tarde",dia:"Dia todo"},tot:"Total {v} · sinal {s}",atual:"atual",ok:"Confirmar mudança",cancel:"Cancelar",load:"Carregando…",none:"Não há outra data ou horário livre perto desta data. Para outras opções, fale com a gente no WhatsApp.",lucas:"Para mudar este pedido, fale com a gente no WhatsApp.",busy:"Esse horário acabou de ser reservado. Escolha outro.",late:"Esse horário já fechou para reserva. Escolha outro.",err:"Não deu para mudar agora. Tente de novo ou fale com a gente no WhatsApp.",done:"Pedido atualizado",wait:"Estamos confirmando a nova data e horário com a lancha. Assim que confirmar, o pagamento aparece aqui mesmo, sem precisar sair desta página."},
+  en:{lk:"Change date or time",t:"Change date or time",sub:"Only free days and times for this boat are shown.",nm:{manha:"Morning",tarde:"Afternoon",dia:"Full day"},tot:"Total {v} · deposit {s}",atual:"current",ok:"Confirm change",cancel:"Cancel",load:"Loading…",none:"There is no other free date or time close to this date. For other options, talk to us on WhatsApp.",lucas:"To change this booking, talk to us on WhatsApp.",busy:"That time was just booked. Please choose another one.",late:"That time is closed for booking. Please choose another one.",err:"We couldn't change it right now. Try again or talk to us on WhatsApp.",done:"Booking updated",wait:"We are confirming the new date and time with the boat. As soon as it is confirmed, the payment shows up right here, no need to leave this page."},
+  es:{lk:"Cambiar fecha u horario",t:"Cambiar fecha u horario",sub:"Solo aparecen los días y horarios libres de esta lancha.",nm:{manha:"Mañana",tarde:"Tarde",dia:"Día completo"},tot:"Total {v} · seña {s}",atual:"actual",ok:"Confirmar cambio",cancel:"Cancelar",load:"Cargando…",none:"No hay otra fecha u horario libre cerca de esta fecha. Para otras opciones, habla con nosotros por WhatsApp.",lucas:"Para cambiar este pedido, habla con nosotros por WhatsApp.",busy:"Ese horario se acaba de reservar. Elige otro.",late:"Ese horario ya cerró para reservas. Elige otro.",err:"No se pudo cambiar ahora. Inténtalo de nuevo o habla con nosotros por WhatsApp.",done:"Pedido actualizado",wait:"Estamos confirmando la nueva fecha y horario con la lancha. En cuanto se confirme, el pago aparece aquí mismo, sin salir de esta página."}};
+let MUD={open:false,dias:null,d:null,h:null,msg:"",busy:false};
+function mudHTML(){ const M=MT[lg]||MT.pt, L=T[lg]||T.pt;
+  if(!MUD.open) return `<div class="mudl"><button type="button" class="lk" data-mud="open">${M.lk}</button></div>`;
+  const msg=MUD.msg?`<p class="msg err" style="margin:0 0 10px">${MUD.msg}</p>`:"";
+  let body;
+  if(!MUD.dias) body=MUD.msg?"":`<p class="muted" style="margin:0 0 4px">${M.load}</p>`;
+  else if(!MUD.dias.some(x=>x.opcoes.some(o=>!o.atual))) body=`<p class="muted" style="margin:0 0 4px">${M.none}</p>`;
+  else { const dia=MUD.dias.find(x=>x.data===MUD.d)||MUD.dias[0];
+    const chips=MUD.dias.map(x=>{ const dt=new Date(x.data+"T12:00:00");
+      return `<button type="button" class="mdia" data-mdia="${x.data}" aria-pressed="${x.data===dia.data}"><small>${esc(dt.toLocaleDateString(L.loc,{weekday:"short"}).replace(".",""))}</small><b>${esc(dt.toLocaleDateString(L.loc,{day:"2-digit",month:"2-digit"}))}</b><i class="${x.data===D.data?"":"no"}"></i></button>`; }).join("");
+    const ops=dia.opcoes.map(o=>`<label class="po"${o.atual?' aria-disabled="true"':""}><input type="radio" name="mudh" value="${o.horario}"${o.atual?" disabled":""}${!o.atual&&MUD.d===dia.data&&MUD.h===o.horario?" checked":""}><span><b>${M.nm[o.horario]} · ${esc(L.slot[o.horario])}${o.atual?` <small class="muted">(${M.atual})</small>`:""}</b>${o.valor>0?`<small class="muted">${tf(M.tot,{v:brl(o.valor),s:brl(o.sinal)})}</small>`:""}</span></label>`).join("");
+    body=`<div class="mdias" role="group" aria-label="${esc(L.date)}">${chips}</div><div class="parc" role="radiogroup" aria-label="${esc(L.time)}">${ops}</div>`; }
+  const pode=!!(MUD.dias && MUD.d && MUD.h && !MUD.busy);
+  return `<div class="mud" id="mud"><h3>${M.t}</h3><p class="muted sub">${M.sub}</p>${msg}${body}
+    <div class="acts">${MUD.dias&&MUD.dias.some(x=>x.opcoes.some(o=>!o.atual))?`<button type="button" class="btn" data-mud="ok"${pode?"":" disabled"}>${MUD.busy?"…":M.ok}</button>`:""}<button type="button" class="btn sec" data-mud="fechar">${M.cancel}</button></div></div>`; }
+const mudErr=e=>{ const M=MT[lg]||MT.pt; return e==="ocupada"||e==="pagando"?M.busy:e==="passou"?M.late:e==="lucas"||e==="data"||e==="fechado"?M.lucas:M.err; };
+async function mudOpcoes(keep){ try{ const j=await post({acao:"opcoes_cliente"});
+    if(j.erro==="pago"||j.erro==="status"){ MUD.open=false; refresh(true); return; }
+    if(!j.ok){ MUD.dias=null; MUD.msg=mudErr(j.erro); render(); return; }
+    MUD.dias=j.dias||[]; if(!keep) MUD.msg="";
+    if(!MUD.dias.some(x=>x.data===MUD.d)){ MUD.d=(MUD.dias.find(x=>x.data===D.data)||MUD.dias[0]||{}).data||null; }
+    const dia=MUD.dias.find(x=>x.data===MUD.d); if(!dia || !dia.opcoes.some(o=>!o.atual && o.horario===MUD.h)) MUD.h=null;
+  }catch(e){ MUD.dias=null; MUD.msg=(MT[lg]||MT.pt).err; } render(); }
+document.addEventListener("change", e=>{ if(e.target.name==="mudh"){ MUD.h=e.target.value; MUD.d=(document.querySelector('.mdia[aria-pressed="true"]')||{}).dataset?.mdia||MUD.d; MUD.msg=""; render(); } });
+document.addEventListener("click", async e=>{ const c=e.target.closest(".mdia"); if(c){ if(c.dataset.mdia!==MUD.d){ MUD.d=c.dataset.mdia; MUD.h=null; MUD.msg=""; render(); } return; }
+  const b=e.target.closest("[data-mud]"); if(!b) return; const a=b.dataset.mud;
+  if(a==="open"){ MUD={open:true,dias:null,d:D.data,h:null,msg:"",busy:false}; render(); document.getElementById("mud")?.scrollIntoView({block:"nearest",behavior:"smooth"}); mudOpcoes(); return; }
+  if(a==="fechar"){ MUD.open=false; render(); return; }
+  if(a==="ok" && MUD.d && MUD.h && !MUD.busy){ MUD.busy=true; MUD.msg=""; render();
+    try{ const j=await post({acao:"alterar_cliente", data:MUD.d, horario:MUD.h});
+      if(j.erro==="pago"||j.erro==="status"){ MUD.open=false; MUD.busy=false; await refresh(true); return; }
+      if(!j.ok){ MUD.busy=false; MUD.msg=mudErr(j.erro); if(j.erro==="ocupada"||j.erro==="pagando"||j.erro==="passou"){ MUD.h=null; await mudOpcoes(true); } else render(); return; }
+      MUD={open:false,dias:null,d:null,h:null,msg:"",busy:false};
+      await refresh(true); toast((MT[lg]||MT.pt).done); scrollTo(0,0);
+    }catch(x){ MUD.busy=false; MUD.msg=(MT[lg]||MT.pt).err; render(); } } });
 document.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ lg=b.dataset.lg; try{ localStorage.setItem("pagar-lang",lg); }catch(e){} render(); });
 render();
 /* a página se atualiza sozinha (2026-10-22): a cada 20 s e ao voltar para a aba, até a reserva ser confirmada; só redesenha se o andamento mudou */
-const sig=d=>d?[d.pago_em,d.comprovante_em,d.confirmada,d.status,d.indisponivel,d.pagando,d.jetski_fora,d.preco_novo?.valor,d.texto].join("|"):"";
+const sig=d=>d?[d.pago_em,d.comprovante_em,d.confirmada,d.status,d.indisponivel,d.pagando,d.jetski_fora,d.preco_novo?.valor,d.texto,d.espera_dono,d.data,d.horario,d.muda].join("|"):"";
 /* "Concordo com o novo valor": o servidor atualiza o pedido e o sinal; depois recarrega os valores da página e do Asaas */
 document.addEventListener("click", async e=>{ const b=e.target.closest("[data-pn]"); if(!b || !D?.preco_novo) return; const m=document.getElementById("pnmsg");
   b.disabled=true; if(m) m.innerHTML=`<p class="muted">…</p>`;
@@ -420,9 +478,13 @@ document.addEventListener("click", async e=>{ const b=e.target.closest("[data-pn
     AX.alt=null; AX.altLoading=0; AX.altErr=0; /* QR sem vencimento: busca de novo com o valor novo */
     render(); scrollTo(0,0);
   }catch(x){ b.disabled=false; if(m) m.innerHTML=`<p class="msg err">${T[lg].pnErr}</p>`; } });
-async function refresh(){ if(!D || state==="bad" || D.confirmada || document.hidden) return;
-  try{ const r=await fetch(`${FN}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}); if(!r.ok) return; const n=await r.json(); if(sig(n)!==sig(D)){ D=n; render(); } }catch(e){} }
-setInterval(refresh, 20000); document.addEventListener("visibilitychange", refresh);
+/* force: depois de o cliente mudar data/horário. Valor ou liberação mudou (ex.: o dono aprovou a nova data): recarrega também o Asaas */
+async function refresh(force){ if(!D || state==="bad" || D.confirmada || (document.hidden && force!==true)) return;
+  try{ const r=await fetch(`${FN}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}); if(!r.ok) return; const n=await r.json();
+    if(force===true || sig(n)!==sig(D)){ const asJa = force===true || n.espera_dono!==D.espera_dono || n.texto!==D.texto || n.data!==D.data || n.horario!==D.horario; D=n;
+      if(asJa && AS){ try{ A=await fetch(`${FN_AS}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}).then(r=>r.json()); if(A.pago) state="paid"; else if(A.ativo) asWatch(); }catch(x){ A={ativo:false}; } AX.alt=null; AX.altLoading=0; AX.altErr=0; }
+      render(); } }catch(e){} }
+setInterval(refresh, 20000); document.addEventListener("visibilitychange", ()=>refresh());
 (async()=>{ try{ if(!P||!K) throw 0; const r=await fetch(`${FN}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}); if(!r.ok) throw 0; D=await r.json(); state="show";
   if(AS){ try{ A=await fetch(`${FN_AS}?p=${encodeURIComponent(P)}&k=${encodeURIComponent(K)}`,{headers:{apikey:KEY}}).then(r=>r.json()); if(A.pago) state="paid"; else if(A.ativo) asWatch(); }catch(e){ A={ativo:false}; } }
   }catch(e){ state="bad"; } render(); if(state!=="bad") visitaPagar(); })();

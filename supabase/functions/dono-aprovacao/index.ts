@@ -216,7 +216,9 @@ async function avisarDonos(cfg: any) {
   const NAUTO = (todas || []).filter(l => !l.reserva_auto).map(l => l.slug);
   const { data: ped } = NAUTO.length ? await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, pessoas, criado_em")
     .eq("status", "pendente").is("sinal_liberado_em", null).is("bloqueio_id", null).in("lancha", NAUTO)
-    .gte("data", hoje).gte("criado_em", new Date(agora - 864e5).toISOString()).lte("criado_em", new Date(agora - 2 * 60e3).toISOString())
+    // pedido novo (até 24 h) ou que o cliente mudou de data/horário na página de pagamento nas últimas 24 h
+    .gte("data", hoje).or(`criado_em.gte.${new Date(agora - 864e5).toISOString()},atualizado_em.gte.${new Date(agora - 864e5).toISOString()}`)
+    .lte("criado_em", new Date(agora - 2 * 60e3).toISOString())
     .order("id").limit(20) : { data: [] as any[] };
   const { data: pcl } = ped?.length ? await db.from("clientes").select("user_id, whatsapp").in("user_id", [...new Set(ped.map(p => p.cliente))]) : { data: [] as any[] };
   const wcl = new Map((pcl || []).map(x => [x.user_id, x.whatsapp]));
@@ -542,12 +544,14 @@ Deno.serve(async req => {
           // no WhatsApp do cliente (mesmo envio do "Liberar pagamento" do app; Rodrigo 2026-11-24, Heber/Gratidão)
           if (r.pedido && +r.sinal > 0) {
             const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+            const tinha = !!(await db.from("pagamentos_pp").select("pedido").eq("pedido", r.pedido).maybeSingle()).data;
             const lk = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-checkout`, { method: "POST",
               headers: { authorization: `Bearer ${srk}`, apikey: srk, "content-type": "application/json" },
               body: JSON.stringify({ acao: "link", pid: r.pedido, valor: +r.sinal, moeda: "BRL" }) })
               .then(x => x.json()).catch(e => (console.error("link pedido", e), null));
             console.log("link pedido", r.pedido, lk?.link ? "ok" : "falhou", lk?.wa ? "wa" : "sem_wa");
-            if (!lk?.wa) await push(await admins(), () => ({ title: "Mande o link de pagamento", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}: o dono aprovou, mas o WhatsApp automático com o link não saiu. Toque em Liberar pagamento.` }),
+            // central que já existia (cliente mudou data/horário e está na página, que se atualiza sozinha): sem WhatsApp novo, tudo certo
+            if (!lk?.link || (!tinha && !lk.wa)) await push(await admins(), () => ({ title: "Mande o link de pagamento", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}: o dono aprovou, mas o WhatsApp automático com o link não saiu. Toque em Liberar pagamento.` }),
               "/login/?pedidos=1", `op_link-p${r.pedido}`).catch(() => 0);
           }
           // pedido do Lucas virou pré-reserva: mesmo aviso de quando o administrador aprova (ele manda o link; senão o número oficial manda)
