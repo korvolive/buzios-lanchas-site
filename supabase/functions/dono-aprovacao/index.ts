@@ -493,6 +493,18 @@ Deno.serve(async req => {
             : l === "es" ? { title: "El dueño aprobó la reserva", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}. El cliente sigue al pago.` }
             : { title: "O dono aprovou a pré-reserva", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}. O cliente segue para o pagamento.` },
             "/login/?pedidos=1", `op_pedido-${refDe({ consulta_id: r.consulta ?? null, pedido_id: r.pedido })}`).catch(e => console.error("push admin", e));
+          // pedido feito no site: o dono aprovou e o sinal foi liberado no pedido. Cria a central de pagamento e manda o link sozinho
+          // no WhatsApp do cliente (mesmo envio do "Liberar pagamento" do app; Rodrigo 2026-11-24, Heber/Gratidão)
+          if (r.pedido && +r.sinal > 0) {
+            const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+            const lk = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-checkout`, { method: "POST",
+              headers: { authorization: `Bearer ${srk}`, apikey: srk, "content-type": "application/json" },
+              body: JSON.stringify({ acao: "link", pid: r.pedido, valor: +r.sinal, moeda: "BRL" }) })
+              .then(x => x.json()).catch(e => (console.error("link pedido", e), null));
+            console.log("link pedido", r.pedido, lk?.link ? "ok" : "falhou", lk?.wa ? "wa" : "sem_wa");
+            if (!lk?.wa) await push(await admins(), () => ({ title: "Mande o link de pagamento", body: `${nomeL} · ${quando}${cli ? " · " + cli : ""}: o dono aprovou, mas o WhatsApp automático com o link não saiu. Toque em Liberar pagamento.` }),
+              "/login/?pedidos=1", `op_link-p${r.pedido}`).catch(() => 0);
+          }
           // pedido do Lucas virou pré-reserva: mesmo aviso de quando o administrador aprova (ele manda o link; senão o número oficial manda)
           if (r.pendente && !r.vendedor && !r.pedido) {
             const ops = await operadores();
