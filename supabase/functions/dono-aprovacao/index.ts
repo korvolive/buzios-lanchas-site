@@ -229,8 +229,12 @@ async function avisarDonos(cfg: any) {
   const tel = new Map((ps || []).map(p => [p.user_id, waNum(p.telefone)]));
   const cids = cs.filter(c => c.id != null).map(c => c.id), pids = cs.filter(c => c.pedido_id != null).map(c => c.pedido_id);
   const { data: ja } = cids.length ? await db.from("aprovacoes_dono").select("consulta_id, dono").in("consulta_id", cids) : { data: [] as any[] };
-  const { data: jp } = pids.length ? await db.from("aprovacoes_dono").select("pedido_id, dono").in("pedido_id", pids) : { data: [] as any[] };
-  const feito = new Set([...(ja || []).map(x => `${x.consulta_id}:${x.dono}`), ...(jp || []).map(x => `${refDe(x)}:${x.dono}`)]);
+  const { data: jp } = pids.length ? await db.from("aprovacoes_dono").select("pedido_id, dono, slot, resposta, enviado_em").in("pedido_id", pids) : { data: [] as any[] };
+  // pedido do site com horário mudado (o Lucas ajusta no mesmo pedido, só se o novo horário estiver livre) antes de o dono
+  // responder: o dono recebe de novo o pedido de aprovação, com o horário certo (Rodrigo 2026-11-24)
+  const slotP = new Map(cs.filter(c => c.pedido_id != null).map(c => [c.pedido_id, slotDe(c)]));
+  const mudou = (x: any) => x.resposta == null && x.enviado_em && x.slot && x.slot !== slotP.get(x.pedido_id);
+  const feito = new Set([...(ja || []).map(x => `${x.consulta_id}:${x.dono}`), ...(jp || []).filter(x => !mudou(x)).map(x => `${refDe(x)}:${x.dono}`)]);
   const alvos: { c: any; dono: string; to: string }[] = [];
   for (const c of cs) {
     const l = L.get(c.lancha);
@@ -265,13 +269,18 @@ async function avisarDonos(cfg: any) {
     // pedido do site: se a equipe já lançou o mesmo cliente nessa lancha/data (o dono já recebeu ou respondeu), não manda outro
     if (c.pedido_id && t8) {
       const { data: ant } = await db.from("aprovacoes_dono").select("id").eq("dono", dono).eq("lancha", c.lancha).eq("data", c.data)
-        .eq("tel_fim", t8).gte("criado_em", new Date(agora - 864e5).toISOString()).limit(1);
+        .eq("tel_fim", t8).or(`pedido_id.is.null,pedido_id.neq.${c.pedido_id}`).gte("criado_em", new Date(agora - 864e5).toISOString()).limit(1);
       if (ant?.length) continue;
     }
     // registra antes de mandar: trava de duplicidade se o cron rodar duas vezes
-    const { data: reg, error: re } = await db.from("aprovacoes_dono")
-      .insert({ consulta_id: c.id ?? null, pedido_id: c.pedido_id ?? null, dono, lancha: c.lancha, data: c.data, horario: c.horario, tel_fim: t8 || null })
-      .select("id, token").single();
+    // (horário mudado: a mesma linha ganha link novo e o horário certo; o link antigo deixa de valer)
+    const { data: reg, error: re } = c.pedido_id && (jp || []).some(x => x.pedido_id === c.pedido_id && x.dono === dono)
+      ? await db.from("aprovacoes_dono").update({ horario: c.horario, slot: slotDe(c), token: crypto.randomUUID(), enviado_em: null, envio: "horario-mudou",
+          lembrete_em: null, sem_resposta_em: null, sem_resposta_envio: null }).eq("pedido_id", c.pedido_id).eq("dono", dono).is("resposta", null).not("enviado_em", "is", null)
+          .select("id, token").single()
+      : await db.from("aprovacoes_dono")
+        .insert({ consulta_id: c.id ?? null, pedido_id: c.pedido_id ?? null, dono, lancha: c.lancha, data: c.data, horario: c.horario, tel_fim: t8 || null, slot: c.pedido_id ? slotDe(c) : null })
+        .select("id, token").single();
     if (re || !reg) { if (!String(re?.message || "").includes("duplicate")) console.error("registro", re?.message); continue; }
     let neto = c.neto_garantido;
     if (neto == null) neto = (await db.rpc("preco_neto_tabela", { l: c.lancha, d: c.data, h: c.horario })).data;
@@ -367,6 +376,9 @@ async function prazosDono(CONF: Set<string>, L: Map<string, any>) {
   }
   return n;
 }
+// horário do pedido do site (turno + horas exatas), para saber se mudou depois do aviso ao dono
+// deno-lint-ignore no-explicit-any
+const slotDe = (c: any) => `${c.horario}|${String(c.hora_ini || "").slice(0, 5)}|${String(c.hora_fim || "").slice(0, 5)}`;
 // etiqueta/chave de uma linha de aprovacoes_dono: a consulta (Lucas/vendedor) ou o pedido feito no site ("p" + id)
 // deno-lint-ignore no-explicit-any
 const refDe = (a: any) => a.consulta_id != null ? String(a.consulta_id) : `p${a.pedido_id}`;
