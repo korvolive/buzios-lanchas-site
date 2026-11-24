@@ -464,7 +464,12 @@ Deno.serve(async req => {
         else if (pn?.mudou) preco_novo = { antigo: +pn.antigo, valor: +pn.valor };
       }
       const pix_topo = c.moeda !== "BRL" ? await pixTopo(p.cliente).catch(() => true) : true;
-      return json({ pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p) || !!g.length, ambiente: API.includes("sandbox") ? "sandbox" : "live",
+      // o cliente pode mudar data/horário sozinho antes de pagar (Rodrigo 2026-11-24); a regra completa é conferida no banco
+      const muda = !g.length && p.status === "pendente" && !c.pago_em && !c.captura && !p.comprovante_em && !p.vendedor && !p.bloqueio_id
+        && !(+p.jetski_valor > 0) && ["manha", "tarde", "dia"].includes(String(p.horario)) && !p.hora_ini;
+      // lancha parceira com data/horário mudado: o pagamento espera o dono aprovar de novo
+      const espera_dono = p.status === "pendente" && !p.sinal_liberado_em && !c.pago_em && !p.comprovante_em;
+      return json({ muda, espera_dono, pix_topo, preco_novo, recibo, cliente_id: pp ? Deno.env.get("PAYPAL_CLIENT_ID") || "" : "", pp_prazo: !ppPrazo(p) || !!g.length, ambiente: API.includes("sandbox") ? "sandbox" : "live",
         pedido: p.id, lancha, data: p.data, horario: p.horario, hora_ini: p.hora_ini, hora_fim: p.hora_fim, pessoas: g.length ? g.reduce((a: number, m: any) => a + (+m.pessoas || 0), 0) || p.pessoas : p.pessoas, nome, moeda: c.moeda, valor: +c.valor, texto: fmt(c.moeda, +c.valor),
         sinal_brl: g.length ? (g.reduce((a: number, m: any) => a + sinalDe(m), 0) || null) : +p.sinal_valor > 0 ? +p.sinal_valor + (+p.jetski_valor || 0) : null, resto_brl: resto, itens,
         // jetski (Rodrigo 2026-11-15): a central mostra a lancha e o jetski em linhas separadas; o sinal da lancha é só da lancha; cort = minutos de cortesia (opcional)
@@ -613,6 +618,44 @@ Deno.serve(async req => {
       const para = r.hi ? `${String(r.hi).replace(":00", "h")} às ${String(r.hf).replace(":00", "h")}` : H[r.para] || r.para;
       if (servico || opr) await pushAdmins({ title: "Pedido alterado 🔁", body: `Pedido ${x.p.id} de ${x.nome || "cliente"} (${x.lancha}, ${dataBR(x.p.data)}): agora ${para}. Novo total ${brlv(+r.preco)}${r.sinal ? `, sinal ${brlv(+r.sinal)}` : ""}.` }, `troca-${x.p.id}`).catch(e => console.error(e));
       return json({ ok: true, ...r });
+    }
+
+    // o próprio cliente muda data (até 7 dias da data pedida) e horário na página de pagamento, antes de pagar (Rodrigo 2026-11-24).
+    // O link (p + k) é a credencial, como no resto da página. O banco confere tudo: livre, preço de tabela do novo dia, sem pagamento,
+    // e na lancha parceira tira a liberação do sinal até o dono aprovar de novo (a função dono-aprovacao manda o pedido sozinha).
+    if (b.acao === "opcoes_cliente" || b.acao === "alterar_cliente") {
+      const xa = await carregar(Number(b.p), String(b.k || ""));
+      if (!xa) return json({ erro: "link" }, 404);
+      if (xa.g.length) return json({ erro: "lucas" }, 409);
+      if (xa.c.pago_em || xa.c.captura) return json({ erro: "pago" }, 409);
+      if (b.acao === "opcoes_cliente") {
+        const { data: r, error } = await db.rpc("cliente_opcoes_pedido", { pid: xa.p.id });
+        if (error) { console.error("opcoes cliente", error.message); return json({ erro: "falhou" }, 500); }
+        if (!r?.ok) return json({ erro: r?.erro || "falhou" });
+        // tira o que já passou do horário de venda (mesma regra do pagamento: até 40 min antes do início)
+        const dias = [];
+        for (const d of r.dias || []) {
+          const ops = [];
+          for (const o of d.opcoes || []) if (o.atual || !(await tardeCombinado({ data: d.data, horario: o.horario, hora_ini: null, bloqueio_id: null }))) ops.push(o);
+          if (ops.length) dias.push({ ...d, opcoes: ops });
+        }
+        return json({ ok: true, atual_data: r.atual_data, atual_horario: r.atual_horario, dias });
+      }
+      const dt = String(b.data || ""), h = String(b.horario || "");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dt) || !["manha", "tarde", "dia"].includes(h)) return json({ erro: "horario" }, 400);
+      if (await tardeCombinado({ data: dt, horario: h, hora_ini: null, bloqueio_id: null })) return json({ erro: "passou" }, 409);
+      const { data: r, error } = await db.rpc("cliente_alterar_pedido", { pid: xa.p.id, d: dt, h });
+      if (error) { console.error("alterar cliente", error.message); return json({ erro: "falhou" }, 500); }
+      if (!r?.ok) return json({ erro: r?.erro || "falhou" }, 409);
+      // cobrança aberta no Asaas com o valor antigo: cancela já, para ninguém pagar o valor velho
+      const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/asaas", { method: "POST", headers: { authorization: "Bearer " + srk, apikey: srk, "content-type": "application/json" }, body: JSON.stringify({ acao: "cancelar", pid: xa.p.id }) })
+        .then(async q => { if (!q.ok) console.error("asaas cancelar", q.status, (await q.text()).slice(0, 300)); }).catch(e => console.error("asaas cancelar", e));
+      if (r.moeda && r.valor) await db.from("pedidos").update({ paypal_valor: fmt(r.moeda, +r.valor) }).eq("id", xa.p.id);
+      const H: Record<string, string> = { manha: "manhã (10h às 14h)", tarde: "tarde (14h às 18h)", dia: "dia todo (10h às 17h)" };
+      await pushAdmins({ title: "Cliente mudou o pedido 🔁", body: `Pedido ${xa.p.id} de ${xa.nome || "cliente"} (${xa.lancha}): agora ${dataBR(r.data)}, ${H[h] || h}. Novo total ${brlv(+r.preco)}, sinal ${brlv(+r.sinal)}.` +
+        (r.espera_dono ? (r.parceira ? " O dono recebe o pedido de aprovação de novo." : " Data especial: libere o pagamento no app.") : "") }, `troca-${xa.p.id}`).catch(e => console.error(e));
+      return json({ ok: true, espera_dono: !!r.espera_dono });
     }
 
     // o cliente concordou com o valor novo na página (prazo vencido e o dono mudou o preço)
