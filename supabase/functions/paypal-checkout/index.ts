@@ -538,6 +538,22 @@ Deno.serve(async req => {
       return json({ ok: true });
     }
 
+    // robô (dono-aprovacao, chave de serviço): pedido do site com sinal liberado sozinho (lancha com reserva automática) cuja
+    // central já existe (o app do cliente cria) mas o link ainda não foi pelo WhatsApp: manda o mesmo WhatsApp do "Liberar pagamento"
+    // (Rodrigo 2026-11-24: aprovação automática, do dono ou do administrador tem que dar o mesmo resultado para o cliente)
+    if (b.acao === "avisar_wa") {
+      const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      if (!srk || tok !== srk) return json({ erro: "chave" }, 403);
+      const pid = Number(b.pid);
+      const { data: p } = await db.from("pedidos").select("id, cliente, lancha, data, horario, hora_ini, hora_fim, status, sinal_liberado_em, wa_central_em, comprovante_em").eq("id", pid).maybeSingle();
+      if (!p || p.status !== "pendente" || !p.sinal_liberado_em || p.wa_central_em || p.comprovante_em) return json({ erro: "pedido" }, 400);
+      const { data: c } = await db.from("pagamentos_pp").select("token, moeda, valor, pago_em, captura").eq("pedido", pid).maybeSingle();
+      if (!c || c.pago_em || c.captura) return json({ erro: "central" }, 400);
+      const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
+      const wa = await waPagamento(p, c.token, lancha, fmt(c.moeda, +c.valor)).catch(e => (console.error("wa", e), false));
+      return json({ wa });
+    }
+
     // robô (asaas expirar, com a chave de serviço): PayPal em análise que já foi liberado ou recusado
     if (b.acao === "pendentes") {
       const tok = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""), srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
