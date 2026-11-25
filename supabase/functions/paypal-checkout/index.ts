@@ -708,6 +708,8 @@ Deno.serve(async req => {
         if (!y) return json({ erro: "link" }, 404);
         ({ c, p } = y);
       }
+      // revisão 2026-11-25: data/horário mudado em lancha parceira espera o dono aprovar de novo (o Asaas já barrava; o PayPal não)
+      if (!p.sinal_liberado_em) return json({ erro: "espera_dono" }, 409);
       const v = await vaga(p.id, true);
       if (v !== "livre") return json({ erro: v }, 409);
       const o = await pp("/v2/checkout/orders", {
@@ -723,6 +725,12 @@ Deno.serve(async req => {
     if (b.acao === "capturar") {
       const oid = String(b.order || "");
       if (!oid || oid !== c.order_id) return json({ erro: "ordem" }, 400);
+      // sem liberação (cliente mudou a data e o dono ainda não aprovou): não cobra; se a ordem já foi paga antes, só fecha
+      if (!p.sinal_liberado_em) {
+        const ant = await pp(`/v2/checkout/orders/${oid}`, undefined, "GET").catch(() => null);
+        if (ant?.status === "COMPLETED") return await fechar(ant, c, p, lancha, nome);
+        return json({ erro: "espera_dono" }, 409);
+      }
       const v = await vaga(p.id, true); // confere de novo antes de cobrar: se outro cliente pagou antes, não cobra nada
       if (v !== "livre") return json({ erro: v }, 409);
       // prazo vencido (Rodrigo 2026-11-15): na hora de cobrar, o pedido volta a valer e o horário do jetski volta para este cliente; se outro pegou, não cobra

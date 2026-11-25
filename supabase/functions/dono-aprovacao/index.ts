@@ -544,8 +544,11 @@ Deno.serve(async req => {
           // no WhatsApp do cliente (mesmo envio do "Liberar pagamento" do app; Rodrigo 2026-11-24, Heber/Gratidão)
           if (r.pedido && +r.sinal > 0) {
             const srk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-            const tinha = !!(await db.from("pagamentos_pp").select("pedido").eq("pedido", r.pedido).maybeSingle()).data;
-            const lk = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-checkout`, { method: "POST",
+            const cAnt = (await db.from("pagamentos_pp").select("pedido, moeda").eq("pedido", r.pedido).maybeSingle()).data;
+            const tinha = !!cAnt;
+            // central em moeda estrangeira (cliente mudou data/horário): o valor convertido já foi atualizado na troca; chamar o
+            // "link" em reais apagaria o PayPal e o valor em dólar/euro do cliente (revisão 2026-11-25)
+            const lk = cAnt && cAnt.moeda && cAnt.moeda !== "BRL" ? { link: "central", wa: false } : await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-checkout`, { method: "POST",
               headers: { authorization: `Bearer ${srk}`, apikey: srk, "content-type": "application/json" },
               body: JSON.stringify({ acao: "link", pid: r.pedido, valor: +r.sinal, moeda: "BRL" }) })
               .then(x => x.json()).catch(e => (console.error("link pedido", e), null));
