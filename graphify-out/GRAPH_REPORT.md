@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2170 nodes · 3631 edges · 194 communities (105 shown, 89 thin omitted)
+- 2171 nodes · 3631 edges · 195 communities (105 shown, 90 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3953760c`
+- Built from commit: `6a6a8707`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -172,7 +172,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (194 total, 89 thin omitted)
+## Communities (195 total, 90 thin omitted)
 
 ### Community 0 - "paginas.mjs"
 Cohesion: 0.22
@@ -595,7 +595,7 @@ Cohesion: 0.67
 Nodes (3): public.lancar_pedido_operador(), public.trava_campos_buzios(), trava_campos_buzios
 
 ## Knowledge Gaps
-- **89 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **90 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -608,8 +608,8 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
-- **Why does `public.creditos` connect `public.creditos` to `public._aprovar_consulta`, `public.bloqueios`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `public.papeis_painel` connect `public.pagamentos_pp` to `public.bloqueios`, `public.consultas`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**

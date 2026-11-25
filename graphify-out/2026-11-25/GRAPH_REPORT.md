@@ -1,17 +1,17 @@
 # Graph Report - buzios-lanchas-site  (2026-11-25)
 
 ## Corpus Check
-- 308 files · ~541,555 words
+- 309 files · ~542,279 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: .xml 3, .tflite 2, .webmanifest 2)
 
 ## Summary
-- 2170 nodes · 3631 edges · 194 communities (105 shown, 89 thin omitted)
+- 2171 nodes · 3631 edges · 195 communities (105 shown, 90 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 25 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3953760c`
+- Built from commit: `6a6a8707`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -156,7 +156,7 @@
 6. `public._ligar_passeio()` - 17 edges
 7. `prazosDono()` - 16 edges
 8. `enviarSaldos()` - 14 edges
-9. `public.cancelar_pre_reserva()` - 14 edges
+9. `public._ligar_passeio()` - 14 edges
 10. `public.cancelar_pre_reserva()` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -174,7 +174,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (194 total, 89 thin omitted)
+## Communities (195 total, 90 thin omitted)
 
 ### Community 0 - "paginas.mjs"
 Cohesion: 0.22
@@ -597,21 +597,21 @@ Cohesion: 0.67
 Nodes (3): public.lancar_pedido_operador(), public.trava_campos_buzios(), trava_campos_buzios
 
 ## Knowledge Gaps
-- **89 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **90 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `public.vendas_manuais` connect `public.anotacoes` to `pedidos`, `public._aprovar_consulta`, `public.bloqueios`, `public.consultas`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Should `sortable.min.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0927536231884058 - nodes in this community are weakly interconnected._
 - **Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.anotacoes`, `public.bloqueios`, `public.consultas`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `asaas/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
-- **Why does `public.marcar_wa()` connect `public.donos` to `2026-10-30_operador-um-toque.sql`, `public.bloqueios`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `public.origem_reserva()` connect `public.consultas` to `public.anotacoes`, `2026-11-21_seguranca-saque.sql`, `public.donos`, `public.pedido_oferta`, `public.pagamentos_pp`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `notificar/index.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07013574660633484 - nodes in this community are weakly interconnected._
 - **Should `dono-aprovacao/index.ts` be split into smaller, more focused modules?**
