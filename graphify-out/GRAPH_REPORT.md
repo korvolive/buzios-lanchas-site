@@ -1,4 +1,4 @@
-# Graph Report - buzios-lanchas-site  (2026-11-24)
+# Graph Report - buzios-lanchas-site  (2026-11-25)
 
 ## Corpus Check
 - cluster-only mode — file stats not available
