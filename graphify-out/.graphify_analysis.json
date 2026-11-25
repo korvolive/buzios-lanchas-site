@@ -2560,6 +2560,9 @@
     ],
     "194": [
       "supabase_sql_2026_11_23_zzzz_tira_claude_dos_custos"
+    ],
+    "195": [
+      "supabase_sql_2026_11_25_miss_bardot_cupom_libera_sozinha"
     ]
   },
   "cohesion": {
@@ -2757,7 +2760,8 @@
     "191": 1.0,
     "192": 1.0,
     "193": 1.0,
-    "194": 1.0
+    "194": 1.0,
+    "195": 1.0
   },
   "gods": [
     {
@@ -2872,7 +2876,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public.vendas_manuais` connect `public.anotacoes` to `pedidos`, `public._aprovar_consulta`, `public.bloqueios`, `public.consultas`?",
-      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2882,7 +2886,7 @@
     {
       "type": "bridge_node",
       "question": "Why does `public._aprovar_consulta()` connect `public._aprovar_consulta` to `public.pedidos`, `public.anotacoes`, `public.bloqueios`, `public.consultas`?",
-      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
+      "why": "High betweenness centrality (0.015) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
@@ -2891,8 +2895,8 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `public.papeis_painel` connect `public.pagamentos_pp` to `public.bloqueios`, `public.consultas`?",
-      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+      "question": "Why does `public.origem_reserva()` connect `public.consultas` to `public.anotacoes`, `2026-11-21_seguranca-saque.sql`, `public.donos`, `public.pedido_oferta`, `public.pagamentos_pp`?",
+      "why": "High betweenness centrality (0.013) - this node is a cross-community bridge."
     },
     {
       "type": "low_cohesion",
