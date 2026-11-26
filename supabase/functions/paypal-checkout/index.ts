@@ -298,7 +298,7 @@ const diasAte = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Da
 async function paramsV2(p: { id: number; lancha?: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, l: string, cc: string, lancha: string, valor: string, link: string) {
   const { data: pd } = await db.from("pedidos").select("lancha, bloqueio_id, pp_excecao, pagar_ate").eq("id", p.id).maybeSingle();
   const slug = String(p.lancha || pd?.lancha || ""), dias = diasAte(p.data), mb = slug === "miss-bardot", fora = cc !== "55";
-  const c = mb || (!fora && dias >= 5), pp = mb || !!pd?.pp_excecao || dias >= 3, F = FORMA[l] || FORMA.pt;
+  const c = mb || dias >= 5, pp = mb || !!pd?.pp_excecao || dias >= 3, F = FORMA[l] || FORMA.pt;
   const forma = fora ? (c ? F.xc : pp ? F.x : F.p) : (c ? F.pc : F.p);
   const U = URG[l] || URG.pt;
   let urg = U.pouco;
@@ -333,7 +333,7 @@ async function waPagamento(p:{ id: number; cliente: string; data: string; horari
           { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), horaTxt(p, l), valor, link].map(text => ({ type: "text", text })) },
         ] } }),
     });
-  let r360: Response | null = null;
+  let r360: Response | null | undefined = null;
   // 2026-11-26 (Rodrigo): modelo novo "reservada para você por pouco tempo" com a forma de pagamento certa; no relançamento com
   // prazo curto diz o tempo (40 minutos / 1 hora / 2 horas). Enquanto a Meta não aprovar, a 360dialog recusa e segue o caminho antigo.
   if (KEY360 && D360_MODELO_V2) {
@@ -345,7 +345,9 @@ async function waPagamento(p:{ id: number; cliente: string; data: string; horari
           template: { name: D360_MODELO_V2, language: { code: WA_LANG[l] }, components: [
             { type: "body", parameters: v2.map(text => ({ type: "text", text })) },
           ] } }),
-      }).catch(() => null);
+      }).catch(e => { console.error("wa pagamento: v2 sem resposta", e); return undefined; });
+      // sem resposta (rede): a mensagem pode ter saído, então não manda outro modelo (evita mensagem dupla); fica no cartão "WhatsApp pendente"
+      if (r360 === undefined) return false;
       if (r360 && !r360.ok) { console.log("wa pagamento: modelo", D360_MODELO_V2, "recusado", r360.status, (await r360.text()).slice(0, 200)); r360 = null; }
     }
   }
