@@ -3,7 +3,7 @@
 // POST { user_id, link: true } -> o mesmo + url: link do Asaas para a pessoa enviar o documento e a selfie (só administrador ou robô),
 //   para o administrador mandar direto quando a página do Asaas travar no aparelho dela (2026-11-16)
 // POST { lembrar: true } (robô, 1 vez por dia) -> push para quem ainda não enviou o documento e a selfie, até concluir (recusado: aviso próprio abaixo)
-// POST { rejeitados: true, simular? } (robô, 10 em 10 min e webhook) -> documento recusado: push + WhatsApp com o motivo e o link, lembrete diário
+// POST { rejeitados: true, simular? } (robô, 10 em 10 min e webhook) -> documento recusado: push + WhatsApp com o motivo e o link, UMA vez por recusa (sem lembrete diário)
 // POST { acao: "reenvio", t } (página /documento/, sem login) -> situação e link novo do Asaas da pessoa dona do token
 // POST { todos: true } -> { contas: [{ user_id, nome, ...situação }] }              (todas as contas ainda não aprovadas)
 // Quem pode: administrador logado (tabela admins) ou o robô (x-chave = resgate_config.chave). Só leitura no Asaas.
@@ -219,7 +219,7 @@ async function avisarRejeitados(simular: boolean) {
       if (!simular) await db.from("asaas_contas").update({ rejeicao_chave: row.rejeicao_chave, rejeicao_motivo: row.rejeicao_motivo, rejeicao_em: row.rejeicao_em, rejeicao_proximo: row.rejeicao_proximo, rejeicao_avisos: 0, reenvio_token: row.reenvio_token }).eq("user_id", c.user_id);
     }
     const temLink = m.rej.some((g: any) => g.onboardingUrl);
-    const vez = !!row.rejeicao_proximo && Date.parse(row.rejeicao_proximo) <= Date.now() && row.rejeicao_avisos < 20;
+    const vez = !!row.rejeicao_proximo && Date.parse(row.rejeicao_proximo) <= Date.now() && row.rejeicao_avisos < 1; // Rodrigo 25/11: um aviso só por recusa; sem resposta, não insiste
     const item: any = { user_id: c.user_id, oque: m.oque, motivo: m.motivo, motivo_asaas: m.motivo_txt || null, avisos: row.rejeicao_avisos, proximo: row.rejeicao_proximo, link: temLink };
     out.push(item);
     if (!vez || !temLink || !janela() || cfg?.docrej_ativo === false) { item.envio = !temLink ? "sem_link_ainda" : !vez ? "aguardando" : !janela() ? "fora_do_horario" : "desligado"; continue; }
