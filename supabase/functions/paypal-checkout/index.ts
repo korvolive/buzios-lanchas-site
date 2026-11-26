@@ -281,7 +281,38 @@ async function d360Key() {
   const { data } = await db.from("segredos_app").select("valor").eq("nome", "D360_API_KEY").maybeSingle();
   return String(data?.valor || "");
 }
-async function waPagamento(p: { id: number; cliente: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, k: string, lancha: string, valor: string) {
+const D360_MODELO_V2 = Deno.env.get("D360_MODELO_PAGAMENTO_V2") ?? "pagamento_sinal_v2";
+const URG: Record<string, Record<number, string> & { pouco: string }> = {
+  pt: { 40: "por 40 minutos", 60: "por 1 hora", 120: "por 2 horas", pouco: "por pouco tempo" },
+  en: { 40: "for 40 minutes", 60: "for 1 hour", 120: "for 2 hours", pouco: "for a short time only" },
+  es: { 40: "por 40 minutos", 60: "por 1 hora", 120: "por 2 horas", pouco: "por poco tiempo" },
+};
+const FORMA: Record<string, { p: string; pc: string; x: string; xc: string }> = {
+  pt: { p: "por Pix", pc: "por Pix ou cartão", x: "por Pix ou PayPal", xc: "por Pix, cartão de crédito internacional ou PayPal" },
+  en: { p: "by Pix", pc: "by Pix or card", x: "by Pix or PayPal", xc: "by Pix, international credit card or PayPal" },
+  es: { p: "por Pix", pc: "por Pix o tarjeta", x: "por Pix o PayPal", xc: "por Pix, tarjeta de crédito internacional o PayPal" },
+};
+// dias até o passeio contados pelo dia de São Paulo (igual ao cartaoOk da função asaas e ao painel)
+const diasAte = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10) + "T00:00:00Z")) / 864e5;
+// parâmetros do pagamento_sinal_v2: lancha, urgência, data, horário, sinal, forma de pagamento, link
+async function paramsV2(p: { id: number; lancha?: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, l: string, cc: string, lancha: string, valor: string, link: string) {
+  const { data: pd } = await db.from("pedidos").select("lancha, bloqueio_id, pp_excecao, pagar_ate").eq("id", p.id).maybeSingle();
+  const slug = String(p.lancha || pd?.lancha || ""), dias = diasAte(p.data), mb = slug === "miss-bardot", fora = cc !== "55";
+  const c = mb || dias >= 5, pp = mb || !!pd?.pp_excecao || dias >= 3, F = FORMA[l] || FORMA.pt;
+  const forma = fora ? (c ? F.xc : pp ? F.x : F.p) : (c ? F.pc : F.p);
+  const U = URG[l] || URG.pt;
+  let urg = U.pouco;
+  if (pd?.bloqueio_id) {
+    const { data: pc } = await db.from("prazo_curto").select("ate").eq("bloqueio_id", pd.bloqueio_id).maybeSingle();
+    if (pc?.ate) {
+      // o tempo só aparece se o que falta bate com a regra do relançamento (tolerância de 10 min); senão, "por pouco tempo"
+      const dur = dias <= 0 ? 40 : dias === 1 ? 60 : 120, falta = (Date.parse(pd.pagar_ate || pc.ate) - Date.now()) / 6e4;
+      if (Math.abs(falta - dur) <= 10) urg = U[dur];
+    }
+  }
+  return [lancha, urg, dataLonga(p.data, l), horaTxt(p, l), valor, forma, link];
+}
+async function waPagamento(p:{ id: number; cliente: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, k: string, lancha: string, valor: string) {
   const KEY360 = await d360Key().catch(() => "");
   if (!WA_ON || (!KEY360 && (!WA_TOKEN || !WA_PHONE))) return false;
   const { data: cl } = await db.from("clientes").select("nome, whatsapp").eq("user_id", p.cliente).maybeSingle();
@@ -302,8 +333,25 @@ async function waPagamento(p: { id: number; cliente: string; data: string; horar
           { type: "body", parameters: [nomeOk(cl?.nome), lancha, dataLonga(p.data, l), horaTxt(p, l), valor, link].map(text => ({ type: "text", text })) },
         ] } }),
     });
-  let r360: Response | null = null;
-  if (KEY360 && D360_MODELO_CONTA && D360_MODELO_CONTA !== D360_MODELO) {
+  let r360: Response | null | undefined = null;
+  // 2026-11-26 (Rodrigo): modelo novo "reservada para você por pouco tempo" com a forma de pagamento certa; no relançamento com
+  // prazo curto diz o tempo (40 minutos / 1 hora / 2 horas). Enquanto a Meta não aprovar, a 360dialog recusa e segue o caminho antigo.
+  if (KEY360 && D360_MODELO_V2) {
+    const v2 = await paramsV2(p, l, cc, lancha, valor, link).catch(e => (console.error("v2", e), null));
+    if (v2) {
+      r360 = await fetch("https://waba-v2.360dialog.io/messages", {
+        method: "POST", headers: { "D360-API-KEY": KEY360, "content-type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to, type: "template",
+          template: { name: D360_MODELO_V2, language: { code: WA_LANG[l] }, components: [
+            { type: "body", parameters: v2.map(text => ({ type: "text", text })) },
+          ] } }),
+      }).catch(e => { console.error("wa pagamento: v2 sem resposta", e); return undefined; });
+      // sem resposta (rede): a mensagem pode ter saído, então não manda outro modelo (evita mensagem dupla); fica no cartão "WhatsApp pendente"
+      if (r360 === undefined) return false;
+      if (r360 && !r360.ok) { console.log("wa pagamento: modelo", D360_MODELO_V2, "recusado", r360.status, (await r360.text()).slice(0, 200)); r360 = null; }
+    }
+  }
+  if (!r360 && KEY360 && D360_MODELO_CONTA && D360_MODELO_CONTA !== D360_MODELO) {
     r360 = await env360(D360_MODELO_CONTA).catch(() => null);
     if (r360 && !r360.ok) { console.log("wa pagamento: modelo", D360_MODELO_CONTA, "recusado", r360.status, (await r360.text()).slice(0, 200)); r360 = null; }
   }
