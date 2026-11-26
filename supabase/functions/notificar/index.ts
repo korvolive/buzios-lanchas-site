@@ -66,6 +66,9 @@ const SLOT: Record<string, Record<string, string>> = {
   es: { manha: "mañana", tarde: "tarde", dia: "día completo", noite: "noche" },
 };
 const dataBR = (d: string) => d.split("-").reverse().join("/");
+// prazo curto do relançamento de pré-reserva vencida, pelo dia do passeio (Rodrigo 25/11: prazo curto se fala, para o cliente pagar rápido)
+const PRZ: Record<string, Record<string, string>> = { pt: { m40: "40 minutos", h1: "1 hora", h2: "2 horas" }, en: { m40: "40 minutes", h1: "1 hour", h2: "2 hours" }, es: { m40: "40 minutos", h1: "1 hora", h2: "2 horas" } };
+const przDe = (data: string) => { const hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10); const n = Math.round((Date.parse(data + "T12:00:00Z") - Date.parse(hoje + "T12:00:00Z")) / 864e5); return n <= 0 ? "m40" : n === 1 ? "h1" : "h2"; };
 const TXT: Record<string, Record<string, (p: any) => { title: string; body: string }>> = {
   aprovado: {
     pt: p => ({ title: "Passeio novo na sua agenda", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}. A Búzios Lanchas confirmou o passeio.${p.jet ? ` Com jetski das ${p.jet}.` : ""}${p.semMar ? " Escolha quem vai pilotar." : ""}` }),
@@ -109,9 +112,9 @@ const TXT: Record<string, Record<string, (p: any) => { title: string; body: stri
     es: p => ({ title: "Paseo terminado: confirma", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.es[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. ${p.fora ? "Confirma que se completó y que no hay saldo pendiente para que el cliente pueda evaluar." : "Confirma que ocurrió para que el cliente pueda evaluar."}${p.com ? ` 💼 Comisión de ${p.com.nome}: ${COMV(p)}.` : ""}` }),
   },
   venceu_cli: {
-    pt: p => ({ title: "Prazo do sinal encerrado", body: `${p.lancha} · ${dataBR(p.data)}: o prazo para pagar o sinal terminou, e a lancha voltou a ficar disponível para outras pessoas. Ainda tem interesse? Se quiser, liberamos um novo prazo curto para o pagamento.` }),
-    en: p => ({ title: "Deposit deadline ended", body: `${p.lancha} · ${dataBR(p.data)}: the deadline to pay the deposit has ended, and the boat is available to other people again. Still interested? If you like, we can give you a new short deadline to pay.` }),
-    es: p => ({ title: "Plazo de la seña terminado", body: `${p.lancha} · ${dataBR(p.data)}: terminó el plazo para pagar la seña, y la lancha volvió a quedar disponible para otras personas. ¿Todavía te interesa? Si quieres, te damos un nuevo plazo corto para el pago.` }),
+    pt: p => ({ title: "Prazo do sinal encerrado", body: `${p.lancha} · ${dataBR(p.data)}: o prazo para pagar o sinal terminou, e a lancha voltou a ficar disponível para outras pessoas. Ainda tem interesse? Se quiser, liberamos um novo prazo curto, de ${PRZ.pt[p.prz] || PRZ.pt.h2}, para o pagamento.` }),
+    en: p => ({ title: "Deposit deadline ended", body: `${p.lancha} · ${dataBR(p.data)}: the deadline to pay the deposit has ended, and the boat is available to other people again. Still interested? If you like, we can give you a new short deadline of ${PRZ.en[p.prz] || PRZ.en.h2} to pay.` }),
+    es: p => ({ title: "Plazo de la seña terminado", body: `${p.lancha} · ${dataBR(p.data)}: terminó el plazo para pagar la seña, y la lancha volvió a quedar disponible para otras personas. ¿Todavía te interesa? Si quieres, te damos un nuevo plazo corto, de ${PRZ.es[p.prz] || PRZ.es.h2}, para el pago.` }),
   },
   venceu: {
     pt: p => ({ title: "Pré-reserva vencida", body: `${p.lancha} · ${dataBR(p.data)} · ${SLOT.pt[p.horario] || p.horario}${p.cliente ? " · " + p.cliente : ""}. O sinal não entrou no prazo: a data voltou a ficar livre no site.` }),
@@ -415,9 +418,9 @@ const MAIL: Record<string, Record<string, (p: any) => any>> = {
     es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Tu crédito en ${p.lancha} venció.`, linhas: [`Valor: ${p.valor}`, `Lancha: ${p.lancha}`, `Válido hasta: ${dataBR(p.ate)}`], nota: "Cualquier duda, habla con nosotros en el chat de la app o por WhatsApp +55 21 99927-2550.", botao: "Abrir la app" }),
   },
   venceu_cli: {
-    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O prazo para pagar o sinal da sua pré-reserva na ${p.lancha} terminou, e a lancha voltou a ficar disponível para outras pessoas.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`], nota: "Você ainda tem interesse? Se quiser, liberamos um novo prazo curto para o pagamento. É só responder no WhatsApp (21) 99927-2550 ou no chat do app.", botao: "Abrir o app" }),
-    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The deadline to pay the deposit for your hold on ${p.lancha} has ended, and the boat is available to other people again.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`], nota: "Are you still interested? If you like, we can give you a new short deadline to pay. Just reply on WhatsApp +55 21 99927-2550 or in the app chat.", botao: "Open the app" }),
-    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó el plazo para pagar la seña de tu pre-reserva en ${p.lancha}, y la lancha volvió a quedar disponible para otras personas.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`], nota: "¿Todavía te interesa? Si quieres, te damos un nuevo plazo corto para el pago. Solo responde por WhatsApp +55 21 99927-2550 o en el chat de la app.", botao: "Abrir la app" }),
+    pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `O prazo para pagar o sinal da sua pré-reserva na ${p.lancha} terminou, e a lancha voltou a ficar disponível para outras pessoas.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`], nota: `Você ainda tem interesse? Se quiser, liberamos um novo prazo curto, de ${PRZ.pt[p.prz] || PRZ.pt.h2}, para o pagamento. É só responder no WhatsApp (21) 99927-2550 ou no chat do app.`, botao: "Abrir o app" }),
+    en: p => ({ oi: `Hi, ${p.primeiro}!`, texto: `The deadline to pay the deposit for your hold on ${p.lancha} has ended, and the boat is available to other people again.`, linhas: [`Date: ${p.data}`, `Time: ${p.horario}`], nota: `Are you still interested? If you like, we can give you a new short deadline of ${PRZ.en[p.prz] || PRZ.en.h2} to pay. Just reply on WhatsApp +55 21 99927-2550 or in the app chat.`, botao: "Open the app" }),
+    es: p => ({ oi: `¡Hola, ${p.primeiro}!`, texto: `Terminó el plazo para pagar la seña de tu pre-reserva en ${p.lancha}, y la lancha volvió a quedar disponible para otras personas.`, linhas: [`Fecha: ${p.data}`, `Horario: ${p.horario}`], nota: `¿Todavía te interesa? Si quieres, te damos un nuevo plazo corto, de ${PRZ.es[p.prz] || PRZ.es.h2}, para el pago. Solo responde por WhatsApp +55 21 99927-2550 o en el chat de la app.`, botao: "Abrir la app" }),
   },
   venceu: {
     pt: p => ({ oi: `Olá, ${p.primeiro}!`, texto: `A pré-reserva na ${p.lancha} venceu: o sinal não entrou no prazo. O app apagou a pré-reserva e a data voltou a ficar livre no site.`, linhas: [`Data: ${p.data}`, `Horário: ${p.horario}`, ...(p.cliente ? [`Cliente: ${p.cliente}`] : [])], nota: "Se o cliente ainda quiser, crie o passeio de novo no app.", botao: "Abrir o app" }),
@@ -659,8 +662,8 @@ async function vencerPre() {
   if (pe) console.error("vencer pedidos", pe.message);
   for (const p of Array.isArray(ps) ? ps : []) { // antes do SQL novo a função devolvia só a contagem
     const lancha = (await db.from("lanchas").select("nome").eq("slug", p.lancha).maybeSingle()).data?.nome || p.lancha;
-    await enviar([p.cliente], "venceu_cli", { id: p.id, lancha, data: p.data, horario: p.horario }, "/login/").catch(e => console.error(e));
-    await mandarEmail(p.cliente, "venceu_cli", { b: p, a: null, lancha, data: dataBR(p.data) }).catch(e => console.error(e));
+    await enviar([p.cliente], "venceu_cli", { id: p.id, lancha, data: p.data, horario: p.horario, prz: przDe(p.data) }, "/login/").catch(e => console.error(e));
+    await mandarEmail(p.cliente, "venceu_cli", { b: p, a: null, lancha, data: dataBR(p.data), prz: przDe(p.data) }).catch(e => console.error(e));
   }
   const limite = new Date(Date.now() - 1 * 3600 * 1000).toISOString(), hoje = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
   const { data: bs, error } = await db.from("bloqueios").select("id, lancha, data, horario, criado_em, anotacoes!inner(cliente, valor, sinal, hora_ini, hora_fim), pedidos(id)")
