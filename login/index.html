@@ -5165,7 +5165,7 @@ function adminHTML(){
 const byBoat = rs => { const g=new Map(); rs.forEach(p=>{ if(!g.has(p.lancha)) g.set(p.lancha,[]); g.get(p.lancha).push(p); }); return [...g].sort((a,b)=>b[1].length-a[1].length); };
 function pedidosHTML(){
   if(S.reqs===false) return `<div class="card"><p class="msg err" style="margin:0">${t("needSqlCli")}</p></div>`;
-  if(!S.reqs) return "";
+  if(!S.reqs) return S.admin&&!S.papel ? consHTML("vend") : ""; /* pedidos ainda carregando: as vendas do Lucas já aparecem com o botão Aprovar */
   /* Histórico = passeios que já aconteceram e foram confirmados; Cancelados = apagados, recusados, desistências, os que não aconteceram e pendentes que passaram da data */
   const f=S.reqF && S.reqF!=="chat" ? S.reqF : "pendente", today=todayISO(), feito=p=>(S.feitos||{})[p.bloqueio_id];
   const kind=p=> p.status==="pendente" ? (p.data>=today ? "pendente" : "canc") : p.status!=="aprovado" ? "canc" : feito(p)===true ? "hist" : feito(p)===false ? "canc" : "aprovado";
@@ -5223,6 +5223,10 @@ new MutationObserver(()=>{ const el=document.getElementById("sheet")?.querySelec
   .observe(document.getElementById("sheet"),{childList:true});
 const pedPz = L => !L?.length ? Promise.resolve() : db("pedidos?select=id,prazo_vencido_em&status=eq.pendente&prazo_vencido_em=not.is.null").then(r=>{ const m=new Map(r.map(x=>[x.id,x.prazo_vencido_em])); L.forEach(p=>{ p.prazo_vencido_em=m.get(p.id)||null; }); }, ()=>{});
 async function loadReqs(){
+  /* vendas do Lucas para aprovar primeiro (caso Midas 27/11: no Wi-Fi do hotel a lista das consultas só chegava depois de umas 20 consultas em fila, ~12 s, e o botão Aprovar não aparecia).
+     Busca as consultas logo no início, junto com o resto, e já mostra o quadro "Vendas para aprovar" assim que chegam */
+  const consP = db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(e=>e.status===404||e.status===400 ? false : null);
+  consP.then(r=>{ if(r==null) return; setCons(r); let livre=false; try{ livre = view==="main" && !sheetDay && !tripRow && !chatCid; }catch(e){} if(livre && S.tab==="pedidos" && S.admin && !S.papel) bgView(); }, ()=>{});
   try{ const q=x=>db(`pedidos?select=id,cliente,lancha,data,horario,pessoas,embarque,status,bloqueio_id,criado_em${x},clientes(nome,cpf,whatsapp,pais)&order=criado_em.desc&limit=300`);
     const qF=",sinal_valor,sinal_liberado_em,comprovante,comprovante_em,vendedor,vendedor_cod,preco_base,preco_cliente,comissao_paga,paypal_link,paypal_valor,cupom_valor,comissao_comprovante,cupom_dono,comissao_pct,acrescimo_pct,desc_parceiro";
     S.reqs = await q(qF+(S.bzCol===false?"":",bz_pct")).then(r=>(S.cpOk=true,r)).catch(e=>{ if(e.status!==400 || S.bzCol===false) throw e; S.bzCol=false; return q(qF).then(r=>(S.cpOk=true,r)); }) /* banco ainda sem pedidos.bz_pct */
@@ -5256,7 +5260,7 @@ async function loadReqs(){
     const ligados=new Set(S.reqs.map(p=>p.bloqueio_id).filter(Boolean)), d0=new Date(); d0.setMonth(d0.getMonth()-24);
     S.reqTrips = (await fetchRows(`data=gte.${iso(d0)}&order=data.desc&limit=1000`).catch(()=>[])).filter(r=>+r.nota?.sinal>0 && !ligados.has(r.id)); /* só entra quem já pagou ao menos o sinal */
     await Promise.all([loadWaSent(), loadCond(), loadAlts(), loadLemb(), loadAvHoje(), loadDonoAv(), loadCreds(), loadGrev()]); /* quando cada WhatsApp foi mandado; meias diárias condicionais; alterações pedidas */
-    setCons(await db("consultas?select=*&order=data.asc,criado_em.desc&limit=300").catch(e=>e.status===404||e.status===400 ? false : null)); /* consulta rápida: false = falta o SQL */
+    setCons(await consP); /* consulta rápida: false = falta o SQL (buscada no início do loadReqs) */
     S.reqCount = S.reqs.filter(p=>p.status==="pendente").length + (S.cons||[]).length; S.err=""; }
   catch(e){ S.reqs = (e.status===404||e.status===400) ? false : null; if(S.reqs===null) S.err="load"; }
 }
