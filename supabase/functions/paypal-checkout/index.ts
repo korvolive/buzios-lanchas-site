@@ -298,7 +298,8 @@ const diasAte = (d: string) => (Date.parse(`${d}T00:00:00Z`) - Date.parse(new Da
 async function paramsV2(p: { id: number; lancha?: string; data: string; horario?: string; hora_ini?: string | null; hora_fim?: string | null }, l: string, cc: string, lancha: string, valor: string, link: string) {
   const { data: pd } = await db.from("pedidos").select("lancha, bloqueio_id, pp_excecao, pagar_ate").eq("id", p.id).maybeSingle();
   const slug = String(p.lancha || pd?.lancha || ""), dias = diasAte(p.data), mb = slug === "miss-bardot", fora = cc !== "55";
-  const c = mb || dias >= 5, pp = mb || !!pd?.pp_excecao || dias >= 3, F = FORMA[l] || FORMA.pt;
+  // cartão para estrangeiro só na Miss Bardot (igual ao cartaoOk da função asaas); antes o texto prometia cartão que a página não mostra
+  const c = mb || (!fora && dias >= 5), pp = mb || !!pd?.pp_excecao || dias >= 3, F = FORMA[l] || FORMA.pt;
   const forma = fora ? (c ? F.xc : pp ? F.x : F.p) : (c ? F.pc : F.p);
   const U = URG[l] || URG.pt;
   let urg = U.pouco;
