@@ -186,15 +186,15 @@
     "semantic_hash": ""
   },
   "supabase/functions/notificar/index.ts": {
-    "mtime": 1795613770.4859862,
-    "seen": 1795613809.4177575,
-    "ast_hash": "c3c117f083cc12005803ac0568e33247",
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.9074936,
+    "ast_hash": "c6aa729a56949e7837c3e33acffa3d42",
     "semantic_hash": ""
   },
   "supabase/functions/paypal-checkout/index.ts": {
-    "mtime": 1795612842.5332768,
-    "seen": 1795613809.4177587,
-    "ast_hash": "e1d32709481a5ce1086354bba04275be",
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.9074953,
+    "ast_hash": "3de626c66526ae7de33e006d82e1a820",
     "semantic_hash": ""
   },
   "supabase/functions/paypal-fatura/index.ts": {
@@ -264,20 +264,20 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1795612842.5052767,
-    "seen": 1795613809.418079,
+    "mtime": 1795830051.3517368,
+    "seen": 1795830185.9121075,
     "ast_hash": "31d36a754fd7ea9207c083d09e8a4031",
     "semantic_hash": ""
   },
   "login/index.html": {
-    "mtime": 1795612842.5252767,
-    "seen": 1795613809.41808,
-    "ast_hash": "4ee27295f750a7bbefe26530e65e0892",
+    "mtime": 1795830051.3597367,
+    "seen": 1795830185.9121099,
+    "ast_hash": "eea59312e6d2aed888687967f7e6e772",
     "semantic_hash": ""
   },
   "pagar/index.html": {
-    "mtime": 1795612842.5292768,
-    "seen": 1795613809.4180813,
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.9121125,
     "ast_hash": "03bbaa691cf0f8a9522b88649de467d2",
     "semantic_hash": ""
   },
@@ -1854,9 +1854,9 @@
     "semantic_hash": ""
   },
   "supabase/functions/asaas-docs/index.ts": {
-    "mtime": 1795484455.6013727,
-    "seen": 1795613809.417701,
-    "ast_hash": "7642ddcf0dddb301ee07626500b5bfbc",
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.906857,
+    "ast_hash": "114047d4be9901d9fb0df9712daaf4de",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-15_passeio-bloqueado-em-manutencao.sql": {
@@ -1968,26 +1968,26 @@
     "semantic_hash": ""
   },
   "scripts/bordazul-gerar.py": {
-    "mtime": 1795612842.5292768,
-    "seen": 1795613809.417652,
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.9064512,
     "ast_hash": "ab3645174fe13c00288abf6ce5fcc232",
     "semantic_hash": ""
   },
   "bordazul/en/index.html": {
-    "mtime": 1795612842.4012768,
-    "seen": 1795613809.4180675,
+    "mtime": 1795830051.2877367,
+    "seen": 1795830185.9119864,
     "ast_hash": "95aeb200d248f0c8e43d4706eb784df3",
     "semantic_hash": ""
   },
   "bordazul/es/index.html": {
-    "mtime": 1795612842.4052768,
-    "seen": 1795613809.4180694,
+    "mtime": 1795830051.2877367,
+    "seen": 1795830185.911988,
     "ast_hash": "3c84784070da5f80572cdcac09b7d309",
     "semantic_hash": ""
   },
   "bordazul/index.html": {
-    "mtime": 1795612842.4052768,
-    "seen": 1795613809.418072,
+    "mtime": 1795830051.2877367,
+    "seen": 1795830185.912009,
     "ast_hash": "773abe71a338688829830a9c003dd08a",
     "semantic_hash": ""
   },
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "supabase/functions/asaas-saude/index.ts": {
-    "mtime": 1795484455.6013727,
-    "seen": 1795613809.4177055,
-    "ast_hash": "82888d1b22e41e8fa0f34d66aac3e504",
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.9068801,
+    "ast_hash": "1c00c047dea466d9966468ededf807f7",
     "semantic_hash": ""
   },
   "supabase/sql/2026-10-30_asaas-validacao-saques.sql": {
@@ -2406,8 +2406,8 @@
     "semantic_hash": ""
   },
   "supabase/functions/dono-aprovacao/index.ts": {
-    "mtime": 1795612842.5332768,
-    "seen": 1795613809.4177542,
+    "mtime": 1795830051.3637366,
+    "seen": 1795830185.9074695,
     "ast_hash": "9e9424c37a69b7d546a778987fe04c6c",
     "semantic_hash": ""
   },
@@ -3198,50 +3198,50 @@
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-24_clique-google-so-passeio-real.sql": {
-    "mtime": 1795612842.5332768,
-    "seen": 1795613809.418049,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.9118192,
     "ast_hash": "7ee887a18fe6440a7a2e2dcd2e93666f",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-24_dono-aprova-pedido-site.sql": {
-    "mtime": 1795612842.5372767,
-    "seen": 1795613809.418051,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.9118228,
     "ast_hash": "05214371a8898e3d90b6001c93ec054e",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-24_dono-aprova-pedido-horario-mudou.sql": {
-    "mtime": 1795612842.5372767,
-    "seen": 1795613809.41805,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.9118214,
     "ast_hash": "8ed67c0f14136bb80a9435dc0d880230",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-24_cliente-muda-data-horario.sql": {
-    "mtime": 1795612842.5332768,
-    "seen": 1795613809.4180477,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.9118161,
     "ast_hash": "5874010672906839ed4a76b71ce11e00",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-25_consulta-sem-email.sql": {
-    "mtime": 1795612842.5372767,
-    "seen": 1795613809.4180522,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.911825,
     "ast_hash": "6bc8272820a8a737479ff993a77d9861",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-25_sinal-com-cupom-descontado.sql": {
-    "mtime": 1795612842.5372767,
-    "seen": 1795613809.418055,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.9118314,
     "ast_hash": "27c6df5be979354ed21ac1580584f63d",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-25_miss-bardot-cupom-libera-sozinha.sql": {
-    "mtime": 1795612842.5372767,
-    "seen": 1795613809.4180532,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.911827,
     "ast_hash": "cefed97ad24033c258b6316860d11810",
     "semantic_hash": ""
   },
   "supabase/sql/2026-11-25_revisao-cliente-muda-data.sql": {
-    "mtime": 1795612842.5372767,
-    "seen": 1795613809.418054,
+    "mtime": 1795830051.3677368,
+    "seen": 1795830185.9118292,
     "ast_hash": "2721419a063ed5443a6f0afae5736f13",
     "semantic_hash": ""
   }
