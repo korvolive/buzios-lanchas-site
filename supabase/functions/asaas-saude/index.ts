@@ -3,7 +3,7 @@
 // POST {} com x-chave (resgate_config) ou a chave de serviço. Só leitura no Asaas, com uma exceção: o teste do split cria uma cobrança
 // de R$ 5 para a própria empresa (sem aviso a ninguém) e apaga na hora. Conserta sozinho o que é seguro:
 //   - cobrança paga no Asaas e ainda aberta no banco: manda a função asaas conferir (ela confere direto no Asaas antes de marcar).
-// Grava o resultado em saude_checagens e avisa o administrador no celular quando aparece problema grave (uma vez por dia por tipo).
+// Grava o resultado em saude_checagens e avisa o administrador no celular quando aparece problema grave (uma vez por dia por problema).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -140,11 +140,17 @@ Deno.serve(async (req) => {
   for (const x of rd || []) itens.push(x as Item);
 
   const graves = itens.filter((i) => i.g === "alta" && !i.consertado);
-  await db.from("saude_checagens").insert({ origem: String(b?.origem || "cron").slice(0, 20), ok: !graves.length, itens });
   const dia = new Date(Date.now() - 3 * 36e5).toISOString().slice(0, 10);
-  for (const t of [...new Set(graves.map((i) => i.t))]) {
-    const i = graves.find((x) => x.t === t)!;
-    await pushAdmins(t === "split_desligado" ? "Asaas: split desligado" : "Atenção no sistema", i.d.slice(0, 180), `saude-${t}-${dia}`).catch((e) => console.error("push", e));
+  // Rodrigo 27/11: o mesmo aviso tocava no celular a cada 3 horas. Agora cada problema (tipo + pedido) avisa uma vez por dia (dia de Brasília).
+  const { data: antes } = await db.from("saude_checagens").select("itens").eq("ok", false).gte("em", dia + "T03:00:00Z");
+  const chave = (i: Item) => `${i.t}|${i.ref || ""}`;
+  const jaAvisado = new Set((antes || []).flatMap((c: any) => (Array.isArray(c.itens) ? c.itens : []).filter((i: any) => i?.g === "alta" && !i?.consertado).map(chave)));
+  await db.from("saude_checagens").insert({ origem: String(b?.origem || "cron").slice(0, 20), ok: !graves.length, itens });
+  const titulo: Record<string, string> = { split_desligado: "Asaas: split desligado", repasse_dono_parado: "Repasse ao dono atrasado", saldo_insuficiente: "Asaas: saldo baixo para repasses" };
+  for (const i of graves) {
+    if (jaAvisado.has(chave(i))) continue;
+    jaAvisado.add(chave(i));
+    await pushAdmins(titulo[i.t] || "Atenção no sistema", i.d.slice(0, 180), `saude-${i.t}-${i.ref || ""}-${dia}`.slice(0, 64)).catch((e) => console.error("push", e));
   }
   return json({ ok: !graves.length, itens });
 });
